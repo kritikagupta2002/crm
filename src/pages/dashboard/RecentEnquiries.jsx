@@ -1,48 +1,14 @@
-import { ArrowRight, CalendarPlus, ClipboardList, Eye, FileText, MoreHorizontal } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { ArrowRight, CalendarPlus, ClipboardList, Eye, FileText } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ActionMenu } from '../../components/common/ActionMenu'
 import { StagePill } from '../../components/common/StagePill'
 import { useCrm } from '../../context/crm'
 import { getRecentEnquiries } from '../../utils/dashboardStats'
 import { formatDayMonth } from '../../utils/date'
 
-function RowMenu({ label }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef(null)
-
-  useEffect(() => {
-    if (!open) return
-    const close = (event) => {
-      if (!ref.current?.contains(event.target)) setOpen(false)
-    }
-    document.addEventListener('mousedown', close)
-    return () => document.removeEventListener('mousedown', close)
-  }, [open])
-
-  return (
-    <div className="row-menu" ref={ref}>
-      <button className="icon-button small" aria-label={`Actions for ${label}`} aria-expanded={open} onClick={() => setOpen(!open)}>
-        <MoreHorizontal size={16} />
-      </button>
-      {open && (
-        <div className="row-menu-list" role="menu">
-          <button role="menuitem" onClick={() => setOpen(false)}>
-            <Eye size={15} /> View details
-          </button>
-          <button role="menuitem" onClick={() => setOpen(false)}>
-            <CalendarPlus size={15} /> Schedule follow-up
-          </button>
-          <button role="menuitem" onClick={() => setOpen(false)}>
-            <FileText size={15} /> Create proposal
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
-
 export function RecentEnquiries() {
   const enquiries = getRecentEnquiries(useCrm().leads)
+  const navigate = useNavigate()
 
   return (
     <section className="card recent-card" id="recent-enquiries">
@@ -73,7 +39,7 @@ export function RecentEnquiries() {
           </thead>
           <tbody>
             {enquiries.map((lead) => (
-              <tr key={lead.id}>
+              <tr key={lead.id} className="clickable-row" onClick={() => navigate(`/leads/${lead.id}`)}>
                 <td className="mono">{lead.id}</td>
                 <td>
                   <div className="cell-strong">{lead.company}</div>
@@ -86,7 +52,16 @@ export function RecentEnquiries() {
                 </td>
                 <td className="nowrap">{lead.nextFollowUp ? formatDayMonth(lead.nextFollowUp) : <span className="muted">—</span>}</td>
                 <td className="align-center">
-                  <RowMenu label={lead.id} />
+                  <ActionMenu
+                    label={`Actions for ${lead.company}`}
+                    items={[
+                      { label: 'View details', icon: Eye, onSelect: () => navigate(`/leads/${lead.id}`) },
+                      { label: 'Schedule follow-up', icon: CalendarPlus, onSelect: () => navigate(`/leads/${lead.id}?tab=activity`) },
+                      lead.quoteValue
+                        ? { label: 'View quotation', icon: FileText, onSelect: () => navigate(`/quotations?open=${lead.id}`) }
+                        : { label: 'Create quotation', icon: FileText, onSelect: () => navigate(`/quotations?new=${lead.id}`) },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

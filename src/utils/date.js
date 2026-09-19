@@ -18,6 +18,11 @@ export function addDays(date, days) {
   return next
 }
 
+export const formatDate = (value) => {
+  const date = parseISODate(value)
+  return `${String(date.getDate()).padStart(2, '0')} ${monthShort(date)} ${date.getFullYear()}`
+}
+
 export const formatDayMonth = (value) => {
   const date = parseISODate(value)
   return `${String(date.getDate()).padStart(2, '0')} ${monthShort(date)}`

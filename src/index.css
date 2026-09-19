@@ -181,6 +181,24 @@ a {
   border-color: var(--teal-900);
 }
 
+.tone-neutral {
+  --tone: var(--ink-3);
+  --tone-bg: #eef1f3;
+}
+
+/* Priority pill: coloured dot + tinted background from the tone class. */
+.priority-pill {
+  background: var(--tone-bg);
+  color: var(--tone);
+}
+
+.priority-pill i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
 /* ---------- Text helpers ---------- */
 .text-ink {
   color: var(--ink);
@@ -277,6 +295,126 @@ a {
 .cell-sub {
   font-size: 12px;
   color: var(--ink-3);
+}
+
+/* ---------- Row action menu ---------- */
+.icon-button.small {
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  color: var(--ink-3);
+}
+
+.icon-button.small:hover {
+  background: var(--bg);
+}
+
+.row-menu {
+  position: relative;
+}
+
+.row-menu-list {
+  position: absolute;
+  right: 0;
+  top: 34px;
+  z-index: 10;
+  min-width: 190px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(15, 42, 61, 0.12);
+  text-align: left;
+}
+
+.row-menu-list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  font-size: 13px;
+}
+
+.row-menu-list button:hover {
+  background: var(--teal-50);
+  color: var(--teal-900);
+}
+
+.row-menu-list.is-floating {
+  position: fixed;
+  z-index: 50;
+}
+
+.row-menu-list .menu-good {
+  color: var(--green);
+}
+
+.row-menu-list .menu-danger {
+  color: var(--red);
+}
+
+.row-menu-list .menu-danger:hover {
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+/* ---------- Stat cards ---------- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px;
+  /* Coloured top edge carries the card's tone. */
+  box-shadow: inset 0 3px 0 var(--tone), var(--shadow);
+}
+
+.stat-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stat-top h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.stat-icon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--tone-bg);
+  color: var(--tone);
+  display: grid;
+  place-items: center;
+}
+
+.stat-value {
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.stat-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+  line-height: 1.4;
 }
 
 /* ---------- Page header (shared by all pages) ---------- */
@@ -459,4 +597,155 @@ a {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ---------- Motion ---------- */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+/* Each page slides in gently when the route changes (AppLayout keys it by path). */
+.page-anim {
+  animation: rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* Cards in a page rise one after another. */
+.page-anim .card {
+  animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.page-anim :is(.stat-grid, .dash-row, .card-grid) > :nth-child(2) {
+  animation-delay: 0.05s;
+}
+
+.page-anim :is(.stat-grid, .dash-row, .card-grid) > :nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+.page-anim :is(.stat-grid, .dash-row, .card-grid) > :nth-child(4) {
+  animation-delay: 0.15s;
+}
+
+.page-anim :is(.stat-grid, .dash-row, .card-grid) > :nth-child(n + 5) {
+  animation-delay: 0.2s;
+}
+
+.stat-card,
+.lift {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.stat-card:hover,
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 3px 0 var(--tone, transparent), 0 8px 24px rgba(15, 42, 61, 0.08);
+}
+
+.tab-panel {
+  animation: fade 0.25s ease both;
+}
+
+.funnel-bar,
+.service-bar,
+.insight-track div,
+.progress div {
+  transform-origin: left;
+  animation: grow-x 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.btn {
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* ---------- Progress + checklist (approval, onboarding) ---------- */
+.progress {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.progress div {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--tone);
+  transition: width 0.4s ease;
+}
+
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.check-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font-size: 13px;
+  color: var(--ink-2);
+  text-align: left;
+}
+
+.check-step:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+.check-box {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--chrome-line);
+  border-radius: 5px;
+  color: #fff;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.check-step.is-done {
+  color: var(--ink);
+}
+
+.check-step.is-done .check-box {
+  background: var(--green);
+  border-color: var(--green);
+  transform: scale(1.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
 }

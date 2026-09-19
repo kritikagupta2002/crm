@@ -74,6 +74,15 @@
   overflow-y: auto;
 }
 
+/* Still scrolls on short screens, but without a visible scrollbar. */
+.sidebar-nav {
+  scrollbar-width: none;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  display: none;
+}
+
 .nav-group {
   display: flex;
   flex-direction: column;

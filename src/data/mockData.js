@@ -82,6 +82,16 @@ export const LEAD_SOURCES = ['Phone Call', 'Website / WhatsApp', 'Referral', 'Wa
 
 export const FOLLOW_UP_TYPES = ['Call', 'Meeting', 'Site Visit', 'Presentation', 'Review']
 
+export const PRIORITIES = ['High', 'Medium', 'Low']
+
+export const CLIENT_TYPES = ['Company', 'Individual']
+
+export const CONTACT_MODES = ['Call', 'WhatsApp', 'Email']
+
+export const TIMELINES = ['Within 1 month', '1–3 months', '3–6 months', '6+ months']
+
+export const PROJECT_TYPES = ['Major mineral lease', 'Minor mineral lease', 'Exploration block', 'Operating mine', 'Greenfield project']
+
 export const LOST_REASONS = ['Price too high', 'Went with a competitor', 'No response from client', 'Project on hold', 'Not a fit for our services']
 
 const REGIONS = [
@@ -177,8 +187,14 @@ function buildCompanyNames(count) {
  * A lead looks like:
  * { id, company, contactPerson, service, serviceDetail, assignedTo, stage,
  *   createdOn: 'YYYY-MM-DD', nextFollowUp: 'YYYY-MM-DD' | null }
- * Enquiries added through the form also carry phone, email, mineral, location, source and notes.
+ * Enquiries added through the form also carry mineral and referredBy when given.
  * Leads that have been quoted also carry quoteValue (₹); lost leads carry lostReason.
+ * All leads carry priority, clientType, preferredContact, expectedTimeline, estimatedValue and description;
+ * leads from Qualified onwards also carry project { title, type, siteLocation, scope, technical, startDate, budget, instructions }.
+ * Documents and tags added in the demo are stored as documents [] and tags [].
+ * Quotation workflow: quoteStatus ('Sent' | 'Revised' | 'Accepted' | 'Rejected'), a saved quote {…} once built
+ * in the app, approval { quoteAccepted, poReceived, advanceReceived, agreementSigned } and
+ * onboarding { kyc, leaseDocs, kickoff, teamAssigned, portal }.
  */
 function buildLeads() {
   const enquiries = buildMonthlyEnquiries().sort((a, b) => a.date.getTime() - b.date.getTime())
@@ -260,7 +276,26 @@ function withQuotations(leads) {
  * Contact details, source and location for the generated leads (plus a reason on lost ones).
  * Also on its own random stream, so the rest of the demo data stays exactly the same.
  */
-const DISTRICTS = ['Rajsamand', 'Udaipur', 'Jodhpur', 'Nagaur', 'Bhilwara', 'Chittorgarh', 'Jaipur', 'Jaisalmer', 'Sirohi', 'Kota']
+/* Mining districts; Rajasthan (home market, Jaipur office) is listed most often so it dominates. */
+const DISTRICTS = [
+  'Rajsamand, Rajasthan',
+  'Udaipur, Rajasthan',
+  'Jodhpur, Rajasthan',
+  'Nagaur, Rajasthan',
+  'Bhilwara, Rajasthan',
+  'Chittorgarh, Rajasthan',
+  'Jaisalmer, Rajasthan',
+  'Sirohi, Rajasthan',
+  'Kutch, Gujarat',
+  'Banaskantha, Gujarat',
+  'Katni, Madhya Pradesh',
+  'Satna, Madhya Pradesh',
+  'Korba, Chhattisgarh',
+  'Raipur, Chhattisgarh',
+  'Dhanbad, Jharkhand',
+  'Keonjhar, Odisha',
+  'Bellary, Karnataka',
+]
 
 function withContactDetails(leads) {
   const r = seededRandom(4411)
@@ -272,12 +307,80 @@ function withContactDetails(leads) {
       ...lead,
       phone: `9${String(Math.floor(r() * 1e9)).padStart(9, '0')}`,
       email: `${first}.${last}@${domain}.in`,
-      location: `${choose(DISTRICTS)}, Rajasthan`,
+      location: choose(DISTRICTS),
       source: choose(LEAD_SOURCES),
       ...(lead.stage === 'Lost' ? { lostReason: choose(LOST_REASONS) } : {}),
     }
   })
 }
 
-export const LEADS = withContactDetails(withQuotations(buildLeads()))
+/*
+ * Enquiry and project details for the generated leads. Leads that are Qualified or further along
+ * already have project requirements filled in; earlier ones don't yet — just like real enquiries.
+ * Own random stream again, so nothing generated above changes.
+ */
+const STAGE_ORDER = ['New Enquiry', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost']
+
+function withEnquiryDetails(leads) {
+  const r = seededRandom(5521)
+  const choose = (list) => list[Math.floor(r() * list.length)]
+  return leads.map((lead) => {
+    const priority = choose(['High', 'Medium', 'Medium', 'Low'])
+    const [district] = lead.location.split(',')
+    const area = (1 + r() * 9).toFixed(2)
+    const hasProject = STAGE_ORDER.indexOf(lead.stage) >= 2
+    const guess = 150000 + r() * 350000 // drawn for every lead so the stream stays in step
+    const estimate = Math.round((lead.quoteValue ?? guess) / 10000) * 10000
+    return {
+      ...lead,
+      priority,
+      clientType: r() < 0.9 ? 'Company' : 'Individual',
+      preferredContact: choose(CONTACT_MODES),
+      expectedTimeline: choose(TIMELINES),
+      estimatedValue: estimate,
+      description: `Client needs ${lead.serviceDetail} for their ${area} ha site near ${district}.`,
+      ...(hasProject
+        ? {
+            project: {
+              title: `${lead.serviceDetail} — ${district}`,
+              type: choose(PROJECT_TYPES),
+              siteLocation: `${lead.location} · ${area} ha`,
+              scope: `${lead.serviceDetail} covering the full lease area, with field visits and a final report.`,
+              technical: choose(['DGPS survey data to be shared by client', 'Existing geological report available', 'Drone survey needed before report', 'Water table data required']),
+              startDate: '',
+              budget: estimate,
+              instructions: '',
+            },
+          }
+        : {}),
+    }
+  })
+}
+
+/*
+ * Where each lead is in the post-quotation workflow (own random stream):
+ * about half the Negotiation leads have accepted the quotation and are collecting approvals;
+ * Won leads have finished approvals, and older ones have finished onboarding too.
+ */
+function withLifecycle(leads) {
+  const r = seededRandom(8123)
+  return leads.map((lead) => {
+    const roll = r()
+    const age = Math.round((TODAY - new Date(lead.createdOn)) / 86_400_000)
+    if (lead.stage === 'Negotiation') {
+      if (roll < 0.5) return { ...lead, quoteStatus: 'Revised' }
+      return { ...lead, quoteStatus: 'Accepted', approval: { quoteAccepted: true, poReceived: r() < 0.6, advanceReceived: r() < 0.3, agreementSigned: false } }
+    }
+    if (lead.stage === 'Won') {
+      const done = age > 60 ? 5 : Math.floor(roll * 5)
+      const onboarding = Object.fromEntries(['kyc', 'leaseDocs', 'kickoff', 'teamAssigned', 'portal'].map((key, i) => [key, i < done]))
+      return { ...lead, quoteStatus: 'Accepted', approval: { quoteAccepted: true, poReceived: true, advanceReceived: true, agreementSigned: true }, onboarding }
+    }
+    if (lead.stage === 'Lost' && lead.quoteValue) return { ...lead, quoteStatus: 'Rejected' }
+    if (lead.stage === 'Proposal Sent') return { ...lead, quoteStatus: 'Sent' }
+    return lead
+  })
+}
+
+export const LEADS = withLifecycle(withEnquiryDetails(withContactDetails(withQuotations(buildLeads()))))
 export const FOLLOW_UPS = buildFollowUps(LEADS)

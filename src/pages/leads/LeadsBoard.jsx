@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { STAGE_COLORS } from '../../components/common/stageColors'
 import { STAGES, TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { formatINR } from '../../utils/format'
+import { useMoney } from '../../context/crm'
 
 const todayISO = toISODate(TODAY)
 
@@ -11,6 +11,7 @@ const todayISO = toISODate(TODAY)
  * (Native HTML drag and drop — on touch screens, stages are changed from the lead's detail panel.)
  */
 export function LeadsBoard({ leads, onOpen, onMove }) {
+  const money = useMoney()
   const [dragging, setDragging] = useState(null)
   const [over, setOver] = useState(null)
 
@@ -42,7 +43,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
                 <i /> {stage}
               </span>
               <span className="board-count">{cards.length}</span>
-              {total > 0 && <span className="board-total">{formatINR(total)}</span>}
+              {total > 0 && <span className="board-total">{money.short(total)}</span>}
             </header>
 
             <div className="board-cards">
@@ -63,7 +64,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
                   <span className="board-card-service">{lead.serviceDetail}</span>
                   <span className="board-card-foot">
                     <span>{lead.assignedTo}</span>
-                    {lead.quoteValue ? <b>{formatINR(lead.quoteValue)}</b> : null}
+                    {lead.quoteValue ? <b>{money.short(lead.quoteValue)}</b> : null}
                   </span>
                   {lead.nextFollowUp && (
                     <span className={`board-card-date ${lead.nextFollowUp < todayISO ? 'tone-urgent' : lead.nextFollowUp === todayISO ? 'tone-attention' : ''}`}>

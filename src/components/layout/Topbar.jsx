@@ -1,26 +1,11 @@
-import { Bell, ChevronDown, Menu, Search } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { Menu } from 'lucide-react'
 import { useCrm } from '../../context/crm'
-import { CURRENT_USER } from '../../data/mockData'
-import { countFollowUpsDue } from '../../utils/dashboardStats'
+import { GlobalSearch } from './GlobalSearch'
+import { NotificationsMenu } from './NotificationsMenu'
+import { UserMenu } from './UserMenu'
 
 export function Topbar({ onMenuClick }) {
-  const { followUps } = useCrm()
-  const overdue = countFollowUpsDue(followUps).overdue
-  const searchRef = useRef(null)
-
-  // "/" jumps to search, unless the user is already typing somewhere.
-  useEffect(() => {
-    const onKey = (event) => {
-      const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)
-      if (event.key === '/' && !typing) {
-        event.preventDefault()
-        searchRef.current?.focus()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [])
+  const { role } = useCrm()
 
   return (
     <header className="topbar">
@@ -28,27 +13,12 @@ export function Topbar({ onMenuClick }) {
         <Menu size={20} />
       </button>
 
-      <label className="search">
-        <Search size={16} className="muted" />
-        <span className="sr-only">Search</span>
-        <input ref={searchRef} type="search" placeholder="Search clients, enquiries, quotations" />
-        <kbd>/</kbd>
-      </label>
+      <GlobalSearch />
 
       <div className="topbar-right">
-        <button className="icon-button bell" aria-label={overdue > 0 ? `Notifications: ${overdue} overdue follow-ups` : 'Notifications'}>
-          <Bell size={19} />
-          {overdue > 0 && <span className="bell-dot" />}
-        </button>
-
-        <button className="user-chip">
-          <span className="avatar">{CURRENT_USER.initials}</span>
-          <span className="user-meta">
-            <strong>{CURRENT_USER.name}</strong>
-            <span>{CURRENT_USER.team}</span>
-          </span>
-          <ChevronDown size={16} className="muted" />
-        </button>
+        {role !== 'Admin' && <span className="role-badge">Viewing as {role}</span>}
+        <NotificationsMenu />
+        <UserMenu />
       </div>
     </header>
   )

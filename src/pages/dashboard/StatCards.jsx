@@ -1,8 +1,8 @@
 import { ArrowDown, ArrowUp, CalendarClock, FileText, Inbox, UserCheck } from 'lucide-react'
-import { useCrm } from '../../context/crm'
+import { KpiCard as StatCard } from '../../components/common/KpiCard'
+import { useCrm, useMoney } from '../../context/crm'
 import { PERIOD_LABELS, usePeriod } from '../../context/period'
 import { getSummary } from '../../utils/dashboardStats'
-import { formatINR } from '../../utils/format'
 
 function Trend({ value, suffix = '', vs }) {
   if (value === null) return null
@@ -21,23 +21,8 @@ function Trend({ value, suffix = '', vs }) {
   )
 }
 
-/* The card's tone (blue new, amber waiting, red overdue, green won) colours the icon and the top edge. */
-function StatCard({ tone, icon: Icon, label, value, children }) {
-  return (
-    <article className={`card stat-card ${tone}`}>
-      <div className="stat-top">
-        <span className="stat-icon">
-          <Icon size={20} strokeWidth={1.9} />
-        </span>
-        <h3>{label}</h3>
-      </div>
-      <strong className="stat-value">{value}</strong>
-      <div className="stat-meta">{children}</div>
-    </article>
-  )
-}
-
 export function StatCards() {
+  const money = useMoney()
   const { period } = usePeriod()
   const summary = getSummary(useCrm(), period)
   const vs = PERIOD_LABELS[period].previous
@@ -47,7 +32,7 @@ export function StatCards() {
 
   return (
     <section className="stat-grid" aria-label="Key figures">
-      <StatCard tone="tone-info" icon={Inbox} label="Enquiries Received" value={summary.totalLeads}>
+      <StatCard tone="tone-info" icon={Inbox} label="Enquiries Received" value={summary.totalLeads} to="/leads">
         {summary.totalLeadsChange !== null ? (
           <Trend value={summary.totalLeadsChange} suffix="%" vs={vs} />
         ) : (
@@ -55,7 +40,7 @@ export function StatCards() {
         )}
       </StatCard>
 
-      <StatCard tone={followUpTone} icon={CalendarClock} label="Follow-ups Due" value={followUpsDue.value}>
+      <StatCard tone={followUpTone} icon={CalendarClock} label="Follow-ups Due" value={followUpsDue.value} to="/follow-ups">
         {followUpsDue.value === 0 ? (
           <span className="muted">Nothing pending</span>
         ) : (
@@ -67,15 +52,15 @@ export function StatCards() {
         )}
       </StatCard>
 
-      <StatCard tone="tone-attention" icon={FileText} label="Awaiting Client Reply" value={summary.pendingProposals}>
+      <StatCard tone="tone-attention" icon={FileText} label="Awaiting Client Reply" value={summary.pendingProposals} to="/quotations">
         <span className="muted">
-          Quotations worth <b className="text-ink">{formatINR(summary.pendingProposalsValue)}</b>
+          Quotations worth <b className="text-ink">{money.short(summary.pendingProposalsValue)}</b>
         </span>
       </StatCard>
 
-      <StatCard tone="tone-good" icon={UserCheck} label="Clients Won" value={summary.converted.value}>
+      <StatCard tone="tone-good" icon={UserCheck} label="Clients Won" value={summary.converted.value} to="/clients">
         <span className="muted">
-          <b className="text-ink">{formatINR(summary.converted.amount)}</b> business won
+          <b className="text-ink">{money.short(summary.converted.amount)}</b> business won
         </span>
         {summary.converted.hasPrevious && <Trend value={summary.converted.change} vs={vs} />}
       </StatCard>

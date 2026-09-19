@@ -3,18 +3,22 @@ import { isInRange, parseISODate, periodRange } from './date'
 
 export const leadAgeDays = (lead) => Math.max(0, Math.round((TODAY - parseISODate(lead.createdOn)) / 86_400_000))
 
-export const EMPTY_FILTERS = { search: '', service: '', owner: '', source: '', period: 'all' }
+export const EMPTY_FILTERS = { search: '', service: '', owner: '', source: '', state: '', period: 'all' }
 
-export function filterLeads(leads, { search, service, owner, source, period }) {
+/* "Rajsamand, Rajasthan" → "Rajasthan". Free-text locations from the enquiry form work the same way. */
+export const stateOf = (lead) => lead.location?.split(',').pop().trim() || ''
+
+export function filterLeads(leads, { search, service, owner, source, state, period }) {
   const q = search.trim().toLowerCase()
   const range = period === 'all' ? null : periodRange(period, TODAY)
   return leads.filter((lead) => {
     if (service && lead.service !== service) return false
     if (owner && lead.assignedTo !== owner) return false
     if (source && lead.source !== source) return false
+    if (state && stateOf(lead) !== state) return false
     if (range && !isInRange(lead.createdOn, range)) return false
     if (!q) return true
-    return [lead.id, lead.company, lead.contactPerson, lead.phone, lead.email].some((value) => value?.toLowerCase().includes(q))
+    return [lead.id, lead.company, lead.contactPerson, lead.phone, lead.email, lead.location].some((value) => value?.toLowerCase().includes(q))
   })
 }
 
@@ -23,10 +27,24 @@ const SORTERS = {
   company: (a, b) => a.company.localeCompare(b.company),
   quote: (a, b) => (a.quoteValue ?? -1) - (b.quoteValue ?? -1),
   followUp: (a, b) => (a.nextFollowUp ?? '9999').localeCompare(b.nextFollowUp ?? '9999'),
-  age: (a, b) => leadAgeDays(a) - leadAgeDays(b),
+  date: (a, b) => a.createdOn.localeCompare(b.createdOn) || a.id.localeCompare(b.id),
+  location: (a, b) => (a.location ?? '').localeCompare(b.location ?? ''),
 }
 
 export function sortLeads(leads, key, direction) {
   const sorted = [...leads].sort(SORTERS[key])
   return direction === 'desc' ? sorted.reverse() : sorted
+}
+
+/* Counts per value, largest first; anything past `limit` is folded into "Others". */
+export function countBy(leads, getKey, limit) {
+  const counts = new Map()
+  leads.forEach((lead) => {
+    const key = getKey(lead) || 'Not specified'
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  })
+  const sorted = [...counts].map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count)
+  if (!limit || sorted.length <= limit) return sorted
+  const others = sorted.slice(limit).reduce((sum, row) => sum + row.count, 0)
+  return [...sorted.slice(0, limit), { label: 'Others', count: others }]
 }

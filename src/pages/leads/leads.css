@@ -8,8 +8,66 @@
   min-height: 0;
 }
 
+.leads-filters,
 .leads-card {
   overflow: hidden;
+}
+
+/* List view: table on the left, source / location breakdowns on the right. */
+.leads-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  gap: 18px;
+  align-items: start;
+}
+
+.leads-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.insight-card .card-header h2 {
+  font-size: 15px;
+}
+
+.insight-bars {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.insight-bar-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-bottom: 4px;
+}
+
+.insight-bar-top b {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.insight-bar-top .muted {
+  font-size: 12px;
+}
+
+.insight-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.insight-track div {
+  height: 100%;
+  border-radius: 999px;
 }
 
 /* ---------- Toolbar ---------- */
@@ -74,7 +132,6 @@
   display: flex;
   gap: 4px;
   padding: 0 14px;
-  border-bottom: 1px solid var(--line);
   overflow-x: auto;
 }
 
@@ -125,7 +182,7 @@
 
 /* ---------- Table ---------- */
 .leads-card .table-wrap {
-  padding: 12px 20px 4px;
+  padding: 12px 12px 4px;
 }
 
 .sort-button {
@@ -164,6 +221,29 @@
   color: var(--ink);
 }
 
+.leads-table th,
+.leads-table td {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* One-line cell; the full text is in the title tooltip and the detail drawer. */
+.cell-clip {
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink);
+}
+
+.mono-sub {
+  font-variant-numeric: tabular-nums;
+}
+
+.leads-table .row-link {
+  white-space: nowrap;
+}
+
 .follow-date {
   font-weight: 500;
   color: var(--ink-2);
@@ -186,16 +266,51 @@
 .pager-buttons {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
-.pager-buttons .icon-button:hover {
-  background: var(--bg);
+.page-button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink-2);
 }
 
-.pager-buttons .icon-button:disabled {
-  opacity: 0.35;
+.page-button:hover:not(:disabled) {
+  border-color: var(--teal-200);
+  color: var(--ink);
+}
+
+.page-button.is-current {
+  background: var(--teal-700);
+  border-color: var(--teal-700);
+  color: #fff;
+  font-weight: 600;
+}
+
+.page-button:disabled {
+  opacity: 0.4;
   cursor: default;
+}
+
+.page-gap {
+  padding: 0 4px;
+  color: var(--ink-3);
+}
+
+.page-size {
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 12.5px;
 }
 
 .empty-state {
@@ -614,6 +729,21 @@
   font-size: 12px;
 }
 
+.open-details {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin-bottom: -6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal-700);
+}
+
+.open-details:hover {
+  color: var(--teal-900);
+}
+
 /* ---------- Lost reason dialog ---------- */
 .dialog-root {
   position: fixed;
@@ -677,6 +807,17 @@
 }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1280px) {
+  .leads-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .leads-insights {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 860px) {
   .view-switch {
     margin-left: 0;
@@ -703,6 +844,11 @@
   }
 
   .pager {
+    flex-wrap: wrap;
     padding: 10px 14px 14px;
+  }
+
+  .leads-insights {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
