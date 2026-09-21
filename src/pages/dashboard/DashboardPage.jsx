@@ -1,11 +1,13 @@
 import { Plus } from 'lucide-react'
 import { ContourLines } from '../../components/common/ContourLines'
 import { PeriodSwitch } from '../../components/common/PeriodSwitch'
+import { useAccess } from '../../context/crm'
 import { useEnquiryForm } from '../../context/enquiryForm'
 import { PERIOD_LABELS, usePeriod } from '../../context/period'
 import { TODAY } from '../../data/mockData'
 import { formatLongDate } from '../../utils/date'
 import { ConversionOverview } from './ConversionOverview'
+import { ApprovalsGlance } from './ApprovalsGlance'
 import { EnquiryTrend } from './EnquiryTrend'
 import { LeadPipeline } from './LeadPipeline'
 import { RecentEnquiries } from './RecentEnquiries'
@@ -17,6 +19,7 @@ import './dashboard.css'
 export function DashboardPage() {
   const { openEnquiryForm } = useEnquiryForm()
   const { period } = usePeriod()
+  const { can } = useAccess()
 
   return (
     <div className="dashboard">
@@ -30,9 +33,11 @@ export function DashboardPage() {
         </div>
         <div className="page-actions">
           <PeriodSwitch />
-          <button className="btn btn-primary" onClick={openEnquiryForm}>
-            <Plus size={17} /> Add New Enquiry
-          </button>
+          {can('/leads') && (
+            <button className="btn btn-primary" onClick={openEnquiryForm}>
+              <Plus size={17} /> Add New Enquiry
+            </button>
+          )}
         </div>
       </header>
 
@@ -45,6 +50,7 @@ export function DashboardPage() {
         <RecentEnquiries />
         <UpcomingFollowUps />
       </div>
+      <ApprovalsGlance />
       <div className="dash-row row-insights">
         <EnquiryTrend />
         <ServiceMix />

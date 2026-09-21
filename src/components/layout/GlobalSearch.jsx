@@ -2,7 +2,7 @@ import { Building2, FileText, Search, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StagePill } from '../common/StagePill'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { quoteFor } from '../../utils/workflow'
 
 const LIMIT = 5
@@ -11,6 +11,7 @@ const LIMIT = 5
 export function GlobalSearch() {
   const { leads, settings } = useCrm()
   const navigate = useNavigate()
+  const { can } = useAccess()
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -59,7 +60,9 @@ export function GlobalSearch() {
         .slice(0, LIMIT)
         .map(({ lead, quote }) => ({ key: `q-${lead.id}`, title: quote.number, sub: `${lead.company} · ${quote.displayStatus}`, to: `/quotations?open=${lead.id}` })),
     },
-  ].filter((g) => g.items.length)
+  ]
+    .map((g) => ({ ...g, items: g.items.filter((item) => can(item.to)) }))
+    .filter((g) => g.items.length)
 
   const flat = groups.flatMap((g) => g.items)
   const pick = (item) => {

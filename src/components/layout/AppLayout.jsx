@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useCrm } from '../../context/crm'
+import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { Lock } from 'lucide-react'
+import { canOpen, useCrm } from '../../context/crm'
 import { NAV_ITEMS } from './navigation'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -30,7 +31,7 @@ function pageTitle(pathname) {
  */
 export function AppLayout() {
   const [menuToggled, setMenuToggled] = useState(readCollapsed)
-  const { changeCount, resetDemoData, session } = useCrm()
+  const { changeCount, resetDemoData, session, role } = useCrm()
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -65,7 +66,18 @@ export function AppLayout() {
         <main className="app-content">
           {/* Keyed by path so each page plays its entrance animation. */}
           <div key={pathname} className="page-anim">
-            <Outlet />
+            {canOpen(role, pathname) ? (
+              <Outlet />
+            ) : (
+              <div className="card coming-soon no-access">
+                <Lock size={28} />
+                <h1>Not part of the {role} role</h1>
+                <p className="muted">This page is only open to other roles. Ask an admin if you need access.</p>
+                <Link to="/" className="btn btn-primary">
+                  Back to dashboard
+                </Link>
+              </div>
+            )}
           </div>
         </main>
         <footer className="app-footer">

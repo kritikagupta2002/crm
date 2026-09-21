@@ -5,6 +5,7 @@ import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { ONBOARDING_STEPS, progressOf } from '../../utils/workflow'
+import { SharePortalButton } from '../../components/lead/SharePortalButton'
 import { WorkflowCard } from './WorkflowCard'
 
 const isDone = (lead) => progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length
@@ -80,7 +81,7 @@ export function OnboardingPage() {
               values={lead.onboarding}
               onToggle={toggle(lead)}
               meta={`Won ${formatDayMonth(lead.wonOn ?? lead.createdOn)} · ${lead.assignedTo}`}
-              footer={isDone(lead) ? <span className="pill tone-good active-pill">Active client</span> : null}
+              footer={isDone(lead) ? <span className="pill tone-good active-pill">Active client</span> : !lead.onboarding?.portal ? <SharePortalButton lead={lead} className="btn btn-whatsapp btn-small" /> : null}
             />
           ))}
         </div>

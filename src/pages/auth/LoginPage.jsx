@@ -1,18 +1,14 @@
 import { ArrowRight, Building2, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Navigate, useLocation } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { ContourLines } from '../../components/common/ContourLines'
 import { Logo } from '../../components/common/Logo'
-import { ROLES, useCrm } from '../../context/crm'
-import { quoteFor } from '../../utils/workflow'
+import { MountainRange } from '../../components/common/MountainRange'
+import { ROLE_ACCESS, ROLES, useCrm } from '../../context/crm'
+import { baseProjects } from '../../data/projects'
+import { ONBOARDING_STEPS, progressOf, quoteFor } from '../../utils/workflow'
 import './auth.css'
 
-const ROLE_NOTES = {
-  Admin: 'Everything, including settings',
-  Sales: 'Leads, follow-ups and quotations',
-  Coordinator: 'Approvals and onboarding, amounts hidden',
-  Accountant: 'Quotations, approvals and reports',
-}
 
 const digits = (value) => value.replace(/\D/g, '').slice(-10)
 
@@ -44,7 +40,7 @@ function TeamForm() {
           <label key={r} className={signInAs === r ? 'is-selected' : ''}>
             <input type="radio" name="role" value={r} checked={signInAs === r} onChange={() => setSignInAs(r)} />
             <strong>{r}</strong>
-            <span>{ROLE_NOTES[r]}</span>
+            <span>{ROLE_ACCESS[r].note}</span>
           </label>
         ))}
       </fieldset>
@@ -62,8 +58,14 @@ function ClientForm() {
   const [mobile, setMobile] = useState('')
   const [error, setError] = useState('')
 
-  // A client with a quotation waiting for them shows the most of the portal.
-  const sample = leads.find((l) => l.phone && l.stage === 'Proposal Sent' && quoteFor(l, settings)?.displayStatus === 'Sent')
+  // Demo clients at different points: a won client with projects, and one with a quotation to decide on.
+  const demos = [
+    {
+      lead: leads.find((l) => l.stage === 'Won' && baseProjects(l).length > 1 && progressOf(ONBOARDING_STEPS, l.onboarding) === ONBOARDING_STEPS.length),
+      what: 'project & government approvals',
+    },
+    { lead: leads.find((l) => l.phone && l.stage === 'Proposal Sent' && quoteFor(l, settings)?.displayStatus === 'Sent'), what: 'quotation to review' },
+  ].filter((d) => d.lead)
 
   return (
     <form
@@ -95,19 +97,20 @@ function ClientForm() {
       <button className="btn btn-primary auth-submit" type="submit">
         Open my portal <ArrowRight size={16} />
       </button>
-      {sample && (
-        <button
-          type="button"
-          className="auth-sample"
-          onClick={() => {
-            setEnquiryId(sample.id)
-            setMobile(sample.phone)
-            setError('')
-          }}
-        >
-          Fill a demo client ({sample.company})
-        </button>
+      {demos.length > 0 && (
+        <div className="auth-demos">
+          <span className="muted">Or open a demo client:</span>
+          {demos.map(({ lead, what }) => (
+            <button key={lead.id} type="button" onClick={() => signInClient(lead.id)}>
+              <strong>{lead.company}</strong>
+              <span>{what}</span>
+            </button>
+          ))}
+        </div>
       )}
+      <p className="auth-new">
+        New to Bansal Geo? <Link to="/enquiry">Send an enquiry</Link>
+      </p>
     </form>
   )
 }
@@ -129,7 +132,8 @@ export function LoginPage() {
   return (
     <div className="auth-page">
       <aside className="auth-brand">
-        <ContourLines className="auth-contours" lines={22} color="rgba(140, 195, 199, 0.16)" accent="rgba(200, 148, 58, 0.28)" />
+        <ContourLines className="auth-contours" lines={22} />
+        <MountainRange className="auth-range" />
         <Logo />
         <div className="auth-brand-copy">
           <h1>Enquiries to active clients, tracked in one place.</h1>

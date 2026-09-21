@@ -72,7 +72,7 @@
 /* ---------- Form ---------- */
 .form-section {
   margin: 0;
-  padding: 18px 0 20px;
+  padding: 12px 0 14px;
   border: none;
   border-bottom: 1px dashed var(--line);
 }
@@ -86,7 +86,7 @@
   align-items: center;
   gap: 8px;
   padding: 0;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   font-size: 14px;
   font-weight: 600;
   color: var(--ink);
@@ -99,7 +99,18 @@
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 16px;
+  gap: 12px 16px;
+}
+
+/* The enquiry form drawer is wider and lays fields three a row, so it needs far less scrolling. */
+.enquiry-drawer.is-wide-form {
+  width: min(840px, 100vw);
+}
+
+@media (min-width: 900px) {
+  .is-wide-form .form-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .form-grid-3 {

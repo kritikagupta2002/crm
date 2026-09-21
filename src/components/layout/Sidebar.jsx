@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { countFollowUpsDue } from '../../utils/dashboardStats'
 import { Logo } from '../common/Logo'
 import { Mountains } from '../common/Mountains'
@@ -7,6 +7,7 @@ import { NAV_GROUPS } from './navigation'
 
 export function Sidebar({ onNavigate }) {
   const { followUps } = useCrm()
+  const { can } = useAccess()
   const badges = { followUpsDue: countFollowUpsDue(followUps).due }
 
   return (
@@ -19,7 +20,7 @@ export function Sidebar({ onNavigate }) {
         {NAV_GROUPS.map((group) => (
           <div key={group.title ?? 'main'} className="nav-group">
             {group.title && <p className="sidebar-section">{group.title}</p>}
-            {group.items.map(({ label, path, icon: Icon, badge }) => (
+            {group.items.filter((item) => can(item.path)).map(({ label, path, icon: Icon, badge }) => (
               <NavLink
                 key={path}
                 to={path}

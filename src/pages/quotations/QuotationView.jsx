@@ -2,7 +2,7 @@ import { CheckCircle2, MessageCircle, Pencil, Printer, X, XCircle } from 'lucide
 import { useEffect, useId } from 'react'
 import { Link } from 'react-router-dom'
 import { useCrm, useMoney } from '../../context/crm'
-import { formatDate } from '../../utils/date'
+import { formatDate, formatDayMonth } from '../../utils/date'
 import { whatsappLink } from '../../utils/whatsapp'
 import { QUOTE_STATUS_TONE, quoteFor } from '../../utils/workflow'
 import { Portal } from '../../components/common/Portal'
@@ -28,7 +28,7 @@ export function QuotationView({ leadId, onClose, onRevise, onReject }) {
   }, [onClose])
 
   if (!quote) return null
-  const open = quote.status === 'Sent' || quote.status === 'Revised'
+  const open = quote.status === 'Sent' || quote.status === 'Revised' || quote.status === 'Changes requested'
 
   return (
     <Portal>
@@ -49,6 +49,13 @@ export function QuotationView({ leadId, onClose, onRevise, onReject }) {
           </header>
 
           <div className="drawer-body">
+            {quote.status === 'Changes requested' && lead.changeRequest && (
+              <div className="change-request no-print">
+                <strong>Client asked for changes · {formatDayMonth(lead.changeRequest.at.slice(0, 10))}</strong>
+                <p>{lead.changeRequest.text}</p>
+                <span className="muted">Revise the quotation to send them a new version.</span>
+              </div>
+            )}
             <QuoteDocument lead={lead} quote={quote} settings={settings} amount={money.full} />
           </div>
 

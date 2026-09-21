@@ -1,10 +1,11 @@
-import { ArrowLeft, CalendarPlus, ExternalLink, FileText, Mail, MapPin, MessageCircle, Pencil, Phone, XCircle } from 'lucide-react'
+import { ArrowLeft, CalendarPlus, ExternalLink, FilePlus2, FileText, Mail, MapPin, MessageCircle, Pencil, Phone, XCircle } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { StagePill } from '../../components/common/StagePill'
 import { LeadActivity } from '../../components/lead/LeadActivity'
 import { LeadFollowUps } from '../../components/lead/LeadFollowUps'
 import { LeadStageActions } from '../../components/lead/LeadStageActions'
+import { SharePortalButton } from '../../components/lead/SharePortalButton'
 import { PriorityPill } from '../../components/lead/PriorityPill'
 import { useCrm, useMoney } from '../../context/crm'
 import { useEnquiryForm } from '../../context/enquiryForm'
@@ -141,28 +142,29 @@ export function LeadDetailsPage() {
           {!isClosed && (
             <button
               className="btn"
+              title="Schedule a follow-up"
               onClick={() => {
                 setFollowUpRequests((n) => n + 1)
                 openTab('activity')
               }}
             >
-              <CalendarPlus size={15} /> Schedule Follow-up
+              <CalendarPlus size={15} /> Follow-up
             </button>
           )}
           {(lead.quote || lead.quoteValue) ? (
-            <Link className="btn" to={`/quotations?open=${lead.id}`}>
-              <FileText size={15} /> View Quotation
+            <Link className="btn" to={`/quotations?open=${lead.id}`} title="View quotation">
+              <FileText size={15} /> Quotation
             </Link>
           ) : (
             !isClosed &&
             !money.hidden && (
-              <Link className="btn" to={`/quotations?new=${lead.id}`}>
-                <FileText size={15} /> Create Quotation
+              <Link className="btn" to={`/quotations?new=${lead.id}`} title="Create a quotation">
+                <FilePlus2 size={15} /> Quotation
               </Link>
             )
           )}
-          <button className="btn btn-primary" onClick={() => openEditForm(lead)}>
-            <Pencil size={15} /> Edit Enquiry
+          <button className="btn btn-primary" onClick={() => openEditForm(lead)} title="Edit enquiry details">
+            <Pencil size={15} /> Edit
           </button>
         </div>
       </header>
@@ -245,9 +247,12 @@ export function LeadDetailsPage() {
                 <MapPin size={14} /> {lead.location}
               </span>
             )}
-            <Link to={`/portal?lead=${lead.id}`} className="portal-preview-link">
-              <ExternalLink size={14} /> Preview client portal
-            </Link>
+            <div className="portal-preview-links">
+              <Link to={`/portal?lead=${lead.id}`} className="portal-preview-link">
+                <ExternalLink size={14} /> Client portal
+              </Link>
+              <SharePortalButton lead={lead} className="portal-preview-link" label="Send login" />
+            </div>
           </section>
         </aside>
       </div>

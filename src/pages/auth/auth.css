@@ -11,27 +11,48 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 32px;
+  gap: 56px;
   padding: 36px 44px;
-  background: var(--navy);
-  color: var(--navy-text);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-line);
+  color: var(--ink-2);
 }
 
 .auth-contours {
   position: absolute;
-  inset: auto -10% -5% -10%;
-  width: 120%;
-  height: 70%;
+  inset: 0 0 auto;
+  width: 100%;
+  height: 60%;
+  opacity: 0.7;
   pointer-events: none;
 }
 
-.auth-brand .logo-tag {
-  color: var(--navy-muted);
+/* The sidebar's mountains, as a range along the foot of the panel. */
+.auth-range {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 52%;
+  pointer-events: none;
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s backwards;
 }
 
-.auth-brand > :not(.auth-contours) {
+.auth-brand > :not(.auth-contours):not(.auth-range):not(.auth-foot) {
   position: relative;
+}
+
+.auth-brand .logo-name {
+  color: var(--ink);
+}
+
+.auth-brand .logo-sub {
+  color: var(--gold-600);
+}
+
+.auth-brand .logo-tag {
+  color: var(--sidebar-muted);
 }
 
 .auth-brand-copy {
@@ -45,30 +66,35 @@
   font-size: 34px;
   font-weight: 500;
   line-height: 1.2;
-  color: #fff;
+  color: var(--ink);
 }
 
 .auth-brand-copy p {
   margin: 0;
   font-size: 15px;
   line-height: 1.6;
-  color: var(--navy-text);
+  color: var(--ink-2);
 }
 
-.auth-foot {
+/* Sits on the forest at the foot of the range. */
+.auth-brand .auth-foot {
+  position: absolute;
+  left: 44px;
+  bottom: 24px;
   font-size: 12px;
-  color: var(--navy-muted);
+  color: #fff;
+  text-shadow: 0 1px 8px rgba(15, 30, 40, 0.5);
 }
 
 .auth-main {
   display: grid;
   place-items: center;
-  padding: 40px 24px;
+  padding: 24px;
 }
 
 .auth-card {
   width: min(440px, 100%);
-  padding: 32px;
+  padding: 24px 28px;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface);
@@ -77,7 +103,7 @@
 }
 
 .auth-card h2 {
-  margin: 0 0 18px;
+  margin: 0 0 12px;
   font-family: var(--font-serif);
   font-size: 26px;
   font-weight: 500;
@@ -89,7 +115,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 4px;
   padding: 4px;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
   border-radius: var(--radius);
   background: var(--bg);
 }
@@ -118,7 +144,7 @@
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .auth-lead {
@@ -145,8 +171,8 @@
 .role-pick label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
+  gap: 1px;
+  padding: 7px 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   cursor: pointer;
@@ -208,6 +234,55 @@
   animation: fade 0.2s ease both;
 }
 
+.auth-demos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 12.5px;
+}
+
+.auth-demos button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.auth-demos button:hover {
+  border-color: var(--teal-600);
+  background: var(--teal-50);
+}
+
+.auth-demos strong {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.auth-demos button span {
+  font-size: 12px;
+  color: var(--teal-700);
+}
+
+.auth-new {
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.auth-new a {
+  font-weight: 600;
+  color: var(--teal-700);
+}
+
 .auth-sample {
   align-self: center;
   border: none;
@@ -234,7 +309,8 @@
   }
 
   .auth-brand-copy p,
-  .auth-foot {
+  .auth-brand .auth-foot,
+  .auth-range {
     display: none;
   }
 

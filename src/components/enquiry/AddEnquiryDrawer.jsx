@@ -182,7 +182,7 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
     <Portal>
       <div className="drawer-root">
         <div className="drawer-backdrop" onClick={onClose} />
-        <aside className="enquiry-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+        <aside className="enquiry-drawer is-wide-form" role="dialog" aria-modal="true" aria-labelledby={titleId}>
           <header className="drawer-header">
             <h2 id={titleId}>{isEdit ? `Edit ${lead.id}` : 'Add New Enquiry'}</h2>
             <button className="icon-button" onClick={onClose} aria-label="Close">
@@ -205,7 +205,7 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
                     value={form.preferredContact}
                     onChange={(v) => update('preferredContact', v)}
                   />
-                  <Field label={isCompany ? 'Company name' : 'Client name'} required error={errors.company} wide>
+                  <Field label={isCompany ? 'Company name' : 'Client name'} required error={errors.company}>
                     <input
                       ref={firstFieldRef}
                       value={form.company}
@@ -305,7 +305,7 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
                       value={form.description}
                       onChange={(e) => update('description', e.target.value)}
                       placeholder="What the client asked for — lease area, survey needs, deadlines…"
-                      rows={3}
+                      rows={2}
                       maxLength={500}
                     />
                   </Field>

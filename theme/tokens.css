@@ -1,0 +1,107 @@
+﻿/*
+ * ============================================================
+ *  DESIGN TOKENS — CRM Theme
+ *  Copy this file into any project and import it first.
+ *  All other theme files reference these variables.
+ * ============================================================
+ */
+
+:root {
+  /* ── Brand Teal ─────────────────────────────────────────── */
+  --teal-900: #0e4a52;
+  --teal-700: #1f6f78;
+  --teal-600: #2a8089;
+  --teal-400: #5fa9ae;
+  --teal-200: #b7dadb;
+  --teal-100: #ddefef;
+  --teal-50:  #eef7f7;
+
+  /* ── Brand Gold ─────────────────────────────────────────── */
+  --gold-600: #b07d27;
+  --gold-500: #c8943a;
+  --gold-200: #ecd6ae;
+  --gold-100: #f7ebd5;
+
+  /* ── Neutrals ────────────────────────────────────────────── */
+  --ink:   #0f2a3d;
+  --ink-2: #4a5b68;
+  --ink-3: #7c8b96;
+
+  --bg:      #f4f7f8;
+  --surface: #ffffff;
+
+  /* ── Chrome (header & shared frame) ─────────────────────── */
+  --chrome:        #e4eaed;
+  --chrome-hover:  #d8e0e4;
+  --chrome-line:   #d3dce1;
+  --chrome-height: 68px;
+
+  /* ── Sidebar panel ───────────────────────────────────────── */
+  --sidebar-bg:    #e6ebee;
+  --sidebar-hover: rgba(15, 42, 61, 0.06);
+  --sidebar-line:  #d3dce1;
+  --sidebar-text:  #34495a;
+  --sidebar-muted: #627079;
+  --sidebar-icon:  var(--teal-600);
+  --sidebar-width: 256px;
+
+  /* ── Sidebar mountain illustration palette ───────────────── */
+  --mtn-far:         #c9d1d5;
+  --mtn-far-2:       #b3bdc2;
+  --mtn-lit:         #a3adb3;
+  --mtn-rock:        #87939a;
+  --mtn-shade:       #69757d;
+  --mtn-deep:        #535f67;
+  --mtn-snow:        #f4f7f8;
+  --mtn-snow-shade:  #d3dadf;
+  --mtn-base:        #414d55;
+  --mtn-forest-back: #6f7b82;
+  --mtn-forest-mid:  #505c63;
+  --mtn-forest:      #36424a;
+
+  /* ── Navigation active state ─────────────────────────────── */
+  --nav-active:      var(--teal-700);
+  --nav-active-edge: var(--gold-500);
+
+  /* ── Sign-in / brand panel ───────────────────────────────── */
+  --navy:       #12303e;
+  --navy-text:  #bccbd2;
+  --navy-muted: #7f99a5;
+
+  /* ── Divider lines ───────────────────────────────────────── */
+  --line:      #e1e8eb;
+  --line-soft: #edf1f3;
+
+  /* ── Semantic status colours ─────────────────────────────── */
+  --blue:      #2f6fb3;
+  --blue-bg:   #e6effa;
+  --green:     #2e9e6b;
+  --green-bg:  #e3f4ec;
+  --red:       #d24c47;
+  --red-bg:    #fbe5e4;
+  --amber:     #c27a12;
+  --amber-bg:  #fcf0dc;
+
+  /* ── WhatsApp brand ──────────────────────────────────────── */
+  --whatsapp:    #128c4b;
+  --whatsapp-bg: #e8f7ee;
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --font-sans:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  /*
+   * Add to your <head>:
+   * <link rel="preconnect" href="https://fonts.googleapis.com" />
+   * <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+   * <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+   */
+
+  /* ── Shape & elevation ───────────────────────────────────── */
+  --radius:    8px;
+  --radius-lg: 14px;
+  --shadow:    0 1px 2px rgba(15, 42, 61, 0.04),
+               0 4px 16px rgba(15, 42, 61, 0.04);
+
+  /* ── Tone system (set --tone / --tone-bg per component) ───── */
+  /* Use .tone-info / .tone-attention / .tone-urgent / .tone-good */
+}

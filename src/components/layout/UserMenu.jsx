@@ -1,15 +1,9 @@
 import { Check, ChevronDown, LogOut, RotateCcw, Settings } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { ROLES, useCrm } from '../../context/crm'
+import { ROLE_ACCESS, ROLES, useCrm } from '../../context/crm'
 import { CURRENT_USER } from '../../data/mockData'
 import { usePopover } from '../common/usePopover'
 
-const ROLE_NOTES = {
-  Admin: 'Sees everything',
-  Sales: 'Leads, quotations and clients',
-  Coordinator: 'Amounts hidden, no quotations',
-  Accountant: 'Quotations and approvals',
-}
 
 /* Profile menu. "View as" lets the demo show role-based access (e.g. Coordinators don't see amounts). */
 export function UserMenu() {
@@ -42,7 +36,7 @@ export function UserMenu() {
             >
               <span>
                 <strong>{r}</strong>
-                <span className="muted">{ROLE_NOTES[r]}</span>
+                <span className="muted">{ROLE_ACCESS[r].note}</span>
               </span>
               {role === r && <Check size={16} />}
             </button>

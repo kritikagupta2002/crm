@@ -2,7 +2,7 @@
 .module-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 .module-page .page-header {
@@ -985,4 +985,324 @@ a.menu-row,
   .role-badge {
     display: none;
   }
+}
+
+/* ---------- Client portal, team side: change requests, projects, letters ---------- */
+.change-request {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 20px 0 0;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--amber-bg);
+  font-size: 13px;
+}
+
+.change-request strong {
+  color: #8a5a0b;
+}
+
+.change-request p {
+  margin: 0;
+  color: var(--ink);
+}
+
+.portal-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.project-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.project-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.project-block > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.project-block > header div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.project-block > header .muted {
+  font-size: 12px;
+}
+
+.project-block h4 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.project-block h4 .muted {
+  font-weight: 400;
+}
+
+.project-block .btn-whatsapp {
+  align-self: flex-start;
+}
+
+.project-block .link-button {
+  align-self: flex-start;
+}
+
+.letter-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.letter-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--line-soft);
+  color: var(--teal-700);
+  animation: fade 0.25s ease both;
+}
+
+.letter-list li:first-child {
+  border-top: none;
+}
+
+.letter-list li > span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.letter-list strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.letter-list .muted {
+  font-size: 12px;
+}
+
+.letter-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  animation: rise 0.25s ease backwards;
+}
+
+.letter-form .field-wide,
+.letter-form-actions {
+  grid-column: 1 / -1;
+}
+
+.letter-form input[type='file'] {
+  height: auto;
+  padding: 6px;
+  font-size: 12.5px;
+}
+
+.letter-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ---------- Client document vault, projects page, approvals glance, no-access ---------- */
+.vault-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vault-head h3 {
+  margin: 0;
+}
+
+.vault h4 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 12px 0 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.vault h4 .muted {
+  font-weight: 400;
+}
+
+.progress-cell {
+  min-width: 150px;
+}
+
+.progress-cell .progress {
+  margin-bottom: 4px;
+}
+
+.cell-sub svg {
+  vertical-align: -1px;
+}
+
+.letters-page {
+  padding: 0 20px 14px;
+}
+
+.approvals-glance .glance-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 24px;
+  padding: 0 20px 18px;
+}
+
+.glance-figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  align-self: start;
+}
+
+.glance-figures > div {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--tone-bg);
+}
+
+.glance-figures dt {
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.glance-figures dd {
+  margin: 4px 0 0;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.glance-waiting h3 {
+  margin: 0 0 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.glance-waiting ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.glance-waiting li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.glance-waiting li:first-child {
+  border-top: none;
+}
+
+.glance-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+}
+
+a.glance-item:hover strong {
+  color: var(--teal-700);
+}
+
+.glance-item .muted {
+  font-size: 12px;
+}
+
+.glance-when {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.no-access {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--ink-3);
+}
+
+.no-access h1 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  color: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .approvals-glance .glance-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .glance-figures {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+
+  .glance-figures > div {
+    padding: 10px;
+  }
+
+  .glance-figures dd {
+    font-size: 22px;
+  }
+}
+
+.link-button.show-more {
+  margin: 2px 0 10px 20px;
+}
+
+.fu-group .link-button.show-more {
+  margin: 0 0 6px;
 }

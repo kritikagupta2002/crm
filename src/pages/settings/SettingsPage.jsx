@@ -1,16 +1,11 @@
 import { Bell, Building2, Check, FileText, Layers, RotateCcw, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
-import { useCrm } from '../../context/crm'
+import { ROLE_ACCESS, useCrm } from '../../context/crm'
 import { LOST_REASONS, SERVICE_DETAILS, SERVICES, TEAM } from '../../data/mockData'
 
 /* Roles from the requirement sheet (RBAC). The demo shows who can see what; enforcement comes with login. */
 const TEAM_ROLES = { 'K. Sharma': 'Sales Manager', 'R. Mehta': 'Business Development', 'S. Verma': 'Business Development', 'A. Singh': 'Project Coordinator', 'P. Joshi': 'Coordinator' }
-const ACCESS = [
-  { role: 'Admin / Management', sees: 'Everything, including quotation values and reports' },
-  { role: 'Sales Manager / BD', sees: 'All leads, quotations and client details' },
-  { role: 'Coordinator', sees: 'Leads and follow-ups; quotation amounts hidden' },
-  { role: 'Accountant', sees: 'Quotations and approvals (PO, advance) only' },
-]
+const ACCESS = Object.entries(ROLE_ACCESS).map(([role, a]) => ({ role, sees: a.note }))
 
 function Section({ icon: Icon, title, children, action }) {
   return (
@@ -127,7 +122,7 @@ export function SettingsPage() {
               ))}
             </tbody>
           </table>
-          <p className="muted small">Role-based access is enforced once staff sign in with their own accounts.</p>
+          <p className="muted small">The menu and pages follow these rules for whoever is signed in. Try it with "View as" in the profile menu.</p>
         </Section>
 
         <Section icon={Bell} title="Notifications">

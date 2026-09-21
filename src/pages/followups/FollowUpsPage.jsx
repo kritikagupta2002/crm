@@ -10,6 +10,9 @@ const todayISO = toISODate(TODAY)
 const tomorrowISO = toISODate(addDays(TODAY, 1))
 const weekEndISO = toISODate(addDays(TODAY, 7))
 
+// Long groups show their first few; the rest are one click away.
+const GROUP_PREVIEW = 5
+
 const GROUPS = [
   { id: 'overdue', label: 'Overdue', tone: 'tone-urgent', test: (d) => d < todayISO },
   { id: 'today', label: 'Today', tone: 'tone-attention', test: (d) => d === todayISO },
@@ -93,6 +96,7 @@ function FollowUpRow({ item, lead, tone }) {
 export function FollowUpsPage() {
   const { followUps, completedFollowUps, leads } = useCrm()
   const [filters, setFilters] = useState({ search: '', owner: '', type: '' })
+  const [expanded, setExpanded] = useState({}) // group id → showing all
   const leadById = new Map(leads.map((l) => [l.id, l]))
 
   const q = filters.search.trim().toLowerCase()
@@ -158,10 +162,15 @@ export function FollowUpsPage() {
                 <CalendarClock size={16} /> {group.label} <span>{items.length}</span>
               </h2>
               <ul className="fu-list">
-                {items.map((item) => (
+                {items.slice(0, expanded[group.id] ? items.length : GROUP_PREVIEW).map((item) => (
                   <FollowUpRow key={item.id} item={item} lead={leadById.get(item.leadId)} tone={group.tone} />
                 ))}
               </ul>
+              {items.length > GROUP_PREVIEW && (
+                <button className="link-button show-more" onClick={() => setExpanded({ ...expanded, [group.id]: !expanded[group.id] })}>
+                  {expanded[group.id] ? 'Show fewer' : `Show all ${items.length}`}
+                </button>
+              )}
             </div>
           )
         })}

@@ -1,0 +1,103 @@
+﻿/*
+ * ============================================================
+ *  TYPOGRAPHY — CRM Theme
+ *  Font scales, heading styles, text helpers.
+ *  Requires tokens.css.
+ * ============================================================
+ */
+
+/* ── Font sizes (base 14px) ──────────────────────────────── */
+/* 10px  0.714rem  → micro labels, badges */
+/* 11px  0.785rem  → popover section labels */
+/* 11.5px            → user-meta sub-line */
+/* 12px  0.857rem  → cell-sub, muted, timestamps */
+/* 12.5px            → table headers, small buttons */
+/* 13px  0.928rem  → body, table cells, inputs */
+/* 13.5px            → search results, list items */
+/* 14px  1rem      → base body */
+/* 15px  1.071rem  → nav items */
+/* 16px  1.142rem  → card h2 titles */
+/* 17px  1.214rem  → workflow company names */
+/* 19px  1.357rem  → quote grand total (serif) */
+/* 20px  1.428rem  → sidebar logo name */
+/* 24px  1.714rem  → no-access heading */
+/* 26px  1.857rem  → glance-figures (serif) */
+/* 32px  2.285rem  → page title h1 (serif) */
+/* 34px  2.428rem  → stat-value (serif) */
+
+/* ── Page title ──────────────────────────────────────────── */
+.page-title h1 {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.page-title p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+/* ── Stat value (large serif number) ─────────────────────── */
+.stat-value {
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+/* ── Workflow company / card serif headline ───────────────── */
+.workflow-company {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* ── Muted helper ────────────────────────────────────────── */
+.muted {
+  color: var(--ink-3);
+}
+
+/* ── Text colour helpers ─────────────────────────────────── */
+.text-ink  { color: var(--ink); }
+.text-red  { color: var(--red); font-weight: 500; }
+
+/* ── Delta indicators ────────────────────────────────────── */
+.delta-up,
+.delta-down {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-weight: 600;
+}
+.delta-up   { color: var(--green); }
+.delta-down { color: var(--red); }
+
+/* ── Monospaced numeric ──────────────────────────────────── */
+.mono {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* ── Table cell helpers ──────────────────────────────────── */
+.cell-strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.cell-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* ── Responsive heading ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .page-title h1 {
+    font-size: 26px;
+  }
+}

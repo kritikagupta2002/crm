@@ -1,7 +1,8 @@
-import { File, FileImage, FileSpreadsheet, FileText, Tag, Trash2, UploadCloud, X } from 'lucide-react'
+import { Download, File, FileImage, FileSpreadsheet, FileText, Tag, Trash2, UploadCloud, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useCrm } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
+import { downloadDocument } from '../../utils/files'
 
 const MAX_SIZE = 10 * 1024 * 1024
 const SUGGESTED_TAGS = ['High value', 'Repeat client', 'Govt. deadline', 'Site visit done', 'Urgent']
@@ -62,7 +63,7 @@ function Tags({ lead }) {
 
 /* Documents shared by the client (lease papers, maps, reports). The demo keeps only file details, not contents. */
 export function LeadDocuments({ lead }) {
-  const { addDocuments, removeDocument } = useCrm()
+  const { addDocuments, removeDocument, settings } = useCrm()
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef(null)
@@ -127,8 +128,12 @@ export function LeadDocuments({ lead }) {
                   <strong>{doc.name}</strong>
                   <span className="muted">
                     {formatSize(doc.size)} · added {formatDayMonth(doc.addedOn)}
+                    {doc.byClient && ' · from client portal'}
                   </span>
                 </div>
+                <button className="icon-button small" onClick={() => downloadDocument(doc, { company: lead.company, companyName: settings.companyName })} aria-label={`Download ${doc.name}`}>
+                  <Download size={15} />
+                </button>
                 <button className="icon-button small" onClick={() => removeDocument(lead.id, doc.id)} aria-label={`Remove ${doc.name}`}>
                   <Trash2 size={15} />
                 </button>

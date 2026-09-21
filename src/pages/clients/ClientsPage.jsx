@@ -1,4 +1,4 @@
-import { Building2, CheckCircle2, Download, IndianRupee, Mail, MapPin, Phone, Search, UserPlus, X } from 'lucide-react'
+import { Building2, CheckCircle2, Download, ExternalLink, IndianRupee, Mail, MapPin, Phone, Search, UserPlus, X } from 'lucide-react'
 import { useCallback, useEffect, useId, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ProgressBar } from '../../components/common/Checklist'
@@ -9,6 +9,9 @@ import { downloadCsv } from '../../utils/exportCsv'
 import { stateOf } from '../../utils/leads'
 import { ONBOARDING_STEPS, progressOf } from '../../utils/workflow'
 import { Portal } from '../../components/common/Portal'
+import { SharePortalButton } from '../../components/lead/SharePortalButton'
+import { ClientDocuments } from './ClientDocuments'
+import { ProjectPanel } from './ProjectPanel'
 
 const statusOf = (lead) => (progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length ? 'Active' : 'Onboarding')
 const sinceOf = (lead) => lead.wonOn ?? lead.createdOn
@@ -78,6 +81,12 @@ function ClientDrawer({ client, onClose }) {
                   </span>
                 )}
               </div>
+              <div className="portal-links">
+                <Link to={`/portal?lead=${client.id}`} className="link-button">
+                  <ExternalLink size={14} /> Preview client portal
+                </Link>
+                <SharePortalButton lead={client} className="link-button" label="Send portal login" />
+              </div>
             </section>
             <dl className="fact-grid">
               <div>
@@ -94,9 +103,10 @@ function ClientDrawer({ client, onClose }) {
               </div>
               <div>
                 <dt>Documents</dt>
-                <dd>{client.documents?.length ?? 0} on file</dd>
+                <dd>{client.documents?.length ?? 0} files</dd>
               </div>
             </dl>
+            <ClientDocuments client={client} />
             <section className="lead-section">
               <h3>Onboarding</h3>
               <div className="workflow-progress">
@@ -112,7 +122,7 @@ function ClientDrawer({ client, onClose }) {
               )}
             </section>
             <section className="lead-section">
-              <h3>Projects &amp; enquiries</h3>
+              <h3>Enquiry &amp; quotation</h3>
               <ul className="mini-list">
                 <li className="tone-good">
                   <i />
@@ -128,6 +138,7 @@ function ClientDrawer({ client, onClose }) {
                 </li>
               </ul>
             </section>
+            <ProjectPanel lead={client} />
           </div>
         </aside>
       </div>

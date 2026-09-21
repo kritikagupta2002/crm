@@ -6,6 +6,7 @@ import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
 import { leadAgeLabel, sortLeads } from '../../utils/leads'
 import { useMoney } from '../../context/crm'
+import { pageList } from '../../components/common/Pager'
 
 const PAGE_SIZES = [10, 15, 25, 50]
 const todayISO = toISODate(TODAY)
@@ -30,15 +31,6 @@ function FollowUpCell({ date }) {
 }
 
 /* 1 … 4 5 6 … 12 — first, last and the pages around the current one. */
-function pageList(current, count) {
-  const pages = []
-  for (let p = 0; p < count; p++) {
-    if (p === 0 || p === count - 1 || Math.abs(p - current) <= 1) pages.push(p)
-    else if (pages[pages.length - 1] !== '…') pages.push('…')
-  }
-  return pages
-}
-
 /*
  * Parent passes a `key` built from the filters, so paging restarts whenever the filters change.
  * Rows-per-page lives in the parent so it survives those restarts.

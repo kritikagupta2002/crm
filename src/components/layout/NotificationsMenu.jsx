@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, Clock, FileWarning, Sparkles } from 'lucide-react'
+import { AlertTriangle, Bell, Clock, FileWarning, Globe, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCrm } from '../../context/crm'
@@ -24,12 +24,31 @@ function readSeen() {
  * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
  */
 export function NotificationsMenu() {
-  const { leads, followUps, settings } = useCrm()
+  const { leads, followUps, settings, activities } = useCrm()
   const { open, setOpen, ref } = usePopover()
   const [seen, setSeen] = useState(readSeen)
   const company = (id) => leads.find((l) => l.id === id)?.company
 
+  const fromPortal = activities
+    .filter((a) => a.by === 'client')
+    .slice(-8)
+    .reverse()
+    .map((a) => ({
+      id: `cl-${a.id}`,
+      tone: /accepted/.test(a.text) ? 'tone-good' : a.type === 'quote' ? 'tone-attention' : 'tone-info',
+      icon: Globe,
+      title: `${company(a.leadId)} ${(a.clientText ?? a.text).replace(/^You /, '')}`,
+      sub: `Client portal · ${formatDayMonth(a.at.slice(0, 10))}`,
+      to: a.type === 'quote' ? `/quotations?open=${a.leadId}` : `/leads/${a.leadId}?tab=activity`,
+    }))
+
   const items = [
+    ...fromPortal,
+    ...(settings.notifyNewEnquiry
+      ? leads
+          .filter((l) => l.createdOn === todayISO)
+          .map((l) => ({ id: `new-${l.id}`, tone: 'tone-info', icon: Sparkles, title: `New enquiry: ${l.company}`, sub: `${l.serviceDetail} · ${l.assignedTo}`, to: `/leads/${l.id}` }))
+      : []),
     ...(settings.notifyOverdue
       ? followUps
           .filter((f) => f.date < todayISO)
@@ -49,11 +68,6 @@ export function NotificationsMenu() {
         sub: `${lead.company} · valid till ${formatDayMonth(quote.validUntil)}`,
         to: `/quotations?open=${lead.id}`,
       })),
-    ...(settings.notifyNewEnquiry
-      ? leads
-          .filter((l) => l.createdOn === todayISO)
-          .map((l) => ({ id: `new-${l.id}`, tone: 'tone-info', icon: Sparkles, title: `New enquiry: ${l.company}`, sub: `${l.serviceDetail} · ${l.assignedTo}`, to: `/leads/${l.id}` }))
-      : []),
   ]
   const unread = items.filter((i) => !seen.has(i.id)).length
 

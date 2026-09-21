@@ -52,6 +52,11 @@
   white-space: nowrap;
 }
 
+.portal-top-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .portal-preview {
   padding: 9px 24px;
   background: var(--gold-100);
@@ -495,7 +500,17 @@
     display: none;
   }
 
+  .portal-top .btn {
+    padding: 0 12px;
+    white-space: nowrap;
+  }
+
+  .portal-top .hide-sm {
+    display: none;
+  }
+
   .portal-brand::after {
+    white-space: nowrap;
     content: 'Client Portal';
     font-family: var(--font-serif);
     font-size: 17px;
@@ -553,5 +568,515 @@
   .portal-actions .btn {
     flex: 1 1 auto;
     justify-content: center;
+  }
+}
+
+/* ---------- Projects, approvals, letters, updates ---------- */
+.portal-service select {
+  margin-top: 6px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--teal-200);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 12.5px;
+}
+
+.project-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.project-tabs button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.project-tabs button strong {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.project-tabs button span {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.project-tabs button.is-active {
+  border-color: var(--teal-600);
+  background: var(--teal-50);
+}
+
+.project-meta {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.project-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.portal-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.portal-card h3 .muted {
+  font-weight: 400;
+}
+
+.portal-card h3 svg {
+  color: var(--teal-700);
+}
+
+.project-authority {
+  margin: -4px 0 10px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.milestones {
+  display: flex;
+  flex-direction: column;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.milestones li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13px;
+  color: var(--ink-3);
+  animation: fade 0.3s ease both;
+}
+
+.milestones li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 25px;
+  bottom: -7px;
+  width: 2px;
+  background: var(--line);
+}
+
+.milestones li.is-done:not(:last-child)::after {
+  background: var(--green);
+}
+
+.ms-dot {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: #fff;
+}
+
+.milestones .is-done .ms-dot {
+  border-color: var(--green);
+  background: var(--green);
+}
+
+.milestones .is-current .ms-dot {
+  border-color: var(--teal-700);
+  box-shadow: 0 0 0 3px var(--teal-100);
+}
+
+.milestones .is-done,
+.milestones .is-current {
+  color: var(--ink);
+}
+
+.milestones .is-current .ms-label {
+  font-weight: 600;
+}
+
+.ms-when {
+  font-size: 12px;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+.milestones .is-current .ms-when {
+  color: var(--teal-700);
+  font-weight: 500;
+}
+
+.portal-empty.small {
+  font-size: 13px;
+}
+
+.letters-title {
+  margin-top: 20px !important;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.portal-docs li > span {
+  flex: 1;
+}
+
+.portal-docs .btn-small {
+  flex-shrink: 0;
+}
+
+.portal-updates {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-updates li {
+  position: relative;
+  padding: 0 0 14px 18px;
+  border-left: 2px solid var(--line);
+  animation: fade 0.3s ease both;
+}
+
+.portal-updates li:last-child {
+  padding-bottom: 0;
+  border-left-color: transparent;
+}
+
+.portal-updates li::before {
+  content: '';
+  position: absolute;
+  left: -6px;
+  top: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal-400);
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.portal-updates li.is-you::before {
+  background: var(--gold-500);
+}
+
+.portal-updates li.is-upcoming::before {
+  background: var(--surface);
+  border: 2px solid var(--teal-700);
+  width: 8px;
+  height: 8px;
+}
+
+.portal-updates .muted {
+  font-size: 11.5px;
+}
+
+.portal-updates p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.portal-sent span {
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .project-columns {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .portal-docs .btn-small {
+    padding: 0 10px;
+  }
+
+  /* Letter and file names wrap on phones instead of being cut off. */
+  .portal-docs strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* ---------- Completed stages (won clients) ---------- */
+.done-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.done-list > li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.done-list > li:first-child {
+  border-top: none;
+}
+
+.done-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.done-tick {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+}
+
+.done-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.done-text strong {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.done-text .muted {
+  font-size: 12.5px;
+}
+
+.done-body {
+  padding: 4px 0 16px 34px;
+  animation: rise 0.25s ease backwards;
+}
+
+/* A card shown inside the Completed card: no frame, and the row already names it. */
+.portal-bare .portal-card-head h2 {
+  display: none;
+}
+
+.portal-bare .portal-card-head {
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.journey-note {
+  margin-top: -4px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--teal-700);
+}
+
+@media (max-width: 640px) {
+  .done-body {
+    padding-left: 0;
+  }
+
+  .journey-note {
+    margin: 0 0 0 auto;
+  }
+}
+
+/* ---------- Brand band (portal and enquiry form) ---------- */
+.portal-band {
+  position: relative;
+  overflow: hidden;
+  background: var(--sidebar-bg);
+  border-bottom: 1px solid var(--sidebar-line);
+}
+
+.band-contours {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* The sidebar's mountains as a range along the right, fading into the band on the left. */
+.band-range {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: min(50%, 780px);
+  height: 100%;
+  pointer-events: none;
+  /* Fade on the visible left edge, whatever part of the drawing is showing. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40%);
+  mask-image: linear-gradient(to right, transparent 0, #000 40%);
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s backwards;
+}
+
+/* The short enquiry band shows the whole range, peaks included, at its own height. */
+.portal-band.is-compact .band-range {
+  width: auto;
+  aspect-ratio: 760 / 300;
+}
+
+.portal-band-inner {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 26px 24px 84px;
+  animation: fade 0.4s ease both;
+}
+
+.portal-band.is-compact .portal-band-inner {
+  padding: 18px 24px 52px;
+}
+
+.portal-band h1,
+.band-title {
+  margin: 0 0 6px;
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.band-lead,
+.portal-band .portal-hero-head p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+/* Greeting, then the service as a chip under it, so the text keeps the full width. */
+.portal-band .portal-hero-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.portal-band .portal-service {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  max-width: none;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  text-align: left;
+}
+
+.portal-band .portal-service select {
+  margin-top: 0;
+}
+
+.portal-band .portal-closed {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* Upcoming steps stay solid over the grey. */
+.portal-band .journey-dot {
+  background: var(--surface);
+}
+
+.portal-band .is-done .journey-dot {
+  background: var(--green);
+}
+
+/* Wide screens: the greeting and tracker keep clear of the range. */
+@media (min-width: 1280px) {
+  .portal-band:not(.is-compact) .portal-band-inner {
+    padding-right: 440px;
+  }
+}
+
+/* Narrower: the range would sit behind the text, so it steps back. */
+@media (max-width: 1279px) {
+  .band-range {
+    width: 70%;
+    opacity: 0.35;
+  }
+}
+
+/* Cards start over the band's lower edge. */
+.portal-band + .portal-main {
+  position: relative;
+  margin-top: -60px;
+}
+
+.portal-band.is-compact + .portal-main {
+  margin-top: -40px;
+}
+
+/* ---------- Card titles with an icon chip ---------- */
+.portal-card h2.card-title-icon {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-icon {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--teal-50);
+  color: var(--teal-700);
+}
+
+@media (max-width: 640px) {
+  .portal-band-inner {
+    padding: 20px 16px 64px;
+  }
+
+  .portal-band.is-compact .portal-band-inner {
+    padding: 18px 16px 52px;
+  }
+
+  .portal-band h1,
+  .band-title {
+    font-size: 23px;
+  }
+
+  .band-range {
+    width: 100%;
+    opacity: 0.3;
+  }
+
+  .portal-band + .portal-main {
+    margin-top: -44px;
   }
 }

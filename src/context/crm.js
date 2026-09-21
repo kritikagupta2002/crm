@@ -9,9 +9,33 @@ export function useCrm() {
   return value
 }
 
-/* "View as" roles for the demo. Coordinators don't see money (requirement: mask quotation values). */
-export const ROLES = ['Admin', 'Sales', 'Coordinator', 'Accountant']
+/*
+ * Role-based access, in one place: which pages each role opens and whether it sees money.
+ * The sidebar, the page guard, Settings and the sign-in screen all read this, so what is written
+ * is what happens. Requirement: operational staff (Coordinators, Team Leads) never see amounts.
+ */
+export const ROLE_ACCESS = {
+  Admin: { note: 'Everything, including reports and settings', pages: 'all', masked: false },
+  Sales: { note: 'Leads, follow-ups, quotations, work orders and clients', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients'], masked: false },
+  Coordinator: { note: 'Leads, follow-ups, onboarding and projects; amounts hidden', pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/projects'], masked: true },
+  'Team Lead': { note: 'Projects and government approvals; amounts hidden', pages: ['/', '/projects', '/clients', '/follow-ups'], masked: true },
+  Accountant: { note: 'Quotations, work orders & advances, clients and reports', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports'], masked: false },
+}
+export const ROLES = Object.keys(ROLE_ACCESS)
 export const MASKED = '₹ ••••'
+
+/* The page a path belongs to: /leads/BG-2026-004 → /leads. */
+const pageOf = (path) => (path === '/' ? '/' : `/${path.split('?')[0].split('/')[1]}`)
+
+export const canOpen = (role, path) => {
+  const { pages } = ROLE_ACCESS[role] ?? ROLE_ACCESS.Admin
+  return pages === 'all' || pages.includes(pageOf(path))
+}
+
+export function useAccess() {
+  const { role } = useCrm()
+  return { role, can: (path) => canOpen(role, path) }
+}
 
 /*
  * Every rupee amount on screen goes through this, so hiding amounts for a role is one switch.
@@ -19,7 +43,7 @@ export const MASKED = '₹ ••••'
  */
 export function useMoney() {
   const { role } = useCrm()
-  const hidden = role === 'Coordinator'
+  const hidden = Boolean(ROLE_ACCESS[role]?.masked)
   return {
     hidden,
     short: (n) => (hidden ? MASKED : formatINR(n)),

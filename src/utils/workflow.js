@@ -20,7 +20,7 @@ export const ONBOARDING_STEPS = [
 
 export const progressOf = (steps, values = {}) => steps.filter((step) => values[step.key]).length
 
-export const QUOTE_STATUS_TONE = { Draft: 'tone-neutral', Sent: 'tone-info', Revised: 'tone-attention', Accepted: 'tone-good', Rejected: 'tone-urgent', Expired: 'tone-urgent' }
+export const QUOTE_STATUS_TONE = { Draft: 'tone-neutral', Sent: 'tone-info', Revised: 'tone-attention', 'Changes requested': 'tone-attention', Accepted: 'tone-good', Rejected: 'tone-urgent', Expired: 'tone-urgent' }
 
 const round = (n) => Math.round(n / 1000) * 1000
 

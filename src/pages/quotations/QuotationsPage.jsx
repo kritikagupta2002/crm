@@ -2,6 +2,7 @@ import { CheckCircle2, Download, FilePlus2, FileText, Hourglass, Percent, Search
 import { useCallback, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
+import { usePaged } from '../../components/common/Pager'
 import { useCrm, useMoney } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
@@ -10,7 +11,7 @@ import { LostReasonDialog } from '../leads/LostReasonDialog'
 import { QuotationBuilder } from './QuotationBuilder'
 import { QuotationView } from './QuotationView'
 
-const TABS = ['All', 'Sent', 'Revised', 'Accepted', 'Rejected', 'Expired']
+const TABS = ['All', 'Sent', 'Revised', 'Changes requested', 'Accepted', 'Rejected', 'Expired']
 
 const QUOTE_COLUMNS = [
   { label: 'Quotation', value: (r) => r.quote.number },
@@ -44,6 +45,7 @@ export function QuotationsPage() {
     .filter((r) => tab === 'All' || r.quote.displayStatus === tab)
     .filter((r) => !q || `${r.quote.number} ${r.lead.company} ${r.lead.serviceDetail}`.toLowerCase().includes(q))
 
+  const { rows: pageRows, pager } = usePaged(visible, 10, `${tab}|${q}`)
   const sum = (rows) => rows.reduce((s, r) => s + r.quote.total, 0)
   const open = openQuotes(leads, settings)
   const accepted = quotes.filter((r) => r.quote.status === 'Accepted')
@@ -125,7 +127,7 @@ export function QuotationsPage() {
                 </tr>
               </thead>
               <tbody>
-                {visible.map(({ lead, quote }) => (
+                {pageRows.map(({ lead, quote }) => (
                   <tr key={lead.id} className="clickable-row" onClick={() => go({ open: lead.id })}>
                     <td>
                       <button className="row-link">{quote.number}</button>
@@ -154,6 +156,7 @@ export function QuotationsPage() {
             </table>
           </div>
         )}
+        {pager}
       </section>
 
       {building && !money.hidden && <QuotationBuilder key={building.leadId ?? 'new'} leadId={building.leadId} onClose={close} onSaved={(id) => go({ open: id })} />}

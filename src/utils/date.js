@@ -28,6 +28,9 @@ export const formatDayMonth = (value) => {
   return `${String(date.getDate()).padStart(2, '0')} ${monthShort(date)}`
 }
 
+/* "21 Sep" for this year, "12 Oct 2025" for any other, so older records don't read as this year's. */
+export const formatNearDate = (value) => (value.slice(0, 4) === String(new Date().getFullYear()) ? formatDayMonth(value) : formatDate(value))
+
 export const formatLongDate = (date) =>
   date.toLocaleDateString('en-GB', {
     weekday: 'long',

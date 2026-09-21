@@ -1,0 +1,36 @@
+﻿/*
+ * ============================================================
+ *  THEME INDEX — CRM Theme
+ *
+ *  Single entry-point. Import only this file in your project
+ *  and you get the complete theme in the correct cascade order.
+ *
+ *  Usage (plain HTML):
+ *    <link rel="stylesheet" href="./theme/index.css" />
+ *
+ *  Usage (Vite / webpack / any bundler):
+ *    import './theme/index.css'
+ *
+ *  Usage (partial — import only what you need):
+ *    import './theme/tokens.css'
+ *    import './theme/reset.css'
+ *    import './theme/typography.css'
+ *    import './theme/animations.css'
+ *    import './theme/components.css'
+ *    import './theme/layout.css'
+ *    import './theme/modules.css'   // feature-specific; omit if unused
+ *
+ *  ⚠  Load Google Fonts in your HTML <head> before this:
+ *     <link rel="preconnect" href="https://fonts.googleapis.com" />
+ *     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ *     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+ * ============================================================
+ */
+
+@import './tokens.css';      /* CSS custom properties (must be first)  */
+@import './reset.css';       /* box-sizing, body defaults, focus ring   */
+@import './typography.css';  /* headings, text helpers, font scales     */
+@import './animations.css';  /* keyframes, page-anim, lift, grow-x      */
+@import './components.css';  /* card, btn, pill, table, form, progress  */
+@import './layout.css';      /* sidebar, topbar, app shell, popovers    */
+@import './modules.css';     /* feature pages, quotation, settings …    */
