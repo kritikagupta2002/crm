@@ -1,4 +1,4 @@
-import { Check, ChevronDown, RotateCcw, Settings } from 'lucide-react'
+import { Check, ChevronDown, LogOut, RotateCcw, Settings } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ROLES, useCrm } from '../../context/crm'
 import { CURRENT_USER } from '../../data/mockData'
@@ -13,7 +13,7 @@ const ROLE_NOTES = {
 
 /* Profile menu. "View as" lets the demo show role-based access (e.g. Coordinators don't see amounts). */
 export function UserMenu() {
-  const { role, setRole, changeCount, resetDemoData } = useCrm()
+  const { role, setRole, changeCount, resetDemoData, signOut } = useCrm()
   const { open, setOpen, ref } = usePopover()
 
   return (
@@ -61,6 +61,9 @@ export function UserMenu() {
             }}
           >
             <RotateCcw size={15} /> Reset demo data
+          </button>
+          <button className="menu-row" role="menuitem" onClick={signOut}>
+            <LogOut size={15} /> Sign out
           </button>
         </div>
       )}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FOLLOW_UPS, LEADS, STAGES, TODAY } from '../data/mockData'
 import { formatDayMonth, formatTime, toISODate } from '../utils/date'
+import { pinnedQuote } from '../utils/workflow'
 import { CrmContext, DEFAULT_SETTINGS } from './crm'
 
 /*
@@ -11,6 +12,7 @@ import { CrmContext, DEFAULT_SETTINGS } from './crm'
  */
 const STORAGE_KEY = 'bansal-crm-demo:v2'
 const ROLE_KEY = 'bansal-crm:role'
+const SESSION_KEY = 'bansal-crm:session'
 const OLD_STORAGE_KEY = 'bansal-crm-demo:added:v1'
 const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {} }
 
@@ -69,9 +71,20 @@ function loadRole() {
   }
 }
 
+/* Demo sign-in: { type: 'team' } or { type: 'client', leadId }. No password check — that comes with a backend. */
+function loadSession() {
+  try {
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY))
+    return session?.type === 'team' || (session?.type === 'client' && session.leadId) ? session : null
+  } catch {
+    return null
+  }
+}
+
 export function CrmProvider({ children }) {
   const [changes, setChanges] = useState(loadChanges)
   const [role, setRoleState] = useState(loadRole)
+  const [session, setSessionState] = useState(loadSession)
 
   const setRole = useCallback((next) => {
     setRoleState(next)
@@ -81,6 +94,26 @@ export function CrmProvider({ children }) {
       // Remembering the role is only a convenience.
     }
   }, [])
+
+  const setSession = useCallback((next) => {
+    setSessionState(next)
+    try {
+      if (next) localStorage.setItem(SESSION_KEY, JSON.stringify(next))
+      else localStorage.removeItem(SESSION_KEY)
+    } catch {
+      // Without storage the demo simply asks to sign in again after a refresh.
+    }
+  }, [])
+
+  const signIn = useCallback(
+    (nextRole) => {
+      setRole(nextRole)
+      setSession({ type: 'team' })
+    },
+    [setRole, setSession],
+  )
+  const signInClient = useCallback((leadId) => setSession({ type: 'client', leadId }), [setSession])
+  const signOut = useCallback(() => setSession(null), [setSession])
 
   useEffect(() => {
     try {
@@ -141,13 +174,13 @@ export function CrmProvider({ children }) {
     (id, stage, { lostReason } = {}) => {
       const lead = findLead(id)
       if (!lead || lead.stage === stage) return
-      const patch = { stage, lostReason: stage === 'Lost' ? lostReason : undefined }
+      const patch = { stage, lostReason: stage === 'Lost' ? lostReason : undefined, quote: pinnedQuote(lead, settings) }
       if (stage === 'Won') patch.wonOn = toISODate(TODAY)
       if (stage === 'Lost' && lead.quoteValue) patch.quoteStatus = 'Rejected'
       const text = stage === 'Lost' && lostReason ? `Marked as Lost: ${lostReason}` : `Stage changed from ${lead.stage} to ${stage}`
       setChanges((prev) => ({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'stage', text) }))
     },
-    [findLead],
+    [findLead, settings],
   )
 
   /* kind: Note, Call, WhatsApp, Email or Meeting — how the conversation happened. */
@@ -219,15 +252,16 @@ export function CrmProvider({ children }) {
     (id) => {
       const lead = findLead(id)
       if (!lead) return
-      const patch = { quoteStatus: 'Accepted', approval: { ...lead.approval, quoteAccepted: true } }
+      const patch = { quoteStatus: 'Accepted', approval: { ...lead.approval, quoteAccepted: true }, quote: pinnedQuote(lead, settings) }
       if (stageIndex(lead.stage) < stageIndex('Negotiation')) patch.stage = 'Negotiation'
       setChanges((prev) => ({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'quote', 'Quotation accepted by client') }))
     },
-    [findLead],
+    [findLead, settings],
   )
 
+  /* byClient: uploaded from the client portal, so the log says where it came from. */
   const addDocuments = useCallback(
-    (id, files) => {
+    (id, files, { byClient = false } = {}) => {
       const lead = findLead(id)
       if (!lead || files.length === 0) return
       const added = files.map((file) => ({
@@ -237,7 +271,7 @@ export function CrmProvider({ children }) {
         type: file.type,
         addedOn: toISODate(new Date()),
       }))
-      const text = added.length === 1 ? `Document added: ${added[0].name}` : `${added.length} documents added`
+      const text = `${added.length === 1 ? `Document added: ${added[0].name}` : `${added.length} documents added`}${byClient ? ' by client (portal)' : ''}`
       setChanges((prev) => ({ ...prev, edits: editLead(prev, id, { documents: [...(lead.documents ?? []), ...added] }), activities: log(prev, id, 'document', text) }))
     },
     [findLead],
@@ -275,6 +309,10 @@ export function CrmProvider({ children }) {
         settings,
         role,
         setRole,
+        session,
+        signIn,
+        signInClient,
+        signOut,
         logActivity,
         addEnquiry,
         changeStage,

@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   background: var(--sidebar-bg);
-  box-shadow: 2px 0 16px rgba(15, 42, 61, 0.12);
+  border-right: 1px solid var(--sidebar-line);
   overflow: hidden;
 }
 
@@ -66,6 +66,15 @@
   color: var(--sidebar-muted);
 }
 
+/* The logo's default colours are for dark backgrounds; the sidebar is light. */
+.sidebar .logo-name {
+  color: var(--ink);
+}
+
+.sidebar .logo-sub {
+  color: var(--gold-600);
+}
+
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -86,14 +95,14 @@
 .nav-group {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 4px;
 }
 
 .sidebar-section {
-  margin: 0 10px 4px;
-  font-size: 11px;
+  margin: 4px 12px 10px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--sidebar-muted);
   white-space: nowrap;
@@ -103,30 +112,36 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  height: 40px;
-  padding: 0 12px;
+  gap: 14px;
+  height: 46px;
+  padding: 0 14px;
   border-radius: 8px;
   color: var(--sidebar-text);
-  font-size: 14px;
+  font-size: 15px;
   white-space: nowrap;
-  transition: background 0.12s, color 0.12s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .nav-item svg {
   flex-shrink: 0;
   color: var(--sidebar-icon);
+  transition: color 0.15s;
 }
 
 .nav-item:hover {
   background: var(--sidebar-hover);
-  color: #fff;
+  color: var(--ink);
 }
 
+/* Active item runs to the sidebar's edge, like a tab pulled out of the panel. */
 .nav-item.is-active {
-  background: var(--teal-700);
+  margin-left: -12px;
+  padding-left: 26px;
+  border-radius: 0 8px 8px 0;
+  background: var(--nav-active);
   color: #fff;
   font-weight: 500;
+  box-shadow: 0 2px 8px rgba(14, 74, 82, 0.22);
 }
 
 .nav-item.is-active svg {
@@ -136,54 +151,67 @@
 .nav-item.is-active::before {
   content: '';
   position: absolute;
-  left: -12px;
-  top: 7px;
-  bottom: 7px;
+  left: 0;
+  top: 0;
+  bottom: 0;
   width: 4px;
-  border-radius: 0 4px 4px 0;
-  background: var(--gold-500);
+  background: var(--nav-active-edge);
 }
 
 .nav-badge {
   margin-left: auto;
-  min-width: 22px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: var(--gold-500);
-  color: var(--ink);
-  font-size: 11px;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 11px;
+  background: var(--sidebar-text);
+  color: #fff;
+  font-size: 12px;
   font-weight: 600;
   display: grid;
   place-items: center;
 }
 
-/* Brand motto with faint contour lines, pinned to the bottom of the sidebar. */
-.sidebar-footer {
-  position: relative;
-  margin-top: auto;
-  min-height: 170px;
-  padding: 0 24px 26px;
-  display: flex;
-  align-items: flex-end;
-  flex-shrink: 0;
+.nav-item.is-active .nav-badge {
+  background: rgba(255, 255, 255, 0.25);
 }
 
-.sidebar-contours {
+/*
+ * Mountain drawing at the foot of the sidebar. It sits behind the menu at its full size so it is never
+ * cropped; its top fades out, so on shorter screens the last menu items simply sit over the faded sky.
+ */
+.sidebar-brand,
+.sidebar-nav {
+  position: relative;
+  z-index: 1;
+}
+
+.sidebar-footer {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.sidebar-mountains {
+  display: block;
   width: 100%;
-  height: 100%;
-  opacity: 0.2;
+  height: auto;
+  aspect-ratio: 260 / 340;
+  animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s backwards;
 }
 
 .sidebar-motto {
-  position: relative;
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 19px;
-  line-height: 1.15;
-  color: var(--sidebar-text);
+  font-size: 20px;
+  line-height: 1.2;
+  color: #fff;
+  text-shadow: 0 1px 10px rgba(15, 30, 40, 0.5);
 }
 
 .sidebar-motto::after {
@@ -193,6 +221,24 @@
   height: 2px;
   margin-top: 10px;
   background: var(--gold-500);
+}
+
+/* Shorter screens: a tighter menu so it stays clear of the mountain. */
+@media (max-height: 860px) {
+  .nav-item {
+    height: 40px;
+  }
+
+  .sidebar-section {
+    margin-bottom: 6px;
+  }
+}
+
+/* Very short screens: the menu needs all the room. */
+@media (max-height: 680px) {
+  .sidebar-footer {
+    display: none;
+  }
 }
 
 /* ---------- Main column ---------- */
@@ -211,8 +257,9 @@
   gap: 16px;
   height: var(--chrome-height);
   padding: 0 24px;
-  background: var(--chrome);
-  border-bottom: 1px solid var(--chrome-line);
+  /* White, so the header, the grey sidebar and the content area read as three separate parts. */
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
 }
 
 .icon-button {
@@ -284,7 +331,7 @@
   height: 7px;
   border-radius: 50%;
   background: var(--red);
-  box-shadow: 0 0 0 2px var(--chrome);
+  box-shadow: 0 0 0 2px var(--surface);
 }
 
 .user-chip {
@@ -386,8 +433,14 @@
     padding: 0;
   }
 
+  .menu-toggled .nav-item.is-active {
+    margin-left: 0;
+    padding: 0;
+    border-radius: 8px;
+  }
+
   .menu-toggled .nav-item.is-active::before {
-    left: -12px;
+    display: none;
   }
 
   .menu-toggled .nav-item .nav-badge {

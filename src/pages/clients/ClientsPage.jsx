@@ -8,6 +8,7 @@ import { formatDate } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
 import { stateOf } from '../../utils/leads'
 import { ONBOARDING_STEPS, progressOf } from '../../utils/workflow'
+import { Portal } from '../../components/common/Portal'
 
 const statusOf = (lead) => (progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length ? 'Active' : 'Onboarding')
 const sinceOf = (lead) => lead.wonOn ?? lead.createdOn
@@ -42,93 +43,95 @@ function ClientDrawer({ client, onClose }) {
 
   const done = progressOf(ONBOARDING_STEPS, client.onboarding)
   return (
-    <div className="drawer-root">
-      <div className="drawer-backdrop" onClick={onClose} />
-      <aside className="enquiry-drawer lead-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <header className="drawer-header">
-          <div className="lead-drawer-title">
-            <h2 id={titleId}>{client.company}</h2>
-            <span className="muted">
-              Client since {formatDate(sinceOf(client))} · <span className={`pill ${statusOf(client) === 'Active' ? 'tone-good' : 'tone-attention'} status-pill`}>{statusOf(client)}</span>
-            </span>
-          </div>
-          <button className="icon-button" onClick={onClose} aria-label="Close">
-            <X size={20} />
-          </button>
-        </header>
-        <div className="drawer-body lead-drawer-body">
-          <section className="contact-card">
-            <strong>{client.contactPerson}</strong>
-            <div className="contact-lines">
-              {client.phone && (
-                <a href={`tel:+91${client.phone}`}>
-                  <Phone size={14} /> +91 {client.phone.slice(0, 5)} {client.phone.slice(5)}
-                </a>
-              )}
-              {client.email && (
-                <a href={`mailto:${client.email}`}>
-                  <Mail size={14} /> {client.email}
-                </a>
-              )}
-              {client.location && (
-                <span>
-                  <MapPin size={14} /> {client.location}
-                </span>
-              )}
-            </div>
-          </section>
-          <dl className="fact-grid">
-            <div>
-              <dt>Business</dt>
-              <dd>{client.quoteValue ? money.short(client.quoteValue) : '—'}</dd>
-            </div>
-            <div>
-              <dt>Account owner</dt>
-              <dd>{client.assignedTo}</dd>
-            </div>
-            <div>
-              <dt>Client type</dt>
-              <dd>{client.clientType ?? 'Company'}</dd>
-            </div>
-            <div>
-              <dt>Documents</dt>
-              <dd>{client.documents?.length ?? 0} on file</dd>
-            </div>
-          </dl>
-          <section className="lead-section">
-            <h3>Onboarding</h3>
-            <div className="workflow-progress">
-              <ProgressBar done={done} total={ONBOARDING_STEPS.length} tone={done === ONBOARDING_STEPS.length ? 'tone-good' : 'tone-attention'} />
-              <span>
-                {done}/{ONBOARDING_STEPS.length}
+    <Portal>
+      <div className="drawer-root">
+        <div className="drawer-backdrop" onClick={onClose} />
+        <aside className="enquiry-drawer lead-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+          <header className="drawer-header">
+            <div className="lead-drawer-title">
+              <h2 id={titleId}>{client.company}</h2>
+              <span className="muted">
+                Client since {formatDate(sinceOf(client))} · <span className={`pill ${statusOf(client) === 'Active' ? 'tone-good' : 'tone-attention'} status-pill`}>{statusOf(client)}</span>
               </span>
             </div>
-            {done < ONBOARDING_STEPS.length && (
-              <Link to="/client-onboarding" className="link-button">
-                Continue onboarding
-              </Link>
-            )}
-          </section>
-          <section className="lead-section">
-            <h3>Projects &amp; enquiries</h3>
-            <ul className="mini-list">
-              <li className="tone-good">
-                <i />
+            <button className="icon-button" onClick={onClose} aria-label="Close">
+              <X size={20} />
+            </button>
+          </header>
+          <div className="drawer-body lead-drawer-body">
+            <section className="contact-card">
+              <strong>{client.contactPerson}</strong>
+              <div className="contact-lines">
+                {client.phone && (
+                  <a href={`tel:+91${client.phone}`}>
+                    <Phone size={14} /> +91 {client.phone.slice(0, 5)} {client.phone.slice(5)}
+                  </a>
+                )}
+                {client.email && (
+                  <a href={`mailto:${client.email}`}>
+                    <Mail size={14} /> {client.email}
+                  </a>
+                )}
+                {client.location && (
+                  <span>
+                    <MapPin size={14} /> {client.location}
+                  </span>
+                )}
+              </div>
+            </section>
+            <dl className="fact-grid">
+              <div>
+                <dt>Business</dt>
+                <dd>{client.quoteValue ? money.short(client.quoteValue) : '—'}</dd>
+              </div>
+              <div>
+                <dt>Account owner</dt>
+                <dd>{client.assignedTo}</dd>
+              </div>
+              <div>
+                <dt>Client type</dt>
+                <dd>{client.clientType ?? 'Company'}</dd>
+              </div>
+              <div>
+                <dt>Documents</dt>
+                <dd>{client.documents?.length ?? 0} on file</dd>
+              </div>
+            </dl>
+            <section className="lead-section">
+              <h3>Onboarding</h3>
+              <div className="workflow-progress">
+                <ProgressBar done={done} total={ONBOARDING_STEPS.length} tone={done === ONBOARDING_STEPS.length ? 'tone-good' : 'tone-attention'} />
                 <span>
-                  <Link to={`/leads/${client.id}`}>
-                    <strong>{client.serviceDetail}</strong>
-                  </Link>{' '}
-                  · {client.id}
+                  {done}/{ONBOARDING_STEPS.length}
                 </span>
-                <Link to={`/quotations?open=${client.id}`} className="mini-when">
-                  Quotation
+              </div>
+              {done < ONBOARDING_STEPS.length && (
+                <Link to="/client-onboarding" className="link-button">
+                  Continue onboarding
                 </Link>
-              </li>
-            </ul>
-          </section>
-        </div>
-      </aside>
-    </div>
+              )}
+            </section>
+            <section className="lead-section">
+              <h3>Projects &amp; enquiries</h3>
+              <ul className="mini-list">
+                <li className="tone-good">
+                  <i />
+                  <span>
+                    <Link to={`/leads/${client.id}`}>
+                      <strong>{client.serviceDetail}</strong>
+                    </Link>{' '}
+                    · {client.id}
+                  </span>
+                  <Link to={`/quotations?open=${client.id}`} className="mini-when">
+                    Quotation
+                  </Link>
+                </li>
+              </ul>
+            </section>
+          </div>
+        </aside>
+      </div>
+    </Portal>
   )
 }
 

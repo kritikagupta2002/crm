@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarPlus, FileText, Mail, MapPin, MessageCircle, Pencil, Phone, XCircle } from 'lucide-react'
+import { ArrowLeft, CalendarPlus, ExternalLink, FileText, Mail, MapPin, MessageCircle, Pencil, Phone, XCircle } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { StagePill } from '../../components/common/StagePill'
@@ -10,7 +10,7 @@ import { useCrm, useMoney } from '../../context/crm'
 import { useEnquiryForm } from '../../context/enquiryForm'
 import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { leadAgeDays } from '../../utils/leads'
+import { leadAgeLabel } from '../../utils/leads'
 import { whatsappLink } from '../../utils/whatsapp'
 import { LeadDocuments } from './LeadDocuments'
 import { LostReasonDialog } from './LostReasonDialog'
@@ -59,7 +59,7 @@ function Overview({ lead }) {
             ['Service required', lead.serviceDetail],
             ['Mineral', lead.mineral],
             ['Source', lead.source],
-            ['Received', `${formatDayMonth(lead.createdOn)} · ${leadAgeDays(lead) === 0 ? 'today' : `${leadAgeDays(lead)} days ago`}`],
+            ['Received', `${formatDayMonth(lead.createdOn)} · ${leadAgeLabel(lead).toLowerCase()}`],
             ['Expected timeline', lead.expectedTimeline],
             ['Estimated value', lead.estimatedValue ? money.short(lead.estimatedValue) : ''],
           ]}
@@ -245,6 +245,9 @@ export function LeadDetailsPage() {
                 <MapPin size={14} /> {lead.location}
               </span>
             )}
+            <Link to={`/portal?lead=${lead.id}`} className="portal-preview-link">
+              <ExternalLink size={14} /> Preview client portal
+            </Link>
           </section>
         </aside>
       </div>

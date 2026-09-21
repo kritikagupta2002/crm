@@ -1,5 +1,6 @@
 import { MoreHorizontal } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Portal } from './Portal'
 
 const MENU_GAP = 4
 
@@ -47,21 +48,23 @@ export function ActionMenu({ label, items }) {
         <MoreHorizontal size={16} />
       </button>
       {position && (
-        <div className="row-menu-list is-floating" role="menu" style={position}>
-          {items.map(({ label: itemLabel, icon: Icon, onSelect, tone }) => (
-            <button
-              key={itemLabel}
-              role="menuitem"
-              className={tone ? `menu-${tone}` : undefined}
-              onClick={() => {
-                setPosition(null)
-                onSelect()
-              }}
-            >
-              <Icon size={15} /> {itemLabel}
-            </button>
-          ))}
-        </div>
+        <Portal>
+          <div className="row-menu-list is-floating" role="menu" style={position} onClick={(e) => e.stopPropagation()}>
+            {items.map(({ label: itemLabel, icon: Icon, onSelect, tone }) => (
+              <button
+                key={itemLabel}
+                role="menuitem"
+                className={tone ? `menu-${tone}` : undefined}
+                onClick={() => {
+                  setPosition(null)
+                  onSelect()
+                }}
+              >
+                <Icon size={15} /> {itemLabel}
+              </button>
+            ))}
+          </div>
+        </Portal>
       )}
     </div>
   )

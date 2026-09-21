@@ -4,6 +4,7 @@ import { useCrm, useMoney } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { toISODate } from '../../utils/date'
 import { quoteFor, quoteTotals } from '../../utils/workflow'
+import { Portal } from '../../components/common/Portal'
 
 const blankItem = () => ({ description: '', qty: 1, rate: '' })
 
@@ -71,113 +72,115 @@ export function QuotationBuilder({ leadId, onClose, onSaved }) {
   }
 
   return (
-    <div className="drawer-root">
-      <div className="drawer-backdrop" onClick={onClose} />
-      <aside className="enquiry-drawer quote-builder" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <header className="drawer-header">
-          <h2 id={titleId}>{current ? `Revise ${current.number}` : 'New Quotation'}</h2>
-          <button className="icon-button" onClick={onClose} aria-label="Close">
-            <X size={22} />
-          </button>
-        </header>
-        <form className="drawer-form" onSubmit={submit} noValidate>
-          <div className="drawer-body">
-            <label className="field builder-lead">
-              <span className="field-label">
-                Enquiry <em aria-hidden="true">*</em>
-              </span>
-              <select value={selectedId} onChange={(e) => pickLead(e.target.value)} disabled={Boolean(leadId)}>
-                <option value="">Choose an open enquiry…</option>
-                {openLeads.map((l) => (
-                  <option key={l.id} value={l.id}>
-                    {l.id} — {l.company} ({l.serviceDetail})
-                  </option>
-                ))}
-              </select>
-            </label>
+    <Portal>
+      <div className="drawer-root">
+        <div className="drawer-backdrop" onClick={onClose} />
+        <aside className="enquiry-drawer quote-builder" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+          <header className="drawer-header">
+            <h2 id={titleId}>{current ? `Revise ${current.number}` : 'New Quotation'}</h2>
+            <button className="icon-button" onClick={onClose} aria-label="Close">
+              <X size={22} />
+            </button>
+          </header>
+          <form className="drawer-form" onSubmit={submit} noValidate>
+            <div className="drawer-body">
+              <label className="field builder-lead">
+                <span className="field-label">
+                  Enquiry <em aria-hidden="true">*</em>
+                </span>
+                <select value={selectedId} onChange={(e) => pickLead(e.target.value)} disabled={Boolean(leadId)}>
+                  <option value="">Choose an open enquiry…</option>
+                  {openLeads.map((l) => (
+                    <option key={l.id} value={l.id}>
+                      {l.id} — {l.company} ({l.serviceDetail})
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <table className="line-items">
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Qty</th>
-                  <th>Rate (₹)</th>
-                  <th className="num">Amount</th>
-                  <th>
-                    <span className="sr-only">Remove</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {form.items.map((item, index) => (
-                  <tr key={index}>
-                    <td>
-                      <input value={item.description} onChange={(e) => setItem(index, 'description', e.target.value)} placeholder="Service or deliverable" aria-label={`Line ${index + 1} description`} />
-                    </td>
-                    <td>
-                      <input value={item.qty} onChange={(e) => setItem(index, 'qty', e.target.value)} inputMode="numeric" className="qty" aria-label={`Line ${index + 1} quantity`} />
-                    </td>
-                    <td>
-                      <input value={item.rate} onChange={(e) => setItem(index, 'rate', e.target.value)} inputMode="numeric" placeholder="0" aria-label={`Line ${index + 1} rate`} />
-                    </td>
-                    <td className="num">{money.short((Number(item.qty) || 0) * (Number(item.rate) || 0))}</td>
-                    <td>
-                      <button type="button" className="icon-button small" onClick={() => setForm({ ...form, items: form.items.filter((_, i) => i !== index) })} disabled={form.items.length === 1} aria-label={`Remove line ${index + 1}`}>
-                        <Trash2 size={15} />
-                      </button>
-                    </td>
+              <table className="line-items">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Rate (₹)</th>
+                    <th className="num">Amount</th>
+                    <th>
+                      <span className="sr-only">Remove</span>
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-            <button type="button" className="link-button" onClick={() => setForm({ ...form, items: [...form.items, blankItem()] })}>
-              <Plus size={15} /> Add line
-            </button>
+                </thead>
+                <tbody>
+                  {form.items.map((item, index) => (
+                    <tr key={index}>
+                      <td>
+                        <input value={item.description} onChange={(e) => setItem(index, 'description', e.target.value)} placeholder="Service or deliverable" aria-label={`Line ${index + 1} description`} />
+                      </td>
+                      <td>
+                        <input value={item.qty} onChange={(e) => setItem(index, 'qty', e.target.value)} inputMode="numeric" className="qty" aria-label={`Line ${index + 1} quantity`} />
+                      </td>
+                      <td>
+                        <input value={item.rate} onChange={(e) => setItem(index, 'rate', e.target.value)} inputMode="numeric" placeholder="0" aria-label={`Line ${index + 1} rate`} />
+                      </td>
+                      <td className="num">{money.short((Number(item.qty) || 0) * (Number(item.rate) || 0))}</td>
+                      <td>
+                        <button type="button" className="icon-button small" onClick={() => setForm({ ...form, items: form.items.filter((_, i) => i !== index) })} disabled={form.items.length === 1} aria-label={`Remove line ${index + 1}`}>
+                          <Trash2 size={15} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <button type="button" className="link-button" onClick={() => setForm({ ...form, items: [...form.items, blankItem()] })}>
+                <Plus size={15} /> Add line
+              </button>
 
-            <div className="builder-bottom">
-              <div className="form-grid">
-                <label className="field">
-                  <span className="field-label">Discount (%)</span>
-                  <input value={form.discountPct} onChange={(e) => setForm({ ...form, discountPct: e.target.value.replace(/[^\d.]/g, '') })} inputMode="decimal" />
-                </label>
-                <label className="field">
-                  <span className="field-label">Valid for (days)</span>
-                  <input value={form.validDays} onChange={(e) => setForm({ ...form, validDays: e.target.value.replace(/[^\d]/g, '') })} inputMode="numeric" />
-                </label>
-              </div>
-              <dl className="totals">
-                <div>
-                  <dt>Subtotal</dt>
-                  <dd>{money.short(totals.gross)}</dd>
+              <div className="builder-bottom">
+                <div className="form-grid">
+                  <label className="field">
+                    <span className="field-label">Discount (%)</span>
+                    <input value={form.discountPct} onChange={(e) => setForm({ ...form, discountPct: e.target.value.replace(/[^\d.]/g, '') })} inputMode="decimal" />
+                  </label>
+                  <label className="field">
+                    <span className="field-label">Valid for (days)</span>
+                    <input value={form.validDays} onChange={(e) => setForm({ ...form, validDays: e.target.value.replace(/[^\d]/g, '') })} inputMode="numeric" />
+                  </label>
                 </div>
-                {totals.discount > 0 && (
+                <dl className="totals">
                   <div>
-                    <dt>Discount</dt>
-                    <dd>− {money.short(totals.discount)}</dd>
+                    <dt>Subtotal</dt>
+                    <dd>{money.short(totals.gross)}</dd>
                   </div>
-                )}
-                <div>
-                  <dt>GST {settings.gstPct}%</dt>
-                  <dd>{money.short(totals.gst)}</dd>
-                </div>
-                <div className="grand">
-                  <dt>Total</dt>
-                  <dd>{money.full(totals.total)}</dd>
-                </div>
-              </dl>
+                  {totals.discount > 0 && (
+                    <div>
+                      <dt>Discount</dt>
+                      <dd>− {money.short(totals.discount)}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt>GST {settings.gstPct}%</dt>
+                    <dd>{money.short(totals.gst)}</dd>
+                  </div>
+                  <div className="grand">
+                    <dt>Total</dt>
+                    <dd>{money.full(totals.total)}</dd>
+                  </div>
+                </dl>
+              </div>
+              {error && <p className="field-error">{error}</p>}
             </div>
-            {error && <p className="field-error">{error}</p>}
-          </div>
-          <footer className="drawer-footer">
-            <button type="button" className="btn" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary">
-              {current ? 'Send Revision' : 'Send Quotation'}
-            </button>
-          </footer>
-        </form>
-      </aside>
-    </div>
+            <footer className="drawer-footer">
+              <button type="button" className="btn" onClick={onClose}>
+                Cancel
+              </button>
+              <button type="submit" className="btn btn-primary">
+                {current ? 'Send Revision' : 'Send Quotation'}
+              </button>
+            </footer>
+          </form>
+        </aside>
+      </div>
+    </Portal>
   )
 }

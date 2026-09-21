@@ -640,7 +640,20 @@
   }
 
   .quote-doc {
-    padding: 18px;
+    padding: 16px 12px;
+  }
+
+  .quote-lines {
+    font-size: 12px;
+  }
+
+  .quote-lines th,
+  .quote-lines td {
+    padding: 8px 5px;
+  }
+
+  .quote-totals {
+    width: 100%;
   }
 
   .quote-head,

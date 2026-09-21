@@ -5,7 +5,7 @@ import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm, useMoney } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
-import { QUOTE_STATUS_TONE, quoteFor } from '../../utils/workflow'
+import { QUOTE_STATUS_TONE, openQuotes, quoteFor } from '../../utils/workflow'
 import { LostReasonDialog } from '../leads/LostReasonDialog'
 import { QuotationBuilder } from './QuotationBuilder'
 import { QuotationView } from './QuotationView'
@@ -45,12 +45,16 @@ export function QuotationsPage() {
     .filter((r) => !q || `${r.quote.number} ${r.lead.company} ${r.lead.serviceDetail}`.toLowerCase().includes(q))
 
   const sum = (rows) => rows.reduce((s, r) => s + r.quote.total, 0)
-  const open = quotes.filter((r) => r.quote.status === 'Sent' || r.quote.status === 'Revised')
+  const open = openQuotes(leads, settings)
   const accepted = quotes.filter((r) => r.quote.status === 'Accepted')
   const decided = accepted.length + quotes.filter((r) => r.quote.status === 'Rejected').length
 
-  const building = params.get('new') !== null ? { leadId: params.get('new') || undefined } : params.get('revise') ? { leadId: params.get('revise') } : null
-  const viewing = params.get('open')
+  // Quotations can only be built for open enquiries; a link to a won/lost one shows its quotation instead.
+  const requested = params.get('new') !== null ? params.get('new') || undefined : params.get('revise') || null
+  const requestedLead = requested ? leads.find((l) => l.id === requested) : null
+  const isClosedLead = requestedLead && (requestedLead.stage === 'Won' || requestedLead.stage === 'Lost')
+  const building = requested === null || isClosedLead ? null : { leadId: requested }
+  const viewing = params.get('open') ?? (isClosedLead ? requestedLead.id : null)
   const go = useCallback((next) => setParams(next, { replace: true }), [setParams])
   const close = useCallback(() => go({}), [go])
   const cancelReject = useCallback(() => setRejecting(null), [])
@@ -75,7 +79,7 @@ export function QuotationsPage() {
       </header>
 
       <section className="stat-grid">
-        <KpiCard tone="tone-info" icon={FileText} label="Awaiting Decision" value={open.length}>
+        <KpiCard tone="tone-info" icon={FileText} label="Awaiting Client Reply" value={open.length}>
           <span className="muted">{money.short(sum(open))} incl. GST</span>
         </KpiCard>
         <KpiCard tone="tone-good" icon={CheckCircle2} label="Accepted" value={accepted.length}>

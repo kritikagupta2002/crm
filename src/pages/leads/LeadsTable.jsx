@@ -4,7 +4,7 @@ import { ActionMenu } from '../../components/common/ActionMenu'
 import { StagePill } from '../../components/common/StagePill'
 import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { leadAgeDays, sortLeads } from '../../utils/leads'
+import { leadAgeLabel, sortLeads } from '../../utils/leads'
 import { useMoney } from '../../context/crm'
 
 const PAGE_SIZES = [10, 15, 25, 50]
@@ -27,11 +27,6 @@ function FollowUpCell({ date }) {
   if (!date) return <span className="muted">—</span>
   const tone = date < todayISO ? 'tone-urgent' : date === todayISO ? 'tone-attention' : ''
   return <span className={`follow-date ${tone}`}>{date === todayISO ? 'Today' : formatDayMonth(date)}</span>
-}
-
-function ageLabel(lead) {
-  const days = leadAgeDays(lead)
-  return days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days} days ago`
 }
 
 /* 1 … 4 5 6 … 12 — first, last and the pages around the current one. */
@@ -121,7 +116,7 @@ export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onSchedu
                   </td>
                   <td className="nowrap">
                     <div className="cell-strong-soft">{formatDayMonth(lead.createdOn)}</div>
-                    <div className="cell-sub">{ageLabel(lead)}</div>
+                    <div className="cell-sub">{leadAgeLabel(lead)}</div>
                   </td>
                   <td className="nowrap">
                     <FollowUpCell date={lead.nextFollowUp} />

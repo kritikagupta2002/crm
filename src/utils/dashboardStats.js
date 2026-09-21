@@ -1,5 +1,6 @@
 import { SERVICES, STAGES, TODAY } from '../data/mockData'
 import { isInRange, monthShort, parseISODate, periodRange, toISODate } from './date'
+import { openQuotes } from './workflow'
 
 const countStage = (leads, stage) => leads.filter((lead) => lead.stage === stage).length
 const quotedValue = (leads, stage) => leads.filter((lead) => lead.stage === stage).reduce((sum, lead) => sum + (lead.quoteValue ?? 0), 0)
@@ -23,12 +24,14 @@ export function countFollowUpsDue(followUps) {
   }
 }
 
-export function getSummary({ leads, followUps }, period) {
+export function getSummary({ leads, followUps, settings }, period) {
   const current = leadsForPeriod(leads, period)
   const previous = leadsForPeriod(leads, period, -1)
   const won = countStage(current, 'Won')
   const wonPrev = countStage(previous, 'Won')
   const followUpsDue = countFollowUpsDue(followUps)
+  // Waiting on the client is a current state, like follow-ups due, so it isn't limited to the period.
+  const awaiting = openQuotes(leads, settings)
 
   const rate = current.length ? (won / current.length) * 100 : 0
   const ratePrev = previous.length ? (wonPrev / previous.length) * 100 : null
@@ -37,8 +40,8 @@ export function getSummary({ leads, followUps }, period) {
     totalLeads: current.length,
     totalLeadsChange: change(current.length, previous.length),
     followUpsDue: { value: followUpsDue.due, overdue: followUpsDue.overdue },
-    pendingProposals: countStage(current, 'Proposal Sent'),
-    pendingProposalsValue: quotedValue(current, 'Proposal Sent'),
+    pendingProposals: awaiting.length,
+    pendingProposalsValue: awaiting.reduce((sum, row) => sum + row.quote.total, 0),
     converted: {
       value: won,
       amount: quotedValue(current, 'Won'),

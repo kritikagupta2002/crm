@@ -1,6 +1,8 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { EnquiryFormProvider } from './components/enquiry/EnquiryFormProvider'
 import { AppLayout } from './components/layout/AppLayout'
+import { LoginPage } from './pages/auth/LoginPage'
+import { ClientPortalPage } from './pages/portal/ClientPortalPage'
 import { CrmProvider } from './context/CrmProvider'
 import { PeriodProvider } from './context/PeriodProvider'
 import { ClientsPage } from './pages/clients/ClientsPage'
@@ -24,6 +26,8 @@ export default function App() {
           {/* Inside the router so saving a new enquiry can open its details page. */}
           <EnquiryFormProvider>
             <Routes>
+              <Route path="login" element={<LoginPage />} />
+              <Route path="portal" element={<ClientPortalPage />} />
               <Route element={<AppLayout />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="leads" element={<LeadsPage />} />

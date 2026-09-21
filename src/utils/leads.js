@@ -3,6 +3,12 @@ import { isInRange, parseISODate, periodRange } from './date'
 
 export const leadAgeDays = (lead) => Math.max(0, Math.round((TODAY - parseISODate(lead.createdOn)) / 86_400_000))
 
+/* "Today" / "Yesterday" / "5 days ago" */
+export function leadAgeLabel(lead) {
+  const days = leadAgeDays(lead)
+  return days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days} days ago`
+}
+
 export const EMPTY_FILTERS = { search: '', service: '', owner: '', source: '', state: '', period: 'all' }
 
 /* "Rajsamand, Rajasthan" → "Rajasthan". Free-text locations from the enquiry form work the same way. */

@@ -75,3 +75,20 @@ export function quoteFor(lead, settings) {
     ...quoteTotals(base),
   }
 }
+
+/* Quotations sent and still waiting for the client's answer (expired ones included). Dashboard and Quotations share this count. */
+export function openQuotes(leads, settings) {
+  return leads
+    .map((lead) => ({ lead, quote: quoteFor(lead, settings) }))
+    .filter((row) => row.quote && (row.quote.status === 'Sent' || row.quote.status === 'Revised'))
+}
+
+/*
+ * A generated quotation's version and date follow the lead's stage, so pin them before the stage
+ * moves on (accepted, won, lost) — otherwise QT-…-004 would turn into QT-…-004-R1 on acceptance.
+ */
+export function pinnedQuote(lead, settings) {
+  if (lead.quote || !lead.quoteValue) return lead.quote
+  const { version, items, discountPct, gstPct, validDays, sentOn } = quoteFor(lead, settings)
+  return { version, items, discountPct, gstPct, validDays, sentOn }
+}

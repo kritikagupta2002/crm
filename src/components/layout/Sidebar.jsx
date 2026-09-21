@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom'
 import { useCrm } from '../../context/crm'
 import { countFollowUpsDue } from '../../utils/dashboardStats'
-import { ContourLines } from '../common/ContourLines'
 import { Logo } from '../common/Logo'
+import { Mountains } from '../common/Mountains'
 import { NAV_GROUPS } from './navigation'
 
 export function Sidebar({ onNavigate }) {
@@ -28,7 +28,7 @@ export function Sidebar({ onNavigate }) {
                 className={({ isActive }) => `nav-item ${isActive ? 'is-active' : ''}`}
                 title={label}
               >
-                <Icon size={18} strokeWidth={1.8} />
+                <Icon size={20} strokeWidth={1.8} />
                 <span>{label}</span>
                 {badge && badges[badge] > 0 && <span className="nav-badge">{badges[badge]}</span>}
               </NavLink>
@@ -38,7 +38,6 @@ export function Sidebar({ onNavigate }) {
       </nav>
 
       <div className="sidebar-footer">
-        <ContourLines className="sidebar-contours" lines={10} />
         <p className="sidebar-motto">
           Geology
           <br />
@@ -46,6 +45,7 @@ export function Sidebar({ onNavigate }) {
           <br />
           Tomorrow
         </p>
+        <Mountains className="sidebar-mountains" />
       </div>
     </aside>
   )

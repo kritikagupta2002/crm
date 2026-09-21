@@ -454,6 +454,18 @@
   color: var(--ink-3);
 }
 
+.contact-side .portal-preview-link {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line-soft);
+  font-weight: 500;
+  color: var(--teal-700);
+}
+
+.contact-side .portal-preview-link svg {
+  color: inherit;
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   .details-layout {

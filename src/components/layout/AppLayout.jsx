@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useCrm } from '../../context/crm'
 import { NAV_ITEMS } from './navigation'
 import { Sidebar } from './Sidebar'
@@ -30,11 +30,14 @@ function pageTitle(pathname) {
  */
 export function AppLayout() {
   const [menuToggled, setMenuToggled] = useState(readCollapsed)
-  const { changeCount, resetDemoData } = useCrm()
+  const { changeCount, resetDemoData, session } = useCrm()
   const { pathname } = useLocation()
 
   useEffect(() => {
     document.title = `${pageTitle(pathname)} · Bansal Geo CRM`
+    // A new page starts at the top; otherwise it opens at the previous page's scroll position.
+    // Only the path counts, so switching tabs or filters (?tab=…) doesn't jump.
+    window.scrollTo(0, 0)
   }, [pathname])
 
   const toggleMenu = () =>
@@ -48,6 +51,9 @@ export function AppLayout() {
       }
       return !value
     })
+
+  // The CRM is for the team; clients have their own portal.
+  if (session?.type !== 'team') return <Navigate to={session?.type === 'client' ? '/portal' : '/login'} replace state={{ from: pathname }} />
 
   return (
     <div className={`app-shell ${menuToggled ? 'menu-toggled' : ''}`}>

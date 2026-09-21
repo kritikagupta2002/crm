@@ -9,7 +9,8 @@ import { PriorityPill } from '../../components/lead/PriorityPill'
 import { useCrm, useMoney } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { leadAgeDays } from '../../utils/leads'
+import { leadAgeLabel } from '../../utils/leads'
+import { Portal } from '../../components/common/Portal'
 
 const todayISO = toISODate(TODAY)
 
@@ -38,84 +39,86 @@ export function LeadDetailDrawer({ leadId, startWithFollowUpForm = false, onClos
     ['Quotation', lead.quoteValue ? money.short(lead.quoteValue) : 'Not sent yet'],
     ['Assigned to', lead.assignedTo],
     ['Source', lead.source ?? '—'],
-    ['Received', formatDayMonth(lead.createdOn), leadAgeDays(lead) === 0 ? 'Today' : `${leadAgeDays(lead)} days ago`],
+    ['Received', formatDayMonth(lead.createdOn), leadAgeLabel(lead)],
     ['Next follow-up', lead.nextFollowUp ? (lead.nextFollowUp === todayISO ? 'Today' : formatDayMonth(lead.nextFollowUp)) : '—'],
   ]
 
   return (
-    <div className="drawer-root">
-      <div className="drawer-backdrop" onClick={onClose} />
-      <aside className="enquiry-drawer lead-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <header className="drawer-header">
-          <div className="lead-drawer-title">
-            <h2 id={titleId}>{lead.company}</h2>
-            <span className="muted">
-              {lead.id} · <StagePill stage={lead.stage} /> <PriorityPill priority={lead.priority} />
-            </span>
-          </div>
-          <button className="icon-button" onClick={onClose} aria-label="Close">
-            <X size={20} />
-          </button>
-        </header>
-
-        <div className="drawer-body lead-drawer-body">
-          <Link to={`/leads/${lead.id}`} className="open-details">
-            Open full details <ArrowRight size={15} />
-          </Link>
-
-          <section className="contact-card">
-            <strong>{lead.contactPerson}</strong>
-            <div className="contact-lines">
-              {lead.phone && (
-                <a href={`tel:+91${lead.phone}`}>
-                  <Phone size={14} /> +91 {lead.phone.slice(0, 5)} {lead.phone.slice(5)}
-                </a>
-              )}
-              {lead.email && (
-                <a href={`mailto:${lead.email}`}>
-                  <Mail size={14} /> {lead.email}
-                </a>
-              )}
-              {lead.location && (
-                <span>
-                  <MapPin size={14} /> {lead.location}
-                </span>
-              )}
+    <Portal>
+      <div className="drawer-root">
+        <div className="drawer-backdrop" onClick={onClose} />
+        <aside className="enquiry-drawer lead-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+          <header className="drawer-header">
+            <div className="lead-drawer-title">
+              <h2 id={titleId}>{lead.company}</h2>
+              <span className="muted">
+                {lead.id} · <StagePill stage={lead.stage} /> <PriorityPill priority={lead.priority} />
+              </span>
             </div>
-          </section>
+            <button className="icon-button" onClick={onClose} aria-label="Close">
+              <X size={20} />
+            </button>
+          </header>
 
-          <dl className="fact-grid">
-            {facts.map(([label, value, sub]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>
-                  {value}
-                  {sub && <span>{sub}</span>}
-                </dd>
+          <div className="drawer-body lead-drawer-body">
+            <Link to={`/leads/${lead.id}`} className="open-details">
+              Open full details <ArrowRight size={15} />
+            </Link>
+
+            <section className="contact-card">
+              <strong>{lead.contactPerson}</strong>
+              <div className="contact-lines">
+                {lead.phone && (
+                  <a href={`tel:+91${lead.phone}`}>
+                    <Phone size={14} /> +91 {lead.phone.slice(0, 5)} {lead.phone.slice(5)}
+                  </a>
+                )}
+                {lead.email && (
+                  <a href={`mailto:${lead.email}`}>
+                    <Mail size={14} /> {lead.email}
+                  </a>
+                )}
+                {lead.location && (
+                  <span>
+                    <MapPin size={14} /> {lead.location}
+                  </span>
+                )}
               </div>
-            ))}
-          </dl>
+            </section>
 
-          {lead.stage === 'Lost' && lead.lostReason && (
-            <p className="lost-note">
-              <XCircle size={16} /> Lost: {lead.lostReason}
-            </p>
-          )}
+            <dl className="fact-grid">
+              {facts.map(([label, value, sub]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>
+                    {value}
+                    {sub && <span>{sub}</span>}
+                  </dd>
+                </div>
+              ))}
+            </dl>
 
-          <section className="lead-section">
-            <h3>Stage</h3>
-            <LeadStageActions lead={lead} onMarkLost={onMarkLost} />
-          </section>
+            {lead.stage === 'Lost' && lead.lostReason && (
+              <p className="lost-note">
+                <XCircle size={16} /> Lost: {lead.lostReason}
+              </p>
+            )}
 
-          <section className="lead-section">
-            <LeadFollowUps lead={lead} startWithForm={startWithFollowUpForm} />
-          </section>
+            <section className="lead-section">
+              <h3>Stage</h3>
+              <LeadStageActions lead={lead} onMarkLost={onMarkLost} />
+            </section>
 
-          <section className="lead-section">
-            <LeadActivity lead={lead} />
-          </section>
-        </div>
-      </aside>
-    </div>
+            <section className="lead-section">
+              <LeadFollowUps lead={lead} startWithForm={startWithFollowUpForm} />
+            </section>
+
+            <section className="lead-section">
+              <LeadActivity lead={lead} />
+            </section>
+          </div>
+        </aside>
+      </div>
+    </Portal>
   )
 }
