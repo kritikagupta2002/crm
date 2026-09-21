@@ -520,3 +520,10 @@
     grid-template-columns: 120px minmax(0, 1fr);
   }
 }
+
+/* Phones: the action buttons flow from the left in rows instead of spreading to both edges. */
+@media (max-width: 640px) {
+  .lead-header .page-actions {
+    justify-content: flex-start;
+  }
+}

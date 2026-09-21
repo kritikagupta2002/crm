@@ -12,6 +12,7 @@ import { Portal } from '../../components/common/Portal'
 import { SharePortalButton } from '../../components/lead/SharePortalButton'
 import { ClientDocuments } from './ClientDocuments'
 import { ProjectPanel } from './ProjectPanel'
+import { RoleLink } from '../../components/common/RoleLink'
 
 const statusOf = (lead) => (progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length ? 'Active' : 'Onboarding')
 const sinceOf = (lead) => lead.wonOn ?? lead.createdOn
@@ -116,9 +117,9 @@ function ClientDrawer({ client, onClose }) {
                 </span>
               </div>
               {done < ONBOARDING_STEPS.length && (
-                <Link to="/client-onboarding" className="link-button">
+                <RoleLink to="/client-onboarding" className="link-button" hideIfLocked>
                   Continue onboarding
-                </Link>
+                </RoleLink>
               )}
             </section>
             <section className="lead-section">
@@ -127,14 +128,14 @@ function ClientDrawer({ client, onClose }) {
                 <li className="tone-good">
                   <i />
                   <span>
-                    <Link to={`/leads/${client.id}`}>
+                    <RoleLink to={`/leads/${client.id}`}>
                       <strong>{client.serviceDetail}</strong>
-                    </Link>{' '}
+                    </RoleLink>{' '}
                     · {client.id}
                   </span>
-                  <Link to={`/quotations?open=${client.id}`} className="mini-when">
+                  <RoleLink to={`/quotations?open=${client.id}`} className="mini-when" hideIfLocked>
                     Quotation
-                  </Link>
+                  </RoleLink>
                 </li>
               </ul>
             </section>

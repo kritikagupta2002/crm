@@ -63,9 +63,9 @@ function validate(form) {
   return errors
 }
 
-function Field({ label, error, required, hint, children, wide }) {
+function Field({ label, error, required, hint, children, wide, span }) {
   return (
-    <label className={`field ${wide ? 'field-wide' : ''} ${error ? 'has-error' : ''}`}>
+    <label className={`field ${wide ? 'field-wide' : ''} ${span ? 'field-span-2' : ''} ${error ? 'has-error' : ''}`}>
       <span className="field-label">
         {label}
         {required && <em aria-hidden="true"> *</em>}
@@ -198,14 +198,7 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
                 </legend>
                 <div className="form-grid">
                   <ChoiceChips label="Client type" name="clientType" options={CLIENT_TYPES} value={form.clientType} onChange={(v) => update('clientType', v)} />
-                  <ChoiceChips
-                    label="Preferred contact"
-                    name="preferredContact"
-                    options={CONTACT_MODES}
-                    value={form.preferredContact}
-                    onChange={(v) => update('preferredContact', v)}
-                  />
-                  <Field label={isCompany ? 'Company name' : 'Client name'} required error={errors.company}>
+                  <Field label={isCompany ? 'Company name' : 'Client name'} required error={errors.company} span>
                     <input
                       ref={firstFieldRef}
                       value={form.company}
@@ -226,6 +219,13 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
                   <Field label="Site location" hint="District, State">
                     <input value={form.location} onChange={(e) => update('location', e.target.value)} placeholder="Rajsamand, Rajasthan" />
                   </Field>
+                  <ChoiceChips
+                    label="Preferred contact"
+                    name="preferredContact"
+                    options={CONTACT_MODES}
+                    value={form.preferredContact}
+                    onChange={(v) => update('preferredContact', v)}
+                  />
                 </div>
                 {duplicates.length > 0 && (
                   <div className="duplicate-warning" role="status">

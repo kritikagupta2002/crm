@@ -3,7 +3,10 @@
   position: fixed;
   inset: 0;
   z-index: 60;
-  overflow: hidden; /* the drawer slides in from off-screen; don't let that create a scrollbar */
+  /* The drawer slides in from off-screen. clip (not hidden) also stops the browser from scrolling this
+     box sideways when a field is focused mid-slide, which left the form shifted off the left edge. */
+  overflow: hidden;
+  overflow: clip;
 }
 
 .drawer-backdrop {
@@ -110,6 +113,10 @@
 @media (min-width: 900px) {
   .is-wide-form .form-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .is-wide-form .field-span-2 {
+    grid-column: span 2;
   }
 }
 

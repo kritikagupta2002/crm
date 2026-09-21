@@ -17,6 +17,7 @@ import { LeadDocuments } from './LeadDocuments'
 import { LostReasonDialog } from './LostReasonDialog'
 import { ProjectRequirements } from './ProjectRequirements'
 import './leadDetails.css'
+import { RoleLink } from '../../components/common/RoleLink'
 
 const todayISO = toISODate(TODAY)
 
@@ -152,15 +153,15 @@ export function LeadDetailsPage() {
             </button>
           )}
           {(lead.quote || lead.quoteValue) ? (
-            <Link className="btn" to={`/quotations?open=${lead.id}`} title="View quotation">
+            <RoleLink className="btn" to={`/quotations?open=${lead.id}`} title="View quotation" hideIfLocked>
               <FileText size={15} /> Quotation
-            </Link>
+            </RoleLink>
           ) : (
             !isClosed &&
             !money.hidden && (
-              <Link className="btn" to={`/quotations?new=${lead.id}`} title="Create a quotation">
+              <RoleLink className="btn" to={`/quotations?new=${lead.id}`} title="Create a quotation" hideIfLocked>
                 <FilePlus2 size={15} /> Quotation
-              </Link>
+              </RoleLink>
             )
           )}
           <button className="btn btn-primary" onClick={() => openEditForm(lead)} title="Edit enquiry details">

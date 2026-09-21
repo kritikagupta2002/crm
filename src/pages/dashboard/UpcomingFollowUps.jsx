@@ -1,8 +1,8 @@
 import { ArrowRight, CalendarDays } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { useCrm } from '../../context/crm'
 import { getUpcomingFollowUps } from '../../utils/dashboardStats'
 import { formatTime, monthShort, parseISODate } from '../../utils/date'
+import { RoleLink } from '../../components/common/RoleLink'
 
 /* Same colour code as the rest of the dashboard: red = overdue, amber = today, blue = coming up. */
 const STATUS_TONE = {
@@ -20,9 +20,9 @@ export function UpcomingFollowUps() {
         <CalendarDays className="card-icon" size={22} strokeWidth={1.8} />
         <h2>Upcoming Follow-ups</h2>
         <div className="card-actions">
-          <Link to="/follow-ups" className="link-button">
+          <RoleLink to="/follow-ups" className="link-button" hideIfLocked>
             View all <ArrowRight size={15} />
-          </Link>
+          </RoleLink>
         </div>
       </header>
 

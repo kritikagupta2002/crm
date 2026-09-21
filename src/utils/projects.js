@@ -33,9 +33,12 @@ export function clientProjects(lead, projectEdits = {}) {
     const milestonesDone = milestones.filter((m) => m.done).length
     const approvalsDone = approvals.filter((s) => s.done).length
     // A project whose start date is still ahead (just won) hasn't started, even though it has a plan.
-    const started = Boolean(base.startedOn && base.startedOn <= todayISO)
+    // Started once its date has come, or earlier if the team has already ticked work off.
+    const firstDone = milestones.find((m) => m.done)?.date
+    const startedOn = firstDone && (!base.startedOn || firstDone < base.startedOn) ? firstDone : base.startedOn
+    const started = Boolean(startedOn && startedOn <= todayISO)
     const status = !started && milestonesDone === 0 ? 'Not started' : approvalsDone === approvals.length ? 'Completed' : submitted ? 'Awaiting approval' : 'In progress'
-    return { ...base, milestones, approvals, letters, milestonesDone, approvalsDone, status, started }
+    return { ...base, startedOn, milestones, approvals, letters, milestonesDone, approvalsDone, status, started }
   })
 }
 
@@ -66,8 +69,11 @@ const FOLLOW_UP_FOR_CLIENT = /^(Site Visit|Meeting|Presentation) scheduled for (
  * team's internal notes or calls. Newest first.
  */
 export function clientUpdates({ lead, quote, projects, activities, followUps }) {
-  const items = [{ id: 'received', text: 'We received your enquiry', date: lead.createdOn }]
-  if (quote) items.push({ id: 'quote', text: `Quotation ${quote.number.replace(/-R\d+$/, '')} shared with you`, date: lead.firstSentOn ?? quote.sentOn })
+  const items = [{ id: 'received', text: 'We received your enquiry', date: lead.createdOn, sort: `${lead.createdOn}T00:00:00` }]
+  if (quote) {
+    const sentOn = lead.firstSentOn ?? quote.sentOn
+    items.push({ id: 'quote', text: `Quotation ${quote.number.replace(/-R\d+$/, '')} shared with you`, date: sentOn, sort: `${sentOn}T00:00:01` })
+  }
   activities
     .filter((a) => a.leadId === lead.id)
     .forEach((a) => {
@@ -87,9 +93,11 @@ export function clientUpdates({ lead, quote, projects, activities, followUps }) 
     .filter((f) => f.leadId === lead.id && ['Site Visit', 'Meeting', 'Presentation'].includes(f.type) && f.date >= todayISO)
     .forEach((f) => items.push({ id: f.id, text: `Upcoming ${f.type.toLowerCase()} on ${formatDayMonth(f.date)}`, date: f.date, sort: `9${f.date}`, upcoming: true }))
   projects.forEach((p) => {
-    p.milestones.filter((m) => m.done).forEach((m) => items.push({ id: `${p.id}-${m.key}`, text: `${p.name}: ${m.label.toLowerCase()} done`, date: m.date }))
-    p.approvals.filter((s) => s.done).forEach((s) => items.push({ id: `${p.id}-a-${s.key}`, text: `${p.name}: ${s.label}`, date: s.date }))
-    p.letters.filter((l) => !l.stepKey).forEach((l) => items.push({ id: l.id, text: `New letter from ${l.authority}: ${l.title}`, date: l.date }))
+    let step = 0
+    const stepSort = (date) => `${date}T${date === todayISO ? '23:59' : '12:00'}:${String(step++).padStart(2, '0')}`
+    p.milestones.filter((m) => m.done).forEach((m) => items.push({ id: `${p.id}-${m.key}`, text: `${p.name}: ${m.label.toLowerCase()} done`, date: m.date, sort: stepSort(m.date) }))
+    p.approvals.filter((s) => s.done).forEach((s) => items.push({ id: `${p.id}-a-${s.key}`, text: `${p.name}: ${s.label}`, date: s.date, sort: stepSort(s.date) }))
+    p.letters.filter((l) => !l.stepKey).forEach((l) => items.push({ id: l.id, text: `New letter from ${l.authority}: ${l.title}`, date: l.date, sort: stepSort(l.date) }))
   })
   const seen = new Set()
   return items

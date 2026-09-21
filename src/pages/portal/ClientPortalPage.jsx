@@ -4,7 +4,7 @@ import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { Logo } from '../../components/common/Logo'
 import { Portal } from '../../components/common/Portal'
-import { useCrm, useMoney } from '../../context/crm'
+import { canOpen, useCrm, useMoney } from '../../context/crm'
 import { formatDate, formatNearDate } from '../../utils/date'
 import { downloadDocument, downloadLetter } from '../../utils/files'
 import { PROJECT_STATUS_TONE, clientProjects, clientUpdates } from '../../utils/projects'
@@ -487,7 +487,7 @@ function UpdatesCard({ updates }) {
  * The team can open the same view read-only with /portal?lead=<id> ("Preview client portal").
  */
 export function ClientPortalPage() {
-  const { leads, settings, session, signOut, projectEdits, activities, followUps } = useCrm()
+  const { leads, settings, session, signOut, projectEdits, activities, followUps, role } = useCrm()
   const money = useMoney()
   const [params] = useSearchParams()
   const [activeId, setActiveId] = useState(null)
@@ -553,7 +553,7 @@ export function ClientPortalPage() {
             <span className="portal-tag">Client Portal</span>
           </div>
           {preview ? (
-            <Link className="btn" to={`/leads/${lead.id}`}>
+            <Link className="btn" to={canOpen(role, '/leads') ? `/leads/${lead.id}` : '/'}>
               <ArrowLeft size={15} /> Back to CRM
             </Link>
           ) : (

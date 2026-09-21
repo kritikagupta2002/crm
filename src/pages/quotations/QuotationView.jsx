@@ -1,12 +1,12 @@
 import { CheckCircle2, MessageCircle, Pencil, Printer, X, XCircle } from 'lucide-react'
 import { useEffect, useId } from 'react'
-import { Link } from 'react-router-dom'
 import { useCrm, useMoney } from '../../context/crm'
 import { formatDate, formatDayMonth } from '../../utils/date'
 import { whatsappLink } from '../../utils/whatsapp'
 import { QUOTE_STATUS_TONE, quoteFor } from '../../utils/workflow'
 import { Portal } from '../../components/common/Portal'
 import { QuoteDocument } from './QuoteDocument'
+import { RoleLink } from '../../components/common/RoleLink'
 
 /* The quotation as the client sees it, with the actions that move it along. "Print" uses the browser's print / save-as-PDF. */
 export function QuotationView({ leadId, onClose, onRevise, onReject }) {
@@ -40,7 +40,7 @@ export function QuotationView({ leadId, onClose, onRevise, onReject }) {
               <h2 id={titleId}>{quote.number}</h2>
               <span className="muted">
                 <span className={`pill quote-status ${QUOTE_STATUS_TONE[quote.displayStatus]}`}>{quote.displayStatus}</span> ·{' '}
-                <Link to={`/leads/${lead.id}`}>{lead.id}</Link>
+                <RoleLink to={`/leads/${lead.id}`}>{lead.id}</RoleLink>
               </span>
             </div>
             <button className="icon-button" onClick={onClose} aria-label="Close">
@@ -91,9 +91,9 @@ export function QuotationView({ leadId, onClose, onRevise, onReject }) {
               </>
             )}
             {quote.status === 'Accepted' && lead.stage !== 'Won' && (
-              <Link to="/client-approval" className="btn btn-primary">
+              <RoleLink to="/client-approval" className="btn btn-primary" hideIfLocked>
                 Go to Client Approval
-              </Link>
+              </RoleLink>
             )}
           </footer>
         </aside>

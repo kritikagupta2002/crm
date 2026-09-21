@@ -1,12 +1,12 @@
 import { CheckCircle2, ClipboardList, Rocket, UserPlus } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { ONBOARDING_STEPS, progressOf } from '../../utils/workflow'
 import { SharePortalButton } from '../../components/lead/SharePortalButton'
 import { WorkflowCard } from './WorkflowCard'
+import { RoleLink } from '../../components/common/RoleLink'
 
 const isDone = (lead) => progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length
 
@@ -65,7 +65,7 @@ export function OnboardingPage() {
         <div className="card empty-state">
           {tab === 'progress' ? (
             <>
-              Everyone is onboarded. New wins from <Link to="/client-approval">Client Approval</Link> appear here.
+              Everyone is onboarded. New wins from <RoleLink to="/client-approval">Client Approval</RoleLink> appear here.
             </>
           ) : (
             'No completed onboardings yet.'

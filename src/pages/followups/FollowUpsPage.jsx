@@ -1,10 +1,10 @@
 import { AlertTriangle, CalendarCheck2, CalendarClock, CalendarDays, Check, Clock, Search } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm } from '../../context/crm'
 import { FOLLOW_UP_TYPES, TEAM, TODAY } from '../../data/mockData'
 import { addDays, formatDayMonth, formatTime, toISODate } from '../../utils/date'
+import { RoleLink } from '../../components/common/RoleLink'
 
 const todayISO = toISODate(TODAY)
 const tomorrowISO = toISODate(addDays(TODAY, 1))
@@ -34,7 +34,7 @@ function FollowUpRow({ item, lead, tone }) {
       <div className="fu-main">
         <strong>{item.title}</strong>
         <span className="muted">
-          {item.note} · <Link to={`/leads/${item.leadId}?tab=activity`}>{item.leadId}</Link> · {lead?.assignedTo}
+          {item.note} · <RoleLink to={`/leads/${item.leadId}?tab=activity`}>{item.leadId}</RoleLink> · {lead?.assignedTo}
         </span>
         {mode === 'done' && (
           <form

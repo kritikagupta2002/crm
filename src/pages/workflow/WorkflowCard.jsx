@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { StagePill } from '../../components/common/StagePill'
 import { progressOf } from '../../utils/workflow'
 import { useMoney } from '../../context/crm'
+import { RoleLink } from '../../components/common/RoleLink'
 
 /* One client's checklist card, shared by Client Approval and Onboarding. */
 export function WorkflowCard({ lead, steps, values, onToggle, footer, meta }) {
@@ -13,9 +13,9 @@ export function WorkflowCard({ lead, steps, values, onToggle, footer, meta }) {
     <article className={`card workflow-card lift ${complete ? 'is-complete' : ''}`}>
       <header>
         <div>
-          <Link to={`/leads/${lead.id}`} className="workflow-company">
+          <RoleLink to={`/leads/${lead.id}`} className="workflow-company">
             {lead.company}
-          </Link>
+          </RoleLink>
           <span className="muted">
             {lead.id} · {lead.serviceDetail}
           </span>

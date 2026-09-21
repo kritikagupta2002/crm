@@ -471,8 +471,14 @@ a {
 
 .page-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
+}
+
+/* Titles and meta lines may shrink and wrap instead of being clipped by the header. */
+.page-title {
+  min-width: 0;
 }
 
 .segmented {

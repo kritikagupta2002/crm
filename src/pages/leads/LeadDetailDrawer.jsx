@@ -1,6 +1,5 @@
 import { ArrowRight, Mail, MapPin, Phone, X, XCircle } from 'lucide-react'
 import { useEffect, useId } from 'react'
-import { Link } from 'react-router-dom'
 import { StagePill } from '../../components/common/StagePill'
 import { LeadActivity } from '../../components/lead/LeadActivity'
 import { LeadFollowUps } from '../../components/lead/LeadFollowUps'
@@ -11,6 +10,7 @@ import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
 import { leadAgeLabel } from '../../utils/leads'
 import { Portal } from '../../components/common/Portal'
+import { RoleLink } from '../../components/common/RoleLink'
 
 const todayISO = toISODate(TODAY)
 
@@ -61,9 +61,9 @@ export function LeadDetailDrawer({ leadId, startWithFollowUpForm = false, onClos
           </header>
 
           <div className="drawer-body lead-drawer-body">
-            <Link to={`/leads/${lead.id}`} className="open-details">
+            <RoleLink to={`/leads/${lead.id}`} className="open-details" hideIfLocked>
               Open full details <ArrowRight size={15} />
-            </Link>
+            </RoleLink>
 
             <section className="contact-card">
               <strong>{lead.contactPerson}</strong>
