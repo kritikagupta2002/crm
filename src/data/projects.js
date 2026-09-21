@@ -1,6 +1,7 @@
 import { addDays, parseISODate, toISODate } from '../utils/date'
 import { ONBOARDING_STEPS, progressOf } from '../utils/workflow'
 import { LEADS, SERVICE_DETAILS, TODAY } from './mockData'
+import { COORDINATORS, FIELD_MEMBERS, teamLeadFor } from './staff'
 
 /*
  * Projects for won clients, derived from the lead (like quotations), so the generated leads and
@@ -86,6 +87,67 @@ const APPROVALS = {
 }
 
 const num = (lead) => Number(lead.id.split('-').pop()) || 1
+
+/* Field members whose skills suit the service line; the rest of the pool fills in. */
+const FIELD_BY_SERVICE = {
+  'Environment, Community & Permitting': ['Pooja Meena', 'Ajay Kumar'],
+  'Hydrogeology & Groundwater': ['Sunil Yadav', 'Imran Ali'],
+  'Remote Sensing, GIS & Aerial Mapping': ['Ravi Gurjar', 'Deepak Soni'],
+  'Geotechnical Services': ['Imran Ali', 'Deepak Soni'],
+  'Mine Planning & Prefeasibility Study': ['Deepak Soni', 'Ajay Kumar'],
+}
+
+/* The team a running project was given. A project that hasn't started yet has none: the Admin allocates it. */
+function teamFor(service, n) {
+  const pair = FIELD_BY_SERVICE[service] ?? [FIELD_MEMBERS[n % FIELD_MEMBERS.length].name, FIELD_MEMBERS[(n + 3) % FIELD_MEMBERS.length].name]
+  return { coordinator: COORDINATORS[n % COORDINATORS.length].name, teamLead: teamLeadFor(service, n).name, members: pair }
+}
+
+/* What the field team does on site for each service line; seeded visits use these. */
+const FIELD_WORK = {
+  'Mineral Exploration & Resources': ['Geological mapping', 'Core drilling & logging', 'Sample collection'],
+  'Mineral Economics & Valuation': ['Site inspection & reserve check', 'Pit measurement'],
+  'Environment, Community & Permitting': ['Baseline air & water sampling', 'Noise & dust monitoring', 'Community survey'],
+  'Mine Planning & Prefeasibility Study': ['Pit & bench survey', 'Drone survey of the lease', 'Sample collection'],
+  'Hydrogeology & Groundwater': ['Water level survey of wells', 'Pumping test', 'Water sample collection'],
+  'Remote Sensing, GIS & Aerial Mapping': ['Drone flight & GCP marking', 'DGPS pillar survey'],
+  'Geotechnical Services': ['Slope face mapping', 'Rock sample collection', 'Bench survey'],
+}
+
+/* How a submission reaches each authority. */
+export const SUBMISSION_MODES = ['PARIVESH portal', 'NOCAP portal (CGWA)', 'IBM online portal', 'By hand at the office', 'Speed post']
+const MODE_BY_CODE = { SEIAA: 'PARIVESH portal', CGWA: 'NOCAP portal (CGWA)', IBM: 'IBM online portal', DMG: 'By hand at the office', DGMS: 'By hand at the office' }
+
+/* Days after the final approval that each closure step was done on, for the demo's finished projects. */
+const CLOSURE_LAG = { handover: 3, payment: 10, archive: 20, feedback: 35 }
+
+const slug = (text) => text.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
+/* Visits the field team has logged so far on a running project: photos and readings from each. */
+function seededVisits({ id, service, start, days, team, site, n }) {
+  if (!start || !team.members?.length) return []
+  const work = FIELD_WORK[service] ?? FIELD_WORK['Mineral Exploration & Resources']
+  const today = iso(TODAY)
+  return [0.14, 0.22, 0.3]
+    .map((at, i) => ({ at, i, date: iso(addDays(start, Math.round(days * at))) }))
+    .filter(({ date }) => date <= today)
+    .map(({ i, date }) => {
+      const activity = work[i % work.length]
+      const point = `${site.split(',')[0]} · ${['north block', 'pit 2', 'south boundary'][i]}`
+      return {
+        id: `${id}-FV${i + 1}`,
+        date,
+        by: team.members[i % team.members.length],
+        activity,
+        location: point,
+        notes: [`${activity} completed as planned.`, 'Weather clear; access road usable.', 'Readings cross-checked with the team lead.'][(n + i) % 3],
+        files: [
+          { id: `${id}-FV${i + 1}-a`, name: `${slug(activity)}_${date}_photos.jpg`, size: 2_400_000 + ((n * 7919 + i * 131) % 900_000), type: 'image/jpeg' },
+          { id: `${id}-FV${i + 1}-b`, name: `${slug(activity)}_${date}_readings.csv`, size: 18_000 + ((n * 31 + i) % 9000), type: 'text/csv' },
+        ],
+      }
+    })
+}
 const stateOfLead = (lead) => lead.location?.split(',').pop().trim() || 'Rajasthan'
 const iso = (d) => toISODate(d)
 
@@ -96,24 +158,40 @@ export function wonDate(lead) {
   return iso(new Date(Math.min(guess, addDays(TODAY, -3))))
 }
 
-function build({ id, lead, name, service, startedOn, days, n }) {
+function build({ id, lead, name, service, startedOn, days, n, team, site, createdOn }) {
   const approval = APPROVALS[service] ?? APPROVALS['Mineral Exploration & Resources']
   const start = startedOn && parseISODate(startedOn)
   const milestones = MILESTONES.map((m) => ({ ...m, date: start ? iso(addDays(start, Math.round(days * m.at))) : null }))
   const submission = milestones[milestones.length - 1].date
   const steps = approval.steps.map((s) => ({ ...s, date: submission ? iso(addDays(parseISODate(submission), s.days)) : null }))
+  const place = site ?? lead.location ?? stateOfLead(lead)
+  const refBase = `${approval.code}/${stateOfLead(lead).slice(0, 3).toUpperCase()}/${(startedOn ?? lead.createdOn).slice(0, 4)}/${1000 + ((n * 373) % 8999)}`
+  // After the final approval: report handed over, payment in, files archived, feedback taken, then closed.
+  const lastApproval = steps[steps.length - 1]?.date
+  const after = (d) => lastApproval && iso(addDays(parseISODate(lastApproval), d))
+  const closureSeed = lastApproval && {
+    steps: Object.fromEntries(Object.entries(CLOSURE_LAG).filter(([, d]) => after(d) <= iso(TODAY)).map(([key, d]) => [key, after(d)])),
+    closedOn: after(40) <= iso(TODAY) ? after(40) : null,
+  }
   return {
     id,
     leadId: lead.id,
     name,
-    site: lead.location ?? stateOfLead(lead),
+    service,
+    site: place,
     startedOn,
     dueOn: submission,
     authority: approval.authority(stateOfLead(lead)),
     code: approval.code,
-    refBase: `${approval.code}/${stateOfLead(lead).slice(0, 3).toUpperCase()}/${(startedOn ?? lead.createdOn).slice(0, 4)}/${1000 + ((n * 373) % 8999)}`,
+    refBase,
     milestones,
     approvals: steps,
+    team,
+    createdOn: createdOn ?? null,
+    fieldVisits: seededVisits({ id, service, start, days, team, site: place, n }),
+    // How the submission was filed; used once the submission milestone is done.
+    submissionInfo: { mode: MODE_BY_CODE[approval.code], ackNo: `${refBase}/ACK`, files: [{ id: `${id}-SUB`, name: `${slug(name)}_submission.pdf`, size: 4_200_000 + ((n * 977) % 1_500_000), type: 'application/pdf' }] },
+    closureSeed,
   }
 }
 
@@ -124,15 +202,17 @@ export function baseProjects(lead) {
   const year = lead.createdOn.slice(2, 4)
   const onboarded = progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length
   const won = wonDate(lead)
+  const startedOn = onboarded ? iso(addDays(parseISODate(won), 10)) : null
   const projects = [
     build({
       id: `PR-${year}-${String(n).padStart(3, '0')}`,
       lead,
       name: lead.serviceDetail,
       service: lead.service,
-      startedOn: onboarded ? iso(addDays(parseISODate(won), 10)) : null,
+      startedOn,
       days: 45 + ((n * 13) % 60),
       n,
+      team: startedOn && startedOn <= iso(TODAY) ? teamFor(lead.service, n) : { coordinator: null, teamLead: null, members: [] },
     }),
   ]
   // Some of the demo's existing clients also have an earlier, finished project; a client won in the app is new.
@@ -148,8 +228,26 @@ export function baseProjects(lead) {
         startedOn: iso(addDays(parseISODate(lead.createdOn), -320)),
         days: 90,
         n: n + 400,
+        team: teamFor(lead.service, n + 1),
       }),
     )
   }
+  // Repeat work for the same client, created in the ERM ("New project").
+  ;(lead.extraProjects ?? []).forEach((p) => {
+    projects.push(
+      build({
+        id: p.id,
+        lead,
+        name: p.name,
+        service: p.service,
+        startedOn: p.startedOn,
+        days: p.days,
+        n: Number(p.id.split('-').pop()) || n,
+        team: { coordinator: null, teamLead: null, members: [] },
+        site: p.site,
+        createdOn: p.createdOn,
+      }),
+    )
+  })
   return projects
 }

@@ -17,6 +17,17 @@ const SESSION_KEY = 'bansal-crm:session'
 const OLD_STORAGE_KEY = 'bansal-crm-demo:added:v1'
 const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {} }
 
+/* Keeps uploaded files for this session and returns their details for the record. */
+const fileRecords = (files, extra = {}) =>
+  files.map((file) => {
+    const record = { id: `PF-${Date.now()}-${Math.round(Math.random() * 1e6)}`, name: file.name, size: file.size, type: file.type || 'application/octet-stream', addedOn: toISODate(new Date()), ...extra }
+    rememberFile(record.id, file)
+    return record
+  })
+
+/* A project's closure as it stands (seeded steps included), so a first edit keeps what was already ticked. */
+const closureOf = (project) => ({ steps: Object.fromEntries(project.closure.steps.map((c) => [c.key, c.date ?? false])) })
+
 function loadChanges() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -68,7 +79,7 @@ const log = (prev, id, type, text, extra) => [...prev.activities, newActivity(id
 
 function loadRole() {
   try {
-    const saved = localStorage.getItem(ROLE_KEY)
+    const saved = localStorage.getItem(ROLE_KEY) === 'Coordinator' ? 'Project Coordinator' : localStorage.getItem(ROLE_KEY)
     return ROLE_ACCESS[saved] ? saved : 'Admin'
   } catch {
     return 'Admin'
@@ -178,13 +189,13 @@ export function CrmProvider({ children }) {
     (id, stage, { lostReason } = {}) => {
       const lead = findLead(id)
       if (!lead || lead.stage === stage) return
-      const patch = { stage, lostReason: stage === 'Lost' ? lostReason : undefined, quote: pinnedQuote(lead, settings) }
+      const patch = { stage, lostReason: stage === 'Lost' ? lostReason : undefined, quote: pinnedQuote(lead) }
       if (stage === 'Won') patch.wonOn = toISODate(TODAY)
       if (stage === 'Lost' && lead.quoteValue) patch.quoteStatus = 'Rejected'
       const text = stage === 'Lost' && lostReason ? `Marked as Lost: ${lostReason}` : `Stage changed from ${lead.stage} to ${stage}`
       setChanges((prev) => ({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'stage', text) }))
     },
-    [findLead, settings],
+    [findLead],
   )
 
   /* kind: Note, Call, WhatsApp, Email or Meeting — how the conversation happened. */
@@ -243,14 +254,14 @@ export function CrmProvider({ children }) {
       if (!lead) return
       const revising = Boolean(lead.quote || lead.quoteValue)
       // The first quotation's date stays on record; a revision gets its own date.
-      const firstSentOn = lead.firstSentOn ?? (revising ? pinnedQuote(lead, settings)?.sentOn : quote.sentOn)
+      const firstSentOn = lead.firstSentOn ?? (revising ? pinnedQuote(lead)?.sentOn : quote.sentOn)
       const patch = { quote, quoteValue: quote.net, quoteStatus: revising ? 'Revised' : 'Sent', changeRequest: undefined, firstSentOn }
       if (stageIndex(lead.stage) < stageIndex('Proposal Sent') || lead.stage === 'Lost') patch.stage = 'Proposal Sent'
       if (revising && lead.stage === 'Proposal Sent') patch.stage = 'Negotiation'
       const text = `${revising ? `Quotation revised (v${quote.version})` : 'Quotation sent'} — ₹${quote.net.toLocaleString('en-IN')} + GST`
       setChanges((prev) => ({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'quote', text) }))
     },
-    [findLead, settings],
+    [findLead],
   )
 
   /* Client accepted the quotation: it moves into Client Approval (PO, advance, agreement). */
@@ -258,13 +269,13 @@ export function CrmProvider({ children }) {
     (id, { byClient = false } = {}) => {
       const lead = findLead(id)
       if (!lead) return
-      const patch = { quoteStatus: 'Accepted', approval: { ...lead.approval, quoteAccepted: true }, quote: pinnedQuote(lead, settings), changeRequest: undefined }
+      const patch = { quoteStatus: 'Accepted', approval: { ...lead.approval, quoteAccepted: true }, quote: pinnedQuote(lead), changeRequest: undefined }
       if (stageIndex(lead.stage) < stageIndex('Negotiation')) patch.stage = 'Negotiation'
       const text = byClient ? 'Quotation accepted by client (portal)' : 'Quotation accepted by client'
       const extra = byClient ? { by: 'client', clientText: 'You accepted the quotation' } : undefined
       setChanges((prev) => ({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'quote', text, extra) }))
     },
-    [findLead, settings],
+    [findLead],
   )
 
   /* The client asked for changes from the portal: the quotation now waits on the team until it is revised. */
@@ -272,12 +283,12 @@ export function CrmProvider({ children }) {
     (id, message, quoteNumber) => {
       const lead = findLead(id)
       if (!lead) return
-      const patch = { quoteStatus: 'Changes requested', changeRequest: { text: message, at: new Date().toISOString() }, quote: pinnedQuote(lead, settings) }
+      const patch = { quoteStatus: 'Changes requested', changeRequest: { text: message, at: new Date().toISOString() }, quote: pinnedQuote(lead) }
       const extra = { by: 'client', clientText: 'You asked for changes to the quotation' }
       const text = `Client asked for changes on ${quoteNumber} (portal) — ${message}`
       setChanges((prev) => ({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'quote', text, extra) }))
     },
-    [findLead, settings],
+    [findLead],
   )
 
   /* byClient: uploaded from the client portal, so the log says where it came from. */
@@ -308,6 +319,62 @@ export function CrmProvider({ children }) {
     })
   }, [])
 
+  /* ERM: set the project's coordinator, team lead or field team (patch of { coordinator, teamLead, members }). */
+  const setProjectTeam = useCallback((leadId, project, patch) => {
+    const text = Object.entries(patch)
+      .map(([key, value]) => `${{ coordinator: 'Coordinator', teamLead: 'Team lead', members: 'Field team' }[key]}: ${Array.isArray(value) ? value.join(', ') || 'none' : value || 'none'}`)
+      .join(' · ')
+    setChanges((prev) => {
+      const edits = prev.projects[project.id] ?? {}
+      return {
+        ...prev,
+        projects: { ...prev.projects, [project.id]: { ...edits, team: { ...edits.team, ...patch } } },
+        activities: log(prev, leadId, 'project', `${project.name} (${project.id}) — ${text}`),
+      }
+    })
+  }, [])
+
+  /*
+   * ERM: change a task's owner, due date or status. A standard task marked done also completes the
+   * project milestone of the same name, so the CRM drawer and the client portal follow along.
+   */
+  const updateProjectTask = useCallback((leadId, project, task, patch) => {
+    setChanges((prev) => {
+      const edits = prev.projects[project.id] ?? {}
+      let next
+      if (task.standard) {
+        const { status, ...rest } = patch
+        const saved = { ...edits.tasks?.[task.key], ...rest }
+        const milestones = { ...edits.milestones }
+        if (status === 'done') milestones[task.key] = toISODate(TODAY)
+        else if (status) {
+          milestones[task.key] = false
+          saved.status = status
+        }
+        next = { ...edits, milestones, tasks: { ...edits.tasks, [task.key]: saved } }
+      } else {
+        const customTasks = (edits.customTasks ?? []).map((t) =>
+          t.id === task.id ? { ...t, ...patch, ...(patch.status === 'done' ? { doneOn: toISODate(TODAY) } : patch.status ? { doneOn: null } : {}) } : t,
+        )
+        next = { ...edits, customTasks }
+      }
+      const what = patch.status ? `marked ${patch.status === 'in-progress' ? 'in progress' : patch.status === 'todo' ? 'to do' : 'done'}` : patch.assignee !== undefined ? `assigned to ${patch.assignee || 'nobody'}` : 'due date changed'
+      return { ...prev, projects: { ...prev.projects, [project.id]: next }, activities: log(prev, leadId, 'project', `${project.name}: "${task.title}" ${what}`) }
+    })
+  }, [])
+
+  const addProjectTask = useCallback((leadId, project, { title, assignee, due }) => {
+    const task = { id: `TK-${Date.now()}`, title, assignee: assignee || null, due: due || null, status: 'todo', doneOn: null }
+    setChanges((prev) => {
+      const edits = prev.projects[project.id] ?? {}
+      return {
+        ...prev,
+        projects: { ...prev.projects, [project.id]: { ...edits, customTasks: [...(edits.customTasks ?? []), task] } },
+        activities: log(prev, leadId, 'project', `${project.name}: task added — ${title}${assignee ? ` (${assignee})` : ''}`),
+      }
+    })
+  }, [])
+
   /* Records an official letter (scanned or received) against a project; the client sees it in the portal. */
   const addGovtLetter = useCallback((leadId, project, { title, authority, ref, date, file }) => {
     const letter = { id: `GL-${Date.now()}`, title, authority, ref, date }
@@ -325,6 +392,98 @@ export function CrmProvider({ children }) {
     })
     return letter
   }, [])
+
+  /* ERM: changes one project's edits and logs it on the client's activity. */
+  const editProject = useCallback((leadId, project, change, text) => {
+    setChanges((prev) => {
+      const edits = prev.projects[project.id] ?? {}
+      return { ...prev, projects: { ...prev.projects, [project.id]: { ...edits, ...change(edits) } }, activities: log(prev, leadId, 'project', text) }
+    })
+  }, [])
+
+  /* ERM: a new project for an existing client (repeat work). It starts in Allocation, waiting for a coordinator. */
+  const createProject = useCallback(
+    (leadId, { id, name, service, site, startedOn, days }) => {
+      const lead = findLead(leadId)
+      if (!lead) return
+      const project = { id, name, service, site, startedOn, days, createdOn: toISODate(TODAY) }
+      setChanges((prev) => ({
+        ...prev,
+        edits: editLead(prev, leadId, { extraProjects: [...(lead.extraProjects ?? []), project] }),
+        activities: log(prev, leadId, 'project', `${name} (${id}) — new project created`),
+      }))
+    },
+    [findLead],
+  )
+
+  /* ERM: a field visit with its photos and readings. */
+  const addFieldVisit = useCallback(
+    (leadId, project, { date, by, activity, location, notes, files }) => {
+      const visit = { id: `FV-${Date.now()}`, date, by, activity, location, notes, files: fileRecords(files) }
+      editProject(leadId, project, (e) => ({ fieldVisits: [...(e.fieldVisits ?? []), visit] }), `${project.name}: field visit logged — ${activity} by ${by}${files.length ? ` (${files.length} file${files.length === 1 ? '' : 's'})` : ''}`)
+    },
+    [editProject],
+  )
+
+  /* ERM: the work is filed with the authority; the submission milestone is done on the date it was filed. */
+  const submitToAuthority = useCallback(
+    (leadId, project, { date, mode, ackNo, files }) => {
+      const submission = { mode, ackNo, files: fileRecords(files), by: project.team.coordinator }
+      editProject(
+        leadId,
+        project,
+        // Filing is also the first step of the approval ("report submitted", "application filed").
+        (e) => ({ submission, milestones: { ...e.milestones, submission: date }, approvals: { ...e.approvals, [project.approvals[0].key]: date } }),
+        `${project.name}: submitted to ${project.authority} via ${mode}${ackNo ? ` · Ack. ${ackNo}` : ''}`,
+      )
+    },
+    [editProject],
+  )
+
+  /* ERM: tick or untick a closure step; closing the project once they are all done. */
+  const setClosureStep = useCallback(
+    (leadId, project, key, done, label) => {
+      editProject(
+        leadId,
+        project,
+        (e) => {
+          const closure = e.closure ?? closureOf(project)
+          return { closure: { ...closure, steps: { ...closure.steps, [key]: done ? toISODate(TODAY) : false } } }
+        },
+        `${project.name}: ${label.charAt(0).toLowerCase()}${label.slice(1)} ${done ? '— done' : '— reopened'}`,
+      )
+    },
+    [editProject],
+  )
+
+  const closeProject = useCallback(
+    (leadId, project, note) => {
+      editProject(
+        leadId,
+        project,
+        (e) => ({ closure: { ...(e.closure ?? closureOf(project)), closedOn: toISODate(TODAY), note: note || null } }),
+        `${project.name} (${project.id}) — project closed${note ? `: ${note}` : ''}`,
+      )
+    },
+    [editProject],
+  )
+
+  /* ERM: files kept against a project (reports, maps, field data). */
+  const addProjectDocuments = useCallback(
+    (leadId, project, files, category) => {
+      if (files.length === 0) return
+      const added = fileRecords(files, { category })
+      editProject(leadId, project, (e) => ({ documents: [...(e.documents ?? []), ...added] }), `${project.name}: ${added.length === 1 ? `${category.toLowerCase()} added — ${added[0].name}` : `${added.length} files added (${category.toLowerCase()})`}`)
+    },
+    [editProject],
+  )
+
+  const removeProjectDocument = useCallback(
+    (leadId, project, doc) => {
+      editProject(leadId, project, (e) => ({ documents: (e.documents ?? []).filter((d) => d.id !== doc.id) }), `${project.name}: file removed — ${doc.name}`)
+    },
+    [editProject],
+  )
 
   /* The client got their portal login on WhatsApp; for a won client this also ticks the onboarding step. */
   const markPortalShared = useCallback(
@@ -386,7 +545,17 @@ export function CrmProvider({ children }) {
         requestQuoteChanges,
         projectEdits: changes.projects,
         setProjectStep,
+        setProjectTeam,
+        updateProjectTask,
+        addProjectTask,
         addGovtLetter,
+        createProject,
+        addFieldVisit,
+        submitToAuthority,
+        setClosureStep,
+        closeProject,
+        addProjectDocuments,
+        removeProjectDocument,
         markPortalShared,
         addDocuments,
         removeDocument,

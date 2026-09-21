@@ -1,84 +1,46 @@
-import { CircleDashed, Clock, Download, FolderKanban, Landmark, ScrollText, Search, X } from 'lucide-react'
-import { useCallback, useEffect, useId, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { CircleDashed, Clock, Download, FolderKanban, Landmark, Plus, ScrollText, Search, X } from 'lucide-react'
+import { useCallback, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
 import { usePaged } from '../../components/common/Pager'
 import { ProgressBar } from '../../components/common/Checklist'
-import { Portal } from '../../components/common/Portal'
-import { useAccess, useCrm } from '../../context/crm'
+import { useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { addDays, formatNearDate, toISODate } from '../../utils/date'
 import { downloadLetter } from '../../utils/files'
-import { PROJECT_STATUS_TONE, allProjects } from '../../utils/projects'
-import { ProjectBlock } from '../clients/ProjectPanel'
+import { ERM_STAGES, PROJECT_STATUS_TONE, allProjects } from '../../utils/projects'
+import { NewProjectDrawer } from './NewProjectDrawer'
+import './erm.css'
 
-const TABS = ['All', 'In progress', 'Awaiting approval', 'Completed', 'Not started']
+const TABS = ['All', 'In progress', 'Awaiting approval', 'Approved', 'Completed', 'Not started']
 const monthAgoISO = toISODate(addDays(TODAY, -30))
-
-function ProjectDrawer({ project, onClose }) {
-  const { can } = useAccess()
-  const titleId = useId()
-
-  useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && onClose()
-    document.addEventListener('keydown', onKey)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prev
-    }
-  }, [onClose])
-
-  const { lead } = project
-  return (
-    <Portal>
-      <div className="drawer-root">
-        <div className="drawer-backdrop" onClick={onClose} />
-        <aside className="enquiry-drawer lead-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-          <header className="drawer-header">
-            <div className="lead-drawer-title">
-              <h2 id={titleId}>{lead.company}</h2>
-              <span className="muted">
-                {project.site} · {can('/leads') ? <Link to={`/leads/${lead.id}`}>{lead.id}</Link> : lead.id} · <Link to={`/portal?lead=${lead.id}`}>Client portal view</Link>
-              </span>
-            </div>
-            <button className="icon-button" onClick={onClose} aria-label="Close">
-              <X size={20} />
-            </button>
-          </header>
-          <div className="drawer-body lead-drawer-body">
-            <ProjectBlock lead={lead} project={project} />
-          </div>
-        </aside>
-      </div>
-    </Portal>
-  )
-}
 
 /* Every won client's projects in one list: where the work is, which approval is with which authority, and the letters received. */
 export function ProjectsPage() {
-  const { leads, projectEdits, settings } = useCrm()
+  const { leads, projectEdits, settings, role } = useCrm()
   const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
+  const stageKey = params.get('stage')
+  const stageIndex = ERM_STAGES.findIndex((st) => st.key === stageKey)
   const [tab, setTab] = useState('All')
   const [search, setSearch] = useState('')
   const [allLetters, setAllLetters] = useState(false)
+  const [creating, setCreating] = useState(false)
+  const closeCreate = useCallback(() => setCreating(false), [])
+  const clients = leads.filter((l) => l.stage === 'Won').sort((a, b) => a.company.localeCompare(b.company))
 
   const projects = allProjects(leads, projectEdits)
   const count = (status) => projects.filter((p) => p.status === status).length
   const q = search.trim().toLowerCase()
   const visible = projects
     .filter((p) => tab === 'All' || p.status === tab)
+    .filter((p) => stageIndex < 0 || p.stageIndex === stageIndex)
     .filter((p) => !q || `${p.name} ${p.id} ${p.lead.company} ${p.authority} ${p.site}`.toLowerCase().includes(q))
   const letters = projects
     .flatMap((p) => p.letters.map((letter) => ({ letter, project: p })))
     .sort((a, b) => b.letter.date.localeCompare(a.letter.date))
-  const { rows: pageRows, pager } = usePaged(visible, 10, `${tab}|${q}`)
+  const { rows: pageRows, pager } = usePaged(visible, 10, `${tab}|${q}|${stageKey}`)
   const recentLetters = letters.filter(({ letter }) => letter.date >= monthAgoISO).length
-
-  const openId = params.get('open')
-  const open = projects.find((p) => p.id === openId)
-  const close = useCallback(() => setParams({}, { replace: true }), [setParams])
 
   return (
     <div className="module-page">
@@ -89,6 +51,13 @@ export function ProjectsPage() {
             {projects.length} projects · {count('Awaiting approval')} with the authority
           </p>
         </div>
+        {role !== 'Team Lead' && clients.length > 0 && (
+          <div className="page-actions">
+            <button className="btn btn-primary" onClick={() => setCreating(true)}>
+              <Plus size={16} /> New Project
+            </button>
+          </div>
+        )}
       </header>
 
       <section className="stat-grid">
@@ -112,6 +81,11 @@ export function ProjectsPage() {
             <Search size={16} className="muted" />
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search project, client, authority or place" aria-label="Search projects" />
           </label>
+          {stageIndex >= 0 && (
+            <button className="filter-chip" onClick={() => setParams({}, { replace: true })}>
+              Stage: {ERM_STAGES[stageIndex].label} <X size={13} />
+            </button>
+          )}
         </div>
         <nav className="stage-tabs" aria-label="Filter by status">
           {TABS.map((t) => (
@@ -130,7 +104,7 @@ export function ProjectsPage() {
                 <tr>
                   <th>Project</th>
                   <th>Client</th>
-                  <th>Authority</th>
+                  <th>Stage</th>
                   <th>Now at</th>
                   <th>Progress</th>
                   <th>Status</th>
@@ -138,7 +112,7 @@ export function ProjectsPage() {
               </thead>
               <tbody>
                 {pageRows.map((p) => (
-                  <tr key={p.id} className="clickable-row" onClick={() => setParams({ open: p.id }, { replace: true })}>
+                  <tr key={p.id} className="clickable-row" onClick={() => navigate(`/projects/${p.id}`)}>
                     <td>
                       <button className="row-link">{p.name}</button>
                       <div className="cell-sub">{p.id}</div>
@@ -148,8 +122,9 @@ export function ProjectsPage() {
                       <div className="cell-sub">{p.site}</div>
                     </td>
                     <td>
-                      <div className="cell-clip" title={p.authority}>
-                        {p.code}
+                      <div className="cell-strong nowrap">{p.stageIndex < ERM_STAGES.length ? ERM_STAGES[p.stageIndex].label : 'Complete'}</div>
+                      <div className="cell-sub">
+                        Stage {Math.min(p.stageIndex + 1, ERM_STAGES.length)} of {ERM_STAGES.length} · {p.code}
                       </div>
                     </td>
                     <td>
@@ -207,7 +182,7 @@ export function ProjectsPage() {
         )}
       </section>
 
-      {open && <ProjectDrawer key={open.id} project={open} onClose={close} />}
+      {creating && <NewProjectDrawer clients={clients} projects={projects} onClose={closeCreate} onCreated={(id) => navigate(`/projects/${id}`)} />}
     </div>
   )
 }

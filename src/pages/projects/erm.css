@@ -1,0 +1,768 @@
+/* ---------- ERM: project page ---------- */
+.project-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Stages: done = green, current = teal ring, upcoming = grey. */
+.stage-card {
+  padding: 18px 20px;
+}
+
+.erm-stages {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.erm-stages li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+  text-align: center;
+  animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+}
+
+.erm-stages li:nth-child(2) { animation-delay: 0.05s; }
+.erm-stages li:nth-child(3) { animation-delay: 0.1s; }
+.erm-stages li:nth-child(4) { animation-delay: 0.15s; }
+.erm-stages li:nth-child(5) { animation-delay: 0.2s; }
+.erm-stages li:nth-child(6) { animation-delay: 0.25s; }
+.erm-stages li:nth-child(7) { animation-delay: 0.3s; }
+
+.erm-stages li:not(:first-child)::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  right: 50%;
+  width: 100%;
+  height: 2px;
+  background: var(--line);
+}
+
+.erm-stages li.is-done::before,
+.erm-stages li.is-current::before {
+  background: var(--green);
+}
+
+.erm-dot {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.erm-dot.small {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  color: #fff;
+}
+
+.is-done > .erm-dot {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+
+.is-current > .erm-dot {
+  border-color: var(--teal-700);
+  color: var(--teal-700);
+  box-shadow: 0 0 0 4px var(--teal-100);
+}
+
+.erm-stages strong {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.erm-stages .is-current strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.erm-stages .muted {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-next {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.stage-next-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+.stage-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.stage-line .progress {
+  width: 180px;
+}
+
+.stage-done-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--green);
+}
+
+.stage-approvals {
+  max-width: 460px;
+}
+
+/* Submission form and closure checklist (stage actions) */
+.submission-form {
+  max-width: 760px;
+}
+
+.submission-form .letter-form-actions {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.closure-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 560px;
+}
+
+.closure-close {
+  display: flex;
+  gap: 8px;
+}
+
+.closure-close input {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 13px;
+}
+
+/* Team form (allocation, planning, change team) */
+.team-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 14px;
+  animation: fade 0.25s ease both;
+}
+
+.team-form > .field {
+  width: min(320px, 100%);
+}
+
+.member-pick {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 8px;
+  flex-basis: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.member-pick legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.member-pick label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.member-pick label:hover {
+  border-color: var(--teal-200);
+}
+
+.member-pick label.is-selected {
+  border-color: var(--teal-600);
+  background: var(--teal-50);
+}
+
+.member-pick label:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px var(--teal-100);
+}
+
+.member-pick input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.member-pick strong {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.member-pick span {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.team-form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Overview tab */
+.project-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 32px;
+}
+
+.ov-block h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.ov-block h3 svg {
+  color: var(--teal-700);
+}
+
+.ov-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.team-list-erm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.team-list-erm > div {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.team-list-erm dt {
+  padding-top: 6px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.team-list-erm dd {
+  margin: 0;
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.person > span:last-child {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.person strong {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.person .muted {
+  font-size: 12px;
+}
+
+.approval-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.approval-steps li {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.approval-steps li.is-done {
+  color: var(--ink);
+}
+
+.approval-steps .is-done .erm-dot {
+  border-color: var(--green);
+  background: var(--green);
+}
+
+.approval-steps .muted {
+  font-size: 12px;
+}
+
+/* Tasks tab */
+.tasks-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.tasks-head .progress {
+  flex: 1;
+  max-width: 280px;
+}
+
+.tasks-head .btn {
+  margin-left: auto;
+}
+
+.task-add {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) 150px auto auto;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  animation: rise 0.25s ease backwards;
+}
+
+.task-add input,
+.task-add select,
+.task-table select,
+.task-table input {
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 13px;
+}
+
+.task-table select,
+.task-table input {
+  width: 100%;
+  min-width: 130px;
+}
+
+.task-table input.is-overdue {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.task-table tr.is-done .cell-strong {
+  color: var(--ink-3);
+  text-decoration: line-through;
+}
+
+.task-status.status-done {
+  border-color: var(--green);
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.task-status.status-in-progress {
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  color: var(--blue);
+}
+
+.tasks-tab .table-wrap {
+  padding: 0;
+}
+
+/* Field Work tab */
+.visit-form {
+  margin-bottom: 12px;
+}
+
+.visit-form textarea {
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.visit-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.visit-list > li {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line-soft);
+  animation: fade 0.3s ease both;
+}
+
+.visit-list > li:first-child {
+  border-top: none;
+  padding-top: 4px;
+}
+
+.visit-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  border-radius: var(--radius);
+  background: var(--teal-50);
+  font-size: 11.5px;
+  color: var(--teal-700);
+}
+
+.visit-date b {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  line-height: 1.1;
+  color: var(--teal-900);
+}
+
+.visit-list strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.visit-list > li > div > .muted {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+}
+
+.visit-list p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.doc-list.compact {
+  margin-top: 8px;
+}
+
+.doc-list.compact li {
+  padding: 7px 10px;
+}
+
+/* Documents tab */
+.project-docs {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.project-docs h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.project-docs .letter-form {
+  margin-top: 8px;
+}
+
+.project-dropzone {
+  padding: 18px 16px;
+}
+
+.project-dropzone select {
+  height: 30px;
+  padding: 0 6px;
+  border: 1px solid var(--teal-200);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+/* Projects list: stage filter chip */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--teal-200);
+  border-radius: 999px;
+  background: var(--teal-50);
+  font-size: 12.5px;
+  color: var(--teal-900);
+}
+
+.open-in-erm {
+  align-self: flex-start;
+}
+
+/* ---------- ERM dashboard ---------- */
+.stage-counts {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0 20px 18px;
+  list-style: none;
+}
+
+.stage-counts a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.stage-counts a:hover {
+  border-color: var(--teal-200);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.stage-counts .has-items a {
+  background: var(--surface);
+  box-shadow: inset 0 3px 0 var(--teal-400);
+}
+
+.stage-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.stage-counts strong {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.stage-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.stage-counts .muted {
+  font-size: 11.5px;
+}
+
+.erm-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.attention-list {
+  margin: 0;
+  padding: 0 20px 14px;
+  list-style: none;
+}
+
+.attention-list li {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line-soft);
+  animation: fade 0.3s ease both;
+}
+
+.attention-list li:first-child {
+  border-top: none;
+}
+
+.attention-list i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.attention-list a {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.attention-list a:hover strong {
+  color: var(--teal-700);
+}
+
+.attention-list a .muted {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attention-who {
+  font-size: 12px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.data-table.load-table {
+  min-width: 0;
+}
+
+@media (max-width: 1100px) {
+  .erm-row,
+  .project-overview {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stage-counts {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .erm-stages {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    row-gap: 16px;
+  }
+
+  .erm-stages li:nth-child(5)::before {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Six stages don't fit across a phone: a vertical list instead. */
+  .erm-stages {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .erm-stages li {
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    column-gap: 10px;
+    row-gap: 0;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .erm-stages li .erm-dot {
+    grid-row: span 2;
+  }
+
+  .erm-stages li:not(:first-child)::before {
+    top: -10px;
+    right: auto;
+    left: 18px;
+    width: 2px;
+    height: 10px;
+  }
+
+  .erm-dot {
+    margin: 0;
+  }
+
+  .stage-counts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 0 14px 14px;
+  }
+
+  .task-add,
+  .letter-form {
+    grid-template-columns: 1fr;
+  }
+
+  .closure-close {
+    flex-direction: column;
+  }
+
+  .team-list-erm > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

@@ -5,7 +5,7 @@
  */
 export function Mountains({ className }) {
   return (
-    <svg className={className} viewBox="0 0 260 340" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <svg className={className} viewBox="0 0 260 340" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient id="mtn-g-lit" gradientUnits="userSpaceOnUse" x1="0" y1="64" x2="0" y2="290">
           <stop offset="0" stopColor="var(--mtn-lit)" />

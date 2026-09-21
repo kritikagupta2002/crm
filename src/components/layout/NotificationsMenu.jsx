@@ -58,7 +58,7 @@ export function NotificationsMenu() {
       .filter((f) => f.date === todayISO)
       .map((f) => ({ id: `td-${f.id}`, tone: 'tone-attention', icon: Clock, title: `Today: ${f.type} — ${company(f.leadId)}`, sub: f.note, to: '/follow-ups' })),
     ...leads
-      .map((l) => ({ lead: l, quote: quoteFor(l, settings) }))
+      .map((l) => ({ lead: l, quote: quoteFor(l) }))
       .filter(({ quote }) => quote && (quote.status === 'Sent' || quote.status === 'Revised') && quote.validUntil <= soonISO)
       .map(({ lead, quote }) => ({
         id: `qx-${lead.id}-${quote.version}`,

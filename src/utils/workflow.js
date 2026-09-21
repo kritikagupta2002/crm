@@ -24,6 +24,10 @@ export const QUOTE_STATUS_TONE = { Draft: 'tone-neutral', Sent: 'tone-info', Rev
 
 const round = (n) => Math.round(n / 1000) * 1000
 
+/* The sample quotations were sent under the standard terms of the time. Changing the defaults in
+   Settings only affects quotations made after that — a sent quotation never changes. */
+const SENT_UNDER = { gstPct: 18, validDays: 30 }
+
 /*
  * When a generated quotation was sent: closed ones a few days after the enquiry; open ones
  * (still awaiting an answer) within the last ~5 weeks, so only a few have run past validity.
@@ -48,7 +52,7 @@ export function quoteTotals({ items, discountPct = 0, gstPct = 18 }) {
  * The quotation for a lead: the one built in the app if there is one, otherwise a standard
  * three-line quotation derived from the lead's quoted amount (so generated leads have one too).
  */
-export function quoteFor(lead, settings) {
+export function quoteFor(lead) {
   if (!lead.quote && !lead.quoteValue) return null
   const base = lead.quote ?? {
     version: lead.quoteStatus === 'Revised' || lead.stage === 'Negotiation' ? 2 : 1,
@@ -58,8 +62,8 @@ export function quoteFor(lead, settings) {
       { description: 'Report preparation & submission', qty: 1, rate: 0 },
     ],
     discountPct: 0,
-    gstPct: settings.gstPct,
-    validDays: settings.quoteValidityDays,
+    gstPct: SENT_UNDER.gstPct,
+    validDays: SENT_UNDER.validDays,
     sentOn: defaultSentOn(lead),
   }
   if (!lead.quote) base.items[2].rate = lead.quoteValue - base.items[0].rate - base.items[1].rate
@@ -77,9 +81,9 @@ export function quoteFor(lead, settings) {
 }
 
 /* Quotations sent and still waiting for the client's answer (expired ones included). Dashboard and Quotations share this count. */
-export function openQuotes(leads, settings) {
+export function openQuotes(leads) {
   return leads
-    .map((lead) => ({ lead, quote: quoteFor(lead, settings) }))
+    .map((lead) => ({ lead, quote: quoteFor(lead) }))
     .filter((row) => row.quote && (row.quote.status === 'Sent' || row.quote.status === 'Revised'))
 }
 
@@ -87,8 +91,8 @@ export function openQuotes(leads, settings) {
  * A generated quotation's version and date follow the lead's stage, so pin them before the stage
  * moves on (accepted, won, lost) — otherwise QT-…-004 would turn into QT-…-004-R1 on acceptance.
  */
-export function pinnedQuote(lead, settings) {
+export function pinnedQuote(lead) {
   if (lead.quote || !lead.quoteValue) return lead.quote
-  const { version, items, discountPct, gstPct, validDays, sentOn } = quoteFor(lead, settings)
+  const { version, items, discountPct, gstPct, validDays, sentOn } = quoteFor(lead)
   return { version, items, discountPct, gstPct, validDays, sentOn }
 }

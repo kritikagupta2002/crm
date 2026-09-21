@@ -14,7 +14,55 @@ function resolve(step, edit) {
   return { ...step, done: Boolean(step.date && step.date <= todayISO) }
 }
 
-export const PROJECT_STATUS_TONE = { 'Not started': 'tone-neutral', 'In progress': 'tone-info', 'Awaiting approval': 'tone-attention', Completed: 'tone-good' }
+/*
+ * The ERM stages (vendor sheet C1: Admin → Project Coordinator → Team Lead → Field Member →
+ * Govt Submission → Final Approval), ending with the project's closure. A stage is done when its
+ * hand-over has happened.
+ */
+export const ERM_STAGES = [
+  { key: 'allocation', label: 'Allocation', owner: 'Admin', todo: 'Assign a project coordinator' },
+  { key: 'planning', label: 'Planning', owner: 'Project Coordinator', todo: 'Choose the team lead and field team' },
+  { key: 'tasks', label: 'Task assignment', owner: 'Team Lead', todo: 'Give every task an owner' },
+  { key: 'work', label: 'Field & report work', owner: 'Field team', todo: 'Finish the field work and the report' },
+  { key: 'submission', label: 'Govt submission', owner: 'Project Coordinator', todo: 'Submit to the authority' },
+  { key: 'approval', label: 'Final approval', owner: 'Authority', todo: 'Follow up for the approval' },
+  { key: 'closure', label: 'Project closure', owner: 'Project Coordinator', todo: 'Hand over and close the project' },
+]
+
+/* What has to happen before a project is closed. */
+export const CLOSURE_STEPS = [
+  { key: 'handover', label: 'Final report and approval handed over to the client' },
+  { key: 'payment', label: 'Final payment received' },
+  { key: 'archive', label: 'Field data and documents archived' },
+  { key: 'feedback', label: 'Client feedback taken' },
+]
+
+/* Kinds of file kept against a project. */
+export const DOC_CATEGORIES = ['Report', 'Field data', 'Maps & drawings', 'Submission', 'Other']
+
+/* Who does each of the standard tasks, by role in the project team. */
+const TASK_OWNER = { kickoff: 'teamLead', field: 'member', analysis: 'teamLead', report: 'teamLead', submission: 'coordinator' }
+
+export const TASK_STATUS = { todo: 'To do', 'in-progress': 'In progress', done: 'Done' }
+
+function buildTasks(base, edits, team, milestones, started) {
+  const current = milestones.find((m) => !m.done)
+  // Some running projects have slipped on their current task, so the demo has overdue work to show.
+  const slipped = Number(base.id.split('-').pop()) % 2 === 0
+  const standard = milestones.map((m) => {
+    const saved = edits.tasks?.[m.key] ?? {}
+    const owner = TASK_OWNER[m.key]
+    const assignee = saved.assignee !== undefined ? saved.assignee : owner === 'member' ? team.members[0] ?? null : team[owner] ?? null
+    const isCurrent = started && current?.key === m.key
+    const status = m.done ? 'done' : saved.status ?? (isCurrent ? 'in-progress' : 'todo')
+    const due = saved.due ?? (isCurrent && slipped && m.date > todayISO ? toISODate(new Date(TODAY.getTime() - 2 * 86_400_000)) : m.date)
+    return { key: m.key, title: m.label, assignee, due, status, doneOn: m.done ? m.date : null, standard: true }
+  })
+  const extra = (edits.customTasks ?? []).map((t) => ({ ...t, standard: false }))
+  return [...standard, ...extra].map((t) => ({ ...t, overdue: t.status !== 'done' && Boolean(t.due) && t.due < todayISO }))
+}
+
+export const PROJECT_STATUS_TONE = { 'Not started': 'tone-neutral', 'In progress': 'tone-info', 'Awaiting approval': 'tone-attention', Approved: 'tone-good', Completed: 'tone-good' }
 
 /* A client's projects with the team's edits applied: milestones, approval steps, letters and a status. */
 export function clientProjects(lead, projectEdits = {}) {
@@ -37,14 +85,43 @@ export function clientProjects(lead, projectEdits = {}) {
     const firstDone = milestones.find((m) => m.done)?.date
     const startedOn = firstDone && (!base.startedOn || firstDone < base.startedOn) ? firstDone : base.startedOn
     const started = Boolean(startedOn && startedOn <= todayISO)
-    const status = !started && milestonesDone === 0 ? 'Not started' : approvalsDone === approvals.length ? 'Completed' : submitted ? 'Awaiting approval' : 'In progress'
-    return { ...base, startedOn, milestones, approvals, letters, milestonesDone, approvalsDone, status, started }
+    const approved = approvalsDone === approvals.length
+
+    // Closure: the demo's finished projects carry their own closure record until the team changes it.
+    const seed = approved && edits.closure === undefined ? base.closureSeed : null
+    const closureSteps = seed ? seed.steps : (edits.closure?.steps ?? {})
+    const closedOn = seed ? seed.closedOn : approved ? (edits.closure?.closedOn ?? null) : null
+    const closure = { steps: CLOSURE_STEPS.map((c) => ({ ...c, done: Boolean(closureSteps[c.key]), date: closureSteps[c.key] || null })), closedOn, note: edits.closure?.note ?? null }
+
+    const status = !started && milestonesDone === 0 ? 'Not started' : approved ? (closedOn ? 'Completed' : 'Approved') : submitted ? 'Awaiting approval' : 'In progress'
+    const submissionDate = milestones[milestones.length - 1].date
+    const submission = submitted ? { ...base.submissionInfo, ...edits.submission, date: submissionDate } : null
+    const fieldVisits = [...base.fieldVisits, ...(edits.fieldVisits ?? [])].sort((a, b) => b.date.localeCompare(a.date))
+    const documents = edits.documents ?? []
+
+    const team = { ...base.team, ...edits.team }
+    const tasks = buildTasks(base, edits, team, milestones, started)
+    const standard = tasks.filter((t) => t.standard)
+    const done = [
+      Boolean(team.coordinator),
+      Boolean(team.teamLead && team.members?.length),
+      standard.every((t) => t.assignee),
+      standard.find((t) => t.key === 'report')?.status === 'done',
+      submitted,
+      approved,
+      Boolean(closedOn),
+    ]
+    // Stages run in order: the current one is the first not yet handed over.
+    const stageIndex = done.findIndex((d) => !d) === -1 ? ERM_STAGES.length : done.findIndex((d) => !d)
+    const stages = ERM_STAGES.map((st, i) => ({ ...st, done: i < stageIndex }))
+    return { ...base, startedOn, milestones, approvals, letters, milestonesDone, approvalsDone, status, started, team, tasks, stages, stageIndex, closure, submission, fieldVisits, documents }
   })
 }
 
 /* Where a project stands right now: the first open milestone, else the approval step with the authority. */
 function currentStep(p) {
-  if (p.status === 'Completed') return { label: p.approvals[p.approvals.length - 1].label, date: null }
+  if (p.status === 'Completed') return { label: 'Project closed', date: p.closure.closedOn }
+  if (p.status === 'Approved') return { label: 'Closure pending', date: null }
   if (!p.startedOn && p.milestonesDone === 0) return { label: 'Waiting for onboarding', date: null }
   if (!p.started && p.milestonesDone === 0) return { label: 'Kick-off', date: p.startedOn }
   const m = p.milestones.find((s) => !s.done)
@@ -53,7 +130,7 @@ function currentStep(p) {
   return { label: a.label, date: a.date }
 }
 
-const STATUS_ORDER = ['Awaiting approval', 'In progress', 'Not started', 'Completed']
+const STATUS_ORDER = ['Awaiting approval', 'In progress', 'Approved', 'Not started', 'Completed']
 
 /* Every won client's projects, busiest first, each with its client lead and current step. */
 export function allProjects(leads, projectEdits) {
@@ -98,6 +175,7 @@ export function clientUpdates({ lead, quote, projects, activities, followUps }) 
     p.milestones.filter((m) => m.done).forEach((m) => items.push({ id: `${p.id}-${m.key}`, text: `${p.name}: ${m.label.toLowerCase()} done`, date: m.date, sort: stepSort(m.date) }))
     p.approvals.filter((s) => s.done).forEach((s) => items.push({ id: `${p.id}-a-${s.key}`, text: `${p.name}: ${s.label}`, date: s.date, sort: stepSort(s.date) }))
     p.letters.filter((l) => !l.stepKey).forEach((l) => items.push({ id: l.id, text: `New letter from ${l.authority}: ${l.title}`, date: l.date, sort: stepSort(l.date) }))
+    if (p.closure.closedOn) items.push({ id: `${p.id}-closed`, text: `${p.name}: project completed and handed over`, date: p.closure.closedOn, sort: stepSort(p.closure.closedOn) })
   })
   const seen = new Set()
   return items

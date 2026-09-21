@@ -13,7 +13,7 @@ export function ApprovalsGlance() {
   // Roles without the Projects page still see the list, just not as links.
   const linkTo = (p, content) =>
     can('/projects') ? (
-      <Link to={`/projects?open=${p.id}`} className="glance-item">
+      <Link to={`/projects/${p.id}`} className="glance-item">
         {content}
       </Link>
     ) : (
@@ -22,7 +22,7 @@ export function ApprovalsGlance() {
   const figures = [
     ['Work in progress', projects.filter((p) => p.status === 'In progress').length, 'tone-info'],
     ['With the authority', waiting.length, 'tone-attention'],
-    ['Approved', projects.filter((p) => p.status === 'Completed').length, 'tone-good'],
+    ['Approved', projects.filter((p) => p.status === 'Approved' || p.status === 'Completed').length, 'tone-good'],
   ]
 
   return (

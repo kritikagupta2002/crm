@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { ROLE_ACCESS, useCrm } from '../../context/crm'
 import { LOST_REASONS, SERVICE_DETAILS, SERVICES, TEAM } from '../../data/mockData'
 
-/* Roles from the requirement sheet (RBAC). The demo shows who can see what; enforcement comes with login. */
+/* Staff and the role-based access rules (RBAC). The access table is the same ROLE_ACCESS the menu and pages enforce. */
 const TEAM_ROLES = { 'K. Sharma': 'Sales Manager', 'R. Mehta': 'Business Development', 'S. Verma': 'Business Development', 'A. Singh': 'Project Coordinator', 'P. Joshi': 'Coordinator' }
 const ACCESS = Object.entries(ROLE_ACCESS).map(([role, a]) => ({ role, sees: a.note }))
 
@@ -28,18 +28,8 @@ function SavedNote({ show }) {
   ) : null
 }
 
-export function SettingsPage() {
-  const { settings, updateSettings, resetDemoData, changeCount } = useCrm()
-  const [company, setCompany] = useState(() => ({ companyName: settings.companyName, address: settings.address, phone: settings.phone, email: settings.email, gstin: settings.gstin }))
-  const [quote, setQuote] = useState(() => ({ gstPct: String(settings.gstPct), quoteValidityDays: String(settings.quoteValidityDays), terms: settings.terms }))
-  const [saved, setSaved] = useState('')
-
-  const flash = (key) => {
-    setSaved(key)
-    setTimeout(() => setSaved((s) => (s === key ? '' : s)), 2000)
-  }
-
-  const field = (state, setState, key, label, props = {}) => (
+function field(state, setState, key, label, props = {}) {
+  return (
     <label className={`field ${props.wide ? 'field-wide' : ''}`}>
       <span className="field-label">{label}</span>
       {props.textarea ? (
@@ -49,6 +39,64 @@ export function SettingsPage() {
       )}
     </label>
   )
+}
+
+function CompanyForm({ settings, onSave }) {
+  const [company, setCompany] = useState(() => ({ companyName: settings.companyName, address: settings.address, phone: settings.phone, email: settings.email, gstin: settings.gstin }))
+  return (
+    <form
+      className="form-grid"
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSave({ ...company, companyName: company.companyName.trim() || settings.companyName })
+      }}
+    >
+      {field(company, setCompany, 'companyName', 'Company name', { wide: true })}
+      {field(company, setCompany, 'address', 'Address', { wide: true })}
+      {field(company, setCompany, 'phone', 'Phone')}
+      {field(company, setCompany, 'email', 'Email')}
+      {field(company, setCompany, 'gstin', 'GSTIN', { placeholder: 'Shown on quotations when added' })}
+      <div className="settings-actions field-wide">
+        <button className="btn btn-primary" type="submit">
+          Save profile
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function QuoteDefaultsForm({ settings, onSave }) {
+  const [quote, setQuote] = useState(() => ({ gstPct: String(settings.gstPct), quoteValidityDays: String(settings.quoteValidityDays), terms: settings.terms }))
+  return (
+    <form
+      className="form-grid"
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSave({ gstPct: Number(quote.gstPct) || 18, quoteValidityDays: Number(quote.quoteValidityDays) || 30, terms: quote.terms.trim() })
+      }}
+    >
+      {field(quote, setQuote, 'gstPct', 'GST (%)', { numeric: true })}
+      {field(quote, setQuote, 'quoteValidityDays', 'Valid for (days)', { numeric: true })}
+      {field(quote, setQuote, 'terms', 'Terms printed on new quotations', { wide: true, textarea: true })}
+      <div className="settings-actions field-wide">
+        <button className="btn btn-primary" type="submit">
+          Save defaults
+        </button>
+      </div>
+    </form>
+  )
+}
+
+export function SettingsPage() {
+  const { settings, updateSettings, resetDemoData, changeCount } = useCrm()
+  const [saved, setSaved] = useState('')
+  const companyKey = [settings.companyName, settings.address, settings.phone, settings.email, settings.gstin].join('|')
+  const quoteKey = [settings.gstPct, settings.quoteValidityDays, settings.terms].join('|')
+
+  const flash = (key) => {
+    setSaved(key)
+    setTimeout(() => setSaved((s) => (s === key ? '' : s)), 2000)
+  }
 
   return (
     <div className="module-page">
@@ -61,45 +109,26 @@ export function SettingsPage() {
 
       <div className="card-grid settings-grid">
         <Section icon={Building2} title="Company Profile" action={<SavedNote show={saved === 'company'} />}>
-          <form
-            className="form-grid"
-            onSubmit={(e) => {
-              e.preventDefault()
-              updateSettings({ ...company, companyName: company.companyName.trim() || settings.companyName })
+          <CompanyForm
+            key={companyKey}
+            settings={settings}
+            onSave={(values) => {
+              updateSettings(values)
               flash('company')
             }}
-          >
-            {field(company, setCompany, 'companyName', 'Company name', { wide: true })}
-            {field(company, setCompany, 'address', 'Address', { wide: true })}
-            {field(company, setCompany, 'phone', 'Phone')}
-            {field(company, setCompany, 'email', 'Email')}
-            {field(company, setCompany, 'gstin', 'GSTIN', { placeholder: 'Shown on quotations when added' })}
-            <div className="settings-actions field-wide">
-              <button className="btn btn-primary" type="submit">
-                Save profile
-              </button>
-            </div>
-          </form>
+          />
         </Section>
 
         <Section icon={FileText} title="Quotation Defaults" action={<SavedNote show={saved === 'quote'} />}>
-          <form
-            className="form-grid"
-            onSubmit={(e) => {
-              e.preventDefault()
-              updateSettings({ gstPct: Number(quote.gstPct) || 18, quoteValidityDays: Number(quote.quoteValidityDays) || 30, terms: quote.terms.trim() })
+          <p className="muted small">Applies to quotations created from now on; quotations already sent keep their own GST, validity and terms.</p>
+          <QuoteDefaultsForm
+            key={quoteKey}
+            settings={settings}
+            onSave={(values) => {
+              updateSettings(values)
               flash('quote')
             }}
-          >
-            {field(quote, setQuote, 'gstPct', 'GST (%)', { numeric: true })}
-            {field(quote, setQuote, 'quoteValidityDays', 'Valid for (days)', { numeric: true })}
-            {field(quote, setQuote, 'terms', 'Terms printed on quotations', { wide: true, textarea: true })}
-            <div className="settings-actions field-wide">
-              <button className="btn btn-primary" type="submit">
-                Save defaults
-              </button>
-            </div>
-          </form>
+          />
         </Section>
 
         <Section icon={ShieldCheck} title="Team & Access">

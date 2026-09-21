@@ -1,6 +1,6 @@
-import { BarChart3, Building2, CalendarDays, FileText, Home, Landmark, Settings, ShieldCheck, UserRound, Users } from 'lucide-react'
+import { BarChart3, Building2, CalendarDays, FileText, FolderKanban, Gauge, Home, ShieldCheck, UserRound, Users } from 'lucide-react'
 
-/* One workspace list, in the order the work flows: enquiry → quotation → approval → client. */
+/* Two workspaces in one app: sales (CRM) and project delivery (ERM). Each role sees only what it can open. */
 export const NAV_GROUPS = [
   {
     title: 'CRM Workspace',
@@ -12,11 +12,17 @@ export const NAV_GROUPS = [
       { label: 'Client Approval', path: '/client-approval', icon: ShieldCheck },
       { label: 'Client Onboarding', path: '/client-onboarding', icon: UserRound },
       { label: 'Client Master', path: '/clients', icon: Building2 },
-      { label: 'Projects & Approvals', path: '/projects', icon: Landmark },
       { label: 'Reports', path: '/reports', icon: BarChart3 },
-      { label: 'Settings', path: '/settings', icon: Settings },
+    ],
+  },
+  {
+    title: 'ERM Workspace',
+    items: [
+      { label: 'ERM Dashboard', path: '/erm', icon: Gauge },
+      { label: 'Projects', path: '/projects', icon: FolderKanban },
     ],
   },
 ]
 
-export const NAV_ITEMS = NAV_GROUPS.flatMap((group) => group.items)
+/* Settings lives in the profile menu; it is listed here so the page still gets its title. */
+export const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), { label: 'Settings', path: '/settings' }]

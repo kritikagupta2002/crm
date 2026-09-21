@@ -24,14 +24,14 @@ export function countFollowUpsDue(followUps) {
   }
 }
 
-export function getSummary({ leads, followUps, settings }, period) {
+export function getSummary({ leads, followUps }, period) {
   const current = leadsForPeriod(leads, period)
   const previous = leadsForPeriod(leads, period, -1)
   const won = countStage(current, 'Won')
   const wonPrev = countStage(previous, 'Won')
   const followUpsDue = countFollowUpsDue(followUps)
   // Waiting on the client is a current state, like follow-ups due, so it isn't limited to the period.
-  const awaiting = openQuotes(leads, settings)
+  const awaiting = openQuotes(leads)
 
   const rate = current.length ? (won / current.length) * 100 : 0
   const ratePrev = previous.length ? (wonPrev / previous.length) * 100 : null

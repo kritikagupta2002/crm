@@ -19,7 +19,7 @@ export function QuotationBuilder({ leadId, onClose, onSaved }) {
   const openLeads = leads.filter((l) => l.stage !== 'Won' && l.stage !== 'Lost')
   const [selectedId, setSelectedId] = useState(leadId ?? '')
   const lead = leads.find((l) => l.id === selectedId)
-  const current = lead ? quoteFor(lead, settings) : null
+  const current = lead ? quoteFor(lead) : null
 
   const initial = (l, q) => ({
     items: q ? q.items.map((i) => ({ ...i })) : [{ description: l?.serviceDetail ?? '', qty: 1, rate: '' }, blankItem()],
@@ -51,7 +51,7 @@ export function QuotationBuilder({ leadId, onClose, onSaved }) {
   const pickLead = (id) => {
     setSelectedId(id)
     const l = leads.find((x) => x.id === id)
-    setForm(initial(l, l ? quoteFor(l, settings) : null))
+    setForm(initial(l, l ? quoteFor(l) : null))
   }
 
   const submit = (e) => {
@@ -65,6 +65,7 @@ export function QuotationBuilder({ leadId, onClose, onSaved }) {
       discountPct: Number(form.discountPct) || 0,
       gstPct: settings.gstPct,
       validDays: Number(form.validDays) || settings.quoteValidityDays,
+      terms: settings.terms,
       sentOn: toISODate(TODAY),
     }
     saveQuotation(lead.id, { ...quote, net: quoteTotals(quote).net })

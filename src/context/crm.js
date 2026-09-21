@@ -15,11 +15,16 @@ export function useCrm() {
  * is what happens. Requirement: operational staff (Coordinators, Team Leads) never see amounts.
  */
 export const ROLE_ACCESS = {
-  Admin: { note: 'Everything, including reports and settings', pages: 'all', masked: false },
-  Sales: { note: 'Leads, follow-ups, quotations, work orders and clients', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients'], masked: false },
-  Coordinator: { note: 'Leads, follow-ups, onboarding and projects; amounts hidden', pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/projects'], masked: true },
-  'Team Lead': { note: 'Projects and government approvals; amounts hidden', pages: ['/', '/projects', '/clients', '/follow-ups'], masked: true },
-  Accountant: { note: 'Quotations, work orders & advances, clients and reports', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports'], masked: false },
+  Admin: { note: 'Everything, including reports and settings', pages: 'all', masked: false, home: '/' },
+  Sales: { note: 'Leads, follow-ups, quotations, work orders and clients', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients'], masked: false, home: '/' },
+  'Project Coordinator': {
+    note: 'Onboarding, clients and ERM projects; amounts hidden',
+    pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects'],
+    masked: true,
+    home: '/erm',
+  },
+  'Team Lead': { note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/clients'], masked: true, home: '/erm' },
+  Accountant: { note: 'Quotations, work orders & advances, clients and reports', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports'], masked: false, home: '/' },
 }
 export const ROLES = Object.keys(ROLE_ACCESS)
 export const MASKED = '₹ ••••'

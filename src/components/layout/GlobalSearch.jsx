@@ -9,7 +9,7 @@ const LIMIT = 5
 
 /* Searches enquiries, clients and quotations; arrow keys + Enter to pick, "/" anywhere to focus. */
 export function GlobalSearch() {
-  const { leads, settings } = useCrm()
+  const { leads } = useCrm()
   const navigate = useNavigate()
   const { can } = useAccess()
   const [query, setQuery] = useState('')
@@ -55,7 +55,7 @@ export function GlobalSearch() {
       label: 'Quotations',
       icon: FileText,
       items: leads
-        .map((l) => ({ lead: l, quote: quoteFor(l, settings) }))
+        .map((l) => ({ lead: l, quote: quoteFor(l) }))
         .filter(({ lead, quote }) => quote && (quote.number.toLowerCase().includes(q) || lead.company.toLowerCase().includes(q)))
         .slice(0, LIMIT)
         .map(({ lead, quote }) => ({ key: `q-${lead.id}`, title: quote.number, sub: `${lead.company} · ${quote.displayStatus}`, to: `/quotations?open=${lead.id}` })),

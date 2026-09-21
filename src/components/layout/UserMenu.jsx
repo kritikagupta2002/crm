@@ -1,7 +1,7 @@
 import { Check, ChevronDown, LogOut, RotateCcw, Settings } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import { ROLE_ACCESS, ROLES, useCrm } from '../../context/crm'
 import { CURRENT_USER } from '../../data/mockData'
+import { RoleLink } from '../common/RoleLink'
 import { usePopover } from '../common/usePopover'
 
 
@@ -42,9 +42,9 @@ export function UserMenu() {
             </button>
           ))}
           <div className="popover-divider" />
-          <Link to="/settings" className="menu-row" role="menuitem" onClick={() => setOpen(false)}>
+          <RoleLink to="/settings" className="menu-row" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
             <Settings size={15} /> Settings
-          </Link>
+          </RoleLink>
           <button
             className="menu-row"
             role="menuitem"

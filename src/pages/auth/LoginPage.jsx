@@ -53,7 +53,7 @@ function TeamForm() {
 }
 
 function ClientForm() {
-  const { leads, settings, signInClient } = useCrm()
+  const { leads, signInClient } = useCrm()
   const [enquiryId, setEnquiryId] = useState('')
   const [mobile, setMobile] = useState('')
   const [error, setError] = useState('')
@@ -64,7 +64,7 @@ function ClientForm() {
       lead: leads.find((l) => l.stage === 'Won' && baseProjects(l).length > 1 && progressOf(ONBOARDING_STEPS, l.onboarding) === ONBOARDING_STEPS.length),
       what: 'project & government approvals',
     },
-    { lead: leads.find((l) => l.phone && l.stage === 'Proposal Sent' && quoteFor(l, settings)?.displayStatus === 'Sent'), what: 'quotation to review' },
+    { lead: leads.find((l) => l.phone && l.stage === 'Proposal Sent' && quoteFor(l)?.displayStatus === 'Sent'), what: 'quotation to review' },
   ].filter((d) => d.lead)
 
   return (

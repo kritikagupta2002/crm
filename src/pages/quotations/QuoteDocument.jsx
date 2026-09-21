@@ -76,7 +76,7 @@ export function QuoteDocument({ lead, quote, settings, amount }) {
       </dl>
       <div className="quote-terms">
         <strong>Terms</strong>
-        <p>{settings.terms}</p>
+        <p>{quote.terms ?? settings.terms}</p>
       </div>
     </article>
   )

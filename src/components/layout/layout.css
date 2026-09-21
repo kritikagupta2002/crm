@@ -78,7 +78,7 @@
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 6px;
   padding: 16px 12px;
   overflow-y: auto;
 }
@@ -95,17 +95,70 @@
 .nav-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
 }
 
+/* Module header: opens its menu; one module is open at a time. */
 .sidebar-section {
-  margin: 4px 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--sidebar-muted);
   white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-section:hover {
+  background: var(--sidebar-hover);
+  color: var(--ink);
+}
+
+.sidebar-section.has-active {
+  color: var(--teal-700);
+}
+
+.sidebar-section svg {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.nav-group.is-open .sidebar-section svg {
+  transform: rotate(180deg);
+}
+
+.nav-group-items {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
+}
+
+.nav-group.is-open .nav-group-items {
+  grid-template-rows: 1fr;
+}
+
+.nav-group-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  overflow: hidden;
+  /* Room for the active item, which reaches out to the sidebar's edge. */
+  margin-left: -12px;
+  padding: 0 0 0 12px;
+}
+
+.nav-group.is-open .nav-group-inner {
+  padding-top: 4px;
 }
 
 .nav-item {
@@ -197,8 +250,8 @@
 .sidebar-mountains {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 260 / 340;
+  /* Full size on most screens; on short ones a little lower so the menu stays clear of the peak. */
+  height: clamp(220px, calc((100vh - 520px) * 1.23), 340px);
   animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s backwards;
 }
 
@@ -227,10 +280,6 @@
 @media (max-height: 860px) {
   .nav-item {
     height: 40px;
-  }
-
-  .sidebar-section {
-    margin-bottom: 6px;
   }
 }
 
@@ -414,6 +463,11 @@
 @media (min-width: 1024px) {
   .app-shell.menu-toggled {
     --sidebar-width: 76px;
+  }
+
+  /* The icon rail shows every page; the module headers step aside. */
+  .menu-toggled .nav-group-items {
+    grid-template-rows: 1fr;
   }
 
   .menu-toggled .logo-text,

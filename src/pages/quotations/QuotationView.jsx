@@ -13,7 +13,7 @@ export function QuotationView({ leadId, onClose, onRevise, onReject }) {
   const money = useMoney()
   const { leads, settings, acceptQuotation, logActivity } = useCrm()
   const lead = leads.find((l) => l.id === leadId)
-  const quote = lead && quoteFor(lead, settings)
+  const quote = lead && quoteFor(lead)
   const titleId = useId()
 
   useEffect(() => {

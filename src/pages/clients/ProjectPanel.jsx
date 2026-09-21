@@ -1,6 +1,7 @@
 import { Download, FilePlus2, MessageCircle, ScrollText } from 'lucide-react'
 import { useState } from 'react'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
+import { RoleLink } from '../../components/common/RoleLink'
 import { useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { formatNearDate, toISODate } from '../../utils/date'
@@ -10,7 +11,7 @@ import { whatsappLink } from '../../utils/whatsapp'
 
 const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
 
-function LetterForm({ lead, project, onDone }) {
+export function LetterForm({ lead, project, onDone }) {
   const { addGovtLetter } = useCrm()
   const [title, setTitle] = useState('')
   const [ref, setRef] = useState(`${project.refBase}/${project.letters.length + 1}`)
@@ -71,6 +72,9 @@ export function ProjectBlock({ lead, project }) {
         </div>
         <span className={`pill status-pill ${PROJECT_STATUS_TONE[project.status]}`}>{project.status}</span>
       </header>
+      <RoleLink to={`/projects/${project.id}`} className="link-button open-in-erm" hideIfLocked>
+        Open in ERM →
+      </RoleLink>
 
       <h4>
         Work <span className="muted">{project.milestonesDone}/{project.milestones.length}</span>

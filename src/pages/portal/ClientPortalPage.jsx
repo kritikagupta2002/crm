@@ -51,11 +51,12 @@ const digits = (value) => value.replace(/\D/g, '').slice(-10)
 /* Before the deal: the sales steps. After it: where the current project really is, down to the approval step. */
 function journeyFor(lead, quote, project) {
   if (lead.stage === 'Won' && project) {
-    const at = { 'Not started': 2, 'In progress': 2, 'Awaiting approval': 3, Completed: 5 }[project.status]
+    const at = { 'Not started': 2, 'In progress': 2, 'Awaiting approval': 3, Approved: 4, Completed: 5 }[project.status]
     const note = {
       'Not started': project.startedOn ? `Starts ${formatNearDate(project.startedOn)}` : 'Starting soon',
       'In progress': `${project.milestonesDone} of ${project.milestones.length} stages done`,
       'Awaiting approval': `${project.approvalsDone} of ${project.approvals.length} steps done`,
+      Approved: 'Approval received · final hand-over in progress',
     }[project.status]
     return { steps: PROJECT_JOURNEY, current: at, note }
   }
@@ -511,8 +512,9 @@ export function ClientPortalPage() {
   if (!session || missingClientLead) return <Navigate to="/login" replace state={{ tab: 'client' }} />
   if (!lead) return <Navigate to="/leads" replace />
 
-  const quote = quoteFor(lead, settings)
-  const projects = clientProjects(lead, projectEdits)
+  const quote = quoteFor(lead)
+  // The work still running comes first; finished projects follow.
+  const projects = clientProjects(lead, projectEdits).sort((a, b) => (a.status === 'Completed') - (b.status === 'Completed'))
   const updates = clientUpdates({ lead, quote, projects, activities, followUps })
   const amount = preview ? money.full : clientAmount
   const approvalStarted = quote?.status === 'Accepted' || lead.stage === 'Won'

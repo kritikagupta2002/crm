@@ -7,6 +7,8 @@ import { ClientPortalPage } from './pages/portal/ClientPortalPage'
 import { CrmProvider } from './context/CrmProvider'
 import { PeriodProvider } from './context/PeriodProvider'
 import { ClientsPage } from './pages/clients/ClientsPage'
+import { ErmDashboard } from './pages/erm/ErmDashboard'
+import { ProjectDetailPage } from './pages/projects/ProjectDetailPage'
 import { ProjectsPage } from './pages/projects/ProjectsPage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
 import { DashboardPage } from './pages/dashboard/DashboardPage'
@@ -40,7 +42,9 @@ export default function App() {
                 <Route path="client-approval" element={<ClientApprovalPage />} />
                 <Route path="client-onboarding" element={<OnboardingPage />} />
                 <Route path="clients" element={<ClientsPage />} />
+                <Route path="erm" element={<ErmDashboard />} />
                 <Route path="projects" element={<ProjectsPage />} />
+                <Route path="projects/:projectId" element={<ProjectDetailPage />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="*" element={<ComingSoonPage />} />

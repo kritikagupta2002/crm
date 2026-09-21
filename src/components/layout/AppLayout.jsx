@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Lock } from 'lucide-react'
-import { canOpen, useCrm } from '../../context/crm'
+import { ROLE_ACCESS, canOpen, useCrm } from '../../context/crm'
 import { NAV_ITEMS } from './navigation'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -21,6 +21,7 @@ function readCollapsed() {
 
 function pageTitle(pathname) {
   if (pathname.startsWith('/leads/')) return `${pathname.split('/')[2]} · Enquiry`
+  if (pathname.startsWith('/projects/')) return `${pathname.split('/')[2]} · Project`
   const item = NAV_ITEMS.find((i) => i.path === pathname)
   return item ? item.label : 'Page not found'
 }
@@ -55,6 +56,8 @@ export function AppLayout() {
 
   // The CRM is for the team; clients have their own portal.
   if (session?.type !== 'team') return <Navigate to={session?.type === 'client' ? '/portal' : '/login'} replace state={{ from: pathname }} />
+  const home = ROLE_ACCESS[role]?.home ?? '/'
+  if (pathname === '/' && !canOpen(role, '/')) return <Navigate to={home} replace />
 
   return (
     <div className={`app-shell ${menuToggled ? 'menu-toggled' : ''}`}>

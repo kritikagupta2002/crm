@@ -29,14 +29,14 @@ const QUOTE_COLUMNS = [
 /* ?new=<leadId> opens the builder for that enquiry, ?open=<leadId> opens its quotation — used by other pages. */
 export function QuotationsPage() {
   const money = useMoney()
-  const { leads, settings, changeStage } = useCrm()
+  const { leads, changeStage } = useCrm()
   const [params, setParams] = useSearchParams()
   const [tab, setTab] = useState('All')
   const [search, setSearch] = useState('')
   const [rejecting, setRejecting] = useState(null)
 
   const quotes = leads
-    .map((lead) => ({ lead, quote: quoteFor(lead, settings) }))
+    .map((lead) => ({ lead, quote: quoteFor(lead) }))
     .filter((row) => row.quote)
     .sort((a, b) => b.quote.sentOn.localeCompare(a.quote.sentOn))
 
@@ -47,7 +47,7 @@ export function QuotationsPage() {
 
   const { rows: pageRows, pager } = usePaged(visible, 10, `${tab}|${q}`)
   const sum = (rows) => rows.reduce((s, r) => s + r.quote.total, 0)
-  const open = openQuotes(leads, settings)
+  const open = openQuotes(leads)
   const accepted = quotes.filter((r) => r.quote.status === 'Accepted')
   const decided = accepted.length + quotes.filter((r) => r.quote.status === 'Rejected').length
 
