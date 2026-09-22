@@ -5,7 +5,7 @@ import { useMoney } from '../../context/crm'
 import { RoleLink } from '../../components/common/RoleLink'
 
 /* One client's checklist card, shared by Client Approval and Onboarding. */
-export function WorkflowCard({ lead, steps, values, onToggle, footer, meta }) {
+export function WorkflowCard({ lead, steps, values, onToggle, footer, meta, notice }) {
   const money = useMoney()
   const done = progressOf(steps, values)
   const complete = done === steps.length
@@ -29,6 +29,7 @@ export function WorkflowCard({ lead, steps, values, onToggle, footer, meta }) {
         </span>
       </div>
       <Checklist steps={steps} values={values} onToggle={onToggle} />
+      {notice}
       <div className="workflow-foot">
         <span className="muted">{meta ?? (lead.quoteValue ? `${money.short(lead.quoteValue)} + GST` : '')}</span>
         {footer}

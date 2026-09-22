@@ -114,10 +114,21 @@ export function clientProjects(lead, projectEdits = {}) {
 
     const status = !started && milestonesDone === 0 ? 'Not started' : approved ? (closedOn ? 'Completed' : 'Approved') : submitted ? 'Awaiting approval' : 'In progress'
     const submissionDate = milestones[milestones.length - 1].date
-    const submission = submitted ? { ...base.submissionInfo, ...edits.submission, date: submissionDate } : null
-    const fieldVisits = [...base.fieldVisits, ...(edits.fieldVisits ?? [])].sort((a, b) => b.date.localeCompare(a.date))
+    // Which files the client can download from the portal. The final report goes to the client at the
+    // hand-over; everything else stays with the team until someone shares it.
+    const handedOver = closure.steps.find((c) => c.key === 'handover')?.done
+    const share = (file, byDefault = false) => ({ ...file, shared: edits.sharedFiles?.[file.id] ?? Boolean(byDefault) })
+    const baseSubmission = submitted ? { ...base.submissionInfo, ...edits.submission, date: submissionDate } : null
+    const submission = baseSubmission && { ...baseSubmission, files: (baseSubmission.files ?? []).map((f) => share(f)) }
+    const fieldVisits = [...base.fieldVisits, ...(edits.fieldVisits ?? [])].map((v) => ({ ...v, files: v.files.map((f) => share(f)) })).sort((a, b) => b.date.localeCompare(a.date))
     const reportDone = milestones.find((m) => m.key === 'report')
-    const documents = [...(reportDone?.done && base.reportFile ? [{ ...base.reportFile, addedOn: reportDone.date }] : []), ...(edits.documents ?? [])]
+    const documents = [...(reportDone?.done && base.reportFile ? [share({ ...base.reportFile, addedOn: reportDone.date }, handedOver)] : []), ...(edits.documents ?? []).map((d) => share(d))]
+    // Everything the client can download, with where it came from.
+    const clientFiles = [
+      ...documents.filter((d) => d.shared).map((d) => ({ ...d, from: d.category })),
+      ...(submission?.files ?? []).filter((f) => f.shared).map((f) => ({ ...f, addedOn: f.addedOn ?? submission.date, from: 'Filed with the authority' })),
+      ...fieldVisits.flatMap((v) => v.files.filter((f) => f.shared).map((f) => ({ ...f, addedOn: f.addedOn ?? v.date, from: `Site visit · ${v.activity}` }))),
+    ]
     const workOrders = [...base.workOrders, ...(edits.workOrders ?? [])].map((w) => ({ ...w, status: edits.woStatus?.[w.id]?.status ?? w.status }))
 
     const team = { ...base.team, ...edits.team }
@@ -155,7 +166,7 @@ export function clientProjects(lead, projectEdits = {}) {
       .filter((h) => h.date && h.date <= todayISO)
       .map((h, i) => ({ ...h, id: `${base.id}-h${i}` }))
 
-    return { ...base, history, startedOn, milestones, approvals, letters, milestonesDone, approvalsDone, status, started, team, tasks, stages, stageIndex, closure, submission, fieldVisits, documents, workOrders }
+    return { ...base, history, startedOn, milestones, approvals, letters, milestonesDone, approvalsDone, status, started, team, tasks, stages, stageIndex, closure, submission, fieldVisits, documents, workOrders, clientFiles }
   })
 }
 

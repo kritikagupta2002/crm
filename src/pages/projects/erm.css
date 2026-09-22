@@ -1192,3 +1192,45 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Documents: whether the client can download a file from the portal */
+.project-docs .doc-list li {
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+}
+
+.share-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.share-toggle:not(:disabled):hover {
+  border-color: var(--teal-200);
+  color: var(--ink);
+}
+
+.share-toggle.is-on {
+  border-color: var(--teal-200);
+  background: var(--teal-50);
+  color: var(--teal-700);
+}
+
+.share-toggle:disabled {
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .share-toggle .share-label {
+    display: none;
+  }
+}

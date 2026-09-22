@@ -1,4 +1,4 @@
-import { Download, File, FileImage, FilePlus2, FileSpreadsheet, FileText, Landmark, MapPin, Plus, ScrollText, Trash2, UploadCloud } from 'lucide-react'
+import { Download, Eye, EyeOff, File, FileImage, FilePlus2, FileSpreadsheet, FileText, Landmark, MapPin, Plus, ScrollText, Trash2, UploadCloud } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Checklist } from '../../components/common/Checklist'
 import { useCrm } from '../../context/crm'
@@ -6,7 +6,7 @@ import { TODAY } from '../../data/mockData'
 import { SUBMISSION_MODES } from '../../data/projects'
 import { formatDayMonth, formatNearDate, toISODate } from '../../utils/date'
 import { downloadDocument, downloadLetter } from '../../utils/files'
-import { DOC_CATEGORIES } from '../../utils/projects'
+import { DOC_CATEGORIES, canActOn } from '../../utils/projects'
 import { LetterForm } from '../clients/ProjectPanel'
 
 const todayISO = toISODate(TODAY)
@@ -20,8 +20,8 @@ function FileIcon({ file }) {
   return <File size={18} />
 }
 
-/* One file in a list: icon, name, size and date, with download (and remove, where allowed). */
-function FileRow({ file, date, note, onRemove }) {
+/* One file in a list: icon, name, size and date, with download, sharing with the client and remove, where allowed. */
+function FileRow({ file, date, note, onRemove, onShare }) {
   const { settings } = useCrm()
   return (
     <li>
@@ -35,6 +35,18 @@ function FileRow({ file, date, note, onRemove }) {
           {note && ` · ${note}`}
         </span>
       </div>
+      {onShare !== undefined && (
+        <button
+          className={`share-toggle ${file.shared ? 'is-on' : ''}`}
+          onClick={onShare ?? undefined}
+          disabled={!onShare}
+          aria-pressed={file.shared}
+          title={file.shared ? 'The client can download this from the portal' : 'Only the team can see this'}
+        >
+          {file.shared ? <Eye size={14} /> : <EyeOff size={14} />}
+          <span className="share-label">{file.shared ? 'Client can see' : 'Team only'}</span>
+        </button>
+      )}
       <button className="icon-button small" onClick={() => downloadDocument({ ...file, addedOn: file.addedOn ?? date }, { company: file.company ?? '', companyName: settings.companyName })} aria-label={`Download ${file.name}`}>
         <Download size={15} />
       </button>
@@ -333,7 +345,9 @@ function Uploader({ project }) {
 }
 
 export function DocumentsTab({ project }) {
-  const { removeProjectDocument, settings } = useCrm()
+  const { removeProjectDocument, setFileShared, settings, role } = useCrm()
+  // Coordinators and the Admin decide what the client sees; others see the setting.
+  const shareFor = (file) => (canActOn(role, 'submission') ? () => setFileShared(lead.id, project, file, !file.shared) : null)
   const [addingLetter, setAddingLetter] = useState(false)
   const lead = project.lead
   const company = lead.company
@@ -351,7 +365,7 @@ export function DocumentsTab({ project }) {
         {project.documents.length ? (
           <ul className="doc-list">
             {project.documents.map((d) => (
-              <FileRow key={d.id} file={{ ...d, company }} note={d.category} onRemove={d.seeded ? undefined : () => removeProjectDocument(lead.id, project, d)} />
+              <FileRow key={d.id} file={{ ...d, company }} note={d.category} onShare={shareFor(d)} onRemove={d.seeded ? undefined : () => removeProjectDocument(lead.id, project, d)} />
             ))}
           </ul>
         ) : (
@@ -366,7 +380,7 @@ export function DocumentsTab({ project }) {
         {fieldFiles.length ? (
           <ul className="doc-list">
             {fieldFiles.map((f) => (
-              <FileRow key={f.id} file={{ ...f, company }} date={f.date} note={f.note} />
+              <FileRow key={f.id} file={{ ...f, company }} date={f.date} note={f.note} onShare={shareFor(f)} />
             ))}
           </ul>
         ) : (
@@ -387,7 +401,7 @@ export function DocumentsTab({ project }) {
             {submissionFiles.length > 0 && (
               <ul className="doc-list">
                 {submissionFiles.map((f) => (
-                  <FileRow key={f.id} file={{ ...f, company }} date={project.submission.date} />
+                  <FileRow key={f.id} file={{ ...f, company }} date={project.submission.date} onShare={shareFor(f)} />
                 ))}
               </ul>
             )}

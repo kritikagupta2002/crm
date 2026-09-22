@@ -1,17 +1,21 @@
-import { ArrowLeft, Bell, Check, CheckCircle2, ClipboardCheck, ClipboardList, Download, FileText, FolderKanban, Landmark, LogOut, Paperclip, UserRound, Mail, MapPin, MessageCircle, Phone, Plus, Printer, ScrollText, Send, UploadCloud, X } from 'lucide-react'
+import { ArrowLeft, Bell, Check, CheckCircle2, ClipboardCheck, ClipboardList, Download, FileText, FolderKanban, Landmark, LogOut, MessageCircleQuestion, Paperclip, UserRound, Mail, MapPin, MessageCircle, Phone, Plus, Printer, ScrollText, Send, UploadCloud, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { Logo } from '../../components/common/Logo'
 import { Portal } from '../../components/common/Portal'
+import { usePopover } from '../../components/common/usePopover'
 import { canOpen, useCrm, useMoney } from '../../context/crm'
-import { formatDate, formatNearDate } from '../../utils/date'
+import { QUERY_TOPICS, queriesOf } from '../../data/queries'
+import { addDays, formatDate, formatNearDate, toISODate } from '../../utils/date'
+import { TODAY } from '../../data/mockData'
 import { downloadDocument, downloadLetter } from '../../utils/files'
 import { PROJECT_STATUS_TONE, clientProjects, clientUpdates } from '../../utils/projects'
 import { whatsappLink } from '../../utils/whatsapp'
 import { APPROVAL_STEPS, ONBOARDING_STEPS, progressOf, quoteFor } from '../../utils/workflow'
 import { QuoteDocument } from '../quotations/QuoteDocument'
 import { PortalBand } from './PortalBand'
+import { PaymentsCard } from './PortalPayments'
 import '../projects/erm.css'
 import './portal.css'
 
@@ -294,11 +298,13 @@ function StepsCard({ title, steps, values, note, bare = false, icon = ClipboardC
   )
 }
 
-function DocumentsCard({ lead, readOnly }) {
+function DocumentsCard({ lead, projects, readOnly }) {
   const { addDocuments, settings } = useCrm()
   const input = useRef(null)
   const [error, setError] = useState('')
-  const docs = lead.documents ?? []
+  // Enquiry documents (the client's uploads and what the team shared), then the project files the team has released.
+  const projectFiles = projects.flatMap((p) => p.clientFiles.map((f) => ({ ...f, from: `${p.name} · ${f.from}` })))
+  const docs = [...(lead.documents ?? []), ...projectFiles]
 
   const upload = (fileList) => {
     const files = [...fileList]
@@ -312,7 +318,7 @@ function DocumentsCard({ lead, readOnly }) {
   }
 
   return (
-    <section className="card portal-card">
+    <section className="card portal-card portal-documents">
       <div className="portal-card-head">
         <CardTitle icon={Paperclip}>Documents</CardTitle>
         <button className="btn" onClick={() => input.current.click()} disabled={readOnly}>
@@ -339,7 +345,7 @@ function DocumentsCard({ lead, readOnly }) {
               <span>
                 <strong>{doc.name}</strong>
                 <span className="muted">
-                  {doc.byClient ? 'From you' : `From ${settings.companyName.split(' ').slice(0, 2).join(' ')}`} · {formatNearDate(doc.addedOn)} · {formatSize(doc.size)}
+                  {doc.byClient ? 'From you' : (doc.from ?? `From ${settings.companyName.split(' ').slice(0, 2).join(' ')}`)} · {formatNearDate(doc.addedOn)} · {formatSize(doc.size)}
                 </span>
               </span>
               <button className="icon-button small" onClick={() => downloadDocument(doc, { company: lead.company, companyName: settings.companyName })} aria-label={`Download ${doc.name}`}>
@@ -488,9 +494,149 @@ function CompletedCard({ items }) {
   )
 }
 
+/* Ask the team a question in writing; the answer shows up here, so there's no need to chase by phone. */
+function QueriesCard({ lead, readOnly }) {
+  const { raiseQuery } = useCrm()
+  const [topic, setTopic] = useState(QUERY_TOPICS[0])
+  const [message, setMessage] = useState('')
+  const [writing, setWriting] = useState(false)
+  const queries = queriesOf(lead)
+
+  // The phone's help bar opens the form from anywhere on the page.
+  useEffect(() => {
+    if (readOnly) return
+    const open = () => setWriting(true)
+    window.addEventListener('portal:ask', open)
+    return () => window.removeEventListener('portal:ask', open)
+  }, [readOnly])
+
+  return (
+    <section className="card portal-card portal-questions" id="portal-questions">
+      <div className="portal-card-head">
+        <CardTitle icon={MessageCircleQuestion}>Your questions</CardTitle>
+        {!writing && (
+          <button className="btn" onClick={() => setWriting(true)} disabled={readOnly}>
+            <Plus size={15} /> Ask
+          </button>
+        )}
+      </div>
+      {writing && (
+        <form
+          className="portal-query-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            raiseQuery(lead.id, { topic, message: message.trim() })
+            setMessage('')
+            setWriting(false)
+          }}
+        >
+          <select value={topic} onChange={(e) => setTopic(e.target.value)} aria-label="Topic">
+            {QUERY_TOPICS.map((t) => (
+              <option key={t}>{t}</option>
+            ))}
+          </select>
+          <textarea rows={3} value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Write your question; our team replies here" aria-label="Your question" autoFocus />
+          <div className="portal-query-actions">
+            <button type="button" className="btn" onClick={() => setWriting(false)}>
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={!message.trim()}>
+              <Send size={15} /> Send
+            </button>
+          </div>
+        </form>
+      )}
+      {queries.length === 0 ? (
+        !writing && <p className="portal-empty">Have a question about your project, documents or billing? Ask here and we'll reply in the portal.</p>
+      ) : (
+        <ul className="query-list">
+          {queries.map((q) => (
+            <li key={q.id} className={q.status === 'Open' ? 'is-open' : ''}>
+              <div className="query-head">
+                <span className={`pill status-pill ${q.status === 'Open' ? 'tone-attention' : 'tone-good'}`}>{q.status === 'Open' ? 'Waiting for our reply' : 'Answered'}</span>
+                <span className="muted">
+                  {q.topic} · {formatNearDate(q.at.slice(0, 10))}
+                </span>
+              </div>
+              <p>{q.message}</p>
+              {q.reply && (
+                <p className="query-answer">
+                  <b>{q.repliedBy}:</b> {q.reply}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+/* The bell in the top bar: the latest updates without scrolling, with a count of the ones not seen yet. */
+function PortalBell({ lead, updates }) {
+  const { open, setOpen, ref } = usePopover()
+  const key = `bansal-portal:seen:${lead.id}`
+  const [seen, setSeen] = useState(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem(key) || '[]'))
+    } catch {
+      return new Set()
+    }
+  })
+  // The client's own actions aren't news to them.
+  const news = updates.filter((u) => !u.you).slice(0, 8)
+  // Only the last month counts as new, so a first visit isn't a wall of old news.
+  const monthAgo = toISODate(addDays(TODAY, -30))
+  const unread = news.filter((u) => !seen.has(u.id) && (u.upcoming || u.date >= monthAgo)).length
+
+  const toggle = () => {
+    const next = !open
+    setOpen(next)
+    if (next && unread) {
+      const all = new Set([...seen, ...news.map((u) => u.id)])
+      setSeen(all)
+      try {
+        localStorage.setItem(key, JSON.stringify([...all]))
+      } catch {
+        // Only the count is affected.
+      }
+    }
+  }
+
+  return (
+    <div className="popover-wrap" ref={ref}>
+      <button className="icon-button bell portal-bell" onClick={toggle} aria-label={unread ? `Updates, ${unread} new` : 'Updates'} aria-expanded={open}>
+        <Bell size={19} />
+        {unread > 0 && <span className="portal-bell-count">{unread}</span>}
+      </button>
+      {open && (
+        <div className="popover notifications portal-bell-menu" role="dialog" aria-label="Latest updates">
+          <header>
+            <strong>Latest updates</strong>
+          </header>
+          {news.length === 0 ? (
+            <p className="search-empty">Nothing new yet.</p>
+          ) : (
+            <ul>
+              {news.map((u) => (
+                <li key={u.id} className={u.upcoming ? 'tone-attention' : 'tone-info'}>
+                  <span className="portal-bell-item">
+                    <strong>{u.text}</strong>
+                    <span className="muted">{u.upcoming ? 'Coming up' : formatNearDate(u.date)}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function UpdatesCard({ updates }) {
   return (
-    <section className="card portal-card">
+    <section className="card portal-card portal-updates-card">
       <CardTitle icon={Bell}>Latest updates</CardTitle>
       <ol className="portal-updates">
         {updates.slice(0, 8).map((u) => (
@@ -576,11 +722,15 @@ export function ClientPortalPage() {
             <span className="portal-tag">Client Portal</span>
           </div>
           {preview ? (
-            <Link className="btn" to={canOpen(role, '/leads') ? `/leads/${lead.id}` : '/'}>
-              <ArrowLeft size={15} /> Back to CRM
-            </Link>
+            <div className="portal-top-actions">
+              <PortalBell key={lead.id} lead={lead} updates={updates} />
+              <Link className="btn" to={canOpen(role, '/leads') ? `/leads/${lead.id}` : '/'}>
+                <ArrowLeft size={15} /> Back to CRM
+              </Link>
+            </div>
           ) : (
             <div className="portal-top-actions">
+              <PortalBell key={lead.id} lead={lead} updates={updates} />
               <Link className="btn btn-primary" to="/enquiry">
                 <Plus size={15} /> New enquiry
               </Link>
@@ -633,12 +783,13 @@ export function ClientPortalPage() {
                 title="Work order & advance"
                 steps={APPROVAL_STEPS}
                 values={lead.approval}
-                note="Upload your work order / PO under Documents. Our accounts team will share the advance payment details."
+                note="Upload your work order / PO under Documents, and pay the advance under Payments below."
               />
             )}
             {lead.stage === 'Won' && !doneKeys.has('onboarding') && <StepsCard title="Project onboarding" steps={ONBOARDING_STEPS} values={lead.onboarding} />}
+            <PaymentsCard lead={lead} readOnly={Boolean(preview)} />
             {completed.length > 0 && <CompletedCard key={`done-${lead.id}`} items={completed} />}
-            <DocumentsCard lead={lead} readOnly={Boolean(preview)} />
+            <DocumentsCard lead={lead} projects={projects} readOnly={Boolean(preview)} />
           </div>
 
           <aside className="portal-col">
@@ -670,9 +821,10 @@ export function ClientPortalPage() {
               </a>
             </section>
 
+            <QueriesCard lead={lead} readOnly={Boolean(preview)} />
             <UpdatesCard updates={updates} />
 
-            <section className="card portal-card">
+            <section className="card portal-card portal-details">
               <CardTitle icon={ClipboardList}>Enquiry details</CardTitle>
               <dl className="portal-facts">
                 <div>
@@ -702,6 +854,23 @@ export function ClientPortalPage() {
           </aside>
         </div>
       </main>
+
+      {!preview && (
+        <nav className="portal-help-bar" aria-label="Help">
+          <a className="btn btn-whatsapp" target="_blank" rel="noreferrer" href={whatsappLink(companyPhone, `Hello, this is ${lead.contactPerson} from ${lead.company} regarding enquiry ${lead.id}.`)}>
+            <MessageCircle size={16} /> WhatsApp
+          </a>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              document.getElementById('portal-questions')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              window.dispatchEvent(new Event('portal:ask'))
+            }}
+          >
+            <MessageCircleQuestion size={16} /> Ask a question
+          </button>
+        </nav>
+      )}
 
       <footer className="portal-foot">
         © {new Date().getFullYear()} {settings.companyName}

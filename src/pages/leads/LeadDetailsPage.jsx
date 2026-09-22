@@ -2,6 +2,9 @@ import { ArrowLeft, CalendarPlus, ExternalLink, FilePlus2, FileText, Mail, MapPi
 import { useCallback, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { StagePill } from '../../components/common/StagePill'
+import { queriesOf } from '../../data/queries'
+import { ClientPayments } from '../../components/lead/ClientPayments'
+import { ClientQueries } from '../../components/lead/ClientQueries'
 import { LeadActivity } from '../../components/lead/LeadActivity'
 import { LeadFollowUps } from '../../components/lead/LeadFollowUps'
 import { LeadStageActions } from '../../components/lead/LeadStageActions'
@@ -186,7 +189,17 @@ export function LeadDetailsPage() {
             {tab === 'documents' && <LeadDocuments lead={lead} />}
             {tab === 'activity' && (
               <div className="activity-panel">
-                <section className="lead-section first">
+                {(lead.approval?.quoteAccepted || lead.stage === 'Won') && (
+                  <section className="lead-section first">
+                    <ClientPayments lead={lead} />
+                  </section>
+                )}
+                {queriesOf(lead).length > 0 && (
+                  <section className={`lead-section ${lead.approval?.quoteAccepted || lead.stage === 'Won' ? '' : 'first'}`}>
+                    <ClientQueries lead={lead} />
+                  </section>
+                )}
+                <section className={`lead-section ${queriesOf(lead).length || lead.approval?.quoteAccepted || lead.stage === 'Won' ? '' : 'first'}`}>
                   <LeadFollowUps key={followUpRequests} lead={lead} startWithForm={followUpRequests > 0} />
                 </section>
                 <section className="lead-section">

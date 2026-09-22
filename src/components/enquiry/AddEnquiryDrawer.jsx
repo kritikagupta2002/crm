@@ -55,6 +55,8 @@ function validate(form) {
   if (!/^[6-9]\d{9}$/.test(normalisePhone(form.phone))) errors.phone = 'Enter a valid 10-digit mobile number'
   if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = 'Enter a valid email address'
   if (form.estimatedValue && !(Number(form.estimatedValue) > 0)) errors.estimatedValue = 'Enter an amount in rupees'
+  // A typo guard: no consultancy job here runs past ₹1,000 Cr.
+  else if (Number(form.estimatedValue) > 1e10) errors.estimatedValue = 'That is over ₹1,000 Cr. Check the amount'
   if (form.scheduleFollowUp) {
     if (!form.followUpDate) errors.followUpDate = 'Pick a date'
     else if (form.followUpDate < todayISO) errors.followUpDate = "Date can't be in the past"
@@ -298,7 +300,7 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
                     </select>
                   </Field>
                   <Field label="Estimated value (₹)" error={errors.estimatedValue} hint="Optional — rough budget, if the client shared one">
-                    <input value={form.estimatedValue} onChange={(e) => update('estimatedValue', e.target.value.replace(/[^\d]/g, ''))} placeholder="250000" inputMode="numeric" />
+                    <input value={form.estimatedValue} onChange={(e) => update('estimatedValue', e.target.value.replace(/[^\d]/g, '').slice(0, 11))} placeholder="250000" inputMode="numeric" />
                   </Field>
                   <Field label="Enquiry description" wide>
                     <textarea

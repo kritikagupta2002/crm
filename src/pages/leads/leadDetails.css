@@ -443,6 +443,8 @@
 
 .side-facts dd {
   margin: 2px 0 0;
+  /* A long figure breaks inside the card instead of running out of it. */
+  overflow-wrap: anywhere;
   font-family: var(--font-serif);
   font-size: 18px;
   font-weight: 600;
@@ -533,4 +535,134 @@
   margin: -4px 0 12px;
   font-size: 13px;
   color: var(--ink-2);
+}
+
+/* Client questions from the portal (CRM and portal) */
+.query-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.query-list li {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  animation: fade 0.3s ease both;
+}
+
+.query-list li.is-open {
+  border-color: var(--amber);
+  box-shadow: inset 3px 0 0 var(--amber);
+}
+
+.query-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 12px;
+}
+
+.query-list p {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.query-list .query-answer {
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.query-reply {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.query-reply textarea,
+.portal-query-form textarea,
+.portal-query-form select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 13.5px;
+  resize: vertical;
+}
+
+.portal-query-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  animation: rise 0.25s ease backwards;
+}
+
+.portal-query-form select {
+  height: 38px;
+}
+
+.portal-query-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Payments (CRM): asking the client for a payment */
+.pay-request input {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 13.5px;
+}
+
+/* A reported payment waiting on a workflow card (Client Approval) */
+.pay-check {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pay-check li {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--amber-bg);
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.pay-check b {
+  color: var(--ink);
+}
+
+.pay-check .link-button {
+  margin-left: 6px;
+  font-size: 12.5px;
+}
+
+.pay-check-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }

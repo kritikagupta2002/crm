@@ -1090,3 +1090,310 @@
   margin: 8px 0 4px;
   font-size: 12.5px;
 }
+
+/* Top bar bell: latest updates without scrolling */
+.portal-bell {
+  position: relative;
+}
+
+.portal-bell-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--red);
+  box-shadow: 0 0 0 2px var(--surface);
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+  color: #fff;
+}
+
+.portal-bell-menu {
+  right: 0;
+  width: min(340px, calc(100vw - 32px));
+}
+
+.portal-bell-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 14px;
+  font-size: 13px;
+}
+
+/* Phones: the cards in one column, in the order a client needs them. */
+@media (max-width: 900px) {
+  .portal-grid > .portal-col {
+    display: contents;
+  }
+
+  .portal-questions {
+    order: 2;
+  }
+
+  .portal-documents {
+    order: 3;
+  }
+
+  .portal-updates-card {
+    order: 4;
+  }
+
+  .portal-contact {
+    order: 5;
+  }
+
+  .portal-details {
+    order: 6;
+  }
+}
+
+/* Phones: WhatsApp and "Ask a question" stay one tap away. */
+.portal-help-bar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .portal-help-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: 0 -6px 18px rgba(15, 42, 61, 0.08);
+  }
+
+  .portal-help-bar .btn {
+    justify-content: center;
+  }
+
+  /* Room for the bar under the last card. */
+  .portal:has(.portal-help-bar) .portal-main {
+    padding-bottom: 84px;
+  }
+}
+
+/* Payments: dues with a Pay button, and the client's reported payments */
+.pay-dues,
+.pay-history {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pay-dues li,
+.pay-history li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid var(--line-soft);
+}
+
+.pay-history li {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.pay-dues li:first-child,
+.pay-history li:first-child {
+  border-top: none;
+}
+
+.pay-dues span,
+.pay-history li > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pay-dues strong,
+.pay-history strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pay-dues .muted,
+.pay-history .muted {
+  font-size: 12.5px;
+}
+
+.pay-dues b {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+.pay-history-title {
+  margin: 14px 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.pay-rejected {
+  font-size: 12.5px;
+  color: var(--red);
+}
+
+/* Pay drawer */
+.pay-drawer {
+  width: min(600px, 100vw);
+}
+
+.pay-step {
+  margin-bottom: 22px;
+}
+
+.pay-step h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.pay-step h3 span {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--teal-50);
+  font-size: 12px;
+  color: var(--teal-700);
+}
+
+.pay-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.pay-grid input[type='file'] {
+  height: auto;
+  padding: 6px;
+  font-size: 12.5px;
+}
+
+.pay-methods {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.pay-upi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.pay-qr {
+  display: grid;
+  place-items: center;
+  width: 170px;
+  height: 170px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.pay-qr-empty {
+  padding: 16px;
+  font-size: 12px;
+  text-align: center;
+  color: var(--ink-3);
+}
+
+.pay-bank {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+
+.pay-bank dt {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.pay-bank dd {
+  margin: 1px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.pay-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.pay-done h3 {
+  margin: 6px 0 0;
+  font-size: 18px;
+}
+
+.pay-done-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+@media (max-width: 640px) {
+  .pay-grid,
+  .pay-methods {
+    grid-template-columns: 1fr;
+  }
+
+  .pay-methods {
+    justify-items: center;
+  }
+
+  .pay-bank {
+    width: 100%;
+  }
+}
+
+.pay-drawer .lead-drawer-title {
+  min-width: 0;
+}
+
+.pay-drawer .lead-drawer-title h2 {
+  overflow-wrap: anywhere;
+}

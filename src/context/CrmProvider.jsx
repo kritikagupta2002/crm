@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FOLLOW_UPS, LEADS, STAGES, TODAY } from '../data/mockData'
 import { formatDayMonth, formatTime, toISODate } from '../utils/date'
+import { queriesOf } from '../data/queries'
 import { rememberFile } from '../utils/files'
+import { clientProjects } from '../utils/projects'
 import { pinnedQuote } from '../utils/workflow'
 import { CrmContext, DEFAULT_SETTINGS, ROLE_ACCESS } from './crm'
 
@@ -324,15 +326,20 @@ export function CrmProvider({ children }) {
     const text = Object.entries(patch)
       .map(([key, value]) => `${{ coordinator: 'Coordinator', teamLead: 'Team lead', members: 'Field team' }[key]}: ${Array.isArray(value) ? value.join(', ') || 'none' : value || 'none'}`)
       .join(' · ')
+    const lead = findLead(leadId)
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
+      const team = { ...project.team, ...edits.team, ...patch }
+      // A full team in the ERM also ticks the client's onboarding step "Project team assigned".
+      const staffed = team.coordinator && team.teamLead && team.members?.length && lead && !lead.onboarding?.teamAssigned
       return {
         ...prev,
+        edits: staffed ? editLead(prev, leadId, { onboarding: { ...lead.onboarding, teamAssigned: true } }) : prev.edits,
         projects: { ...prev.projects, [project.id]: { ...edits, team: { ...edits.team, ...patch } } },
         activities: log(prev, leadId, 'project', `${project.name} (${project.id}) — ${text}`),
       }
     })
-  }, [])
+  }, [findLead])
 
   /*
    * ERM: change a task's owner, due date or status. A standard task marked done also completes the
@@ -488,6 +495,110 @@ export function CrmProvider({ children }) {
     [editProject],
   )
 
+  /* ERM: a project file the client can (or can no longer) download from the portal. */
+  const setFileShared = useCallback(
+    (leadId, project, file, shared) => {
+      editProject(leadId, project, (e) => ({ sharedFiles: { ...e.sharedFiles, [file.id]: shared ? toISODate(TODAY) : false } }), `${project.name}: ${file.name} ${shared ? 'shared with the client (portal)' : 'no longer shared with the client'}`)
+    },
+    [editProject],
+  )
+
+  /* Client portal: a question for the team. It stays open until someone answers it. */
+  const raiseQuery = useCallback(
+    (id, { topic, message }) => {
+      const lead = findLead(id)
+      if (!lead) return
+      const query = { id: `Q-${Date.now()}`, topic, message, at: new Date().toISOString(), status: 'Open' }
+      setChanges((prev) => ({
+        ...prev,
+        edits: editLead(prev, id, { queries: [...queriesOf(lead), query] }),
+        activities: log(prev, id, 'query', `Client asked a question (${topic}) — ${message}`, { by: 'client', clientText: 'You asked us a question' }),
+      }))
+    },
+    [findLead],
+  )
+
+  /* The team's answer to a client's question; the client sees it on the portal. */
+  const answerQuery = useCallback(
+    (id, queryId, reply) => {
+      const lead = findLead(id)
+      if (!lead) return
+      const queries = queriesOf(lead).map((q) => (q.id === queryId ? { ...q, status: 'Answered', reply, repliedAt: new Date().toISOString(), repliedBy: lead.assignedTo } : q))
+      setChanges((prev) => ({ ...prev, edits: editLead(prev, id, { queries }), activities: log(prev, id, 'contact', `Portal — replied to the client's question: ${reply}`) }))
+    },
+    [findLead],
+  )
+
+  /* Client portal: the client paid (UPI, bank or cheque) and reports it with the reference and a screenshot. */
+  const submitPayment = useCallback(
+    (id, { dueKey, title, amount, method, utr, paidOn, file }) => {
+      const lead = findLead(id)
+      if (!lead) return
+      const payment = { id: `PAY-${Date.now()}`, dueKey, title, amount, method, utr, paidOn, submittedAt: new Date().toISOString(), status: 'Submitted' }
+      if (file) {
+        payment.file = { id: `${payment.id}-proof`, name: file.name, size: file.size, type: file.type, addedOn: paidOn }
+        rememberFile(payment.file.id, file)
+      }
+      const rupees = `₹${Math.round(amount).toLocaleString('en-IN')}`
+      setChanges((prev) => ({
+        ...prev,
+        edits: editLead(prev, id, { payments: [...(lead.payments ?? []), payment] }),
+        activities: log(prev, id, 'payment', `Payment of ${rupees} reported for ${title} (${method}${utr ? `, ref. ${utr}` : ''}) — to verify`, { by: 'client', clientText: `You reported a payment of ${rupees}` }),
+      }))
+    },
+    [findLead],
+  )
+
+  /*
+   * Accounts confirms (or rejects) a reported payment. A confirmed advance ticks "Advance payment received"
+   * in Client Approval; a confirmed balance ticks "Final payment received" in the project's closure.
+   */
+  const verifyPayment = useCallback(
+    (id, paymentId, ok, note) => {
+      const lead = findLead(id)
+      const payment = lead?.payments?.find((p) => p.id === paymentId)
+      if (!payment) return
+      const today = toISODate(TODAY)
+      const payments = lead.payments.map((p) => (p.id === paymentId ? { ...p, status: ok ? 'Verified' : 'Rejected', checkedOn: today, checkNote: note || null } : p))
+      const leadPatch = { payments }
+      if (ok && payment.dueKey === 'advance') leadPatch.approval = { ...lead.approval, advanceReceived: true }
+      const rupees = `₹${Math.round(payment.amount).toLocaleString('en-IN')}`
+      setChanges((prev) => {
+        let projects = prev.projects
+        if (ok && payment.dueKey === 'balance') {
+          const main = clientProjects(lead, prev.projects)[0]
+          if (main) {
+            const edits = prev.projects[main.id] ?? {}
+            const closure = edits.closure ?? closureOf(main)
+            projects = { ...prev.projects, [main.id]: { ...edits, closure: { ...closure, steps: { ...closure.steps, payment: today } } } }
+          }
+        }
+        return {
+          ...prev,
+          edits: editLead(prev, id, leadPatch),
+          projects,
+          activities: log(prev, id, 'payment', ok ? `Payment of ${rupees} for ${payment.title} verified — received` : `Payment of ${rupees} for ${payment.title} not found in the account${note ? `: ${note}` : ''}`),
+        }
+      })
+    },
+    [findLead],
+  )
+
+  /* The team asks the client for a payment (government fee, extra work); it shows up as due on the portal. */
+  const requestPayment = useCallback(
+    (id, { title, amount }) => {
+      const lead = findLead(id)
+      if (!lead) return
+      const request = { id: `REQ-${Date.now()}`, title, amount, on: toISODate(TODAY), by: lead.assignedTo }
+      setChanges((prev) => ({
+        ...prev,
+        edits: editLead(prev, id, { paymentRequests: [...(lead.paymentRequests ?? []), request] }),
+        activities: log(prev, id, 'payment', `Payment requested from the client: ${title} — ₹${Math.round(amount).toLocaleString('en-IN')}`),
+      }))
+    },
+    [findLead],
+  )
+
   /* ERM: the client was told about a government letter on WhatsApp. */
   const markLetterShared = useCallback(
     (leadId, project, letter) => {
@@ -583,6 +694,12 @@ export function CrmProvider({ children }) {
         addProjectDocuments,
         removeProjectDocument,
         markLetterShared,
+        setFileShared,
+        raiseQuery,
+        submitPayment,
+        verifyPayment,
+        requestPayment,
+        answerQuery,
         addWorkOrder,
         setWorkOrderStatus,
         markPortalShared,

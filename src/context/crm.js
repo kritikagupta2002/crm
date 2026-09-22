@@ -69,4 +69,10 @@ export const DEFAULT_SETTINGS = {
   terms: '50% advance with work order, balance on submission of the final report. Government fees and site travel beyond 100 km are billed at actuals.',
   notifyOverdue: true,
   notifyNewEnquiry: true,
+  // Where clients pay (shown with a UPI QR on the portal). Demo values; set the real ones in Settings.
+  upiId: 'bansalgeo@icici',
+  bankName: 'ICICI Bank, C-Scheme, Jaipur',
+  accountName: 'Bansal Geo Solutions Pvt. Ltd.',
+  accountNo: '6285 0500 1234',
+  ifsc: 'ICIC0006285',
 }

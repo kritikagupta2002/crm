@@ -42,7 +42,7 @@ function field(state, setState, key, label, props = {}) {
 }
 
 function CompanyForm({ settings, onSave }) {
-  const [company, setCompany] = useState(() => ({ companyName: settings.companyName, address: settings.address, phone: settings.phone, email: settings.email, gstin: settings.gstin }))
+  const [company, setCompany] = useState(() => ({ companyName: settings.companyName, address: settings.address, phone: settings.phone, email: settings.email, gstin: settings.gstin, upiId: settings.upiId, accountName: settings.accountName, accountNo: settings.accountNo, ifsc: settings.ifsc, bankName: settings.bankName }))
   return (
     <form
       className="form-grid"
@@ -56,6 +56,12 @@ function CompanyForm({ settings, onSave }) {
       {field(company, setCompany, 'phone', 'Phone')}
       {field(company, setCompany, 'email', 'Email')}
       {field(company, setCompany, 'gstin', 'GSTIN', { placeholder: 'Shown on quotations when added' })}
+      {/* Where clients pay from the portal (UPI QR and bank transfer). */}
+      {field(company, setCompany, 'upiId', 'UPI ID for client payments')}
+      {field(company, setCompany, 'accountName', 'Bank account name')}
+      {field(company, setCompany, 'accountNo', 'Account number')}
+      {field(company, setCompany, 'ifsc', 'IFSC')}
+      {field(company, setCompany, 'bankName', 'Bank & branch', { wide: true })}
       <div className="settings-actions field-wide">
         <button className="btn btn-primary" type="submit">
           Save profile
@@ -90,7 +96,7 @@ function QuoteDefaultsForm({ settings, onSave }) {
 export function SettingsPage() {
   const { settings, updateSettings, resetDemoData, changeCount } = useCrm()
   const [saved, setSaved] = useState('')
-  const companyKey = [settings.companyName, settings.address, settings.phone, settings.email, settings.gstin].join('|')
+  const companyKey = [settings.companyName, settings.address, settings.phone, settings.email, settings.gstin, settings.upiId, settings.accountName, settings.accountNo, settings.ifsc, settings.bankName].join('|')
   const quoteKey = [settings.gstPct, settings.quoteValidityDays, settings.terms].join('|')
 
   const flash = (key) => {

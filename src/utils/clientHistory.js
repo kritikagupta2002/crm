@@ -15,7 +15,9 @@ const num = (lead) => Number(lead.id.split('-').pop()) || 1
  */
 export function seededInteractions(lead) {
   const seed = LEADS.find((l) => l.id === lead.id)
-  if (!seed) return []
+  const received = { key: 'received', date: lead.createdOn, type: 'created', text: `Enquiry received${lead.source ? ` via ${lead.source}` : ''} — ${lead.serviceDetail}` }
+  // An enquiry added in the app has only its arrival here; everything after it is in the activity log.
+  if (!seed) return [{ ...received, id: `${lead.id}-si-received` }]
   const n = num(lead)
   const created = parseISODate(lead.createdOn)
   const at = (days) => toISODate(addDays(created, days))
@@ -23,7 +25,7 @@ export function seededInteractions(lead) {
   const reachedQuote = Boolean(seed.quoteValue)
   const won = seed.stage === 'Won' && !lead.wonOn ? wonDate(seed) : null
   const owner = lead.assignedTo
-  const items = [{ key: 'received', date: lead.createdOn, type: 'created', text: `Enquiry received${lead.source ? ` via ${lead.source}` : ''} — ${lead.serviceDetail}` }]
+  const items = [received]
 
   if (stageAt(seed, 'Contacted') || seed.stage === 'Lost')
     items.push({ key: 'call', date: at(1), type: 'contact', mode: 'Call', text: `Call — ${owner} spoke to ${lead.contactPerson}; requirement understood (${lead.serviceDetail})` })
@@ -57,7 +59,9 @@ export function seededInteractions(lead) {
 /* An enquiry's full timeline: the seeded past plus everything done in the app, newest first. */
 export function leadTimeline(lead, activities) {
   const logged = activities.filter((a) => a.leadId === lead.id).map((a) => ({ id: a.id, date: a.at.slice(0, 10), sort: a.at, type: a.type, text: a.text, at: a.at, byClient: a.by === 'client' }))
-  const past = seededInteractions(lead).map((i) => ({ ...i, sort: `${i.date}T09:00` }))
+  // Derived events have no time of day: they go at the start of their day (in their own order), so anything
+  // done in the app that day stays above them.
+  const past = seededInteractions(lead).map((i, k) => ({ ...i, sort: `${i.date}T00:00:${String(k).padStart(2, '0')}` }))
   return [...logged, ...past].sort((a, b) => b.sort.localeCompare(a.sort))
 }
 
@@ -67,7 +71,7 @@ const PROJECT_KINDS = ['team', 'submission', 'letter', 'granted', 'closed']
 /* A client's whole relationship: the enquiry and its conversations, then the main moments of each project. */
 export function clientTimeline(lead, activities, projects) {
   const projectItems = projects.flatMap((p) =>
-    p.history.filter((h) => PROJECT_KINDS.includes(h.kind)).map((h) => ({ id: h.id, date: h.date, sort: `${h.date}T12:00`, type: 'project', text: `${p.name}: ${h.text}` })),
+    p.history.filter((h) => PROJECT_KINDS.includes(h.kind)).map((h) => ({ id: h.id, date: h.date, sort: `${h.date}T00:01`, type: 'project', text: `${p.name}: ${h.text}` })),
   )
   return [...leadTimeline(lead, activities), ...projectItems].sort((a, b) => b.sort.localeCompare(a.sort))
 }

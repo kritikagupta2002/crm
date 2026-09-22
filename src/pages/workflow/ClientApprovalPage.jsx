@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm, useMoney } from '../../context/crm'
 import { APPROVAL_STEPS, progressOf } from '../../utils/workflow'
+import { PaymentCheck } from '../../components/lead/ClientPayments'
 import { WorkflowCard } from './WorkflowCard'
 
 const FILTERS = [
@@ -85,6 +86,7 @@ export function ClientApprovalPage() {
                 steps={APPROVAL_STEPS}
                 values={lead.approval}
                 onToggle={toggle(lead)}
+                notice={<PaymentCheck lead={lead} dueKey="advance" />}
                 footer={
                   <button className="btn btn-success" disabled={!complete} onClick={() => changeStage(lead.id, 'Won')} title={complete ? undefined : 'Finish all steps first'}>
                     <Trophy size={15} /> Mark as Won

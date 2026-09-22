@@ -1,8 +1,10 @@
-import { AlertTriangle, Bell, CheckCircle2, Clock, FileWarning, FolderKanban, Globe, ScrollText, Sparkles } from 'lucide-react'
+import { AlertTriangle, Bell, CheckCircle2, Clock, FileWarning, FolderKanban, Globe, IndianRupee, MessageCircleQuestion, ScrollText, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAccess, useCrm } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
+import { queriesOf } from '../../data/queries'
+import { paymentsOf } from '../../utils/payments'
 import { addDays, formatDayMonth, toISODate } from '../../utils/date'
 import { ERM_STAGES, allProjects } from '../../utils/projects'
 import { quoteFor } from '../../utils/workflow'
@@ -28,12 +30,28 @@ function readSeen() {
 export function NotificationsMenu() {
   const { leads, followUps, settings, activities, projectEdits } = useCrm()
   const { can } = useAccess()
+  const money = useMoney()
   const { open, setOpen, ref } = usePopover()
   const [seen, setSeen] = useState(readSeen)
   const company = (id) => leads.find((l) => l.id === id)?.company
 
+  const questions = leads.flatMap((l) =>
+    queriesOf(l)
+      .filter((q) => q.status === 'Open')
+      .map((q) => ({ id: `q-${q.id}`, tone: 'tone-attention', icon: MessageCircleQuestion, title: `Question from ${l.company}: ${q.topic}`, sub: q.message, to: `/leads/${l.id}?tab=activity` })),
+  )
+
+  // Payments the client reported from the portal wait for Accounts; the roles that don't see amounts aren't asked.
+  const toVerify = money.hidden
+    ? []
+    : leads.flatMap((l) =>
+        paymentsOf(l)
+          .filter((p) => p.status === 'Submitted')
+          .map((p) => ({ id: `pay-${p.id}`, tone: 'tone-attention', icon: IndianRupee, title: `Payment to verify: ${l.company}`, sub: `₹${Math.round(p.amount).toLocaleString('en-IN')} · ${p.title} · ref. ${p.utr}`, to: l.stage === 'Won' ? `/clients?open=${l.id}` : '/client-approval' })),
+      )
+
   const fromPortal = activities
-    .filter((a) => a.by === 'client')
+    .filter((a) => a.by === 'client' && a.type !== 'query' && a.type !== 'payment')
     .slice(-8)
     .reverse()
     .map((a) => ({
@@ -66,6 +84,8 @@ export function NotificationsMenu() {
   ]
 
   const items = [
+    ...toVerify,
+    ...questions,
     ...fromPortal,
     ...fromErm,
     ...(settings.notifyNewEnquiry

@@ -14,7 +14,8 @@ const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
 export function LetterForm({ lead, project, onDone }) {
   const { addGovtLetter } = useCrm()
   const [title, setTitle] = useState('')
-  const [ref, setRef] = useState(`${project.refBase}/${project.letters.length + 1}`)
+  // Numbered after every letter the approval will bring, so a recorded letter never shares a reference with one.
+  const [ref, setRef] = useState(`${project.refBase}/${project.approvals.filter((s) => s.letter).length + project.letters.filter((l) => !l.stepKey).length + 1}`)
   const [date, setDate] = useState(toISODate(TODAY))
   const [file, setFile] = useState(null)
 

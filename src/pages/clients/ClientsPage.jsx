@@ -1,6 +1,6 @@
 import { Building2, CheckCircle2, Download, ExternalLink, IndianRupee, Mail, MapPin, Phone, Search, UserPlus, X } from 'lucide-react'
 import { useCallback, useEffect, useId, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { ProgressBar } from '../../components/common/Checklist'
 import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm, useMoney } from '../../context/crm'
@@ -12,6 +12,8 @@ import { Portal } from '../../components/common/Portal'
 import { SharePortalButton } from '../../components/lead/SharePortalButton'
 import { ClientDocuments } from './ClientDocuments'
 import { ProjectPanel } from './ProjectPanel'
+import { ClientPayments } from '../../components/lead/ClientPayments'
+import { ClientQueries } from '../../components/lead/ClientQueries'
 import { LeadActivity } from '../../components/lead/LeadActivity'
 import { lastContact, leadTimeline } from '../../utils/clientHistory'
 import { RoleLink } from '../../components/common/RoleLink'
@@ -143,6 +145,12 @@ function ClientDrawer({ client, onClose }) {
             </section>
             <ProjectPanel lead={client} />
             <section className="lead-section">
+              <ClientPayments lead={client} />
+            </section>
+            <section className="lead-section">
+              <ClientQueries lead={client} />
+            </section>
+            <section className="lead-section">
               <LeadActivity lead={client} withProjects title="History & interactions" limit={8} />
             </section>
           </div>
@@ -157,8 +165,11 @@ export function ClientsPage() {
   const money = useMoney()
   const { leads, activities } = useCrm()
   const [filters, setFilters] = useState({ search: '', state: '', status: '' })
-  const [openId, setOpenId] = useState(null)
-  const close = useCallback(() => setOpenId(null), [])
+  // ?open=<id> opens a client's drawer, so notifications can link straight to it.
+  const [params, setParams] = useSearchParams()
+  const openId = params.get('open')
+  const setOpenId = (id) => setParams(id ? { open: id } : {}, { replace: true })
+  const close = useCallback(() => setParams({}, { replace: true }), [setParams])
 
   const clients = leads.filter((l) => l.stage === 'Won').sort((a, b) => sinceOf(b).localeCompare(sinceOf(a)))
   const states = [...new Set(clients.map(stateOf).filter(Boolean))].sort()
