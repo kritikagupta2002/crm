@@ -11,7 +11,8 @@ const date = (iso) => (iso ? formatDate(iso) : '-')
 /* The whole project on paper: team, stages, tasks, field work, submission, approval, closure and history. */
 export function downloadProjectReport(project, { activities, companyName }) {
   const { lead, team } = project
-  const history = activities.filter((a) => a.leadId === lead.id && a.type === 'project' && (a.text.includes(project.id) || a.text.startsWith(project.name))).sort((a, b) => a.at.localeCompare(b.at))
+  const logged = activities.filter((a) => a.leadId === lead.id && a.type === 'project' && (a.text.includes(project.id) || a.text.startsWith(project.name))).map((a) => ({ date: a.at.slice(0, 10), sort: a.at, text: a.text }))
+  const history = [...project.history.map((h) => ({ ...h, sort: `${h.date}T00:00` })), ...logged].sort((a, b) => a.sort.localeCompare(b.sort))
 
   const lines = [
     { text: companyName, size: 16, bold: true, gap: 2 },
@@ -60,7 +61,7 @@ export function downloadProjectReport(project, { activities, companyName }) {
     line(project.closure.closedOn ? `Project closed on ${date(project.closure.closedOn)}${project.closure.note ? ` - ${project.closure.note}` : ''}` : 'Project not closed yet.', 12),
 
     heading('History'),
-    ...(history.length ? history.map((a) => line(`${date(a.at.slice(0, 10))} - ${a.text}`)) : [line('No changes recorded in the ERM yet.')]),
+    ...(history.length ? history.map((a) => line(`${date(a.date)} - ${a.text}`)) : [line('Nothing recorded yet.')]),
     { text: '', gap: 16 },
     { text: `Generated from the ${companyName} ERM. Demo document.`, size: 9 },
   ]

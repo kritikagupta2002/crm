@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { ProgressBar } from '../../components/common/Checklist'
 import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm, useMoney } from '../../context/crm'
-import { formatDate } from '../../utils/date'
+import { formatDate, formatNearDate } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
 import { stateOf } from '../../utils/leads'
 import { ONBOARDING_STEPS, progressOf } from '../../utils/workflow'
@@ -12,6 +12,8 @@ import { Portal } from '../../components/common/Portal'
 import { SharePortalButton } from '../../components/lead/SharePortalButton'
 import { ClientDocuments } from './ClientDocuments'
 import { ProjectPanel } from './ProjectPanel'
+import { LeadActivity } from '../../components/lead/LeadActivity'
+import { lastContact, leadTimeline } from '../../utils/clientHistory'
 import { RoleLink } from '../../components/common/RoleLink'
 
 const statusOf = (lead) => (progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length ? 'Active' : 'Onboarding')
@@ -140,6 +142,9 @@ function ClientDrawer({ client, onClose }) {
               </ul>
             </section>
             <ProjectPanel lead={client} />
+            <section className="lead-section">
+              <LeadActivity lead={client} withProjects title="History & interactions" limit={8} />
+            </section>
           </div>
         </aside>
       </div>
@@ -150,7 +155,7 @@ function ClientDrawer({ client, onClose }) {
 /* Every won enquiry becomes a client; the list shows who they are, what they bought and whether onboarding is done. */
 export function ClientsPage() {
   const money = useMoney()
-  const { leads } = useCrm()
+  const { leads, activities } = useCrm()
   const [filters, setFilters] = useState({ search: '', state: '', status: '' })
   const [openId, setOpenId] = useState(null)
   const close = useCallback(() => setOpenId(null), [])
@@ -168,6 +173,9 @@ export function ClientsPage() {
   const active = clients.filter((c) => statusOf(c) === 'Active').length
   const set = (key) => (e) => setFilters({ ...filters, [key]: e.target.value })
   const openClient = clients.find((c) => c.id === openId)
+
+  // When each client was last spoken to: call, meeting, visit, WhatsApp, email or the portal.
+  const lastOf = Object.fromEntries(visible.map((c) => [c.id, lastContact(leadTimeline(c, activities))]))
 
   return (
     <div className="module-page">
@@ -228,6 +236,7 @@ export function ClientsPage() {
                   <th>Service</th>
                   <th className="num">Business</th>
                   <th>Owner</th>
+                  <th>Last contact</th>
                   <th>Client since</th>
                   <th>Status</th>
                 </tr>
@@ -247,6 +256,16 @@ export function ClientsPage() {
                       <b className="text-ink">{c.quoteValue ? money.short(c.quoteValue) : '—'}</b>
                     </td>
                     <td className="nowrap">{c.assignedTo}</td>
+                    <td className="nowrap">
+                      {lastOf[c.id] ? (
+                        <>
+                          {formatNearDate(lastOf[c.id].date)}
+                          <div className="cell-sub">{lastOf[c.id].mode}</div>
+                        </>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </td>
                     <td className="nowrap">{formatDate(sinceOf(c))}</td>
                     <td>
                       <span className={`pill status-pill ${statusOf(c) === 'Active' ? 'tone-good' : 'tone-attention'}`}>{statusOf(c)}</span>

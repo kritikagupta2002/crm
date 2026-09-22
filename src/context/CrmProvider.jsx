@@ -353,7 +353,10 @@ export function CrmProvider({ children }) {
         }
         next = { ...edits, milestones, tasks: { ...edits.tasks, [task.key]: saved } }
       } else {
-        const customTasks = (edits.customTasks ?? []).map((t) =>
+        // A seeded task becomes one of the team's own the first time it is changed.
+        const own = edits.customTasks ?? []
+        const base = own.some((t) => t.id === task.id) ? own : [...own, { id: task.id, title: task.title, assignee: task.assignee, due: task.due, status: task.status, doneOn: task.doneOn }]
+        const customTasks = base.map((t) =>
           t.id === task.id ? { ...t, ...patch, ...(patch.status === 'done' ? { doneOn: toISODate(TODAY) } : patch.status ? { doneOn: null } : {}) } : t,
         )
         next = { ...edits, customTasks }
@@ -485,6 +488,29 @@ export function CrmProvider({ children }) {
     [editProject],
   )
 
+  /* ERM: the client was told about a government letter on WhatsApp. */
+  const markLetterShared = useCallback(
+    (leadId, project, letter) => {
+      editProject(leadId, project, (e) => ({ sharedLetters: { ...e.sharedLetters, [letter.id]: toISODate(TODAY) } }), `${project.name}: ${letter.title} (${letter.ref}) shared with the client on WhatsApp`)
+    },
+    [editProject],
+  )
+
+  /* ERM: a subcontract (drilling, lab testing, drone survey) given to an outside firm against a project. */
+  const addWorkOrder = useCallback(
+    (leadId, project, order) => {
+      editProject(leadId, project, (e) => ({ workOrders: [...(e.workOrders ?? []), { ...order, status: 'Issued', issuedOn: toISODate(TODAY) }] }), `${project.name}: subcontract ${order.id} issued to ${order.vendor} — ${order.work}`)
+    },
+    [editProject],
+  )
+
+  const setWorkOrderStatus = useCallback(
+    (leadId, project, order, status) => {
+      editProject(leadId, project, (e) => ({ woStatus: { ...e.woStatus, [order.id]: { status, on: toISODate(TODAY) } } }), `${project.name}: subcontract ${order.id} (${order.vendor}) — ${status.toLowerCase()}`)
+    },
+    [editProject],
+  )
+
   /* The client got their portal login on WhatsApp; for a won client this also ticks the onboarding step. */
   const markPortalShared = useCallback(
     (id) => {
@@ -556,6 +582,9 @@ export function CrmProvider({ children }) {
         closeProject,
         addProjectDocuments,
         removeProjectDocument,
+        markLetterShared,
+        addWorkOrder,
+        setWorkOrderStatus,
         markPortalShared,
         addDocuments,
         removeDocument,

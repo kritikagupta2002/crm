@@ -12,9 +12,14 @@ import { whatsappLink } from '../../utils/whatsapp'
 import { APPROVAL_STEPS, ONBOARDING_STEPS, progressOf, quoteFor } from '../../utils/workflow'
 import { QuoteDocument } from '../quotations/QuoteDocument'
 import { PortalBand } from './PortalBand'
+import '../projects/erm.css'
 import './portal.css'
 
 const JOURNEY = ['Enquiry received', 'Requirement discussion', 'Quotation shared', 'Work order & advance', 'Project started']
+
+/* The ERM stages in the client's words. */
+const CLIENT_STAGE_LABELS = { allocation: 'Team allocated', planning: 'Planning', tasks: 'Work scheduled', work: 'Field & report work', submission: 'Filed with authority', approval: 'Government approval', closure: 'Handed over' }
+
 const PROJECT_JOURNEY = ['Enquiry received', 'Quotation accepted', 'Project work', 'Government approval', 'Completed']
 
 function journeyIndex(lead, quote) {
@@ -389,6 +394,22 @@ function ProjectsCard({ lead, projects, settings }) {
       <p className="project-meta">
         {project.id} · {project.site} · {project.startedOn ? `${project.started ? 'started' : 'starts'} ${formatDate(project.startedOn)}` : 'starts once onboarding is complete'}
       </p>
+
+      <ol className="erm-stages portal-stages" aria-label="Where your project is">
+        {project.stages.map((st, i) => (
+          <li key={st.key} className={st.done ? 'is-done' : i === project.stageIndex ? 'is-current' : ''}>
+            <span className="erm-dot">{st.done ? <Check size={13} strokeWidth={3} /> : i + 1}</span>
+            <strong>{CLIENT_STAGE_LABELS[st.key]}</strong>
+          </li>
+        ))}
+      </ol>
+      {(project.fieldVisits.length > 0 || project.submission) && (
+        <p className="portal-stage-note muted">
+          {project.fieldVisits.length > 0 && `${project.fieldVisits.length} site visit${project.fieldVisits.length === 1 ? '' : 's'} so far, last on ${formatDate(project.fieldVisits[0].date)}`}
+          {project.fieldVisits.length > 0 && project.submission && ' · '}
+          {project.submission && `Filed with ${project.authority} on ${formatDate(project.submission.date)}${project.submission.ackNo ? ` (Ack. ${project.submission.ackNo})` : ''}`}
+        </p>
+      )}
 
       <div className="project-columns">
         <div>

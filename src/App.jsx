@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { EnquiryFormProvider } from './components/enquiry/EnquiryFormProvider'
 import { AppLayout } from './components/layout/AppLayout'
 import { LoginPage } from './pages/auth/LoginPage'
@@ -8,6 +8,10 @@ import { CrmProvider } from './context/CrmProvider'
 import { PeriodProvider } from './context/PeriodProvider'
 import { ClientsPage } from './pages/clients/ClientsPage'
 import { ErmDashboard } from './pages/erm/ErmDashboard'
+import { SubcontractsPage } from './pages/erm/SubcontractsPage'
+import { MyTasksPage } from './pages/erm/MyTasksPage'
+import { TasksPage } from './pages/erm/TasksPage'
+import { TeamPage } from './pages/erm/TeamPage'
 import { ProjectDetailPage } from './pages/projects/ProjectDetailPage'
 import { ProjectsPage } from './pages/projects/ProjectsPage'
 import { ComingSoonPage } from './pages/ComingSoonPage'
@@ -45,6 +49,13 @@ export default function App() {
                 <Route path="erm" element={<ErmDashboard />} />
                 <Route path="projects" element={<ProjectsPage />} />
                 <Route path="projects/:projectId" element={<ProjectDetailPage />} />
+                <Route path="tasks" element={<TasksPage />} />
+                <Route path="my-tasks" element={<MyTasksPage />} />
+                <Route path="team" element={<TeamPage />} />
+                <Route path="letters" element={<Navigate to="/projects?letters=To%20share" replace />} />
+                <Route path="subcontracts" element={<SubcontractsPage />} />
+                <Route path="work-orders" element={<Navigate to="/subcontracts" replace />} />
+                <Route path="erm-reports" element={<Navigate to="/reports?view=projects" replace />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="*" element={<ComingSoonPage />} />

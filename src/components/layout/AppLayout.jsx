@@ -76,8 +76,8 @@ export function AppLayout() {
                 <Lock size={28} />
                 <h1>Not part of the {role} role</h1>
                 <p className="muted">This page is only open to other roles. Ask an admin if you need access.</p>
-                <Link to="/" className="btn btn-primary">
-                  Back to dashboard
+                <Link to={home} className="btn btn-primary">
+                  Go to {NAV_ITEMS.find((item) => item.path === home)?.label ?? 'your home page'}
                 </Link>
               </div>
             )}

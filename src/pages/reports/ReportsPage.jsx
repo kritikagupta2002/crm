@@ -1,7 +1,9 @@
 import { BarChart3, Download, Inbox, IndianRupee, Percent, Trophy, Users, XCircle } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { Bars } from '../../components/common/Bars'
 import { KpiCard } from '../../components/common/KpiCard'
 import { PeriodSwitch } from '../../components/common/PeriodSwitch'
+import { useSearchParams } from 'react-router-dom'
 import { useCrm, useMoney } from '../../context/crm'
 import { PERIOD_LABELS, usePeriod } from '../../context/period'
 import { LEAD_SOURCES, TEAM, TODAY } from '../../data/mockData'
@@ -9,33 +11,38 @@ import { getMonthlyTrend, leadsForPeriod } from '../../utils/dashboardStats'
 import { toISODate } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
 import { countBy } from '../../utils/leads'
+import { ProjectReports } from './ProjectReports'
 
 const todayISO = toISODate(TODAY)
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
 
-function Bars({ rows, color }) {
-  const max = Math.max(...rows.map((r) => r.count), 1)
-  return (
-    <ul className="insight-bars report-bars">
-      {rows.map((row) => (
-        <li key={row.label}>
-          <div className="insight-bar-top">
-            <span>{row.label}</span>
-            <span>
-              <b>{row.count}</b> {row.note && <span className="muted">{row.note}</span>}
-            </span>
-          </div>
-          <div className="insight-track">
-            <div style={{ width: `${(row.count / max) * 100}%`, background: color }} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  )
+/* Who sees which report: sales figures for the Admin and Accounts, project delivery for the Admin and Coordinators. */
+const REPORT_VIEWS = [
+  { key: 'sales', label: 'Sales', roles: ['Admin', 'Accountant'] },
+  { key: 'projects', label: 'Projects', roles: ['Admin', 'Project Coordinator'] },
+]
+
+/* One Reports page with a Sales / Projects switch. */
+export function ReportsPage() {
+  const { role } = useCrm()
+  const [params, setParams] = useSearchParams()
+  const views = REPORT_VIEWS.filter((v) => v.roles.includes(role))
+  const view = views.find((v) => v.key === params.get('view'))?.key ?? views[0]?.key ?? 'sales'
+  const switcher =
+    views.length > 1 ? (
+      <div className="segmented" role="group" aria-label="Report">
+        {views.map((v) => (
+          <button key={v.key} aria-pressed={view === v.key} className={view === v.key ? 'is-selected' : ''} onClick={() => setParams(v.key === 'sales' ? {} : { view: v.key }, { replace: true })}>
+            {v.label}
+          </button>
+        ))}
+      </div>
+    ) : null
+  return view === 'projects' ? <ProjectReports switcher={switcher} /> : <SalesReports switcher={switcher} />
 }
 
 /* MIS view of the CRM for management: volume, conversion, where enquiries come from, why deals are lost, who is performing. */
-export function ReportsPage() {
+function SalesReports({ switcher }) {
   const money = useMoney()
   const { leads, followUps } = useCrm()
   const { period } = usePeriod()
@@ -85,6 +92,7 @@ export function ReportsPage() {
           <p>{PERIOD_LABELS[period].current} · sales performance at a glance</p>
         </div>
         <div className="page-actions">
+          {switcher}
           <PeriodSwitch />
         </div>
       </header>

@@ -1,15 +1,17 @@
-import { AlertTriangle, Bell, Clock, FileWarning, Globe, Sparkles } from 'lucide-react'
+import { AlertTriangle, Bell, CheckCircle2, Clock, FileWarning, FolderKanban, Globe, ScrollText, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { addDays, formatDayMonth, toISODate } from '../../utils/date'
+import { ERM_STAGES, allProjects } from '../../utils/projects'
 import { quoteFor } from '../../utils/workflow'
 import { usePopover } from '../common/usePopover'
 
 const SEEN_KEY = 'bansal-crm:seen-notifications'
 const todayISO = toISODate(TODAY)
 const soonISO = toISODate(addDays(TODAY, 5))
+const weekAgoISO = toISODate(addDays(TODAY, -7))
 
 function readSeen() {
   try {
@@ -24,7 +26,8 @@ function readSeen() {
  * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
  */
 export function NotificationsMenu() {
-  const { leads, followUps, settings, activities } = useCrm()
+  const { leads, followUps, settings, activities, projectEdits } = useCrm()
+  const { can } = useAccess()
   const { open, setOpen, ref } = usePopover()
   const [seen, setSeen] = useState(readSeen)
   const company = (id) => leads.find((l) => l.id === id)?.company
@@ -42,8 +45,29 @@ export function NotificationsMenu() {
       to: a.type === 'quote' ? `/quotations?open=${a.leadId}` : `/leads/${a.leadId}?tab=activity`,
     }))
 
+  // Project delivery: late tasks, projects waiting for a coordinator, new letters and projects ready to close.
+  const projects = can('/projects') ? allProjects(leads, projectEdits) : []
+  const running = projects.filter((p) => p.stageIndex < ERM_STAGES.length)
+  const fromErm = [
+    ...running.flatMap((p) =>
+      p.tasks
+        .filter((t) => t.overdue)
+        .map((t) => ({ id: `tk-${p.id}-${t.key ?? t.id}-${t.due}`, tone: 'tone-urgent', icon: AlertTriangle, title: `Overdue task: ${t.title}`, sub: `${p.lead.company} · ${t.assignee ?? 'Unassigned'} · was due ${formatDayMonth(t.due)}`, to: `/projects/${p.id}?tab=tasks` })),
+    ),
+    ...running
+      .filter((p) => ERM_STAGES[p.stageIndex].key === 'allocation' && p.startedOn)
+      .map((p) => ({ id: `al-${p.id}`, tone: 'tone-attention', icon: FolderKanban, title: `Allocate: ${p.name}`, sub: `${p.lead.company} · needs a project coordinator`, to: `/projects/${p.id}` })),
+    ...projects
+      .flatMap((p) => p.letters.filter((l) => l.date >= weekAgoISO && l.date <= todayISO).map((l) => ({ l, p })))
+      .map(({ l, p }) => ({ id: `lt-${l.id}`, tone: 'tone-good', icon: ScrollText, title: `Letter from ${p.code}: ${l.title}`, sub: `${p.lead.company} · ${formatDayMonth(l.date)}`, to: `/projects/${p.id}?tab=documents` })),
+    ...running
+      .filter((p) => p.status === 'Approved')
+      .map((p) => ({ id: `rc-${p.id}`, tone: 'tone-info', icon: CheckCircle2, title: `Ready to close: ${p.name}`, sub: `${p.lead.company} · approval received`, to: `/projects/${p.id}` })),
+  ]
+
   const items = [
     ...fromPortal,
+    ...fromErm,
     ...(settings.notifyNewEnquiry
       ? leads
           .filter((l) => l.createdOn === todayISO)
@@ -68,7 +92,7 @@ export function NotificationsMenu() {
         sub: `${lead.company} · valid till ${formatDayMonth(quote.validUntil)}`,
         to: `/quotations?open=${lead.id}`,
       })),
-  ]
+  ].filter((item) => can(item.to)) // a role only hears about what it can open
   const unread = items.filter((i) => !seen.has(i.id)).length
 
   const markAllRead = () => {
@@ -116,7 +140,7 @@ export function NotificationsMenu() {
               ))}
             </ul>
           )}
-          {items.length > 12 && <p className="popover-foot muted">+{items.length - 12} more on the Follow-ups and Quotations pages</p>}
+          {items.length > 12 && <p className="popover-foot muted">+{items.length - 12} more on the Follow-ups, Quotations and Tasks pages</p>}
         </div>
       )}
     </div>

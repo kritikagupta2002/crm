@@ -527,3 +527,10 @@
     justify-content: flex-start;
   }
 }
+
+/* Client history: last contact above the timeline */
+.history-summary {
+  margin: -4px 0 12px;
+  font-size: 13px;
+  color: var(--ink-2);
+}

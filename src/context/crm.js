@@ -19,12 +19,13 @@ export const ROLE_ACCESS = {
   Sales: { note: 'Leads, follow-ups, quotations, work orders and clients', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients'], masked: false, home: '/' },
   'Project Coordinator': {
     note: 'Onboarding, clients and ERM projects; amounts hidden',
-    pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects'],
+    pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/reports'],
     masked: true,
     home: '/erm',
   },
-  'Team Lead': { note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/clients'], masked: true, home: '/erm' },
-  Accountant: { note: 'Quotations, work orders & advances, clients and reports', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports'], masked: false, home: '/' },
+  'Team Lead': { note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/clients'], masked: true, home: '/erm' },
+  'Field Member': { note: 'My tasks and field visits, on the phone', pages: ['/my-tasks'], masked: true, home: '/my-tasks' },
+  Accountant: { note: 'Quotations, work orders & advances, clients and reports', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts'], masked: false, home: '/' },
 }
 export const ROLES = Object.keys(ROLE_ACCESS)
 export const MASKED = '₹ ••••'

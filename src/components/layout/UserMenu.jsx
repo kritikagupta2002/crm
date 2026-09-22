@@ -1,14 +1,17 @@
 import { Check, ChevronDown, LogOut, RotateCcw, Settings } from 'lucide-react'
-import { ROLE_ACCESS, ROLES, useCrm } from '../../context/crm'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { ROLE_ACCESS, ROLES, canOpen, useCrm } from '../../context/crm'
 import { CURRENT_USER } from '../../data/mockData'
 import { RoleLink } from '../common/RoleLink'
 import { usePopover } from '../common/usePopover'
-
+import { NAV_ITEMS } from './navigation'
 
 /* Profile menu. "View as" lets the demo show role-based access (e.g. Coordinators don't see amounts). */
 export function UserMenu() {
   const { role, setRole, changeCount, resetDemoData, signOut } = useCrm()
   const { open, setOpen, ref } = usePopover()
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   return (
     <div className="popover-wrap" ref={ref}>
@@ -32,6 +35,9 @@ export function UserMenu() {
               onClick={() => {
                 setRole(r)
                 setOpen(false)
+                // A page the new role can't open, or one that isn't in its menu, gives way to that role's home page.
+                const item = NAV_ITEMS.find((i) => i.path === pathname)
+                if (!canOpen(r, pathname) || (item?.only && !item.only.includes(r))) navigate(ROLE_ACCESS[r].home)
               }}
             >
               <span>

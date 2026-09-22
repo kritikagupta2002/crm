@@ -1,14 +1,14 @@
-import { ArrowLeft, Check, Download, ExternalLink, FileDown, Landmark, ListChecks, MapPin, Phone, Plus, ScrollText, Users } from 'lucide-react'
+import { ArrowLeft, Check, Download, ExternalLink, FileDown, HardHat, Landmark, ListChecks, MapPin, Phone, Plus, ScrollText, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { RoleLink } from '../../components/common/RoleLink'
-import { useCrm } from '../../context/crm'
+import { useCrm, useMoney } from '../../context/crm'
 import { COORDINATORS, FIELD_MEMBERS, TEAM_LEADS, titleOf } from '../../data/staff'
 import { formatDate, formatNearDate } from '../../utils/date'
 import { downloadLetter } from '../../utils/files'
 import { downloadProjectReport } from '../../utils/projectReport'
-import { PROJECT_STATUS_TONE, TASK_STATUS, allProjects } from '../../utils/projects'
+import { PROJECT_STATUS_TONE, TASK_STATUS, allProjects, canActOn } from '../../utils/projects'
 import { ClosurePanel, DocumentsTab, FieldWorkTab, SubmissionForm } from './ProjectWork'
 import './erm.css'
 
@@ -17,7 +17,7 @@ const TABS = [
   { id: 'tasks', label: 'Tasks' },
   { id: 'field', label: 'Field Work' },
   { id: 'documents', label: 'Documents' },
-  { id: 'activity', label: 'Activity' },
+  { id: 'history', label: 'History' },
 ]
 
 const initials = (name) =>
@@ -116,7 +116,7 @@ function TeamForm({ project, onSave, onCancel, only }) {
 
 /* The stages, and the one thing to do next right under them. */
 function StageCard({ project, onOpenTab }) {
-  const { setProjectTeam, setProjectStep } = useCrm()
+  const { setProjectTeam, setProjectStep, role } = useCrm()
   const lead = project.lead
   const current = project.stages[project.stageIndex]
   const owners = {
@@ -155,46 +155,54 @@ function StageCard({ project, onOpenTab }) {
               <span className="pill status-pill tone-attention">Now: {current.label}</span>
               <span className="muted">{current.todo}</span>
             </div>
-            {current.key === 'allocation' && <TeamForm project={project} only={['coordinator']} onSave={(patch) => setProjectTeam(lead.id, project, patch)} />}
-            {current.key === 'planning' && <TeamForm project={project} only={['teamLead']} onSave={(patch) => setProjectTeam(lead.id, project, patch)} />}
-            {current.key === 'tasks' && (
-              <p className="stage-line">
-                {standard.filter((t) => !t.assignee).length} task(s) have no owner yet.{' '}
-                <button className="link-button" onClick={() => onOpenTab('tasks')}>
-                  Assign in Tasks
-                </button>
+            {!canActOn(role, current.key) ? (
+              <p className="stage-line muted">
+                Waiting on {owners[current.key] || current.owner}. As {role} you can follow this stage; the {current.owner.toLowerCase()} makes the hand-over.
               </p>
+            ) : (
+              <>
+                {current.key === 'allocation' && <TeamForm project={project} only={['coordinator']} onSave={(patch) => setProjectTeam(lead.id, project, patch)} />}
+                {current.key === 'planning' && <TeamForm project={project} only={['teamLead']} onSave={(patch) => setProjectTeam(lead.id, project, patch)} />}
+                {current.key === 'tasks' && (
+                  <p className="stage-line">
+                    {standard.filter((t) => !t.assignee).length} task(s) have no owner yet.{' '}
+                    <button className="link-button" onClick={() => onOpenTab('tasks')}>
+                      Assign in Tasks
+                    </button>
+                  </p>
+                )}
+                {current.key === 'work' && (
+                  <div className="stage-line">
+                    <ProgressBar done={workTasks.filter((t) => t.status === 'done').length} total={workTasks.length} tone="tone-info" />
+                    <span>
+                      {workTasks.filter((t) => t.status === 'done').length} of {workTasks.length} work tasks done
+                      {project.tasks.some((t) => t.overdue) && <b className="text-red"> · {project.tasks.filter((t) => t.overdue).length} overdue</b>}
+                    </span>
+                    <button className="link-button" onClick={() => onOpenTab('tasks')}>
+                      Open tasks
+                    </button>
+                    <span className="muted">·</span>
+                    <span>
+                      {project.fieldVisits.length} field visit{project.fieldVisits.length === 1 ? '' : 's'} logged
+                    </span>
+                    <button className="link-button" onClick={() => onOpenTab('field')}>
+                      Log a visit
+                    </button>
+                  </div>
+                )}
+                {current.key === 'submission' && <SubmissionForm key={project.id} project={project} />}
+                {current.key === 'approval' && (
+                  <div className="stage-approvals">
+                    <Checklist
+                      steps={project.approvals}
+                      values={Object.fromEntries(project.approvals.map((a) => [a.key, a.done]))}
+                      onToggle={(key, value) => setProjectStep(lead.id, project, 'approvals', key, value, project.approvals.find((a) => a.key === key).label.toLowerCase())}
+                    />
+                  </div>
+                )}
+                {current.key === 'closure' && <ClosurePanel key={project.id} project={project} />}
+              </>
             )}
-            {current.key === 'work' && (
-              <div className="stage-line">
-                <ProgressBar done={workTasks.filter((t) => t.status === 'done').length} total={workTasks.length} tone="tone-info" />
-                <span>
-                  {workTasks.filter((t) => t.status === 'done').length} of {workTasks.length} work tasks done
-                  {project.tasks.some((t) => t.overdue) && <b className="text-red"> · {project.tasks.filter((t) => t.overdue).length} overdue</b>}
-                </span>
-                <button className="link-button" onClick={() => onOpenTab('tasks')}>
-                  Open tasks
-                </button>
-                <span className="muted">·</span>
-                <span>
-                  {project.fieldVisits.length} field visit{project.fieldVisits.length === 1 ? '' : 's'} logged
-                </span>
-                <button className="link-button" onClick={() => onOpenTab('field')}>
-                  Log a visit
-                </button>
-              </div>
-            )}
-            {current.key === 'submission' && <SubmissionForm key={project.id} project={project} />}
-            {current.key === 'approval' && (
-              <div className="stage-approvals">
-                <Checklist
-                  steps={project.approvals}
-                  values={Object.fromEntries(project.approvals.map((a) => [a.key, a.done]))}
-                  onToggle={(key, value) => setProjectStep(lead.id, project, 'approvals', key, value, project.approvals.find((a) => a.key === key).label.toLowerCase())}
-                />
-              </div>
-            )}
-            {current.key === 'closure' && <ClosurePanel key={project.id} project={project} />}
           </>
         )}
       </div>
@@ -315,7 +323,8 @@ function TasksTab({ project }) {
 }
 
 function OverviewTab({ project }) {
-  const { setProjectTeam, settings } = useCrm()
+  const { setProjectTeam, settings, role } = useCrm()
+  const money = useMoney()
   const [editing, setEditing] = useState(false)
   const lead = project.lead
   const current = project.tasks.find((t) => t.status !== 'done')
@@ -328,7 +337,7 @@ function OverviewTab({ project }) {
           <h3>
             <Users size={16} /> Team
           </h3>
-          {!editing && project.team.coordinator && (
+          {!editing && project.team.coordinator && canActOn(role, 'planning') && (
             <button className="link-button" onClick={() => setEditing(true)}>
               Change
             </button>
@@ -469,16 +478,48 @@ function OverviewTab({ project }) {
           </ul>
         )}
       </section>
+
+      <section className="ov-block">
+        <div className="ov-head">
+          <h3>
+            <HardHat size={16} /> Subcontracts
+          </h3>
+          <RoleLink to="/subcontracts" className="link-button" hideIfLocked>
+            All subcontracts
+          </RoleLink>
+        </div>
+        {project.workOrders.length ? (
+          <ul className="letter-list">
+            {project.workOrders.map((w) => (
+              <li key={w.id}>
+                <HardHat size={16} />
+                <span>
+                  <strong>
+                    {w.vendor} — {w.work}
+                  </strong>
+                  <span className="muted">
+                    {w.id} · {money.full(w.amount)} · due {formatNearDate(w.dueOn)} · {w.status}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted small">No outside firm on this project. Drilling, lab tests or drone work given out are listed here.</p>
+        )}
+      </section>
     </div>
   )
 }
 
-function ActivityTab({ project }) {
+/* The project's history: what happened on it, from creation to closure, newest first. */
+function HistoryTab({ project }) {
   const { activities } = useCrm()
-  const items = activities
+  const logged = activities
     .filter((a) => a.leadId === project.lead.id && a.type === 'project' && (a.text.includes(project.id) || a.text.startsWith(`${project.name}`)))
-    .sort((a, b) => b.at.localeCompare(a.at))
-  if (items.length === 0) return <p className="muted small">Nothing recorded yet. Team changes, task updates and letters appear here.</p>
+    .map((a) => ({ id: a.id, date: a.at.slice(0, 10), sort: a.at, text: a.text.replace(`${project.name} (${project.id}) — `, '').replace(`${project.name}: `, '') }))
+  const items = [...logged, ...project.history.map((h) => ({ ...h, sort: `${h.date}T00:00` }))].sort((a, b) => b.sort.localeCompare(a.sort))
+  if (items.length === 0) return <p className="muted small">Nothing recorded yet. Team changes, task updates, visits and letters appear here.</p>
   return (
     <ol className="timeline">
       {items.map((a) => (
@@ -486,7 +527,7 @@ function ActivityTab({ project }) {
           <span className="timeline-dot" />
           <div>
             <p>{a.text}</p>
-            <span className="muted">{formatNearDate(a.at.slice(0, 10))}</span>
+            <span className="muted">{formatNearDate(a.date)}</span>
           </div>
         </li>
       ))}
@@ -500,7 +541,8 @@ export function ProjectDetailPage() {
   const { leads, projectEdits, activities, settings } = useCrm()
   const [params, setParams] = useSearchParams()
   const project = allProjects(leads, projectEdits).find((p) => p.id === projectId)
-  const tab = TABS.some((t) => t.id === params.get('tab')) ? params.get('tab') : 'overview'
+  const asked = params.get('tab') === 'activity' ? 'history' : params.get('tab') // the tab's old name
+  const tab = TABS.some((t) => t.id === asked) ? asked : 'overview'
   const openTab = (id) => setParams(id === 'overview' ? {} : { tab: id }, { replace: true })
 
   if (!project) {
@@ -560,7 +602,7 @@ export function ProjectDetailPage() {
           {tab === 'tasks' && <TasksTab project={project} />}
           {tab === 'field' && <FieldWorkTab project={project} />}
           {tab === 'documents' && <DocumentsTab project={project} />}
-          {tab === 'activity' && <ActivityTab project={project} />}
+          {tab === 'history' && <HistoryTab project={project} />}
         </div>
       </section>
     </div>

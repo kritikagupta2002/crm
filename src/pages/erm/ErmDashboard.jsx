@@ -1,6 +1,7 @@
 import { AlertTriangle, CalendarClock, FolderKanban, Landmark, UserCog, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
+import { tabLink } from '../../components/common/useTabParam'
 import { useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { TEAM_LEADS } from '../../data/staff'
@@ -49,13 +50,13 @@ export function ErmDashboard() {
         <KpiCard tone="tone-info" icon={FolderKanban} label="Active Projects" value={active.length} to="/projects">
           <span className="muted">{projects.length - active.length} completed</span>
         </KpiCard>
-        <KpiCard tone={overdue.length ? 'tone-urgent' : 'tone-good'} icon={AlertTriangle} label="Overdue Tasks" value={overdue.length}>
+        <KpiCard tone={overdue.length ? 'tone-urgent' : 'tone-good'} icon={AlertTriangle} label="Overdue Tasks" value={overdue.length} to={tabLink('/tasks', 'Overdue')}>
           <span className="muted">{overdue.length ? 'Past their due date' : 'Nothing late'}</span>
         </KpiCard>
-        <KpiCard tone="tone-attention" icon={CalendarClock} label="Due This Week" value={dueThisWeek.length}>
+        <KpiCard tone="tone-attention" icon={CalendarClock} label="Due This Week" value={dueThisWeek.length} to={tabLink('/tasks', 'This week')}>
           <span className="muted">Open tasks, next 7 days</span>
         </KpiCard>
-        <KpiCard tone="tone-attention" icon={Landmark} label="With the Authority" value={withAuthority.length} to="/projects">
+        <KpiCard tone="tone-attention" icon={Landmark} label="With the Authority" value={withAuthority.length} to="/projects?stage=approval">
           <span className="muted">Submitted, approval pending</span>
         </KpiCard>
       </section>
@@ -64,17 +65,23 @@ export function ErmDashboard() {
         <header className="card-header">
           <FolderKanban size={18} className="card-icon" />
           <h2>Projects by Stage</h2>
+          <div className="card-actions">{active.length} running · click a stage to see its projects</div>
         </header>
         <ol className="stage-counts">
           {ERM_STAGES.map((st, i) => {
             const count = active.filter((p) => p.stageIndex === i).length
             return (
               <li key={st.key} className={count ? 'has-items' : ''}>
-                <Link to={`/projects?stage=${st.key}`}>
-                  <span className="stage-num">{i + 1}</span>
-                  <strong>{count}</strong>
-                  <span className="stage-name">{st.label}</span>
-                  <span className="muted">{st.owner}</span>
+                <Link to={`/projects?stage=${st.key}`} aria-label={`${st.label}: ${count} projects`}>
+                  <span className="stage-name">
+                    <span className="stage-num">{i + 1}</span>
+                    {st.label}
+                  </span>
+                  <span className="stage-count">
+                    <strong>{count}</strong> {count === 1 ? 'project' : 'projects'}
+                  </span>
+                  <span className="stage-state">{count ? st.waiting : 'None right now'}</span>
+                  <span className="muted">Owner · {st.owner}</span>
                 </Link>
               </li>
             )

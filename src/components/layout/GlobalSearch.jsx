@@ -1,15 +1,16 @@
-import { Building2, FileText, Search, Users } from 'lucide-react'
+import { Building2, FileText, FolderKanban, Search, Users } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StagePill } from '../common/StagePill'
 import { useAccess, useCrm } from '../../context/crm'
+import { allProjects } from '../../utils/projects'
 import { quoteFor } from '../../utils/workflow'
 
 const LIMIT = 5
 
-/* Searches enquiries, clients and quotations; arrow keys + Enter to pick, "/" anywhere to focus. */
+/* Searches enquiries, clients, quotations and projects; arrow keys + Enter to pick, "/" anywhere to focus. */
 export function GlobalSearch() {
-  const { leads } = useCrm()
+  const { leads, projectEdits } = useCrm()
   const navigate = useNavigate()
   const { can } = useAccess()
   const [query, setQuery] = useState('')
@@ -60,6 +61,14 @@ export function GlobalSearch() {
         .slice(0, LIMIT)
         .map(({ lead, quote }) => ({ key: `q-${lead.id}`, title: quote.number, sub: `${lead.company} · ${quote.displayStatus}`, to: `/quotations?open=${lead.id}` })),
     },
+    {
+      label: 'Projects',
+      icon: FolderKanban,
+      items: (can('/projects') ? allProjects(leads, projectEdits) : [])
+        .filter((p) => [p.id, p.name, p.lead.company, p.authority, p.site].some((v) => v?.toLowerCase().includes(q)))
+        .slice(0, LIMIT)
+        .map((p) => ({ key: `p-${p.id}`, title: p.name, sub: `${p.id} · ${p.lead.company} · ${p.status}`, to: `/projects/${p.id}` })),
+    },
   ]
     .map((g) => ({ ...g, items: g.items.filter((item) => can(item.to)) }))
     .filter((g) => g.items.length)
@@ -97,7 +106,7 @@ export function GlobalSearch() {
           ref={inputRef}
           type="search"
           value={query}
-          placeholder="Search clients, enquiries, quotations"
+          placeholder="Search clients, enquiries, projects"
           onChange={(e) => {
             setQuery(e.target.value)
             setActive(0)

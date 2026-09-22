@@ -1,7 +1,9 @@
 import { StickyNote } from 'lucide-react'
 import { useState } from 'react'
 import { useCrm } from '../../context/crm'
-import { formatDayMonth, formatTime, parseISODate, toISODate } from '../../utils/date'
+import { clientTimeline, lastContact, leadTimeline } from '../../utils/clientHistory'
+import { formatDayMonth, formatNearDate, formatTime, toISODate } from '../../utils/date'
+import { clientProjects } from '../../utils/projects'
 
 /* Log how the conversation happened, so the timeline doubles as a communication log. */
 const NOTE_KINDS = ['Note', 'Call', 'WhatsApp', 'Email', 'Meeting']
@@ -11,26 +13,37 @@ function formatWhen(iso) {
   return `${formatDayMonth(toISODate(date))}, ${formatTime(`${date.getHours()}:${date.getMinutes()}`)}`
 }
 
-/* Notes box plus the lead's history: when the enquiry came in, then everything done in the CRM, newest first. */
-export function LeadActivity({ lead }) {
-  const { activities, addNote } = useCrm()
+/*
+ * Notes box plus the history: the enquiry's conversations, quotation and deal, newest first. For a client
+ * (withProjects) the main moments of its projects are added, with the last contact on top.
+ */
+export function LeadActivity({ lead, withProjects = false, title = 'Activity', limit }) {
+  const { activities, addNote, projectEdits } = useCrm()
   const [note, setNote] = useState('')
   const [kind, setKind] = useState('Note')
+  const [showAll, setShowAll] = useState(false)
 
-  const timeline = [
-    ...activities.filter((a) => a.leadId === lead.id).map((a) => ({ ...a, when: formatWhen(a.at), sort: a.at })),
-    {
-      id: 'created',
-      type: 'created',
-      text: `Enquiry received${lead.source ? ` via ${lead.source}` : ''}`,
-      when: formatDayMonth(lead.createdOn),
-      sort: parseISODate(lead.createdOn).toISOString(),
-    },
-  ].sort((a, b) => b.sort.localeCompare(a.sort))
+  const items = withProjects ? clientTimeline(lead, activities, clientProjects(lead, projectEdits)) : leadTimeline(lead, activities)
+  const timeline = items.map((item) => ({ ...item, when: item.at ? formatWhen(item.at) : formatNearDate(item.date) }))
+  const shown = limit && !showAll ? timeline.slice(0, limit) : timeline
+  const last = lastContact(items)
+  const talks = items.filter((i) => i.type === 'contact' || i.byClient).length
 
   return (
     <>
-      <h3>Activity</h3>
+      <h3>{title}</h3>
+      {withProjects && (
+        <p className="history-summary">
+          {last ? (
+            <>
+              Last contact <b>{formatNearDate(last.date)}</b> · {last.mode}
+            </>
+          ) : (
+            'No conversation logged yet'
+          )}{' '}
+          · {talks} conversations · {items.length} events in all
+        </p>
+      )}
       <form
         className="note-form"
         onSubmit={(e) => {
@@ -51,7 +64,7 @@ export function LeadActivity({ lead }) {
         </button>
       </form>
       <ol className="timeline">
-        {timeline.map((item) => (
+        {shown.map((item) => (
           <li key={item.id} className={`timeline-item type-${item.type}`}>
             <span className="timeline-dot" />
             <div>
@@ -61,6 +74,11 @@ export function LeadActivity({ lead }) {
           </li>
         ))}
       </ol>
+      {limit && timeline.length > limit && (
+        <button className="link-button show-more" onClick={() => setShowAll(!showAll)}>
+          {showAll ? 'Show fewer' : `Show all ${timeline.length} events`}
+        </button>
+      )}
     </>
   )
 }

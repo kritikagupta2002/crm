@@ -1080,3 +1080,13 @@
     margin-top: -44px;
   }
 }
+
+/* The project's ERM stages, in the client's words */
+.portal-stages {
+  margin: 14px 0 6px;
+}
+
+.portal-stage-note {
+  margin: 8px 0 4px;
+  font-size: 12.5px;
+}

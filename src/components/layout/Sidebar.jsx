@@ -9,10 +9,10 @@ import { NAV_GROUPS } from './navigation'
 
 export function Sidebar({ onNavigate }) {
   const { followUps } = useCrm()
-  const { can } = useAccess()
+  const { can, role } = useAccess()
   const badges = { followUpsDue: countFollowUpsDue(followUps).due }
   const { pathname } = useLocation()
-  const groups = NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => can(item.path)) })).filter((group) => group.items.length)
+  const groups = NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => can(item.path) && (!item.only || item.only.includes(role))) })).filter((group) => group.items.length)
 
   // The module holding the current page opens by itself; a header click opens another one instead.
   const activeGroup = groups.find((group) => group.items.some((item) => (item.path === '/' ? pathname === '/' : pathname.startsWith(item.path))))?.title

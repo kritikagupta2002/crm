@@ -2,6 +2,7 @@ import { addDays, parseISODate, toISODate } from '../utils/date'
 import { ONBOARDING_STEPS, progressOf } from '../utils/workflow'
 import { LEADS, SERVICE_DETAILS, TODAY } from './mockData'
 import { COORDINATORS, FIELD_MEMBERS, teamLeadFor } from './staff'
+import { SUBCONTRACT_BY_SERVICE } from './vendors'
 
 /*
  * Projects for won clients, derived from the lead (like quotations), so the generated leads and
@@ -148,6 +149,31 @@ function seededVisits({ id, service, start, days, team, site, n }) {
       }
     })
 }
+/* Follow-up site work the team lead handed to the field team on a project still before its submission. */
+function seededFieldTasks({ id, team, submission, n }) {
+  const today = iso(TODAY)
+  if (!team.members?.length || !submission || submission <= today) return []
+  const who = team.members[team.members.length - 1]
+  return [
+    { id: `${id}-FT1`, title: 'Site photographs & final measurements for the report', assignee: who, due: iso(addDays(TODAY, 2 + (n % 4))), status: n % 2 ? 'in-progress' : 'todo', doneOn: null },
+    { id: `${id}-FT2`, title: 'Collect check samples from the last pit', assignee: team.members[0], due: iso(addDays(TODAY, 5 + (n % 3))), status: 'todo', doneOn: null },
+  ]
+}
+
+/* The subcontract a running project placed, moving from issued to paid as the dates pass. */
+function seededWorkOrders({ id, service, start, days, n }) {
+  if (!start) return []
+  const job = SUBCONTRACT_BY_SERVICE[service]
+  if (!job) return []
+  const today = iso(TODAY)
+  const issuedOn = iso(addDays(start, Math.round(days * 0.1)))
+  if (issuedOn > today) return []
+  const dueOn = iso(addDays(start, Math.round(days * 0.4)))
+  const status = iso(addDays(parseISODate(dueOn), 25)) <= today ? 'Paid' : iso(addDays(parseISODate(dueOn), 6)) <= today ? 'Bill received' : dueOn <= today ? 'Completed' : 'In progress'
+  const amount = Math.round((job.amount * (0.85 + ((n * 37) % 30) / 100)) / 1000) * 1000
+  return [{ id: `SC-${id.slice(3)}-1`, vendor: job.vendor, work: job.work, amount, issuedOn, dueOn, status }]
+}
+
 const stateOfLead = (lead) => lead.location?.split(',').pop().trim() || 'Rajasthan'
 const iso = (d) => toISODate(d)
 
@@ -158,7 +184,7 @@ export function wonDate(lead) {
   return iso(new Date(Math.min(guess, addDays(TODAY, -3))))
 }
 
-function build({ id, lead, name, service, startedOn, days, n, team, site, createdOn }) {
+function build({ id, lead, name, service, startedOn, days, n, team, site, createdOn, extra = false }) {
   const approval = APPROVALS[service] ?? APPROVALS['Mineral Exploration & Resources']
   const start = startedOn && parseISODate(startedOn)
   const milestones = MILESTONES.map((m) => ({ ...m, date: start ? iso(addDays(start, Math.round(days * m.at))) : null }))
@@ -188,7 +214,12 @@ function build({ id, lead, name, service, startedOn, days, n, team, site, create
     approvals: steps,
     team,
     createdOn: createdOn ?? null,
+    extra,
     fieldVisits: seededVisits({ id, service, start, days, team, site: place, n }),
+    workOrders: seededWorkOrders({ id, service, start, days, n }),
+    seedTasks: seededFieldTasks({ id, team, submission, n }),
+    // The final report the team lead prepared; shown once the report milestone is done.
+    reportFile: { id: `${id}-RPT`, name: `${slug(name)}_final_report.pdf`, size: 6_800_000 + ((n * 4513) % 2_400_000), type: 'application/pdf', category: 'Report', seeded: true },
     // How the submission was filed; used once the submission milestone is done.
     submissionInfo: { mode: MODE_BY_CODE[approval.code], ackNo: `${refBase}/ACK`, files: [{ id: `${id}-SUB`, name: `${slug(name)}_submission.pdf`, size: 4_200_000 + ((n * 977) % 1_500_000), type: 'application/pdf' }] },
     closureSeed,
@@ -213,6 +244,7 @@ export function baseProjects(lead) {
       days: 45 + ((n * 13) % 60),
       n,
       team: startedOn && startedOn <= iso(TODAY) ? teamFor(lead.service, n) : { coordinator: null, teamLead: null, members: [] },
+      createdOn: won,
     }),
   ]
   // Some of the demo's existing clients also have an earlier, finished project; a client won in the app is new.
@@ -246,6 +278,7 @@ export function baseProjects(lead) {
         team: { coordinator: null, teamLead: null, members: [] },
         site: p.site,
         createdOn: p.createdOn,
+        extra: true,
       }),
     )
   })

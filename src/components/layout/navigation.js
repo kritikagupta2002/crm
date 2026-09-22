@@ -1,6 +1,6 @@
-import { BarChart3, Building2, CalendarDays, FileText, FolderKanban, Gauge, Home, ShieldCheck, UserRound, Users } from 'lucide-react'
+import { BarChart3, Building2, CalendarDays, ClipboardCheck, FileSignature, FileText, FolderKanban, Gauge, Home, ListTodo, ShieldCheck, UserRound, Users, UsersRound } from 'lucide-react'
 
-/* Two workspaces in one app: sales (CRM) and project delivery (ERM). Each role sees only what it can open. */
+/* Two workspaces in one app: sales (CRM) and project delivery (ERM). Each role sees only what it can open; `only` limits an item to the roles it is for. */
 export const NAV_GROUPS = [
   {
     title: 'CRM Workspace',
@@ -20,6 +20,10 @@ export const NAV_GROUPS = [
     items: [
       { label: 'ERM Dashboard', path: '/erm', icon: Gauge },
       { label: 'Projects', path: '/projects', icon: FolderKanban },
+      { label: 'Tasks', path: '/tasks', icon: ListTodo },
+      { label: 'My Tasks', path: '/my-tasks', icon: ClipboardCheck, only: ['Field Member'] },
+      { label: 'Team', path: '/team', icon: UsersRound },
+      { label: 'Subcontracts', path: '/subcontracts', icon: FileSignature },
     ],
   },
 ]

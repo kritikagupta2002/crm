@@ -144,10 +144,10 @@ export function ClosurePanel({ project }) {
 
 const WORK_SUGGESTIONS = ['Geological mapping', 'Sample collection', 'Core drilling & logging', 'DGPS pillar survey', 'Drone flight & GCP marking', 'Water level survey of wells', 'Pumping test', 'Baseline air & water sampling', 'Slope face mapping', 'Site inspection']
 
-function FieldVisitForm({ project, onDone }) {
+export function FieldVisitForm({ project, onDone, by }) {
   const { addFieldVisit } = useCrm()
-  const people = [...(project.team.members ?? []), project.team.teamLead].filter(Boolean)
-  const [form, setForm] = useState({ date: todayISO, by: people[0] ?? '', activity: '', location: project.site.split(',')[0], notes: '' })
+  const people = [...new Set([...(project.team.members ?? []), project.team.teamLead, by])].filter(Boolean)
+  const [form, setForm] = useState({ date: todayISO, by: by ?? people[0] ?? '', activity: '', location: project.site.split(',')[0], notes: '' })
   const { files, error, pick } = useFilePicker()
   const set = (key) => (e) => setForm({ ...form, [key]: e.target.value })
 
@@ -351,7 +351,7 @@ export function DocumentsTab({ project }) {
         {project.documents.length ? (
           <ul className="doc-list">
             {project.documents.map((d) => (
-              <FileRow key={d.id} file={{ ...d, company }} note={d.category} onRemove={() => removeProjectDocument(lead.id, project, d)} />
+              <FileRow key={d.id} file={{ ...d, company }} note={d.category} onRemove={d.seeded ? undefined : () => removeProjectDocument(lead.id, project, d)} />
             ))}
           </ul>
         ) : (
@@ -409,7 +409,7 @@ export function DocumentsTab({ project }) {
                 <span>
                   <strong>{letter.title}</strong>
                   <span className="muted">
-                    {letter.ref} · {formatNearDate(letter.date)}
+                    {letter.ref} · {formatNearDate(letter.date)} · {letter.sharedOn ? `shared with the client ${formatNearDate(letter.sharedOn)}` : 'not shared with the client yet'}
                   </span>
                 </span>
                 <button className="icon-button small" onClick={() => downloadLetter(letter, { project, lead, companyName: settings.companyName })} aria-label={`Download ${letter.title}`}>

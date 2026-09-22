@@ -3,6 +3,7 @@ import { TODAY } from '../data/mockData'
 import { formatDayMonth, toISODate } from './date'
 
 const todayISO = toISODate(TODAY)
+const sharedBeforeISO = toISODate(new Date(TODAY.getTime() - 10 * 86_400_000))
 
 /*
  * A step is done when its planned date has passed, unless the team has marked it otherwise:
@@ -20,14 +21,27 @@ function resolve(step, edit) {
  * hand-over has happened.
  */
 export const ERM_STAGES = [
-  { key: 'allocation', label: 'Allocation', owner: 'Admin', todo: 'Assign a project coordinator' },
-  { key: 'planning', label: 'Planning', owner: 'Project Coordinator', todo: 'Choose the team lead and field team' },
-  { key: 'tasks', label: 'Task assignment', owner: 'Team Lead', todo: 'Give every task an owner' },
-  { key: 'work', label: 'Field & report work', owner: 'Field team', todo: 'Finish the field work and the report' },
-  { key: 'submission', label: 'Govt submission', owner: 'Project Coordinator', todo: 'Submit to the authority' },
-  { key: 'approval', label: 'Final approval', owner: 'Authority', todo: 'Follow up for the approval' },
-  { key: 'closure', label: 'Project closure', owner: 'Project Coordinator', todo: 'Hand over and close the project' },
+  { key: 'allocation', label: 'Allocation', owner: 'Admin', todo: 'Assign a project coordinator', waiting: 'Waiting for a coordinator' },
+  { key: 'planning', label: 'Planning', owner: 'Project Coordinator', todo: 'Choose the team lead and field team', waiting: 'Waiting for a team' },
+  { key: 'tasks', label: 'Task assignment', owner: 'Team Lead', todo: 'Give every task an owner', waiting: 'Tasks waiting for owners' },
+  { key: 'work', label: 'Field & report work', owner: 'Field team', todo: 'Finish the field work and the report', waiting: 'Survey or report under way' },
+  { key: 'submission', label: 'Govt submission', owner: 'Project Coordinator', todo: 'Submit to the authority', waiting: 'Report ready, to be filed' },
+  { key: 'approval', label: 'Final approval', owner: 'Authority', todo: 'Follow up for the approval', waiting: 'Filed, waiting for approval' },
+  { key: 'closure', label: 'Project closure', owner: 'Project Coordinator', todo: 'Hand over and close the project', waiting: 'Approved, to be handed over' },
 ]
+
+/* Which roles can do each stage's hand-over; everyone else with ERM access follows it read-only. */
+const STAGE_ACTORS = {
+  allocation: ['Admin'],
+  planning: ['Admin', 'Project Coordinator'],
+  tasks: ['Admin', 'Project Coordinator', 'Team Lead'],
+  work: ['Admin', 'Project Coordinator', 'Team Lead', 'Field Member'],
+  submission: ['Admin', 'Project Coordinator'],
+  approval: ['Admin', 'Project Coordinator'],
+  closure: ['Admin', 'Project Coordinator'],
+}
+
+export const canActOn = (role, stageKey) => Boolean(STAGE_ACTORS[stageKey]?.includes(role))
 
 /* What has to happen before a project is closed. */
 export const CLOSURE_STEPS = [
@@ -58,7 +72,9 @@ function buildTasks(base, edits, team, milestones, started) {
     const due = saved.due ?? (isCurrent && slipped && m.date > todayISO ? toISODate(new Date(TODAY.getTime() - 2 * 86_400_000)) : m.date)
     return { key: m.key, title: m.label, assignee, due, status, doneOn: m.done ? m.date : null, standard: true }
   })
-  const extra = (edits.customTasks ?? []).map((t) => ({ ...t, standard: false }))
+  // Seeded field tasks, then the team's own; a seeded task the team has changed is stored with its edits.
+  const own = edits.customTasks ?? []
+  const extra = [...(base.seedTasks ?? []).filter((t) => !own.some((o) => o.id === t.id)), ...own].map((t) => ({ ...t, standard: false }))
   return [...standard, ...extra].map((t) => ({ ...t, overdue: t.status !== 'done' && Boolean(t.due) && t.due < todayISO }))
 }
 
@@ -77,7 +93,10 @@ export function clientProjects(lead, projectEdits = {}) {
         .filter((s) => s.done && s.letter)
         .map((s, i) => ({ id: `${base.id}-${s.key}`, title: s.letter, authority: base.authority, ref: `${base.refBase}/${i + 1}`, date: s.date, stepKey: s.key })),
       ...(edits.letters ?? []),
-    ].sort((a, b) => b.date.localeCompare(a.date))
+    ]
+      // Older letters were already passed on to the client; the last ten days' still wait for a WhatsApp.
+      .map((l) => ({ ...l, sharedOn: edits.sharedLetters?.[l.id] ?? (l.stepKey && l.date < sharedBeforeISO ? l.date : null) }))
+      .sort((a, b) => b.date.localeCompare(a.date))
     const milestonesDone = milestones.filter((m) => m.done).length
     const approvalsDone = approvals.filter((s) => s.done).length
     // A project whose start date is still ahead (just won) hasn't started, even though it has a plan.
@@ -97,7 +116,9 @@ export function clientProjects(lead, projectEdits = {}) {
     const submissionDate = milestones[milestones.length - 1].date
     const submission = submitted ? { ...base.submissionInfo, ...edits.submission, date: submissionDate } : null
     const fieldVisits = [...base.fieldVisits, ...(edits.fieldVisits ?? [])].sort((a, b) => b.date.localeCompare(a.date))
-    const documents = edits.documents ?? []
+    const reportDone = milestones.find((m) => m.key === 'report')
+    const documents = [...(reportDone?.done && base.reportFile ? [{ ...base.reportFile, addedOn: reportDone.date }] : []), ...(edits.documents ?? [])]
+    const workOrders = [...base.workOrders, ...(edits.workOrders ?? [])].map((w) => ({ ...w, status: edits.woStatus?.[w.id]?.status ?? w.status }))
 
     const team = { ...base.team, ...edits.team }
     const tasks = buildTasks(base, edits, team, milestones, started)
@@ -114,7 +135,27 @@ export function clientProjects(lead, projectEdits = {}) {
     // Stages run in order: the current one is the first not yet handed over.
     const stageIndex = done.findIndex((d) => !d) === -1 ? ERM_STAGES.length : done.findIndex((d) => !d)
     const stages = ERM_STAGES.map((st, i) => ({ ...st, done: i < stageIndex }))
-    return { ...base, startedOn, milestones, approvals, letters, milestonesDone, approvalsDone, status, started, team, tasks, stages, stageIndex, closure, submission, fieldVisits, documents }
+    // What happened on the project before anyone changed it in the ERM (the demo's seeded record).
+    // Changes made in the ERM are logged as activities, so nothing appears twice.
+    const history = [
+      // A project created in the ERM is already in the activity log.
+      base.createdOn && !base.extra && { kind: 'created', date: base.createdOn, text: `Project created — work confirmed by ${lead.company}` },
+      started && !edits.team && team.coordinator && { kind: 'team', date: startedOn, text: `Team allocated: ${team.coordinator} (coordinator), ${team.teamLead} (team lead), ${team.members.join(', ')}` },
+      // The submission and the authority's first step are one event; the submission line covers both.
+      ...milestones.filter((m) => m.done && m.key !== 'submission' && edits.milestones?.[m.key] === undefined).map((m) => ({ kind: 'milestone', date: m.date, text: `${m.label} done` })),
+      ...base.fieldVisits.map((v) => ({ kind: 'visit', date: v.date, text: `Field visit: ${v.activity} by ${v.by}${v.files.length ? ` (${v.files.length} files)` : ''}` })),
+      ...base.workOrders.map((w) => ({ kind: 'subcontract', date: w.issuedOn, text: `Subcontract ${w.id} issued to ${w.vendor} — ${w.work}` })),
+      submission && !edits.submission && { kind: 'submission', date: submission.date, text: `Submitted to ${base.authority} via ${submission.mode} · Ack. ${submission.ackNo}` },
+      ...approvals.slice(1).filter((a) => a.done && edits.approvals?.[a.key] === undefined).map((a) => ({ kind: a.key === approvals[approvals.length - 1].key ? 'granted' : 'approval', date: a.date, text: `${a.label}` })),
+      ...letters.filter((l) => l.stepKey).map((l) => ({ kind: 'letter', date: l.date, text: `Letter received: ${l.title} (${l.ref})` })),
+      ...(seed ? CLOSURE_STEPS.filter((c) => seed.steps[c.key]).map((c) => ({ kind: 'closure', date: seed.steps[c.key], text: c.label })) : []),
+      seed?.closedOn && { kind: 'closed', date: seed.closedOn, text: 'Project closed' },
+    ]
+      .filter(Boolean)
+      .filter((h) => h.date && h.date <= todayISO)
+      .map((h, i) => ({ ...h, id: `${base.id}-h${i}` }))
+
+    return { ...base, history, startedOn, milestones, approvals, letters, milestonesDone, approvalsDone, status, started, team, tasks, stages, stageIndex, closure, submission, fieldVisits, documents, workOrders }
   })
 }
 
