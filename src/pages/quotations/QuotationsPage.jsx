@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
 import { usePaged } from '../../components/common/Pager'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
 import { QUOTE_STATUS_TONE, openQuotes, quoteFor } from '../../utils/workflow'
@@ -30,6 +30,8 @@ const QUOTE_COLUMNS = [
 export function QuotationsPage() {
   const money = useMoney()
   const { leads, changeStage } = useCrm()
+  // Anyone who sees amounts can export; only Sales (and the Admin) make and change quotations.
+  const canSell = useAccess().may('sales')
   const [params, setParams] = useSearchParams()
   const [tab, setTab] = useState('All')
   const [search, setSearch] = useState('')
@@ -73,9 +75,11 @@ export function QuotationsPage() {
             <button className="btn" onClick={() => downloadCsv('quotations.csv', QUOTE_COLUMNS, visible)}>
               <Download size={16} /> Export
             </button>
-            <button className="btn btn-primary" onClick={() => go({ new: '' })}>
-              <FilePlus2 size={16} /> New Quotation
-            </button>
+            {canSell && (
+              <button className="btn btn-primary" onClick={() => go({ new: '' })}>
+                <FilePlus2 size={16} /> New Quotation
+              </button>
+            )}
           </div>
         )}
       </header>
@@ -159,7 +163,7 @@ export function QuotationsPage() {
         {pager}
       </section>
 
-      {building && !money.hidden && <QuotationBuilder key={building.leadId ?? 'new'} leadId={building.leadId} onClose={close} onSaved={(id) => go({ open: id })} />}
+      {building && canSell && <QuotationBuilder key={building.leadId ?? 'new'} leadId={building.leadId} onClose={close} onSaved={(id) => go({ open: id })} />}
       {viewing && !building && <QuotationView leadId={viewing} onClose={close} onRevise={(id) => go({ revise: id })} onReject={setRejecting} />}
       {rejecting && (
         <LostReasonDialog

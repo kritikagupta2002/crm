@@ -1,6 +1,6 @@
 import { Download, File, FileImage, FileSpreadsheet, FileText, Tag, Trash2, UploadCloud, X } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { downloadDocument } from '../../utils/files'
 
@@ -18,6 +18,7 @@ function iconFor(doc) {
 
 function Tags({ lead }) {
   const { setTags } = useCrm()
+  const { may } = useAccess()
   const [draft, setDraft] = useState('')
   const tags = lead.tags ?? []
 
@@ -36,11 +37,14 @@ function Tags({ lead }) {
         {tags.map((tag) => (
           <span key={tag} className="tag">
             {tag}
-            <button onClick={() => setTags(lead.id, tags.filter((t) => t !== tag))} aria-label={`Remove tag ${tag}`}>
-              <X size={12} />
-            </button>
+            {may('contact') && (
+              <button onClick={() => setTags(lead.id, tags.filter((t) => t !== tag))} aria-label={`Remove tag ${tag}`}>
+                <X size={12} />
+              </button>
+            )}
           </span>
         ))}
+        {may('contact') && (
         <form
           onSubmit={(e) => {
             e.preventDefault()
@@ -49,7 +53,10 @@ function Tags({ lead }) {
         >
           <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Add a tag and press Enter" aria-label="Add a tag" />
         </form>
+        )}
+        {tags.length === 0 && !may('contact') && <span className="muted small">No tags</span>}
       </div>
+      {may('contact') && (
       <div className="tag-suggestions">
         {SUGGESTED_TAGS.filter((t) => !tags.includes(t)).map((tag) => (
           <button key={tag} onClick={() => add(tag)}>
@@ -57,6 +64,7 @@ function Tags({ lead }) {
           </button>
         ))}
       </div>
+      )}
     </section>
   )
 }
@@ -64,6 +72,7 @@ function Tags({ lead }) {
 /* Documents shared by the client (lease papers, maps, reports). The demo keeps only file details, not contents. */
 export function LeadDocuments({ lead }) {
   const { addDocuments, removeDocument, settings } = useCrm()
+  const canEdit = useAccess().may('contact')
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
   const inputRef = useRef(null)
@@ -81,6 +90,7 @@ export function LeadDocuments({ lead }) {
 
   return (
     <div className="documents">
+      {canEdit && (
       <div
         className={`dropzone ${dragOver ? 'is-over' : ''}`}
         onDragOver={(e) => {
@@ -113,6 +123,7 @@ export function LeadDocuments({ lead }) {
           }}
         />
       </div>
+      )}
       {error && <p className="field-error">{error}</p>}
 
       {documents.length > 0 ? (
@@ -134,9 +145,11 @@ export function LeadDocuments({ lead }) {
                 <button className="icon-button small" onClick={() => downloadDocument(doc, { company: lead.company, companyName: settings.companyName })} aria-label={`Download ${doc.name}`}>
                   <Download size={15} />
                 </button>
-                <button className="icon-button small" onClick={() => removeDocument(lead.id, doc.id)} aria-label={`Remove ${doc.name}`}>
-                  <Trash2 size={15} />
-                </button>
+                {canEdit && (
+                  <button className="icon-button small" onClick={() => removeDocument(lead.id, doc.id)} aria-label={`Remove ${doc.name}`}>
+                    <Trash2 size={15} />
+                  </button>
+                )}
               </li>
             )
           })}

@@ -1,6 +1,6 @@
 import { Download, Paperclip, Plus } from 'lucide-react'
 import { useState } from 'react'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { formatNearDate } from '../../utils/date'
 import { downloadDocument } from '../../utils/files'
 import { PAYMENT_TONE, duesFor, paymentsOf } from '../../utils/payments'
@@ -37,6 +37,7 @@ function RequestForm({ lead, onDone }) {
 export function PaymentCheck({ lead, dueKey }) {
   const { settings, verifyPayment } = useCrm()
   const money = useMoney()
+  const { may } = useAccess()
   const waiting = paymentsOf(lead).filter((p) => p.dueKey === dueKey && p.status === 'Submitted')
   if (waiting.length === 0) return null
   return (
@@ -51,7 +52,7 @@ export function PaymentCheck({ lead, dueKey }) {
               </button>
             )}
           </span>
-          {!money.hidden && (
+          {may('payments') && (
             <span className="pay-check-actions">
               <button className="btn btn-small" onClick={() => verifyPayment(lead.id, p.id, false, '')}>
                 Not received
@@ -80,8 +81,8 @@ export function ClientPayments({ lead }) {
   const dues = duesFor(lead, clientProjects(lead, projectEdits))
   const reported = paymentsOf(lead)
   const toCheck = reported.filter((p) => p.status === 'Submitted').length
-  // Amounts and verification stay with the roles that can see money.
-  const canVerify = !money.hidden
+  // Verifying and asking for money is Accounts' job (and the Admin's); others see the record.
+  const canVerify = useAccess().may('payments')
 
   return (
     <>

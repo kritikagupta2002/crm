@@ -1,7 +1,7 @@
 import { CheckCircle2, ClipboardList, Rocket, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { KpiCard } from '../../components/common/KpiCard'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { ONBOARDING_STEPS, progressOf } from '../../utils/workflow'
 import { SharePortalButton } from '../../components/lead/SharePortalButton'
@@ -13,6 +13,7 @@ const isDone = (lead) => progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOA
 /* Won deals become active clients once KYC, documents, kick-off, team and portal access are done. */
 export function OnboardingPage() {
   const { leads, updateLead } = useCrm()
+  const { locked } = useAccess()
   const [tab, setTab] = useState('progress')
 
   const won = leads.filter((l) => l.stage === 'Won')
@@ -80,6 +81,7 @@ export function OnboardingPage() {
               steps={ONBOARDING_STEPS}
               values={lead.onboarding}
               onToggle={toggle(lead)}
+              locked={locked}
               meta={`Won ${formatDayMonth(lead.wonOn ?? lead.createdOn)} · ${lead.assignedTo}`}
               footer={isDone(lead) ? <span className="pill tone-good active-pill">Active client</span> : !lead.onboarding?.portal ? <SharePortalButton lead={lead} className="btn btn-whatsapp btn-small" /> : null}
             />

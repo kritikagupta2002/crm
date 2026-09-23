@@ -1,6 +1,6 @@
 import { ClipboardPlus, Pencil } from 'lucide-react'
 import { useState } from 'react'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { PROJECT_TYPES } from '../../data/mockData'
 import { formatDayMonth } from '../../utils/date'
 
@@ -88,6 +88,7 @@ function ProjectForm({ initial, onSave, onCancel }) {
 export function ProjectRequirements({ lead }) {
   const money = useMoney()
   const { updateLead } = useCrm()
+  const canEdit = useAccess().may('sales')
   const [editing, setEditing] = useState(false)
   const project = lead.project
 
@@ -106,9 +107,11 @@ export function ProjectRequirements({ lead }) {
           <strong>No project requirements yet</strong>
           <span>Add the site, scope and technical details once the client has shared them.</span>
         </p>
-        <button className="btn btn-primary" onClick={() => setEditing(true)}>
-          Add project requirements
-        </button>
+        {canEdit && (
+          <button className="btn btn-primary" onClick={() => setEditing(true)}>
+            Add project requirements
+          </button>
+        )}
       </div>
     )
   }
@@ -124,9 +127,11 @@ export function ProjectRequirements({ lead }) {
     <div className="project-view">
       <div className="panel-head">
         <h3>{project.title}</h3>
-        <button className="btn" onClick={() => setEditing(true)}>
-          <Pencil size={14} /> Edit
-        </button>
+        {canEdit && (
+          <button className="btn" onClick={() => setEditing(true)}>
+            <Pencil size={14} /> Edit
+          </button>
+        )}
       </div>
       <dl className="detail-list">
         {rows.map(([label, value]) => (

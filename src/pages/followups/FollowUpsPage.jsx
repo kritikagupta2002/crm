@@ -1,7 +1,7 @@
 import { AlertTriangle, CalendarCheck2, CalendarClock, CalendarDays, Check, Clock, Search } from 'lucide-react'
 import { useState } from 'react'
 import { KpiCard } from '../../components/common/KpiCard'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { FOLLOW_UP_TYPES, TEAM, TODAY } from '../../data/mockData'
 import { addDays, formatDayMonth, formatTime, toISODate } from '../../utils/date'
 import { RoleLink } from '../../components/common/RoleLink'
@@ -24,6 +24,7 @@ const GROUPS = [
 /* One follow-up row: "Done" asks for a short outcome, "Reschedule" for a new date and time. */
 function FollowUpRow({ item, lead, tone }) {
   const { completeFollowUp, rescheduleFollowUp } = useCrm()
+  const { may } = useAccess()
   const [mode, setMode] = useState(null) // null | 'done' | 'move'
   const [outcome, setOutcome] = useState('')
   const [move, setMove] = useState({ date: toISODate(addDays(TODAY, 1)), time: item.time })
@@ -79,7 +80,7 @@ function FollowUpRow({ item, lead, tone }) {
           {item.date === todayISO ? 'Today' : formatDayMonth(item.date)}, {formatTime(item.time)}
         </span>
       </div>
-      {!mode && (
+      {!mode && may('contact') && (
         <div className="fu-actions">
           <button className="btn" onClick={() => setMode('move')}>
             Reschedule

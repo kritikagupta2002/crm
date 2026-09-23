@@ -10,36 +10,21 @@ import { allProjects } from '../../utils/projects'
 import { FieldVisitForm } from '../projects/ProjectWork'
 import '../projects/erm.css'
 
-const PERSON_KEY = 'bansal-crm:field-member'
 const monthStartISO = toISODate(TODAY).slice(0, 8) + '01'
-
-function savedPerson() {
-  try {
-    const saved = localStorage.getItem(PERSON_KEY)
-    return FIELD_MEMBERS.some((m) => m.name === saved) ? saved : null
-  } catch {
-    return null
-  }
-}
 
 /* The field team's phone screen: my open tasks with one-tap status, my sites, and logging a visit with photos. */
 export function MyTasksPage() {
-  const { leads, projectEdits, updateProjectTask } = useCrm()
+  const { leads, projectEdits, updateProjectTask, role, fieldMember, setFieldMember } = useCrm()
   const projects = allProjects(leads, projectEdits).filter((p) => p.status !== 'Completed')
-  // Opens on the field member with the most open work, until someone picks a name.
-  const openFor = (name) => projects.flatMap((p) => p.tasks).filter((t) => t.assignee === name && t.status !== 'done').length
-  const busiest = FIELD_MEMBERS.map((m) => m.name).sort((a, b) => openFor(b) - openFor(a))[0]
-  const [me, setMe] = useState(() => savedPerson() ?? busiest)
+  // A field member sees only their own work (whoever signed in, see "Switch role"). The Admin previews the
+  // screen for any member of the field team.
+  const signedIn = role === 'Field Member'
+  const me = fieldMember
   const [logging, setLogging] = useState(null)
 
   const choose = (name) => {
-    setMe(name)
+    setFieldMember(name)
     setLogging(null)
-    try {
-      localStorage.setItem(PERSON_KEY, name)
-    } catch {
-      // Only the default person is lost.
-    }
   }
 
   const person = FIELD_MEMBERS.find((m) => m.name === me)
@@ -58,20 +43,22 @@ export function MyTasksPage() {
             {me} · {person?.title}
           </p>
         </div>
-        <div className="page-actions">
-          <select className="me-select" value={me} onChange={(e) => choose(e.target.value)} aria-label="Field member">
-            {FIELD_MEMBERS.map((m) => (
-              <option key={m.name} value={m.name}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        {!signedIn && (
+          <div className="page-actions">
+            <select className="me-select" value={me} onChange={(e) => choose(e.target.value)} aria-label="Field member">
+              {FIELD_MEMBERS.map((m) => (
+                <option key={m.name} value={m.name}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </header>
 
       <section className="stat-grid my-stats">
         <KpiCard tone="tone-info" icon={ClipboardCheck} label="Open Tasks" value={open.length}>
-          <span className="muted">On {mine.length} sites</span>
+          <span className="muted">On {mine.length} site{mine.length === 1 ? '' : 's'}</span>
         </KpiCard>
         <KpiCard tone={open.some((t) => t.overdue) ? 'tone-urgent' : 'tone-good'} icon={AlertTriangle} label="Overdue" value={open.filter((t) => t.overdue).length}>
           <span className="muted">Past their due date</span>

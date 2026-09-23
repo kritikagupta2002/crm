@@ -2,7 +2,7 @@ import { BadgeCheck, CircleDollarSign, FileSignature, Hourglass, Trophy } from '
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { APPROVAL_STEPS, progressOf } from '../../utils/workflow'
 import { PaymentCheck } from '../../components/lead/ClientPayments'
 import { WorkflowCard } from './WorkflowCard'
@@ -21,6 +21,8 @@ const FILTERS = [
 export function ClientApprovalPage() {
   const money = useMoney()
   const { leads, updateLead, changeStage } = useCrm()
+  // Sales ticks the PO and agreement, Accounts the advance; closing as Won is Sales'.
+  const { may, locked } = useAccess()
   const [filter, setFilter] = useState('all')
 
   const pending = leads
@@ -86,11 +88,14 @@ export function ClientApprovalPage() {
                 steps={APPROVAL_STEPS}
                 values={lead.approval}
                 onToggle={toggle(lead)}
+                locked={locked}
                 notice={<PaymentCheck lead={lead} dueKey="advance" />}
                 footer={
+                  may('sales') && (
                   <button className="btn btn-success" disabled={!complete} onClick={() => changeStage(lead.id, 'Won')} title={complete ? undefined : 'Finish all steps first'}>
                     <Trophy size={15} /> Mark as Won
                   </button>
+                  )
                 }
               />
             )

@@ -33,12 +33,15 @@ export function seededInteractions(lead) {
     items.push({ key: 'visit', date: at(4 + (n % 3)), type: 'contact', mode: 'Site visit', text: `Site visit — ${owner} visited ${lead.location ?? 'the site'} with ${lead.contactPerson}` })
   if (quote) items.push({ key: 'quote', date: quote.sentOn, type: 'quote', text: `Quotation ${quote.number.replace(/-R\d+$/, '')} sent on WhatsApp and email` })
   if (quote && (stageAt(seed, 'Negotiation') || seed.stage === 'Won'))
-    items.push({ key: 'nego', date: toISODate(addDays(parseISODate(quote.sentOn), 3)), type: 'contact', mode: 'Meeting', text: `Meeting — scope and price discussed with ${lead.contactPerson}` })
+    // Three days after the quotation; for a deal won within days, no later than the acceptance.
+    items.push({ key: 'nego', date: toISODate(addDays(parseISODate(quote.sentOn), won ? Math.min(3, Math.max(0, Math.round((parseISODate(won) - parseISODate(quote.sentOn)) / 86_400_000) - 2)) : 3)), type: 'contact', mode: 'Meeting', text: `Meeting — scope and price discussed with ${lead.contactPerson}` })
   if (quote && seed.stage === 'Lost') items.push({ key: 'lost', date: toISODate(addDays(parseISODate(quote.sentOn), 9)), type: 'stage', text: `Marked as Lost${seed.lostReason ? `: ${seed.lostReason}` : ''}` })
 
   if (won) {
     const w = parseISODate(won)
-    const before = (d) => toISODate(addDays(w, -d))
+    // Days from the quotation to the win: acceptance, PO and advance all fall after the quotation went out.
+    const span = Math.round((w - parseISODate(quoteFor(seed)?.sentOn ?? lead.createdOn)) / 86_400_000)
+    const before = (d) => toISODate(addDays(w, -Math.max(0, Math.min(d, span - 1))))
     if (seed.approval?.quoteAccepted) items.push({ key: 'accepted', date: before(4), type: 'quote', text: 'Quotation accepted by the client' })
     if (seed.approval?.poReceived) items.push({ key: 'po', date: before(2), type: 'contact', mode: 'Email', text: 'Work order / PO received from the client' })
     if (seed.approval?.advanceReceived) items.push({ key: 'advance', date: before(1), type: 'stage', text: 'Advance payment received' })
@@ -58,7 +61,9 @@ export function seededInteractions(lead) {
 
 /* An enquiry's full timeline: the seeded past plus everything done in the app, newest first. */
 export function leadTimeline(lead, activities) {
-  const logged = activities.filter((a) => a.leadId === lead.id).map((a) => ({ id: a.id, date: a.at.slice(0, 10), sort: a.at, type: a.type, text: a.text, at: a.at, byClient: a.by === 'client' }))
+  // Who did it (the audit trail): the team member, or the client / vendor on their portal.
+  const who = (a) => (a.actor?.role === 'Client' ? lead.contactPerson : a.actor?.name ? `${a.actor.name}${a.actor.role === 'Vendor' ? ' (vendor)' : ''}` : null)
+  const logged = activities.filter((a) => a.leadId === lead.id).map((a) => ({ id: a.id, date: a.at.slice(0, 10), sort: a.at, type: a.type, text: a.text, at: a.at, byClient: a.by === 'client', who: who(a) }))
   // Derived events have no time of day: they go at the start of their day (in their own order), so anything
   // done in the app that day stays above them.
   const past = seededInteractions(lead).map((i, k) => ({ ...i, sort: `${i.date}T00:00:${String(k).padStart(2, '0')}` }))

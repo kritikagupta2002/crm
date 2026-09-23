@@ -1,12 +1,12 @@
-import { AlertTriangle, Bell, CheckCircle2, Clock, FileWarning, FolderKanban, Globe, IndianRupee, MessageCircleQuestion, ScrollText, Sparkles } from 'lucide-react'
+import { AlertTriangle, Bell, CheckCircle2, Clock, FileWarning, FolderKanban, Globe, HardHat, IndianRupee, MessageCircleQuestion, Receipt, ScrollText, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAccess, useCrm, useMoney } from '../../context/crm'
+import { BILL_ROLES, useAccess, useCrm, useMoney } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { queriesOf } from '../../data/queries'
 import { paymentsOf } from '../../utils/payments'
 import { addDays, formatDayMonth, toISODate } from '../../utils/date'
-import { ERM_STAGES, allProjects } from '../../utils/projects'
+import { ERM_STAGES, allProjects, nextWorkStep } from '../../utils/projects'
 import { quoteFor } from '../../utils/workflow'
 import { usePopover } from '../common/usePopover'
 
@@ -28,7 +28,7 @@ function readSeen() {
  * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
  */
 export function NotificationsMenu() {
-  const { leads, followUps, settings, activities, projectEdits } = useCrm()
+  const { leads, followUps, settings, activities, projectEdits, role } = useCrm()
   const { can } = useAccess()
   const money = useMoney()
   const { open, setOpen, ref } = usePopover()
@@ -83,8 +83,28 @@ export function NotificationsMenu() {
       .map((p) => ({ id: `rc-${p.id}`, tone: 'tone-info', icon: CheckCircle2, title: `Ready to close: ${p.name}`, sub: `${p.lead.company} · approval received`, to: `/projects/${p.id}` })),
   ]
 
+  // Subcontracts: bills for Accounts to check and for the CFO to pay; what vendors sent from their portal.
+  const orders = can('/subcontracts') ? (projects.length ? projects : allProjects(leads, projectEdits)).flatMap((p) => p.workOrders.map((w) => ({ ...w, project: p }))) : []
+  const bills = orders
+    .filter((w) => ['check', 'pay'].includes(nextWorkStep(w)?.key) && BILL_ROLES[nextWorkStep(w).key].includes(role))
+    .map((w) => ({
+      id: `wo-${w.id}-${nextWorkStep(w).key}-${w.bill.no}`,
+      tone: nextWorkStep(w).key === 'check' ? 'tone-attention' : 'tone-urgent',
+      icon: Receipt,
+      title: `${nextWorkStep(w).key === 'check' ? 'Bill to check' : 'Ready to pay'}: ${w.vendor}`,
+      sub: `${w.id} · ${w.bill.no}${money.hidden ? '' : ` · ₹${Math.round(w.bill.amount).toLocaleString('en-IN')}`}`,
+      to: '/subcontracts?tab=Bills%20to%20pay',
+    }))
+  const fromVendors = activities
+    .filter((a) => a.by === 'vendor' && a.at.slice(0, 10) >= weekAgoISO)
+    .slice(-6)
+    .reverse()
+    .map((a) => ({ id: `vn-${a.id}`, tone: 'tone-info', icon: HardHat, title: `${a.vendor}: ${a.text.split(' — ').pop().replace(' (vendor portal)', '')}`, sub: `Vendor portal · ${formatDayMonth(a.at.slice(0, 10))}`, to: '/subcontracts' }))
+
   const items = [
     ...toVerify,
+    ...bills,
+    ...fromVendors,
     ...questions,
     ...fromPortal,
     ...fromErm,

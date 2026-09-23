@@ -1,6 +1,6 @@
 import { MessageSquareReply } from 'lucide-react'
 import { useState } from 'react'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { queriesOf } from '../../data/queries'
 import { formatNearDate } from '../../utils/date'
 
@@ -25,6 +25,7 @@ function ReplyForm({ lead, query }) {
 
 /* Questions the client asked from the portal; open ones take a reply here, which the client then sees. */
 export function ClientQueries({ lead }) {
+  const { may } = useAccess()
   const queries = queriesOf(lead)
   const open = queries.filter((q) => q.status === 'Open').length
   return (
@@ -46,7 +47,7 @@ export function ClientQueries({ lead }) {
               </div>
               <p>{q.message}</p>
               {q.status === 'Open' ? (
-                <ReplyForm lead={lead} query={q} />
+                may('contact') && <ReplyForm lead={lead} query={q} />
               ) : (
                 <p className="query-answer">
                   <b>{q.repliedBy}:</b> {q.reply}

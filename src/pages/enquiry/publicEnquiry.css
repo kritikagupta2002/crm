@@ -154,7 +154,117 @@
   margin-top: 20px;
 }
 
+/* The enquiry ID the client keeps: it is their portal login. */
+.enquiry-id {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 6px;
+  padding: 10px 12px 10px 16px;
+  border: 1px dashed var(--teal-200);
+  border-radius: var(--radius);
+  background: var(--teal-50);
+}
+
+.enquiry-id > span {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.enquiry-id strong {
+  font-size: 18px;
+  color: var(--teal-700);
+}
+
+.enquiry-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border-top: 1px solid var(--line-soft);
+  text-align: left;
+}
+
+.enquiry-summary dt {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.enquiry-summary dd {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  color: var(--ink);
+}
+
+.enquiry-another {
+  margin-top: 14px;
+}
+
+.enquiry-files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.enquiry-file-list {
+  display: flex;
+  flex-direction: column;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.enquiry-file-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line-soft);
+  color: var(--teal-700);
+}
+
+.enquiry-file-list li > span {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.enquiry-file-list strong {
+  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.enquiry-earlier {
+  margin: 4px 0 16px;
+}
+
+.enquiry-earlier p {
+  margin: 2px 0 8px;
+  color: var(--ink-2);
+}
+
+.enquiry-earlier a.btn {
+  color: inherit;
+  text-decoration: none;
+}
+
 @media (max-width: 640px) {
+  .enquiry-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .enquiry-id {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .public-enquiry .portal-brand::after {
     content: 'Send an enquiry';
   }

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import { KpiCard } from '../../components/common/KpiCard'
 import { usePaged } from '../../components/common/Pager'
 import { tabLink, useTabParam } from '../../components/common/useTabParam'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { COORDINATORS, FIELD_MEMBERS, TEAM_LEADS } from '../../data/staff'
 import { addDays, formatNearDate, toISODate } from '../../utils/date'
@@ -27,6 +27,8 @@ const TABS = {
 /* Every task on every running project in one list: who has what, what is late, and what is due next. */
 export function TasksPage() {
   const { leads, projectEdits, updateProjectTask } = useCrm()
+  // Management follows the work; the project team changes it.
+  const readOnly = !useAccess().may('projects')
   const [tab, setTab] = useTabParam(Object.keys(TABS), 'Open')
   const [person, setPerson] = useState('')
   const [search, setSearch] = useState('')
@@ -121,7 +123,7 @@ export function TasksPage() {
                       </div>
                     </td>
                     <td>
-                      <select value={t.assignee ?? ''} onChange={(e) => updateProjectTask(t.project.lead.id, t.project, t, { assignee: e.target.value || null })} aria-label={`Owner of ${t.title}`}>
+                      <select value={t.assignee ?? ''} onChange={(e) => updateProjectTask(t.project.lead.id, t.project, t, { assignee: e.target.value || null })} aria-label={`Owner of ${t.title}`} disabled={readOnly}>
                         <option value="">Unassigned</option>
                         {PEOPLE.map((p) => (
                           <option key={p.name}>{p.name}</option>
@@ -135,13 +137,13 @@ export function TasksPage() {
                         value={t.due ?? ''}
                         onChange={(e) => updateProjectTask(t.project.lead.id, t.project, t, { due: e.target.value || null })}
                         aria-label={`Due date of ${t.title}`}
-                        disabled={t.status === 'done'}
+                        disabled={t.status === 'done' || readOnly}
                       />
                       {t.overdue && <div className="cell-sub text-red">Overdue</div>}
                       {t.status === 'done' && t.doneOn && <div className="cell-sub">Done {formatNearDate(t.doneOn)}</div>}
                     </td>
                     <td>
-                      <select className={`task-status status-${t.status}`} value={t.status} onChange={(e) => updateProjectTask(t.project.lead.id, t.project, t, { status: e.target.value })} aria-label={`Status of ${t.title}`}>
+                      <select className={`task-status status-${t.status}`} value={t.status} onChange={(e) => updateProjectTask(t.project.lead.id, t.project, t, { status: e.target.value })} aria-label={`Status of ${t.title}`} disabled={readOnly}>
                         {Object.entries(TASK_STATUS).map(([value, label]) => (
                           <option key={value} value={value}>
                             {label}

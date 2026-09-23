@@ -32,7 +32,7 @@ function pageTitle(pathname) {
  */
 export function AppLayout() {
   const [menuToggled, setMenuToggled] = useState(readCollapsed)
-  const { changeCount, resetDemoData, session, role } = useCrm()
+  const { changeCount, resetDemoData, teamSignedIn, role } = useCrm()
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -54,8 +54,8 @@ export function AppLayout() {
       return !value
     })
 
-  // The CRM is for the team; clients have their own portal.
-  if (session?.type !== 'team') return <Navigate to={session?.type === 'client' ? '/portal' : '/login'} replace state={{ from: pathname }} />
+  // The CRM is for the team; clients and vendors have their own portals and sign-ins.
+  if (!teamSignedIn) return <Navigate to="/login" replace state={{ from: pathname }} />
   const home = ROLE_ACCESS[role]?.home ?? '/'
   if (pathname === '/' && !canOpen(role, '/')) return <Navigate to={home} replace />
 

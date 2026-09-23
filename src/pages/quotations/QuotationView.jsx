@@ -1,6 +1,6 @@
 import { CheckCircle2, MessageCircle, Pencil, Printer, X, XCircle } from 'lucide-react'
 import { useEffect, useId } from 'react'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { formatDate, formatDayMonth } from '../../utils/date'
 import { whatsappLink } from '../../utils/whatsapp'
 import { QUOTE_STATUS_TONE, quoteFor } from '../../utils/workflow'
@@ -12,6 +12,7 @@ import { RoleLink } from '../../components/common/RoleLink'
 export function QuotationView({ leadId, onClose, onRevise, onReject }) {
   const money = useMoney()
   const { leads, settings, acceptQuotation, logActivity } = useCrm()
+  const canSell = useAccess().may('sales')
   const lead = leads.find((l) => l.id === leadId)
   const quote = lead && quoteFor(lead)
   const titleId = useId()
@@ -63,7 +64,7 @@ export function QuotationView({ leadId, onClose, onRevise, onReject }) {
             <button className="btn" onClick={() => window.print()}>
               <Printer size={15} /> Print / Save PDF
             </button>
-            {lead.phone && !money.hidden && (
+            {lead.phone && canSell && (
               <a
                 className="btn btn-whatsapp"
                 target="_blank"
@@ -77,7 +78,7 @@ export function QuotationView({ leadId, onClose, onRevise, onReject }) {
                 <MessageCircle size={15} /> WhatsApp
               </a>
             )}
-            {open && !money.hidden && (
+            {open && canSell && (
               <>
                 <button className="btn" onClick={() => onRevise(lead.id)}>
                   <Pencil size={15} /> Revise

@@ -28,5 +28,5 @@ export const NAV_GROUPS = [
   },
 ]
 
-/* Settings lives in the profile menu; it is listed here so the page still gets its title. */
-export const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), { label: 'Settings', path: '/settings' }]
+/* Settings and the audit log live in the profile menu; they are listed here so the pages still get their titles. */
+export const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), { label: 'Settings', path: '/settings' }, { label: 'Audit Log', path: '/audit-log' }]

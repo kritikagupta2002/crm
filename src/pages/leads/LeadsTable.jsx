@@ -4,7 +4,7 @@ import { ActionMenu } from '../../components/common/ActionMenu'
 import { StagePill } from '../../components/common/StagePill'
 import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { leadAgeLabel, sortLeads } from '../../utils/leads'
+import { leadAgeLabel, serviceSummary, servicesOf, sortLeads } from '../../utils/leads'
 import { useMoney } from '../../context/crm'
 import { pageList } from '../../components/common/Pager'
 
@@ -87,8 +87,8 @@ export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onSchedu
                     </div>
                   </td>
                   <td>
-                    <div className="cell-clip" title={`${lead.serviceDetail} — ${lead.service}`}>
-                      {lead.serviceDetail}
+                    <div className="cell-clip" title={servicesOf(lead).map((x) => `${x.serviceDetail} — ${x.service}`).join(', ')}>
+                      {serviceSummary(lead)}
                     </div>
                   </td>
                   <td className="nowrap">
@@ -118,13 +118,14 @@ export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onSchedu
                       label={`Actions for ${lead.company}`}
                       items={[
                         { label: 'View details', icon: Eye, onSelect: () => onOpen(lead.id) },
+                        // A handler the role isn't allowed is null, and its item is left out.
                         ...(isClosed
                           ? []
                           : [
-                              { label: 'Schedule follow-up', icon: CalendarPlus, onSelect: () => onScheduleFollowUp(lead.id) },
-                              { label: 'Mark as Won', icon: CheckCircle2, onSelect: () => onMarkWon(lead.id), tone: 'good' },
-                              { label: 'Mark as Lost', icon: XCircle, onSelect: () => onMarkLost(lead.id), tone: 'danger' },
-                            ]),
+                              onScheduleFollowUp && { label: 'Schedule follow-up', icon: CalendarPlus, onSelect: () => onScheduleFollowUp(lead.id) },
+                              onMarkWon && { label: 'Mark as Won', icon: CheckCircle2, onSelect: () => onMarkWon(lead.id), tone: 'good' },
+                              onMarkLost && { label: 'Mark as Lost', icon: XCircle, onSelect: () => onMarkLost(lead.id), tone: 'danger' },
+                            ].filter(Boolean)),
                       ]}
                     />
                   </td>

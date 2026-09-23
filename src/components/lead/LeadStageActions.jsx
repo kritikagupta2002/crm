@@ -1,12 +1,15 @@
 import { CheckCircle2, XCircle } from 'lucide-react'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { STAGES } from '../../data/mockData'
+import { StagePill } from '../common/StagePill'
 
 const OPEN_STAGES = STAGES.filter((stage) => stage !== 'Won' && stage !== 'Lost')
 
-/* Move a lead between open stages, or close it as Won / Lost (Lost asks for a reason via onMarkLost). */
+/* Move a lead between open stages, or close it as Won / Lost (Lost asks for a reason via onMarkLost). Other roles see the stage. */
 export function LeadStageActions({ lead, onMarkLost }) {
   const { changeStage } = useCrm()
+  const { may } = useAccess()
+  if (!may('sales')) return <StagePill stage={lead.stage} />
   const isClosed = lead.stage === 'Won' || lead.stage === 'Lost'
 
   return (

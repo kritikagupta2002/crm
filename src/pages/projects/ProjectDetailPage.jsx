@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { RoleLink } from '../../components/common/RoleLink'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { COORDINATORS, FIELD_MEMBERS, TEAM_LEADS, titleOf } from '../../data/staff'
 import { formatDate, formatNearDate } from '../../utils/date'
 import { downloadLetter } from '../../utils/files'
@@ -212,6 +212,7 @@ function StageCard({ project, onOpenTab }) {
 
 function TasksTab({ project }) {
   const { updateProjectTask, addProjectTask } = useCrm()
+  const readOnly = !useAccess().may('projects')
   const [adding, setAdding] = useState(false)
   const [draft, setDraft] = useState({ title: '', assignee: '', due: '' })
   const lead = project.lead
@@ -219,7 +220,7 @@ function TasksTab({ project }) {
   const teamNames = [project.team.coordinator, project.team.teamLead, ...(project.team.members ?? [])].filter(Boolean)
 
   const ownerSelect = (value, onChange, label) => (
-    <select value={value ?? ''} onChange={(e) => onChange(e.target.value || null)} aria-label={label}>
+    <select value={value ?? ''} onChange={(e) => onChange(e.target.value || null)} aria-label={label} disabled={readOnly}>
       <option value="">Unassigned</option>
       {teamNames.length > 0 && (
         <optgroup label="Project team">
@@ -245,7 +246,7 @@ function TasksTab({ project }) {
           <b>{done}</b> of {project.tasks.length} done
         </span>
         <ProgressBar done={done} total={project.tasks.length} tone={done === project.tasks.length ? 'tone-good' : 'tone-info'} />
-        {!adding && (
+        {!adding && !readOnly && (
           <button className="btn btn-small" onClick={() => setAdding(true)}>
             <Plus size={14} /> Add task
           </button>
@@ -299,13 +300,13 @@ function TasksTab({ project }) {
                     value={t.due ?? ''}
                     onChange={(e) => updateProjectTask(lead.id, project, t, { due: e.target.value || null })}
                     aria-label={`Due date of ${t.title}`}
-                    disabled={t.status === 'done'}
+                    disabled={t.status === 'done' || readOnly}
                   />
                   {t.overdue && <div className="cell-sub text-red">Overdue</div>}
                   {t.status === 'done' && t.doneOn && <div className="cell-sub">Done {formatNearDate(t.doneOn)}</div>}
                 </td>
                 <td>
-                  <select className={`task-status status-${t.status}`} value={t.status} onChange={(e) => updateProjectTask(lead.id, project, t, { status: e.target.value })} aria-label={`Status of ${t.title}`}>
+                  <select className={`task-status status-${t.status}`} value={t.status} onChange={(e) => updateProjectTask(lead.id, project, t, { status: e.target.value })} aria-label={`Status of ${t.title}`} disabled={readOnly}>
                     {Object.entries(TASK_STATUS).map(([value, label]) => (
                       <option key={value} value={value}>
                         {label}

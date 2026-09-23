@@ -1,6 +1,6 @@
 import { CalendarPlus } from 'lucide-react'
 import { useState } from 'react'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { FOLLOW_UP_TYPES, TODAY } from '../../data/mockData'
 import { addDays, formatDayMonth, formatTime, toISODate } from '../../utils/date'
 
@@ -61,7 +61,8 @@ function FollowUpForm({ onSave, onCancel }) {
 /* Pending follow-ups for one lead, plus an inline form to schedule another. */
 export function LeadFollowUps({ lead, startWithForm = false }) {
   const { followUps, scheduleFollowUp } = useCrm()
-  const [showForm, setShowForm] = useState(startWithForm)
+  const { may } = useAccess()
+  const [showForm, setShowForm] = useState(startWithForm && may('contact'))
   const isClosed = lead.stage === 'Won' || lead.stage === 'Lost'
   const pending = followUps.filter((f) => f.leadId === lead.id).sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
 
@@ -69,7 +70,7 @@ export function LeadFollowUps({ lead, startWithForm = false }) {
     <>
       <div className="lead-section-head">
         <h3>Follow-ups</h3>
-        {!isClosed && !showForm && (
+        {!isClosed && !showForm && may('contact') && (
           <button className="link-button" onClick={() => setShowForm(true)}>
             <CalendarPlus size={15} /> Schedule
           </button>

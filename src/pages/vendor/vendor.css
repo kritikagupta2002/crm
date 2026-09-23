@@ -1,0 +1,37 @@
+/* ---------- Vendor portal: the client portal's frame, with work orders instead of projects ---------- */
+.vendor-order {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vendor-order > .btn {
+  align-self: flex-start;
+}
+
+.vendor-order-work {
+  margin: -4px 0 0;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.vendor-order .wo-diff {
+  margin: 0;
+}
+
+.vendor-trail summary {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--teal-700);
+  cursor: pointer;
+}
+
+.vendor-trail[open] summary {
+  margin-bottom: 12px;
+}
+
+@media (max-width: 640px) {
+  .vendor-portal .portal-brand::after {
+    content: 'Vendor Portal';
+  }
+}

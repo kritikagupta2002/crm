@@ -1,21 +1,21 @@
 import { TODAY } from '../data/mockData'
 import { addDays, parseISODate, toISODate } from './date'
 
-/* Steps between "client accepted the quotation" and "Won". */
+/* Steps between "client accepted the quotation" and "Won". `by`: the permission (context/crm.js PERMISSIONS) whose roles tick the step. */
 export const APPROVAL_STEPS = [
-  { key: 'quoteAccepted', label: 'Quotation accepted' },
-  { key: 'poReceived', label: 'Work order / PO received' },
-  { key: 'advanceReceived', label: 'Advance payment received' },
-  { key: 'agreementSigned', label: 'Agreement signed' },
+  { key: 'quoteAccepted', label: 'Quotation accepted', by: 'sales' },
+  { key: 'poReceived', label: 'Work order / PO received', by: 'sales' },
+  { key: 'advanceReceived', label: 'Advance payment received', by: 'payments' },
+  { key: 'agreementSigned', label: 'Agreement signed', by: 'sales' },
 ]
 
 /* Steps that turn a won lead into an active client. */
 export const ONBOARDING_STEPS = [
-  { key: 'kyc', label: 'KYC — GST & PAN collected' },
-  { key: 'leaseDocs', label: 'Lease & site documents received' },
-  { key: 'kickoff', label: 'Kick-off meeting held' },
-  { key: 'teamAssigned', label: 'Project team assigned' },
-  { key: 'portal', label: 'Client portal access shared' },
+  { key: 'kyc', label: 'KYC — GST & PAN collected', by: 'onboarding' },
+  { key: 'leaseDocs', label: 'Lease & site documents received', by: 'onboarding' },
+  { key: 'kickoff', label: 'Kick-off meeting held', by: 'onboarding' },
+  { key: 'teamAssigned', label: 'Project team assigned', by: 'onboarding' },
+  { key: 'portal', label: 'Client portal access shared', by: 'onboarding' },
 ]
 
 export const progressOf = (steps, values = {}) => steps.filter((step) => values[step.key]).length
@@ -29,15 +29,35 @@ const round = (n) => Math.round(n / 1000) * 1000
 const SENT_UNDER = { gstPct: 18, validDays: 30 }
 
 /*
+ * When a generated Won enquiry was won: a few weeks after it came in, at the latest three days ago,
+ * but never sooner than four days after the enquiry, so quotation, acceptance and advance fit before it.
+ */
+export function seededWonOn(lead) {
+  const created = parseISODate(lead.createdOn)
+  const n = Number(lead.id.split('-').pop()) || 1
+  const guess = Math.min(addDays(created, 18 + (n % 15)), addDays(TODAY, -3))
+  return toISODate(new Date(Math.max(guess, Math.min(addDays(created, 4), TODAY))))
+}
+
+/*
  * When a generated quotation was sent: closed ones a few days after the enquiry; open ones
  * (still awaiting an answer) within the last ~5 weeks, so only a few have run past validity.
  */
 function defaultSentOn(lead) {
-  const afterEnquiry = new Date(Math.min(TODAY, addDays(parseISODate(lead.createdOn), 6)))
+  const created = parseISODate(lead.createdOn)
+  const afterEnquiry = new Date(Math.min(TODAY, addDays(created, 6)))
+  // A won deal's quotation went out before it was accepted: for a deal won within days, the day after the enquiry.
+  if (lead.stage === 'Won') {
+    const span = Math.round((parseISODate(seededWonOn(lead)) - created) / 86_400_000)
+    return toISODate(addDays(created, Math.min(6, Math.max(1, Math.floor(span / 3)))))
+  }
   const open = lead.stage === 'Proposal Sent' || lead.stage === 'Negotiation'
   if (!open) return toISODate(afterEnquiry)
-  const daysAgo = (Number(lead.id.split('-').pop()) * 7) % 36
-  return toISODate(new Date(Math.max(parseISODate(lead.createdOn), addDays(TODAY, -daysAgo))))
+  const n = Number(lead.id.split('-').pop())
+  const daysAgo = (n * 7) % 36
+  // Not before the site visit that precedes a quotation (the enquiry's history puts it 4–6 days in), nor after today.
+  const afterVisit = Math.min(addDays(created, 4 + (n % 3)), TODAY)
+  return toISODate(new Date(Math.max(afterVisit, addDays(TODAY, -daysAgo))))
 }
 
 export function quoteTotals({ items, discountPct = 0, gstPct = 18 }) {

@@ -10,11 +10,11 @@ import { LeadFollowUps } from '../../components/lead/LeadFollowUps'
 import { LeadStageActions } from '../../components/lead/LeadStageActions'
 import { SharePortalButton } from '../../components/lead/SharePortalButton'
 import { PriorityPill } from '../../components/lead/PriorityPill'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { useEnquiryForm } from '../../context/enquiryForm'
 import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { leadAgeLabel } from '../../utils/leads'
+import { leadAgeLabel, servicesOf } from '../../utils/leads'
 import { whatsappLink } from '../../utils/whatsapp'
 import { LeadDocuments } from './LeadDocuments'
 import { LostReasonDialog } from './LostReasonDialog'
@@ -60,8 +60,8 @@ function Overview({ lead }) {
         <h3>Enquiry</h3>
         <DetailList
           rows={[
-            ['Service', lead.service],
-            ['Service required', lead.serviceDetail],
+            ['Service', [...new Set(servicesOf(lead).map((x) => x.service))].join(', ')],
+            ['Service required', servicesOf(lead).map((x) => x.serviceDetail).join(', ')],
             ['Mineral', lead.mineral],
             ['Source', lead.source],
             ['Received', `${formatDayMonth(lead.createdOn)} · ${leadAgeLabel(lead).toLowerCase()}`],
@@ -91,6 +91,7 @@ export function LeadDetailsPage() {
   const { leadId } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
   const { leads, followUps, changeStage } = useCrm()
+  const { may } = useAccess()
   const { openEditForm } = useEnquiryForm()
   const [losing, setLosing] = useState(false)
   const [followUpRequests, setFollowUpRequests] = useState(0) // bumps each time "Schedule Follow-up" is clicked
@@ -143,7 +144,7 @@ export function LeadDetailsPage() {
               </a>
             </>
           )}
-          {!isClosed && (
+          {!isClosed && may('contact') && (
             <button
               className="btn"
               title="Schedule a follow-up"
@@ -161,15 +162,17 @@ export function LeadDetailsPage() {
             </RoleLink>
           ) : (
             !isClosed &&
-            !money.hidden && (
+            may('sales') && (
               <RoleLink className="btn" to={`/quotations?new=${lead.id}`} title="Create a quotation" hideIfLocked>
                 <FilePlus2 size={15} /> Quotation
               </RoleLink>
             )
           )}
-          <button className="btn btn-primary" onClick={() => openEditForm(lead)} title="Edit enquiry details">
-            <Pencil size={15} /> Edit
-          </button>
+          {may('sales') && (
+            <button className="btn btn-primary" onClick={() => openEditForm(lead)} title="Edit enquiry details">
+              <Pencil size={15} /> Edit
+            </button>
+          )}
         </div>
       </header>
 

@@ -1,6 +1,6 @@
 import { StickyNote } from 'lucide-react'
 import { useState } from 'react'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { clientTimeline, lastContact, leadTimeline } from '../../utils/clientHistory'
 import { formatDayMonth, formatNearDate, formatTime, toISODate } from '../../utils/date'
 import { clientProjects } from '../../utils/projects'
@@ -19,6 +19,7 @@ function formatWhen(iso) {
  */
 export function LeadActivity({ lead, withProjects = false, title = 'Activity', limit }) {
   const { activities, addNote, projectEdits } = useCrm()
+  const { may } = useAccess()
   const [note, setNote] = useState('')
   const [kind, setKind] = useState('Note')
   const [showAll, setShowAll] = useState(false)
@@ -44,6 +45,7 @@ export function LeadActivity({ lead, withProjects = false, title = 'Activity', l
           · {talks} conversations · {items.length} events in all
         </p>
       )}
+      {may('contact') && (
       <form
         className="note-form"
         onSubmit={(e) => {
@@ -63,13 +65,17 @@ export function LeadActivity({ lead, withProjects = false, title = 'Activity', l
           <StickyNote size={15} /> Add
         </button>
       </form>
+      )}
       <ol className="timeline">
         {shown.map((item) => (
           <li key={item.id} className={`timeline-item type-${item.type}`}>
             <span className="timeline-dot" />
             <div>
               <p>{item.text}</p>
-              <span className="muted">{item.when}</span>
+              <span className="muted">
+                {item.when}
+                {item.who && ` · ${item.who}`}
+              </span>
             </div>
           </li>
         ))}

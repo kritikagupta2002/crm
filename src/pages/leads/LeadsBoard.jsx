@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { STAGE_COLORS } from '../../components/common/stageColors'
 import { STAGES, TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
+import { serviceSummary } from '../../utils/leads'
 import { useMoney } from '../../context/crm'
 
 const todayISO = toISODate(TODAY)
@@ -9,6 +10,7 @@ const todayISO = toISODate(TODAY)
 /*
  * Kanban board: drag a card to another column to change its stage.
  * (Native HTML drag and drop — on touch screens, stages are changed from the lead's detail panel.)
+ * Without onMove (a role that can't change stages) the cards only open.
  */
 export function LeadsBoard({ leads, onOpen, onMove }) {
   const money = useMoney()
@@ -26,6 +28,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
             className={`board-column ${over === stage ? 'is-over' : ''}`}
             style={{ '--stage': STAGE_COLORS[stage].dot, '--stage-bg': STAGE_COLORS[stage].bg }}
             onDragOver={(e) => {
+              if (!onMove) return
               e.preventDefault()
               setOver(stage)
             }}
@@ -35,7 +38,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
               setOver(null)
               setDragging(null)
               const id = e.dataTransfer.getData('text/plain')
-              if (id) onMove(id, stage)
+              if (id && onMove) onMove(id, stage)
             }}
           >
             <header className="board-column-header">
@@ -51,7 +54,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
                 <button
                   key={lead.id}
                   className={`board-card ${dragging === lead.id ? 'is-dragging' : ''}`}
-                  draggable
+                  draggable={Boolean(onMove)}
                   onDragStart={(e) => {
                     e.dataTransfer.setData('text/plain', lead.id)
                     e.dataTransfer.effectAllowed = 'move'
@@ -61,7 +64,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
                   onClick={() => onOpen(lead.id)}
                 >
                   <span className="board-card-company">{lead.company}</span>
-                  <span className="board-card-service">{lead.serviceDetail}</span>
+                  <span className="board-card-service">{serviceSummary(lead)}</span>
                   <span className="board-card-foot">
                     <span>{lead.assignedTo}</span>
                     {lead.quoteValue ? <b>{money.short(lead.quoteValue)}</b> : null}
@@ -73,7 +76,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
                   )}
                 </button>
               ))}
-              {cards.length === 0 && <p className="board-empty">Drop leads here</p>}
+              {cards.length === 0 && <p className="board-empty">{onMove ? 'Drop leads here' : 'No leads'}</p>}
             </div>
           </section>
         )

@@ -1,14 +1,15 @@
 import { ArrowLeft, Bell, Check, CheckCircle2, ClipboardCheck, ClipboardList, Download, FileText, FolderKanban, Landmark, LogOut, MessageCircleQuestion, Paperclip, UserRound, Mail, MapPin, MessageCircle, Phone, Plus, Printer, ScrollText, Send, UploadCloud, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
-import { Link, Navigate, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { Logo } from '../../components/common/Logo'
 import { Portal } from '../../components/common/Portal'
 import { usePopover } from '../../components/common/usePopover'
-import { canOpen, useCrm, useMoney } from '../../context/crm'
+import { canOpen, initialsOf, useCrm, useMoney } from '../../context/crm'
 import { QUERY_TOPICS, queriesOf } from '../../data/queries'
 import { addDays, formatDate, formatNearDate, toISODate } from '../../utils/date'
 import { TODAY } from '../../data/mockData'
+import { titleOf } from '../../data/staff'
 import { downloadDocument, downloadLetter } from '../../utils/files'
 import { PROJECT_STATUS_TONE, clientProjects, clientUpdates } from '../../utils/projects'
 import { whatsappLink } from '../../utils/whatsapp'
@@ -23,8 +24,6 @@ const JOURNEY = ['Enquiry received', 'Requirement discussion', 'Quotation shared
 
 /* The ERM stages in the client's words. */
 const CLIENT_STAGE_LABELS = { allocation: 'Team allocated', planning: 'Planning', tasks: 'Work scheduled', work: 'Field & report work', submission: 'Filed with authority', approval: 'Government approval', closure: 'Handed over' }
-
-const PROJECT_JOURNEY = ['Enquiry received', 'Quotation accepted', 'Project work', 'Government approval', 'Completed']
 
 function journeyIndex(lead, quote) {
   if (lead.stage === 'Won') return 4
@@ -44,33 +43,9 @@ const QUOTE_STATUS = {
 }
 
 const clientAmount = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`
-const initialsOf = (name) =>
-  name
-    .replace(/\./g, ' ')
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase()
 const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`)
 const MAX_SIZE = 10 * 1024 * 1024
 const digits = (value) => value.replace(/\D/g, '').slice(-10)
-
-/* Before the deal: the sales steps. After it: where the current project really is, down to the approval step. */
-function journeyFor(lead, quote, project) {
-  if (lead.stage === 'Won' && project) {
-    const at = { 'Not started': 2, 'In progress': 2, 'Awaiting approval': 3, Approved: 4, Completed: 5 }[project.status]
-    const note = {
-      'Not started': project.startedOn ? `Starts ${formatNearDate(project.startedOn)}` : 'Starting soon',
-      'In progress': `${project.milestonesDone} of ${project.milestones.length} stages done`,
-      'Awaiting approval': `${project.approvalsDone} of ${project.approvals.length} steps done`,
-      Approved: 'Approval received · final hand-over in progress',
-    }[project.status]
-    return { steps: PROJECT_JOURNEY, current: at, note }
-  }
-  return { steps: JOURNEY, current: journeyIndex(lead, quote), note: null }
-}
 
 function CardTitle({ icon: Icon, children }) {
   return (
@@ -83,17 +58,17 @@ function CardTitle({ icon: Icon, children }) {
   )
 }
 
-function Journey({ lead, quote, project }) {
-  const { steps, current, note } = journeyFor(lead, quote, project)
+/* The steps up to the deal. Once there is a project, its stages (in the projects card) take over. */
+function Journey({ lead, quote }) {
+  const current = journeyIndex(lead, quote)
   return (
     <ol className="journey">
-      {steps.map((label, i) => {
+      {JOURNEY.map((label, i) => {
         const state = i < current ? 'is-done' : i === current ? 'is-current' : ''
         return (
           <li key={label} className={state} style={{ animationDelay: `${0.08 * i}s` }}>
             <span className="journey-dot">{state === 'is-done' ? <Check size={13} strokeWidth={3} /> : i + 1}</span>
             <span className="journey-label">{label}</span>
-            {state === 'is-current' && note && <span className="journey-note">{note}</span>}
           </li>
         )
       })}
@@ -156,7 +131,7 @@ function QuotationCard({ lead, quote, settings, amount, readOnly, bare = false }
   const [message, setMessage] = useState('')
   const [sent, setSent] = useState(false)
 
-  const frame = bare ? 'portal-bare' : 'card portal-card'
+  const frame = bare ? 'portal-bare' : 'card portal-card portal-quote'
 
   if (!quote) {
     return (
@@ -282,7 +257,7 @@ function QuotationCard({ lead, quote, settings, amount, readOnly, bare = false }
 function StepsCard({ title, steps, values, note, bare = false, icon = ClipboardCheck }) {
   const done = progressOf(steps, values)
   return (
-    <section className={bare ? 'portal-bare' : 'card portal-card'}>
+    <section className={bare ? 'portal-bare' : 'card portal-card portal-steps-card'}>
       <div className="portal-card-head">
         <CardTitle icon={icon}>{title}</CardTitle>
         <span className="muted">
@@ -382,7 +357,7 @@ function ProjectsCard({ lead, projects, settings }) {
   const submitted = project.milestones[project.milestones.length - 1].done
 
   return (
-    <section className="card portal-card">
+    <section className="card portal-card portal-projects">
       <div className="portal-card-head">
         <CardTitle icon={FolderKanban}>{projects.length > 1 ? 'Your projects' : 'Your project'}</CardTitle>
         <span className={`pill status-pill ${PROJECT_STATUS_TONE[project.status]}`}>{project.status}</span>
@@ -409,6 +384,11 @@ function ProjectsCard({ lead, projects, settings }) {
           </li>
         ))}
       </ol>
+      <p className="portal-stage-caption">
+        {project.stageIndex >= project.stages.length
+          ? 'All stages done · handed over'
+          : `Stage ${project.stageIndex + 1} of ${project.stages.length} · ${CLIENT_STAGE_LABELS[project.stages[project.stageIndex].key]}`}
+      </p>
       {(project.fieldVisits.length > 0 || project.submission) && (
         <p className="portal-stage-note muted">
           {project.fieldVisits.length > 0 && `${project.fieldVisits.length} site visit${project.fieldVisits.length === 1 ? '' : 's'} so far, last on ${formatDate(project.fieldVisits[0].date)}`}
@@ -419,10 +399,7 @@ function ProjectsCard({ lead, projects, settings }) {
 
       <div className="project-columns">
         <div>
-          <h3>
-            Work progress <span className="muted">{project.milestonesDone} of {project.milestones.length}</span>
-          </h3>
-          <ProgressBar done={project.milestonesDone} total={project.milestones.length} tone={submitted ? 'tone-good' : 'tone-info'} />
+          <h3>Work done</h3>
           <StepList steps={project.milestones} pendingLabel={project.started ? 'in progress' : 'not started'} />
         </div>
         <div>
@@ -451,11 +428,12 @@ function ProjectsCard({ lead, projects, settings }) {
               <span>
                 <strong>{letter.title}</strong>
                 <span className="muted">
-                  {letter.authority} · {letter.ref} · {formatNearDate(letter.date)}
+                  {letter.stepLabel ? `${letter.stepLabel} · ` : ''}
+                  {letter.ref} · {formatNearDate(letter.date)}
                 </span>
               </span>
-              <button className="btn btn-small" onClick={() => downloadLetter(letter, { project, lead, companyName: settings.companyName })}>
-                <Download size={14} /> Download
+              <button className="btn btn-small" onClick={() => downloadLetter(letter, { project, lead, companyName: settings.companyName })} aria-label={`Download ${letter.title}`}>
+                <Download size={14} /> <span className="hide-sm">Download</span>
               </button>
             </li>
           ))}
@@ -469,7 +447,7 @@ function ProjectsCard({ lead, projects, settings }) {
 function CompletedCard({ items }) {
   const [open, setOpen] = useState(null)
   return (
-    <section className="card portal-card">
+    <section className="card portal-card portal-completed">
       <CardTitle icon={CheckCircle2}>Completed</CardTitle>
       <ul className="done-list">
         {items.map((item) => (
@@ -619,7 +597,7 @@ function PortalBell({ lead, updates }) {
           ) : (
             <ul>
               {news.map((u) => (
-                <li key={u.id} className={u.upcoming ? 'tone-attention' : 'tone-info'}>
+                <li key={u.id} className={u.upcoming ? 'tone-attention' : u.letter ? 'tone-good' : 'tone-info'}>
                   <span className="portal-bell-item">
                     <strong>{u.text}</strong>
                     <span className="muted">{u.upcoming ? 'Coming up' : formatNearDate(u.date)}</span>
@@ -640,7 +618,7 @@ function UpdatesCard({ updates }) {
       <CardTitle icon={Bell}>Latest updates</CardTitle>
       <ol className="portal-updates">
         {updates.slice(0, 8).map((u) => (
-          <li key={u.id} className={u.you ? 'is-you' : u.upcoming ? 'is-upcoming' : ''}>
+          <li key={u.id} className={u.you ? 'is-you' : u.upcoming ? 'is-upcoming' : u.letter ? 'is-letter' : ''}>
             <span className="muted">{u.upcoming ? 'Coming up' : formatNearDate(u.date)}</span>
             <p>{u.text}</p>
           </li>
@@ -655,17 +633,18 @@ function UpdatesCard({ updates }) {
  * The team can open the same view read-only with /portal?lead=<id> ("Preview client portal").
  */
 export function ClientPortalPage() {
-  const { leads, settings, session, signOut, projectEdits, activities, followUps, role } = useCrm()
+  const { leads, settings, teamSignedIn, clientLeadId, signOutClient, projectEdits, activities, followUps, role } = useCrm()
   const money = useMoney()
+  const navigate = useNavigate()
   const [params] = useSearchParams()
   const [activeId, setActiveId] = useState(null)
-  const preview = session?.type === 'team' ? params.get('lead') : null
-  const leadId = session?.type === 'client' ? session.leadId : preview
+  const preview = teamSignedIn ? params.get('lead') : null
+  const leadId = preview ?? clientLeadId
   const home = leads.find((l) => l.id === leadId)
   // One login shows every enquiry made from the same mobile number.
   const related = home ? leads.filter((l) => l.id === home.id || (home.phone && l.phone && digits(l.phone) === digits(home.phone))) : []
   const lead = related.find((l) => l.id === activeId) ?? home
-  const missingClientLead = session?.type === 'client' && !home
+  const missingClientLead = !preview && clientLeadId && !home
 
   useEffect(() => {
     if (lead) document.title = `${lead.company} · Client Portal`
@@ -673,11 +652,10 @@ export function ClientPortalPage() {
 
   // The client's enquiry can disappear when demo data is reset; sign them out cleanly.
   useEffect(() => {
-    if (missingClientLead) signOut()
-  }, [missingClientLead, signOut])
+    if (missingClientLead) signOutClient()
+  }, [missingClientLead, signOutClient])
 
-  if (!session || missingClientLead) return <Navigate to="/login" replace state={{ tab: 'client' }} />
-  if (!lead) return <Navigate to="/leads" replace />
+  if (!lead) return teamSignedIn && !clientLeadId ? <Navigate to="/leads" replace /> : <Navigate to="/login" replace state={{ tab: 'client' }} />
 
   const quote = quoteFor(lead)
   // The work still running comes first; finished projects follow.
@@ -685,6 +663,9 @@ export function ClientPortalPage() {
   const updates = clientUpdates({ lead, quote, projects, activities, followUps })
   const amount = preview ? money.full : clientAmount
   const approvalStarted = quote?.status === 'Accepted' || lead.stage === 'Won'
+  // Who the client talks to: the account owner, and the project coordinator once the work is running.
+  const coordinator = projects.find((p) => p.status !== 'Completed' && p.team.coordinator)?.team.coordinator
+  const services = lead.services?.length > 1 ? lead.services : null
 
   // Once the deal is won, finished stages stop taking a whole card each.
   const completed =
@@ -731,10 +712,17 @@ export function ClientPortalPage() {
           ) : (
             <div className="portal-top-actions">
               <PortalBell key={lead.id} lead={lead} updates={updates} />
-              <Link className="btn btn-primary" to="/enquiry">
-                <Plus size={15} /> New enquiry
+              <Link className="btn btn-primary" to="/enquiry" aria-label="New enquiry">
+                <Plus size={15} /> <span className="hide-sm">New enquiry</span>
               </Link>
-              <button className="btn" onClick={signOut} aria-label="Sign out">
+              <button
+                className="btn"
+                onClick={() => {
+                  signOutClient()
+                  navigate('/login', { replace: true, state: { tab: 'client' } })
+                }}
+                aria-label="Sign out"
+              >
                 <LogOut size={15} /> <span className="hide-sm">Sign out</span>
               </button>
             </div>
@@ -753,8 +741,8 @@ export function ClientPortalPage() {
               </p>
             </div>
             <div className="portal-service">
-              <span>Service</span>
-              <strong>{lead.serviceDetail}</strong>
+              <span>{services ? 'Services' : 'Service'}</span>
+              <strong>{services ? services.map((x) => x.serviceDetail).join(' · ') : lead.serviceDetail}</strong>
               {related.length > 1 && (
                 <select value={lead.id} onChange={(e) => setActiveId(e.target.value)} aria-label="Switch enquiry">
                   {related.map((l) => (
@@ -769,7 +757,7 @@ export function ClientPortalPage() {
           {lead.stage === 'Lost' ? (
             <p className="portal-closed">This enquiry is closed. If you'd like to take it forward again, message or call us and we'll reopen it.</p>
           ) : (
-            <Journey lead={lead} quote={quote} project={projects[0]} />
+            projects.length === 0 && <Journey lead={lead} quote={quote} />
           )}
       </PortalBand>
 
@@ -802,6 +790,15 @@ export function ClientPortalPage() {
                   <span className="muted">Relationship manager</span>
                 </span>
               </div>
+              {coordinator && (
+                <div className="portal-person">
+                  <span className="avatar">{initialsOf(coordinator)}</span>
+                  <span>
+                    <strong>{coordinator}</strong>
+                    <span className="muted">{titleOf(coordinator) || 'Project coordinator'} · your project</span>
+                  </span>
+                </div>
+              )}
               <a href={`tel:${settings.phone.replace(/\s/g, '')}`}>
                 <Phone size={14} /> {settings.phone}
               </a>
@@ -828,8 +825,8 @@ export function ClientPortalPage() {
               <CardTitle icon={ClipboardList}>Enquiry details</CardTitle>
               <dl className="portal-facts">
                 <div>
-                  <dt>Service area</dt>
-                  <dd>{lead.service}</dd>
+                  <dt>{services ? 'Services' : 'Service area'}</dt>
+                  <dd>{services ? services.map((x) => x.serviceDetail).join(', ') : lead.service}</dd>
                 </div>
                 {lead.mineral && (
                   <div>
@@ -843,7 +840,7 @@ export function ClientPortalPage() {
                     <dd>{lead.location}</dd>
                   </div>
                 )}
-                {lead.expectedTimeline && (
+                {lead.expectedTimeline && lead.stage !== 'Won' && (
                   <div>
                     <dt>Expected timeline</dt>
                     <dd>{lead.expectedTimeline}</dd>

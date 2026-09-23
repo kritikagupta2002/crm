@@ -505,11 +505,22 @@
     white-space: nowrap;
   }
 
-  .portal-top .hide-sm {
+  .portal .hide-sm {
     display: none;
   }
 
+  .portal-brand {
+    overflow: hidden;
+  }
+
+  .portal-top-actions {
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
   .portal-brand::after {
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
     content: 'Client Portal';
     font-family: var(--font-serif);
@@ -782,6 +793,10 @@
 
 .portal-updates li.is-you::before {
   background: var(--gold-500);
+}
+
+.portal-updates li.is-letter::before {
+  background: var(--green);
 }
 
 .portal-updates li.is-upcoming::before {
@@ -1086,6 +1101,51 @@
   margin: 14px 0 6px;
 }
 
+/* Phones: the seven stages as a row of dots, with the current one named underneath. */
+.portal-stage-caption {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .portal .portal-stages {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .portal .portal-stages li {
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .portal .portal-stages li:not(:first-child)::before {
+    display: block;
+    top: 11px;
+    right: 50%;
+    left: auto;
+    width: 100%;
+    height: 2px;
+  }
+
+  .portal .portal-stages .erm-dot {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .portal .portal-stages strong {
+    display: none;
+  }
+
+  .portal-stage-caption {
+    display: block;
+    margin: 10px 0 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+}
+
 .portal-stage-note {
   margin: 8px 0 4px;
   font-size: 12.5px;
@@ -1132,24 +1192,37 @@
     display: contents;
   }
 
-  .portal-questions {
-    order: 2;
-  }
-
-  .portal-documents {
-    order: 3;
+  .portal-quote {
+    order: 1;
   }
 
   .portal-updates-card {
+    order: 2;
+  }
+
+  .portal-steps-card,
+  .portal-payments {
+    order: 3;
+  }
+
+  .portal-questions {
     order: 4;
   }
 
-  .portal-contact {
+  .portal-documents {
     order: 5;
   }
 
-  .portal-details {
+  .portal-completed {
     order: 6;
+  }
+
+  .portal-contact {
+    order: 7;
+  }
+
+  .portal-details {
+    order: 8;
   }
 }
 

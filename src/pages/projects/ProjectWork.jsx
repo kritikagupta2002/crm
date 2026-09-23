@@ -1,7 +1,7 @@
 import { Download, Eye, EyeOff, File, FileImage, FilePlus2, FileSpreadsheet, FileText, Landmark, MapPin, Plus, ScrollText, Trash2, UploadCloud } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Checklist } from '../../components/common/Checklist'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { SUBMISSION_MODES } from '../../data/projects'
 import { formatDayMonth, formatNearDate, toISODate } from '../../utils/date'
@@ -224,6 +224,8 @@ export function FieldWorkTab({ project }) {
   const visits = project.fieldVisits
   const fileCount = visits.reduce((n, v) => n + v.files.length, 0)
   const canLog = Boolean(project.team.teamLead || project.team.members?.length)
+  // Field work is logged by the people doing it (and the Coordinator / Admin); Management and Accounts only read it.
+  const mayLog = canActOn(useAccess().role, 'work')
 
   return (
     <div className="field-work">
@@ -231,13 +233,13 @@ export function FieldWorkTab({ project }) {
         <span>
           <b>{visits.length}</b> visit{visits.length === 1 ? '' : 's'} · {fileCount} file{fileCount === 1 ? '' : 's'}
         </span>
-        {!adding && canLog && (
+        {!adding && canLog && mayLog && (
           <button className="btn btn-small" onClick={() => setAdding(true)}>
             <Plus size={14} /> Log field visit
           </button>
         )}
       </div>
-      {!canLog && <p className="muted small">Field visits can be logged once the team lead and field team are chosen.</p>}
+      {!canLog && mayLog && <p className="muted small">Field visits can be logged once the team lead and field team are chosen.</p>}
       {adding && <FieldVisitForm project={project} onDone={() => setAdding(false)} />}
 
       {visits.length === 0 ? (
@@ -348,6 +350,10 @@ export function DocumentsTab({ project }) {
   const { removeProjectDocument, setFileShared, settings, role } = useCrm()
   // Coordinators and the Admin decide what the client sees; others see the setting.
   const shareFor = (file) => (canActOn(role, 'submission') ? () => setFileShared(lead.id, project, file, !file.shared) : null)
+  const { may } = useAccess()
+  const canUpload = may('projects')
+  const canFile = canActOn(role, 'approval')
+  // false, true (a new letter) or the approval step whose letter gets its scan.
   const [addingLetter, setAddingLetter] = useState(false)
   const lead = project.lead
   const company = lead.company
@@ -356,7 +362,7 @@ export function DocumentsTab({ project }) {
 
   return (
     <div className="project-docs">
-      <Uploader project={project} />
+      {canUpload && <Uploader project={project} />}
 
       <section>
         <h3>
@@ -365,7 +371,7 @@ export function DocumentsTab({ project }) {
         {project.documents.length ? (
           <ul className="doc-list">
             {project.documents.map((d) => (
-              <FileRow key={d.id} file={{ ...d, company }} note={d.category} onShare={shareFor(d)} onRemove={d.seeded ? undefined : () => removeProjectDocument(lead.id, project, d)} />
+              <FileRow key={d.id} file={{ ...d, company }} note={d.category} onShare={shareFor(d)} onRemove={d.seeded || !canUpload ? undefined : () => removeProjectDocument(lead.id, project, d)} />
             ))}
           </ul>
         ) : (
@@ -423,9 +429,15 @@ export function DocumentsTab({ project }) {
                 <span>
                   <strong>{letter.title}</strong>
                   <span className="muted">
-                    {letter.ref} · {formatNearDate(letter.date)} · {letter.sharedOn ? `shared with the client ${formatNearDate(letter.sharedOn)}` : 'not shared with the client yet'}
+                    {letter.stepLabel ? `${letter.stepLabel} · ` : ''}
+                    {letter.ref} · {formatNearDate(letter.date)} · {letter.fileId ? 'scan attached' : 'no scan yet'} · {letter.sharedOn ? `client told ${formatNearDate(letter.sharedOn)}` : 'client not told yet'}
                   </span>
                 </span>
+                {!letter.fileId && letter.stepKey && !addingLetter && canFile && (
+                  <button className="btn btn-small" onClick={() => setAddingLetter(letter.stepKey)}>
+                    Attach scan
+                  </button>
+                )}
                 <button className="icon-button small" onClick={() => downloadLetter(letter, { project, lead, companyName: settings.companyName })} aria-label={`Download ${letter.title}`}>
                   <Download size={15} />
                 </button>
@@ -434,11 +446,13 @@ export function DocumentsTab({ project }) {
           </ul>
         )}
         {addingLetter ? (
-          <LetterForm lead={lead} project={project} onDone={() => setAddingLetter(false)} />
+          <LetterForm key={String(addingLetter)} lead={lead} project={project} forStep={typeof addingLetter === 'string' ? addingLetter : ''} onDone={() => setAddingLetter(false)} />
         ) : (
-          <button className="link-button" onClick={() => setAddingLetter(true)}>
-            <FilePlus2 size={14} /> Add a government letter
-          </button>
+          canFile && (
+            <button className="link-button" onClick={() => setAddingLetter(true)}>
+              <FilePlus2 size={14} /> Add a government letter
+            </button>
+          )
         )}
       </section>
     </div>

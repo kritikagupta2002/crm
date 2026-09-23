@@ -6,7 +6,7 @@ import { KpiCard } from '../../components/common/KpiCard'
 import { useCrm, useMoney } from '../../context/crm'
 import { formatDate, formatNearDate } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
-import { stateOf } from '../../utils/leads'
+import { serviceSummary, servicesOf, stateOf } from '../../utils/leads'
 import { ONBOARDING_STEPS, progressOf } from '../../utils/workflow'
 import { Portal } from '../../components/common/Portal'
 import { SharePortalButton } from '../../components/lead/SharePortalButton'
@@ -28,7 +28,7 @@ const clientColumns = (hideMoney) => [
   { label: 'Phone', value: (c) => c.phone },
   { label: 'Email', value: (c) => c.email },
   { label: 'Location', value: (c) => c.location },
-  { label: 'Service', value: (c) => c.serviceDetail },
+  { label: 'Service', value: (c) => servicesOf(c).map((x) => x.serviceDetail).join('; ') },
   { label: 'Business (INR)', value: (c) => (hideMoney ? '' : c.quoteValue) },
   { label: 'Owner', value: (c) => c.assignedTo },
   { label: 'Client since', value: (c) => sinceOf(c) },
@@ -133,7 +133,7 @@ function ClientDrawer({ client, onClose }) {
                   <i />
                   <span>
                     <RoleLink to={`/leads/${client.id}`}>
-                      <strong>{client.serviceDetail}</strong>
+                      <strong>{serviceSummary(client)}</strong>
                     </RoleLink>{' '}
                     · {client.id}
                   </span>
@@ -261,7 +261,7 @@ export function ClientsPage() {
                     </td>
                     <td className="nowrap">{c.location}</td>
                     <td>
-                      <div className="cell-clip">{c.serviceDetail}</div>
+                      <div className="cell-clip">{serviceSummary(c)}</div>
                     </td>
                     <td className="num nowrap">
                       <b className="text-ink">{c.quoteValue ? money.short(c.quoteValue) : '—'}</b>

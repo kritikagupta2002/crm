@@ -1,6 +1,6 @@
 import { SERVICES, STAGES, TODAY } from '../data/mockData'
 import { isInRange, monthShort, parseISODate, periodRange, toISODate } from './date'
-import { openQuotes } from './workflow'
+import { openQuotes, quoteFor } from './workflow'
 
 const countStage = (leads, stage) => leads.filter((lead) => lead.stage === stage).length
 const quotedValue = (leads, stage) => leads.filter((lead) => lead.stage === stage).reduce((sum, lead) => sum + (lead.quoteValue ?? 0), 0)
@@ -32,6 +32,8 @@ export function getSummary({ leads, followUps }, period) {
   const followUpsDue = countFollowUpsDue(followUps)
   // Waiting on the client is a current state, like follow-ups due, so it isn't limited to the period.
   const awaiting = openQuotes(leads)
+  // Accepted, but the 50% advance hasn't come in yet (the same amount the client portal asks for).
+  const advanceDue = leads.filter((l) => l.stage !== 'Lost' && l.approval?.quoteAccepted && !l.approval?.advanceReceived && quoteFor(l))
 
   const rate = current.length ? (won / current.length) * 100 : 0
   const ratePrev = previous.length ? (wonPrev / previous.length) * 100 : null
@@ -42,6 +44,7 @@ export function getSummary({ leads, followUps }, period) {
     followUpsDue: { value: followUpsDue.due, overdue: followUpsDue.overdue },
     pendingProposals: awaiting.length,
     pendingProposalsValue: awaiting.reduce((sum, row) => sum + row.quote.total, 0),
+    advanceDue: { value: advanceDue.length, amount: advanceDue.reduce((sum, l) => sum + Math.round(quoteFor(l).total / 2), 0) },
     converted: {
       value: won,
       amount: quotedValue(current, 'Won'),

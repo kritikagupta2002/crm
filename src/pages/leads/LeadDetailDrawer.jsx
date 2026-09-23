@@ -8,7 +8,7 @@ import { PriorityPill } from '../../components/lead/PriorityPill'
 import { useCrm, useMoney } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { leadAgeLabel } from '../../utils/leads'
+import { leadAgeLabel, servicesOf } from '../../utils/leads'
 import { Portal } from '../../components/common/Portal'
 import { RoleLink } from '../../components/common/RoleLink'
 
@@ -35,7 +35,7 @@ export function LeadDetailDrawer({ leadId, startWithFollowUpForm = false, onClos
   if (!lead) return null
 
   const facts = [
-    ['Service', lead.serviceDetail, lead.service],
+    ['Service', servicesOf(lead).map((x) => x.serviceDetail).join(' · '), servicesOf(lead).length > 1 ? `${servicesOf(lead).length} services` : lead.service],
     ['Quotation', lead.quoteValue ? money.short(lead.quoteValue) : 'Not sent yet'],
     ['Assigned to', lead.assignedTo],
     ['Source', lead.source ?? '—'],

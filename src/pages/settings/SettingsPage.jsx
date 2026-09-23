@@ -1,11 +1,37 @@
 import { Bell, Building2, Check, FileText, Layers, RotateCcw, ShieldCheck } from 'lucide-react'
 import { useState } from 'react'
-import { ROLE_ACCESS, useCrm } from '../../context/crm'
-import { LOST_REASONS, SERVICE_DETAILS, SERVICES, TEAM } from '../../data/mockData'
+import { Link } from 'react-router-dom'
+import { BILL_ROLES, PERMISSIONS, ROLE_ACCESS, ROLE_USERS, initialsOf, useCrm } from '../../context/crm'
+import { LOST_REASONS, SERVICE_DETAILS, SERVICES } from '../../data/mockData'
+import { FIELD_MEMBERS } from '../../data/staff'
+import { canActOn } from '../../utils/projects'
 
-/* Staff and the role-based access rules (RBAC). The access table is the same ROLE_ACCESS the menu and pages enforce. */
-const TEAM_ROLES = { 'K. Sharma': 'Sales Manager', 'R. Mehta': 'Business Development', 'S. Verma': 'Business Development', 'A. Singh': 'Project Coordinator', 'P. Joshi': 'Coordinator' }
-const ACCESS = Object.entries(ROLE_ACCESS).map(([role, a]) => ({ role, sees: a.note }))
+/* What each permission lets a role change, in words (PERMISSIONS in context/crm.js). */
+const CHANGES = {
+  sales: 'enquiries & quotations',
+  contact: 'notes, follow-ups & client questions',
+  payments: 'client payments',
+  onboarding: 'onboarding',
+  projects: 'project tasks & files',
+}
+
+function changesOf(role) {
+  if (role === 'Admin') return 'Everything'
+  if (role === 'Field Member') return 'Their own tasks and field visits'
+  const list = Object.keys(CHANGES).filter((key) => PERMISSIONS[key].includes(role)).map((key) => CHANGES[key])
+  if (canActOn(role, 'approval')) list.push('government letters')
+  if (BILL_ROLES.pay.includes(role)) list.push('vendor bills & payments')
+  else if (BILL_ROLES.check.includes(role)) list.push('vendor bills')
+  return list.length ? list.join(', ').replace(/^./, (c) => c.toUpperCase()) : 'Nothing — view only'
+}
+
+/* Staff and the role-based access rules (RBAC): the same ROLE_ACCESS and PERMISSIONS the menu, pages and buttons follow. */
+const ACCESS = [
+  ...Object.entries(ROLE_ACCESS).map(([role, a]) => ({ role, sees: a.note, changes: changesOf(role) })),
+  // Outside the team: each signs in to their own portal and sees only their own records.
+  { role: 'Client', sees: 'Client portal: their enquiries, quotations, projects, approvals, letters and payments', changes: 'Accept a quotation, pay, upload, ask' },
+  { role: 'Vendor', sees: 'Vendor portal: their work orders, deliveries, bills and payments', changes: 'Their deliveries and bills' },
+]
 
 function Section({ icon: Icon, title, children, action }) {
   return (
@@ -139,25 +165,38 @@ export function SettingsPage() {
 
         <Section icon={ShieldCheck} title="Team & Access">
           <ul className="team-list">
-            {TEAM.map((m) => (
-              <li key={m}>
-                <span className="avatar small-avatar">{m.split(' ').pop()[0]}</span>
-                <strong>{m}</strong>
-                <span className="pill tone-neutral role-pill">{TEAM_ROLES[m]}</span>
-              </li>
-            ))}
+            {/* One sign-in per role, and one per member of the field team. */}
+            {Object.entries(ROLE_USERS)
+              .flatMap(([role, person]) => (role === 'Field Member' ? FIELD_MEMBERS.map((m) => [role, m]) : [[role, person]]))
+              .map(([role, person]) => (
+                <li key={person.name}>
+                  <span className="avatar small-avatar">{initialsOf(person.name)}</span>
+                  <strong>{person.name}</strong>
+                  <span className="pill tone-neutral role-pill">{role}</span>
+                </li>
+              ))}
           </ul>
           <table className="access-table">
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Sees</th>
+                <th>Can change</th>
+              </tr>
+            </thead>
             <tbody>
               {ACCESS.map((a) => (
                 <tr key={a.role}>
                   <th>{a.role}</th>
                   <td>{a.sees}</td>
+                  <td>{a.changes}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p className="muted small">The menu and pages follow these rules for whoever is signed in. Try it with "View as" in the profile menu.</p>
+          <p className="muted small">
+            The menu and pages follow these rules for whoever is signed in. Try it with "Switch role" in the profile menu. Every change is recorded with who made it in the <Link to="/audit-log">audit log</Link>.
+          </p>
         </Section>
 
         <Section icon={Bell} title="Notifications">

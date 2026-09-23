@@ -4,22 +4,27 @@ import { Bars } from '../../components/common/Bars'
 import { KpiCard } from '../../components/common/KpiCard'
 import { PeriodSwitch } from '../../components/common/PeriodSwitch'
 import { useSearchParams } from 'react-router-dom'
-import { useCrm, useMoney } from '../../context/crm'
+import { ROLE_ACCESS, useCrm, useMoney } from '../../context/crm'
 import { PERIOD_LABELS, usePeriod } from '../../context/period'
 import { LEAD_SOURCES, TEAM, TODAY } from '../../data/mockData'
 import { getMonthlyTrend, leadsForPeriod } from '../../utils/dashboardStats'
 import { toISODate } from '../../utils/date'
 import { downloadCsv } from '../../utils/exportCsv'
 import { countBy } from '../../utils/leads'
+import { PnlReport } from './PnlReport'
 import { ProjectReports } from './ProjectReports'
 
 const todayISO = toISODate(TODAY)
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
 
-/* Who sees which report: sales figures for the Admin and Accounts, project delivery for the Admin and Coordinators. */
+/*
+ * Who sees which report: sales figures for management and accounts, project delivery for management and
+ * coordinators, and P&L only for the roles allowed to see it (the junior accountant is not).
+ */
 const REPORT_VIEWS = [
-  { key: 'sales', label: 'Sales', roles: ['Admin', 'Accountant'] },
-  { key: 'projects', label: 'Projects', roles: ['Admin', 'Project Coordinator'] },
+  { key: 'sales', label: 'Sales', roles: ['Admin', 'Management', 'Finance', 'Accountant'] },
+  { key: 'projects', label: 'Projects', roles: ['Admin', 'Management', 'Project Coordinator'] },
+  { key: 'pnl', label: 'P&L', roles: Object.keys(ROLE_ACCESS).filter((r) => ROLE_ACCESS[r].pnl) },
 ]
 
 /* One Reports page with a Sales / Projects switch. */
@@ -38,7 +43,9 @@ export function ReportsPage() {
         ))}
       </div>
     ) : null
-  return view === 'projects' ? <ProjectReports switcher={switcher} /> : <SalesReports switcher={switcher} />
+  if (view === 'projects') return <ProjectReports switcher={switcher} />
+  if (view === 'pnl') return <PnlReport switcher={switcher} />
+  return <SalesReports switcher={switcher} />
 }
 
 /* MIS view of the CRM for management: volume, conversion, where enquiries come from, why deals are lost, who is performing. */

@@ -431,9 +431,6 @@
 
 .workflow-card header .muted {
   font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .workflow-progress {
@@ -564,17 +561,25 @@
 }
 
 .access-table th {
-  width: 40%;
-  padding: 7px 8px 7px 0;
+  width: 24%;
+  padding: 7px 10px 7px 0;
   text-align: left;
   font-weight: 600;
   vertical-align: top;
 }
 
 .access-table td {
-  padding: 7px 0;
+  padding: 7px 10px 7px 0;
   color: var(--ink-2);
+  vertical-align: top;
   border-bottom: 1px solid var(--line-soft);
+}
+
+.access-table thead th {
+  width: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-3);
 }
 
 .access-table th {
@@ -836,63 +841,141 @@
   font-size: 12px;
 }
 
+/* Profile menu: the demo's roles as one-line rows (role, its person, a tick), then the account actions. */
 .user-menu {
-  width: 260px;
+  width: 300px;
+  max-height: calc(100vh - var(--chrome-height) - 16px);
+  padding: 8px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
-.popover-label {
-  margin: 6px 10px 4px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.user-menu-label {
+  margin: 2px 8px 6px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--ink-3);
 }
 
-.menu-row {
+.user-menu-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.role-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 16px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 8px 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font-size: 13.5px;
+  text-align: left;
+  color: var(--ink);
+}
+
+.role-row:hover {
+  background: var(--bg);
+}
+
+.role-row-person {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.role-row-check {
+  visibility: hidden;
+  color: var(--teal-700);
+}
+
+.role-row.is-selected {
+  background: var(--teal-50);
+}
+
+.role-row.is-selected .role-row-name {
+  font-weight: 600;
+  color: var(--teal-900);
+}
+
+.role-row.is-selected .role-row-person {
+  color: var(--teal-700);
+}
+
+.role-row.is-selected .role-row-check {
+  visibility: visible;
+}
+
+/* Field Member: the row opens the field team; each member signs in as themselves. */
+.role-row-toggle {
+  color: var(--ink-3);
+  transition: transform 0.15s ease;
+}
+
+.role-row[aria-expanded='true'] .role-row-toggle {
+  transform: rotate(180deg);
+}
+
+.role-members {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 2px 0 4px 12px;
+  padding-left: 8px;
+  border-left: 2px solid var(--line);
+}
+
+.role-member {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  font-size: 13px;
+}
+
+.role-member .role-row-person {
+  font-size: 12px;
+}
+
+.menu-action {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   width: 100%;
   padding: 8px 10px;
   border: none;
   border-radius: 8px;
   background: none;
-  font-size: 13px;
+  font-size: 13.5px;
   text-align: left;
   color: var(--ink);
 }
 
-a.menu-row,
-.user-menu button.menu-row:last-child {
-  justify-content: flex-start;
+.menu-action svg {
+  color: var(--ink-3);
 }
 
-.menu-row > span {
-  display: flex;
-  flex-direction: column;
-}
-
-.menu-row .muted {
-  font-size: 11.5px;
-}
-
-.menu-row:hover:not(:disabled) {
+.menu-action:hover:not(:disabled) {
   background: var(--bg);
 }
 
-.menu-row.is-selected {
-  color: var(--teal-900);
-}
-
-.menu-row.is-selected svg {
-  color: var(--teal-700);
-}
-
-.menu-row:disabled {
+.menu-action:disabled {
   opacity: 0.45;
   cursor: default;
+}
+
+.menu-action-exit:hover:not(:disabled),
+.menu-action-exit:hover svg {
+  color: var(--red);
+}
+
+.user-chip[aria-expanded='true'] > svg {
+  transform: rotate(180deg);
+}
+
+.user-chip > svg {
+  transition: transform 0.15s ease;
 }
 
 .popover-divider {
@@ -1305,4 +1388,15 @@ a.glance-item:hover strong {
 
 .fu-group .link-button.show-more {
   margin: 0 0 6px;
+}
+
+/* Audit log: the change text wraps; the role sits under the person. */
+.audit-what {
+  min-width: 280px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.audit-table .role-pill {
+  margin-top: 3px;
 }

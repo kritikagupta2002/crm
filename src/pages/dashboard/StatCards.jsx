@@ -1,6 +1,6 @@
-import { ArrowDown, ArrowUp, CalendarClock, FileText, Inbox, UserCheck } from 'lucide-react'
+import { ArrowDown, ArrowUp, CalendarClock, FileText, Inbox, UserCheck, Wallet } from 'lucide-react'
 import { KpiCard as StatCard } from '../../components/common/KpiCard'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { PERIOD_LABELS, usePeriod } from '../../context/period'
 import { getSummary } from '../../utils/dashboardStats'
 
@@ -23,6 +23,7 @@ function Trend({ value, suffix = '', vs }) {
 
 export function StatCards() {
   const money = useMoney()
+  const { can } = useAccess()
   const { period } = usePeriod()
   const summary = getSummary(useCrm(), period)
   const vs = PERIOD_LABELS[period].previous
@@ -40,17 +41,32 @@ export function StatCards() {
         )}
       </StatCard>
 
-      <StatCard tone={followUpTone} icon={CalendarClock} label="Follow-ups Due" value={followUpsDue.value} to="/follow-ups">
-        {followUpsDue.value === 0 ? (
-          <span className="muted">Nothing pending</span>
-        ) : (
+      {can('/follow-ups') ? (
+        <StatCard tone={followUpTone} icon={CalendarClock} label="Follow-ups Due" value={followUpsDue.value} to="/follow-ups">
+          {followUpsDue.value === 0 ? (
+            <span className="muted">Nothing pending</span>
+          ) : (
+            <span className="muted">
+              {followUpsDue.overdue > 0 && <span className="text-red">{followUpsDue.overdue} overdue</span>}
+              {followUpsDue.overdue > 0 && dueToday > 0 && ' · '}
+              {dueToday > 0 && `${dueToday} today`}
+            </span>
+          )}
+        </StatCard>
+      ) : (
+        // Accounts don't follow up enquiries; what they chase is the advance on accepted quotations.
+        <StatCard tone={summary.advanceDue.value ? 'tone-attention' : 'tone-good'} icon={Wallet} label="Advance Due" value={summary.advanceDue.value} to="/client-approval">
           <span className="muted">
-            {followUpsDue.overdue > 0 && <span className="text-red">{followUpsDue.overdue} overdue</span>}
-            {followUpsDue.overdue > 0 && dueToday > 0 && ' · '}
-            {dueToday > 0 && `${dueToday} today`}
+            {summary.advanceDue.value ? (
+              <>
+                <b className="text-ink">{money.short(summary.advanceDue.amount)}</b> to come in
+              </>
+            ) : (
+              'Nothing pending'
+            )}
           </span>
-        )}
-      </StatCard>
+        </StatCard>
+      )}
 
       <StatCard tone="tone-attention" icon={FileText} label="Awaiting Client Reply" value={summary.pendingProposals} to="/quotations">
         <span className="muted">

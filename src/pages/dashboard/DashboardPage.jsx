@@ -19,7 +19,7 @@ import './dashboard.css'
 export function DashboardPage() {
   const { openEnquiryForm } = useEnquiryForm()
   const { period } = usePeriod()
-  const { can } = useAccess()
+  const { can, may } = useAccess()
 
   return (
     <div className="dashboard">
@@ -33,7 +33,7 @@ export function DashboardPage() {
         </div>
         <div className="page-actions">
           <PeriodSwitch />
-          {can('/leads') && (
+          {may('sales') && (
             <button className="btn btn-primary" onClick={openEnquiryForm}>
               <Plus size={17} /> Add New Enquiry
             </button>
@@ -46,10 +46,13 @@ export function DashboardPage() {
         <LeadPipeline />
         <ConversionOverview />
       </div>
-      <div className="dash-row row-activity">
-        <RecentEnquiries />
-        <UpcomingFollowUps />
-      </div>
+      {/* Enquiries and their follow-ups are sales work: only for the roles that open them. */}
+      {can('/leads') && (
+        <div className="dash-row row-activity">
+          <RecentEnquiries />
+          <UpcomingFollowUps />
+        </div>
+      )}
       <ApprovalsGlance />
       <div className="dash-row row-insights">
         <EnquiryTrend />

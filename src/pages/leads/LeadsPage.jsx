@@ -1,11 +1,11 @@
 import { Download, KanbanSquare, List, Plus, Search } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { STAGE_COLORS } from '../../components/common/stageColors'
-import { useCrm, useMoney } from '../../context/crm'
+import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { useEnquiryForm } from '../../context/enquiryForm'
 import { LEAD_SOURCES, SERVICES, STAGES, TEAM } from '../../data/mockData'
 import { downloadCsv } from '../../utils/exportCsv'
-import { countBy, EMPTY_FILTERS, filterLeads, leadAgeDays, stateOf } from '../../utils/leads'
+import { countBy, EMPTY_FILTERS, filterLeads, leadAgeDays, servicesOf, stateOf } from '../../utils/leads'
 import { LeadDetailDrawer } from './LeadDetailDrawer'
 import { LeadsBoard } from './LeadsBoard'
 import { LeadsInsights } from './LeadsInsights'
@@ -31,7 +31,7 @@ const EXPORT_COLUMNS = [
   { label: 'Email', value: (l) => l.email },
   { label: 'Location', value: (l) => l.location },
   { label: 'Service', value: (l) => l.service },
-  { label: 'Service required', value: (l) => l.serviceDetail },
+  { label: 'Service required', value: (l) => servicesOf(l).map((x) => x.serviceDetail).join('; ') },
   { label: 'Quotation (INR)', value: (l) => l.quoteValue },
   { label: 'Assigned to', value: (l) => l.assignedTo },
   { label: 'Stage', value: (l) => l.stage },
@@ -45,6 +45,8 @@ const EXPORT_COLUMNS = [
 export function LeadsPage() {
   const money = useMoney()
   const { leads, changeStage } = useCrm()
+  const { may } = useAccess()
+  const canSell = may('sales')
   const { openEnquiryForm } = useEnquiryForm()
   const [view, setView] = useState(readView)
   const [stageTab, setStageTab] = useState('All')
@@ -90,9 +92,11 @@ export function LeadsPage() {
           <button className="btn" onClick={() => downloadCsv(`leads-${new Date().toISOString().slice(0, 10)}.csv`, EXPORT_COLUMNS, visible)}>
             <Download size={16} /> Export
           </button>
-          <button className="btn btn-primary" onClick={openEnquiryForm}>
-            <Plus size={17} /> Add New Enquiry
-          </button>
+          {canSell && (
+            <button className="btn btn-primary" onClick={openEnquiryForm}>
+              <Plus size={17} /> Add New Enquiry
+            </button>
+          )}
         </div>
       </header>
 
@@ -169,7 +173,7 @@ export function LeadsPage() {
           </nav>
         )}
 
-        {view === 'board' && <LeadsBoard leads={filtered} onOpen={openDetails} onMove={moveLead} />}
+        {view === 'board' && <LeadsBoard leads={filtered} onOpen={openDetails} onMove={canSell ? moveLead : null} />}
       </section>
 
       {view === 'list' && (
@@ -181,9 +185,9 @@ export function LeadsPage() {
               pageSize={pageSize}
               onPageSizeChange={setPageSize}
               onOpen={openDetails}
-              onScheduleFollowUp={(id) => setOpenLead({ id, withFollowUpForm: true })}
-              onMarkWon={(id) => changeStage(id, 'Won')}
-              onMarkLost={setLosingLeadId}
+              onScheduleFollowUp={may('contact') ? (id) => setOpenLead({ id, withFollowUpForm: true }) : null}
+              onMarkWon={canSell ? (id) => changeStage(id, 'Won') : null}
+              onMarkLost={canSell ? setLosingLeadId : null}
             />
           </section>
           <LeadsInsights leads={visible} />

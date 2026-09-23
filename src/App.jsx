@@ -4,6 +4,8 @@ import { AppLayout } from './components/layout/AppLayout'
 import { LoginPage } from './pages/auth/LoginPage'
 import { PublicEnquiryPage } from './pages/enquiry/PublicEnquiryPage'
 import { ClientPortalPage } from './pages/portal/ClientPortalPage'
+import { VendorPortalPage } from './pages/vendor/VendorPortalPage'
+import { AuditLogPage } from './pages/audit/AuditLogPage'
 import { CrmProvider } from './context/CrmProvider'
 import { PeriodProvider } from './context/PeriodProvider'
 import { ClientsPage } from './pages/clients/ClientsPage'
@@ -36,6 +38,7 @@ export default function App() {
             <Routes>
               <Route path="login" element={<LoginPage />} />
               <Route path="portal" element={<ClientPortalPage />} />
+              <Route path="vendor" element={<VendorPortalPage />} />
               <Route path="enquiry" element={<PublicEnquiryPage />} />
               <Route element={<AppLayout />}>
                 <Route index element={<DashboardPage />} />
@@ -58,6 +61,7 @@ export default function App() {
                 <Route path="erm-reports" element={<Navigate to="/reports?view=projects" replace />} />
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
+                <Route path="audit-log" element={<AuditLogPage />} />
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
             </Routes>

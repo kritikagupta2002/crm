@@ -1,8 +1,8 @@
 import { addDays, parseISODate, toISODate } from '../utils/date'
-import { ONBOARDING_STEPS, progressOf } from '../utils/workflow'
+import { ONBOARDING_STEPS, progressOf, seededWonOn } from '../utils/workflow'
 import { LEADS, SERVICE_DETAILS, TODAY } from './mockData'
 import { COORDINATORS, FIELD_MEMBERS, teamLeadFor } from './staff'
-import { SUBCONTRACT_BY_SERVICE } from './vendors'
+import { SUBCONTRACT_BY_SERVICE, VENDORS } from './vendors'
 
 /*
  * Projects for won clients, derived from the lead (like quotations), so the generated leads and
@@ -149,10 +149,28 @@ function seededVisits({ id, service, start, days, team, site, n }) {
       }
     })
 }
-/* Follow-up site work the team lead handed to the field team on a project still before its submission. */
-function seededFieldTasks({ id, team, submission, n }) {
+/* Approval steps the authority does on site: someone from the field team has to be there. */
+const SITE_STEPS = ['inspection', 'hearing']
+
+/*
+ * Site work the team lead handed to the field team: follow-up work on a project still before its submission,
+ * and, after it, being on site for the authority's inspection or hearing.
+ */
+function seededFieldTasks({ id, team, submission, steps, n }) {
   const today = iso(TODAY)
-  if (!team.members?.length || !submission || submission <= today) return []
+  if (!team.members?.length || !submission) return []
+  if (submission <= today) {
+    return steps
+      .filter((s) => SITE_STEPS.includes(s.key) && s.date > today)
+      .map((s, i) => ({
+        id: `${id}-FT-${s.key}`,
+        title: `${s.key === 'hearing' ? 'Public hearing' : s.label}: be on site with the maps and field data`,
+        assignee: team.members[(n + i) % team.members.length],
+        due: iso(addDays(parseISODate(s.date), -1)),
+        status: 'todo',
+        doneOn: null,
+      }))
+  }
   const who = team.members[team.members.length - 1]
   return [
     { id: `${id}-FT1`, title: 'Site photographs & final measurements for the report', assignee: who, due: iso(addDays(TODAY, 2 + (n % 4))), status: n % 2 ? 'in-progress' : 'todo', doneOn: null },
@@ -171,18 +189,35 @@ function seededWorkOrders({ id, service, start, days, n }) {
   const dueOn = iso(addDays(start, Math.round(days * 0.4)))
   const status = iso(addDays(parseISODate(dueOn), 25)) <= today ? 'Paid' : iso(addDays(parseISODate(dueOn), 6)) <= today ? 'Bill received' : dueOn <= today ? 'Completed' : 'In progress'
   const amount = Math.round((job.amount * (0.85 + ((n * 37) % 30) / 100)) / 1000) * 1000
-  return [{ id: `SC-${id.slice(3)}-1`, vendor: job.vendor, work: job.work, amount, issuedOn, dueOn, status }]
+  const orderId = `SC-${id.slice(3)}-1`
+  const vendor = VENDORS.find((v) => v.name === job.vendor)
+  const at = (days, from = dueOn) => {
+    const d = iso(addDays(parseISODate(from), days))
+    return d > today ? today : d
+  }
+  const order = { id: orderId, vendor: job.vendor, work: job.work, amount, issuedOn, dueOn, startedOn: at(2, issuedOn) }
+  if (status === 'In progress') return [order]
+  // Every fourth vendor delivers a few days late, so the performance figures have something to show.
+  const late = n % 4 === 0
+  order.delivery = { on: at(late ? 4 : -2), note: `${job.work} completed; report and raw data handed over.`, files: [{ id: `${orderId}-DLV`, name: `${orderId}_${slug(job.vendor)}_report.pdf`, size: 2_400_000 + ((n * 811) % 3_000_000), type: 'application/pdf' }], by: vendor?.contact ?? job.vendor }
+  if (status === 'Completed') return [order]
+  // A bill still waiting to be checked sometimes comes in above the order value; the check flags it.
+  const waiting = status === 'Bill received'
+  const billAmount = waiting && n % 2 === 1 ? amount + Math.round(amount * 0.04) : amount
+  order.bill = { no: `INV/${vendor?.id ?? 'VN'}/${(n * 7) % 300 + 100}`, date: at(5, order.delivery.on), amount: billAmount, file: { id: `${orderId}-BILL`, name: `${orderId}_invoice.pdf`, size: 310_000 + ((n * 97) % 200_000), type: 'application/pdf' }, by: vendor?.contact ?? job.vendor }
+  if (waiting && n % 3 === 0 && billAmount === amount) order.check = { on: at(2, order.bill.date), ok: true, by: 'N. Jain' }
+  if (waiting) return [order]
+  const tds = vendor?.tds ?? { section: '194C', rate: 2 }
+  order.check = { on: at(2, order.bill.date), ok: true, by: 'N. Jain' }
+  order.payment = { on: at(25), gross: Math.round(amount * 1.18), tds: { ...tds, amount: Math.round((amount * tds.rate) / 100) }, ref: `NEFT${String(100000 + n * 4271).slice(0, 6)}`, by: 'S. Gupta' }
+  return [order]
 }
 
 const stateOfLead = (lead) => lead.location?.split(',').pop().trim() || 'Rajasthan'
 const iso = (d) => toISODate(d)
 
 /* When the deal was won: recorded in the app, else a stable date a few weeks after the enquiry. */
-export function wonDate(lead) {
-  if (lead.wonOn) return lead.wonOn
-  const guess = addDays(parseISODate(lead.createdOn), 18 + (num(lead) % 15))
-  return iso(new Date(Math.min(guess, addDays(TODAY, -3))))
-}
+export const wonDate = (lead) => lead.wonOn ?? seededWonOn(lead)
 
 function build({ id, lead, name, service, startedOn, days, n, team, site, createdOn, extra = false }) {
   const approval = APPROVALS[service] ?? APPROVALS['Mineral Exploration & Resources']
@@ -217,7 +252,7 @@ function build({ id, lead, name, service, startedOn, days, n, team, site, create
     extra,
     fieldVisits: seededVisits({ id, service, start, days, team, site: place, n }),
     workOrders: seededWorkOrders({ id, service, start, days, n }),
-    seedTasks: seededFieldTasks({ id, team, submission, n }),
+    seedTasks: seededFieldTasks({ id, team, submission, steps, n }),
     // The final report the team lead prepared; shown once the report milestone is done.
     reportFile: { id: `${id}-RPT`, name: `${slug(name)}_final_report.pdf`, size: 6_800_000 + ((n * 4513) % 2_400_000), type: 'application/pdf', category: 'Report', seeded: true },
     // How the submission was filed; used once the submission milestone is done.

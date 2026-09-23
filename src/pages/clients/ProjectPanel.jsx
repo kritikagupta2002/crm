@@ -2,53 +2,90 @@ import { Download, FilePlus2, MessageCircle, ScrollText } from 'lucide-react'
 import { useState } from 'react'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { RoleLink } from '../../components/common/RoleLink'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { formatNearDate, toISODate } from '../../utils/date'
 import { downloadLetter } from '../../utils/files'
-import { PROJECT_STATUS_TONE, clientProjects } from '../../utils/projects'
+import { PROJECT_STATUS_TONE, canActOn, clientProjects } from '../../utils/projects'
 import { whatsappLink } from '../../utils/whatsapp'
 
 const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
 
-export function LetterForm({ lead, project, onDone }) {
+/*
+ * Record a government letter against a project, with its scan. Once the work is filed, the letter can be
+ * linked to an approval step (vendor sheet: "link the scanned PDF to the client's task"): the step is marked
+ * done and the scan becomes that step's letter, so the client sees one letter with the real copy.
+ * forStep: open the form already linked to a step (e.g. "Attach scan" on a letter that has none).
+ */
+export function LetterForm({ lead, project, onDone, forStep: initialStep = '' }) {
   const { addGovtLetter } = useCrm()
-  const [title, setTitle] = useState('')
-  // Numbered after every letter the approval will bring, so a recorded letter never shares a reference with one.
-  const [ref, setRef] = useState(`${project.refBase}/${project.approvals.filter((s) => s.letter).length + project.letters.filter((l) => !l.stepKey).length + 1}`)
-  const [date, setDate] = useState(toISODate(TODAY))
+  const submitted = project.milestones[project.milestones.length - 1].done
+  const steps = submitted ? project.approvals : []
+  const letterFor = (key) => project.letters.find((l) => l.stepKey === key)
+  const defaults = (key) => {
+    const step = steps.find((s) => s.key === key)
+    const existing = key && letterFor(key)
+    // Numbered after every letter the approval will bring, so a new letter never shares a reference with one.
+    const nextRef = `${project.refBase}/${project.approvals.filter((s) => s.letter).length + project.letters.filter((l) => !l.stepKey).length + 1}`
+    return { title: existing?.title ?? step?.letter ?? '', ref: existing?.ref ?? nextRef, date: existing?.date ?? toISODate(TODAY) }
+  }
+  const [forStep, setForStep] = useState(initialStep)
+  const [fields, setFields] = useState(() => defaults(initialStep))
   const [file, setFile] = useState(null)
+  const set = (key) => (e) => setFields({ ...fields, [key]: e.target.value })
+  const linked = steps.find((s) => s.key === forStep)
 
   return (
     <form
       className="letter-form"
       onSubmit={(e) => {
         e.preventDefault()
-        onDone(addGovtLetter(lead.id, project, { title: title.trim(), authority: project.authority, ref: ref.trim(), date, file }))
+        onDone(addGovtLetter(lead.id, project, { title: fields.title.trim(), authority: project.authority, ref: fields.ref.trim(), date: fields.date, file, forStep: forStep || undefined }))
       }}
     >
+      {steps.length > 0 && (
+        <label className="field field-wide">
+          <span className="field-label">Approval step</span>
+          <select
+            value={forStep}
+            onChange={(e) => {
+              setForStep(e.target.value)
+              setFields(defaults(e.target.value))
+            }}
+          >
+            <option value="">Not linked — a notice, query or other letter</option>
+            {steps.map((s) => (
+              <option key={s.key} value={s.key}>
+                {s.label}
+                {s.done ? (letterFor(s.key)?.fileId ? ' · done, scan attached' : ' · done') : ' · marks it done'}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <label className="field field-wide">
         <span className="field-label">Letter</span>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Site inspection notice" required autoFocus />
+        <input value={fields.title} onChange={set('title')} placeholder="e.g. Site inspection notice" required autoFocus={!initialStep} />
       </label>
       <label className="field">
         <span className="field-label">Reference no.</span>
-        <input value={ref} onChange={(e) => setRef(e.target.value)} required />
+        <input value={fields.ref} onChange={set('ref')} required />
       </label>
       <label className="field">
         <span className="field-label">Dated</span>
-        <input type="date" value={date} max={toISODate(TODAY)} onChange={(e) => setDate(e.target.value)} required />
+        <input type="date" value={fields.date} max={toISODate(TODAY)} onChange={set('date')} required />
       </label>
       <label className="field field-wide">
-        <span className="field-label">Scanned copy (optional)</span>
-        <input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files[0] ?? null)} />
+        <span className="field-label">Scanned copy{linked ? '' : ' (optional)'}</span>
+        <input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files[0] ?? null)} required={Boolean(linked)} autoFocus={Boolean(initialStep)} />
       </label>
+      {linked && !linked.done && <p className="muted small field-wide">Saving marks “{linked.label}” done on {formatNearDate(fields.date)}; the client sees it in the portal.</p>}
       <div className="letter-form-actions">
         <button type="button" className="btn" onClick={() => onDone(null)}>
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={!title.trim() || !ref.trim()}>
-          Add letter
+        <button type="submit" className="btn btn-primary" disabled={!fields.title.trim() || !fields.ref.trim() || (linked && !file)}>
+          {linked ? 'Save letter & scan' : 'Add letter'}
         </button>
       </div>
     </form>
@@ -57,6 +94,10 @@ export function LetterForm({ lead, project, onDone }) {
 
 export function ProjectBlock({ lead, project }) {
   const { setProjectStep, settings } = useCrm()
+  const { role, may } = useAccess()
+  // Work steps are the project team's; approval steps and letters follow the ERM approval stage (Coordinator, Admin).
+  const workLocked = may('projects') ? () => null : () => 'Marked by the project team'
+  const canFile = canActOn(role, 'approval')
   const [adding, setAdding] = useState(false)
   const [justAdded, setJustAdded] = useState(null)
   const submitted = project.milestones[project.milestones.length - 1].done
@@ -81,12 +122,12 @@ export function ProjectBlock({ lead, project }) {
         Work <span className="muted">{project.milestonesDone}/{project.milestones.length}</span>
       </h4>
       <ProgressBar done={project.milestonesDone} total={project.milestones.length} tone={submitted ? 'tone-good' : 'tone-info'} />
-      <Checklist steps={project.milestones} values={doneMap(project.milestones)} onToggle={toggle('milestones', project.milestones)} />
+      <Checklist steps={project.milestones} values={doneMap(project.milestones)} onToggle={toggle('milestones', project.milestones)} locked={workLocked} />
 
       <h4>
         Government approval <span className="muted">{project.authority}</span>
       </h4>
-      <Checklist steps={project.approvals} values={doneMap(project.approvals)} onToggle={toggle('approvals', project.approvals)} disabled={!submitted} />
+      <Checklist steps={project.approvals} values={doneMap(project.approvals)} onToggle={toggle('approvals', project.approvals)} disabled={!submitted} locked={canFile ? undefined : () => 'Marked by the Project Coordinator'} />
       {!submitted && <p className="muted small">Opens once the work is submitted to the authority.</p>}
 
       <h4>
@@ -100,7 +141,7 @@ export function ProjectBlock({ lead, project }) {
               <span>
                 <strong>{letter.title}</strong>
                 <span className="muted">
-                  {letter.ref} · {formatNearDate(letter.date)}
+                  {letter.ref} · {formatNearDate(letter.date)} · {letter.fileId ? 'scan attached' : 'no scan yet'}
                 </span>
               </span>
               <button className="icon-button small" onClick={() => downloadLetter(letter, { project, lead, companyName: settings.companyName })} aria-label={`Download ${letter.title}`}>
@@ -134,9 +175,11 @@ export function ProjectBlock({ lead, project }) {
           }}
         />
       ) : (
-        <button className="link-button" onClick={() => setAdding(true)}>
-          <FilePlus2 size={14} /> Add a government letter
-        </button>
+        canFile && (
+          <button className="link-button" onClick={() => setAdding(true)}>
+            <FilePlus2 size={14} /> Add a government letter
+          </button>
+        )
       )}
     </article>
   )

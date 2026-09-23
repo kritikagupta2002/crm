@@ -1,5 +1,6 @@
 import { baseProjects } from '../data/projects'
 import { TODAY } from '../data/mockData'
+import { seededInteractions } from './clientHistory'
 import { formatDayMonth, toISODate } from './date'
 
 const todayISO = toISODate(TODAY)
@@ -78,6 +79,32 @@ function buildTasks(base, edits, team, milestones, started) {
   return [...standard, ...extra].map((t) => ({ ...t, overdue: t.status !== 'done' && Boolean(t.due) && t.due < todayISO }))
 }
 
+/*
+ * A subcontract with what has been recorded on it: started, delivered, billed, bill checked, paid.
+ * The status follows from the last step recorded, so it can only move forward in order.
+ * oldStatus: a status picked by hand in an earlier version of the demo, used until a step is recorded.
+ */
+export function resolveWorkOrder(order, edit = {}, oldStatus) {
+  const w = { ...order, ...edit }
+  const derived = w.payment ? 'Paid' : w.bill ? 'Bill received' : w.delivery ? 'Completed' : w.startedOn ? 'In progress' : 'Issued'
+  const status = Object.keys(edit).length || !oldStatus ? derived : oldStatus
+  // The check compares the three records: order value, delivered work and the bill (3-way match).
+  const billDiff = w.bill ? w.bill.amount - w.amount : 0
+  const match = w.bill ? { order: true, delivery: Boolean(w.delivery), amount: billDiff === 0, diff: billDiff } : null
+  const late = w.delivery ? w.delivery.on > w.dueOn : status !== 'Paid' && w.dueOn < todayISO && !w.delivery
+  return { ...w, status, match, late, delayDays: w.delivery ? Math.round((new Date(w.delivery.on) - new Date(w.dueOn)) / 86_400_000) : null }
+}
+
+/* What comes next on a subcontract, and which side does it. */
+export function nextWorkStep(w) {
+  if (w.status === 'Issued') return { key: 'start', label: 'Mark started', who: 'work' }
+  if (w.status === 'In progress') return { key: 'deliver', label: 'Record delivery', who: 'work' }
+  if (w.status === 'Completed') return { key: 'bill', label: 'Record bill', who: 'record' }
+  if (w.status === 'Bill received' && !w.check?.ok) return { key: 'check', label: 'Check bill', who: 'check' }
+  if (w.status === 'Bill received') return { key: 'pay', label: 'Release payment', who: 'pay' }
+  return null
+}
+
 export const PROJECT_STATUS_TONE = { 'Not started': 'tone-neutral', 'In progress': 'tone-info', 'Awaiting approval': 'tone-attention', Approved: 'tone-good', Completed: 'tone-good' }
 
 /* A client's projects with the team's edits applied: milestones, approval steps, letters and a status. */
@@ -88,11 +115,19 @@ export function clientProjects(lead, projectEdits = {}) {
     // Approval steps can't run ahead of the submission.
     const submitted = milestones[milestones.length - 1].done
     const approvals = base.approvals.map((s) => (submitted ? resolve(s, edits.approvals?.[s.key]) : { ...s, done: false }))
+    // A scanned letter recorded against an approval step becomes that step's letter (one letter, with the real scan).
+    const recorded = edits.letters ?? []
+    const stepLetters = approvals
+      .filter((s) => s.done && s.letter)
+      .map((s, i) => {
+        const letter = { id: `${base.id}-${s.key}`, title: s.letter, authority: base.authority, ref: `${base.refBase}/${i + 1}`, date: s.date, stepKey: s.key, stepLabel: s.label }
+        const scan = recorded.find((r) => r.forStep === s.key)
+        return scan ? { ...letter, title: scan.title || letter.title, ref: scan.ref || letter.ref, date: scan.date, fileId: scan.fileId, recordedAs: scan.id } : letter
+      })
+    const merged = new Set(stepLetters.map((l) => l.recordedAs).filter(Boolean))
     const letters = [
-      ...approvals
-        .filter((s) => s.done && s.letter)
-        .map((s, i) => ({ id: `${base.id}-${s.key}`, title: s.letter, authority: base.authority, ref: `${base.refBase}/${i + 1}`, date: s.date, stepKey: s.key })),
-      ...(edits.letters ?? []),
+      ...stepLetters,
+      ...recorded.filter((r) => !merged.has(r.id)).map((r) => ({ ...r, stepLabel: r.forStep ? base.approvals.find((s) => s.key === r.forStep)?.label : undefined })),
     ]
       // Older letters were already passed on to the client; the last ten days' still wait for a WhatsApp.
       .map((l) => ({ ...l, sharedOn: edits.sharedLetters?.[l.id] ?? (l.stepKey && l.date < sharedBeforeISO ? l.date : null) }))
@@ -114,9 +149,10 @@ export function clientProjects(lead, projectEdits = {}) {
 
     const status = !started && milestonesDone === 0 ? 'Not started' : approved ? (closedOn ? 'Completed' : 'Approved') : submitted ? 'Awaiting approval' : 'In progress'
     const submissionDate = milestones[milestones.length - 1].date
-    // Which files the client can download from the portal. The final report goes to the client at the
-    // hand-over; everything else stays with the team until someone shares it.
-    const handedOver = closure.steps.find((c) => c.key === 'handover')?.done
+    // Which files the client can download from the portal. The final report goes to the client once it is
+    // filed with the authority (the balance falls due then) or at the hand-over; everything else stays with
+    // the team until someone shares it.
+    const handedOver = submitted || closure.steps.find((c) => c.key === 'handover')?.done
     const share = (file, byDefault = false) => ({ ...file, shared: edits.sharedFiles?.[file.id] ?? Boolean(byDefault) })
     const baseSubmission = submitted ? { ...base.submissionInfo, ...edits.submission, date: submissionDate } : null
     const submission = baseSubmission && { ...baseSubmission, files: (baseSubmission.files ?? []).map((f) => share(f)) }
@@ -129,7 +165,7 @@ export function clientProjects(lead, projectEdits = {}) {
       ...(submission?.files ?? []).filter((f) => f.shared).map((f) => ({ ...f, addedOn: f.addedOn ?? submission.date, from: 'Filed with the authority' })),
       ...fieldVisits.flatMap((v) => v.files.filter((f) => f.shared).map((f) => ({ ...f, addedOn: f.addedOn ?? v.date, from: `Site visit · ${v.activity}` }))),
     ]
-    const workOrders = [...base.workOrders, ...(edits.workOrders ?? [])].map((w) => ({ ...w, status: edits.woStatus?.[w.id]?.status ?? w.status }))
+    const workOrders = [...base.workOrders, ...(edits.workOrders ?? [])].map((w) => resolveWorkOrder(w, edits.woEdits?.[w.id], edits.woStatus?.[w.id]?.status))
 
     const team = { ...base.team, ...edits.team }
     const tasks = buildTasks(base, edits, team, milestones, started)
@@ -197,12 +233,18 @@ const FOLLOW_UP_FOR_CLIENT = /^(Site Visit|Meeting|Presentation) scheduled for (
  * What the client sees as "Latest updates": milestones of their own enquiry and project, never the
  * team's internal notes or calls. Newest first.
  */
+const CLIENT_MILESTONES = { accepted: 'You accepted the quotation', advance: 'We received your advance payment', won: 'Your project is confirmed' }
+
 export function clientUpdates({ lead, quote, projects, activities, followUps }) {
   const items = [{ id: 'received', text: 'We received your enquiry', date: lead.createdOn, sort: `${lead.createdOn}T00:00:00` }]
   if (quote) {
     const sentOn = lead.firstSentOn ?? quote.sentOn
     items.push({ id: 'quote', text: `Quotation ${quote.number.replace(/-R\d+$/, '')} shared with you`, date: sentOn, sort: `${sentOn}T00:00:01` })
   }
+  // The demo's older deals were accepted, paid and confirmed before the app was opened: the same dates the team's timeline shows.
+  seededInteractions(lead)
+    .filter((i) => CLIENT_MILESTONES[i.key])
+    .forEach((i, n) => items.push({ id: i.id, text: CLIENT_MILESTONES[i.key], date: i.date, sort: `${i.date}T00:00:0${n + 2}` }))
   activities
     .filter((a) => a.leadId === lead.id)
     .forEach((a) => {
@@ -224,9 +266,18 @@ export function clientUpdates({ lead, quote, projects, activities, followUps }) 
   projects.forEach((p) => {
     let step = 0
     const stepSort = (date) => `${date}T${date === todayISO ? '23:59' : '12:00'}:${String(step++).padStart(2, '0')}`
-    p.milestones.filter((m) => m.done).forEach((m) => items.push({ id: `${p.id}-${m.key}`, text: `${p.name}: ${m.label.toLowerCase()} done`, date: m.date, sort: stepSort(m.date) }))
-    p.approvals.filter((s) => s.done).forEach((s) => items.push({ id: `${p.id}-a-${s.key}`, text: `${p.name}: ${s.label}`, date: s.date, sort: stepSort(s.date) }))
-    p.letters.filter((l) => !l.stepKey).forEach((l) => items.push({ id: l.id, text: `New letter from ${l.authority}: ${l.title}`, date: l.date, sort: stepSort(l.date) }))
+    // Filing is also the approval's first step; on the same day it is one update, not two.
+    const filed = p.approvals[0]
+    const filedWithSubmission = (m) => m.key === 'submission' && filed?.done && filed.date === m.date
+    p.milestones.filter((m) => m.done && !filedWithSubmission(m)).forEach((m) => items.push({ id: `${p.id}-${m.key}`, text: `${p.name}: ${m.label.toLowerCase()} done`, date: m.date, sort: stepSort(m.date) }))
+    p.approvals
+      .filter((s) => s.done)
+      .forEach((s) => {
+        // The step's official letter comes with it, ready to download.
+        const letter = p.letters.find((l) => l.stepKey === s.key || l.forStep === s.key)
+        items.push({ id: `${p.id}-a-${s.key}`, text: `${p.name}: ${s.label}${letter ? ` — ${letter.title} is ready to download` : ''}`, date: s.date, sort: stepSort(s.date), letter: Boolean(letter) })
+      })
+    p.letters.filter((l) => !l.stepKey && !(l.forStep && p.approvals.some((s) => s.key === l.forStep && s.done))).forEach((l) => items.push({ id: l.id, text: `New letter from ${l.authority}: ${l.title}`, date: l.date, sort: stepSort(l.date), letter: true }))
     if (p.closure.closedOn) items.push({ id: `${p.id}-closed`, text: `${p.name}: project completed and handed over`, date: p.closure.closedOn, sort: stepSort(p.closure.closedOn) })
   })
   const seen = new Set()

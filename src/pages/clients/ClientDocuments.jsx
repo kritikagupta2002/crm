@@ -1,6 +1,6 @@
 import { Download, FileText, ScrollText, UploadCloud } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { useCrm } from '../../context/crm'
+import { useAccess, useCrm } from '../../context/crm'
 import { formatNearDate } from '../../utils/date'
 import { downloadDocument, downloadLetter } from '../../utils/files'
 import { clientProjects } from '../../utils/projects'
@@ -11,6 +11,7 @@ const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).t
 /* The client's document vault: files shared either way, and every government letter across their projects. */
 export function ClientDocuments({ client }) {
   const { addDocuments, projectEdits, settings } = useCrm()
+  const canShare = useAccess().may('contact')
   const input = useRef(null)
   const [error, setError] = useState('')
   const docs = client.documents ?? []
@@ -30,9 +31,11 @@ export function ClientDocuments({ client }) {
     <section className="lead-section vault">
       <div className="vault-head">
         <h3>Documents &amp; letters</h3>
-        <button className="btn btn-small" onClick={() => input.current.click()}>
-          <UploadCloud size={14} /> Upload
-        </button>
+        {canShare && (
+          <button className="btn btn-small" onClick={() => input.current.click()}>
+            <UploadCloud size={14} /> Upload
+          </button>
+        )}
         <input
           ref={input}
           type="file"

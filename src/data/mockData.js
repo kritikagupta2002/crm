@@ -35,12 +35,6 @@ TODAY.setHours(0, 0, 0, 0)
 
 export const TEAM = ['K. Sharma', 'R. Mehta', 'S. Verma', 'A. Singh', 'P. Joshi']
 
-export const CURRENT_USER = {
-  name: 'Kritika Sharma',
-  initials: 'KS',
-  team: 'CRM Team',
-}
-
 export const STAGES = ['New Enquiry', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost']
 
 /* Bansal Geo's seven service lines, as listed on bansalgeo.com. */

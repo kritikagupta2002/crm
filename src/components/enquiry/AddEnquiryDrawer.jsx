@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useCrm } from '../../context/crm'
 import { Portal } from '../common/Portal'
+import { ServicePicker } from './ServicePicker'
 import {
   CLIENT_TYPES,
   CONTACT_MODES,
@@ -10,13 +11,12 @@ import {
   LEAD_SOURCES,
   MINERALS,
   PRIORITIES,
-  SERVICE_DETAILS,
-  SERVICES,
   TEAM,
   TIMELINES,
   TODAY,
 } from '../../data/mockData'
 import { addDays, toISODate } from '../../utils/date'
+import { newService, serviceFields, servicesOf } from '../../utils/leads'
 
 const todayISO = toISODate(TODAY)
 
@@ -29,8 +29,7 @@ const initialState = (lead) => ({
   email: lead?.email ?? '',
   location: lead?.location ?? '',
   preferredContact: lead?.preferredContact ?? 'Call',
-  service: lead?.service ?? SERVICES[0],
-  serviceDetail: lead?.serviceDetail ?? SERVICE_DETAILS[SERVICES[0]][0],
+  services: lead ? servicesOf(lead) : [newService()],
   mineral: lead?.mineral ?? '',
   priority: lead?.priority ?? 'Medium',
   source: lead?.source ?? 'Phone Call',
@@ -121,7 +120,6 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
 
   function update(key, value) {
     const next = { ...form, [key]: value }
-    if (key === 'service') next.serviceDetail = SERVICE_DETAILS[value][0]
     setForm(next)
     // After the first submit attempt, re-check as the user fixes things.
     if (submitted) setErrors(validate(next))
@@ -146,8 +144,7 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
       email: form.email.trim() || undefined,
       location: form.location.trim() || undefined,
       preferredContact: form.preferredContact,
-      service: form.service,
-      serviceDetail: form.serviceDetail,
+      ...serviceFields(form.services),
       mineral: form.mineral || undefined,
       priority: form.priority,
       source: form.source,
@@ -249,20 +246,7 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
                   <ClipboardList size={18} /> Enquiry details
                 </legend>
                 <div className="form-grid">
-                  <Field label="Service category" required>
-                    <select value={form.service} onChange={(e) => update('service', e.target.value)}>
-                      {SERVICES.map((service) => (
-                        <option key={service}>{service}</option>
-                      ))}
-                    </select>
-                  </Field>
-                  <Field label="Service required" required>
-                    <select value={form.serviceDetail} onChange={(e) => update('serviceDetail', e.target.value)}>
-                      {SERVICE_DETAILS[form.service].map((detail) => (
-                        <option key={detail}>{detail}</option>
-                      ))}
-                    </select>
-                  </Field>
+                  <ServicePicker value={form.services} onChange={(v) => update('services', v)} labels={['Service category', 'Service required']} required />
                   <ChoiceChips label="Priority" name="priority" options={PRIORITIES} value={form.priority} onChange={(v) => update('priority', v)} tones={PRIORITY_TONES} />
                   <Field label="Mineral">
                     <select value={form.mineral} onChange={(e) => update('mineral', e.target.value)}>
