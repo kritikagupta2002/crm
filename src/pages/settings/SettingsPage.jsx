@@ -1,18 +1,28 @@
-import { Bell, Building2, Check, FileText, Layers, RotateCcw, ShieldCheck } from 'lucide-react'
+import { Bell, Building2, Check, FileText, Layers, RotateCcw, ShieldCheck, Workflow } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BILL_ROLES, PERMISSIONS, ROLE_ACCESS, ROLE_USERS, initialsOf, useCrm } from '../../context/crm'
 import { LOST_REASONS, SERVICE_DETAILS, SERVICES } from '../../data/mockData'
 import { FIELD_MEMBERS } from '../../data/staff'
+import { AUTOMATIONS, CHANNELS, automationOf } from '../../utils/automations'
 import { canActOn } from '../../utils/projects'
 
 /* What each permission lets a role change, in words (PERMISSIONS in context/crm.js). */
 const CHANGES = {
   sales: 'enquiries & quotations',
-  contact: 'notes, follow-ups & client questions',
+  contact: 'notes & follow-ups',
   payments: 'client payments',
   onboarding: 'onboarding',
   projects: 'project tasks & files',
+}
+
+/* Which portal questions each role answers (utils/questions). */
+const QUESTIONS = {
+  Sales: 'questions before the win',
+  'Project Coordinator': 'project & document questions',
+  'Team Lead': 'questions on their projects',
+  Finance: 'billing questions',
+  Accountant: 'billing questions',
 }
 
 function changesOf(role) {
@@ -20,6 +30,7 @@ function changesOf(role) {
   if (role === 'Field Member') return 'Their own tasks and field visits'
   const list = Object.keys(CHANGES).filter((key) => PERMISSIONS[key].includes(role)).map((key) => CHANGES[key])
   if (canActOn(role, 'approval')) list.push('government letters')
+  if (QUESTIONS[role]) list.push(QUESTIONS[role])
   if (BILL_ROLES.pay.includes(role)) list.push('vendor bills & payments')
   else if (BILL_ROLES.check.includes(role)) list.push('vendor bills')
   return list.length ? list.join(', ').replace(/^./, (c) => c.toUpperCase()) : 'Nothing — view only'
@@ -210,7 +221,49 @@ export function SettingsPage() {
               {label}
             </label>
           ))}
-          <p className="muted small">WhatsApp and email delivery come with the notification module.</p>
+        </Section>
+
+        <Section icon={Workflow} title="Automations">
+          <table className="automation-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>To</th>
+                {CHANNELS.map((c) => (
+                  <th key={c.key} className="align-center">
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {AUTOMATIONS.map((a) => {
+                const set = automationOf(settings, a.key)
+                return (
+                  <tr key={a.key}>
+                    <td>
+                      {a.label}
+                      {a.note && <span className="muted"> — {a.note}</span>}
+                    </td>
+                    <td className="muted">{a.to}</td>
+                    {CHANNELS.map((c) => (
+                      <td key={c.key} className="align-center">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(set[c.key])}
+                          onChange={(e) => updateSettings({ automations: { ...settings.automations, [a.key]: { ...set, [c.key]: e.target.checked } } })}
+                          aria-label={`${a.label} on ${c.label}`}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+          <p className="muted small">
+            Each message goes out on its own when the event happens and is kept in <Link to="/messages">Sent messages</Link>. Demo: messages are recorded, not sent; the live system sends them through the WhatsApp Business API and the mail server.
+          </p>
         </Section>
 
         <Section icon={Layers} title="Services">

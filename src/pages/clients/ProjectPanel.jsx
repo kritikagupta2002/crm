@@ -7,6 +7,7 @@ import { TODAY } from '../../data/mockData'
 import { formatNearDate, toISODate } from '../../utils/date'
 import { downloadLetter } from '../../utils/files'
 import { PROJECT_STATUS_TONE, canActOn, clientProjects } from '../../utils/projects'
+import { automationOf } from '../../utils/automations'
 import { whatsappLink } from '../../utils/whatsapp'
 
 const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
@@ -16,8 +17,9 @@ const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
  * linked to an approval step (vendor sheet: "link the scanned PDF to the client's task"): the step is marked
  * done and the scan becomes that step's letter, so the client sees one letter with the real copy.
  * forStep: open the form already linked to a step (e.g. "Attach scan" on a letter that has none).
+ * scan: a scan from the NAS inbox, which is the letter's copy (no file to choose).
  */
-export function LetterForm({ lead, project, onDone, forStep: initialStep = '' }) {
+export function LetterForm({ lead, project, onDone, forStep: initialStep = '', scan }) {
   const { addGovtLetter } = useCrm()
   const submitted = project.milestones[project.milestones.length - 1].done
   const steps = submitted ? project.approvals : []
@@ -40,7 +42,7 @@ export function LetterForm({ lead, project, onDone, forStep: initialStep = '' })
       className="letter-form"
       onSubmit={(e) => {
         e.preventDefault()
-        onDone(addGovtLetter(lead.id, project, { title: fields.title.trim(), authority: project.authority, ref: fields.ref.trim(), date: fields.date, file, forStep: forStep || undefined }))
+        onDone(addGovtLetter(lead.id, project, { title: fields.title.trim(), authority: project.authority, ref: fields.ref.trim(), date: fields.date, file, scan, forStep: forStep || undefined }))
       }}
     >
       {steps.length > 0 && (
@@ -75,16 +77,22 @@ export function LetterForm({ lead, project, onDone, forStep: initialStep = '' })
         <span className="field-label">Dated</span>
         <input type="date" value={fields.date} max={toISODate(TODAY)} onChange={set('date')} required />
       </label>
-      <label className="field field-wide">
-        <span className="field-label">Scanned copy{linked ? '' : ' (optional)'}</span>
-        <input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files[0] ?? null)} required={Boolean(linked)} autoFocus={Boolean(initialStep)} />
-      </label>
+      {scan ? (
+        <p className="muted small field-wide">
+          Scanned copy: <b className="text-ink">{scan.name}</b> from the scanner folder
+        </p>
+      ) : (
+        <label className="field field-wide">
+          <span className="field-label">Scanned copy{linked ? '' : ' (optional)'}</span>
+          <input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files[0] ?? null)} required={Boolean(linked)} autoFocus={Boolean(initialStep)} />
+        </label>
+      )}
       {linked && !linked.done && <p className="muted small field-wide">Saving marks “{linked.label}” done on {formatNearDate(fields.date)}; the client sees it in the portal.</p>}
       <div className="letter-form-actions">
         <button type="button" className="btn" onClick={() => onDone(null)}>
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={!fields.title.trim() || !fields.ref.trim() || (linked && !file)}>
+        <button type="submit" className="btn btn-primary" disabled={!fields.title.trim() || !fields.ref.trim() || (linked && !file && !scan)}>
           {linked ? 'Save letter & scan' : 'Add letter'}
         </button>
       </div>
@@ -151,7 +159,8 @@ export function ProjectBlock({ lead, project }) {
           ))}
         </ul>
       )}
-      {justAdded && lead.phone && (
+      {/* Only when the automation doesn't already tell the client on WhatsApp. */}
+      {justAdded && lead.phone && !automationOf(settings, 'letter').whatsapp && (
         <a
           className="btn btn-whatsapp btn-small"
           target="_blank"

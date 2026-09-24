@@ -71,7 +71,7 @@ function buildTasks(base, edits, team, milestones, started) {
     const isCurrent = started && current?.key === m.key
     const status = m.done ? 'done' : saved.status ?? (isCurrent ? 'in-progress' : 'todo')
     const due = saved.due ?? (isCurrent && slipped && m.date > todayISO ? toISODate(new Date(TODAY.getTime() - 2 * 86_400_000)) : m.date)
-    return { key: m.key, title: m.label, assignee, due, status, doneOn: m.done ? m.date : null, standard: true }
+    return { key: m.key, title: m.label, assignee, assignedOn: saved.assignedOn ?? null, due, status, doneOn: m.done ? m.date : null, standard: true }
   })
   // Seeded field tasks, then the team's own; a seeded task the team has changed is stored with its edits.
   const own = edits.customTasks ?? []

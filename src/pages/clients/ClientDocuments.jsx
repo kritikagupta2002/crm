@@ -1,8 +1,9 @@
-import { Download, FileText, ScrollText, UploadCloud } from 'lucide-react'
+import { Download, Eye, EyeOff, FileText, ScrollText, UploadCloud } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useAccess, useCrm } from '../../context/crm'
 import { formatNearDate } from '../../utils/date'
 import { downloadDocument, downloadLetter } from '../../utils/files'
+import { isNewFromClient } from '../../utils/leads'
 import { clientProjects } from '../../utils/projects'
 
 const MAX_SIZE = 10 * 1024 * 1024
@@ -10,7 +11,7 @@ const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).t
 
 /* The client's document vault: files shared either way, and every government letter across their projects. */
 export function ClientDocuments({ client }) {
-  const { addDocuments, projectEdits, settings } = useCrm()
+  const { addDocuments, setDocumentShared, projectEdits, settings } = useCrm()
   const canShare = useAccess().may('contact')
   const input = useRef(null)
   const [error, setError] = useState('')
@@ -59,14 +60,31 @@ export function ClientDocuments({ client }) {
             <li key={doc.id}>
               <FileText size={16} />
               <span>
-                <strong>{doc.name}</strong>
+                <strong>
+                  {doc.name}
+                  {isNewFromClient(doc) && <span className="pill tone-attention new-pill">New</span>}
+                </strong>
                 <span className="muted">
-                  {doc.byClient ? 'From client portal' : 'Shared by team'} · {formatNearDate(doc.addedOn)} · {formatSize(doc.size)}
+                  {doc.byClient ? 'From client portal' : 'Added by the team'} · {formatNearDate(doc.addedOn)} · {formatSize(doc.size)}
                 </span>
               </span>
-              <button className="icon-button small" onClick={() => downloadDocument(doc, { company: client.company, companyName: settings.companyName })} aria-label={`Download ${doc.name}`}>
-                <Download size={15} />
-              </button>
+              <span className="doc-actions">
+                {!doc.byClient && (
+                  <button
+                    className={`share-toggle ${doc.shared ? 'is-on' : ''}`}
+                    onClick={canShare ? () => setDocumentShared(client.id, doc.id, !doc.shared) : undefined}
+                    disabled={!canShare}
+                    aria-pressed={Boolean(doc.shared)}
+                    title={doc.shared ? 'The client can download this from the portal' : 'Only the team can see this'}
+                  >
+                    {doc.shared ? <Eye size={14} /> : <EyeOff size={14} />}
+                    <span className="share-label">{doc.shared ? 'Client can see' : 'Team only'}</span>
+                  </button>
+                )}
+                <button className="icon-button small" onClick={() => downloadDocument(doc, { company: client.company, companyName: settings.companyName })} aria-label={`Download ${doc.name}`}>
+                  <Download size={15} />
+                </button>
+              </span>
             </li>
           ))}
         </ul>

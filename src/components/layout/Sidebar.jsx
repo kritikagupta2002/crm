@@ -3,14 +3,19 @@ import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useAccess, useCrm } from '../../context/crm'
 import { countFollowUpsDue } from '../../utils/dashboardStats'
+import { questionsFor } from '../../utils/questions'
 import { Logo } from '../common/Logo'
 import { Mountains } from '../common/Mountains'
 import { NAV_GROUPS } from './navigation'
 
 export function Sidebar({ onNavigate }) {
-  const { followUps } = useCrm()
+  const { followUps, leads, user, projectEdits } = useCrm()
   const { can, role } = useAccess()
-  const badges = { followUpsDue: countFollowUpsDue(followUps).due }
+  const badges = {
+    followUpsDue: countFollowUpsDue(followUps).due,
+    // Questions this person answers that are still waiting.
+    questionsOpen: questionsFor({ role, userName: user.name, projectEdits }, leads).filter((q) => q.status === 'Open').length,
+  }
   const { pathname } = useLocation()
   const groups = NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => can(item.path) && (!item.only || item.only.includes(role))) })).filter((group) => group.items.length)
 

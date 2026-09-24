@@ -1,4 +1,4 @@
-import { Check, ChevronDown, History, LogOut, RotateCcw, Settings } from 'lucide-react'
+import { Check, ChevronDown, History, LogOut, RotateCcw, Send, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROLE_ACCESS, ROLE_USERS, ROLES, canOpen, initialsOf, useCrm } from '../../context/crm'
@@ -51,7 +51,10 @@ export function UserMenu() {
                     aria-expanded={teamOpen}
                     onClick={() => setTeamOpen(!teamOpen)}
                   >
-                    <span className="role-row-name">{r}</span>
+                    <span className="role-row-text">
+                      <span className="role-row-name">{r}</span>
+                      <span className="role-row-brief">{ROLE_ACCESS[r].brief}</span>
+                    </span>
                     <span className="role-row-person">{role === r ? fieldMember : `${FIELD_MEMBERS.length} people`}</span>
                     <ChevronDown size={15} className="role-row-toggle" aria-hidden="true" />
                   </button>
@@ -85,7 +88,10 @@ export function UserMenu() {
                   title={ROLE_ACCESS[r].note}
                   onClick={() => switchTo(r)}
                 >
-                  <span className="role-row-name">{r}</span>
+                  <span className="role-row-text">
+                    <span className="role-row-name">{r}</span>
+                    <span className="role-row-brief">{ROLE_ACCESS[r].brief}</span>
+                  </span>
                   <span className="role-row-person">{ROLE_USERS[r].name}</span>
                   <Check size={15} className="role-row-check" aria-hidden="true" />
                 </button>
@@ -99,6 +105,9 @@ export function UserMenu() {
           </RoleLink>
           <RoleLink to="/audit-log" className="menu-action" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
             <History size={16} /> Audit log
+          </RoleLink>
+          <RoleLink to="/messages" className="menu-action" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
+            <Send size={16} /> Sent messages
           </RoleLink>
           <button
             className="menu-action"

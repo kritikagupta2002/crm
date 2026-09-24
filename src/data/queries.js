@@ -31,6 +31,33 @@ const SEEDED = {
       status: 'Open',
     },
   ],
+  'BG-2026-009': [
+    {
+      id: 'Q-009-1',
+      topic: 'Billing',
+      message: 'Please send the GST invoice for the advance. Our accounts team needs it for this month’s return.',
+      at: at(0, '04:40'),
+      status: 'Open',
+    },
+  ],
+  'BG-2026-079': [
+    {
+      id: 'Q-079-1',
+      topic: 'Documents',
+      message: 'Which lease papers do you still need from us — the lease deed and the khasra map, or anything else?',
+      at: at(-2, '09:15'),
+      status: 'Open',
+    },
+  ],
+  'BG-2026-041': [
+    {
+      id: 'Q-041-1',
+      topic: 'Project',
+      message: 'Can our mines manager see the core samples from hole 3 before they go to the lab?',
+      at: at(-1, '11:05'),
+      status: 'Open',
+    },
+  ],
 }
 
 /* A client's questions: the ones asked in the app, else the demo's seeded ones. Newest first. */

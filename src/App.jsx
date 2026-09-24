@@ -6,6 +6,8 @@ import { PublicEnquiryPage } from './pages/enquiry/PublicEnquiryPage'
 import { ClientPortalPage } from './pages/portal/ClientPortalPage'
 import { VendorPortalPage } from './pages/vendor/VendorPortalPage'
 import { AuditLogPage } from './pages/audit/AuditLogPage'
+import { MessagesPage } from './pages/messages/MessagesPage'
+import { QuestionsPage } from './pages/questions/QuestionsPage'
 import { CrmProvider } from './context/CrmProvider'
 import { PeriodProvider } from './context/PeriodProvider'
 import { ClientsPage } from './pages/clients/ClientsPage'
@@ -62,6 +64,8 @@ export default function App() {
                 <Route path="reports" element={<ReportsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="audit-log" element={<AuditLogPage />} />
+                <Route path="messages" element={<MessagesPage />} />
+                <Route path="questions" element={<QuestionsPage />} />
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
             </Routes>

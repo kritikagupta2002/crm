@@ -1114,6 +1114,96 @@
   max-width: 520px;
 }
 
+.filing-scan {
+  margin: 0;
+  padding: 9px 12px;
+  border-radius: 8px;
+  background: var(--teal-50);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+/* Scan inbox: scans from the NAS scanner folder, waiting to be filed against a project. */
+.scan-inbox {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 20px 18px;
+}
+
+.scan-inbox-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scan-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.scan-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.scan-list li:last-child {
+  border-bottom: none;
+}
+
+.scan-list li > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.scan-list strong {
+  font-size: 13.5px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.scan-list .muted {
+  font-size: 12px;
+}
+
+.scan-icon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--teal-50);
+  color: var(--teal-700);
+}
+
+.scan-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .scan-list li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .scan-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
+
 .wo-form {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

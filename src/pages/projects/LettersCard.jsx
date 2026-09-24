@@ -8,8 +8,10 @@ import { downloadLetter } from '../../utils/files'
 import { canActOn } from '../../utils/projects'
 import { whatsappLink } from '../../utils/whatsapp'
 import { LetterForm } from '../clients/ProjectPanel'
+import { ScanInbox } from './ScanInbox'
 
 const TABS = { 'To share': (r) => !r.letter.sharedOn, Shared: (r) => Boolean(r.letter.sharedOn), All: () => true }
+const INBOX = 'Scan inbox'
 
 /*
  * Every official letter across the projects: record a scanned letter against its project (and, once the work
@@ -17,16 +19,19 @@ const TABS = { 'To share': (r) => !r.letter.sharedOn, Shared: (r) => Boolean(r.l
  * the card on that tab and scrolls to it (the stat card and old /letters links use this).
  */
 export function LettersCard({ projects }) {
-  const { settings, markLetterShared } = useCrm()
+  const { settings, markLetterShared, scanInbox } = useCrm()
   // Letters go with the approval stage: the Coordinator (or the Admin) records them and tells the client.
   const canFile = canActOn(useAccess().role, 'approval')
   const [params, setParams] = useSearchParams()
   const [recording, setRecording] = useState(false)
   const [projectId, setProjectId] = useState('')
   const [forStep, setForStep] = useState('')
+  // The scan from the inbox being filed, if any.
+  const [scan, setScan] = useState(null)
   const ref = useRef(null)
   const asked = params.get('letters')
-  const tab = TABS[asked] ? asked : 'To share'
+  // Scans waiting to be filed come first for the people who file them.
+  const tab = TABS[asked] || asked === INBOX ? asked : canFile && scanInbox.length ? INBOX : 'To share'
 
   useEffect(() => {
     if (!asked) return
@@ -42,7 +47,7 @@ export function LettersCard({ projects }) {
   }
 
   const rows = projects.flatMap((p) => p.letters.map((letter) => ({ letter, project: p }))).sort((a, b) => b.letter.date.localeCompare(a.letter.date))
-  const visible = rows.filter(TABS[tab])
+  const visible = tab === INBOX ? [] : rows.filter(TABS[tab])
   const { rows: pageRows, pager } = usePaged(visible, 6, tab)
   // Letters come at any point of a running project: notices and queries before the filing, approvals after it.
   const open = projects.filter((p) => p.started || p.team.coordinator)
@@ -52,6 +57,19 @@ export function LettersCard({ projects }) {
     setForStep(letter.stepKey)
     setRecording(true)
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+  const fileScan = (next) => {
+    setScan(next)
+    setProjectId('')
+    setForStep('')
+    setRecording(true)
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+  const closeRecording = () => {
+    setRecording(false)
+    setProjectId('')
+    setForStep('')
+    setScan(null)
   }
 
   const message = (letter, project) =>
@@ -73,6 +91,11 @@ export function LettersCard({ projects }) {
 
       {recording && (
         <div className="record-letter-body">
+          {scan && (
+            <p className="filing-scan">
+              Filing <b>{scan.name}</b> — choose its project; the scan becomes the letter’s copy.
+            </p>
+          )}
           <label className="field">
             <span className="field-label">Project</span>
             <select
@@ -93,20 +116,21 @@ export function LettersCard({ projects }) {
           </label>
           {target ? (
             <LetterForm
-              key={`${target.id}-${forStep}`}
+              key={`${target.id}-${forStep}-${scan?.id ?? ''}`}
               lead={target.lead}
               project={target}
               forStep={forStep}
-              onDone={() => {
-                setRecording(false)
-                setProjectId('')
-                setForStep('')
-                setTab('To share')
+              scan={scan}
+              onDone={(letter) => {
+                const filedScan = Boolean(scan)
+                closeRecording()
+                // After a filing, back to what is left in the inbox; after a typed letter, to where it now sits.
+                if (letter) setTab(filedScan && scanInbox.length > 1 ? INBOX : 'All')
               }}
             />
           ) : (
             <div className="letter-form-actions">
-              <button className="btn" onClick={() => (setRecording(false), setForStep(''))}>
+              <button className="btn" onClick={closeRecording}>
                 Cancel
               </button>
             </div>
@@ -115,14 +139,16 @@ export function LettersCard({ projects }) {
       )}
 
       <nav className="stage-tabs" aria-label="Filter letters">
-        {Object.keys(TABS).map((t) => (
+        {[INBOX, ...Object.keys(TABS)].map((t) => (
           <button key={t} className={`stage-tab ${tab === t ? 'is-active' : ''}`} onClick={() => setTab(t)} aria-pressed={tab === t}>
             {t}
-            <span>{rows.filter(TABS[t]).length}</span>
+            <span>{t === INBOX ? scanInbox.length : rows.filter(TABS[t]).length}</span>
           </button>
         ))}
       </nav>
-      {visible.length === 0 ? (
+      {tab === INBOX ? (
+        <ScanInbox canFile={canFile} onFile={fileScan} />
+      ) : visible.length === 0 ? (
         <p className="empty-state">{tab === 'To share' ? 'Every letter has been shared with its client.' : 'No letters here.'}</p>
       ) : (
         <div className="table-wrap">

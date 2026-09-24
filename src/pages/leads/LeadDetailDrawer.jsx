@@ -1,6 +1,7 @@
 import { ArrowRight, Mail, MapPin, Phone, X, XCircle } from 'lucide-react'
 import { useEffect, useId } from 'react'
 import { StagePill } from '../../components/common/StagePill'
+import { ClientQueries } from '../../components/lead/ClientQueries'
 import { LeadActivity } from '../../components/lead/LeadActivity'
 import { LeadFollowUps } from '../../components/lead/LeadFollowUps'
 import { LeadStageActions } from '../../components/lead/LeadStageActions'
@@ -107,6 +108,10 @@ export function LeadDetailDrawer({ leadId, startWithFollowUpForm = false, onClos
             <section className="lead-section">
               <h3>Stage</h3>
               <LeadStageActions lead={lead} onMarkLost={onMarkLost} />
+            </section>
+
+            <section className="lead-section">
+              <ClientQueries lead={lead} />
             </section>
 
             <section className="lead-section">

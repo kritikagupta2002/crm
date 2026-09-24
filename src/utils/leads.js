@@ -3,6 +3,9 @@ import { isInRange, parseISODate, periodRange } from './date'
 
 export const leadAgeDays = (lead) => Math.max(0, Math.round((TODAY - parseISODate(lead.createdOn)) / 86_400_000))
 
+/* A document the client uploaded on the portal in the last week: new for the team. */
+export const isNewFromClient = (doc) => Boolean(doc.byClient) && Math.round((TODAY - parseISODate(doc.addedOn)) / 86_400_000) <= 7
+
 /* "Today" / "Yesterday" / "5 days ago" */
 export function leadAgeLabel(lead) {
   const days = leadAgeDays(lead)

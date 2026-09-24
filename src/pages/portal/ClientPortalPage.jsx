@@ -279,7 +279,8 @@ function DocumentsCard({ lead, projects, readOnly }) {
   const [error, setError] = useState('')
   // Enquiry documents (the client's uploads and what the team shared), then the project files the team has released.
   const projectFiles = projects.flatMap((p) => p.clientFiles.map((f) => ({ ...f, from: `${p.name} · ${f.from}` })))
-  const docs = [...(lead.documents ?? []), ...projectFiles]
+  // The team's own files show only once someone has shared them.
+  const docs = [...(lead.documents ?? []).filter((d) => d.byClient || d.shared), ...projectFiles]
 
   const upload = (fileList) => {
     const files = [...fileList]

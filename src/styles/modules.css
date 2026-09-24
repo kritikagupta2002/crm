@@ -586,6 +586,83 @@
   border-bottom: 1px solid var(--line-soft);
 }
 
+.messages-table .message-body p {
+  margin: 2px 0 0;
+  max-width: 560px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.message-via {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.via-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11.5px;
+  background: var(--bg);
+  color: var(--ink-2);
+}
+
+.via-pill.via-whatsapp svg {
+  color: #1f9d55;
+}
+
+.via-pill.via-email svg {
+  color: var(--teal-700);
+}
+
+.message-attachment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.messages-note {
+  margin: 0;
+  padding: 12px 20px 16px;
+}
+
+.automation-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.automation-table th {
+  padding: 0 8px 6px 0;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: left;
+  color: var(--ink-3);
+}
+
+.automation-table td {
+  padding: 8px 8px 8px 0;
+  border-top: 1px solid var(--line-soft);
+  vertical-align: middle;
+}
+
+.automation-table .align-center {
+  width: 72px;
+  text-align: center;
+}
+
+.automation-table input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--teal-700);
+}
+
 .settings-toggle {
   font-size: 13.5px;
 }
@@ -843,7 +920,7 @@
 
 /* Profile menu: the demo's roles as one-line rows (role, its person, a tick), then the account actions. */
 .user-menu {
-  width: 300px;
+  width: 320px;
   max-height: calc(100vh - var(--chrome-height) - 16px);
   padding: 8px;
   overflow-y: auto;
@@ -885,6 +962,23 @@
 .role-row-person {
   font-size: 12.5px;
   color: var(--ink-3);
+}
+
+/* What the role opens and changes, under its name. */
+.role-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.role-row-brief {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.role-row.is-selected .role-row-brief {
+  color: var(--teal-700);
 }
 
 .role-row-check {
@@ -1047,6 +1141,12 @@
   border-color: var(--gold-500);
 }
 
+/* Sent automatically (Settings → Automations). */
+.timeline-item.type-message .timeline-dot {
+  border-color: var(--teal-400);
+  border-style: dashed;
+}
+
 .stat-card.is-link {
   color: inherit;
   cursor: pointer;
@@ -1183,6 +1283,14 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+}
+
+/* The share switch and download sit side by side at the end of the row. */
+.letter-list li > .doc-actions {
+  flex: none;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
 }
 
 .letter-list strong {

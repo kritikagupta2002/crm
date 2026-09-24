@@ -1,5 +1,7 @@
-import { ArrowDown, ArrowUp, CalendarPlus, CheckCircle2, ChevronLeft, ChevronRight, Eye, XCircle } from 'lucide-react'
+import { ArrowDown, ArrowUp, CalendarPlus, CheckCircle2, ChevronLeft, ChevronRight, Eye, MessageCircleQuestion, XCircle } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { queriesOf } from '../../data/queries'
 import { ActionMenu } from '../../components/common/ActionMenu'
 import { StagePill } from '../../components/common/StagePill'
 import { TODAY } from '../../data/mockData'
@@ -77,6 +79,7 @@ export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onSchedu
             {rows.map((lead) => {
               const [district, state] = (lead.location ?? '').split(',').map((part) => part.trim())
               const isClosed = lead.stage === 'Won' || lead.stage === 'Lost'
+              const openQuestions = queriesOf(lead).filter((q) => q.status === 'Open').length
               return (
                 <tr key={lead.id} className="clickable-row" onClick={() => onOpen(lead.id)}>
                   <td>
@@ -85,6 +88,12 @@ export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onSchedu
                     <div className="cell-sub mono-sub" title={lead.contactPerson}>
                       {lead.id}
                     </div>
+                    {/* A question from the client portal waiting for a reply: straight to it. */}
+                    {openQuestions > 0 && (
+                      <Link to={`/leads/${lead.id}?tab=activity`} className="question-tag tone-attention" onClick={(e) => e.stopPropagation()}>
+                        <MessageCircleQuestion size={12} /> {openQuestions} question{openQuestions === 1 ? '' : 's'}
+                      </Link>
+                    )}
                   </td>
                   <td>
                     <div className="cell-clip" title={servicesOf(lead).map((x) => `${x.serviceDetail} — ${x.service}`).join(', ')}>

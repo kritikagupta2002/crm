@@ -15,32 +15,35 @@ export function useCrm() {
  * is what happens. Requirement: operational staff (Coordinators, Team Leads) never see amounts.
  */
 /*
+ * brief: what the role opens and changes, in a few words (the profile menu). note: the longer version (Settings).
  * masked: no amounts at all. pnl: sees profit & loss. bank: sees bank details (company and vendors).
  * Requirement E2: junior accounts staff are blocked from P&L and the bank master; E3: operations never see PO values.
  */
 export const ROLE_ACCESS = {
-  Admin: { note: 'Everything, including settings and the audit log', pages: 'all', masked: false, pnl: true, bank: true, home: '/' },
+  Admin: { brief: 'Everything', note: 'Everything, including settings and the audit log', pages: 'all', masked: false, pnl: true, bank: true, home: '/' },
   Management: {
+    brief: 'Sees all, changes nothing',
     note: 'Every workspace, P&L and the audit log; hand-overs stay with the team',
-    pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/client-onboarding', '/clients', '/reports', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/audit-log'],
+    pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/client-onboarding', '/clients', '/reports', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/audit-log', '/messages', '/questions'],
     masked: false,
     pnl: true,
     bank: true,
     home: '/',
   },
-  Sales: { note: 'Leads, follow-ups, quotations and the client’s approval, up to the win', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients'], masked: false, pnl: false, bank: false, home: '/' },
+  Sales: { brief: 'Leads, quotations, approval', note: 'Leads, follow-ups, quotations and the client’s approval, up to the win', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients', '/messages', '/questions'], masked: false, pnl: false, bank: false, home: '/' },
   'Project Coordinator': {
+    brief: 'Projects & onboarding, no ₹',
     note: 'Onboarding, clients and ERM projects; amounts hidden',
-    pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/reports'],
+    pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/reports', '/messages', '/questions'],
     masked: true,
     pnl: false,
     bank: false,
     home: '/erm',
   },
-  'Team Lead': { note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/clients'], masked: true, pnl: false, bank: false, home: '/erm' },
-  'Field Member': { note: 'My tasks and field visits, on the phone', pages: ['/my-tasks'], masked: true, pnl: false, bank: false, home: '/my-tasks' },
-  Finance: { note: 'CFO: releases vendor payments, P&L, bank details and reports', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts'], masked: false, pnl: true, bank: true, home: '/' },
-  Accountant: { note: 'Junior accounts: payments and vendor bills to check; no P&L or bank details', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts'], masked: false, pnl: false, bank: false, home: '/' },
+  'Team Lead': { brief: 'Tasks & field work, no ₹', note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/clients', '/questions'], masked: true, pnl: false, bank: false, home: '/erm' },
+  'Field Member': { brief: 'Own tasks & site visits', note: 'My tasks and field visits, on the phone', pages: ['/my-tasks'], masked: true, pnl: false, bank: false, home: '/my-tasks' },
+  Finance: { brief: 'Payments, bills, P&L, bank', note: 'CFO: releases vendor payments, P&L, bank details and reports', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions'], masked: false, pnl: true, bank: true, home: '/' },
+  Accountant: { brief: 'Payments & bills, no P&L', note: 'Junior accounts: payments and vendor bills to check; no P&L or bank details', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions'], masked: false, pnl: false, bank: false, home: '/' },
 }
 export const ROLES = Object.keys(ROLE_ACCESS)
 export const MASKED = '₹ ••••'

@@ -4,6 +4,7 @@ import { STAGES, TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
 import { serviceSummary } from '../../utils/leads'
 import { useMoney } from '../../context/crm'
+import { queriesOf } from '../../data/queries'
 
 const todayISO = toISODate(TODAY)
 
@@ -69,6 +70,7 @@ export function LeadsBoard({ leads, onOpen, onMove }) {
                     <span>{lead.assignedTo}</span>
                     {lead.quoteValue ? <b>{money.short(lead.quoteValue)}</b> : null}
                   </span>
+                  {queriesOf(lead).some((q) => q.status === 'Open') && <span className="board-card-date tone-attention">Client question waiting</span>}
                   {lead.nextFollowUp && (
                     <span className={`board-card-date ${lead.nextFollowUp < todayISO ? 'tone-urgent' : lead.nextFollowUp === todayISO ? 'tone-attention' : ''}`}>
                       Follow-up {lead.nextFollowUp === todayISO ? 'today' : formatDayMonth(lead.nextFollowUp)}

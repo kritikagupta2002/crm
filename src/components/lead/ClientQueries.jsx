@@ -1,10 +1,11 @@
 import { MessageSquareReply } from 'lucide-react'
 import { useState } from 'react'
-import { useAccess, useCrm } from '../../context/crm'
+import { useCrm } from '../../context/crm'
 import { queriesOf } from '../../data/queries'
 import { formatNearDate } from '../../utils/date'
+import { answeredByLabel, canAnswer } from '../../utils/questions'
 
-function ReplyForm({ lead, query }) {
+export function ReplyForm({ lead, query }) {
   const { answerQuery } = useCrm()
   const [reply, setReply] = useState('')
   return (
@@ -23,9 +24,38 @@ function ReplyForm({ lead, query }) {
   )
 }
 
+/* One question: open ones take a reply from whoever answers that topic (utils/questions); others see who it waits for. */
+export function QueryItem({ lead, query, head }) {
+  const { role, user, projectEdits } = useCrm()
+  const open = query.status === 'Open'
+  return (
+    <li className={open ? 'is-open' : ''}>
+      <div className="query-head">
+        <span className={`pill status-pill ${open ? 'tone-attention' : 'tone-good'}`}>{query.status}</span>
+        {head}
+        <span className="muted">
+          {query.topic} · asked {formatNearDate(query.at.slice(0, 10))}
+        </span>
+      </div>
+      <p>{query.message}</p>
+      {open ? (
+        canAnswer({ role, userName: user.name, projectEdits }, lead, query.topic) ? (
+          <ReplyForm lead={lead} query={query} />
+        ) : (
+          <p className="muted small">Waiting for a reply from {answeredByLabel(lead, query.topic)}.</p>
+        )
+      ) : (
+        <p className="query-answer">
+          <b>{query.repliedBy}:</b> {query.reply}
+          <span className="muted"> · {formatNearDate(query.repliedAt.slice(0, 10))}</span>
+        </p>
+      )}
+    </li>
+  )
+}
+
 /* Questions the client asked from the portal; open ones take a reply here, which the client then sees. */
 export function ClientQueries({ lead }) {
-  const { may } = useAccess()
   const queries = queriesOf(lead)
   const open = queries.filter((q) => q.status === 'Open').length
   return (
@@ -38,23 +68,7 @@ export function ClientQueries({ lead }) {
       ) : (
         <ul className="query-list">
           {queries.map((q) => (
-            <li key={q.id} className={q.status === 'Open' ? 'is-open' : ''}>
-              <div className="query-head">
-                <span className={`pill status-pill ${q.status === 'Open' ? 'tone-attention' : 'tone-good'}`}>{q.status}</span>
-                <span className="muted">
-                  {q.topic} · asked {formatNearDate(q.at.slice(0, 10))}
-                </span>
-              </div>
-              <p>{q.message}</p>
-              {q.status === 'Open' ? (
-                may('contact') && <ReplyForm lead={lead} query={q} />
-              ) : (
-                <p className="query-answer">
-                  <b>{q.repliedBy}:</b> {q.reply}
-                  <span className="muted"> · {formatNearDate(q.repliedAt.slice(0, 10))}</span>
-                </p>
-              )}
-            </li>
+            <QueryItem key={q.id} lead={lead} query={q} />
           ))}
         </ul>
       )}

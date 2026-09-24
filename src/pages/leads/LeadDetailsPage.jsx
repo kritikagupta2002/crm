@@ -14,7 +14,7 @@ import { useAccess, useCrm, useMoney } from '../../context/crm'
 import { useEnquiryForm } from '../../context/enquiryForm'
 import { TODAY } from '../../data/mockData'
 import { formatDayMonth, toISODate } from '../../utils/date'
-import { leadAgeLabel, servicesOf } from '../../utils/leads'
+import { isNewFromClient, leadAgeLabel, servicesOf } from '../../utils/leads'
 import { whatsappLink } from '../../utils/whatsapp'
 import { LeadDocuments } from './LeadDocuments'
 import { LostReasonDialog } from './LostReasonDialog'
@@ -116,6 +116,10 @@ export function LeadDetailsPage() {
   const pendingCount = followUps.filter((f) => f.leadId === lead.id).length
   const isClosed = lead.stage === 'Won' || lead.stage === 'Lost'
   const counts = { documents: lead.documents?.length ?? 0, activity: pendingCount }
+  // Questions the client asked on the portal and nobody has answered yet: their own badge on the tab.
+  const openQuestions = queriesOf(lead).filter((q) => q.status === 'Open').length
+  // What the client uploaded on the portal this week, so it isn't missed.
+  const newUploads = (lead.documents ?? []).filter(isNewFromClient).length
 
   return (
     <div className="lead-details">
@@ -183,6 +187,16 @@ export function LeadDetailsPage() {
               <button key={t.id} className={tab === t.id ? 'is-active' : ''} aria-current={tab === t.id ? 'page' : undefined} onClick={() => openTab(t.id)}>
                 {t.label}
                 {counts[t.id] > 0 && <span>{counts[t.id]}</span>}
+                {t.id === 'documents' && newUploads > 0 && (
+                  <span className="tab-question tone-attention" title="Uploaded by the client this week">
+                    {newUploads} new
+                  </span>
+                )}
+                {t.id === 'activity' && openQuestions > 0 && (
+                  <span className="tab-question tone-attention" title="Client questions waiting for a reply">
+                    {openQuestions} question{openQuestions === 1 ? '' : 's'}
+                  </span>
+                )}
               </button>
             ))}
           </nav>
@@ -192,17 +206,16 @@ export function LeadDetailsPage() {
             {tab === 'documents' && <LeadDocuments lead={lead} />}
             {tab === 'activity' && (
               <div className="activity-panel">
+                {/* Always here, first: what the client asked on the portal (or a line saying nothing yet). */}
+                <section className="lead-section first">
+                  <ClientQueries lead={lead} />
+                </section>
                 {(lead.approval?.quoteAccepted || lead.stage === 'Won') && (
-                  <section className="lead-section first">
+                  <section className="lead-section">
                     <ClientPayments lead={lead} />
                   </section>
                 )}
-                {queriesOf(lead).length > 0 && (
-                  <section className={`lead-section ${lead.approval?.quoteAccepted || lead.stage === 'Won' ? '' : 'first'}`}>
-                    <ClientQueries lead={lead} />
-                  </section>
-                )}
-                <section className={`lead-section ${queriesOf(lead).length || lead.approval?.quoteAccepted || lead.stage === 'Won' ? '' : 'first'}`}>
+                <section className="lead-section">
                   <LeadFollowUps key={followUpRequests} lead={lead} startWithForm={followUpRequests > 0} />
                 </section>
                 <section className="lead-section">

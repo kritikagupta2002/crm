@@ -14,13 +14,14 @@ export const TEAM_LEADS = [
   { name: 'M. Khan', title: 'Environment Specialist', services: ['Environment, Community & Permitting'] },
 ]
 
+/* phone: for task messages on WhatsApp (demo numbers). */
 export const FIELD_MEMBERS = [
-  { name: 'Ajay Kumar', title: 'Field Geologist', skills: 'Mapping, sampling' },
-  { name: 'Deepak Soni', title: 'Surveyor', skills: 'DGPS, total station' },
-  { name: 'Ravi Gurjar', title: 'Drone Operator', skills: 'Aerial survey, GIS' },
-  { name: 'Imran Ali', title: 'Field Technician', skills: 'Drilling logs, core sampling' },
-  { name: 'Sunil Yadav', title: 'Field Technician', skills: 'Water level, pumping tests' },
-  { name: 'Pooja Meena', title: 'Environment Surveyor', skills: 'Air, water & noise monitoring' },
+  { name: 'Ajay Kumar', title: 'Field Geologist', skills: 'Mapping, sampling', phone: '9829022101' },
+  { name: 'Deepak Soni', title: 'Surveyor', skills: 'DGPS, total station', phone: '9829022102' },
+  { name: 'Ravi Gurjar', title: 'Drone Operator', skills: 'Aerial survey, GIS', phone: '9829022103' },
+  { name: 'Imran Ali', title: 'Field Technician', skills: 'Drilling logs, core sampling', phone: '9829022104' },
+  { name: 'Sunil Yadav', title: 'Field Technician', skills: 'Water level, pumping tests', phone: '9829022105' },
+  { name: 'Pooja Meena', title: 'Environment Surveyor', skills: 'Air, water & noise monitoring', phone: '9829022106' },
 ]
 
 export const teamLeadFor = (service, n) => {

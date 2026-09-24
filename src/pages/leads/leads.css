@@ -441,6 +441,25 @@
   color: var(--ink);
 }
 
+/* Leads list: a question from the client portal waiting for a reply. */
+.question-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--tone-bg);
+  color: var(--tone);
+  font-size: 11.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.question-tag:hover {
+  text-decoration: underline;
+}
+
 .board-card-date {
   font-size: 11.5px;
   color: var(--ink-3);

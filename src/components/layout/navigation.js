@@ -1,4 +1,4 @@
-import { BarChart3, Building2, CalendarDays, ClipboardCheck, FileSignature, FileText, FolderKanban, Gauge, Home, ListTodo, ShieldCheck, UserRound, Users, UsersRound } from 'lucide-react'
+import { BarChart3, Building2, CalendarDays, ClipboardCheck, FileSignature, FileText, FolderKanban, Gauge, Home, ListTodo, MessageCircleQuestion, ShieldCheck, UserRound, Users, UsersRound } from 'lucide-react'
 
 /* Two workspaces in one app: sales (CRM) and project delivery (ERM). Each role sees only what it can open; `only` limits an item to the roles it is for. */
 export const NAV_GROUPS = [
@@ -12,6 +12,7 @@ export const NAV_GROUPS = [
       { label: 'Client Approval', path: '/client-approval', icon: ShieldCheck },
       { label: 'Client Onboarding', path: '/client-onboarding', icon: UserRound },
       { label: 'Client Master', path: '/clients', icon: Building2 },
+      { label: 'Client Questions', path: '/questions', icon: MessageCircleQuestion, badge: 'questionsOpen' },
       { label: 'Reports', path: '/reports', icon: BarChart3 },
     ],
   },
@@ -29,4 +30,4 @@ export const NAV_GROUPS = [
 ]
 
 /* Settings and the audit log live in the profile menu; they are listed here so the pages still get their titles. */
-export const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), { label: 'Settings', path: '/settings' }, { label: 'Audit Log', path: '/audit-log' }]
+export const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), { label: 'Settings', path: '/settings' }, { label: 'Audit Log', path: '/audit-log' }, { label: 'Sent messages', path: '/messages' }]

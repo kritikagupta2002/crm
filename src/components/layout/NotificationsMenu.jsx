@@ -1,19 +1,20 @@
-import { AlertTriangle, Bell, CheckCircle2, Clock, FileWarning, FolderKanban, Globe, HardHat, IndianRupee, MessageCircleQuestion, Receipt, ScrollText, Sparkles } from 'lucide-react'
+import { AlertTriangle, Bell, CheckCircle2, ClipboardList, Clock, FileScan, FileWarning, FolderKanban, Globe, HardHat, IndianRupee, MessageCircleQuestion, Receipt, ScrollText, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BILL_ROLES, useAccess, useCrm, useMoney } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
-import { queriesOf } from '../../data/queries'
 import { paymentsOf } from '../../utils/payments'
 import { addDays, formatDayMonth, toISODate } from '../../utils/date'
-import { ERM_STAGES, allProjects, nextWorkStep } from '../../utils/projects'
+import { ERM_STAGES, allProjects, canActOn, nextWorkStep } from '../../utils/projects'
 import { quoteFor } from '../../utils/workflow'
+import { canAnswer, questionsFor } from '../../utils/questions'
 import { usePopover } from '../common/usePopover'
 
 const SEEN_KEY = 'bansal-crm:seen-notifications'
 const todayISO = toISODate(TODAY)
 const soonISO = toISODate(addDays(TODAY, 5))
 const weekAgoISO = toISODate(addDays(TODAY, -7))
+const tomorrowISO = toISODate(addDays(TODAY, 1))
 
 function readSeen() {
   try {
@@ -28,21 +29,21 @@ function readSeen() {
  * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
  */
 export function NotificationsMenu() {
-  const { leads, followUps, settings, activities, projectEdits, role } = useCrm()
-  const { can } = useAccess()
+  const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox } = useCrm()
+  const { can, may } = useAccess()
   const money = useMoney()
   const { open, setOpen, ref } = usePopover()
   const [seen, setSeen] = useState(readSeen)
   const company = (id) => leads.find((l) => l.id === id)?.company
 
-  const questions = leads.flatMap((l) =>
-    queriesOf(l)
-      .filter((q) => q.status === 'Open')
-      .map((q) => ({ id: `q-${q.id}`, tone: 'tone-attention', icon: MessageCircleQuestion, title: `Question from ${l.company}: ${q.topic}`, sub: q.message, to: `/leads/${l.id}?tab=activity` })),
-  )
+  // A client's question reaches whoever answers its topic: Accounts for billing, the project team for the work, Sales before the win.
+  const who = { role, userName: user.name, projectEdits }
+  const questions = questionsFor(who, leads)
+    .filter((q) => q.status === 'Open' && canAnswer(who, q.lead, q.topic))
+    .map((q) => ({ id: `q-${q.id}`, tone: 'tone-attention', icon: MessageCircleQuestion, title: `Question from ${q.lead.company}: ${q.topic}`, sub: q.message, to: '/questions' }))
 
-  // Payments the client reported from the portal wait for Accounts; the roles that don't see amounts aren't asked.
-  const toVerify = money.hidden
+  // Payments the client reported from the portal wait for Accounts, the ones who verify them.
+  const toVerify = !may('payments')
     ? []
     : leads.flatMap((l) =>
         paymentsOf(l)
@@ -60,26 +61,29 @@ export function NotificationsMenu() {
       icon: Globe,
       title: `${company(a.leadId)} ${(a.clientText ?? a.text).replace(/^You /, '')}`,
       sub: `Client portal · ${formatDayMonth(a.at.slice(0, 10))}`,
-      to: a.type === 'quote' ? `/quotations?open=${a.leadId}` : `/leads/${a.leadId}?tab=activity`,
+      to: a.type === 'quote' ? `/quotations?open=${a.leadId}` : a.type === 'document' ? `/leads/${a.leadId}?tab=documents` : `/leads/${a.leadId}?tab=activity`,
     }))
 
   // Project delivery: late tasks, projects waiting for a coordinator, new letters and projects ready to close.
   const projects = can('/projects') ? allProjects(leads, projectEdits) : []
   const running = projects.filter((p) => p.stageIndex < ERM_STAGES.length)
+  // A team lead hears about the projects they lead.
+  const led = (p) => role !== 'Team Lead' || p.team.teamLead === user.name
   const fromErm = [
-    ...running.flatMap((p) =>
+    ...running.filter(led).flatMap((p) =>
       p.tasks
         .filter((t) => t.overdue)
         .map((t) => ({ id: `tk-${p.id}-${t.key ?? t.id}-${t.due}`, tone: 'tone-urgent', icon: AlertTriangle, title: `Overdue task: ${t.title}`, sub: `${p.lead.company} · ${t.assignee ?? 'Unassigned'} · was due ${formatDayMonth(t.due)}`, to: `/projects/${p.id}?tab=tasks` })),
     ),
     ...running
-      .filter((p) => ERM_STAGES[p.stageIndex].key === 'allocation' && p.startedOn)
+      .filter((p) => canActOn(role, 'allocation') && ERM_STAGES[p.stageIndex].key === 'allocation' && p.startedOn)
       .map((p) => ({ id: `al-${p.id}`, tone: 'tone-attention', icon: FolderKanban, title: `Allocate: ${p.name}`, sub: `${p.lead.company} · needs a project coordinator`, to: `/projects/${p.id}` })),
     ...projects
+      .filter(led)
       .flatMap((p) => p.letters.filter((l) => l.date >= weekAgoISO && l.date <= todayISO).map((l) => ({ l, p })))
       .map(({ l, p }) => ({ id: `lt-${l.id}`, tone: 'tone-good', icon: ScrollText, title: `Letter from ${p.code}: ${l.title}`, sub: `${p.lead.company} · ${formatDayMonth(l.date)}`, to: `/projects/${p.id}?tab=documents` })),
     ...running
-      .filter((p) => p.status === 'Approved')
+      .filter((p) => canActOn(role, 'closure') && p.status === 'Approved')
       .map((p) => ({ id: `rc-${p.id}`, tone: 'tone-info', icon: CheckCircle2, title: `Ready to close: ${p.name}`, sub: `${p.lead.company} · approval received`, to: `/projects/${p.id}` })),
   ]
 
@@ -101,7 +105,31 @@ export function NotificationsMenu() {
     .reverse()
     .map((a) => ({ id: `vn-${a.id}`, tone: 'tone-info', icon: HardHat, title: `${a.vendor}: ${a.text.split(' — ').pop().replace(' (vendor portal)', '')}`, sub: `Vendor portal · ${formatDayMonth(a.at.slice(0, 10))}`, to: '/subcontracts' }))
 
+  // The field team hears about their own work: late tasks, tasks due by tomorrow and tasks handed to them this week.
+  const myTasks =
+    role !== 'Field Member'
+      ? []
+      : allProjects(leads, projectEdits)
+          .filter((p) => p.status !== 'Completed')
+          .flatMap((p) => p.tasks.filter((t) => t.assignee === user.name && t.status !== 'done').map((t) => ({ t, p })))
+          .flatMap(({ t, p }) => {
+            const id = `my-${p.id}-${t.key ?? t.id}`
+            const where = `${p.name} · ${p.lead.company}`
+            if (t.overdue) return [{ id: `${id}-late-${t.due}`, tone: 'tone-urgent', icon: AlertTriangle, title: `Overdue: ${t.title}`, sub: `${where} · was due ${formatDayMonth(t.due)}`, to: '/my-tasks' }]
+            if (t.due && t.due <= tomorrowISO) return [{ id: `${id}-due-${t.due}`, tone: 'tone-attention', icon: Clock, title: `Due ${t.due === todayISO ? 'today' : 'tomorrow'}: ${t.title}`, sub: where, to: '/my-tasks' }]
+            if (t.assignedOn && t.assignedOn >= weekAgoISO) return [{ id: `${id}-new-${t.assignedOn}`, tone: 'tone-info', icon: ClipboardList, title: `New task: ${t.title}`, sub: `${where}${t.due ? ` · due ${formatDayMonth(t.due)}` : ''}`, to: '/my-tasks' }]
+            return []
+          })
+
+  // Scans from the NAS scanner folder wait for whoever files government letters.
+  const scans =
+    canActOn(role, 'approval') && scanInbox.length
+      ? [{ id: `scan-${scanInbox[0].id}-${scanInbox.length}`, tone: 'tone-attention', icon: FileScan, title: `${scanInbox.length} scan${scanInbox.length === 1 ? '' : 's'} to file`, sub: `Scanner folder · latest ${formatDayMonth(scanInbox[0].scannedAt.slice(0, 10))}`, to: '/projects?letters=Scan%20inbox' }]
+      : []
+
   const items = [
+    ...myTasks,
+    ...scans,
     ...toVerify,
     ...bills,
     ...fromVendors,

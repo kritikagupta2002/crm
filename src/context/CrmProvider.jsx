@@ -6,7 +6,9 @@ import { formatDayMonth, formatTime, toISODate } from '../utils/date'
 import { queriesOf } from '../data/queries'
 import { rememberFile } from '../utils/files'
 import { clientProjects } from '../utils/projects'
-import { pinnedQuote } from '../utils/workflow'
+import { pinnedQuote, quoteFor } from '../utils/workflow'
+import { channelsFor, messageFor } from '../utils/automations'
+import { SEEDED_SCANS } from '../data/scans'
 import { CrmContext, DEFAULT_SETTINGS, ROLE_ACCESS, ROLE_USERS } from './crm'
 
 /*
@@ -24,7 +26,7 @@ const SESSION_KEY = 'bansal-crm:session'
 const CLIENT_KEY = 'bansal-crm:client-session'
 const VENDOR_KEY = 'bansal-crm:vendor-session'
 const OLD_STORAGE_KEY = 'bansal-crm-demo:added:v1'
-const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [] }
+const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] } }
 
 /* Keeps uploaded files for this session and returns their details for the record. */
 const fileRecords = (files, extra = {}) =>
@@ -85,6 +87,28 @@ const newActivity = (leadId, type, text, extra) => ({
 
 const editLead = (prev, id, patch) => ({ ...prev.edits, [id]: { ...prev.edits[id], ...patch } })
 const log = (prev, id, type, text, extra) => [...prev.activities, newActivity(id, type, text, extra)]
+
+/*
+ * Automations (utils/automations.js): the message an event sends, if Settings has it on, goes into the outbox
+ * and the client's history. Called inside the updaters below, so a change and its message are saved together.
+ * to: { audience: 'client' | 'field', name, phone, email }.
+ */
+function sendAuto(prev, key, leadId, to, ctx) {
+  if (!to) return prev
+  const settings = { ...DEFAULT_SETTINGS, ...prev.settings }
+  const channels = channelsFor(settings, key, to)
+  if (!channels.length) return prev
+  const message = messageFor(key, { ...ctx, to, companyName: settings.companyName })
+  const item = { id: `MSG-${Date.now()}-${Math.round(Math.random() * 1e6)}`, at: new Date().toISOString(), key, leadId, to, channels, ...message }
+  const via = channels.map((c) => (c === 'whatsapp' ? 'WhatsApp' : 'email')).join(' & ')
+  return { ...prev, outbox: [...(prev.outbox ?? []), item], activities: log(prev, leadId, 'message', `Sent automatically on ${via} to ${to.name}: ${message.subject}`) }
+}
+
+const clientOf = (lead) => lead && { audience: 'client', name: lead.contactPerson, phone: lead.phone, email: lead.email }
+const memberOf = (name) => {
+  const member = FIELD_MEMBERS.find((m) => m.name === name)
+  return member && { audience: 'field', name: member.name, phone: member.phone }
+}
 
 function loadFieldMember() {
   try {
@@ -379,7 +403,11 @@ export function CrmProvider({ children }) {
       if (stageIndex(lead.stage) < stageIndex('Proposal Sent') || lead.stage === 'Lost') patch.stage = 'Proposal Sent'
       if (revising && lead.stage === 'Proposal Sent') patch.stage = 'Negotiation'
       const text = `${revising ? `Quotation revised (v${quote.version})` : 'Quotation sent'} — ₹${quote.net.toLocaleString('en-IN')} + GST`
-      setChanges((prev) => ({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'quote', text) }))
+      // The client gets the quotation (with its number and total) by email.
+      const sentQuote = quoteFor({ ...lead, ...patch })
+      setChanges((prev) =>
+        sendAuto({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'quote', text) }, 'quotation', id, clientOf(lead), { lead, quote: sentQuote, revised: revising }),
+      )
     },
     [findLead, setChanges],
   )
@@ -418,7 +446,9 @@ export function CrmProvider({ children }) {
       if (!lead || files.length === 0) return
       const added = files.map((file) => {
         const doc = { id: `DOC-${Date.now()}-${Math.round(Math.random() * 1e6)}`, name: file.name, size: file.size, type: file.type, addedOn: toISODate(new Date()) }
+        // The client's own uploads are theirs to see; the team's stay with the team until someone shares them.
         if (byClient) doc.byClient = true
+        else doc.shared = false
         rememberFile(doc.id, file)
         return doc
       })
@@ -430,14 +460,33 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
+  /* A team document on the enquiry, shown to the client on the portal or kept to the team. */
+  const setDocumentShared = useCallback(
+    (id, docId, shared) => {
+      const lead = findLead(id)
+      const doc = lead?.documents?.find((d) => d.id === docId)
+      if (!doc) return
+      const documents = lead.documents.map((d) => (d.id === docId ? { ...d, shared, sharedOn: shared ? toISODate(TODAY) : null } : d))
+      setChanges((prev) => {
+        const saved = { ...prev, edits: editLead(prev, id, { documents }), activities: log(prev, id, 'document', `${doc.name} ${shared ? 'shared with the client (portal)' : 'no longer shared with the client'}`) }
+        return shared ? sendAuto(saved, 'document', id, clientOf(lead), { lead, file: doc }) : saved
+      })
+    },
+    [findLead, setChanges],
+  )
+
   /* Marks a project milestone or approval step done (today) or not done. kind: 'milestones' | 'approvals'. */
   const setProjectStep = useCallback((leadId, project, kind, key, done, label) => {
+    const lead = findLead(leadId)
+    const step = kind === 'approvals' && done ? project.approvals.find((s) => s.key === key) : null
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
       const next = { ...edits, [kind]: { ...edits[kind], [key]: done ? toISODate(TODAY) : false } }
-      return { ...prev, projects: { ...prev.projects, [project.id]: next }, activities: log(prev, leadId, 'project', `${project.name}: ${label} ${done ? 'done' : 'reopened'}`) }
+      const saved = { ...prev, projects: { ...prev.projects, [project.id]: next }, activities: log(prev, leadId, 'project', `${project.name}: ${label} ${done ? 'done' : 'reopened'}`) }
+      // An approval step done is news for the client.
+      return step ? sendAuto(saved, 'approval', leadId, clientOf(lead), { lead, project, step }) : saved
     })
-  }, [setChanges])
+  }, [findLead, setChanges])
 
   /* ERM: set the project's coordinator, team lead or field team (patch of { coordinator, teamLead, members }). */
   const setProjectTeam = useCallback((leadId, project, patch) => {
@@ -464,11 +513,13 @@ export function CrmProvider({ children }) {
    * project milestone of the same name, so the CRM drawer and the client portal follow along.
    */
   const updateProjectTask = useCallback((leadId, project, task, patch) => {
+    // A new owner gets the task from today (their notifications show it as new).
+    const change = patch.assignee !== undefined && patch.assignee !== task.assignee ? { ...patch, assignedOn: patch.assignee ? toISODate(TODAY) : null } : patch
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
       let next
       if (task.standard) {
-        const { status, ...rest } = patch
+        const { status, ...rest } = change
         const saved = { ...edits.tasks?.[task.key], ...rest }
         const milestones = { ...edits.milestones }
         if (status === 'done') milestones[task.key] = toISODate(TODAY)
@@ -482,59 +533,83 @@ export function CrmProvider({ children }) {
         const own = edits.customTasks ?? []
         const base = own.some((t) => t.id === task.id) ? own : [...own, { id: task.id, title: task.title, assignee: task.assignee, due: task.due, status: task.status, doneOn: task.doneOn }]
         const customTasks = base.map((t) =>
-          t.id === task.id ? { ...t, ...patch, ...(patch.status === 'done' ? { doneOn: toISODate(TODAY) } : patch.status ? { doneOn: null } : {}) } : t,
+          t.id === task.id ? { ...t, ...change, ...(patch.status === 'done' ? { doneOn: toISODate(TODAY) } : patch.status ? { doneOn: null } : {}) } : t,
         )
         next = { ...edits, customTasks }
       }
       const what = patch.status ? `marked ${patch.status === 'in-progress' ? 'in progress' : patch.status === 'todo' ? 'to do' : 'done'}` : patch.assignee !== undefined ? `assigned to ${patch.assignee || 'nobody'}` : 'due date changed'
-      return { ...prev, projects: { ...prev.projects, [project.id]: next }, activities: log(prev, leadId, 'project', `${project.name}: "${task.title}" ${what}`) }
+      const saved = { ...prev, projects: { ...prev.projects, [project.id]: next }, activities: log(prev, leadId, 'project', `${project.name}: "${task.title}" ${what}`) }
+      // A task handed to someone in the field team reaches them on WhatsApp.
+      const handedTo = patch.assignee && patch.assignee !== task.assignee ? memberOf(patch.assignee) : null
+      return handedTo ? sendAuto(saved, 'task', leadId, handedTo, { lead: project.lead ?? findLead(leadId), project, task: { ...task, ...patch } }) : saved
     })
-  }, [setChanges])
+  }, [findLead, setChanges])
 
   const addProjectTask = useCallback((leadId, project, { title, assignee, due }) => {
-    const task = { id: `TK-${Date.now()}`, title, assignee: assignee || null, due: due || null, status: 'todo', doneOn: null }
+    const task = { id: `TK-${Date.now()}`, title, assignee: assignee || null, assignedOn: assignee ? toISODate(TODAY) : null, due: due || null, status: 'todo', doneOn: null }
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
-      return {
+      const saved = {
         ...prev,
         projects: { ...prev.projects, [project.id]: { ...edits, customTasks: [...(edits.customTasks ?? []), task] } },
         activities: log(prev, leadId, 'project', `${project.name}: task added — ${title}${assignee ? ` (${assignee})` : ''}`),
       }
+      return sendAuto(saved, 'task', leadId, memberOf(assignee), { lead: project.lead ?? findLead(leadId), project, task })
     })
-  }, [setChanges])
+  }, [findLead, setChanges])
 
   /*
    * Records an official letter (scanned or received) against a project; the client sees it in the portal.
    * forStep links it to an approval step (vendor sheet: "link the scanned PDF to the client's task"): the step
    * is marked done on the letter's date if it wasn't already, and the scan becomes that step's letter.
    */
-  const addGovtLetter = useCallback((leadId, project, { title, authority, ref, date, file, forStep }) => {
+  // scan: a scan from the NAS inbox (flowchart 3, step 2); it becomes the letter's copy and leaves the inbox.
+  const addGovtLetter = useCallback((leadId, project, { title, authority, ref, date, file, forStep, scan }) => {
     const letter = { id: `GL-${Date.now()}`, title, authority, ref, date }
     if (forStep) letter.forStep = forStep
     if (file) {
       letter.fileId = `${letter.id}-file`
       rememberFile(letter.fileId, file)
+    } else if (scan) {
+      // An uploaded scan's file is kept under the scan's id; a seeded one downloads as a generated copy.
+      letter.fileId = scan.id
     }
     const step = forStep && project.approvals.find((s) => s.key === forStep)
+    const lead = findLead(leadId)
+    // A letter for an approval step is shown to the client as that step's letter.
+    const shownAs = step?.letter ? `${project.id}-${forStep}` : letter.id
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
       // A scan replaces an earlier one recorded for the same step.
       const others = (edits.letters ?? []).filter((l) => !forStep || l.forStep !== forStep)
       const approvals = step && !step.done ? { ...edits.approvals, [forStep]: date } : edits.approvals
-      return {
+      let next = {
         ...prev,
         projects: { ...prev.projects, [project.id]: { ...edits, approvals, letters: [...others, letter] } },
         activities: log(prev, leadId, 'project', step ? `${project.name}: ${step.label}${step.done ? '' : ' done'} — scanned letter linked: ${title} (${ref})` : `Government letter added to ${project.name}: ${title} (${ref})`),
       }
+      if (scan) {
+        const scans = { ...EMPTY.scans, ...prev.scans }
+        next = { ...next, scans: { ...scans, filed: { ...scans.filed, [scan.id]: { projectId: project.id, letterId: letter.id, on: toISODate(TODAY) } } } }
+      }
+      // Vendor sheet C2: the client hears about the letter straight away, with the scan attached.
+      const sent = sendAuto(next, 'letter', leadId, clientOf(lead), { lead, project, letter, fileName: file?.name ?? scan?.name })
+      if (sent !== next && sent.outbox.at(-1).channels.includes('whatsapp')) {
+        const saved = sent.projects[project.id]
+        return { ...sent, projects: { ...sent.projects, [project.id]: { ...saved, sharedLetters: { ...saved.sharedLetters, [shownAs]: toISODate(TODAY) } } } }
+      }
+      return sent
     })
     return { ...letter, stepKey: step?.letter ? forStep : undefined }
-  }, [setChanges])
+  }, [findLead, setChanges])
 
   /* ERM: changes one project's edits and logs it on the client's activity. */
-  const editProject = useCallback((leadId, project, change, text) => {
+  // then(next): a follow-up on the saved change, e.g. the automatic message it sends.
+  const editProject = useCallback((leadId, project, change, text, then) => {
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
-      return { ...prev, projects: { ...prev.projects, [project.id]: { ...edits, ...change(edits) } }, activities: log(prev, leadId, 'project', text) }
+      const next = { ...prev, projects: { ...prev.projects, [project.id]: { ...edits, ...change(edits) } }, activities: log(prev, leadId, 'project', text) }
+      return then ? then(next) : next
     })
   }, [setChanges])
 
@@ -572,9 +647,10 @@ export function CrmProvider({ children }) {
         // Filing is also the first step of the approval ("report submitted", "application filed").
         (e) => ({ submission, milestones: { ...e.milestones, submission: date }, approvals: { ...e.approvals, [project.approvals[0].key]: date } }),
         `${project.name}: submitted to ${project.authority} via ${mode}${ackNo ? ` · Ack. ${ackNo}` : ''}`,
+        (next) => sendAuto(next, 'submitted', leadId, clientOf(findLead(leadId)), { lead: findLead(leadId), project, mode, ackNo }),
       )
     },
-    [editProject],
+    [editProject, findLead],
   )
 
   /* ERM: tick or untick a closure step; closing the project once they are all done. */
@@ -600,9 +676,10 @@ export function CrmProvider({ children }) {
         project,
         (e) => ({ closure: { ...(e.closure ?? closureOf(project)), closedOn: toISODate(TODAY), note: note || null } }),
         `${project.name} (${project.id}) — project closed${note ? `: ${note}` : ''}`,
+        (next) => sendAuto(next, 'closed', leadId, clientOf(findLead(leadId)), { lead: findLead(leadId), project }),
       )
     },
-    [editProject],
+    [editProject, findLead],
   )
 
   /* ERM: files kept against a project (reports, maps, field data). */
@@ -625,9 +702,15 @@ export function CrmProvider({ children }) {
   /* ERM: a project file the client can (or can no longer) download from the portal. */
   const setFileShared = useCallback(
     (leadId, project, file, shared) => {
-      editProject(leadId, project, (e) => ({ sharedFiles: { ...e.sharedFiles, [file.id]: shared ? toISODate(TODAY) : false } }), `${project.name}: ${file.name} ${shared ? 'shared with the client (portal)' : 'no longer shared with the client'}`)
+      editProject(
+        leadId,
+        project,
+        (e) => ({ sharedFiles: { ...e.sharedFiles, [file.id]: shared ? toISODate(TODAY) : false } }),
+        `${project.name}: ${file.name} ${shared ? 'shared with the client (portal)' : 'no longer shared with the client'}`,
+        shared ? (next) => sendAuto(next, 'document', leadId, clientOf(findLead(leadId)), { lead: findLead(leadId), project, file }) : undefined,
+      )
     },
-    [editProject],
+    [editProject, findLead],
   )
 
   /* Client portal: a question for the team. It stays open until someone answers it. */
@@ -651,7 +734,10 @@ export function CrmProvider({ children }) {
       const lead = findLead(id)
       if (!lead) return
       const queries = queriesOf(lead).map((q) => (q.id === queryId ? { ...q, status: 'Answered', reply, repliedAt: new Date().toISOString(), repliedBy: actorRef.current?.name ?? lead.assignedTo } : q))
-      setChanges((prev) => ({ ...prev, edits: editLead(prev, id, { queries }), activities: log(prev, id, 'contact', `Portal — replied to the client's question: ${reply}`) }))
+      const topic = queriesOf(lead).find((q) => q.id === queryId)?.topic ?? 'your project'
+      setChanges((prev) =>
+        sendAuto({ ...prev, edits: editLead(prev, id, { queries }), activities: log(prev, id, 'contact', `Portal — replied to the client's question: ${reply}`) }, 'reply', id, clientOf(lead), { lead, topic, reply }),
+      )
     },
     [findLead, setChanges],
   )
@@ -700,12 +786,14 @@ export function CrmProvider({ children }) {
             projects = { ...prev.projects, [main.id]: { ...edits, closure: { ...closure, steps: { ...closure.steps, payment: today } } } }
           }
         }
-        return {
+        const saved = {
           ...prev,
           edits: editLead(prev, id, leadPatch),
           projects,
           activities: log(prev, id, 'payment', ok ? `Payment of ${rupees} for ${payment.title} verified — received` : `Payment of ${rupees} for ${payment.title} not found in the account${note ? `: ${note}` : ''}`),
         }
+        // A verified payment sends the client a receipt.
+        return ok ? sendAuto(saved, 'payment', id, clientOf(lead), { lead, payment }) : saved
       })
     },
     [findLead, setChanges],
@@ -727,6 +815,37 @@ export function CrmProvider({ children }) {
   )
 
   /* ERM: the client was told about a government letter on WhatsApp. */
+  /*
+   * Scan inbox (WP6, flowchart 3): scans from the NAS scanner folder wait here until filed against a project
+   * (addGovtLetter with the scan). New scans come in by upload; one that isn't a government letter is set aside.
+   */
+  const addScans = useCallback(
+    (files) => {
+      const added = files.map((file) => {
+        const scan = { id: `SCN-${Date.now()}-${Math.round(Math.random() * 1e6)}`, name: file.name, size: file.size, type: file.type || 'application/pdf', scannedAt: new Date().toISOString(), scanner: 'Uploaded' }
+        rememberFile(scan.id, file)
+        return scan
+      })
+      setChanges((prev) => {
+        const scans = { ...EMPTY.scans, ...prev.scans }
+        return { ...prev, scans: { ...scans, added: [...scans.added, ...added] } }
+      })
+    },
+    [setChanges],
+  )
+  const discardScan = useCallback(
+    (id) =>
+      setChanges((prev) => {
+        const scans = { ...EMPTY.scans, ...prev.scans }
+        return { ...prev, scans: { ...scans, discarded: [...scans.discarded, id] } }
+      }),
+    [setChanges],
+  )
+  const scanInbox = useMemo(() => {
+    const scans = { ...EMPTY.scans, ...changes.scans }
+    return [...SEEDED_SCANS, ...scans.added].filter((s) => !scans.filed[s.id] && !scans.discarded.includes(s.id)).sort((a, b) => b.scannedAt.localeCompare(a.scannedAt))
+  }, [changes.scans])
+
   const markLetterShared = useCallback(
     (leadId, project, letter) => {
       editProject(leadId, project, (e) => ({ sharedLetters: { ...e.sharedLetters, [letter.id]: toISODate(TODAY) } }), `${project.name}: ${letter.title} (${letter.ref}) shared with the client on WhatsApp`)
@@ -846,6 +965,10 @@ export function CrmProvider({ children }) {
         settings,
         role,
         setRole,
+        outbox: changes.outbox ?? [],
+        scanInbox,
+        addScans,
+        discardScan,
         user,
         fieldMember,
         setFieldMember,
@@ -895,6 +1018,7 @@ export function CrmProvider({ children }) {
         addWorkOrder,
         markPortalShared,
         addDocuments,
+        setDocumentShared,
         removeDocument,
         setTags,
         updateSettings,

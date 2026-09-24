@@ -1,8 +1,9 @@
-import { Download, File, FileImage, FileSpreadsheet, FileText, Tag, Trash2, UploadCloud, X } from 'lucide-react'
+import { Download, Eye, EyeOff, File, FileImage, FileSpreadsheet, FileText, Tag, Trash2, UploadCloud, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useAccess, useCrm } from '../../context/crm'
 import { formatDayMonth } from '../../utils/date'
 import { downloadDocument } from '../../utils/files'
+import { isNewFromClient } from '../../utils/leads'
 
 const MAX_SIZE = 10 * 1024 * 1024
 const SUGGESTED_TAGS = ['High value', 'Repeat client', 'Govt. deadline', 'Site visit done', 'Urgent']
@@ -69,9 +70,12 @@ function Tags({ lead }) {
   )
 }
 
-/* Documents shared by the client (lease papers, maps, reports). The demo keeps only file details, not contents. */
+/*
+ * The enquiry's documents: the client's uploads from the portal and the team's own files, which stay with the team
+ * until someone shares them. The demo keeps only file details, not contents.
+ */
 export function LeadDocuments({ lead }) {
-  const { addDocuments, removeDocument, settings } = useCrm()
+  const { addDocuments, removeDocument, setDocumentShared, settings } = useCrm()
   const canEdit = useAccess().may('contact')
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState('')
@@ -136,20 +140,38 @@ export function LeadDocuments({ lead }) {
                   <Icon size={18} />
                 </span>
                 <div>
-                  <strong>{doc.name}</strong>
+                  <strong>
+                    {doc.name}
+                    {isNewFromClient(doc) && <span className="pill tone-attention new-pill">New</span>}
+                  </strong>
                   <span className="muted">
                     {formatSize(doc.size)} · added {formatDayMonth(doc.addedOn)}
                     {doc.byClient && ' · from client portal'}
                   </span>
                 </div>
-                <button className="icon-button small" onClick={() => downloadDocument(doc, { company: lead.company, companyName: settings.companyName })} aria-label={`Download ${doc.name}`}>
-                  <Download size={15} />
-                </button>
-                {canEdit && (
-                  <button className="icon-button small" onClick={() => removeDocument(lead.id, doc.id)} aria-label={`Remove ${doc.name}`}>
-                    <Trash2 size={15} />
+                <span className="doc-actions">
+                  {/* The team's own files stay with the team until shared; the client's uploads are theirs already. */}
+                  {!doc.byClient && (
+                    <button
+                      className={`share-toggle ${doc.shared ? 'is-on' : ''}`}
+                      onClick={canEdit ? () => setDocumentShared(lead.id, doc.id, !doc.shared) : undefined}
+                      disabled={!canEdit}
+                      aria-pressed={Boolean(doc.shared)}
+                      title={doc.shared ? 'The client can download this from the portal' : 'Only the team can see this'}
+                    >
+                      {doc.shared ? <Eye size={14} /> : <EyeOff size={14} />}
+                      <span className="share-label">{doc.shared ? 'Client can see' : 'Team only'}</span>
+                    </button>
+                  )}
+                  <button className="icon-button small" onClick={() => downloadDocument(doc, { company: lead.company, companyName: settings.companyName })} aria-label={`Download ${doc.name}`}>
+                    <Download size={15} />
                   </button>
-                )}
+                  {canEdit && (
+                    <button className="icon-button small" onClick={() => removeDocument(lead.id, doc.id)} aria-label={`Remove ${doc.name}`}>
+                      <Trash2 size={15} />
+                    </button>
+                  )}
+                </span>
               </li>
             )
           })}
