@@ -133,6 +133,12 @@
   gap: 4px;
   padding: 0 14px;
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* The tabs scroll sideways on a phone by swiping; no scrollbar under them. */
+.stage-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .stage-tab {

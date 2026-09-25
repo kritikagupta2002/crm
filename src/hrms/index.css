@@ -1,0 +1,688 @@
+@import '../theme/index.css';
+@import './styles/utilities.css';
+@import './styles/layout.css';
+@import './styles/common.css';
+@import './modules/dashboard/styles/dashboard.css';
+@import './modules/leave/styles/leave.css';
+@import './modules/attendance/styles/attendance.css';
+@import './modules/employees/styles/employees.css';
+@import './modules/payroll/styles/payroll.css';
+@import './modules/finance/styles/finance.css';
+@import './modules/expenses/styles/expenses.css';
+@import './modules/reports/styles/reports.css';
+@import './modules/settings/styles/settings.css';
+@import './modules/auth/styles/auth.css';
+@import './modules/documents/styles/documents.css';
+@import './modules/shifts/styles/shifts.css';
+
+
+/* ════════════════════════════════════════════
+   BANSAL GEO CRM THEME INTEGRATION
+   Deep teal · Warm ochre gold · Ink · Ivory slate canvas
+   Plain CSS Design Tokens & Variable System
+   ════════════════════════════════════════════ */
+
+:root {
+  /* ── Typography Tokens ── */
+  --font-heading: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ── Spacing Tokens ── */
+  --space-0-5: 0.125rem;
+  --space-1:   0.25rem;
+  --space-1-5: 0.375rem;
+  --space-2:   0.5rem;
+  --space-2-5: 0.625rem;
+  --space-3:   0.75rem;
+  --space-4:   1rem;
+  --space-5:   1.25rem;
+  --space-6:   1.5rem;
+  --space-8:   2rem;
+  --space-10:  2.5rem;
+  --space-12:  3rem;
+  --space-16:  4rem;
+
+  /* ── Shape & Elevation Tokens ── */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow:    0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Brand Teal ── */
+  --teal-900: #0e4a52;
+  --teal-700: #1f6f78; /* Primary CRM Brand */
+  --teal-600: #2a8089;
+  --teal-400: #5fa9ae;
+  --teal-200: #b7dadb;
+  --teal-100: #ddefef;
+  --teal-50:  #eef7f7;
+
+  /* ── Brand Gold ── */
+  --gold-600: #b07d27;
+  --gold-500: #c8943a; /* CRM Accent */
+  --gold-200: #ecd6ae;
+  --gold-100: #f7ebd5;
+
+  /* ── Neutrals & Ink ── */
+  --ink:   #0f2a3d; /* Headings / primary text */
+  --ink-2: #4a5b68; /* Body text */
+  --ink-3: #7c8b96; /* Muted metadata */
+
+  --bg:      #f4f7f8;
+  --surface: #ffffff;
+
+  /* ── Chrome & Frame ── */
+  --chrome:        #e4eaed;
+  --chrome-hover:  #d8e0e4;
+  --chrome-line:   #d3dce1;
+  --chrome-height: 68px;
+
+  /* ── Sidebar panel ── */
+  --sidebar-bg:    #e6ebee;
+  --sidebar-hover: rgba(15, 42, 61, 0.06);
+  --sidebar-line:  #d3dce1;
+  --sidebar-text:  #34495a;
+  --sidebar-muted: #627079;
+  --sidebar-icon:  var(--teal-600);
+  --sidebar-width: 272px;
+
+  /* ── Sidebar mountain illustration ── */
+  --mtn-far:         #c9d1d5;
+  --mtn-far-2:       #b3bdc2;
+  --mtn-lit:         #a3adb3;
+  --mtn-rock:        #87939a;
+  --mtn-shade:       #69757d;
+  --mtn-deep:        #535f67;
+  --mtn-snow:        #f4f7f8;
+  --mtn-snow-shade:  #d3dadf;
+  --mtn-base:        #414d55;
+  --mtn-forest-back: #6f7b82;
+  --mtn-forest-mid:  #505c63;
+  --mtn-forest:      #36424a;
+
+  /* ── Navigation active ── */
+  --nav-active:      var(--teal-700);
+  --nav-active-edge: var(--gold-500);
+
+  /* ── Divider lines ── */
+  --line:      #e1e8eb;
+  --line-soft: #edf1f3;
+
+  /* ── Semantic status ── */
+  --blue:      #2f6fb3;
+  --blue-bg:   #e6effa;
+  --green:     #2e9e6b;
+  --green-bg:  #e3f4ec;
+  --red:       #d24c47;
+  --red-bg:    #fbe5e4;
+  --amber:     #c27a12;
+  --amber-bg:  #fcf0dc;
+
+  /* ── WhatsApp ── */
+  --whatsapp:    #128c4b;
+  --whatsapp-bg: #e8f7ee;
+
+  --success-button: #2e9e6b;
+
+  /* Legacy Token Aliases */
+  --brand-gold: #c8943a;
+  --brand-gold-light: #ecd6ae;
+  --brand-ochre: #1f6f78;
+  --brand-slate: #1f6f78;
+  --brand-charcoal: #4a5b68;
+  --brand-canvas: #f4f7f8;
+  --brand-surface: #ffffff;
+  --brand-border: #d3dce1;
+  --brand-muted: #7c8b96;
+  --shadow-warm: rgba(15, 42, 61, 0.04);
+  --shadow-gold: rgba(200, 148, 58, 0.15);
+}
+
+/* Dark mode CSS variables */
+.dark {
+  --teal-900: #083238;
+  --teal-700: #14b8a6;
+  --teal-600: #2dd4bf;
+  --teal-400: #5eead4;
+  --teal-200: #99f6e4;
+  --teal-100: rgba(20, 184, 166, 0.2);
+  --teal-50:  rgba(20, 184, 166, 0.12);
+
+  --gold-600: #d97706;
+  --gold-500: #f59e0b;
+  --gold-200: #fde68a;
+  --gold-100: rgba(245, 158, 11, 0.15);
+
+  --ink:   #f8fafc;
+  --ink-2: #e2e8f0;
+  --ink-3: #94a3b8;
+
+  --bg:      #0b111a;
+  --surface: #131e2b;
+
+  --chrome:        #111a24;
+  --chrome-hover:  #1a2838;
+  --chrome-line:   #1f3044;
+
+  --sidebar-bg:    #0f1722;
+  --sidebar-hover: rgba(255, 255, 255, 0.07);
+  --sidebar-line:  #1e2d3d;
+  --sidebar-text:  #cbd5e1;
+  --sidebar-muted: #94a3b8;
+  --sidebar-icon:  #2dd4bf;
+
+  --line:      #223347;
+  --line-soft: #1a2736;
+
+  --nav-active:      #14b8a6;
+  --nav-active-edge: #f59e0b;
+
+  --blue:      #60a5fa;
+  --blue-bg:   rgba(47, 111, 179, 0.25);
+  --green:     #34d399;
+  --green-bg:  rgba(16, 185, 129, 0.22);
+  --red:       #f87171;
+  --red-bg:    rgba(239, 68, 68, 0.25);
+  --amber:     #fbbf24;
+  --amber-bg:  rgba(245, 158, 11, 0.25);
+
+  --whatsapp:    #25d366;
+  --whatsapp-bg: rgba(37, 211, 102, 0.2);
+
+  --success-button: #10b981;
+
+  --brand-canvas: #0b111a;
+  --brand-surface: #131e2b;
+  --brand-border: #223347;
+  --brand-muted: #94a3b8;
+  --shadow-warm: rgba(0, 0, 0, 0.5);
+  --shadow-gold: rgba(245, 158, 11, 0.15);
+}
+
+/* Immediate Theme Snap: Suppresses all transitions during theme toggle */
+.disable-transitions,
+.disable-transitions *,
+.disable-transitions *::before,
+.disable-transitions *::after {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  -ms-transition: none !important;
+  transition: none !important;
+}
+
+/* ── BASE RESET ── */
+html, body, #root {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink-2);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+.dark body {
+  background-color: var(--bg);
+  color: var(--ink-2);
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  color-scheme: dark;
+}
+
+/* ── HEADING TYPOGRAPHY — Fraunces font ── */
+h1, h2, h3, .font-serif, .font-heading, .page-title h1, .stat-value {
+  font-family: var(--font-heading);
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+h4, h5, h6 {
+  font-family: var(--font-body);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+
+label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+table {
+  font-size: 13.5px;
+}
+
+th {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+td {
+  font-size: 13.5px;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ── BANSAL GEO CRM TYPOGRAPHY SCALE ── */
+.page-title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ink);
+  letter-spacing: -0.025em;
+}
+
+.stat-value {
+  font-family: var(--font-heading);
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+}
+
+.stat-value-sm {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+
+/* ── PILL / BADGE CRM STYLES ── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 9999px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.pill-sm {
+  height: 19px;
+  padding: 0 6px;
+  font-size: 10px;
+}
+
+.pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── TONE HELPER UTILITIES ── */
+.tone-info {
+  --tone: var(--blue);
+  --tone-bg: var(--blue-bg);
+  color: var(--tone);
+  background-color: var(--tone-bg);
+  border: 1px solid rgba(47, 111, 179, 0.2);
+}
+.dark .tone-info {
+  border-color: rgba(96, 165, 250, 0.25);
+}
+
+.tone-attention {
+  --tone: var(--amber);
+  --tone-bg: var(--amber-bg);
+  color: var(--tone);
+  background-color: var(--tone-bg);
+  border: 1px solid rgba(194, 122, 18, 0.2);
+}
+.dark .tone-attention {
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.tone-urgent {
+  --tone: var(--red);
+  --tone-bg: var(--red-bg);
+  color: var(--tone);
+  background-color: var(--tone-bg);
+  border: 1px solid rgba(210, 76, 71, 0.2);
+}
+.dark .tone-urgent {
+  border-color: rgba(248, 113, 113, 0.25);
+}
+
+.tone-good {
+  --tone: var(--green);
+  --tone-bg: var(--green-bg);
+  color: var(--tone);
+  background-color: var(--tone-bg);
+  border: 1px solid rgba(46, 158, 107, 0.2);
+}
+.dark .tone-good {
+  border-color: rgba(52, 211, 153, 0.25);
+}
+
+.tone-neutral {
+  --tone: var(--ink-3);
+  --tone-bg: #eef1f3;
+  color: var(--tone);
+  background-color: var(--tone-bg);
+  border: 1px solid rgba(124, 139, 150, 0.2);
+}
+.dark .tone-neutral {
+  --tone-bg: rgba(30, 44, 55, 0.5);
+  border-color: rgba(126, 145, 159, 0.25);
+}
+
+/* ── PIPELINE STAGE LADDER ── */
+.stage-new-enquiry, .stage-contacted {
+  color: #1D4ED8;
+  background-color: #EFF6FF;
+  border: 1px solid rgba(29, 78, 216, 0.2);
+}
+.stage-qualified {
+  color: #94600C;
+  background-color: #FEFCE8;
+  border: 1px solid rgba(148, 96, 12, 0.2);
+}
+.stage-proposal {
+  color: #B45309;
+  background-color: #FFFBEB;
+  border: 1px solid rgba(180, 83, 9, 0.2);
+}
+.stage-negotiation {
+  color: #C2410C;
+  background-color: #FFF7ED;
+  border: 1px solid rgba(194, 65, 12, 0.2);
+}
+.stage-won {
+  color: #1F7A52;
+  background-color: #F0FDF4;
+  border: 1px solid rgba(31, 122, 82, 0.2);
+}
+.stage-lost {
+  color: #B53A35;
+  background-color: #FEF2F2;
+  border: 1px solid rgba(181, 58, 53, 0.2);
+}
+
+/* ── CARD CRM SYSTEM ── */
+.card-crm, .card-premium {
+  background: var(--surface);
+  border: 1px solid var(--chrome-line);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 42, 61, 0.04), 0 4px 16px rgba(15, 42, 61, 0.03);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-crm:hover {
+  box-shadow: 0 4px 12px rgba(15, 42, 61, 0.08), 0 12px 28px rgba(15, 42, 61, 0.05);
+  border-color: var(--chrome-hover);
+}
+
+.dark .card-crm, .dark .card-premium {
+  background: var(--surface);
+  border-color: var(--chrome-line);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.dark .card-crm:hover {
+  border-color: var(--teal-700);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* ── CRM BUTTON PRIMARY ── */
+.crm-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 18px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--teal-700);
+  border: 1px solid var(--teal-900);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(14, 74, 82, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.crm-btn-primary:hover {
+  background: var(--teal-900);
+}
+
+.crm-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.crm-btn-gold {
+  background: var(--gold-500);
+  color: #ffffff;
+  border: 1px solid var(--gold-600);
+}
+.crm-btn-gold:hover {
+  background: var(--gold-600);
+}
+
+.crm-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--chrome);
+  border: 1px solid var(--chrome-line);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.crm-btn-secondary:hover {
+  background: var(--chrome-hover);
+}
+
+/* ── TABLE UTILITIES ── */
+.enterprise-table-header {
+  background-color: #FAFAF8;
+  color: #1A2430;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #E8E4DC;
+}
+
+.dark .enterprise-table-header {
+  background-color: #111821;
+  color: #cbd5e1;
+  border-color: #253344;
+}
+
+.enterprise-table-row {
+  transition: background-color 100ms;
+  border-bottom: 1px solid #F0EDE8;
+}
+
+.enterprise-table-row:hover {
+  background-color: rgba(254, 243, 199, 0.6);
+}
+
+.dark .enterprise-table-row {
+  border-color: #253344;
+}
+
+.dark .enterprise-table-row:hover {
+  background-color: rgba(37, 51, 68, 0.4);
+}
+
+.badge-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid rgba(253, 230, 138, 0.7);
+}
+
+.badge-slate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5F2ED;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1A2430;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #D9CFC0 0%, #C4B896 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #374B63 0%, #253344 100%);
+}
+
+.custom-sidebar-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: 9999px;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ── PRINT UTILITIES ── */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printable-payslip,
+  .printable-payslip * {
+    visibility: visible;
+  }
+  .printable-payslip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

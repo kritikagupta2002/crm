@@ -9,6 +9,9 @@ import { clientProjects } from '../utils/projects'
 import { pinnedQuote, quoteFor } from '../utils/workflow'
 import { channelsFor, messageFor } from '../utils/automations'
 import { SEEDED_SCANS } from '../data/scans'
+import { SEEDED_APPLICATIONS, msmeOf } from '../data/vendorApplications'
+import { SEEDED_BIDS, SEEDED_TENDERS } from '../data/tenders'
+import { closingOf, formatDateTime, tenderPhase } from '../utils/tenders'
 import { CrmContext, DEFAULT_SETTINGS, ROLE_ACCESS, ROLE_USERS } from './crm'
 
 /*
@@ -26,7 +29,7 @@ const SESSION_KEY = 'bansal-crm:session'
 const CLIENT_KEY = 'bansal-crm:client-session'
 const VENDOR_KEY = 'bansal-crm:vendor-session'
 const OLD_STORAGE_KEY = 'bansal-crm-demo:added:v1'
-const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] } }
+const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] }, vendorApps: {}, tenders: {}, bids: {} }
 
 /* Keeps uploaded files for this session and returns their details for the record. */
 const fileRecords = (files, extra = {}) =>
@@ -104,6 +107,12 @@ function sendAuto(prev, key, leadId, to, ctx) {
   return { ...prev, outbox: [...(prev.outbox ?? []), item], activities: log(prev, leadId, 'message', `Sent automatically on ${via} to ${to.name}: ${message.subject}`) }
 }
 
+/* Seeded records with the app's changes laid over them: a record changed or added in the app is kept whole under its id. */
+const withSaved = (seeded, saved = {}) => [...seeded.map((x) => saved[x.id] ?? x), ...Object.values(saved).filter((x) => !seeded.some((s) => s.id === x.id))]
+
+const vendorContact = (vendor) => vendor && { audience: 'vendor', name: `${vendor.contact} (${vendor.name})`, phone: vendor.phone, email: vendor.email }
+
+const digitsOfPhone = (v) => String(v ?? '').replace(/\D/g, '').slice(-10)
 const clientOf = (lead) => lead && { audience: 'client', name: lead.contactPerson, phone: lead.phone, email: lead.email }
 const memberOf = (name) => {
   const member = FIELD_MEMBERS.find((m) => m.name === name)
@@ -922,6 +931,251 @@ export function CrmProvider({ children }) {
 
   const vendors = useMemo(() => [...VENDORS, ...(changes.vendors ?? [])], [changes.vendors])
 
+  /*
+   * Vendor registration (data/vendorApplications.js): the demo's applications plus those sent in the app; any
+   * application changed in the app is kept whole in changes.vendorApps under its id.
+   */
+  const vendorApplications = useMemo(() => {
+    const saved = changes.vendorApps ?? {}
+    const seeded = SEEDED_APPLICATIONS.map((a) => saved[a.id] ?? a)
+    const added = Object.values(saved).filter((a) => !SEEDED_APPLICATIONS.some((s) => s.id === a.id))
+    return [...seeded, ...added].sort((a, b) => b.submittedAt.localeCompare(a.submittedAt))
+  }, [changes.vendorApps])
+
+  const vendorOf = (app) => ({ audience: 'vendor', name: `${app.contact.name} (${app.firm.name})`, phone: app.contact.mobile, email: app.contact.email })
+  const docRecords = (files) => fileRecords(files.map((f) => f.file)).map((rec, i) => ({ ...rec, kind: files[i].kind }))
+
+  /* A firm registers on the public page; returns its application number. files: [{ file, kind }]. */
+  const submitVendorApplication = useCallback(
+    (details, files) => {
+      const year = TODAY.getFullYear()
+      const highest = vendorApplications.reduce((max, a) => Math.max(max, Number(a.id.split('-').pop()) || 0), 0)
+      const id = `VR-${year}-${String(highest + 1).padStart(3, '0')}`
+      const now = new Date().toISOString()
+      const app = { ...details, id, submittedAt: now, status: 'New', documents: docRecords(files), history: [{ at: now, action: 'Submitted', by: details.contact.name }] }
+      setChanges((prev) => ({
+        ...prev,
+        vendorApps: { ...prev.vendorApps, [id]: app },
+        activities: log(prev, null, 'vendor', `Vendor application ${id} received: ${app.firm.name} (${app.work.categories.join(', ')})`, { by: 'vendor', vendor: app.firm.name }),
+      }))
+      return id
+    },
+    [setChanges, vendorApplications],
+  )
+
+  /* The firm corrects an application that was sent back, and sends it again. */
+  const resubmitVendorApplication = useCallback(
+    (id, details, files) => {
+      const app = vendorApplications.find((a) => a.id === id)
+      if (!app) return
+      const now = new Date().toISOString()
+      const next = { ...app, ...details, status: 'New', note: null, documents: [...app.documents, ...docRecords(files)], history: [...app.history, { at: now, action: 'Resubmitted with changes', by: details.contact.name }] }
+      setChanges((prev) => ({ ...prev, vendorApps: { ...prev.vendorApps, [id]: next }, activities: log(prev, null, 'vendor', `Vendor application ${id} resubmitted: ${next.firm.name}`, { by: 'vendor', vendor: next.firm.name }) }))
+    },
+    [setChanges, vendorApplications],
+  )
+
+  /*
+   * The Admin's decision. approve: the firm joins the vendor register with a vendor ID (tds: the section Finance
+   * applies); changes: sent back with a note; reject: with a reason. The firm hears by email (and WhatsApp once approved).
+   */
+  const decideVendorApplication = useCallback(
+    (id, decision, { note = '', reason = '', tds } = {}) => {
+      const app = vendorApplications.find((a) => a.id === id)
+      if (!app) return
+      const now = new Date().toISOString()
+      const by = actorRef.current.name
+      setChanges((prev) => {
+        let vendorId = null
+        let vendorsNext = prev.vendors ?? []
+        if (decision === 'approve') {
+          const all = [...VENDORS, ...vendorsNext]
+          vendorId = `VN-${String(all.length + 1).padStart(2, '0')}`
+          const vendor = {
+            id: vendorId,
+            name: app.firm.name,
+            work: app.work.categories.join(', '),
+            categories: app.work.categories,
+            place: app.address.city,
+            contact: app.contact.name,
+            phone: digitsOfPhone(app.contact.mobile),
+            email: app.contact.email,
+            gstin: app.tax.gstRegistered ? app.tax.gstin.toUpperCase() : '',
+            pan: app.tax.pan.toUpperCase(),
+            tds,
+            bank: { name: [app.bank.bank, app.bank.branch].filter(Boolean).join(', '), accountNo: app.bank.accountNo, ifsc: app.bank.ifsc.toUpperCase() },
+            msme: msmeOf(app.firm),
+            address: app.address,
+            applicationId: id,
+            since: toISODate(TODAY),
+          }
+          vendorsNext = [...vendorsNext, vendor]
+        }
+        const action = { approve: 'Approved', changes: 'Sent back for changes', reject: 'Rejected' }[decision]
+        const status = { approve: 'Approved', changes: 'Changes requested', reject: 'Rejected' }[decision]
+        const next = { ...app, status, note: note || null, reason: decision === 'reject' ? reason : app.reason, vendorId: vendorId ?? app.vendorId, decidedAt: now, history: [...app.history, { at: now, action, by, note: [reason, note].filter(Boolean).join(' — ') || null }] }
+        const saved = {
+          ...prev,
+          vendors: vendorsNext,
+          vendorApps: { ...prev.vendorApps, [id]: next },
+          activities: log(prev, null, 'vendor', `Vendor application ${id} (${app.firm.name}) ${action.toLowerCase()}${vendorId ? ` as ${vendorId}` : ''}${reason ? `: ${reason}` : ''}`),
+        }
+        const key = { approve: 'vendorApproved', changes: 'vendorChanges', reject: 'vendorRejected' }[decision]
+        return sendAuto(saved, key, null, vendorOf(app), { application: next, vendorId, note, reason })
+      })
+    },
+    [setChanges, vendorApplications],
+  )
+
+  /* Tenders and bids (data/tenders.js): the demo's, with what was published, bid and decided in the app. */
+  const tenders = useMemo(() => withSaved(SEEDED_TENDERS, changes.tenders).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)), [changes.tenders])
+  const bids = useMemo(() => withSaved(SEEDED_BIDS, changes.bids).sort((a, b) => a.submittedAt.localeCompare(b.submittedAt)), [changes.bids])
+
+  /* The Admin puts a work out for bids; every approved vendor hears of it. Returns the tender ID. */
+  const publishTender = useCallback(
+    (details, files) => {
+      const year = TODAY.getFullYear()
+      const n = String(tenders.reduce((max, t) => Math.max(max, Number(t.id.split('-').pop()) || 0), 0) + 1).padStart(3, '0')
+      const id = `TN-${year}-${n}`
+      const now = new Date().toISOString()
+      const by = actorRef.current.name
+      setChanges((prev) => {
+        const all = [...VENDORS, ...(prev.vendors ?? [])]
+        const tender = {
+          ...details,
+          id,
+          refNo: `BG/VW/${year}-${String((year + 1) % 100).padStart(2, '0')}/${n}`,
+          publishedAt: now,
+          status: 'Open',
+          documents: docRecords(files),
+          authority: { name: by, designation: `Admin, ${settings.companyName}`, address: settings.address },
+          notified: all.length,
+          history: [{ at: now, action: 'Published · all approved vendors told', by }],
+        }
+        let next = { ...prev, tenders: { ...prev.tenders, [id]: tender }, activities: log(prev, null, 'vendor', `Tender ${id} published: ${tender.title} — ${all.length} vendors told`) }
+        all.forEach((v) => {
+          next = sendAuto(next, 'tenderPublished', null, vendorContact(v), { tender, closes: formatDateTime(tender.closesAt) })
+        })
+        return next
+      })
+      return id
+    },
+    [setChanges, tenders, settings],
+  )
+
+  /* Bidding ends now instead of on the closing date (the bids open for the Admin). */
+  const closeBidding = useCallback(
+    (tenderId) => {
+      const tender = tenders.find((t) => t.id === tenderId)
+      if (!tender) return
+      const now = new Date().toISOString()
+      const by = actorRef.current.name
+      setChanges((prev) => ({
+        ...prev,
+        tenders: { ...prev.tenders, [tenderId]: { ...tender, closedEarlyAt: now, history: [...tender.history, { at: now, action: 'Bidding closed early · bids opened', by }] } },
+        activities: log(prev, null, 'vendor', `Tender ${tenderId}: bidding closed early, bids opened`),
+      }))
+    },
+    [setChanges, tenders],
+  )
+
+  /* A vendor bids from the vendor portal, or revises its bid while bidding is open. Returns the bid ID. */
+  const submitBid = useCallback(
+    (tenderId, vendorId, details, files) => {
+      const tender = tenders.find((t) => t.id === tenderId)
+      const vendor = vendors.find((v) => v.id === vendorId)
+      if (!tender || !vendor || tenderPhase(tender) !== 'Open') return null
+      const existing = bids.find((b) => b.tenderId === tenderId && b.vendorId === vendorId)
+      const now = new Date().toISOString()
+      const id = existing?.id ?? `BD-${tenderId.split('-').pop()}-${String(bids.filter((b) => b.tenderId === tenderId).length + 1).padStart(2, '0')}`
+      const bid = existing
+        ? { ...existing, ...details, submittedAt: now, documents: [...existing.documents, ...docRecords(files)], history: [...existing.history, { at: now, action: 'Bid revised', by: vendor.contact }] }
+        : { ...details, id, tenderId, vendorId, submittedAt: now, documents: docRecords(files), status: 'Submitted', history: [{ at: now, action: 'Bid submitted', by: vendor.contact }] }
+      setChanges((prev) =>
+        sendAuto(
+          // Sealed: the record says a bid came in, never its amount.
+          { ...prev, bids: { ...prev.bids, [id]: bid }, activities: log(prev, null, 'vendor', `Bid ${id} ${existing ? 'revised' : 'received'} on tender ${tenderId}`, { by: 'vendor', vendor: vendor.name }) },
+          'bidReceived',
+          null,
+          vendorContact(vendor),
+          { bid, tender, closes: formatDateTime(closingOf(tender)) },
+        ),
+      )
+      return id
+    },
+    [setChanges, tenders, bids, vendors],
+  )
+
+  /* The Admin's first look after bidding closes: shortlist a bid, or reject it with a reason (the vendor is told why). */
+  const decideBid = useCallback(
+    (bidId, decision, { reason = '', note = '' } = {}) => {
+      const bid = bids.find((b) => b.id === bidId)
+      const tender = bid && tenders.find((t) => t.id === bid.tenderId)
+      const vendor = bid && vendors.find((v) => v.id === bid.vendorId)
+      if (!tender || !vendor) return
+      const now = new Date().toISOString()
+      const by = actorRef.current.name
+      const status = decision === 'shortlist' ? 'Shortlisted' : 'Rejected'
+      const next = {
+        ...bid,
+        status,
+        reason: status === 'Rejected' ? reason : bid.reason,
+        remark: note || null,
+        history: [...bid.history, { at: now, action: status, by, note: status === 'Rejected' ? [reason, note].filter(Boolean).join(' — ') : null }],
+      }
+      setChanges((prev) =>
+        sendAuto(
+          { ...prev, bids: { ...prev.bids, [bidId]: next }, activities: log(prev, null, 'vendor', `Bid ${bidId} (${vendor.name}) on tender ${tender.id} ${status.toLowerCase()}${status === 'Rejected' && reason ? `: ${reason}` : ''}`) },
+          status === 'Shortlisted' ? 'bidShortlisted' : 'bidRejected',
+          null,
+          vendorContact(vendor),
+          { bid: next, tender, reason, note },
+        ),
+      )
+    },
+    [setChanges, tenders, bids, vendors],
+  )
+
+  /*
+   * The Admin approves one shortlisted bid: the work is allotted, its work order is issued in Subcontracts against
+   * the project, and every other open bid on the tender is marked not selected. All vendors are told.
+   */
+  const allotBid = useCallback(
+    (bidId, project, dueOn) => {
+      const bid = bids.find((b) => b.id === bidId)
+      const tender = bid && tenders.find((t) => t.id === bid.tenderId)
+      const vendor = bid && vendors.find((v) => v.id === bid.vendorId)
+      if (!tender || !vendor || !project) return null
+      const now = new Date().toISOString()
+      const by = actorRef.current.name
+      const orderId = `SC-${project.id.slice(3)}-${project.workOrders.length + 1}`
+      setChanges((prev) => {
+        const current = (b) => prev.bids?.[b.id] ?? b
+        const others = bids.filter((b) => b.tenderId === tender.id && b.id !== bidId).map(current).filter((b) => ['Submitted', 'Shortlisted'].includes(b.status))
+        const bidsNext = { ...prev.bids, [bidId]: { ...current(bid), status: 'Allotted', history: [...current(bid).history, { at: now, action: `Allotted · work order ${orderId}`, by }] } }
+        others.forEach((b) => {
+          bidsNext[b.id] = { ...b, status: 'Not selected', history: [...b.history, { at: now, action: 'Not selected', by }] }
+        })
+        const edits = prev.projects[project.id] ?? {}
+        const order = { id: orderId, vendor: vendor.name, work: tender.title, amount: bid.amount, dueOn, tenderId: tender.id, bidId, status: 'Issued', issuedOn: toISODate(TODAY) }
+        let next = {
+          ...prev,
+          projects: { ...prev.projects, [project.id]: { ...edits, workOrders: [...(edits.workOrders ?? []), order] } },
+          tenders: { ...prev.tenders, [tender.id]: { ...tender, status: 'Allotted', allotted: { bidId, vendorId: vendor.id, orderId, projectId: project.id, at: now }, history: [...tender.history, { at: now, action: `Allotted to ${vendor.name} · work order ${orderId}`, by }] } },
+          bids: bidsNext,
+          activities: log(prev, project.lead.id, 'project', `${project.name}: subcontract ${orderId} issued to ${vendor.name} — ${tender.title} (tender ${tender.id})`),
+        }
+        next = sendAuto(next, 'bidAllotted', null, vendorContact(vendor), { bid, tender, orderId, dueOn })
+        others.forEach((b) => {
+          next = sendAuto(next, 'bidNotSelected', null, vendorContact(vendors.find((v) => v.id === b.vendorId)), { bid: b, tender })
+        })
+        return next
+      })
+      return orderId
+    },
+    [setChanges, tenders, bids, vendors],
+  )
+
   /* The client got their portal login on WhatsApp; for a won client this also ticks the onboarding step. */
   const markPortalShared = useCallback(
     (id) => {
@@ -951,7 +1205,17 @@ export function CrmProvider({ children }) {
 
   const updateSettings = useCallback((patch) => setChanges((prev) => ({ ...prev, settings: { ...prev.settings, ...patch } })), [setChanges])
 
-  const resetDemoData = useCallback(() => setChanges(EMPTY), [setChanges])
+  const resetDemoData = useCallback(() => {
+    // The HRMS keeps its own demo data in this browser (bgspl_* keys); one reset clears the whole app.
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('bgspl_') || k.startsWith('hrms_'))
+        .forEach((k) => localStorage.removeItem(k))
+    } catch {
+      // Storage unavailable: nothing saved to clear.
+    }
+    setChanges(EMPTY)
+  }, [setChanges])
 
   const changeCount = changes.leads.length + changes.activities.length + Object.keys(changes.settings).length + Object.keys(changes.projects).length
 
@@ -1019,6 +1283,17 @@ export function CrmProvider({ children }) {
         markPortalShared,
         addDocuments,
         setDocumentShared,
+        vendorApplications,
+        submitVendorApplication,
+        resubmitVendorApplication,
+        decideVendorApplication,
+        tenders,
+        bids,
+        publishTender,
+        closeBidding,
+        submitBid,
+        decideBid,
+        allotBid,
         removeDocument,
         setTags,
         updateSettings,

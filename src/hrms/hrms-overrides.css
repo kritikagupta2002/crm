@@ -1,0 +1,108 @@
+/*
+ * Hand-written glue between the HRMS pages and the CRM design (hrms.css is generated; this file is not).
+ * Only for the HRMS pages: everything is under .hrms.
+ */
+
+/* Page header: the CRM's, with a small badge beside the title when a page has one. */
+.hrms .page-header {
+  margin-bottom: 16px;
+}
+
+.hrms .page-title h1 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hrms .page-title-badge {
+  display: inline-flex;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+}
+
+.hrms .page-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Button variants the CRM doesn't have. */
+.hrms .btn-outline {
+  color: var(--teal-700);
+  border-color: var(--teal-200);
+}
+
+.hrms .btn-outline:hover {
+  background: var(--teal-50);
+  border-color: var(--teal-400);
+}
+
+.hrms .btn-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink-2);
+}
+
+.hrms .btn-quiet:hover {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.hrms .btn svg {
+  flex-shrink: 0;
+}
+
+/* Cards: a gold top edge where the module marks a card as featured. */
+.hrms .card-gold-edge {
+  box-shadow: inset 0 3px 0 var(--gold-500), var(--shadow);
+}
+
+.hrms .text-green {
+  color: var(--green);
+  font-weight: 500;
+}
+
+.hrms .stat-meta b {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Form labels in the module used a brown; the CRM's labels are ink. */
+.hrms .text-\[\#3D2D1E\] {
+  color: var(--ink);
+}
+
+/* The module's accent orange becomes the CRM's gold. */
+.hrms .text-\[\#D5860B\] {
+  color: var(--gold-600);
+}
+
+.hrms .bg-\[\#D5860B\] {
+  background-color: var(--gold-500);
+}
+
+.hrms .border-\[\#D5860B\] {
+  border-color: var(--gold-500);
+}
+
+/* HR dashboard: six figures, three a row until the screen is wide enough for all six, two on a phone. */
+.hrms .hr-stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+@media (min-width: 1600px) {
+  .hrms .hr-stat-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hrms .hr-stat-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+}

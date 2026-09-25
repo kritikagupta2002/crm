@@ -22,7 +22,7 @@ const BRAND_COPY = {
 
 function TeamForm({ onDone }) {
   const { role, fieldMember, signIn } = useCrm()
-  const [email, setEmail] = useState('kritika.sharma@bansalgeo.com')
+  const [email, setEmail] = useState('kritika.gupta@bansalgeo.com')
   const [password, setPassword] = useState('demo1234')
   const [signInAs, setSignInAs] = useState(role)
   // The field team signs in person by person: each sees only their own tasks.
@@ -149,14 +149,20 @@ function VendorForm({ onDone }) {
   const [mobile, setMobile] = useState('')
   const [error, setError] = useState('')
 
-  // Demo vendors: one with work to deliver, one whose bill is with Accounts.
+  // Demo vendors, one per stage of an order (up to three firms). The seeded orders move on with the date, so
+  // whichever stages exist today are offered: there is always something to show.
   const orders = allProjects(leads, projectEdits).flatMap((p) => p.workOrders)
   const demos = [
-    { order: orders.find((w) => w.status === 'In progress'), what: 'work to deliver' },
-    { order: orders.find((w) => w.status === 'Bill received'), what: 'bill with Accounts' },
+    ['Issued', 'work to start'],
+    ['In progress', 'work to deliver'],
+    ['Completed', 'bill to send'],
+    ['Bill received', 'bill with Accounts'],
+    ['Paid', 'paid orders'],
   ]
-    .map((d) => ({ ...d, vendor: d.order && vendors.find((v) => v.name === d.order.vendor) }))
+    .flatMap(([status, what]) => orders.filter((w) => w.status === status).map((order) => ({ order, what })))
+    .map((d) => ({ ...d, vendor: vendors.find((v) => v.name === d.order.vendor) }))
     .filter((d, i, all) => d.vendor && all.findIndex((x) => x.vendor?.id === d.vendor.id) === i)
+    .slice(0, 3)
   const open = (id) => {
     signInVendor(id)
     onDone()
@@ -192,6 +198,9 @@ function VendorForm({ onDone }) {
       <button className="btn btn-primary auth-submit" type="submit">
         Open vendor portal <ArrowRight size={16} />
       </button>
+      <p className="auth-register">
+        New vendor? <Link to="/vendor/register">Register your firm</Link> · <Link to="/vendor/register?track">Check registration status</Link>
+      </p>
       {demos.length > 0 && (
         <div className="auth-demos">
           <span className="muted">Or open a demo vendor:</span>

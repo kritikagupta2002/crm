@@ -268,6 +268,7 @@
 }
 
 .choice-chip {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -281,8 +282,13 @@
   cursor: pointer;
 }
 
+/* The real radio stays inside its chip (and out of sight), so it never widens the form on a phone. */
 .choice-chip input {
   position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -328,6 +334,9 @@
 
 .toggle input {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
   opacity: 0;
   pointer-events: none;
 }

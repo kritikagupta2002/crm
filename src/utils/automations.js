@@ -22,6 +22,15 @@ export const AUTOMATIONS = [
   { key: 'reply', label: 'Answer to a portal question', to: 'Client', channels: { whatsapp: false, email: true } },
   { key: 'document', label: 'Document shared on the portal', to: 'Client', channels: { whatsapp: false, email: true } },
   { key: 'task', label: 'Task assigned', to: 'Field member', channels: { whatsapp: true, email: false } },
+  { key: 'vendorApproved', label: 'Vendor registration approved', to: 'Vendor', channels: { whatsapp: true, email: true }, note: 'with the vendor ID and portal link' },
+  { key: 'vendorChanges', label: 'Vendor registration sent back', to: 'Vendor', channels: { whatsapp: false, email: true }, note: 'with what to correct' },
+  { key: 'vendorRejected', label: 'Vendor registration rejected', to: 'Vendor', channels: { whatsapp: false, email: true }, note: 'with the reason' },
+  { key: 'tenderPublished', label: 'New work put out for bids', to: 'Vendor', channels: { whatsapp: true, email: true }, note: 'to every approved vendor' },
+  { key: 'bidReceived', label: 'Bid received', to: 'Vendor', channels: { whatsapp: false, email: true }, note: 'acknowledgement, bid stays sealed' },
+  { key: 'bidShortlisted', label: 'Bid shortlisted', to: 'Vendor', channels: { whatsapp: false, email: true } },
+  { key: 'bidRejected', label: 'Bid rejected', to: 'Vendor', channels: { whatsapp: false, email: true }, note: 'with the reason' },
+  { key: 'bidAllotted', label: 'Work allotted', to: 'Vendor', channels: { whatsapp: true, email: true }, note: 'with the work order' },
+  { key: 'bidNotSelected', label: 'Bid not selected', to: 'Vendor', channels: { whatsapp: false, email: true } },
 ]
 
 const DEFAULTS = Object.fromEntries(AUTOMATIONS.map((a) => [a.key, a.channels]))
@@ -91,6 +100,51 @@ export function messageFor(key, ctx) {
       return {
         subject: `New task: ${ctx.task.title}`,
         text: `${ctx.to.name}, new task for you: ${ctx.task.title} — ${project.name}, ${lead.company} (${project.site}).${ctx.task.due ? ` Due ${formatDate(ctx.task.due)}.` : ''} Details in My Tasks. ${sign}`,
+      }
+    case 'vendorApproved':
+      return {
+        subject: `Registration approved — vendor ID ${ctx.vendorId}`,
+        text: `Dear ${ctx.application.contact.name}, ${ctx.application.firm.name} is now a registered vendor of ${companyName.replace(/\.$/, '')}. Your vendor ID is ${ctx.vendorId}. Sign in to the vendor portal with this ID and your registered mobile: ${window.location.origin}/login. Every work we put out for bids will reach you there and by email and WhatsApp. ${sign}`,
+      }
+    case 'vendorChanges':
+      return {
+        subject: `Registration ${ctx.application.id}: please correct and resubmit`,
+        text: `Dear ${ctx.application.contact.name}, we have reviewed your vendor registration ${ctx.application.id}. Please correct the following and resubmit: ${ctx.note} Open your application at ${window.location.origin}/vendor/register with the application number and your mobile. ${sign}`,
+      }
+    case 'vendorRejected':
+      return {
+        subject: `Registration ${ctx.application.id} not approved`,
+        text: `Dear ${ctx.application.contact.name}, we are unable to approve the vendor registration ${ctx.application.id} for ${ctx.application.firm.name}. Reason: ${ctx.reason}.${ctx.note ? ` ${ctx.note}` : ''} ${sign}`,
+      }
+    case 'tenderPublished':
+      return {
+        subject: `New work: ${ctx.tender.title} (${ctx.tender.id})`,
+        text: `Dear ${ctx.to.name}, ${companyName} invites bids for ${ctx.tender.title} at ${ctx.tender.location}. Bids close ${ctx.closes}. See the details and bid in the vendor portal: ${portal()} ${sign}`,
+      }
+    case 'bidReceived':
+      return {
+        subject: `Bid ${ctx.bid.id} received — ${ctx.tender.title}`,
+        text: `Dear ${ctx.to.name}, we have received your bid ${ctx.bid.id} for ${ctx.tender.title} (${ctx.tender.id}). It stays sealed until bidding closes on ${ctx.closes}; you can revise it in the vendor portal until then. ${sign}`,
+      }
+    case 'bidShortlisted':
+      return {
+        subject: `Bid ${ctx.bid.id} shortlisted — ${ctx.tender.title}`,
+        text: `Dear ${ctx.to.name}, your bid ${ctx.bid.id} for ${ctx.tender.title} (${ctx.tender.id}) is shortlisted. We will confirm the allotment shortly. ${sign}`,
+      }
+    case 'bidRejected':
+      return {
+        subject: `Bid ${ctx.bid.id} not accepted — ${ctx.tender.title}`,
+        text: `Dear ${ctx.to.name}, we are unable to accept your bid ${ctx.bid.id} for ${ctx.tender.title} (${ctx.tender.id}). Reason: ${ctx.reason}.${ctx.note ? ` ${ctx.note}` : ''} Thank you for bidding. ${sign}`,
+      }
+    case 'bidAllotted':
+      return {
+        subject: `Work allotted: ${ctx.tender.title} — work order ${ctx.orderId}`,
+        text: `Dear ${ctx.to.name}, ${ctx.tender.title} (${ctx.tender.id}) is allotted to you. Work order ${ctx.orderId}: ${rupees(ctx.bid.amount)} + GST, to be completed by ${formatDate(ctx.dueOn)}. Please confirm the start in the vendor portal: ${portal()} ${sign}`,
+      }
+    case 'bidNotSelected':
+      return {
+        subject: `${ctx.tender.title} — result`,
+        text: `Dear ${ctx.to.name}, thank you for your bid ${ctx.bid.id} for ${ctx.tender.title} (${ctx.tender.id}). The work has been allotted to another firm. We look forward to your bids on our next works. ${sign}`,
       }
     default:
       return null

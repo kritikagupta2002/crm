@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, CheckCircle2, ClipboardList, Clock, FileScan, FileWarning, FolderKanban, Globe, HardHat, IndianRupee, MessageCircleQuestion, Receipt, ScrollText, Sparkles } from 'lucide-react'
+import { AlertTriangle, Bell, CheckCircle2, ClipboardList, Clock, FileScan, FileWarning, FolderKanban, Gavel, Globe, HardHat, IndianRupee, MessageCircleQuestion, Receipt, ScrollText, Sparkles, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BILL_ROLES, useAccess, useCrm, useMoney } from '../../context/crm'
@@ -8,6 +8,7 @@ import { addDays, formatDayMonth, toISODate } from '../../utils/date'
 import { ERM_STAGES, allProjects, canActOn, nextWorkStep } from '../../utils/projects'
 import { quoteFor } from '../../utils/workflow'
 import { canAnswer, questionsFor } from '../../utils/questions'
+import { tenderPhase } from '../../utils/tenders'
 import { usePopover } from '../common/usePopover'
 
 const SEEN_KEY = 'bansal-crm:seen-notifications'
@@ -29,7 +30,7 @@ function readSeen() {
  * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
  */
 export function NotificationsMenu() {
-  const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox } = useCrm()
+  const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox, vendorApplications, tenders, bids } = useCrm()
   const { can, may } = useAccess()
   const money = useMoney()
   const { open, setOpen, ref } = usePopover()
@@ -103,7 +104,7 @@ export function NotificationsMenu() {
     .filter((a) => a.by === 'vendor' && a.at.slice(0, 10) >= weekAgoISO)
     .slice(-6)
     .reverse()
-    .map((a) => ({ id: `vn-${a.id}`, tone: 'tone-info', icon: HardHat, title: `${a.vendor}: ${a.text.split(' — ').pop().replace(' (vendor portal)', '')}`, sub: `Vendor portal · ${formatDayMonth(a.at.slice(0, 10))}`, to: '/subcontracts' }))
+    .map((a) => ({ id: `vn-${a.id}`, tone: 'tone-info', icon: HardHat, title: `${a.vendor}: ${a.text.split(' — ').pop().replace(' (vendor portal)', '')}`, sub: `Vendor portal · ${formatDayMonth(a.at.slice(0, 10))}`, to: a.text.startsWith('Bid ') ? '/tenders' : '/subcontracts' }))
 
   // The field team hears about their own work: late tasks, tasks due by tomorrow and tasks handed to them this week.
   const myTasks =
@@ -127,8 +128,26 @@ export function NotificationsMenu() {
       ? [{ id: `scan-${scanInbox[0].id}-${scanInbox.length}`, tone: 'tone-attention', icon: FileScan, title: `${scanInbox.length} scan${scanInbox.length === 1 ? '' : 's'} to file`, sub: `Scanner folder · latest ${formatDayMonth(scanInbox[0].scannedAt.slice(0, 10))}`, to: '/projects?letters=Scan%20inbox' }]
       : []
 
+  // Vendor registrations waiting for the Admin.
+  const registrations = may('vendors')
+    ? vendorApplications
+        .filter((a) => a.status === 'New')
+        .map((a) => ({ id: `va-${a.id}-${a.history.length}`, tone: 'tone-info', icon: UserPlus, title: `Vendor registration: ${a.firm.name}`, sub: `${a.id} · ${a.work.categories.join(', ')}`, to: `/vendor-applications?open=${a.id}` }))
+    : []
+
+  // Tenders whose bidding has closed: the bids wait for the Admin to shortlist, reject or allot.
+  const tenderDecisions = may('vendors')
+    ? tenders
+        .filter((t) => tenderPhase(t) === 'Evaluation')
+        .map((t) => ({ t, waiting: bids.filter((b) => b.tenderId === t.id && ['Submitted', 'Shortlisted'].includes(b.status)).length }))
+        .filter(({ waiting }) => waiting)
+        .map(({ t, waiting }) => ({ id: `tn-${t.id}-${waiting}`, tone: 'tone-attention', icon: Gavel, title: `Bids to decide: ${t.title}`, sub: `${t.id} · ${waiting} bid${waiting === 1 ? '' : 's'} waiting`, to: `/tenders?open=${t.id}` }))
+    : []
+
   const items = [
     ...myTasks,
+    ...registrations,
+    ...tenderDecisions,
     ...scans,
     ...toVerify,
     ...bills,

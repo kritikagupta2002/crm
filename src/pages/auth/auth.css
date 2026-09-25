@@ -201,6 +201,9 @@
 
 .role-pick input {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -239,6 +242,13 @@
   line-height: 1.45;
   color: var(--red);
   animation: fade 0.2s ease both;
+}
+
+.auth-register {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink-2);
+  text-align: center;
 }
 
 .auth-demos {

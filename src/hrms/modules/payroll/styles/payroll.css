@@ -1,0 +1,41 @@
+/* ════════════════════════════════════════════════════════════
+   PAYROLL MODULE STYLES — BGSPL CRM & HRMS
+   Salary Structure, Payslip Slips, Processing, History
+   ════════════════════════════════════════════════════════════ */
+
+.payslip-sheet {
+  background: #ffffff;
+  color: #0f2a3d;
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.payslip-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.payslip-table th, .payslip-table td {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.payslip-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  text-align: left;
+}
+
+.salary-component-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 0.875rem;
+}

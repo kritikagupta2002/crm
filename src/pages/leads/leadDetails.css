@@ -70,6 +70,11 @@
   padding: 0 14px;
   border-bottom: 1px solid var(--line);
   overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.details-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .details-tabs button {

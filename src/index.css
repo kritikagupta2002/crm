@@ -259,6 +259,16 @@ a {
   min-width: 660px;
 }
 
+/* Wide tables keep readable columns on a phone and scroll sideways instead of squeezing. */
+.data-table:has(th:nth-child(7)) {
+  min-width: 780px;
+}
+
+/* IDs (BG-2026-038, SC-26-041-1) never break across lines. */
+.data-table .mono-sub {
+  white-space: nowrap;
+}
+
 .data-table th {
   white-space: nowrap;
   text-align: left;
@@ -405,9 +415,11 @@ a {
 }
 
 .stat-top h3 {
+  min-width: 0;
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
+  overflow-wrap: break-word;
 }
 
 .stat-icon {
@@ -435,6 +447,24 @@ a {
   gap: 2px;
   font-size: 12.5px;
   line-height: 1.4;
+}
+
+/* Small phones: two cards a row leave no room beside the icon, so the label goes under it. */
+@media (max-width: 380px) {
+  .stat-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stat-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
 }
 
 /* ---------- Page header (shared by all pages) ---------- */
@@ -621,6 +651,11 @@ a {
   .page-actions {
     justify-content: space-between;
   }
+
+  /* Header buttons share the row evenly instead of sitting at odd widths. */
+  .page-actions > .btn {
+    flex: 1 1 auto;
+  }
 }
 
 .sr-only {
@@ -786,5 +821,44 @@ a {
     animation-duration: 0.01ms !important;
     animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * Touch screens (phones, tablets): every control gets a finger-sized target, and form text is 16px so the
+ * phone doesn't zoom in when a field is tapped. With a mouse the layout stays as it is.
+ */
+@media (pointer: coarse) {
+  .btn {
+    height: 40px;
+  }
+
+  .btn.btn-small {
+    height: 36px;
+  }
+
+  .icon-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .icon-button.small {
+    width: 36px;
+    height: 36px;
+  }
+
+  .link-button,
+  .share-toggle {
+    min-height: 34px;
+  }
+
+  .check-step {
+    min-height: 40px;
+  }
+
+  input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+  select,
+  textarea {
+    font-size: 16px;
   }
 }

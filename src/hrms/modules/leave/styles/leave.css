@@ -1,0 +1,71 @@
+/* ════════════════════════════════════════════════════════════
+   LEAVE MANAGEMENT MODULE STYLES — BGSPL CRM & HRMS
+   Apply Leave Form, Approvals Modal, Quota Ledger, Balances
+   ════════════════════════════════════════════════════════════ */
+
+.leave-quota-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.leave-balance-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.leave-balance-progress {
+  height: 8px;
+  background: var(--chrome);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin: 0.75rem 0;
+}
+
+.leave-balance-bar {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width var(--transition-normal);
+}
+
+.quota-ledger-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.dark .quota-ledger-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.partial-approval-slider {
+  width: 100%;
+  accent-color: var(--teal-700);
+}
+
+.non-working-day-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: var(--radius);
+  border: 1px solid #e2e8f0;
+}
+
+.dark .non-working-day-chip {
+  background: #1e293b;
+  color: #94a3b8;
+  border-color: #334155;
+}

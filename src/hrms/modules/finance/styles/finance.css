@@ -1,0 +1,38 @@
+/* ════════════════════════════════════════════════════════════
+   FINANCE MODULE STYLES — BGSPL CRM & HRMS
+   Invoices, Vendor Bills, Receivables, Ledger Entries, GST/TDS
+   ════════════════════════════════════════════════════════════ */
+
+.finance-workflow-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+.invoice-preview-card {
+  background: #ffffff;
+  color: #0f2a3d;
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-md);
+}
+
+.financial-metric-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.gst-badge {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius);
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+}

@@ -1,0 +1,28 @@
+/* ════════════════════════════════════════════════════════════
+   REPORTS & MIS MODULE STYLES — BGSPL CRM & HRMS
+   Stacked Charts, MIS Master Audit Ledger, Export Action Bars
+   ════════════════════════════════════════════════════════════ */
+
+.mis-reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.report-chart-container {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.report-export-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}

@@ -283,6 +283,15 @@
   }
 }
 
+/* A long open menu reaches the bottom: the mountain and motto fade out rather than sit under the links. */
+.sidebar-footer {
+  transition: opacity 0.25s ease;
+}
+
+.sidebar.is-crowded .sidebar-footer {
+  opacity: 0;
+}
+
 /* Very short screens: the menu needs all the room. */
 @media (max-height: 680px) {
   .sidebar-footer {

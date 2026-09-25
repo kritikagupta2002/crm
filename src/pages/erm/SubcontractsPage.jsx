@@ -1,7 +1,7 @@
-import { ClipboardList, FilePlus2, HardHat, IndianRupee, Plus, Receipt, Search, X } from 'lucide-react'
-import { useEffect, useId, useState } from 'react'
+import { ClipboardList, FilePlus2, HardHat, IndianRupee, Plus, Receipt, Search } from 'lucide-react'
+import { useState } from 'react'
 import { KpiCard } from '../../components/common/KpiCard'
-import { Portal } from '../../components/common/Portal'
+import { SideDrawer as Drawer } from '../../components/common/SideDrawer'
 import { RoleLink } from '../../components/common/RoleLink'
 import { tabLink, useTabParam } from '../../components/common/useTabParam'
 import { BILL_ROLES, WORK_ROLES, maskAccount, useAccess, useCrm, useMoney } from '../../context/crm'
@@ -183,38 +183,6 @@ function VendorForm({ withBank, onDone }) {
   )
 }
 
-function Drawer({ title, sub, onClose, children }) {
-  const titleId = useId()
-  useEffect(() => {
-    const onKey = (e) => e.key === 'Escape' && onClose()
-    document.addEventListener('keydown', onKey)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = prev
-    }
-  }, [onClose])
-  return (
-    <Portal>
-      <div className="drawer-root">
-        <div className="drawer-backdrop" onClick={onClose} />
-        <aside className="enquiry-drawer wo-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-          <header className="drawer-header">
-            <div className="lead-drawer-title">
-              <h2 id={titleId}>{title}</h2>
-              {sub && <span className="muted">{sub}</span>}
-            </div>
-            <button className="icon-button" onClick={onClose} aria-label="Close">
-              <X size={20} />
-            </button>
-          </header>
-          <div className="drawer-body">{children}</div>
-        </aside>
-      </div>
-    </Portal>
-  )
-}
 
 /* One subcontract: its next step (for whoever may take it) and its record so far. */
 function WorkOrderDrawer({ order, vendor, onClose }) {

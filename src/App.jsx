@@ -5,10 +5,15 @@ import { LoginPage } from './pages/auth/LoginPage'
 import { PublicEnquiryPage } from './pages/enquiry/PublicEnquiryPage'
 import { ClientPortalPage } from './pages/portal/ClientPortalPage'
 import { VendorPortalPage } from './pages/vendor/VendorPortalPage'
+import { VendorRegisterPage } from './pages/vendor/VendorRegisterPage'
 import { AuditLogPage } from './pages/audit/AuditLogPage'
 import { MessagesPage } from './pages/messages/MessagesPage'
 import { QuestionsPage } from './pages/questions/QuestionsPage'
+import { VendorApplicationsPage } from './pages/vendors/VendorApplicationsPage'
+import { TendersPage } from './pages/vendors/TendersPage'
+import { VendorTenderPage } from './pages/vendor/VendorTenderPage'
 import { CrmProvider } from './context/CrmProvider'
+import { hrmsRoutes } from './hrms/HrmsRoutes'
 import { PeriodProvider } from './context/PeriodProvider'
 import { ClientsPage } from './pages/clients/ClientsPage'
 import { ErmDashboard } from './pages/erm/ErmDashboard'
@@ -41,6 +46,8 @@ export default function App() {
               <Route path="login" element={<LoginPage />} />
               <Route path="portal" element={<ClientPortalPage />} />
               <Route path="vendor" element={<VendorPortalPage />} />
+              <Route path="vendor/register" element={<VendorRegisterPage />} />
+              <Route path="vendor/tenders/:tenderId" element={<VendorTenderPage />} />
               <Route path="enquiry" element={<PublicEnquiryPage />} />
               <Route element={<AppLayout />}>
                 <Route index element={<DashboardPage />} />
@@ -66,6 +73,9 @@ export default function App() {
                 <Route path="audit-log" element={<AuditLogPage />} />
                 <Route path="messages" element={<MessagesPage />} />
                 <Route path="questions" element={<QuestionsPage />} />
+                <Route path="vendor-applications" element={<VendorApplicationsPage />} />
+                <Route path="tenders" element={<TendersPage />} />
+                {hrmsRoutes}
                 <Route path="*" element={<ComingSoonPage />} />
               </Route>
             </Routes>

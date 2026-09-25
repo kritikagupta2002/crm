@@ -8,7 +8,7 @@ export const COORDINATORS = [
 ]
 
 export const TEAM_LEADS = [
-  { name: 'Dr. V. Meena', title: 'Senior Geologist', services: ['Mineral Exploration & Resources', 'Mineral Economics & Valuation'] },
+  { name: 'Dr. Sunita Meena', title: 'Senior Geologist', services: ['Mineral Exploration & Resources', 'Mineral Economics & Valuation'] },
   { name: 'R. Bhati', title: 'Hydrogeologist', services: ['Hydrogeology & Groundwater', 'Geotechnical Services'] },
   { name: 'S. Choudhary', title: 'Mining Engineer', services: ['Mine Planning & Prefeasibility Study', 'Remote Sensing, GIS & Aerial Mapping'] },
   { name: 'M. Khan', title: 'Environment Specialist', services: ['Environment, Community & Permitting'] },

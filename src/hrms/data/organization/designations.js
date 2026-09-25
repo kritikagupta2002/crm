@@ -1,0 +1,18 @@
+export const INITIAL_DESIGNATIONS = [
+    { id: 'desig-1', title: 'Managing Director & Chief Geologist', code: 'MD-GEO', department: 'Geology & Mineral Exploration', level: 'L6', employeeCount: 1, minExperience: '15+ Years', status: 'Active' },
+    { id: 'desig-2', title: 'Director - Finance & Strategy', code: 'DIR-FIN', department: 'Finance & Mineral Economics', level: 'L6', employeeCount: 1, minExperience: '12+ Years', status: 'Active' },
+    { id: 'desig-3', title: 'Principal Mining Consultant', code: 'PR-MINE', department: 'Mining & Mine Planning', level: 'L5', employeeCount: 1, minExperience: '10+ Years', status: 'Active' },
+    { id: 'desig-4', title: 'Lead GIS & Remote Sensing Specialist', code: 'LD-GIS', department: 'GIS, Remote Sensing & UAV', level: 'L5', employeeCount: 1, minExperience: '8+ Years', status: 'Active' },
+    { id: 'desig-5', title: 'Head - HR & Administration', code: 'HD-HR', department: 'Human Resources & Admin', level: 'L5', employeeCount: 1, minExperience: '8+ Years', status: 'Active' },
+    { id: 'desig-6', title: 'Senior Exploration Geologist', code: 'SR-GEO', department: 'Geology & Mineral Exploration', level: 'L4', employeeCount: 1, minExperience: '5-8 Years', status: 'Active' },
+    { id: 'desig-7', title: 'Senior Hydrogeologist', code: 'SR-HYDRO', department: 'Hydrogeology & Groundwater', level: 'L4', employeeCount: 1, minExperience: '5-8 Years', status: 'Active' },
+    { id: 'desig-8', title: 'Senior Mine Planning Engineer', code: 'SR-MINE', department: 'Mining & Mine Planning', level: 'L4', employeeCount: 0, minExperience: '5-8 Years', status: 'Active' },
+    { id: 'desig-9', title: 'Senior Geotechnical Engineer', code: 'SR-GEOTECH', department: 'Geotechnical Engineering', level: 'L4', employeeCount: 0, minExperience: '5-8 Years', status: 'Active' },
+    { id: 'desig-10', title: 'Environmental Compliance Officer', code: 'ENV-OFF', department: 'Environment & Permitting', level: 'L3', employeeCount: 0, minExperience: '3-5 Years', status: 'Active' },
+    { id: 'desig-11', title: 'UAV / Drone Survey Pilot & Analyst', code: 'UAV-PLT', department: 'GIS, Remote Sensing & UAV', level: 'L3', employeeCount: 1, minExperience: '3-5 Years', status: 'Active' },
+    { id: 'desig-12', title: 'Field Geologist', code: 'FLD-GEO', department: 'Geology & Mineral Exploration', level: 'L2', employeeCount: 1, minExperience: '1-3 Years', status: 'Active' },
+    { id: 'desig-13', title: 'Junior GIS Analyst', code: 'JR-GIS', department: 'GIS, Remote Sensing & UAV', level: 'L2', employeeCount: 0, minExperience: '1-3 Years', status: 'Active' },
+    { id: 'desig-14', title: 'HR Executive', code: 'HR-EXEC', department: 'Human Resources & Admin', level: 'L2', employeeCount: 1, minExperience: '2-4 Years', status: 'Active' },
+    { id: 'desig-15', title: 'Accountant & Payroll Executive', code: 'ACC-EXEC', department: 'Finance & Mineral Economics', level: 'L2', employeeCount: 0, minExperience: '2-4 Years', status: 'Active' },
+    { id: 'desig-16', title: 'Systems & Network Engineer', code: 'SYS-ENG', department: 'Information Technology', level: 'L3', employeeCount: 0, minExperience: '3-5 Years', status: 'Active' },
+];

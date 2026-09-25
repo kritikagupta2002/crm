@@ -209,7 +209,7 @@ function seededWorkOrders({ id, service, start, days, n }) {
   if (waiting) return [order]
   const tds = vendor?.tds ?? { section: '194C', rate: 2 }
   order.check = { on: at(2, order.bill.date), ok: true, by: 'N. Jain' }
-  order.payment = { on: at(25), gross: Math.round(amount * 1.18), tds: { ...tds, amount: Math.round((amount * tds.rate) / 100) }, ref: `NEFT${String(100000 + n * 4271).slice(0, 6)}`, by: 'S. Gupta' }
+  order.payment = { on: at(25), gross: Math.round(amount * 1.18), tds: { ...tds, amount: Math.round((amount * tds.rate) / 100) }, ref: `NEFT${String(100000 + n * 4271).slice(0, 6)}`, by: 'Chhavi Bansal' }
   return [order]
 }
 

@@ -14,6 +14,7 @@ const CHANGES = {
   payments: 'client payments',
   onboarding: 'onboarding',
   projects: 'project tasks & files',
+  vendors: 'vendor registrations',
 }
 
 /* Which portal questions each role answers (utils/questions). */

@@ -1,0 +1,394 @@
+/* ---------- Vendor Workspace: applications ---------- */
+.app-drawer .drawer-body {
+  gap: 14px;
+}
+
+.app-checks {
+  padding: 12px 14px;
+  border: 1px solid var(--green);
+  border-radius: var(--radius);
+  background: var(--green-bg, #eaf6ef);
+}
+
+.app-checks.has-issues {
+  border-color: var(--amber);
+  background: var(--amber-bg);
+}
+
+.app-checks h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: 13.5px;
+}
+
+.app-checks ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+}
+
+.app-checks li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--ink-2);
+}
+
+.app-checks li svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.app-checks .is-ok svg {
+  color: var(--green);
+}
+
+.app-checks .is-issue svg {
+  color: var(--amber);
+}
+
+.app-section h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.app-section dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 18px;
+  margin: 0;
+}
+
+.app-section dt {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.app-section dd {
+  margin: 1px 0 0;
+  font-size: 13px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.app-docs {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.app-docs li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.app-docs li:last-child {
+  border-bottom: none;
+}
+
+.app-docs li span {
+  overflow-wrap: anywhere;
+}
+
+.app-history {
+  margin: 0;
+  padding: 0 0 0 18px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+.app-history li + li {
+  margin-top: 6px;
+}
+
+.app-history p {
+  margin: 2px 0 0;
+  color: var(--ink-3);
+}
+
+.app-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.app-decision {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  font-size: 13px;
+}
+
+.app-decision p {
+  margin: 0;
+}
+
+.check-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.check-flag.is-ok {
+  color: var(--green);
+}
+
+.check-flag.is-issue {
+  color: var(--amber);
+}
+
+@media (max-width: 640px) {
+  .app-section dl {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .app-actions .btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* ---------- Tenders ---------- */
+.tender-new .letter-form {
+  margin: 0 20px 18px;
+}
+
+.tender-form .date-time {
+  display: flex;
+  gap: 6px;
+}
+
+.tender-form .date-time input[type='date'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.tender-form .date-time input[type='time'] {
+  width: 110px;
+}
+
+.tender-form .check-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.tender-form .check-line input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--teal-700);
+}
+
+.tender-drawer .drawer-body {
+  gap: 14px;
+}
+
+.tender-result {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--green-bg);
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.tender-result svg {
+  color: var(--green);
+}
+
+/* Bids before closing: only how many came in. */
+.sealed-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px dashed var(--teal-200);
+  border-radius: var(--radius);
+  background: var(--teal-50);
+  font-size: 13px;
+}
+
+.sealed-box svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--teal-700);
+}
+
+.sealed-box div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Bids after closing, lowest first (L1, L2 …); a row opens to the bid's details and the decision. */
+.bid-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.bid-list > li + li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.bid-list > li.is-open {
+  background: #fafcfc;
+}
+
+.bid-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.bid-rank {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.bid-list > li:first-child .bid-rank {
+  background: var(--gold-100);
+  color: var(--gold-600);
+}
+
+.bid-firm,
+.bid-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.bid-firm span,
+.bid-amount span {
+  font-size: 12px;
+}
+
+.bid-amount {
+  align-items: flex-end;
+  font-weight: 600;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.bid-amount .muted,
+.bid-amount .text-red {
+  font-weight: 400;
+}
+
+.bid-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 12px 12px;
+}
+
+.bid-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 14px;
+  margin: 0;
+}
+
+.bid-facts dt {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.bid-facts dd {
+  margin: 1px 0 0;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.bid-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.bid-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bid-count svg {
+  color: var(--ink-3);
+}
+
+@media (max-width: 640px) {
+  .bid-row {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .bid-row .status-pill {
+    grid-column: 2 / -1;
+    justify-self: start;
+  }
+
+  .bid-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tender-new .letter-form {
+    margin: 0 12px 14px;
+  }
+}

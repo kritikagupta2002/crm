@@ -241,6 +241,9 @@
 
 .member-pick input {
   position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
   opacity: 0;
   pointer-events: none;
 }
@@ -1083,8 +1086,28 @@
 }
 
 @media (max-width: 640px) {
-  .my-stats > :last-child {
-    grid-column: 1 / -1;
+  /* On the phone the three figures sit in one short row, so the task list starts on the first screen. */
+  .stat-grid.my-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .my-stats .stat-card {
+    padding: 10px 12px;
+  }
+
+  .my-stats .stat-icon,
+  .my-stats .stat-meta {
+    display: none;
+  }
+
+  .my-stats .stat-top h3 {
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .my-stats .stat-value {
+    font-size: 24px;
   }
 
   .my-task-list,

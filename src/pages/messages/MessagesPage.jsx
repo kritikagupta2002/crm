@@ -7,7 +7,7 @@ import { useAccess, useCrm } from '../../context/crm'
 import { formatDayMonth, formatTime } from '../../utils/date'
 import { seededMessages } from '../../utils/seededMessages'
 
-const AUDIENCES = { all: 'Everyone', client: 'Clients', field: 'Field team' }
+const AUDIENCES = { all: 'Everyone', client: 'Clients', field: 'Field team', vendor: 'Vendors' }
 const CHANNEL = {
   whatsapp: { label: 'WhatsApp', icon: MessageCircle },
   email: { label: 'Email', icon: Mail },

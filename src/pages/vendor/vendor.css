@@ -35,3 +35,414 @@
     content: 'Vendor Portal';
   }
 }
+
+/* ---------- Vendor registration (public page) ---------- */
+.vendor-form .upper {
+  text-transform: uppercase;
+}
+
+.vendor-form .vendor-form-row {
+  margin-top: 12px;
+}
+
+.vendor-form fieldset.has-error legend {
+  color: var(--red);
+}
+
+.vendor-note {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--amber-bg, #fff6e5);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.doc-slots {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 6px;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.doc-slots li {
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 13px;
+}
+
+.doc-slots li:last-child {
+  border-bottom: none;
+}
+
+.doc-slot-name {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.doc-slot-name em,
+.vendor-form legend em {
+  font-style: normal;
+  color: var(--red);
+}
+
+.doc-slot-file {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.check-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.check-line input {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--teal-700);
+}
+
+/* The last part of the form (the captcha) closes it without a rule under it. */
+.vendor-captcha {
+  border-bottom: none;
+}
+
+.vendor-form .field-wide-2 {
+  grid-column: span 2;
+}
+
+.vendor-form .fieldset-note {
+  margin: -4px 0 10px;
+}
+
+/* Mobile with +91, then the verification code beside it. */
+.mobile-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-row > input {
+  flex: 0 1 190px;
+  min-width: 0;
+}
+
+.mobile-code {
+  padding: 0 2px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.verify {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.verify .verify-code {
+  width: 120px;
+  letter-spacing: 0.08em;
+}
+
+.verify .field-hint,
+.verify .field-error {
+  flex-basis: 100%;
+}
+
+.verify-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+.vendor-form .check-field .check-line {
+  min-height: 36px;
+  align-items: center;
+}
+
+.vendor-form .check-field .check-line input {
+  margin-top: 0;
+}
+
+.vendor-form .company-type {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.captcha-question {
+  padding: 6px 12px;
+  border: 1px dashed var(--teal-200);
+  border-radius: var(--radius);
+  background: var(--teal-50);
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-size: 15px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  user-select: none;
+}
+
+.captcha-row input {
+  width: 80px;
+}
+
+.vendor-track h2 {
+  margin: 0 0 12px;
+}
+
+.track-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.track-result {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 13.5px;
+}
+
+.track-result p {
+  margin: 8px 0;
+}
+
+.track-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.track-history {
+  margin: 12px 0 0;
+  padding: 0 0 0 18px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 640px) {
+  .vendor-register .portal-brand::after {
+    content: 'Vendors';
+  }
+
+  .doc-slots li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .doc-slot-file {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .track-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vendor-form .field-wide-2 {
+    grid-column: 1 / -1;
+  }
+
+  .mobile-row > input {
+    flex: 1 1 0;
+  }
+}
+
+/* ---------- Works and bids (vendor portal) ---------- */
+.band-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--teal-700);
+}
+
+.portal-tabs {
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.work-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: inherit;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+
+.work-card:hover {
+  border-color: var(--teal-200);
+  box-shadow: 0 6px 18px rgba(15, 42, 61, 0.08);
+}
+
+.work-card h2 {
+  font-size: 16px;
+}
+
+.work-card p {
+  margin: 0;
+}
+
+.work-card-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--teal-700);
+}
+
+.my-bids {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.my-bids li + li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.my-bids a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  color: inherit;
+}
+
+.my-bids a > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bid-row-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: right;
+  flex-shrink: 0;
+  max-width: 45%;
+}
+
+/* The tender page: eProc's sections as label / value pairs, then the bid. */
+.tender-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.eproc-section h2 {
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 15px;
+}
+
+.eproc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 24px;
+  margin: 0;
+}
+
+.eproc-grid dt {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.eproc-grid dd {
+  margin: 2px 0 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.your-bid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.your-bid p {
+  margin: 0;
+}
+
+.your-bid .btn {
+  align-self: flex-start;
+}
+
+.bid-sent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+
+.bid-sent svg {
+  flex-shrink: 0;
+  color: var(--green);
+}
+
+.bid-form .public-form-foot .muted {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (max-width: 640px) {
+  .eproc-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .my-bids a {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .bid-row-status {
+    align-items: flex-start;
+    text-align: left;
+    max-width: none;
+  }
+}

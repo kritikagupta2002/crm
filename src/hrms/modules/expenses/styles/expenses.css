@@ -1,0 +1,32 @@
+/* ════════════════════════════════════════════════════════════
+   EXPENSES & REIMBURSEMENTS MODULE STYLES — BGSPL CRM & HRMS
+   ════════════════════════════════════════════════════════════ */
+
+.expense-receipt-dropzone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  text-align: center;
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.expense-receipt-dropzone:hover {
+  border-color: var(--teal-600);
+}
+
+.claim-timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.claim-timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal-600);
+}
