@@ -180,6 +180,7 @@ export function VendorLayout() {
         nav={nav}
         counts={counts}
         expanded
+        footerRoom={130}
         onNavigate={() => isSmallScreen() && setMenuToggled(false)}
         footer={
           <div className="vendor-help">

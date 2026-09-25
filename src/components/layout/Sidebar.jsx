@@ -11,11 +11,11 @@ import { NAV_GROUPS } from './navigation'
 
 /*
  * The CRM's menu; the vendor portal passes its own (nav: groups of items, counts: its badges) in the same design.
- * expanded: every group stays open (a short menu, like eProc's) instead of one at a time. footer: shown at the
- * bottom in place of the motto and mountain (it steps aside the same way when the menu needs the room).
+ * expanded: every group stays open (a short menu, like eProc's) instead of one at a time. footer: shown on the
+ * mountain in place of the motto; both step aside when less than footerRoom pixels are left under the menu.
  * An item's badgeTone colours its count (e.g. tone-urgent for something waiting).
  */
-export function Sidebar({ onNavigate, nav, counts, expanded = false, footer }) {
+export function Sidebar({ onNavigate, nav, counts, expanded = false, footer, footerRoom = 200 }) {
   const { followUps, leads, user, projectEdits, vendorApplications, tenders, bids, clarifications } = useCrm()
   const { can, role } = useAccess()
   const badges = counts ?? {
@@ -50,7 +50,10 @@ export function Sidebar({ onNavigate, nav, counts, expanded = false, footer }) {
     const check = () => {
       // The bottom of the whole menu: the last module, with its pages if it is open.
       const last = nav.lastElementChild
-      setCrowded(Boolean(last) && last.getBoundingClientRect().bottom > window.innerHeight - 200)
+      const room = last ? window.innerHeight - last.getBoundingClientRect().bottom : window.innerHeight
+      setCrowded(room < footerRoom)
+      // The room under the menu, for a mountain that sizes itself to it (the vendor portal's).
+      nav.parentElement.style.setProperty('--sidebar-room', `${Math.round(room)}px`)
     }
     check()
     // Menus slide open and shut: measure again when they have.
@@ -60,7 +63,7 @@ export function Sidebar({ onNavigate, nav, counts, expanded = false, footer }) {
       nav.removeEventListener('transitionend', check)
       window.removeEventListener('resize', check)
     }
-  }, [open, groups.length])
+  }, [open, groups.length, footerRoom])
 
   return (
     <aside className={`sidebar ${crowded ? 'is-crowded' : ''}`}>
@@ -107,20 +110,18 @@ export function Sidebar({ onNavigate, nav, counts, expanded = false, footer }) {
         })}
       </nav>
 
-      {footer ? (
-        <div className="sidebar-footer has-card">{footer}</div>
-      ) : (
-      <div className="sidebar-footer">
-        <p className="sidebar-motto">
-          Geology
-          <br />
-          for a Better
-          <br />
-          Tomorrow
-        </p>
+      <div className={`sidebar-footer ${footer ? 'has-card' : ''}`}>
+        {footer ?? (
+          <p className="sidebar-motto">
+            Geology
+            <br />
+            for a Better
+            <br />
+            Tomorrow
+          </p>
+        )}
         <Mountains className="sidebar-mountains" />
       </div>
-      )}
     </aside>
   )
 }

@@ -678,6 +678,16 @@
 
 
 /* Short laptop screens. */
+@media (max-height: 880px) {
+  .vendor-shell .nav-item {
+    height: 34px;
+  }
+
+  .vendor-shell .sidebar-section {
+    height: 25px;
+  }
+}
+
 @media (max-height: 740px) {
   .vendor-shell .nav-item {
     height: 33px;
@@ -1415,12 +1425,17 @@
   background: rgba(255, 255, 255, 0.28);
 }
 
-/* Help card at the foot of the menu, when there is room for it. */
-.vendor-shell .sidebar-footer.has-card {
-  left: 12px;
-  right: 12px;
-  bottom: 14px;
-  pointer-events: auto;
+/* Help on the mountain, where the CRM has its motto: white type over the forest. */
+/* The mountain fills the room under the menu; only its hazy top reaches past the last link. */
+.vendor-shell .sidebar-mountains {
+  height: clamp(170px, calc(var(--sidebar-room, 300px) + 36px), 340px);
+}
+
+/* Laptop screens: the help keeps just the phone and email. */
+@media (max-height: 800px) {
+  .vendor-help > span {
+    display: none;
+  }
 }
 
 .vendor-shell .sidebar.is-crowded .sidebar-footer.has-card {
@@ -1428,40 +1443,62 @@
 }
 
 .vendor-help {
+  position: absolute;
+  left: 22px;
+  right: 16px;
+  bottom: 20px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
-  box-shadow: 0 6px 18px rgba(14, 74, 82, 0.25);
+  align-items: flex-start;
+  gap: 2px;
   color: #fff;
   font-size: 12.5px;
+  text-shadow: 0 1px 8px rgba(15, 30, 40, 0.6);
 }
 
 .vendor-help strong {
   font-family: var(--font-serif);
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 600;
+  line-height: 1.2;
+}
+
+.vendor-help strong::after {
+  content: '';
+  display: block;
+  width: 32px;
+  height: 2px;
+  margin: 8px 0 6px;
+  background: var(--gold-500);
 }
 
 .vendor-help > span {
   margin-bottom: 4px;
-  color: var(--teal-200);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .vendor-help a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--gold-200);
+  max-width: 100%;
+  color: #fff;
+  font-weight: 500;
   overflow-wrap: anywhere;
+  pointer-events: auto;
 }
 
 .vendor-help a:hover {
-  color: #fff;
+  color: var(--gold-200);
 }
 
 .vendor-shell .nav-badge.is-teal {
   background: var(--teal-600);
+}
+
+/* The narrow (icons-only) menu has no room for the help text. */
+@media (min-width: 1024px) {
+  .vendor-shell.menu-toggled .vendor-help {
+    display: none;
+  }
 }
