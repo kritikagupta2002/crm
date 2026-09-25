@@ -1,37 +1,35 @@
-import { Download, FilePlus2, MessageCircle, ScrollText } from 'lucide-react'
+import { Download, FilePlus2, FileScan, MessageCircle, ScrollText } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { usePaged } from '../../components/common/Pager'
 import { useAccess, useCrm } from '../../context/crm'
 import { formatNearDate } from '../../utils/date'
+import { STAGE_TONE } from '../../utils/documents'
 import { downloadLetter } from '../../utils/files'
 import { canActOn } from '../../utils/projects'
 import { whatsappLink } from '../../utils/whatsapp'
 import { LetterForm } from '../clients/ProjectPanel'
-import { ScanInbox } from './ScanInbox'
 
-const TABS = { 'To share': (r) => !r.letter.sharedOn, Shared: (r) => Boolean(r.letter.sharedOn), All: () => true }
-const INBOX = 'Scan inbox'
+// Letters still on their way to the client (Document Management's steps), those already with the client, and all.
+const TABS = { 'To share': (r) => !r.letter.sharedOn && r.doc?.record.access?.client !== false, Shared: (r) => Boolean(r.letter.sharedOn), All: () => true }
 
 /*
- * Every official letter across the projects: record a scanned letter against its project (and, once the work
- * is filed, against the approval step it belongs to), then tell the client on WhatsApp. The client portal shows a letter as soon as it is recorded. ?letters=<tab> opens
- * the card on that tab and scrolls to it (the stat card and old /letters links use this).
+ * Every official letter across the projects: record a letter against its project (and, once the work is filed,
+ * against the approval step it belongs to). Each letter then goes through Document Management — verified by a
+ * second person, given its access, shared — and the client sees it only after that. Scans are filed from the
+ * Scan Inbox. ?letters=<tab> opens the card on that tab and scrolls to it (the stat card and old /letters links use this).
  */
 export function LettersCard({ projects }) {
-  const { settings, markLetterShared, scanInbox } = useCrm()
+  const { settings, shareDocument, scanInbox, documents } = useCrm()
   // Letters go with the approval stage: the Coordinator (or the Admin) records them and tells the client.
   const canFile = canActOn(useAccess().role, 'approval')
   const [params, setParams] = useSearchParams()
   const [recording, setRecording] = useState(false)
   const [projectId, setProjectId] = useState('')
   const [forStep, setForStep] = useState('')
-  // The scan from the inbox being filed, if any.
-  const [scan, setScan] = useState(null)
   const ref = useRef(null)
   const asked = params.get('letters')
-  // Scans waiting to be filed come first for the people who file them.
-  const tab = TABS[asked] || asked === INBOX ? asked : canFile && scanInbox.length ? INBOX : 'To share'
+  const tab = TABS[asked] ? asked : 'To share'
 
   useEffect(() => {
     if (!asked) return
@@ -46,8 +44,11 @@ export function LettersCard({ projects }) {
     setParams(nextParams, { replace: true })
   }
 
-  const rows = projects.flatMap((p) => p.letters.map((letter) => ({ letter, project: p }))).sort((a, b) => b.letter.date.localeCompare(a.letter.date))
-  const visible = tab === INBOX ? [] : rows.filter(TABS[tab])
+  const docOf = (id) => documents.find((d) => d.id === id)
+  const rows = projects
+    .flatMap((p) => p.letters.map((letter) => ({ letter, project: p, doc: docOf(letter.id) })))
+    .sort((a, b) => b.letter.date.localeCompare(a.letter.date))
+  const visible = rows.filter(TABS[tab])
   const { rows: pageRows, pager } = usePaged(visible, 6, tab)
   // Letters come at any point of a running project: notices and queries before the filing, approvals after it.
   const open = projects.filter((p) => p.started || p.team.coordinator)
@@ -58,18 +59,10 @@ export function LettersCard({ projects }) {
     setRecording(true)
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
-  const fileScan = (next) => {
-    setScan(next)
-    setProjectId('')
-    setForStep('')
-    setRecording(true)
-    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
   const closeRecording = () => {
     setRecording(false)
     setProjectId('')
     setForStep('')
-    setScan(null)
   }
 
   const message = (letter, project) =>
@@ -91,11 +84,6 @@ export function LettersCard({ projects }) {
 
       {recording && (
         <div className="record-letter-body">
-          {scan && (
-            <p className="filing-scan">
-              Filing <b>{scan.name}</b> — choose its project; the scan becomes the letter’s copy.
-            </p>
-          )}
           <label className="field">
             <span className="field-label">Project</span>
             <select
@@ -116,16 +104,13 @@ export function LettersCard({ projects }) {
           </label>
           {target ? (
             <LetterForm
-              key={`${target.id}-${forStep}-${scan?.id ?? ''}`}
+              key={`${target.id}-${forStep}`}
               lead={target.lead}
               project={target}
               forStep={forStep}
-              scan={scan}
               onDone={(letter) => {
-                const filedScan = Boolean(scan)
                 closeRecording()
-                // After a filing, back to what is left in the inbox; after a typed letter, to where it now sits.
-                if (letter) setTab(filedScan && scanInbox.length > 1 ? INBOX : 'All')
+                if (letter) setTab('To share')
               }}
             />
           ) : (
@@ -139,16 +124,20 @@ export function LettersCard({ projects }) {
       )}
 
       <nav className="stage-tabs" aria-label="Filter letters">
-        {[INBOX, ...Object.keys(TABS)].map((t) => (
+        {Object.keys(TABS).map((t) => (
           <button key={t} className={`stage-tab ${tab === t ? 'is-active' : ''}`} onClick={() => setTab(t)} aria-pressed={tab === t}>
             {t}
-            <span>{t === INBOX ? scanInbox.length : rows.filter(TABS[t]).length}</span>
+            <span>{rows.filter(TABS[t]).length}</span>
           </button>
         ))}
+        {scanInbox.length > 0 && (
+          <Link to="/documents/scan-inbox" className="stage-tab letters-inbox-link">
+            <FileScan size={14} /> Scan inbox
+            <span>{scanInbox.length}</span>
+          </Link>
+        )}
       </nav>
-      {tab === INBOX ? (
-        <ScanInbox canFile={canFile} onFile={fileScan} />
-      ) : visible.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="empty-state">{tab === 'To share' ? 'Every letter has been shared with its client.' : 'No letters here.'}</p>
       ) : (
         <div className="table-wrap">
@@ -163,7 +152,7 @@ export function LettersCard({ projects }) {
               </tr>
             </thead>
             <tbody>
-              {pageRows.map(({ letter, project }) => (
+              {pageRows.map(({ letter, project, doc }) => (
                 <tr key={letter.id}>
                   <td>
                     <div className="cell-strong">{letter.title}</div>
@@ -181,14 +170,19 @@ export function LettersCard({ projects }) {
                   <td>
                     {letter.sharedOn ? (
                       <span className="pill status-pill tone-good">Shared {formatNearDate(letter.sharedOn)}</span>
-                    ) : !canFile ? (
+                    ) : doc && doc.stage !== 'To share' ? (
+                      // Before it can go to the client it is verified and given its access (Document Management).
+                      <Link to={`/documents?open=${doc.id}`} className={`pill status-pill ${doc.rescan ? 'tone-urgent' : STAGE_TONE[doc.stage]}`}>
+                        {doc.rescan ? 'Rescan' : doc.stage === 'Done' ? 'Office only' : doc.stage}
+                      </Link>
+                    ) : !canFile || !doc ? (
                       <span className="pill status-pill tone-attention">Not shared yet</span>
                     ) : project.lead.phone ? (
-                      <a className="btn btn-whatsapp btn-small" target="_blank" rel="noreferrer" href={whatsappLink(project.lead.phone, message(letter, project))} onClick={() => markLetterShared(project.lead.id, project, letter)}>
+                      <a className="btn btn-whatsapp btn-small" target="_blank" rel="noreferrer" href={whatsappLink(project.lead.phone, message(letter, project))} onClick={() => shareDocument(doc)}>
                         <MessageCircle size={14} /> Tell client
                       </a>
                     ) : (
-                      <button className="btn btn-small" onClick={() => markLetterShared(project.lead.id, project, letter)}>
+                      <button className="btn btn-small" onClick={() => shareDocument(doc, 'marked')}>
                         Mark as shared
                       </button>
                     )}

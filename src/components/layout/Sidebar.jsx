@@ -16,8 +16,8 @@ import { NAV_GROUPS } from './navigation'
  * An item's badgeTone colours its count (e.g. tone-urgent for something waiting).
  */
 export function Sidebar({ onNavigate, nav, counts, expanded = false, footer, footerRoom = 200 }) {
-  const { followUps, leads, user, projectEdits, vendorApplications, tenders, bids, clarifications } = useCrm()
-  const { can, role } = useAccess()
+  const { followUps, leads, user, projectEdits, vendorApplications, tenders, bids, clarifications, documents, scanInbox } = useCrm()
+  const { can, role, may } = useAccess()
   const badges = counts ?? {
     followUpsDue: countFollowUpsDue(followUps).due,
     // Questions this person answers that are still waiting.
@@ -27,6 +27,10 @@ export function Sidebar({ onNavigate, nav, counts, expanded = false, footer, foo
     // Tenders whose bidding has closed with bids still to decide, and vendors' questions still to answer.
     tendersToDecide:
       tenders.filter((t) => tenderPhase(t) === 'Evaluation' && bids.some((b) => b.tenderId === t.id && ['Submitted', 'Shortlisted'].includes(b.status))).length + clarifications.filter((c) => !c.answer).length,
+    // Documents waiting for whoever runs them: to verify (not their own filing), set access, share; scans to file; originals to send.
+    docsToAct: may('documents') ? documents.filter((d) => ['To verify', 'To authorize', 'To share'].includes(d.stage) && !(d.stage === 'To verify' && !d.rescan && d.record.filedBy === user.name)).length : 0,
+    scansToFile: may('documents') ? scanInbox.length : 0,
+    originalsToSend: may('documents') ? documents.filter((d) => d.stage === 'To dispatch').length : 0,
   }
   const { pathname } = useLocation()
   const groups = nav ?? NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => can(item.path) && (!item.only || item.only.includes(role))) })).filter((group) => group.items.length)

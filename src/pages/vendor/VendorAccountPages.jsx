@@ -6,7 +6,8 @@ import { MountainRange } from '../../components/common/MountainRange'
 import { maskAccount, useCrm } from '../../context/crm'
 import { VENDOR_REGISTRATION_DOCS } from '../../data/vendors'
 import { formatDate, formatNearDate } from '../../utils/date'
-import { downloadDocument } from '../../utils/files'
+import { vendorCanSee } from '../../utils/documents'
+import { downloadDocument, downloadLetter } from '../../utils/files'
 import { nextWorkStep } from '../../utils/projects'
 import { LIVE_BID, ORDER_STEPS, closingChip, closingOf, localDay, orderStep, tenderPhase, vendorNotices } from '../../utils/tenders'
 import { vendorOrders } from '../../utils/workOrders'
@@ -271,8 +272,10 @@ export function VendorAccountPage() {
 /* My Documents: the papers the firm gave at registration and with each bid. */
 export function VendorDocumentsPage() {
   const { vendor } = useOutletContext()
-  const { vendorApplications, bids, tenders, settings } = useCrm()
+  const { vendorApplications, bids, tenders, settings, documents } = useCrm()
   const app = vendorApplications.find((a) => a.id === vendor.applicationId || a.vendorId === vendor.id)
+  // Government letters on works the firm is on, which our team has checked and allowed it to see.
+  const shared = documents.filter((d) => vendorCanSee(d, vendor.id))
   const rows = [
     ...(app ? app.documents.map((d) => ({ ...d, from: `Registration ${app.id}`, on: localDay(app.submittedAt) })) : (VENDOR_REGISTRATION_DOCS[vendor.id] ?? []).map((d) => ({ ...d, from: 'Registration' }))),
     ...bids
@@ -286,11 +289,57 @@ export function VendorDocumentsPage() {
         <div className="page-title">
           <h1>My Documents</h1>
           <p>
-            {rows.length} document{rows.length === 1 ? '' : 's'} with us
+            {rows.length} sent by you{shared.length ? ` · ${shared.length} shared by ${settings.companyName.split(' ').slice(0, 2).join(' ')}` : ''}
           </p>
         </div>
       </header>
+      {shared.length > 0 && (
+        <section className="card">
+          <header className="card-header">
+            <h2>Shared with you</h2>
+          </header>
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Document</th>
+                  <th>Work</th>
+                  <th>Dated</th>
+                  <th aria-label="Download" />
+                </tr>
+              </thead>
+              <tbody>
+                {shared.map((d) => (
+                  <tr key={d.id}>
+                    <td>
+                      <div className="cell-strong">{d.letter.title}</div>
+                      <div className="cell-sub">
+                        {d.kind} · {d.letter.ref} · {d.letter.authority}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="cell-strong">{d.project.name}</div>
+                      <div className="cell-sub">{d.project.site ?? d.lead.location}</div>
+                    </td>
+                    <td className="nowrap">{formatNearDate(d.letter.date)}</td>
+                    <td>
+                      <button className="icon-button small" onClick={() => downloadLetter(d.letter, { project: d.project, lead: d.lead, companyName: settings.companyName })} aria-label={`Download ${d.letter.title}`}>
+                        <Download size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
       <section className="card">
+        {shared.length > 0 && (
+          <header className="card-header">
+            <h2>Sent by you</h2>
+          </header>
+        )}
         {rows.length === 0 ? (
           <p className="empty-state">No documents yet. Papers you send with your registration and your bids show here.</p>
         ) : (

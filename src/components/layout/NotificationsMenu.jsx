@@ -1,4 +1,4 @@
-import { AlertTriangle, Bell, CheckCircle2, ClipboardList, Clock, FileScan, FileWarning, FolderKanban, Gavel, Globe, HardHat, IndianRupee, MessageCircleQuestion, Receipt, ScrollText, Sparkles, UserPlus } from 'lucide-react'
+import { AlertTriangle, Bell, CheckCircle2, ClipboardList, Clock, FileScan, FileWarning, FolderKanban, Gavel, Globe, HardHat, IndianRupee, MessageCircleQuestion, Receipt, ScrollText, ShieldCheck, Sparkles, UserPlus } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BILL_ROLES, useAccess, useCrm, useMoney } from '../../context/crm'
@@ -30,7 +30,7 @@ function readSeen() {
  * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
  */
 export function NotificationsMenu() {
-  const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox, vendorApplications, tenders, bids, clarifications, vendors } = useCrm()
+  const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox, vendorApplications, tenders, bids, clarifications, vendors, documents } = useCrm()
   const { can, may } = useAccess()
   const money = useMoney()
   const { open, setOpen, ref } = usePopover()
@@ -126,8 +126,16 @@ export function NotificationsMenu() {
   // Scans from the NAS scanner folder wait for whoever files government letters.
   const scans =
     canActOn(role, 'approval') && scanInbox.length
-      ? [{ id: `scan-${scanInbox[0].id}-${scanInbox.length}`, tone: 'tone-attention', icon: FileScan, title: `${scanInbox.length} scan${scanInbox.length === 1 ? '' : 's'} to file`, sub: `Scanner folder · latest ${formatDayMonth(scanInbox[0].scannedAt.slice(0, 10))}`, to: '/projects?letters=Scan%20inbox' }]
+      ? [{ id: `scan-${scanInbox[0].id}-${scanInbox.length}`, tone: 'tone-attention', icon: FileScan, title: `${scanInbox.length} scan${scanInbox.length === 1 ? '' : 's'} to file`, sub: `Scanner folder · latest ${formatDayMonth(scanInbox[0].scannedAt.slice(0, 10))}`, to: '/documents/scan-inbox' }]
       : []
+
+  // Documents to check: verification is never by the person who filed the scan; rescans go back to whoever files.
+  const docsToVerify = may('documents') ? documents.filter((d) => d.stage === 'To verify' && !d.rescan && d.record.filedBy !== user.name) : []
+  const rescans = may('documents') ? documents.filter((d) => d.rescan) : []
+  const docChecks = [
+    ...(docsToVerify.length ? [{ id: `dv-${docsToVerify.map((d) => d.id).join('-')}`, tone: 'tone-attention', icon: ShieldCheck, title: `${docsToVerify.length} document${docsToVerify.length === 1 ? '' : 's'} to verify`, sub: `Latest: ${docsToVerify[0].letter.title} · ${docsToVerify[0].lead.company}`, to: '/documents?step=To%20verify' }] : []),
+    ...rescans.map((d) => ({ id: `dr-${d.id}-${d.record.verify.at}`, tone: 'tone-urgent', icon: FileWarning, title: `Rescan: ${d.letter.title}`, sub: `${d.lead.company} · ${d.record.verify.reason}`, to: `/documents?open=${d.id}` })),
+  ]
 
   // Vendor registrations waiting for the Admin.
   const registrations = may('vendors')
@@ -158,6 +166,7 @@ export function NotificationsMenu() {
     ...tenderDecisions,
     ...tenderQuestions,
     ...scans,
+    ...docChecks,
     ...toVerify,
     ...bills,
     ...fromVendors,

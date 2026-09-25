@@ -1,4 +1,4 @@
-import { Download, FilePlus2, MessageCircle, ScrollText } from 'lucide-react'
+import { Download, FilePlus2, ScrollText } from 'lucide-react'
 import { useState } from 'react'
 import { Checklist, ProgressBar } from '../../components/common/Checklist'
 import { RoleLink } from '../../components/common/RoleLink'
@@ -7,8 +7,6 @@ import { TODAY } from '../../data/mockData'
 import { formatNearDate, toISODate } from '../../utils/date'
 import { downloadLetter } from '../../utils/files'
 import { PROJECT_STATUS_TONE, canActOn, clientProjects } from '../../utils/projects'
-import { automationOf } from '../../utils/automations'
-import { whatsappLink } from '../../utils/whatsapp'
 
 const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
 
@@ -18,8 +16,9 @@ const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
  * done and the scan becomes that step's letter, so the client sees one letter with the real copy.
  * forStep: open the form already linked to a step (e.g. "Attach scan" on a letter that has none).
  * scan: a scan from the NAS inbox, which is the letter's copy (no file to choose).
+ * links: the lease and vendor it belongs to (Document Management's scan inbox).
  */
-export function LetterForm({ lead, project, onDone, forStep: initialStep = '', scan }) {
+export function LetterForm({ lead, project, onDone, forStep: initialStep = '', scan, links }) {
   const { addGovtLetter } = useCrm()
   const submitted = project.milestones[project.milestones.length - 1].done
   const steps = submitted ? project.approvals : []
@@ -42,7 +41,7 @@ export function LetterForm({ lead, project, onDone, forStep: initialStep = '', s
       className="letter-form"
       onSubmit={(e) => {
         e.preventDefault()
-        onDone(addGovtLetter(lead.id, project, { title: fields.title.trim(), authority: project.authority, ref: fields.ref.trim(), date: fields.date, file, scan, forStep: forStep || undefined }))
+        onDone(addGovtLetter(lead.id, project, { title: fields.title.trim(), authority: project.authority, ref: fields.ref.trim(), date: fields.date, file, scan, forStep: forStep || undefined, links }))
       }}
     >
       {steps.length > 0 && (
@@ -87,7 +86,7 @@ export function LetterForm({ lead, project, onDone, forStep: initialStep = '', s
           <input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files[0] ?? null)} required={Boolean(linked)} autoFocus={Boolean(initialStep)} />
         </label>
       )}
-      {linked && !linked.done && <p className="muted small field-wide">Saving marks “{linked.label}” done on {formatNearDate(fields.date)}; the client sees it in the portal.</p>}
+      {linked && !linked.done && <p className="muted small field-wide">Saving marks “{linked.label}” done on {formatNearDate(fields.date)}; the client sees it once it is verified and shared.</p>}
       <div className="letter-form-actions">
         <button type="button" className="btn" onClick={() => onDone(null)}>
           Cancel
@@ -159,20 +158,14 @@ export function ProjectBlock({ lead, project }) {
           ))}
         </ul>
       )}
-      {/* Only when the automation doesn't already tell the client on WhatsApp. */}
-      {justAdded && lead.phone && !automationOf(settings, 'letter').whatsapp && (
-        <a
-          className="btn btn-whatsapp btn-small"
-          target="_blank"
-          rel="noreferrer"
-          href={whatsappLink(
-            lead.phone,
-            `Dear ${lead.contactPerson}, we have received the ${justAdded.title} (${justAdded.ref}) from ${justAdded.authority} for ${project.name}. You can download it from your client portal: ${window.location.origin}/login — ${settings.companyName}`,
-          )}
-          onClick={() => setJustAdded(null)}
-        >
-          <MessageCircle size={15} /> Tell the client on WhatsApp
-        </a>
+      {/* A new letter goes to the client only after it is verified and given its access (Document Management). */}
+      {justAdded && (
+        <p className="muted small">
+          {justAdded.title} is filed; it reaches the client once it is verified.{' '}
+          <RoleLink to="/documents?step=To%20verify" className="link-button" hideIfLocked>
+            Documents →
+          </RoleLink>
+        </p>
       )}
       {adding ? (
         <LetterForm

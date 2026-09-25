@@ -1,4 +1,4 @@
-import { ArrowLeftRight, BadgeIndianRupee, BarChart3, BookOpen, Briefcase, Building2, CalendarCheck, CalendarClock, CalendarDays, ClipboardCheck, ClipboardList, Clock, Contact, FileSignature, Gavel, FileSpreadsheet, FileText, FolderKanban, FolderLock, Gauge, HandCoins, Home, Landmark, LayoutDashboard, ListTodo, MessageCircleQuestion, Network, Percent, PiggyBank, Receipt, Scale, Settings2, ShieldCheck, UserPlus, UserRound, Users, UsersRound, Wallet } from 'lucide-react'
+import { ArrowLeftRight, BadgeIndianRupee, BarChart3, BookOpen, Briefcase, Building2, CalendarCheck, CalendarClock, CalendarDays, ClipboardCheck, ClipboardList, Clock, Contact, FileScan, FileSignature, Files, Gavel, FileSpreadsheet, FileText, FolderKanban, FolderLock, Gauge, HandCoins, Home, Landmark, LayoutDashboard, ListTodo, MessageCircleQuestion, Network, Percent, PiggyBank, Receipt, Scale, Settings2, ShieldCheck, Truck, UserPlus, UserRound, Users, UsersRound, Wallet } from 'lucide-react'
 
 // Roles that use the HRMS for themselves only (their own attendance, leave, pay, claims, documents).
 const SELF_SERVICE = ['Sales', 'Project Coordinator', 'Team Lead', 'Field Member', 'Finance', 'Accountant']
@@ -36,6 +36,15 @@ export const NAV_GROUPS = [
       { label: 'Vendor Applications', path: '/vendor-applications', icon: UserPlus, badge: 'vendorAppsNew' },
       { label: 'Tenders', path: '/tenders', icon: Gavel, badge: 'tendersToDecide' },
       { label: 'Subcontracts', path: '/subcontracts', icon: FileSignature },
+    ],
+  },
+  {
+    // Government documents from the scanner to the client: file, verify, set access, share, dispatch the original.
+    title: 'Document Management',
+    items: [
+      { label: 'Documents', path: '/documents', icon: Files, badge: 'docsToAct', end: true },
+      { label: 'Scan Inbox', path: '/documents/scan-inbox', icon: FileScan, badge: 'scansToFile' },
+      { label: 'Dispatch Register', path: '/documents/dispatch', icon: Truck, badge: 'originalsToSend' },
     ],
   },
   {

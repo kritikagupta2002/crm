@@ -12,6 +12,7 @@ import { TODAY } from '../../data/mockData'
 import { titleOf } from '../../data/staff'
 import { downloadDocument, downloadLetter } from '../../utils/files'
 import { PROJECT_STATUS_TONE, clientProjects, clientUpdates } from '../../utils/projects'
+import { clientCanSee } from '../../utils/documents'
 import { whatsappLink } from '../../utils/whatsapp'
 import { APPROVAL_STEPS, ONBOARDING_STEPS, progressOf, quoteFor } from '../../utils/workflow'
 import { QuoteDocument } from '../quotations/QuoteDocument'
@@ -420,7 +421,7 @@ function ProjectsCard({ lead, projects, settings }) {
         <ScrollText size={15} /> Government letters
       </h3>
       {project.letters.length === 0 ? (
-        <p className="portal-empty small">Official letters and orders appear here as soon as we receive them.</p>
+        <p className="portal-empty small">Official letters and orders appear here once we have received and checked them.</p>
       ) : (
         <ul className="portal-docs">
           {project.letters.map((letter) => (
@@ -634,7 +635,7 @@ function UpdatesCard({ updates }) {
  * The team can open the same view read-only with /portal?lead=<id> ("Preview client portal").
  */
 export function ClientPortalPage() {
-  const { leads, settings, teamSignedIn, clientLeadId, signOutClient, projectEdits, activities, followUps, role } = useCrm()
+  const { leads, settings, teamSignedIn, clientLeadId, signOutClient, projectEdits, activities, followUps, role, documents } = useCrm()
   const money = useMoney()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -660,7 +661,11 @@ export function ClientPortalPage() {
 
   const quote = quoteFor(lead)
   // The work still running comes first; finished projects follow.
-  const projects = clientProjects(lead, projectEdits).sort((a, b) => (a.status === 'Completed') - (b.status === 'Completed'))
+  // Government letters reach the client once they are verified and allowed for them (Document Management).
+  const forClient = new Set(documents.filter(clientCanSee).map((d) => d.id))
+  const projects = clientProjects(lead, projectEdits)
+    .map((p) => ({ ...p, letters: p.letters.filter((l) => forClient.has(l.id)) }))
+    .sort((a, b) => (a.status === 'Completed') - (b.status === 'Completed'))
   const updates = clientUpdates({ lead, quote, projects, activities, followUps })
   const amount = preview ? money.full : clientAmount
   const approvalStarted = quote?.status === 'Accepted' || lead.stage === 'Won'

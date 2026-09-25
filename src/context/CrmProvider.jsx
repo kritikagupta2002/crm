@@ -9,6 +9,7 @@ import { allProjects, clientProjects } from '../utils/projects'
 import { pinnedQuote, quoteFor } from '../utils/workflow'
 import { channelsFor, messageFor } from '../utils/automations'
 import { SEEDED_SCANS } from '../data/scans'
+import { accessLabel, govtDocuments, vendorName } from '../utils/documents'
 import { SEEDED_APPLICATIONS, msmeOf } from '../data/vendorApplications'
 import { SEEDED_BIDS, SEEDED_CLARIFICATIONS, SEEDED_SAVED_TENDERS, SEEDED_TENDERS, SEEDED_TENDER_ORDERS } from '../data/tenders'
 import { LIVE_BID, closingOf, formatDateTime, seededTenderOrder, tenderPhase } from '../utils/tenders'
@@ -30,7 +31,7 @@ const CLIENT_KEY = 'bansal-crm:client-session'
 const VENDOR_KEY = 'bansal-crm:vendor-session'
 const VENDOR_LOGINS_KEY = 'bansal-crm:vendor-logins'
 const OLD_STORAGE_KEY = 'bansal-crm-demo:added:v1'
-const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] }, vendorApps: {}, tenders: {}, bids: {}, clarifications: {}, savedTenders: {} }
+const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] }, vendorApps: {}, tenders: {}, bids: {}, clarifications: {}, savedTenders: {}, docs: {} }
 
 /* Keeps uploaded files for this session and returns their details for the record. */
 const fileRecords = (files, extra = {}) =>
@@ -106,6 +107,12 @@ function sendAuto(prev, key, leadId, to, ctx) {
   const item = { id: `MSG-${Date.now()}-${Math.round(Math.random() * 1e6)}`, at: new Date().toISOString(), key, leadId, to, channels, ...message }
   const via = channels.map((c) => (c === 'whatsapp' ? 'WhatsApp' : 'email')).join(' & ')
   return { ...prev, outbox: [...(prev.outbox ?? []), item], activities: log(prev, leadId, 'message', `Sent automatically on ${via} to ${to.name}: ${message.subject}`) }
+}
+
+/* A change to one project's edits, for a document step (its shared letters, a new scan). */
+const letterEdit = (state, doc, change) => {
+  const edits = state.projects[doc.project.id] ?? {}
+  return { ...state, projects: { ...state.projects, [doc.project.id]: { ...edits, ...change(edits) } } }
 }
 
 /* Seeded records with the app's changes laid over them: a record changed or added in the app is kept whole under its id. */
@@ -205,6 +212,8 @@ export function CrmProvider({ children }) {
 
   // Read inside the updaters below, so each change is logged against whoever is signed in at that moment.
   const actorRef = useRef(null)
+  // The documents as last computed (Document Management), for actions that start from a document's earlier record.
+  const documentsRef = useRef([])
   useEffect(() => {
     actorRef.current = { role, name: user.name }
   }, [role, user])
@@ -580,7 +589,9 @@ export function CrmProvider({ children }) {
    * is marked done on the letter's date if it wasn't already, and the scan becomes that step's letter.
    */
   // scan: a scan from the NAS inbox (flowchart 3, step 2); it becomes the letter's copy and leaves the inbox.
-  const addGovtLetter = useCallback((leadId, project, { title, authority, ref, date, file, forStep, scan }) => {
+  // links: { vendorId, leaseNo } for Document Management. The scan waits for a second person to verify it, then for
+  // its access; the client is told when it is shared with them (authorizeDocument), not here.
+  const addGovtLetter = useCallback((leadId, project, { title, authority, ref, date, file, forStep, scan, links = {} }) => {
     const letter = { id: `GL-${Date.now()}`, title, authority, ref, date }
     if (forStep) letter.forStep = forStep
     if (file) {
@@ -608,13 +619,19 @@ export function CrmProvider({ children }) {
         const scans = { ...EMPTY.scans, ...prev.scans }
         next = { ...next, scans: { ...scans, filed: { ...scans.filed, [scan.id]: { projectId: project.id, letterId: letter.id, on: toISODate(TODAY) } } } }
       }
-      // Vendor sheet C2: the client hears about the letter straight away, with the scan attached.
-      const sent = sendAuto(next, 'letter', leadId, clientOf(lead), { lead, project, letter, fileName: file?.name ?? scan?.name })
-      if (sent !== next && sent.outbox.at(-1).channels.includes('whatsapp')) {
-        const saved = sent.projects[project.id]
-        return { ...sent, projects: { ...sent.projects, [project.id]: { ...saved, sharedLetters: { ...saved.sharedLetters, [shownAs]: toISODate(TODAY) } } } }
-      }
-      return sent
+      // A new copy of a letter already on file keeps its links, access and history, and goes back for verification.
+      const now = new Date().toISOString()
+      const by = actorRef.current.name
+      const earlier = prev.docs?.[shownAs] ?? documentsRef.current.find((d) => d.id === shownAs)?.record
+      const kept = { ...earlier?.links, ...links }
+      const linked = [lead?.company, kept.leaseNo && `lease ${kept.leaseNo}`, kept.vendorId && vendorName(kept.vendorId)].filter(Boolean).join(', ')
+      const events = [
+        ...(earlier?.events ?? []),
+        ...(scan ? [{ at: scan.scannedAt, by: scan.scanner === 'Uploaded' ? by : scan.scanner, text: `Scanned — ${scan.name}, saved to the NAS` }] : []),
+        { at: now, by, text: earlier ? `New copy attached${file || scan ? ` (${(file ?? scan).name})` : ''} — back for verification` : `Filed to ${project.id} · linked to ${linked}` },
+      ]
+      const record = { filedBy: by, filedAt: now, links: kept, ...(earlier?.access && { access: earlier.access }), ...(earlier?.dispatch && { dispatch: earlier.dispatch }), events }
+      return { ...next, docs: { ...prev.docs, [shownAs]: record } }
     })
     return { ...letter, stepKey: step?.letter ? forStep : undefined }
   }, [findLead, setChanges])
@@ -1059,6 +1076,116 @@ export function CrmProvider({ children }) {
     return merged
   }, [changes.projects, tenderOrders])
 
+  /* Every government letter as a document on its way through Document Management (utils/documents). */
+  const documents = useMemo(() => govtDocuments(allProjects(leads, projectEdits), changes.docs, vendors), [leads, projectEdits, changes.docs, vendors])
+  useEffect(() => {
+    documentsRef.current = documents
+  }, [documents])
+
+  /*
+   * Document Management: one step on a government document, saved with its line on the document's timeline and
+   * logged against the client (the audit log). patch(record) gives the fields that change; then(next, record) adds
+   * what goes with the step elsewhere (the project's shared letters, the automatic message).
+   */
+  const docStep = useCallback(
+    (doc, patch, text, then) =>
+      setChanges((prev) => {
+        const base = prev.docs?.[doc.id] ?? doc.record
+        const by = actorRef.current.name
+        const record = { ...base, ...patch(base, by), events: [...(base.events ?? []), { at: new Date().toISOString(), by, text }] }
+        const next = { ...prev, docs: { ...prev.docs, [doc.id]: record }, activities: log(prev, doc.lead.id, 'project', `${doc.project.name}: ${doc.letter.title} (${doc.letter.ref}) — ${text}`) }
+        return then ? then(next, record) : next
+      }),
+    [setChanges],
+  )
+
+  /* A second person checks the scan against the original: verified, or back for a rescan with the reason. */
+  const verifyDocument = useCallback(
+    (doc, { ok, reason, note }) =>
+      docStep(
+        doc,
+        (_, by) => ({ verify: ok ? { status: 'Verified', by, at: new Date().toISOString() } : { status: 'Rescan', by, at: new Date().toISOString(), reason, note } }),
+        ok ? 'Verified against the original' : `Sent back for a rescan: ${reason}${note ? ` — ${note}` : ''}`,
+      ),
+    [docStep],
+  )
+
+  /* A rescan: the new copy (an upload or a scan from the inbox) replaces the old one and goes back for verification. */
+  const replaceDocScan = useCallback(
+    (doc, { file, scan }) => {
+      const fileId = file ? `${doc.id}-r${Date.now()}` : scan.id
+      if (file) rememberFile(fileId, file)
+      docStep(
+        doc,
+        (_, by) => ({ verify: null, filedBy: by, filedAt: new Date().toISOString() }),
+        `New scan attached (${(file ?? scan).name}) — back for verification`,
+        (next) => {
+          let state = letterEdit(next, doc, (e) => ({ letterFiles: { ...e.letterFiles, [doc.letter.id]: fileId } }))
+          if (scan) {
+            const scans = { ...EMPTY.scans, ...state.scans }
+            state = { ...state, scans: { ...scans, filed: { ...scans.filed, [scan.id]: { projectId: doc.project.id, letterId: doc.letter.id, on: toISODate(TODAY) } } } }
+          }
+          return state
+        },
+      )
+    },
+    [docStep],
+  )
+
+  /* The lease and the vendor the document belongs to (the client and project come with its project). */
+  const linkDocument = useCallback(
+    (doc, links) =>
+      docStep(doc, (base) => ({ links: { ...base.links, ...links } }), `Links updated: ${[links.leaseNo ? `lease ${links.leaseNo}` : 'no lease', links.vendorId ? vendorName(links.vendorId, vendors) : 'no vendor'].join(', ')}`),
+    [docStep, vendors],
+  )
+
+  /*
+   * Who may open it: the office always; the client (their portal) and the linked vendor (the vendor portal) when
+   * allowed. original: the paper original goes to the client (the dispatch register). Allowing the client sends the
+   * automatic message (vendor sheet C2), which counts as sharing it when it goes on WhatsApp.
+   */
+  const authorizeDocument = useCallback(
+    (doc, { client, vendor, original }) => {
+      const lead = findLead(doc.lead.id) ?? doc.lead
+      docStep(
+        doc,
+        (_, by) => ({ access: { client, vendor, by, at: new Date().toISOString() }, dispatch: { ...doc.record.dispatch, status: original ? 'To dispatch' : 'Not needed' } }),
+        `Access set: ${accessLabel({ client, vendor }, doc.record.links, vendors)}${original ? ' · original to go to the client' : ''}`,
+        (next) => {
+          if (!client || doc.letter.sharedOn) return next
+          const sent = sendAuto(next, 'letter', lead.id, clientOf(lead), { lead, project: doc.project, letter: doc.letter, fileName: `${doc.letter.ref.replace(/[^A-Za-z0-9-]+/g, '-')}.pdf` })
+          const channels = sent === next ? [] : sent.outbox.at(-1).channels
+          if (!channels.includes('whatsapp')) return sent
+          const via = channels.map((c) => (c === 'whatsapp' ? 'WhatsApp' : 'email')).join(' & ')
+          const shared = letterEdit(sent, doc, (e) => ({ sharedLetters: { ...e.sharedLetters, [doc.id]: toISODate(TODAY) } }))
+          const record = shared.docs[doc.id]
+          return { ...shared, docs: { ...shared.docs, [doc.id]: { ...record, events: [...record.events, { at: new Date().toISOString(), by: 'Automation', text: `Shared with the client — portal, ${via}` }] } } }
+        },
+      )
+    },
+    [docStep, findLead, vendors],
+  )
+
+  /* Shared by hand: the team told the client on WhatsApp (or marked it done when there is no mobile number). */
+  const shareDocument = useCallback(
+    (doc, how = 'WhatsApp') => docStep(doc, () => ({}), how === 'WhatsApp' ? 'Shared with the client — portal and WhatsApp' : 'Marked as shared with the client', (next) => letterEdit(next, doc, (e) => ({ sharedLetters: { ...e.sharedLetters, [doc.id]: toISODate(TODAY) } }))),
+    [docStep],
+  )
+
+  /* The paper original: to be sent or not, sent (how, docket, on), and received by the client. */
+  const requestDispatch = useCallback(
+    (doc, needed) => docStep(doc, (base) => ({ dispatch: { ...base.dispatch, status: needed ? 'To dispatch' : 'Not needed' } }), needed ? 'Original to go to the client' : 'No original to send'),
+    [docStep],
+  )
+  const dispatchDocument = useCallback(
+    (doc, { mode, docket, on }) => docStep(doc, (base, by) => ({ dispatch: { ...base.dispatch, status: 'Dispatched', mode, docket, on, by } }), `Original sent by ${mode}${docket ? ` · ${docket}` : ''}`),
+    [docStep],
+  )
+  const receiveDocument = useCallback(
+    (doc, { receivedBy, on }) => docStep(doc, (base) => ({ dispatch: { ...base.dispatch, status: 'Received', receivedBy, receivedOn: on } }), `Original received by ${receivedBy}`),
+    [docStep],
+  )
+
   /* Tenders and bids (data/tenders.js): the demo's, with what was published, bid and decided in the app. */
   const tenders = useMemo(() => {
     // The seeded allotted tenders point at their seeded work orders.
@@ -1383,6 +1510,15 @@ export function CrmProvider({ children }) {
         addProjectDocuments,
         removeProjectDocument,
         markLetterShared,
+        documents,
+        verifyDocument,
+        replaceDocScan,
+        linkDocument,
+        authorizeDocument,
+        shareDocument,
+        requestDispatch,
+        dispatchDocument,
+        receiveDocument,
         setFileShared,
         raiseQuery,
         submitPayment,

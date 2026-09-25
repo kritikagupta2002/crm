@@ -1,10 +1,12 @@
+import { SEEDED_LETTERS } from '../data/documents'
 import { baseProjects } from '../data/projects'
 import { TODAY } from '../data/mockData'
 import { seededInteractions } from './clientHistory'
 import { formatDayMonth, toISODate } from './date'
 
 const todayISO = toISODate(TODAY)
-const sharedBeforeISO = toISODate(new Date(TODAY.getTime() - 10 * 86_400_000))
+// Letters older than this went to the client before the demo's records begin; newer ones still wait (utils/documents).
+export const sharedBeforeISO = toISODate(new Date(TODAY.getTime() - 10 * 86_400_000))
 
 /*
  * A step is done when its planned date has passed, unless the team has marked it otherwise:
@@ -116,7 +118,8 @@ export function clientProjects(lead, projectEdits = {}) {
     const submitted = milestones[milestones.length - 1].done
     const approvals = base.approvals.map((s) => (submitted ? resolve(s, edits.approvals?.[s.key]) : { ...s, done: false }))
     // A scanned letter recorded against an approval step becomes that step's letter (one letter, with the real scan).
-    const recorded = edits.letters ?? []
+    // The demo's other letters (notices, queries, permissions: data/documents) come first, then what was recorded in the app.
+    const recorded = [...(SEEDED_LETTERS[base.id] ?? []).map((l) => ({ ...l, authority: base.authority, fileId: `${l.id}-scan` })), ...(edits.letters ?? [])]
     const stepLetters = approvals
       .filter((s) => s.done && s.letter)
       .map((s, i) => {
@@ -130,7 +133,8 @@ export function clientProjects(lead, projectEdits = {}) {
       ...recorded.filter((r) => !merged.has(r.id)).map((r) => ({ ...r, stepLabel: r.forStep ? base.approvals.find((s) => s.key === r.forStep)?.label : undefined })),
     ]
       // Older letters were already passed on to the client; the last ten days' still wait for a WhatsApp.
-      .map((l) => ({ ...l, sharedOn: edits.sharedLetters?.[l.id] ?? (l.stepKey && l.date < sharedBeforeISO ? l.date : null) }))
+      // letterFiles: a new scan attached after a rescan (Document Management).
+      .map((l) => ({ ...l, fileId: edits.letterFiles?.[l.id] ?? l.fileId, sharedOn: edits.sharedLetters?.[l.id] ?? l.sharedOn ?? (l.stepKey && l.date < sharedBeforeISO ? l.date : null) }))
       .sort((a, b) => b.date.localeCompare(a.date))
     const milestonesDone = milestones.filter((m) => m.done).length
     const approvalsDone = approvals.filter((s) => s.done).length

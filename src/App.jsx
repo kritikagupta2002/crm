@@ -14,6 +14,9 @@ import { MessagesPage } from './pages/messages/MessagesPage'
 import { QuestionsPage } from './pages/questions/QuestionsPage'
 import { VendorApplicationsPage } from './pages/vendors/VendorApplicationsPage'
 import { TendersPage } from './pages/vendors/TendersPage'
+import { DispatchRegisterPage } from './pages/documents/DispatchRegisterPage'
+import { DocumentsPage } from './pages/documents/DocumentsPage'
+import { ScanInboxPage } from './pages/documents/ScanInboxPage'
 import { VendorTenderPage } from './pages/vendor/VendorTenderPage'
 import { CrmProvider } from './context/CrmProvider'
 import { hrmsRoutes } from './hrms/HrmsRoutes'
@@ -83,6 +86,9 @@ export default function App() {
                 <Route path="team" element={<TeamPage />} />
                 <Route path="letters" element={<Navigate to="/projects?letters=To%20share" replace />} />
                 <Route path="subcontracts" element={<SubcontractsPage />} />
+                <Route path="documents" element={<DocumentsPage />} />
+                <Route path="documents/scan-inbox" element={<ScanInboxPage />} />
+                <Route path="documents/dispatch" element={<DispatchRegisterPage />} />
                 <Route path="work-orders" element={<Navigate to="/subcontracts" replace />} />
                 <Route path="erm-reports" element={<Navigate to="/reports?view=projects" replace />} />
                 <Route path="reports" element={<ReportsPage />} />

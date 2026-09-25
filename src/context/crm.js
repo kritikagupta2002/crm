@@ -34,7 +34,7 @@ export const ROLE_ACCESS = {
   Management: {
     brief: 'Sees all, changes nothing',
     note: 'Every workspace, P&L and the audit log; hand-overs stay with the team',
-    pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/client-onboarding', '/clients', '/reports', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/audit-log', '/messages', '/questions', '/vendor-applications', '/tenders', ...HR_TEAM, ...FINANCE_BOOKS, ...FINANCE_REPORTS],
+    pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/client-onboarding', '/clients', '/reports', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/documents', '/audit-log', '/messages', '/questions', '/vendor-applications', '/tenders', ...HR_TEAM, ...FINANCE_BOOKS, ...FINANCE_REPORTS],
     masked: false,
     pnl: true,
     bank: true,
@@ -44,13 +44,13 @@ export const ROLE_ACCESS = {
   'Project Coordinator': {
     brief: 'Projects & onboarding, no ₹',
     note: 'Onboarding, clients and ERM projects; amounts hidden',
-    pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/reports', '/messages', '/questions', ...HR_SELF],
+    pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/documents', '/reports', '/messages', '/questions', ...HR_SELF],
     masked: true,
     pnl: false,
     bank: false,
     home: '/erm',
   },
-  'Team Lead': { brief: 'Tasks & field work, no ₹', note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/clients', '/questions', ...HR_SELF], masked: true, pnl: false, bank: false, home: '/erm' },
+  'Team Lead': { brief: 'Tasks & field work, no ₹', note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/documents', '/clients', '/questions', ...HR_SELF], masked: true, pnl: false, bank: false, home: '/erm' },
   'Field Member': { brief: 'Own tasks & site visits', note: 'My tasks and field visits, on the phone', pages: ['/my-tasks', ...HR_SELF], masked: true, pnl: false, bank: false, home: '/my-tasks' },
   Finance: { brief: 'Payments, bills, P&L, bank', note: 'CFO: releases vendor payments, P&L, bank details and reports; the finance books', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions', ...HR_SELF, ...FINANCE_BOOKS, ...FINANCE_REPORTS], masked: false, pnl: true, bank: true, home: '/' },
   Accountant: { brief: 'Payments & bills, no P&L', note: 'Junior accounts: payments, vendor bills and the finance books; no P&L or bank details', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions', ...HR_SELF, ...FINANCE_BOOKS], masked: false, pnl: false, bank: false, home: '/' },
@@ -111,6 +111,8 @@ export const PERMISSIONS = {
   projects: ['Admin', 'Project Coordinator', 'Team Lead'],
   // Vendor registrations: approve, send back or reject (the Admin alone).
   vendors: ['Admin'],
+  // Government documents: file scans, verify (never your own filing), set access, share, dispatch originals.
+  documents: ['Admin', 'Project Coordinator'],
 }
 
 export const canDo = (role, action) => Boolean(PERMISSIONS[action]?.includes(role))
