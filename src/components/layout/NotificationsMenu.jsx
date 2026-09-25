@@ -30,7 +30,7 @@ function readSeen() {
  * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
  */
 export function NotificationsMenu() {
-  const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox, vendorApplications, tenders, bids } = useCrm()
+  const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox, vendorApplications, tenders, bids, clarifications, vendors } = useCrm()
   const { can, may } = useAccess()
   const money = useMoney()
   const { open, setOpen, ref } = usePopover()
@@ -104,7 +104,8 @@ export function NotificationsMenu() {
     .filter((a) => a.by === 'vendor' && a.at.slice(0, 10) >= weekAgoISO)
     .slice(-6)
     .reverse()
-    .map((a) => ({ id: `vn-${a.id}`, tone: 'tone-info', icon: HardHat, title: `${a.vendor}: ${a.text.split(' — ').pop().replace(' (vendor portal)', '')}`, sub: `Vendor portal · ${formatDayMonth(a.at.slice(0, 10))}`, to: a.text.startsWith('Bid ') ? '/tenders' : '/subcontracts' }))
+    // "Project: subcontract SC-… (Vendor) — bill X recorded — ₹…": what the vendor did is everything after the vendor's name.
+    .map((a) => ({ id: `vn-${a.id}`, tone: 'tone-info', icon: HardHat, title: `${a.vendor}: ${(a.text.includes(') — ') ? a.text.slice(a.text.indexOf(') — ') + 4) : a.text).replace(' (vendor portal)', '')}`, sub: `Vendor portal · ${formatDayMonth(a.at.slice(0, 10))}`, to: a.text.startsWith('Bid ') ? '/tenders' : '/subcontracts' }))
 
   // The field team hears about their own work: late tasks, tasks due by tomorrow and tasks handed to them this week.
   const myTasks =
@@ -144,10 +145,18 @@ export function NotificationsMenu() {
         .map(({ t, waiting }) => ({ id: `tn-${t.id}-${waiting}`, tone: 'tone-attention', icon: Gavel, title: `Bids to decide: ${t.title}`, sub: `${t.id} · ${waiting} bid${waiting === 1 ? '' : 's'} waiting`, to: `/tenders?open=${t.id}` }))
     : []
 
+  // Vendors' questions on tenders, for the Admin to answer.
+  const tenderQuestions = may('vendors')
+    ? clarifications
+        .filter((c) => !c.answer)
+        .map((c) => ({ id: `cl-${c.id}`, tone: 'tone-attention', icon: MessageCircleQuestion, title: `Tender question: ${c.tenderId}`, sub: `${vendors.find((v) => v.id === c.vendorId)?.name ?? c.vendorId} · ${c.question}`, to: `/tenders?open=${c.tenderId}` }))
+    : []
+
   const items = [
     ...myTasks,
     ...registrations,
     ...tenderDecisions,
+    ...tenderQuestions,
     ...scans,
     ...toVerify,
     ...bills,

@@ -425,6 +425,58 @@ function BidDetail({ bid, tender, vendor, project, projects, canDecide }) {
   )
 }
 
+/* Vendors' questions on a tender: the Admin answers; the answer is published for every bidder. */
+function TenderClarifications({ tender }) {
+  const { clarifications, vendors, answerClarification } = useCrm()
+  const { may } = useAccess()
+  const [drafts, setDrafts] = useState({})
+  const list = clarifications.filter((c) => c.tenderId === tender.id).sort((a, b) => a.askedAt.localeCompare(b.askedAt))
+  if (!list.length) return null
+
+  return (
+    <section className="app-section">
+      <h3>Clarifications</h3>
+      <ul className="clarify-list">
+        {list.map((c) => (
+          <li key={c.id}>
+            <p className="clarify-q">
+              <b>Q.</b> {c.question}{' '}
+              <span className="muted small">
+                · {vendors.find((v) => v.id === c.vendorId)?.name ?? c.vendorId}, {formatDateTime(c.askedAt)}
+              </span>
+            </p>
+            {c.answer ? (
+              <p className="clarify-a">
+                <b>A.</b> {c.answer}{' '}
+                <span className="muted small">
+                  · {c.answeredBy}, {formatDateTime(c.answeredAt)}
+                </span>
+              </p>
+            ) : may('vendors') ? (
+              <form
+                className="clarify-form"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  answerClarification(c.id, drafts[c.id].trim())
+                }}
+              >
+                <textarea rows={2} value={drafts[c.id] ?? ''} onChange={(e) => setDrafts({ ...drafts, [c.id]: e.target.value })} placeholder="Your answer — published on the tender for every bidder" aria-label={`Answer to ${c.id}`} />
+                <div className="clarify-foot">
+                  <button type="submit" className="btn btn-small btn-primary" disabled={!drafts[c.id]?.trim()}>
+                    Publish answer
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <p className="muted small">Awaiting the Admin’s answer.</p>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 /* One tender: its details, the bids (sealed while bidding is open), and the decisions. */
 function TenderDrawer({ tender, projects, onClose }) {
   const { bids, vendors, closeBidding, settings } = useCrm()
@@ -434,7 +486,10 @@ function TenderDrawer({ tender, projects, onClose }) {
   const [confirmClose, setConfirmClose] = useState(false)
   const phase = tenderPhase(tender)
   const project = projectOfTender(tender, projects)
-  const received = bids.filter((b) => b.tenderId === tender.id)
+  // A bid the firm withdrew before closing is no longer in the running.
+  const all = bids.filter((b) => b.tenderId === tender.id)
+  const received = all.filter((b) => b.status !== 'Withdrawn')
+  const withdrawn = all.length - received.length
   const ranked = [...received].sort((a, b) => a.amount - b.amount)
   const vendorOf = (id) => vendors.find((v) => v.id === id)
   const allotted = tender.allotted && vendorOf(tender.allotted.vendorId)
@@ -478,7 +533,10 @@ function TenderDrawer({ tender, projects, onClose }) {
               <b>
                 {received.length ? `${received.length} bid${received.length === 1 ? '' : 's'} received` : 'No bids yet'}
               </b>
-              <span className="muted">Sealed until {formatDateTime(closingOf(tender))}. Firms and amounts show once bidding closes.</span>
+              <span className="muted">
+                Sealed until {formatDateTime(closingOf(tender))}. Firms and amounts show once bidding closes.
+                {withdrawn > 0 && ` ${withdrawn} withdrawn by the firm.`}
+              </span>
             </div>
           </div>
         ) : received.length === 0 ? (
@@ -510,6 +568,11 @@ function TenderDrawer({ tender, projects, onClose }) {
             })}
           </ul>
         )}
+        {phase !== 'Open' && withdrawn > 0 && (
+          <p className="muted small">
+            {withdrawn} bid{withdrawn === 1 ? '' : 's'} withdrawn by the firm before closing.
+          </p>
+        )}
         {phase === 'Evaluation' && received.length > 0 && <p className="muted small">Open a bid to shortlist or reject it; approve one of the shortlisted to allot the work.</p>}
         {phase === 'Open' && may('vendors') && (
           <div className="app-actions">
@@ -537,6 +600,8 @@ function TenderDrawer({ tender, projects, onClose }) {
           </div>
         )}
       </section>
+
+      <TenderClarifications tender={tender} />
 
       <section className="app-section">
         <h3>Work</h3>
@@ -603,7 +668,7 @@ export function TendersPage() {
   const phaseOf = (t) => tenderPhase(t)
   const count = (key) => (key === 'All' ? tenders.length : tenders.filter((t) => phaseOf(t) === key).length)
   const visible = tab === 'All' ? tenders : tenders.filter((t) => phaseOf(t) === tab)
-  const bidsOn = (t) => bids.filter((b) => b.tenderId === t.id)
+  const bidsOn = (t) => bids.filter((b) => b.tenderId === t.id && b.status !== 'Withdrawn')
   const sealedBids = tenders.filter((t) => phaseOf(t) === 'Open').reduce((n, t) => n + bidsOn(t).length, 0)
   const toDecide = tenders.filter((t) => phaseOf(t) === 'Evaluation')
 
@@ -652,7 +717,7 @@ export function TendersPage() {
         <KpiCard tone="tone-good" icon={Award} label="Allotted" value={count('Allotted')}>
           <span className="muted">Work orders in Subcontracts</span>
         </KpiCard>
-        <KpiCard tone="tone-neutral" icon={FileText} label="Bids Received" value={bids.length}>
+        <KpiCard tone="tone-neutral" icon={FileText} label="Bids Received" value={bids.filter((b) => b.status !== 'Withdrawn').length}>
           <span className="muted">Across {tenders.length} tenders</span>
         </KpiCard>
       </section>

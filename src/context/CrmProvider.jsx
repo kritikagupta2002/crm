@@ -5,13 +5,13 @@ import { VENDORS } from '../data/vendors'
 import { formatDayMonth, formatTime, toISODate } from '../utils/date'
 import { queriesOf } from '../data/queries'
 import { rememberFile } from '../utils/files'
-import { clientProjects } from '../utils/projects'
+import { allProjects, clientProjects } from '../utils/projects'
 import { pinnedQuote, quoteFor } from '../utils/workflow'
 import { channelsFor, messageFor } from '../utils/automations'
 import { SEEDED_SCANS } from '../data/scans'
 import { SEEDED_APPLICATIONS, msmeOf } from '../data/vendorApplications'
-import { SEEDED_BIDS, SEEDED_TENDERS } from '../data/tenders'
-import { closingOf, formatDateTime, tenderPhase } from '../utils/tenders'
+import { SEEDED_BIDS, SEEDED_CLARIFICATIONS, SEEDED_SAVED_TENDERS, SEEDED_TENDERS, SEEDED_TENDER_ORDERS } from '../data/tenders'
+import { LIVE_BID, closingOf, formatDateTime, seededTenderOrder, tenderPhase } from '../utils/tenders'
 import { CrmContext, DEFAULT_SETTINGS, ROLE_ACCESS, ROLE_USERS } from './crm'
 
 /*
@@ -28,8 +28,9 @@ const FIELD_KEY = 'bansal-crm:field-member'
 const SESSION_KEY = 'bansal-crm:session'
 const CLIENT_KEY = 'bansal-crm:client-session'
 const VENDOR_KEY = 'bansal-crm:vendor-session'
+const VENDOR_LOGINS_KEY = 'bansal-crm:vendor-logins'
 const OLD_STORAGE_KEY = 'bansal-crm-demo:added:v1'
-const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] }, vendorApps: {}, tenders: {}, bids: {} }
+const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] }, vendorApps: {}, tenders: {}, bids: {}, clarifications: {}, savedTenders: {} }
 
 /* Keeps uploaded files for this session and returns their details for the record. */
 const fileRecords = (files, extra = {}) =>
@@ -109,6 +110,9 @@ function sendAuto(prev, key, leadId, to, ctx) {
 
 /* Seeded records with the app's changes laid over them: a record changed or added in the app is kept whole under its id. */
 const withSaved = (seeded, saved = {}) => [...seeded.map((x) => saved[x.id] ?? x), ...Object.values(saved).filter((x) => !seeded.some((s) => s.id === x.id))]
+
+// Who a bid's history entries name while bids are sealed (the bid itself keeps the firm).
+const SEALED_BIDDER = 'A bidder (sealed)'
 
 const vendorContact = (vendor) => vendor && { audience: 'vendor', name: `${vendor.contact} (${vendor.name})`, phone: vendor.phone, email: vendor.email }
 
@@ -251,7 +255,10 @@ export function CrmProvider({ children }) {
   }, [])
   const signInVendor = useCallback((id) => {
     setVendorId(id)
-    store(VENDOR_KEY, { vendorId: id })
+    // "Last login" in the vendor portal is the sign-in before this one.
+    const logins = loadJSON(VENDOR_LOGINS_KEY) ?? {}
+    store(VENDOR_KEY, { vendorId: id, previousLogin: logins[id] ?? null })
+    store(VENDOR_LOGINS_KEY, { ...logins, [id]: new Date().toISOString() })
   }, [])
   const signOutVendor = useCallback(() => {
     setVendorId(null)
@@ -1027,8 +1034,40 @@ export function CrmProvider({ children }) {
     [setChanges, vendorApplications],
   )
 
+  /*
+   * The demo's earlier tenders were allotted before the app opened: their work orders sit under a running project
+   * of the tender's service line (or the first running project), like orders issued in the app.
+   */
+  const tenderOrders = useMemo(() => {
+    const running = allProjects(leads, {}).filter((p) => p.status !== 'Completed' && p.startedOn)
+    return SEEDED_TENDER_ORDERS.flatMap((spec) => {
+      const tender = SEEDED_TENDERS.find((t) => t.id === spec.tenderId)
+      const bid = SEEDED_BIDS.find((b) => b.id === spec.bidId)
+      const vendor = VENDORS.find((v) => v.id === bid?.vendorId)
+      const project = running.find((p) => p.name === tender?.forProject) ?? running.find((p) => p.service === tender?.service) ?? running[0]
+      return tender && bid && vendor && project ? [{ projectId: project.id, order: seededTenderOrder(spec, tender, bid, vendor, project, TODAY) }] : []
+    })
+  }, [leads])
+
+  /* Project edits as every page reads them: what was changed in the app, plus the seeded tenders' work orders. */
+  const projectEdits = useMemo(() => {
+    const merged = { ...changes.projects }
+    tenderOrders.forEach(({ projectId, order }) => {
+      const edits = merged[projectId] ?? {}
+      merged[projectId] = { ...edits, workOrders: [order, ...(edits.workOrders ?? []).filter((w) => w.id !== order.id)] }
+    })
+    return merged
+  }, [changes.projects, tenderOrders])
+
   /* Tenders and bids (data/tenders.js): the demo's, with what was published, bid and decided in the app. */
-  const tenders = useMemo(() => withSaved(SEEDED_TENDERS, changes.tenders).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)), [changes.tenders])
+  const tenders = useMemo(() => {
+    // The seeded allotted tenders point at their seeded work orders.
+    const seeded = SEEDED_TENDERS.map((t) => {
+      const placed = tenderOrders.find((o) => o.order.tenderId === t.id)
+      return placed ? { ...t, projectId: placed.projectId, allotted: { ...t.allotted, orderId: placed.order.id, projectId: placed.projectId } } : t
+    })
+    return withSaved(seeded, changes.tenders).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+  }, [changes.tenders, tenderOrders])
   const bids = useMemo(() => withSaved(SEEDED_BIDS, changes.bids).sort((a, b) => a.submittedAt.localeCompare(b.submittedAt)), [changes.bids])
 
   /* The Admin puts a work out for bids; every approved vendor hears of it. Returns the tender ID. */
@@ -1086,6 +1125,8 @@ export function CrmProvider({ children }) {
       const vendor = vendors.find((v) => v.id === vendorId)
       if (!tender || !vendor || tenderPhase(tender) !== 'Open') return null
       const existing = bids.find((b) => b.tenderId === tenderId && b.vendorId === vendorId)
+      // A withdrawn bid can't come back (as on eProc).
+      if (existing?.status === 'Withdrawn') return null
       const now = new Date().toISOString()
       const id = existing?.id ?? `BD-${tenderId.split('-').pop()}-${String(bids.filter((b) => b.tenderId === tenderId).length + 1).padStart(2, '0')}`
       const bid = existing
@@ -1093,8 +1134,8 @@ export function CrmProvider({ children }) {
         : { ...details, id, tenderId, vendorId, submittedAt: now, documents: docRecords(files), status: 'Submitted', history: [{ at: now, action: 'Bid submitted', by: vendor.contact }] }
       setChanges((prev) =>
         sendAuto(
-          // Sealed: the record says a bid came in, never its amount.
-          { ...prev, bids: { ...prev.bids, [id]: bid }, activities: log(prev, null, 'vendor', `Bid ${id} ${existing ? 'revised' : 'received'} on tender ${tenderId}`, { by: 'vendor', vendor: vendor.name }) },
+          // Sealed: until bidding closes the record says a bid came in, never whose or for how much.
+          { ...prev, bids: { ...prev.bids, [id]: bid }, activities: log(prev, null, 'vendor', `Bid ${id} ${existing ? 'revised' : 'received'} on tender ${tenderId}`, { by: 'vendor', vendor: SEALED_BIDDER }) },
           'bidReceived',
           null,
           vendorContact(vendor),
@@ -1151,7 +1192,7 @@ export function CrmProvider({ children }) {
       const orderId = `SC-${project.id.slice(3)}-${project.workOrders.length + 1}`
       setChanges((prev) => {
         const current = (b) => prev.bids?.[b.id] ?? b
-        const others = bids.filter((b) => b.tenderId === tender.id && b.id !== bidId).map(current).filter((b) => ['Submitted', 'Shortlisted'].includes(b.status))
+        const others = bids.filter((b) => b.tenderId === tender.id && b.id !== bidId).map(current).filter((b) => LIVE_BID.includes(b.status))
         const bidsNext = { ...prev.bids, [bidId]: { ...current(bid), status: 'Allotted', history: [...current(bid).history, { at: now, action: `Allotted · work order ${orderId}`, by }] } }
         others.forEach((b) => {
           bidsNext[b.id] = { ...b, status: 'Not selected', history: [...b.history, { at: now, action: 'Not selected', by }] }
@@ -1174,6 +1215,75 @@ export function CrmProvider({ children }) {
       return orderId
     },
     [setChanges, tenders, bids, vendors],
+  )
+
+  /* A vendor takes its bid back before bidding closes; it can't bid on that tender again. */
+  const withdrawBid = useCallback(
+    (bidId) => {
+      const bid = bids.find((b) => b.id === bidId)
+      const tender = bid && tenders.find((t) => t.id === bid.tenderId)
+      const vendor = bid && vendors.find((v) => v.id === bid.vendorId)
+      if (!tender || !vendor || bid.status !== 'Submitted' || tenderPhase(tender) !== 'Open') return
+      const now = new Date().toISOString()
+      const next = { ...bid, status: 'Withdrawn', withdrawnAt: now, history: [...bid.history, { at: now, action: 'Withdrawn by the firm', by: vendor.contact }] }
+      setChanges((prev) =>
+        sendAuto(
+          { ...prev, bids: { ...prev.bids, [bidId]: next }, activities: log(prev, null, 'vendor', `Bid ${bidId} withdrawn from tender ${tender.id}`, { by: 'vendor', vendor: SEALED_BIDDER }) },
+          'bidWithdrawn',
+          null,
+          vendorContact(vendor),
+          { bid: next, tender },
+        ),
+      )
+    },
+    [setChanges, tenders, bids, vendors],
+  )
+
+  /* Vendors' questions on tenders (eProc's "Clarification"): asked from the vendor portal, answered on the Tenders page. */
+  const clarifications = useMemo(() => withSaved(SEEDED_CLARIFICATIONS, changes.clarifications).sort((a, b) => b.askedAt.localeCompare(a.askedAt)), [changes.clarifications])
+
+  const askClarification = useCallback(
+    (tenderId, vendorId, question) => {
+      const vendor = vendors.find((v) => v.id === vendorId)
+      if (!vendor) return null
+      const n = clarifications.filter((c) => c.tenderId === tenderId).length + 1
+      const id = `CL-${tenderId.split('-').pop()}-${String(n).padStart(2, '0')}`
+      const item = { id, tenderId, vendorId, question, askedAt: new Date().toISOString(), answer: null, answeredAt: null, answeredBy: null }
+      setChanges((prev) => ({ ...prev, clarifications: { ...prev.clarifications, [id]: item }, activities: log(prev, null, 'vendor', `Clarification ${id} asked on tender ${tenderId}`, { by: 'vendor', vendor: vendor.name }) }))
+      return id
+    },
+    [setChanges, clarifications, vendors],
+  )
+
+  /* The Admin's answer: published on the tender for every bidder; the firm that asked is told by email. */
+  const answerClarification = useCallback(
+    (id, answer) => {
+      const item = clarifications.find((c) => c.id === id)
+      const tender = item && tenders.find((t) => t.id === item.tenderId)
+      if (!tender) return
+      const next = { ...item, answer, answeredAt: new Date().toISOString(), answeredBy: actorRef.current.name }
+      setChanges((prev) =>
+        sendAuto(
+          { ...prev, clarifications: { ...prev.clarifications, [id]: next }, activities: log(prev, null, 'vendor', `Clarification ${id} on tender ${tender.id} answered`) },
+          'clarificationAnswered',
+          null,
+          vendorContact(vendors.find((v) => v.id === item.vendorId)),
+          { clarification: next, tender },
+        ),
+      )
+    },
+    [setChanges, clarifications, tenders, vendors],
+  )
+
+  /* Tenders a vendor saved to come back to (eProc's "My Tenders"): vendor ID → tender IDs. */
+  const savedTenders = useMemo(() => ({ ...SEEDED_SAVED_TENDERS, ...changes.savedTenders }), [changes.savedTenders])
+  const toggleSavedTender = useCallback(
+    (vendorId, tenderId) =>
+      setChanges((prev) => {
+        const mine = prev.savedTenders?.[vendorId] ?? SEEDED_SAVED_TENDERS[vendorId] ?? []
+        return { ...prev, savedTenders: { ...prev.savedTenders, [vendorId]: mine.includes(tenderId) ? mine.filter((id) => id !== tenderId) : [...mine, tenderId] } }
+      }),
+    [setChanges],
   )
 
   /* The client got their portal login on WhatsApp; for a won client this also ticks the onboarding step. */
@@ -1259,7 +1369,7 @@ export function CrmProvider({ children }) {
         saveQuotation,
         acceptQuotation,
         requestQuoteChanges,
-        projectEdits: changes.projects,
+        projectEdits,
         setProjectStep,
         setProjectTeam,
         updateProjectTask,
@@ -1294,6 +1404,12 @@ export function CrmProvider({ children }) {
         submitBid,
         decideBid,
         allotBid,
+        withdrawBid,
+        clarifications,
+        askClarification,
+        answerClarification,
+        savedTenders,
+        toggleSavedTender,
         removeDocument,
         setTags,
         updateSettings,

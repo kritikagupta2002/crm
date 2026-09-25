@@ -1,17 +1,13 @@
-import { ArrowLeft, CheckCircle2, Download, FileText, Lock, Paperclip, Send, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Bookmark, BookmarkCheck, CalendarClock, CheckCircle2, Clock, Download, FileText, IndianRupee, Landmark, Lock, MapPin, MessageCircleQuestion, Paperclip, Send, Undo2, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Link, Navigate, useOutletContext, useParams } from 'react-router-dom'
 import { useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { BID_DOCS } from '../../data/tenders'
 import { addDays, toISODate } from '../../utils/date'
 import { downloadDocument } from '../../utils/files'
-import { BID_TONE, closingOf, formatDateTime, localDay, tenderPhase, validateBid } from '../../utils/tenders'
-import { PortalBand } from '../portal/PortalBand'
-import { VendorTop } from './VendorShell'
-import '../portal/portal.css'
+import { BID_TONE, closingChip, closingOf, formatDateTime, localDay, orgChain, tenderDates, tenderPhase, validateBid } from '../../utils/tenders'
 import '../enquiry/publicEnquiry.css'
-import './vendor.css'
 
 const MAX_SIZE = 10 * 1024 * 1024
 const rupees = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`
@@ -187,6 +183,8 @@ function BidForm({ tender, vendor, existing, onDone }) {
 
 /* The vendor's own bid, as sent, with where it stands. */
 function YourBid({ bid, tender, onRevise }) {
+  const { withdrawBid } = useCrm()
+  const [confirming, setConfirming] = useState(false)
   const phase = tenderPhase(tender)
   const words = {
     Submitted: phase === 'Open' ? `Sealed until ${formatDateTime(closingOf(tender))}.` : 'Bids are opened; you will hear the result by email.',
@@ -194,6 +192,7 @@ function YourBid({ bid, tender, onRevise }) {
     Allotted: `The work is allotted to you. Work order ${tender.allotted?.orderId ?? ''} is in your portal.`,
     Rejected: `Not accepted: ${bid.reason}.${bid.remark ? ` ${bid.remark}` : ''}`,
     'Not selected': 'The work was allotted to another firm. Thank you for bidding.',
+    Withdrawn: `You withdrew this bid on ${formatDateTime(bid.withdrawnAt ?? bid.submittedAt)}. A withdrawn bid can’t be submitted again on this tender.`,
   }[bid.status]
   return (
     <section className="card portal-card your-bid">
@@ -223,105 +222,243 @@ function YourBid({ bid, tender, onRevise }) {
         </div>
       </dl>
       {bid.status === 'Allotted' && (
-        <Link to="/vendor?tab=orders" className="btn btn-primary">
+        <Link to="/vendor/orders" className="btn btn-primary">
           Open the work order
         </Link>
       )}
       {phase === 'Open' && bid.status === 'Submitted' && (
-        <button className="btn" onClick={onRevise}>
-          Revise bid
-        </button>
+        <div className="your-bid-actions">
+          {confirming ? (
+            <>
+              <span className="muted small">Withdraw this bid? You can’t bid again on this tender.</span>
+              <button className="btn btn-small" onClick={() => setConfirming(false)}>
+                Keep bid
+              </button>
+              <button
+                className="btn btn-small btn-danger"
+                onClick={() => {
+                  withdrawBid(bid.id)
+                  setConfirming(false)
+                }}
+              >
+                Withdraw bid
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn" onClick={onRevise}>
+                Revise bid
+              </button>
+              <button className="btn btn-outline-danger" onClick={() => setConfirming(true)}>
+                <Undo2 size={15} /> Withdraw
+              </button>
+            </>
+          )}
+        </div>
       )}
     </section>
   )
 }
 
 /*
- * One work put out for bids, laid out like eProc Rajasthan's tender page (basic details, fee, work item, critical
- * dates, documents, inviting authority), with the vendor's bid below it.
+ * Questions on this tender (eProc's "Clarification"): answered ones are shown to every bidder without the asking
+ * firm's name; the firm also sees its own questions still waiting. While bidding is open it can ask a new one.
+ */
+function Clarifications({ tender, vendor }) {
+  const { clarifications, askClarification } = useCrm()
+  const [question, setQuestion] = useState('')
+  const [sent, setSent] = useState(null)
+  const shown = clarifications.filter((c) => c.tenderId === tender.id && (c.answer || c.vendorId === vendor.id)).sort((a, b) => a.askedAt.localeCompare(b.askedAt))
+  const open = tenderPhase(tender) === 'Open'
+
+  return (
+    <section className="card portal-card eproc-section">
+      <h2>
+        <MessageCircleQuestion size={17} /> Clarifications
+      </h2>
+      {shown.length === 0 ? (
+        <p className="muted small">No questions on this tender yet.</p>
+      ) : (
+        <ul className="clarify-list">
+          {shown.map((c) => (
+            <li key={c.id}>
+              <p className="clarify-q">
+                <b>Q.</b> {c.question} <span className="muted small">· {formatDateTime(c.askedAt)}{c.vendorId === vendor.id ? ' · your question' : ''}</span>
+              </p>
+              {c.answer ? (
+                <p className="clarify-a">
+                  <b>A.</b> {c.answer} <span className="muted small">· {formatDateTime(c.answeredAt)}</span>
+                </p>
+              ) : (
+                <p className="muted small">Awaiting our answer.</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {open && (
+        <form
+          className="clarify-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            setSent(askClarification(tender.id, vendor.id, question.trim()))
+            setQuestion('')
+          }}
+        >
+          <label className="field">
+            <span className="field-label">Ask a question about this tender</span>
+            <textarea rows={2} value={question} onChange={(e) => (setQuestion(e.target.value), setSent(null))} placeholder="The answer is shared with every bidder, without your name" />
+          </label>
+          <div className="clarify-foot">
+            {sent && <span className="text-green small">Question {sent} sent.</span>}
+            <button type="submit" className="btn btn-small btn-primary" disabled={!question.trim()}>
+              <Send size={14} /> Send question
+            </button>
+          </div>
+        </form>
+      )}
+    </section>
+  )
+}
+
+/* eProc's critical dates as a timeline: what has happened is filled in, the next step is marked. */
+function DatesTimeline({ tender }) {
+  return (
+    <ol className="dates-timeline">
+      {tenderDates(tender).map(({ label, at, state }) => (
+        <li key={label} className={state}>
+          <span className="dates-dot" />
+          <span>
+            <strong>{label}</strong>
+            <span className="muted small">{formatDateTime(at)}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
+/*
+ * One work put out for bids, after eProc Rajasthan's tender page: a summary with what matters most (value, EMD,
+ * period, place, closing), the details and documents, the questions, and the firm's bid.
  */
 export function VendorTenderPage() {
   const { tenderId } = useParams()
-  const { vendorId, vendors, tenders, bids, settings } = useCrm()
+  const { vendor } = useOutletContext()
+  const { tenders, bids, settings, savedTenders, toggleSavedTender } = useCrm()
   const [revising, setRevising] = useState(false)
   const [sent, setSent] = useState(null)
-  const vendor = vendors.find((v) => v.id === vendorId)
   const tender = tenders.find((t) => t.id === tenderId)
 
-  useEffect(() => {
-    if (tender) document.title = `${tender.id} · Vendor Portal`
-  }, [tender])
-
-  if (!vendor) return <Navigate to="/login" replace state={{ tab: 'vendor' }} />
-  if (!tender) return <Navigate to="/vendor" replace />
+  if (!tender) return <Navigate to="/vendor/tenders" replace />
 
   const phase = tenderPhase(tender)
   const mine = bids.find((b) => b.tenderId === tender.id && b.vendorId === vendor.id)
+  const saved = (savedTenders[vendor.id] ?? []).includes(tender.id)
   const day = (iso) => formatDateTime(iso)
+  const SaveIcon = saved ? BookmarkCheck : Bookmark
+  const chip = closingChip(tender)
+  const facts = [
+    [IndianRupee, 'Tender value', tender.showEstimate ? rupees(tender.estimate) : 'Not disclosed', tender.showEstimate ? 'before GST' : ''],
+    [Landmark, 'EMD', tender.emd ? rupees(tender.emd) : 'Nil', tender.emd ? 'with the bid' : 'no deposit'],
+    [CalendarClock, 'Period of work', `${tender.periodDays} days`, `bid valid ${tender.bidValidityDays} days`],
+    [MapPin, 'Location', tender.location, tender.pincode],
+  ]
 
   return (
-    <div className="portal vendor-portal">
-      <VendorTop vendorId={vendor.id} />
-      <PortalBand compact>
-        <Link to="/vendor" className="band-back">
-          <ArrowLeft size={15} /> All works
-        </Link>
-        <h1 className="band-title">{tender.title}</h1>
-        <p className="band-lead">
-          {tender.id} · {tender.location} · {phase === 'Open' ? `bids close ${day(closingOf(tender))}` : phase === 'Allotted' ? 'allotted' : 'bidding closed'}
-        </p>
-      </PortalBand>
+    <div className="module-page vendor-page tender-page">
+      <Link to="/vendor/tenders" className="back-link">
+        <ArrowLeft size={15} /> Search Active Tenders
+      </Link>
 
-      <main className="portal-main page-anim">
-        <div className="tender-page">
+      <section className="card tender-summary">
+        <div className="tender-summary-head">
+          <div className="tender-summary-title">
+            <div className="tender-chips">
+              <span className="cat-chip">{tender.category}</span>
+              <span className={`pill status-pill ${chip.tone}`}>
+                <Clock size={12} /> {chip.label}
+              </span>
+              {mine && <span className={`pill status-pill ${BID_TONE[mine.status]}`}>Your bid: {mine.status.toLowerCase()}</span>}
+            </div>
+            <h1>{tender.title}</h1>
+            <p className="muted">
+              {tender.id} · {tender.refNo} · {orgChain(tender, settings.companyName)}
+            </p>
+          </div>
+          <div className="tender-summary-actions">
+            {phase === 'Open' && !mine && (
+              <a href="#bid" className="btn btn-primary">
+                <Send size={15} /> Submit bid
+              </a>
+            )}
+            {mine && (
+              <a href="#bid" className="btn btn-primary">
+                View your bid
+              </a>
+            )}
+            <button className={`btn ${saved ? 'is-saved' : ''}`} onClick={() => toggleSavedTender(vendor.id, tender.id)} aria-pressed={saved}>
+              <SaveIcon size={15} /> {saved ? 'Saved' : 'Save'}
+            </button>
+          </div>
+        </div>
+        <dl className="tender-facts">
+          {facts.map(([Icon, label, value, sub]) => (
+            <div key={label}>
+              <span className="tender-fact-icon">
+                <Icon size={17} />
+              </span>
+              <span>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+                {sub && <span className="muted small">{sub}</span>}
+              </span>
+            </div>
+          ))}
+          <div className={`tender-fact-close ${chip.tone}`}>
+            <span className="tender-fact-icon">
+              <Clock size={17} />
+            </span>
+            <span>
+              <dt>Bids close</dt>
+              <dd>{day(closingOf(tender))}</dd>
+              <span className="small">{chip.label}</span>
+            </span>
+          </div>
+        </dl>
+      </section>
+
+      <div className="tender-layout">
+        <div className="tender-main">
+          <Section
+            title="Work item details"
+            rows={[
+              ['Work description', tender.description],
+              ['Pre-qualification', tender.prequal || 'None'],
+              ['Kind of work', tender.category],
+              ['Pre-bid meeting', tender.preBid ? `${day(tender.preBid.at)} · ${tender.preBid.place}` : 'None'],
+              ['Bid opening place', `${settings.companyName}, ${settings.address}`],
+            ]}
+          />
           <Section
             title="Basic details"
             rows={[
-              ['Organisation', `${settings.companyName} › Vendor works › ${tender.category}`],
               ['Tender reference no.', tender.refNo],
               ['Tender ID', tender.id],
               ['Tender type', 'Open tender'],
               ['Form of contract', tender.contractForm],
               ['Tender category', tender.tenderCategory],
               ['No. of covers', '1 (technical and financial together)'],
-              ['Revision allowed', 'Yes — until bidding closes'],
-            ]}
-          />
-          <Section
-            title="Tender fee & EMD"
-            rows={[
               ['Tender fee', 'Nil'],
               ['EMD', tender.emd ? `${rupees(tender.emd)} (DD / BG / online, reference with the bid)` : 'Nil'],
-            ]}
-          />
-          <Section
-            title="Work item details"
-            rows={[
-              ['Title', tender.title],
-              ['Work description', tender.description],
-              ['Pre-qualification', tender.prequal || 'None'],
-              ['Tender value', tender.showEstimate ? `${rupees(tender.estimate)} (before GST)` : 'Not disclosed'],
-              ['Kind of work', tender.category],
-              ['Period of work', `${tender.periodDays} days`],
-              ['Bid validity', `${tender.bidValidityDays} days`],
-              ['Location', tender.location],
-              ['Pincode', tender.pincode],
-              ['Pre-bid meeting', tender.preBid ? `${day(tender.preBid.at)} · ${tender.preBid.place}` : 'None'],
-              ['Bid opening place', `${settings.companyName}, ${settings.address}`],
-            ]}
-          />
-          <Section
-            title="Critical dates"
-            rows={[
-              ['Published', day(tender.publishedAt)],
-              ['Documents download', `${day(tender.publishedAt)} to ${day(closingOf(tender))}`],
-              ['Bid submission start', day(tender.publishedAt)],
-              ['Bid submission end', day(closingOf(tender)) + (tender.closedEarlyAt ? ' (closed early)' : '')],
-              ['Bid opening', tender.closedEarlyAt ? day(tender.closedEarlyAt) : day(tender.opensAt)],
+              ['Revision / withdrawal', 'Allowed until bidding closes'],
+              ['Inviting authority', `${tender.authority.name}, ${tender.authority.designation}, ${tender.authority.address}`],
             ]}
           />
           <section className="card portal-card eproc-section">
-            <h2>Tender documents</h2>
+            <h2>
+              <FileText size={17} /> Tender documents
+            </h2>
             <ul className="app-docs">
               {tender.documents.map((d) => (
                 <li key={d.id}>
@@ -336,50 +473,83 @@ export function VendorTenderPage() {
               ))}
             </ul>
           </section>
-          <Section
-            title="Tender inviting authority"
-            rows={[
-              ['Name', `${tender.authority.name}, ${tender.authority.designation}`],
-              ['Address', tender.authority.address],
-            ]}
-          />
 
-          {sent && (
-            <p className="portal-sent bid-sent">
-              <CheckCircle2 size={18} /> Bid {sent} {mine?.history.length > 1 ? 'revised' : 'submitted'}. It stays sealed until {day(closingOf(tender))}; a confirmation is on its way by email.
-            </p>
-          )}
+          <Clarifications tender={tender} vendor={vendor} />
 
-          {mine && !revising ? (
-            <YourBid bid={mine} tender={tender} onRevise={() => (setRevising(true), setSent(null))} />
-          ) : phase === 'Open' ? (
-            <section className="card portal-card">
-              <div className="portal-card-head">
-                <h2>{mine ? `Revise bid ${mine.id}` : 'Submit your bid'}</h2>
-              </div>
-              <BidForm
-                tender={tender}
-                vendor={vendor}
-                existing={mine}
-                onDone={(id) => {
-                  setSent(id)
-                  setRevising(false)
-                }}
-              />
-            </section>
-          ) : (
-            <section className="card portal-card">
-              <p className="portal-empty">
-                <Lock size={15} /> Bidding closed on {day(closingOf(tender))}. You did not bid on this work.
+          <div id="bid" className="bid-anchor">
+            {sent && (
+              <p className="portal-sent bid-sent">
+                <CheckCircle2 size={18} /> Bid {sent} {mine?.history.length > 1 ? 'revised' : 'submitted'}. It stays sealed until {day(closingOf(tender))}; a confirmation is on its way by email.
               </p>
-            </section>
-          )}
+            )}
+            {mine && !revising ? (
+              <YourBid bid={mine} tender={tender} onRevise={() => (setRevising(true), setSent(null))} />
+            ) : phase === 'Open' ? (
+              <section className="card portal-card">
+                <div className="portal-card-head">
+                  <h2>{mine ? `Revise bid ${mine.id}` : 'Submit your bid'}</h2>
+                </div>
+                <BidForm
+                  tender={tender}
+                  vendor={vendor}
+                  existing={mine}
+                  onDone={(id) => {
+                    setSent(id)
+                    setRevising(false)
+                  }}
+                />
+              </section>
+            ) : (
+              <section className="card portal-card">
+                <p className="portal-empty">
+                  <Lock size={15} /> Bidding closed on {day(closingOf(tender))}. You did not bid on this work.
+                </p>
+              </section>
+            )}
+          </div>
         </div>
-      </main>
 
-      <footer className="portal-foot">
-        © {new Date().getFullYear()} {settings.companyName}
-      </footer>
+        <aside className="tender-side">
+          <section className="card portal-card">
+            <h2>Critical dates</h2>
+            <DatesTimeline tender={tender} />
+          </section>
+          <section className="card portal-card tender-side-bid">
+            <h2>Your bid</h2>
+            {mine ? (
+              <>
+                <span className={`pill status-pill ${BID_TONE[mine.status]}`}>{mine.status}</span>
+                <dl className="side-facts">
+                  <div>
+                    <dt>Bid</dt>
+                    <dd>{mine.id}</dd>
+                  </div>
+                  <div>
+                    <dt>Quoted</dt>
+                    <dd>{rupees(mine.amount)} + GST</dd>
+                  </div>
+                  <div>
+                    <dt>Period</dt>
+                    <dd>{mine.days} days</dd>
+                  </div>
+                </dl>
+                <a href="#bid" className="link-button">
+                  Details →
+                </a>
+              </>
+            ) : phase === 'Open' ? (
+              <>
+                <p className="muted small">You haven’t bid yet. Your bid stays sealed until bidding closes, and you can revise it till then.</p>
+                <a href="#bid" className="btn btn-primary">
+                  <Send size={15} /> Submit bid
+                </a>
+              </>
+            ) : (
+              <p className="muted small">Bidding is closed.</p>
+            )}
+          </section>
+        </aside>
+      </div>
     </div>
   )
 }

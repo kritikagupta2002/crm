@@ -9,20 +9,27 @@ import { Logo } from '../common/Logo'
 import { Mountains } from '../common/Mountains'
 import { NAV_GROUPS } from './navigation'
 
-export function Sidebar({ onNavigate }) {
-  const { followUps, leads, user, projectEdits, vendorApplications, tenders, bids } = useCrm()
+/*
+ * The CRM's menu; the vendor portal passes its own (nav: groups of items, counts: its badges) in the same design.
+ * expanded: every group stays open (a short menu, like eProc's) instead of one at a time. footer: shown at the
+ * bottom in place of the motto and mountain (it steps aside the same way when the menu needs the room).
+ * An item's badgeTone colours its count (e.g. tone-urgent for something waiting).
+ */
+export function Sidebar({ onNavigate, nav, counts, expanded = false, footer }) {
+  const { followUps, leads, user, projectEdits, vendorApplications, tenders, bids, clarifications } = useCrm()
   const { can, role } = useAccess()
-  const badges = {
+  const badges = counts ?? {
     followUpsDue: countFollowUpsDue(followUps).due,
     // Questions this person answers that are still waiting.
     questionsOpen: questionsFor({ role, userName: user.name, projectEdits }, leads).filter((q) => q.status === 'Open').length,
     // Registrations waiting for the Admin's decision.
     vendorAppsNew: vendorApplications.filter((a) => a.status === 'New').length,
-    // Tenders whose bidding has closed with bids still to shortlist, reject or allot.
-    tendersToDecide: tenders.filter((t) => tenderPhase(t) === 'Evaluation' && bids.some((b) => b.tenderId === t.id && ['Submitted', 'Shortlisted'].includes(b.status))).length,
+    // Tenders whose bidding has closed with bids still to decide, and vendors' questions still to answer.
+    tendersToDecide:
+      tenders.filter((t) => tenderPhase(t) === 'Evaluation' && bids.some((b) => b.tenderId === t.id && ['Submitted', 'Shortlisted'].includes(b.status))).length + clarifications.filter((c) => !c.answer).length,
   }
   const { pathname } = useLocation()
-  const groups = NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => can(item.path) && (!item.only || item.only.includes(role))) })).filter((group) => group.items.length)
+  const groups = nav ?? NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => can(item.path) && (!item.only || item.only.includes(role))) })).filter((group) => group.items.length)
 
   // The module holding the current page opens by itself; a header click opens another one instead.
   // The closest match wins: /hr/expenses belongs to Expenses, not to the HR Dashboard at /hr.
@@ -41,7 +48,8 @@ export function Sidebar({ onNavigate }) {
     const nav = navRef.current
     if (!nav) return
     const check = () => {
-      const last = nav.querySelector('.nav-group.is-open .nav-item:last-child') ?? nav.lastElementChild
+      // The bottom of the whole menu: the last module, with its pages if it is open.
+      const last = nav.lastElementChild
       setCrowded(Boolean(last) && last.getBoundingClientRect().bottom > window.innerHeight - 200)
     }
     check()
@@ -62,7 +70,7 @@ export function Sidebar({ onNavigate }) {
 
       <nav className="sidebar-nav" aria-label="Main" ref={navRef}>
         {groups.map((group) => {
-          const isOpen = open === group.title
+          const isOpen = expanded || open === group.title
           return (
             <div key={group.title} className={`nav-group ${isOpen ? 'is-open' : ''}`}>
               <button
@@ -71,12 +79,12 @@ export function Sidebar({ onNavigate }) {
                 aria-expanded={isOpen}
                 onClick={() => setChosen(isOpen ? '' : group.title)}
               >
-                {group.title}
+                <span className={`sidebar-section-label ${group.title.length > 20 ? 'is-long' : ''}`}>{group.title}</span>
                 <ChevronDown size={15} />
               </button>
               <div className="nav-group-items">
                 <div className="nav-group-inner" inert={isOpen ? undefined : true}>
-                  {group.items.map(({ label, path, icon: Icon, badge, end }) => (
+                  {group.items.map(({ label, path, icon: Icon, badge, badgeTone, end }) => (
                     <NavLink
                       key={path}
                       to={path}
@@ -85,9 +93,11 @@ export function Sidebar({ onNavigate }) {
                       className={({ isActive }) => `nav-item ${isActive ? 'is-active' : ''}`}
                       title={label}
                     >
-                      <Icon size={20} strokeWidth={1.8} />
+                      <span className="nav-icon">
+                        <Icon size={20} strokeWidth={1.8} />
+                      </span>
                       <span>{label}</span>
-                      {badge && badges[badge] > 0 && <span className="nav-badge">{badges[badge]}</span>}
+                      {badge && badges[badge] > 0 && <span className={`nav-badge ${badgeTone ?? ''}`}>{badges[badge]}</span>}
                     </NavLink>
                   ))}
                 </div>
@@ -97,6 +107,9 @@ export function Sidebar({ onNavigate }) {
         })}
       </nav>
 
+      {footer ? (
+        <div className="sidebar-footer has-card">{footer}</div>
+      ) : (
       <div className="sidebar-footer">
         <p className="sidebar-motto">
           Geology
@@ -107,6 +120,7 @@ export function Sidebar({ onNavigate }) {
         </p>
         <Mountains className="sidebar-mountains" />
       </div>
+      )}
     </aside>
   )
 }

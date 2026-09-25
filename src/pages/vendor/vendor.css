@@ -279,97 +279,19 @@
 }
 
 /* ---------- Works and bids (vendor portal) ---------- */
-.band-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 6px;
-  font-size: 13px;
-  color: var(--teal-700);
-}
 
-.portal-tabs {
-  padding: 0;
-  border-bottom: 1px solid var(--line);
-}
 
-.work-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: inherit;
-  transition: box-shadow 0.15s, border-color 0.15s;
-}
 
-.work-card:hover {
-  border-color: var(--teal-200);
-  box-shadow: 0 6px 18px rgba(15, 42, 61, 0.08);
-}
 
-.work-card h2 {
-  font-size: 16px;
-}
 
-.work-card p {
-  margin: 0;
-}
 
-.work-card-go {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  align-self: flex-start;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--teal-700);
-}
 
-.my-bids {
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
 
-.my-bids li + li {
-  border-top: 1px solid var(--line-soft);
-}
 
-.my-bids a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 12px 0;
-  color: inherit;
-}
 
-.my-bids a > span:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
 
-.bid-row-status {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-  text-align: right;
-  flex-shrink: 0;
-  max-width: 45%;
-}
 
 /* The tender page: eProc's sections as label / value pairs, then the bid. */
-.tender-page {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  max-width: 980px;
-  margin: 0 auto;
-}
 
 .eproc-section h2 {
   margin-bottom: 10px;
@@ -434,15 +356,1112 @@
   .eproc-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  .my-bids a {
+/* ---------- Vendor portal frame (the app's sidebar and top bar, eProc's menu) ---------- */
+.vendor-topline {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.vendor-topline strong {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.vendor-topline span {
+  font-size: 12px;
+}
+
+.user-chip.is-static {
+  cursor: default;
+}
+
+.user-chip.is-static:hover {
+  background: none;
+}
+
+.vendor-page .back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--teal-700);
+}
+
+.vendor-home-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.vendor-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 20px 12px;
+  list-style: none;
+}
+
+.vendor-list li + li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.vendor-list a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  color: inherit;
+}
+
+.vendor-list a > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vendor-list a:hover strong {
+  color: var(--teal-700);
+}
+
+.vendor-account-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.vendor-account-card {
+  padding: 16px 20px;
+}
+
+.doc-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+
+/* Search Active Tenders: eProc's search box. */
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 16px;
+  padding: 0 20px 18px;
+}
+
+.search-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.tender-title-link {
+  color: var(--ink);
+}
+
+.tender-title-link:hover {
+  color: var(--teal-700);
+}
+
+.pill-inline {
+  margin-left: 8px;
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+.save-toggle.is-saved,
+.btn.is-saved {
+  color: var(--gold-600);
+}
+
+.row-actions {
+  white-space: nowrap;
+}
+
+.row-actions > * + * {
+  margin-left: 4px;
+}
+
+.vendor-warning {
+  padding: 0 20px 14px;
+  margin: 0;
+}
+
+.compact-search {
+  max-width: 260px;
+  height: 38px;
+  font-size: 13px;
+}
+
+.compact-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+}
+
+/* Clarifications: questions and answers on a tender. */
+.clarify-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 20px 18px;
+}
+
+.eproc-section .clarify-form,
+.app-section .clarify-form {
+  padding: 10px 0 0;
+}
+
+.clarify-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.clarify-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 20px 12px;
+  list-style: none;
+}
+
+.eproc-section .clarify-list,
+.app-section .clarify-list {
+  padding: 0;
+}
+
+.clarify-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+}
+
+.clarify-list li + li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.clarify-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.clarify-q,
+.clarify-a {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.clarify-a {
+  padding-left: 10px;
+  border-left: 2px solid var(--teal-200);
+  color: var(--ink);
+}
+
+.eproc-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eproc-section h2 svg {
+  color: var(--teal-700);
+}
+
+.your-bid-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vendor-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 820px;
+}
+
+@media (max-width: 900px) {
+  .vendor-home-grid,
+  .vendor-account-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .search-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .vendor-topline span {
+    display: none;
+  }
+
+  .user-chip.is-static .user-meta {
+    display: none;
+  }
+
+  .search-grid {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 14px 14px;
+  }
+
+  .compact-search {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+/*
+ * The vendor menu is short and always open (like eProc's), so it is set tighter than the CRM's to fit on the screen
+ * without scrolling: smaller rows and section headings, no open/close arrows.
+ */
+.vendor-shell .sidebar-nav {
+  gap: 2px;
+  padding: 10px 12px;
+}
+
+.vendor-shell .sidebar-section {
+  height: 28px;
+  font-size: 11px;
+  cursor: default;
+}
+
+.vendor-shell .sidebar-section:hover {
+  background: none;
+  color: var(--sidebar-muted);
+}
+
+.vendor-shell .sidebar-section.has-active:hover {
+  color: var(--teal-700);
+}
+
+.vendor-shell .sidebar-section svg {
+  display: none;
+}
+
+.vendor-shell .nav-group-inner {
+  gap: 2px;
+}
+
+.vendor-shell .nav-group.is-open .nav-group-inner {
+  padding-top: 2px;
+  padding-bottom: 4px;
+}
+
+.vendor-shell .nav-item {
+  height: 38px;
+  gap: 12px;
+  font-size: 14px;
+}
+
+
+/* Short laptop screens. */
+@media (max-height: 740px) {
+  .vendor-shell .nav-item {
+    height: 33px;
+  }
+
+  .vendor-shell .sidebar-section {
+    height: 24px;
+  }
+}
+
+/* ---------- Vendor home ---------- */
+/* The welcome band: the portal's contour lines and mountain range, the firm and what it does. */
+.vendor-hero {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--sidebar-line);
+  border-radius: var(--radius-lg);
+  background: var(--sidebar-bg);
+}
+
+.vendor-hero .band-range {
+  width: min(55%, 640px);
+}
+
+.vendor-hero-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 640px;
+  padding: 24px 28px 26px;
+}
+
+.vendor-hero-hello {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+}
+
+.vendor-hero h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.vendor-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.hero-chip.is-id {
+  border-color: var(--teal-700);
+  background: var(--teal-700);
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-chip.is-quiet {
+  border-color: transparent;
+  background: none;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.vendor-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Open works as tiles: what, how soon it closes, where, for how much. */
+.work-tiles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 20px 18px;
+}
+
+.work-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.work-tile:hover {
+  border-color: var(--teal-200);
+  box-shadow: 0 6px 18px rgba(15, 42, 61, 0.08);
+  transform: translateY(-1px);
+}
+
+.work-tile strong {
+  font-size: 14.5px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.work-tile-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.work-tile-top .status-pill {
+  gap: 4px;
+  font-size: 11.5px;
+}
+
+.cat-chip {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--gold-100);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--gold-600);
+}
+
+.work-tile-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.work-tile-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.work-tile-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--teal-700);
+}
+
+/* Latest on your bids: a timeline, each entry dotted in its result's colour. */
+.vendor-timeline {
+  position: relative;
+  margin: 0;
+  padding: 0 20px 16px 42px;
+  list-style: none;
+}
+
+.vendor-timeline::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 22px;
+  left: 27px;
+  width: 2px;
+  background: var(--line);
+}
+
+.vendor-timeline li {
+  position: relative;
+  padding: 0 0 14px;
+}
+
+.vendor-timeline li::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: -20px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--tone, var(--ink-3));
+  box-shadow: 0 0 0 1px var(--tone, var(--ink-3));
+}
+
+.vendor-timeline a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: inherit;
+}
+
+.vendor-timeline a:hover strong {
+  color: var(--teal-700);
+}
+
+.vendor-timeline strong {
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+/* Work in progress: each order with a five-step tracker. */
+.order-tracks {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0 20px 16px;
+  list-style: none;
+}
+
+.order-tracks > li {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 0 14px;
+}
+
+.order-tracks > li + li {
+  border-top: 1px solid var(--line-soft);
+}
+
+.order-track-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.order-track-head > span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.order-track-head strong {
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.order-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.order-steps li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* The line to the next step. */
+.order-steps li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: calc(50% + 9px);
+  right: calc(-50% + 9px);
+  height: 2px;
+  background: var(--line);
+}
+
+.order-steps li.is-done:not(:last-child)::after {
+  background: var(--teal-600);
+}
+
+.order-step-dot {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.order-steps li.is-done .order-step-dot {
+  border-color: var(--teal-600);
+  background: var(--teal-600);
+}
+
+.order-steps li.is-now {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.order-steps li.is-now .order-step-dot {
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 4px var(--gold-100);
+}
+
+@media (max-width: 640px) {
+  .vendor-hero-inner {
+    padding: 18px 16px 20px;
+  }
+
+  .vendor-hero h1 {
+    font-size: 26px;
+  }
+
+  .vendor-hero .band-range {
+    opacity: 0.35;
+  }
+
+  .work-tiles,
+  .order-tracks {
+    padding: 0 14px 14px;
+  }
+
+  .order-track-head {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .bid-row-status {
-    align-items: flex-start;
-    text-align: left;
-    max-width: none;
+  .order-steps li {
+    font-size: 10.5px;
   }
+}
+
+/* ---------- Tender page ---------- */
+.vendor-page.tender-page {
+  max-width: 1200px;
+}
+
+.tender-page > .back-link {
+  align-self: flex-start;
+  margin-bottom: -6px;
+}
+
+/* The summary: what, which tender, and the five facts a bidder looks for first. */
+.tender-summary {
+  position: relative;
+  overflow: hidden;
+  padding: 20px 22px;
+  box-shadow: inset 0 3px 0 var(--teal-700), var(--shadow);
+}
+
+.tender-summary-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.tender-summary-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tender-summary-title h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.tender-summary-title p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.tender-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.tender-chips .status-pill {
+  gap: 4px;
+}
+
+.tender-summary-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.tender-facts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.tender-facts > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: var(--bg);
+}
+
+.tender-facts > div > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.tender-facts dt {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.tender-facts dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.tender-fact-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--teal-50);
+  color: var(--teal-700);
+}
+
+/* Bids close takes the closing chip's colour. */
+.tender-facts .tender-fact-close {
+  border-color: var(--tone);
+  background: var(--tone-bg);
+}
+
+.tender-fact-close .tender-fact-icon {
+  background: var(--surface);
+  color: var(--tone);
+}
+
+.tender-fact-close .small {
+  color: var(--tone);
+  font-weight: 500;
+}
+
+/* Details on the left, dates and the bid on the right. */
+.tender-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 16px;
+  align-items: start;
+}
+
+.tender-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.tender-side {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tender-side h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+}
+
+.bid-anchor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-margin-top: 16px;
+}
+
+.dates-timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dates-timeline::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 6px;
+  width: 2px;
+  background: var(--line);
+}
+
+.dates-timeline li {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.dates-timeline li > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dates-timeline strong {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.dates-dot {
+  position: relative;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.dates-timeline li.is-done .dates-dot {
+  border-color: var(--teal-600);
+  background: var(--teal-600);
+}
+
+.dates-timeline li.is-next .dates-dot {
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 4px var(--gold-100);
+}
+
+.dates-timeline li.is-next strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tender-side-bid {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tender-side-bid h2 {
+  margin-bottom: 0;
+}
+
+.tender-side-bid p {
+  margin: 0;
+}
+
+.side-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.side-facts div {
+  display: contents;
+}
+
+.side-facts dt {
+  color: var(--ink-3);
+}
+
+.side-facts dd {
+  margin: 0;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+@media (max-width: 1200px) {
+  .tender-facts {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1000px) {
+  .tender-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tender-side {
+    position: static;
+    order: -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .tender-summary {
+    padding: 16px;
+  }
+
+  .tender-summary-head {
+    flex-direction: column;
+  }
+
+  .tender-summary-title h1 {
+    font-size: 22px;
+  }
+
+  .tender-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tender-side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.cell-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.cell-chips .status-pill,
+.pill-small {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+/* ---------- Vendor sidebar: tinted icon squares, gold-marked sections, coloured counts, a help card ---------- */
+.vendor-shell .sidebar-section {
+  gap: 8px;
+  color: var(--sidebar-muted);
+}
+
+.vendor-shell .sidebar-section::before {
+  content: '';
+  width: 12px;
+  height: 2px;
+  flex-shrink: 0;
+  border-radius: 1px;
+  background: var(--gold-500);
+}
+
+.vendor-shell .sidebar-section.has-active {
+  color: var(--teal-700);
+}
+
+.vendor-shell .nav-item {
+  padding: 0 10px;
+}
+
+.vendor-shell .nav-item.is-active {
+  padding-left: 22px;
+}
+
+.vendor-shell .nav-icon {
+  width: 28px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--teal-50);
+  transition: background 0.15s;
+}
+
+.vendor-shell .nav-icon svg {
+  width: 16px;
+  height: 16px;
+  color: var(--teal-700);
+}
+
+.vendor-shell .nav-item:hover .nav-icon {
+  background: var(--teal-100);
+}
+
+.vendor-shell .nav-item.is-active .nav-icon {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.vendor-shell .nav-item.is-active .nav-icon svg {
+  color: #fff;
+}
+
+.vendor-shell .nav-badge {
+  min-width: 22px;
+  height: 20px;
+  font-size: 11.5px;
+}
+
+.vendor-shell .nav-badge.is-info {
+  background: var(--blue);
+}
+
+.vendor-shell .nav-badge.is-attention {
+  background: var(--amber);
+}
+
+.vendor-shell .nav-badge.is-urgent {
+  background: var(--red);
+}
+
+.vendor-shell .nav-item.is-active .nav-badge {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Help card at the foot of the menu, when there is room for it. */
+.vendor-shell .sidebar-footer.has-card {
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  pointer-events: auto;
+}
+
+.vendor-shell .sidebar.is-crowded .sidebar-footer.has-card {
+  visibility: hidden;
+}
+
+.vendor-help {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
+  box-shadow: 0 6px 18px rgba(14, 74, 82, 0.25);
+  color: #fff;
+  font-size: 12.5px;
+}
+
+.vendor-help strong {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.vendor-help > span {
+  margin-bottom: 4px;
+  color: var(--teal-200);
+}
+
+.vendor-help a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold-200);
+  overflow-wrap: anywhere;
+}
+
+.vendor-help a:hover {
+  color: #fff;
+}
+
+.vendor-shell .nav-badge.is-teal {
+  background: var(--teal-600);
 }

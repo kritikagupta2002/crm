@@ -4,7 +4,10 @@ import { AppLayout } from './components/layout/AppLayout'
 import { LoginPage } from './pages/auth/LoginPage'
 import { PublicEnquiryPage } from './pages/enquiry/PublicEnquiryPage'
 import { ClientPortalPage } from './pages/portal/ClientPortalPage'
-import { VendorPortalPage } from './pages/vendor/VendorPortalPage'
+import { VendorLayout } from './pages/vendor/VendorShell'
+import { VendorAccountPage, VendorDocumentsPage, VendorHomePage } from './pages/vendor/VendorAccountPages'
+import { VendorActiveBidsPage, VendorBidsHistoryPage, VendorClarificationsPage, VendorMyTendersPage, VendorSearchTendersPage, VendorTenderStatusPage } from './pages/vendor/VendorBidPages'
+import { VendorOrdersPage, VendorPaymentsPage } from './pages/vendor/VendorWorkPages'
 import { VendorRegisterPage } from './pages/vendor/VendorRegisterPage'
 import { AuditLogPage } from './pages/audit/AuditLogPage'
 import { MessagesPage } from './pages/messages/MessagesPage'
@@ -45,9 +48,23 @@ export default function App() {
             <Routes>
               <Route path="login" element={<LoginPage />} />
               <Route path="portal" element={<ClientPortalPage />} />
-              <Route path="vendor" element={<VendorPortalPage />} />
+              {/* The vendor portal: its own sign-in and menu (after eProc's bidder screens), in the app's design. */}
+              <Route path="vendor" element={<VendorLayout />}>
+                <Route index element={<VendorHomePage />} />
+                <Route path="account" element={<VendorAccountPage />} />
+                <Route path="documents" element={<VendorDocumentsPage />} />
+                <Route path="tenders" element={<VendorSearchTendersPage />} />
+                <Route path="tenders/:tenderId" element={<VendorTenderPage />} />
+                <Route path="my-tenders" element={<VendorMyTendersPage />} />
+                <Route path="bids" element={<VendorActiveBidsPage />} />
+                <Route path="clarifications" element={<VendorClarificationsPage />} />
+                <Route path="status" element={<VendorTenderStatusPage />} />
+                <Route path="history" element={<VendorBidsHistoryPage />} />
+                <Route path="withdrawn" element={<VendorBidsHistoryPage withdrawn />} />
+                <Route path="orders" element={<VendorOrdersPage />} />
+                <Route path="payments" element={<VendorPaymentsPage />} />
+              </Route>
               <Route path="vendor/register" element={<VendorRegisterPage />} />
-              <Route path="vendor/tenders/:tenderId" element={<VendorTenderPage />} />
               <Route path="enquiry" element={<PublicEnquiryPage />} />
               <Route element={<AppLayout />}>
                 <Route index element={<DashboardPage />} />

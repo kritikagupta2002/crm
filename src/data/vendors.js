@@ -33,3 +33,18 @@ export const SUBCONTRACT_BY_SERVICE = {
 
 /* A subcontract moves through these in order; each step is recorded with who did it and when. */
 export const WORK_ORDER_STATUS = ['Issued', 'In progress', 'Completed', 'Bill received', 'Paid']
+
+/* Papers the demo's vendors gave when our team registered them (vendors approved in the app have their application's). */
+const ACCREDITATION = { 'VN-02': ['NABL certificate', 'NABL_TC-5512.pdf'], 'VN-03': ['DGCA remote pilot certificate', 'DGCA_RPC_Solanki.pdf'], 'VN-05': ['NABL certificate', 'NABL_TC-7719.pdf'] }
+const regDoc = (vendorId, kind, name, size, on) => ({ id: `${vendorId}-${kind.split(' ')[0]}`, kind, name, size, type: name.endsWith('.jpg') ? 'image/jpeg' : 'application/pdf', seeded: true, on })
+export const VENDOR_REGISTRATION_DOCS = Object.fromEntries(
+  VENDORS.map((v) => [
+    v.id,
+    [
+      regDoc(v.id, 'PAN card', `PAN_${v.pan}.pdf`, 196000, v.since),
+      regDoc(v.id, 'Cancelled cheque', `Cancelled_cheque_${v.id}.jpg`, 388000, v.since),
+      ...(v.gstin ? [regDoc(v.id, 'GST certificate', `GST_REG-06_${v.gstin}.pdf`, 342000, v.since)] : []),
+      ...(ACCREDITATION[v.id] ? [regDoc(v.id, ACCREDITATION[v.id][0], ACCREDITATION[v.id][1], 520000, v.since)] : []),
+    ],
+  ]),
+)

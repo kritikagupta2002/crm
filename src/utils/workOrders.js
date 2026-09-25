@@ -1,4 +1,5 @@
 import { formatNearDate } from './date'
+import { allProjects } from './projects'
 
 export const WO_STATUS_TONE = { Issued: 'tone-neutral', 'In progress': 'tone-info', Completed: 'tone-attention', 'Bill received': 'tone-urgent', Paid: 'tone-good' }
 
@@ -26,4 +27,12 @@ export function vendorStats(vendor, orders) {
     value: mine.reduce((s, w) => s + w.amount, 0),
     returned: mine.reduce((s, w) => s + (w.returned?.length ?? 0), 0),
   }
+}
+
+/* The work orders given to one vendor, across every project (each with its project), open ones first. */
+export function vendorOrders(vendor, leads, projectEdits) {
+  return allProjects(leads, projectEdits)
+    .flatMap((p) => p.workOrders.map((w) => ({ ...w, project: p })))
+    .filter((w) => w.vendor === vendor.name)
+    .sort((a, b) => (a.status === 'Paid') - (b.status === 'Paid') || b.issuedOn.localeCompare(a.issuedOn))
 }

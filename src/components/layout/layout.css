@@ -101,16 +101,16 @@
 .sidebar-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
   height: 34px;
   padding: 0 12px;
   border: none;
   border-radius: 8px;
   background: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--sidebar-muted);
   white-space: nowrap;
@@ -127,7 +127,22 @@
   color: var(--teal-700);
 }
 
+/*
+ * One line per module name, and the arrow always shows: a long name (Expense & Reimbursement) is set a little
+ * tighter to fit, and on a very narrow sidebar it ends in "…" rather than push the arrow out.
+ */
+.sidebar-section-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-section-label.is-long {
+  letter-spacing: 0.04em;
+}
+
 .sidebar-section svg {
+  flex-shrink: 0;
   margin-left: auto;
   transition: transform 0.2s ease;
 }
@@ -173,6 +188,23 @@
   font-size: 15px;
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
+}
+
+/* A long label gives way to its badge instead of pushing it out of the sidebar. */
+/* The icon's box: plain in the CRM, a tinted square in the vendor portal. */
+.nav-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.nav-item > span:not(.nav-badge):not(.nav-icon) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-badge {
+  flex-shrink: 0;
 }
 
 .nav-item svg {
@@ -481,7 +513,7 @@
 
   .menu-toggled .logo-text,
   .menu-toggled .sidebar-section,
-  .menu-toggled .nav-item span,
+  .menu-toggled .nav-item span:not(.nav-icon),
   .menu-toggled .sidebar-motto {
     display: none;
   }

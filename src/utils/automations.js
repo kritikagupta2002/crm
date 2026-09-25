@@ -31,6 +31,8 @@ export const AUTOMATIONS = [
   { key: 'bidRejected', label: 'Bid rejected', to: 'Vendor', channels: { whatsapp: false, email: true }, note: 'with the reason' },
   { key: 'bidAllotted', label: 'Work allotted', to: 'Vendor', channels: { whatsapp: true, email: true }, note: 'with the work order' },
   { key: 'bidNotSelected', label: 'Bid not selected', to: 'Vendor', channels: { whatsapp: false, email: true } },
+  { key: 'bidWithdrawn', label: 'Bid withdrawn', to: 'Vendor', channels: { whatsapp: false, email: true }, note: 'acknowledgement' },
+  { key: 'clarificationAnswered', label: 'Tender question answered', to: 'Vendor', channels: { whatsapp: false, email: true } },
 ]
 
 const DEFAULTS = Object.fromEntries(AUTOMATIONS.map((a) => [a.key, a.channels]))
@@ -145,6 +147,16 @@ export function messageFor(key, ctx) {
       return {
         subject: `${ctx.tender.title} — result`,
         text: `Dear ${ctx.to.name}, thank you for your bid ${ctx.bid.id} for ${ctx.tender.title} (${ctx.tender.id}). The work has been allotted to another firm. We look forward to your bids on our next works. ${sign}`,
+      }
+    case 'bidWithdrawn':
+      return {
+        subject: `Bid ${ctx.bid.id} withdrawn — ${ctx.tender.title}`,
+        text: `Dear ${ctx.to.name}, your bid ${ctx.bid.id} for ${ctx.tender.title} (${ctx.tender.id}) has been withdrawn as you asked. A withdrawn bid cannot be submitted again on this tender. ${sign}`,
+      }
+    case 'clarificationAnswered':
+      return {
+        subject: `Answer to your question on ${ctx.tender.id}`,
+        text: `Dear ${ctx.to.name}, about ${ctx.tender.title} (${ctx.tender.id}) you asked: "${ctx.clarification.question}" Our answer: ${ctx.clarification.answer} The answer is also on the tender page in the vendor portal. ${sign}`,
       }
     default:
       return null
