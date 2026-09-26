@@ -134,7 +134,7 @@ export function ProjectBlock({ lead, project }) {
       <h4>
         Government approval <span className="muted">{project.authority}</span>
       </h4>
-      <Checklist steps={project.approvals} values={doneMap(project.approvals)} onToggle={toggle('approvals', project.approvals)} disabled={!submitted} locked={canFile ? undefined : () => 'Marked by the Project Coordinator'} />
+      <Checklist steps={project.approvals} values={doneMap(project.approvals)} onToggle={toggle('approvals', project.approvals)} disabled={!submitted} locked={canFile ? undefined : () => 'Marked by the Team Lead'} />
       {!submitted && <p className="muted small">Opens once the work is submitted to the authority.</p>}
 
       <h4>

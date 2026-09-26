@@ -10,11 +10,8 @@ const TABS = { Waiting: (q) => q.status === 'Open', Answered: (q) => q.status !=
 /* Who sees what here, in words, for the page's subtitle. */
 const SCOPE = {
   Admin: 'every question from the client portal',
-  Management: 'every question from the client portal',
-  Sales: 'questions from enquiries not yet won, and general ones',
-  'Project Coordinator': 'questions about projects and documents from your clients',
-  'Team Lead': 'questions about the projects you lead',
-  Finance: 'billing questions',
+  Employee: 'questions from enquiries not yet won, and general ones',
+  'Team Lead': 'questions about projects and documents from your clients',
   Accountant: 'billing questions',
 }
 

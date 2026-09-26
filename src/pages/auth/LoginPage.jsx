@@ -33,7 +33,7 @@ function TeamForm({ onDone }) {
       className="auth-form"
       onSubmit={(e) => {
         e.preventDefault()
-        signIn(signInAs, signInAs === 'Field Member' ? member : undefined)
+        signIn(signInAs, signInAs === 'Employee' ? member : undefined)
         onDone(signInAs)
       }}
     >
@@ -51,11 +51,11 @@ function TeamForm({ onDone }) {
           <label key={r} className={signInAs === r ? 'is-selected' : ''}>
             <input type="radio" name="role" value={r} checked={signInAs === r} onChange={() => setSignInAs(r)} />
             <strong>{r}</strong>
-            <span>{r === 'Field Member' ? `${FIELD_MEMBERS.length} people` : ROLE_USERS[r].name}</span>
+            <span>{r === 'Employee' ? `${FIELD_MEMBERS.length} people` : ROLE_USERS[r].name}</span>
           </label>
         ))}
       </fieldset>
-      {signInAs === 'Field Member' && (
+      {signInAs === 'Employee' && (
         <label className="field">
           <span className="field-label">Who is signing in?</span>
           <select value={member} onChange={(e) => setMember(e.target.value)}>

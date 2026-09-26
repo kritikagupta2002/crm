@@ -22,8 +22,8 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
  * coordinators, and P&L only for the roles allowed to see it (the junior accountant is not).
  */
 const REPORT_VIEWS = [
-  { key: 'sales', label: 'Sales', roles: ['Admin', 'Management', 'Finance', 'Accountant'] },
-  { key: 'projects', label: 'Projects', roles: ['Admin', 'Management', 'Project Coordinator'] },
+  { key: 'sales', label: 'Sales', roles: ['Admin', 'Accountant'] },
+  { key: 'projects', label: 'Projects', roles: ['Admin', 'Team Lead'] },
   { key: 'pnl', label: 'P&L', roles: Object.keys(ROLE_ACCESS).filter((r) => ROLE_ACCESS[r].pnl) },
 ]
 

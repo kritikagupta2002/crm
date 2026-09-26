@@ -42,7 +42,7 @@ function VerifyStep({ doc, blocked }) {
   const [rescan, setRescan] = useState(false)
   const [reason, setReason] = useState(RESCAN_REASONS[0])
   const [note, setNote] = useState('')
-  if (blocked) return <p className="doc-step-note">{blocked}. The Admin or another coordinator checks it against the original.</p>
+  if (blocked) return <p className="doc-step-note">{blocked}. The Admin or another team lead checks it against the original.</p>
   if (!rescan)
     return (
       <>
@@ -376,7 +376,7 @@ export function DocumentDrawer({ doc, onClose }) {
         <section className={`doc-step ${doc.rescan ? 'is-rescan' : ''}`}>
           <h3>{title}</h3>
           {!canAct ? (
-            <p className="doc-step-note">The Project Coordinator or the Admin does this step.</p>
+            <p className="doc-step-note">A Team Lead or the Admin does this step.</p>
           ) : doc.rescan ? (
             <RescanStep doc={doc} />
           ) : doc.stage === 'To verify' ? (

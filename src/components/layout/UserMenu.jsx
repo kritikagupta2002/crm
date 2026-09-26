@@ -10,7 +10,7 @@ import { NAV_ITEMS } from './navigation'
 /*
  * Profile menu. "Switch role" lets the demo show role-based access (e.g. Coordinators don't see amounts); each role
  * has its demo person, so the audit log shows who did what. What a role can open is in its row's tooltip.
- * Field Member opens the field team: each member signs in as themselves and sees only their own work.
+ * Employee opens the staff list: each employee signs in as themselves and sees only their own tasks.
  */
 export function UserMenu() {
   const { role, user, fieldMember, setRole, changeCount, resetDemoData, signOut } = useCrm()
@@ -43,7 +43,7 @@ export function UserMenu() {
           <p className="user-menu-label">Switch role</p>
           <div className="user-menu-roles">
             {ROLES.map((r) =>
-              r === 'Field Member' ? (
+              r === 'Employee' ? (
                 <div key={r} className="role-group">
                   <button
                     className={`role-row ${role === r ? 'is-selected' : ''}`}

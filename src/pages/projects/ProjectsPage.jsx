@@ -59,7 +59,7 @@ export function ProjectsPage() {
             {projects.length} projects · {count('Awaiting approval')} with the authority
           </p>
         </div>
-        {['Admin', 'Project Coordinator'].includes(role) && clients.length > 0 && (
+        {['Admin', 'Team Lead'].includes(role) && clients.length > 0 && (
           <div className="page-actions">
             <button className="btn btn-primary" onClick={() => setCreating(true)}>
               <Plus size={16} /> New Project

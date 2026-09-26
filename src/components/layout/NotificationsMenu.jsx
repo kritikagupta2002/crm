@@ -68,10 +68,8 @@ export function NotificationsMenu() {
   // Project delivery: late tasks, projects waiting for a coordinator, new letters and projects ready to close.
   const projects = can('/projects') ? allProjects(leads, projectEdits) : []
   const running = projects.filter((p) => p.stageIndex < ERM_STAGES.length)
-  // A team lead hears about the projects they lead.
-  const led = (p) => role !== 'Team Lead' || p.team.teamLead === user.name
   const fromErm = [
-    ...running.filter(led).flatMap((p) =>
+    ...running.flatMap((p) =>
       p.tasks
         .filter((t) => t.overdue)
         .map((t) => ({ id: `tk-${p.id}-${t.key ?? t.id}-${t.due}`, tone: 'tone-urgent', icon: AlertTriangle, title: `Overdue task: ${t.title}`, sub: `${p.lead.company} · ${t.assignee ?? 'Unassigned'} · was due ${formatDayMonth(t.due)}`, to: `/projects/${p.id}?tab=tasks` })),
@@ -80,7 +78,6 @@ export function NotificationsMenu() {
       .filter((p) => canActOn(role, 'allocation') && ERM_STAGES[p.stageIndex].key === 'allocation' && p.startedOn)
       .map((p) => ({ id: `al-${p.id}`, tone: 'tone-attention', icon: FolderKanban, title: `Allocate: ${p.name}`, sub: `${p.lead.company} · needs a project coordinator`, to: `/projects/${p.id}` })),
     ...projects
-      .filter(led)
       .flatMap((p) => p.letters.filter((l) => l.date >= weekAgoISO && l.date <= todayISO).map((l) => ({ l, p })))
       .map(({ l, p }) => ({ id: `lt-${l.id}`, tone: 'tone-good', icon: ScrollText, title: `Letter from ${p.code}: ${l.title}`, sub: `${p.lead.company} · ${formatDayMonth(l.date)}`, to: `/projects/${p.id}?tab=documents` })),
     ...running
@@ -109,7 +106,7 @@ export function NotificationsMenu() {
 
   // The field team hears about their own work: late tasks, tasks due by tomorrow and tasks handed to them this week.
   const myTasks =
-    role !== 'Field Member'
+    role !== 'Employee'
       ? []
       : allProjects(leads, projectEdits)
           .filter((p) => p.status !== 'Completed')

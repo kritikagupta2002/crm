@@ -346,8 +346,8 @@ export function SubcontractsPage() {
   const bills = orders.filter(tabs['Bills to pay'])
   const toCheck = bills.filter((w) => !w.check?.ok)
   const running = projects.filter((p) => p.stageIndex < ERM_STAGES.length && p.team.coordinator)
-  const canIssue = ['Admin', 'Project Coordinator'].includes(role)
-  const canRegister = ['Admin', 'Project Coordinator', 'Finance'].includes(role)
+  const canIssue = ['Admin', 'Team Lead'].includes(role)
+  const canRegister = ['Admin', 'Team Lead', 'Accountant'].includes(role)
   const delivered = orders.filter((w) => w.delivery)
   const onTimePct = delivered.length ? Math.round((delivered.filter((w) => w.delayDays <= 0).length / delivered.length) * 100) : null
   const order = orders.find((w) => w.id === openId)

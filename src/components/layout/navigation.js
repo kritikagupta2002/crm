@@ -1,7 +1,7 @@
 import { ArrowLeftRight, BadgeIndianRupee, BarChart3, BookOpen, Briefcase, Building2, CalendarCheck, CalendarClock, CalendarDays, ClipboardCheck, ClipboardList, Clock, Contact, FileScan, FileSignature, Files, Gavel, FileSpreadsheet, FileText, FolderKanban, FolderLock, Gauge, HandCoins, Home, Landmark, LayoutDashboard, ListTodo, MessageCircleQuestion, Network, Percent, PiggyBank, Receipt, Scale, Settings2, ShieldCheck, Truck, UserPlus, UserRound, Users, UsersRound, Wallet } from 'lucide-react'
 
 // Roles that use the HRMS for themselves only (their own attendance, leave, pay, claims, documents).
-const SELF_SERVICE = ['Sales', 'Project Coordinator', 'Team Lead', 'Field Member', 'Finance', 'Accountant']
+const SELF_SERVICE = ['Accountant', 'Team Lead', 'Employee']
 
 /* Two workspaces in one app: sales (CRM) and project delivery (ERM). Each role sees only what it can open; `only` limits an item to the roles it is for. */
 export const NAV_GROUPS = [
@@ -25,7 +25,7 @@ export const NAV_GROUPS = [
       { label: 'ERM Dashboard', path: '/erm', icon: Gauge },
       { label: 'Projects', path: '/projects', icon: FolderKanban },
       { label: 'Tasks', path: '/tasks', icon: ListTodo },
-      { label: 'My Tasks', path: '/my-tasks', icon: ClipboardCheck, only: ['Field Member'] },
+      { label: 'My Tasks', path: '/my-tasks', icon: ClipboardCheck, only: ['Employee'] },
       { label: 'Team', path: '/team', icon: UsersRound },
     ],
   },
@@ -54,7 +54,7 @@ export const NAV_GROUPS = [
       { label: 'HR Dashboard', path: '/hr', icon: LayoutDashboard, end: true },
       { label: 'Employees', path: '/hr/employees', icon: Briefcase },
       { label: 'Team Directory', path: '/hr/team', icon: Contact },
-      { label: 'HR Documents', path: '/hr/documents', icon: FolderLock, only: ['Admin', 'Management'] },
+      { label: 'HR Documents', path: '/hr/documents', icon: FolderLock, only: ['Admin', 'HR'] },
       { label: 'Organization', path: '/hr/organization', icon: Network },
       { label: 'Attendance', path: '/hr/attendance', icon: Clock },
       { label: 'Leave Management', path: '/hr/leave', icon: CalendarCheck },
@@ -68,7 +68,7 @@ export const NAV_GROUPS = [
     title: 'Expense & Reimbursement',
     items: [
       { label: 'Expenses', path: '/hr/expenses', icon: Receipt, end: true },
-      { label: 'Expense Approvals', path: '/hr/expenses/approvals', icon: ClipboardCheck, only: ['Admin', 'Management'] },
+      { label: 'Expense Approvals', path: '/hr/expenses/approvals', icon: ClipboardCheck, only: ['Admin', 'HR'] },
       { label: 'Reimbursements', path: '/hr/reimbursement', icon: HandCoins },
     ],
   },
@@ -93,7 +93,7 @@ export const NAV_GROUPS = [
     title: 'MIS & Reports',
     items: [
       { label: 'Executive Reports', path: '/hr/reports', icon: BarChart3 },
-      { label: 'HR Settings', path: '/hr/settings', icon: Settings2, only: ['Admin', 'Management'] },
+      { label: 'HR Settings', path: '/hr/settings', icon: Settings2, only: ['Admin', 'HR'] },
     ],
   },
 ]

@@ -25,23 +25,23 @@ function resolve(step, edit) {
  */
 export const ERM_STAGES = [
   { key: 'allocation', label: 'Allocation', owner: 'Admin', todo: 'Assign a project coordinator', waiting: 'Waiting for a coordinator' },
-  { key: 'planning', label: 'Planning', owner: 'Project Coordinator', todo: 'Choose the team lead and field team', waiting: 'Waiting for a team' },
+  { key: 'planning', label: 'Planning', owner: 'Team Lead', todo: 'Choose the team lead and field team', waiting: 'Waiting for a team' },
   { key: 'tasks', label: 'Task assignment', owner: 'Team Lead', todo: 'Give every task an owner', waiting: 'Tasks waiting for owners' },
   { key: 'work', label: 'Field & report work', owner: 'Field team', todo: 'Finish the field work and the report', waiting: 'Survey or report under way' },
-  { key: 'submission', label: 'Govt submission', owner: 'Project Coordinator', todo: 'Submit to the authority', waiting: 'Report ready, to be filed' },
+  { key: 'submission', label: 'Govt submission', owner: 'Team Lead', todo: 'Submit to the authority', waiting: 'Report ready, to be filed' },
   { key: 'approval', label: 'Final approval', owner: 'Authority', todo: 'Follow up for the approval', waiting: 'Filed, waiting for approval' },
-  { key: 'closure', label: 'Project closure', owner: 'Project Coordinator', todo: 'Hand over and close the project', waiting: 'Approved, to be handed over' },
+  { key: 'closure', label: 'Project closure', owner: 'Team Lead', todo: 'Hand over and close the project', waiting: 'Approved, to be handed over' },
 ]
 
 /* Which roles can do each stage's hand-over; everyone else with ERM access follows it read-only. */
 const STAGE_ACTORS = {
   allocation: ['Admin'],
-  planning: ['Admin', 'Project Coordinator'],
-  tasks: ['Admin', 'Project Coordinator', 'Team Lead'],
-  work: ['Admin', 'Project Coordinator', 'Team Lead', 'Field Member'],
-  submission: ['Admin', 'Project Coordinator'],
-  approval: ['Admin', 'Project Coordinator'],
-  closure: ['Admin', 'Project Coordinator'],
+  planning: ['Admin', 'Team Lead'],
+  tasks: ['Admin', 'Team Lead'],
+  work: ['Admin', 'Team Lead', 'Employee'],
+  submission: ['Admin', 'Team Lead'],
+  approval: ['Admin', 'Team Lead'],
+  closure: ['Admin', 'Team Lead'],
 }
 
 export const canActOn = (role, stageKey) => Boolean(STAGE_ACTORS[stageKey]?.includes(role))

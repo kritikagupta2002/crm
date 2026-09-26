@@ -21,7 +21,7 @@ const TABS = { 'To share': (r) => !r.letter.sharedOn && r.doc?.record.access?.cl
  */
 export function LettersCard({ projects }) {
   const { settings, shareDocument, scanInbox, documents } = useCrm()
-  // Letters go with the approval stage: the Coordinator (or the Admin) records them and tells the client.
+  // Letters go with the approval stage: a Team Lead (or the Admin) records them and tells the client.
   const canFile = canActOn(useAccess().role, 'approval')
   const [params, setParams] = useSearchParams()
   const [recording, setRecording] = useState(false)

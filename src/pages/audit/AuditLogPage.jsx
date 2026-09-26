@@ -44,7 +44,7 @@ function buildEntries(leads, activities) {
         date: i.date,
         sort: `${i.date}T00:00:${String(k).padStart(2, '0')}`,
         who: i.type === 'created' && /Website/.test(l.source ?? '') ? l.contactPerson : l.assignedTo,
-        role: i.type === 'created' && /Website/.test(l.source ?? '') ? 'Client' : 'Sales',
+        role: i.type === 'created' && /Website/.test(l.source ?? '') ? 'Client' : 'Employee',
         lead: l,
         text: i.text,
       })),

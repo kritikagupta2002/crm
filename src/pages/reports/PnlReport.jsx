@@ -13,7 +13,7 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
 
 /*
  * Project profit & loss: what each won job is worth (the accepted quotation, before GST) against what was
- * spent on outside firms for it. Only Management, Finance and the Admin see this (requirement E2: junior
+ * spent on outside firms for it. Only the Admin sees this (requirement E2: junior
  * accounts staff are kept out of P&L).
  */
 export function PnlReport({ switcher }) {

@@ -13,7 +13,7 @@ import { accessLabel, govtDocuments, vendorName } from '../utils/documents'
 import { SEEDED_APPLICATIONS, msmeOf } from '../data/vendorApplications'
 import { SEEDED_BIDS, SEEDED_CLARIFICATIONS, SEEDED_SAVED_TENDERS, SEEDED_TENDERS, SEEDED_TENDER_ORDERS } from '../data/tenders'
 import { LIVE_BID, closingOf, formatDateTime, seededTenderOrder, tenderPhase } from '../utils/tenders'
-import { CrmContext, DEFAULT_SETTINGS, ROLE_ACCESS, ROLE_USERS } from './crm'
+import { CrmContext, DEFAULT_SETTINGS, OLD_ROLES, ROLE_ACCESS, ROLE_USERS } from './crm'
 
 /*
  * Holds the demo's data in React state. Generated mock data is the base; everything done
@@ -133,15 +133,17 @@ const memberOf = (name) => {
 function loadFieldMember() {
   try {
     const saved = localStorage.getItem(FIELD_KEY)
-    return FIELD_MEMBERS.some((m) => m.name === saved) ? saved : ROLE_USERS['Field Member'].name
+    return FIELD_MEMBERS.some((m) => m.name === saved) ? saved : ROLE_USERS.Employee.name
   } catch {
-    return ROLE_USERS['Field Member'].name
+    return ROLE_USERS.Employee.name
   }
 }
 
 function loadRole() {
   try {
-    const saved = localStorage.getItem(ROLE_KEY) === 'Coordinator' ? 'Project Coordinator' : localStorage.getItem(ROLE_KEY)
+    // A role saved by the eight-role builds opens as the role it became.
+    const stored = localStorage.getItem(ROLE_KEY)
+    const saved = OLD_ROLES[stored] ?? stored
     return ROLE_ACCESS[saved] ? saved : 'Admin'
   } catch {
     return 'Admin'
@@ -202,7 +204,7 @@ export function CrmProvider({ children }) {
   const [fieldMember, setFieldMemberState] = useState(loadFieldMember)
   // The person signed in: one per role, except the field team, where it is whichever member signed in.
   const user = useMemo(() => {
-    if (role !== 'Field Member') return ROLE_USERS[role] ?? ROLE_USERS.Admin
+    if (role !== 'Employee') return ROLE_USERS[role] ?? ROLE_USERS.Admin
     const member = FIELD_MEMBERS.find((m) => m.name === fieldMember)
     return { name: fieldMember, title: member?.title ?? ROLE_USERS[role].title }
   }, [role, fieldMember])

@@ -26,48 +26,42 @@ export function useCrm() {
 const HR_SELF = ['/hr', '/hr/attendance', '/hr/leave', '/hr/payroll', '/hr/shifts', '/hr/expenses', '/hr/reimbursement', '/hr/documents', '/hr/settings', '/hr/notifications']
 const HR_TEAM = [...HR_SELF, '/hr/employees', '/hr/performance', '/hr/exit', '/hr/team', '/hr/organization', '/hr/reports']
 const FINANCE_BOOKS = ['/finance', '/finance/invoices', '/finance/receivables', '/finance/vendor-bills', '/finance/payments-receipts', '/finance/accounting-entries', '/finance/tax', '/finance/gst', '/finance/claims']
-// Financial statements and budgets: not for junior accounts (E2).
-const FINANCE_REPORTS = ['/finance/reports', '/finance/budget']
+// Financial statements and budgets (/finance/reports, /finance/budget) are the Admin's alone (E2).
 
+/*
+ * The client's five roles. Admin also covers the MD's view and the CFO's work (P&L, bank details, releasing payments);
+ * HR runs the HRMS; Accountant keeps the books without P&L or bank details (E2); Team Lead runs projects, the
+ * coordinator's work included; Employee is everyone else: sales work on enquiries, their own tasks and field
+ * visits, and HR self-service.
+ */
 export const ROLE_ACCESS = {
-  Admin: { brief: 'Everything', note: 'Everything, including settings and the audit log', pages: 'all', masked: false, pnl: true, bank: true, home: '/' },
-  Management: {
-    brief: 'Sees all, changes nothing',
-    note: 'Every workspace, P&L and the audit log; hand-overs stay with the team',
-    pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/client-onboarding', '/clients', '/reports', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/documents', '/audit-log', '/messages', '/questions', '/vendor-applications', '/tenders', ...HR_TEAM, ...FINANCE_BOOKS, ...FINANCE_REPORTS],
-    masked: false,
-    pnl: true,
-    bank: true,
-    home: '/',
-  },
-  Sales: { brief: 'Leads, quotations, approval', note: 'Leads, follow-ups, quotations and the client’s approval, up to the win', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients', '/messages', '/questions', ...HR_SELF], masked: false, pnl: false, bank: false, home: '/' },
-  'Project Coordinator': {
-    brief: 'Projects & onboarding, no ₹',
-    note: 'Onboarding, clients and ERM projects; amounts hidden',
+  Admin: { brief: 'Everything', note: 'Everything, including settings, P&L, bank details, releasing payments and the audit log', pages: 'all', masked: false, pnl: true, bank: true, home: '/' },
+  HR: { brief: 'People, attendance, payroll', note: 'The HRMS: employees, attendance, leave approvals, payroll, expense approvals and HR documents', pages: [...HR_TEAM], masked: true, pnl: false, bank: false, home: '/hr' },
+  Accountant: { brief: 'Payments, bills & books', note: 'Client payments, vendor bills and the finance books; P&L, bank details and releasing payments stay with the Admin', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions', ...HR_SELF, ...FINANCE_BOOKS], masked: false, pnl: false, bank: false, home: '/' },
+  'Team Lead': {
+    brief: 'Projects & documents, no ₹',
+    note: 'Onboarding, ERM projects, tasks, government documents and subcontracts; amounts hidden',
     pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/documents', '/reports', '/messages', '/questions', ...HR_SELF],
     masked: true,
     pnl: false,
     bank: false,
     home: '/erm',
   },
-  'Team Lead': { brief: 'Tasks & field work, no ₹', note: 'ERM projects, tasks and approvals; amounts hidden', pages: ['/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/documents', '/clients', '/questions', ...HR_SELF], masked: true, pnl: false, bank: false, home: '/erm' },
-  'Field Member': { brief: 'Own tasks & site visits', note: 'My tasks and field visits, on the phone', pages: ['/my-tasks', ...HR_SELF], masked: true, pnl: false, bank: false, home: '/my-tasks' },
-  Finance: { brief: 'Payments, bills, P&L, bank', note: 'CFO: releases vendor payments, P&L, bank details and reports; the finance books', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions', ...HR_SELF, ...FINANCE_BOOKS, ...FINANCE_REPORTS], masked: false, pnl: true, bank: true, home: '/' },
-  Accountant: { brief: 'Payments & bills, no P&L', note: 'Junior accounts: payments, vendor bills and the finance books; no P&L or bank details', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions', ...HR_SELF, ...FINANCE_BOOKS], masked: false, pnl: false, bank: false, home: '/' },
+  Employee: { brief: 'Enquiries, own tasks, self-service', note: 'Enquiries, follow-ups and quotations; their own tasks and field visits; their attendance, leave, pay and claims', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients', '/messages', '/questions', '/my-tasks', ...HR_SELF], masked: false, pnl: false, bank: false, home: '/my-tasks' },
 }
 export const ROLES = Object.keys(ROLE_ACCESS)
 export const MASKED = '₹ ••••'
 
-/* The demo person behind each role, so the audit log can say who did what. */
+// Roles saved by the eight-role builds, and where each went.
+export const OLD_ROLES = { Management: 'Admin', Finance: 'Accountant', 'Project Coordinator': 'Team Lead', Coordinator: 'Team Lead', Sales: 'Employee', 'Field Member': 'Employee' }
+
+/* The demo person behind each role, so the audit log can say who did what. Employees sign in one by one (FIELD_MEMBERS). */
 export const ROLE_USERS = {
   Admin: { name: 'Kritika Gupta', title: 'CRM Admin' },
-  Management: { name: 'Dr. Amit Kumar Bansal', title: 'Managing Director' },
-  Sales: { name: 'P. Joshi', title: 'Business Development' },
-  'Project Coordinator': { name: 'A. Singh', title: 'Project Coordinator' },
-  'Team Lead': { name: 'Dr. Sunita Meena', title: 'Senior Geologist' },
-  'Field Member': { name: 'Ravi Gurjar', title: 'Drone Operator' },
-  Finance: { name: 'Chhavi Bansal', title: 'Director – Finance' },
+  HR: { name: 'Kavita Rawat', title: 'HR Executive' },
   Accountant: { name: 'N. Jain', title: 'Accounts Executive' },
+  'Team Lead': { name: 'Dr. Sunita Meena', title: 'Senior Geologist' },
+  Employee: { name: 'Ravi Gurjar', title: 'Drone Operator' },
 }
 
 export const initialsOf = (name) =>
@@ -100,25 +94,25 @@ export const canOpen = (role, path) => {
  */
 export const PERMISSIONS = {
   // Add and edit enquiries, move stages, Won / Lost, quotations, the client's PO and agreement.
-  sales: ['Admin', 'Sales'],
+  sales: ['Admin', 'Employee'],
   // Talk to the client: notes, follow-ups, answering portal questions, sharing documents.
-  contact: ['Admin', 'Sales', 'Project Coordinator'],
+  contact: ['Admin', 'Employee', 'Team Lead'],
   // Money from clients: advance received, verifying and requesting payments.
-  payments: ['Admin', 'Finance', 'Accountant'],
+  payments: ['Admin', 'Accountant'],
   // After the win: onboarding checklist and portal access.
-  onboarding: ['Admin', 'Project Coordinator'],
+  onboarding: ['Admin', 'Team Lead'],
   // Project work: tasks, approval steps, government letters and telling the client about them.
-  projects: ['Admin', 'Project Coordinator', 'Team Lead'],
+  projects: ['Admin', 'Team Lead'],
   // Vendor registrations: approve, send back or reject (the Admin alone).
   vendors: ['Admin'],
   // Government documents: file scans, verify (never your own filing), set access, share, dispatch originals.
-  documents: ['Admin', 'Project Coordinator'],
+  documents: ['Admin', 'Team Lead'],
 }
 
 export const canDo = (role, action) => Boolean(PERMISSIONS[action]?.includes(role))
 
 /* Who does it, in words, for a step another role can't tick ("Marked by Accounts"). */
-export const PERMISSION_OWNERS = { sales: 'Sales', contact: 'Sales', payments: 'Accounts', onboarding: 'the Project Coordinator', projects: 'the project team' }
+export const PERMISSION_OWNERS = { sales: 'the sales team', contact: 'the sales team', payments: 'Accounts', onboarding: 'the Team Lead', projects: 'the project team' }
 
 export function useAccess() {
   const { role } = useCrm()
@@ -136,10 +130,10 @@ export function useAccess() {
 
 /*
  * Subcontract bills follow the vendor sheet's flow: Accounts checks the bill against the order and the
- * delivery, then the CFO (or the Admin) releases the payment.
+ * delivery, then the Admin (who holds the CFO's work) releases the payment.
  */
-export const BILL_ROLES = { record: ['Admin', 'Finance', 'Accountant'], check: ['Admin', 'Finance', 'Accountant'], pay: ['Admin', 'Finance'] }
-export const WORK_ROLES = ['Admin', 'Project Coordinator', 'Team Lead']
+export const BILL_ROLES = { record: ['Admin', 'Accountant'], check: ['Admin', 'Accountant'], pay: ['Admin'] }
+export const WORK_ROLES = ['Admin', 'Team Lead']
 
 /* Bank details show in full only to roles with bank access. */
 export const maskAccount = (value, visible) => (visible || !value ? value : `•••• ${String(value).replace(/\s/g, '').slice(-4)}`)

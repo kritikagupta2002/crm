@@ -18,7 +18,7 @@ export function MyTasksPage() {
   const projects = allProjects(leads, projectEdits).filter((p) => p.status !== 'Completed')
   // A field member sees only their own work (whoever signed in, see "Switch role"). The Admin previews the
   // screen for any member of the field team.
-  const signedIn = role === 'Field Member'
+  const signedIn = role === 'Employee'
   const me = fieldMember
   const [logging, setLogging] = useState(null)
 

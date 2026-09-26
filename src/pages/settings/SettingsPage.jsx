@@ -5,7 +5,6 @@ import { BILL_ROLES, PERMISSIONS, ROLE_ACCESS, ROLE_USERS, initialsOf, useCrm } 
 import { LOST_REASONS, SERVICE_DETAILS, SERVICES } from '../../data/mockData'
 import { FIELD_MEMBERS } from '../../data/staff'
 import { AUTOMATIONS, CHANNELS, automationOf } from '../../utils/automations'
-import { canActOn } from '../../utils/projects'
 
 /* What each permission lets a role change, in words (PERMISSIONS in context/crm.js). */
 const CHANGES = {
@@ -15,22 +14,21 @@ const CHANGES = {
   onboarding: 'onboarding',
   projects: 'project tasks & files',
   vendors: 'vendor registrations',
+  documents: 'government documents',
 }
 
 /* Which portal questions each role answers (utils/questions). */
 const QUESTIONS = {
-  Sales: 'questions before the win',
-  'Project Coordinator': 'project & document questions',
-  'Team Lead': 'questions on their projects',
-  Finance: 'billing questions',
+  Employee: 'questions before the win',
+  'Team Lead': 'project & document questions',
   Accountant: 'billing questions',
 }
 
 function changesOf(role) {
   if (role === 'Admin') return 'Everything'
-  if (role === 'Field Member') return 'Their own tasks and field visits'
+  if (role === 'HR') return 'The HRMS: employees, attendance, leave, payroll and expense approvals'
   const list = Object.keys(CHANGES).filter((key) => PERMISSIONS[key].includes(role)).map((key) => CHANGES[key])
-  if (canActOn(role, 'approval')) list.push('government letters')
+  if (role === 'Employee') list.push('their own tasks and field visits')
   if (QUESTIONS[role]) list.push(QUESTIONS[role])
   if (BILL_ROLES.pay.includes(role)) list.push('vendor bills & payments')
   else if (BILL_ROLES.check.includes(role)) list.push('vendor bills')
@@ -179,7 +177,7 @@ export function SettingsPage() {
           <ul className="team-list">
             {/* One sign-in per role, and one per member of the field team. */}
             {Object.entries(ROLE_USERS)
-              .flatMap(([role, person]) => (role === 'Field Member' ? FIELD_MEMBERS.map((m) => [role, m]) : [[role, person]]))
+              .flatMap(([role, person]) => (role === 'Employee' ? FIELD_MEMBERS.map((m) => [role, m]) : [[role, person]]))
               .map(([role, person]) => (
                 <li key={person.name}>
                   <span className="avatar small-avatar">{initialsOf(person.name)}</span>
