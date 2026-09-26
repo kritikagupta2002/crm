@@ -1,3 +1,290 @@
+/* ============================================================
+ *  CLIENT PORTAL — STRICT COLOR PALETTE
+ *
+ *  Palette:
+ *  - Primary Orange:  #ff8927  (RGB: 255, 137, 39)
+ *  - Dark Charcoal:   #474747  (RGB: 71, 71, 71)
+ *  - Sun Gold/Yellow: #ffd730  (RGB: 255, 215, 48)
+ *  - Sky Cyan:        #85e3ff  (RGB: 133, 227, 255)
+ *  - Light Grey:      #e5e5e5  (RGB: 229, 229, 229)
+ *
+ *  Strict color-only redesign:
+ *  - 100% preservation of all layouts, typography, shapes & hierarchy
+ * ============================================================ */
+
+.client-portal {
+  /* ── Primary Orange (#ff8927) ────────────────────────────── */
+  --teal-900: #d4670c;
+  --teal-700: #ff8927;
+  --teal-600: #ff8927;
+  --teal-400: #ffa255;
+  --teal-200: #ffcf9e;
+  --teal-100: #ffe5cf;
+  --teal-50:  #fff5ed;
+
+  /* ── Sun Gold / Yellow (#ffd730) ─────────────────────────── */
+  --gold-600: #c89700;
+  --gold-500: #ffd730;
+  --gold-200: #ffe980;
+  --gold-100: #fff9d6;
+
+  /* ── Dark Charcoal / Ink (#474747) ───────────────────────── */
+  --ink:           #474747;
+  --ink-2:         #616161;
+  --ink-3:         #8a8a8a;
+  --sidebar-text:  #474747;
+  --sidebar-muted: #8a8a8a;
+  --sidebar-icon:  #ff8927;
+  --sidebar-bg:    #f7f7f8;
+  --sidebar-line:  #e5e5e5;
+  --chrome-line:   #e5e5e5;
+  --sidebar-hover: rgba(255, 137, 39, 0.08);
+
+  /* ── Light Grey (#e5e5e5) & Dividers ─────────────────────── */
+  --line:      #e5e5e5;
+  --line-soft: #eeeeee;
+
+  /* ── Mountain illustration palette ───────────────────────── */
+  --mtn-far:         #e5e5e5;
+  --mtn-far-2:       #d8d8d8;
+  --mtn-lit:         #c6c6c6;
+  --mtn-rock:        #474747;
+  --mtn-shade:       #5e5e5e;
+  --mtn-deep:        #383838;
+  --mtn-base:        #292929;
+  --mtn-forest-back: #525252;
+  --mtn-forest-mid:  #3e3e3e;
+  --mtn-forest:      #2b2b2b;
+
+  /* ── Navigation & Brand Highlights ───────────────────────── */
+  --nav-active:      #ff8927;
+  --nav-active-edge: #ffd730;
+
+  /* ── Semantic status overrides ───────────────────────────── */
+  --blue:            #0284c7;
+  --blue-bg:         #eaf9ff;
+  --green:           #ff8927;
+  --green-bg:        #fff5ed;
+  --amber:           #b88600;
+  --amber-bg:        #fff9db;
+  --red:             #c04515;
+  --red-bg:          #fff0eb;
+
+  /* ── Base surfaces ────────────────────────────────────────── */
+  --bg:              #f8f9fa;
+  --surface:         #ffffff;
+}
+
+/* ── Tone classes: strict palette mapping ── */
+.client-portal .tone-info {
+  --tone: #0284c7;
+  --tone-bg: #eaf9ff;
+}
+
+.client-portal .tone-attention {
+  --tone: #b88600;
+  --tone-bg: #fff9db;
+}
+
+.client-portal .tone-urgent {
+  --tone: #c04515;
+  --tone-bg: #fff0eb;
+}
+
+.client-portal .tone-good {
+  --tone: #d4670c;
+  --tone-bg: #fff5ed;
+}
+
+.client-portal .tone-neutral {
+  --tone: #8a8a8a;
+  --tone-bg: #f5f5f5;
+}
+
+/* ── Primary & Action Buttons ── */
+.client-portal .btn-primary {
+  background: #ff8927;
+  border-color: #ff8927;
+  color: #ffffff;
+}
+
+.client-portal .btn-primary:hover {
+  background: #e06c0e;
+  border-color: #e06c0e;
+}
+
+.client-portal .btn-success {
+  background: #ff8927;
+  border-color: #ff8927;
+  color: #ffffff;
+}
+
+.client-portal .btn-success:hover {
+  background: #e06c0e;
+  border-color: #e06c0e;
+}
+
+/* ── Top brand tag & links ── */
+.client-portal .portal-tag {
+  color: #ff8927;
+  border-left-color: #e5e5e5;
+}
+
+.client-portal .portal-brand .logo-name {
+  color: #474747;
+}
+
+.client-portal .portal-brand .logo-sub {
+  color: #c89700;
+}
+
+/* ── Journey Tracker ── */
+.client-portal .journey li.is-done::before,
+.client-portal .journey li.is-current::before {
+  background: #ff8927;
+}
+
+.client-portal .is-done .journey-dot {
+  border-color: #ff8927;
+  background: #ff8927;
+  color: #ffffff;
+}
+
+.client-portal .is-current .journey-dot {
+  border-color: #ff8927;
+  color: #ff8927;
+  box-shadow: 0 0 0 4px rgba(133, 227, 255, 0.45);
+}
+
+.client-portal .journey-dot {
+  border-color: #e5e5e5;
+}
+
+/* ── ERM Stage Dots (Projects Card) ── */
+.client-portal .is-done > .erm-dot {
+  border-color: #ff8927;
+  background: #ff8927;
+  color: #ffffff;
+}
+
+.client-portal .is-current > .erm-dot {
+  border-color: #ff8927;
+  color: #ff8927;
+  box-shadow: 0 0 0 4px rgba(133, 227, 255, 0.45);
+}
+
+/* ── Project Milestones ── */
+.client-portal .milestones li.is-done:not(:last-child)::after {
+  background: #ff8927;
+}
+
+.client-portal .milestones .is-done .ms-dot {
+  border-color: #ff8927;
+  background: #ff8927;
+}
+
+.client-portal .milestones .is-current .ms-dot {
+  border-color: #ff8927;
+  box-shadow: 0 0 0 3px rgba(133, 227, 255, 0.45);
+}
+
+.client-portal .milestones .is-current .ms-when {
+  color: #ff8927;
+}
+
+/* ── Updates Feed ── */
+.client-portal .portal-updates li::before {
+  background: #85e3ff;
+}
+
+.client-portal .portal-updates li.is-you::before {
+  background: #ffd730;
+}
+
+.client-portal .portal-updates li.is-letter::before {
+  background: #ff8927;
+}
+
+.client-portal .portal-updates li.is-upcoming::before {
+  background: #ffffff;
+  border-color: #ff8927;
+}
+
+/* ── Notification Bell Count Dot ── */
+.client-portal .portal-bell-count {
+  background: #ff8927;
+  color: #ffffff;
+}
+
+/* ── Done checklist tick & completed stages ── */
+.client-portal .done-tick {
+  background: #ff8927;
+  color: #ffffff;
+}
+
+.client-portal .check-step.is-done .check-box {
+  background: #ff8927;
+  border-color: #ff8927;
+}
+
+/* ── Preview banner & Alert notes ── */
+.client-portal .portal-preview {
+  background: #fff9d6;
+  color: #8a6400;
+  border-bottom: 1px solid #ffd730;
+}
+
+.client-portal .portal-note {
+  background: #fff9db;
+  color: #8a6400;
+  border: 1px solid rgba(255, 215, 48, 0.5);
+}
+
+/* ── Quote Summary & Document ── */
+.client-portal .quote-summary-total strong {
+  color: #d4670c;
+}
+
+.client-portal .quote-head {
+  border-bottom-color: #ffd730;
+}
+
+.client-portal .quote-head .logo-sub {
+  color: #c89700;
+}
+
+/* ── Payments & QR ── */
+.client-portal .pay-done-icon {
+  background: #fff5ed;
+  color: #ff8927;
+}
+
+.client-portal .pay-step h3 span {
+  background: #fff5ed;
+  color: #ff8927;
+}
+
+.client-portal .pay-dues b {
+  color: #d4670c;
+}
+
+/* ── Card Title Icon Chip ── */
+.client-portal .title-icon {
+  background: #fff5ed;
+  color: #ff8927;
+}
+
+/* ── Mobile Help Bar & Footer ── */
+.client-portal .portal-help-bar {
+  border-top: 1px solid #e5e5e5;
+  background: #ffffff;
+}
+
+.client-portal .portal-foot {
+  color: #8a8a8a;
+  border-top: 1px solid #e5e5e5;
+}
+
 /* ---------- Client portal ---------- */
 .portal {
   min-height: 100vh;

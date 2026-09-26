@@ -39,7 +39,7 @@ export const ROLE_ACCESS = {
   HR: { brief: 'People, attendance, payroll', note: 'The HRMS: employees, attendance, leave approvals, payroll, expense approvals and HR documents', pages: [...HR_TEAM], masked: true, pnl: false, bank: false, home: '/hr' },
   Accountant: { brief: 'Payments, bills & books', note: 'Client payments, vendor bills and the finance books; P&L, bank details and releasing payments stay with the Admin', pages: ['/', '/quotations', '/client-approval', '/clients', '/reports', '/subcontracts', '/questions', ...HR_SELF, ...FINANCE_BOOKS], masked: false, pnl: false, bank: false, home: '/' },
   'Team Lead': {
-    brief: 'Projects & documents, no ₹',
+    brief: 'Projects & documents, no\u00A0₹',
     note: 'Onboarding, ERM projects, tasks, government documents and subcontracts; amounts hidden',
     pages: ['/', '/leads', '/follow-ups', '/client-onboarding', '/clients', '/erm', '/projects', '/tasks', '/team', '/letters', '/subcontracts', '/documents', '/reports', '/messages', '/questions', ...HR_SELF],
     masked: true,
@@ -50,6 +50,16 @@ export const ROLE_ACCESS = {
   Employee: { brief: 'Enquiries, own tasks, self-service', note: 'Enquiries, follow-ups and quotations; their own tasks and field visits; their attendance, leave, pay and claims', pages: ['/', '/leads', '/follow-ups', '/quotations', '/client-approval', '/clients', '/messages', '/questions', '/my-tasks', ...HR_SELF], masked: false, pnl: false, bank: false, home: '/my-tasks' },
 }
 export const ROLES = Object.keys(ROLE_ACCESS)
+
+export const ROLE_COLORS = {
+  Admin: { color: '#3e6b7c', bg: '#edf4f7', border: 'rgba(62, 107, 124, 0.35)', text: '#2d5361' },
+  HR: { color: '#388e3c', bg: '#e5f5e0', border: 'rgba(56, 142, 60, 0.35)', text: '#1b5e20' },
+  Accountant: { color: '#6ed8e8', bg: '#edfbfd', border: 'rgba(110, 216, 232, 0.45)', text: '#0e5f6b' },
+  'Team Lead': { color: '#e7e098', bg: '#fdfceb', border: 'rgba(231, 224, 152, 0.6)', text: '#786c12' },
+  Employee: { color: '#f12a6c', bg: '#fef1f5', border: 'rgba(241, 42, 108, 0.35)', text: '#c91450' },
+}
+
+export const roleSlug = (r) => (r || '').toLowerCase().replace(/\s+/g, '-')
 export const MASKED = '₹ ••••'
 
 // Roles saved by the eight-role builds, and where each went.

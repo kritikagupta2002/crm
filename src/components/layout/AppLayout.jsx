@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Lock } from 'lucide-react'
-import { ROLE_ACCESS, canOpen, useCrm } from '../../context/crm'
+import { ROLE_ACCESS, canOpen, roleSlug, useCrm } from '../../context/crm'
 import { NAV_ITEMS } from './navigation'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
@@ -60,7 +60,7 @@ export function AppLayout() {
   if (pathname === '/' && !canOpen(role, '/')) return <Navigate to={home} replace />
 
   return (
-    <div className={`app-shell ${menuToggled ? 'menu-toggled' : ''}`}>
+    <div className={`app-shell role-app-${roleSlug(role)} ${menuToggled ? 'menu-toggled' : ''}`} data-role={role}>
       <Sidebar onNavigate={() => isSmallScreen() && setMenuToggled(false)} />
       <div className="sidebar-backdrop" onClick={() => setMenuToggled(false)} />
 

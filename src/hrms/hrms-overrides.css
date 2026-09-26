@@ -3,6 +3,92 @@
  * Only for the HRMS pages: everything is under .hrms.
  */
 
+/* ════════════════════════════════════════════════════════════
+   UNIFIED CRM WORKSPACE FONTS IN HRMS (ALL ROLES & PAGES)
+   ════════════════════════════════════════════════════════════ */
+.hrms {
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-body: var(--font-sans);
+  --font-heading: var(--font-serif);
+  font-family: var(--font-sans) !important;
+}
+
+.hrms,
+.hrms button,
+.hrms input,
+.hrms select,
+.hrms textarea,
+.hrms optgroup,
+.hrms label,
+.hrms table,
+.hrms th,
+.hrms td {
+  font-family: var(--font-sans);
+}
+
+.hrms .font-sans,
+.hrms .font-inter {
+  font-family: var(--font-sans) !important;
+}
+
+.hrms .font-mono,
+.hrms code,
+.hrms pre,
+.hrms kbd,
+.hrms samp,
+.hrms .mono,
+.hrms [class*='font-mono'] {
+  font-family: var(--font-mono) !important;
+}
+
+/* Page headers & titles: Fraunces Serif exactly like CRM workspace */
+.hrms .page-header h1,
+.hrms .page-title h1,
+.hrms .font-serif,
+.hrms .font-heading,
+.hrms .font-fraunces,
+.hrms .dashboard-greeting h1,
+.hrms .welcome-banner h1,
+.hrms .hero-banner h1,
+.hrms .profile-header h1,
+.hrms h1,
+.hrms .card-crm h2,
+.hrms .card h2,
+.hrms .card-header h2,
+.hrms .card-header h3 {
+  font-family: var(--font-serif) !important;
+  letter-spacing: -0.01em;
+}
+
+.hrms .page-header h1,
+.hrms .page-title h1 {
+  font-family: var(--font-serif) !important;
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+/* Stat Cards & KPI Figures in HRMS — Fraunces serif exactly like CRM workspace */
+.hrms .stat-value,
+.hrms strong.stat-value,
+.hrms .stat-card strong,
+.hrms .kpi-value,
+.hrms .hr-stat-row h3,
+.hrms .tabular-nums.font-extrabold:not(.font-mono):not([class*='font-mono']),
+.hrms .tabular-nums.font-black:not(.font-mono):not([class*='font-mono']),
+.hrms [class*='text-2xl'].font-extrabold:not(.font-mono):not([class*='font-mono']),
+.hrms [class*='text-3xl'].font-extrabold:not(.font-mono):not([class*='font-mono']),
+.hrms [class*='text-4xl'].font-extrabold:not(.font-mono):not([class*='font-mono']),
+.hrms [class*='text-2xl'].font-black:not(.font-mono):not([class*='font-mono']),
+.hrms [class*='text-3xl'].font-black:not(.font-mono):not([class*='font-mono']),
+.hrms [class*='text-4xl'].font-black:not(.font-mono):not([class*='font-mono']) {
+  font-family: var(--font-serif) !important;
+  font-weight: 600 !important;
+  line-height: 1.05;
+}
+
 /* Page header: the CRM's, with a small badge beside the title when a page has one. */
 .hrms .page-header {
   margin-bottom: 16px;
@@ -105,4 +191,200 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
+}
+
+/* ════════════════════════════════════════════════════════════
+   ROLE-BASED HRMS COMPONENT THEME ADAPTERS
+   ════════════════════════════════════════════════════════════ */
+
+/*
+ * HRMS has its own :root that resets --nav-active and --sidebar-icon.
+ * We must re-declare the role-specific teal scale at the role container
+ * level so it wins over the HRMS :root defaults.
+ */
+
+/* ── HR role ── mint-green palette */
+.role-app-hr {
+  --teal-900: #1b5e20;
+  --teal-800: #2e7d32;
+  --teal-700: #388e3c;
+  --teal-600: #4caf50;
+  --teal-500: #66bb6a;
+  --teal-400: #a5d6a7;
+  --teal-200: #c8e6c9;
+  --teal-100: #e5f5e0;
+  --teal-50:  #f1f8f1;
+  --nav-active:      #388e3c;
+  --nav-active-edge: #e5f5e0;
+  --sidebar-icon:    #4caf50;
+  --role-color:      #388e3c;
+  --role-color-deep: #1b5e20;
+  --role-bg:         #e5f5e0;
+  --role-border:     rgba(56, 142, 60, 0.35);
+  --blue:    #388e3c;
+  --blue-bg: #e5f5e0;
+}
+
+/* ── Admin role ── teal palette */
+.role-app-admin {
+  --nav-active:   #3e6b7c;
+  --nav-active-edge: #7ab2c7;
+  --sidebar-icon: #3e6b7c;
+}
+
+/* ── Accountant role ── cyan palette */
+.role-app-accountant {
+  --nav-active:      #0b8fa6;
+  --nav-active-edge: #6ed8e8;
+  --sidebar-icon:    #12b8d0;
+}
+
+/* ── Team Lead role ── gold-yellow palette */
+.role-app-team-lead {
+  --nav-active:      #8c7b12;
+  --nav-active-edge: #e7e098;
+  --sidebar-icon:    #8c7b12;
+}
+
+/* ── Employee role ── hot-pink palette */
+.role-app-employee {
+  --nav-active:      #d61858;
+  --nav-active-edge: #f12a6c;
+  --sidebar-icon:    #e11d62;
+}
+
+
+[class*='role-app-'] .hrms .accent-role,
+[class*='role-app-'] .hrms .text-teal-600,
+[class*='role-app-'] .hrms .text-teal-700,
+[class*='role-app-'] .hrms .text-teal-800,
+[class*='role-app-'] .hrms .text-emerald-600,
+[class*='role-app-'] .hrms .text-emerald-700,
+[class*='role-app-'] .hrms .text-emerald-800 {
+  color: var(--teal-700) !important;
+}
+
+[class*='role-app-'] .hrms .bg-teal-600,
+[class*='role-app-'] .hrms .bg-teal-700,
+[class*='role-app-'] .hrms .bg-emerald-600,
+[class*='role-app-'] .hrms .bg-emerald-700 {
+  background-color: var(--teal-600) !important;
+}
+
+[class*='role-app-'] .hrms .bg-teal-50,
+[class*='role-app-'] .hrms .bg-teal-100,
+[class*='role-app-'] .hrms .bg-emerald-50,
+[class*='role-app-'] .hrms .bg-emerald-100 {
+  background-color: var(--teal-50) !important;
+}
+
+[class*='role-app-'] .hrms .border-teal-200,
+[class*='role-app-'] .hrms .border-teal-300,
+[class*='role-app-'] .hrms .border-emerald-200,
+[class*='role-app-'] .hrms .border-emerald-300 {
+  border-color: var(--teal-200) !important;
+}
+
+[class*='role-app-'] .hrms .border-teal-600,
+[class*='role-app-'] .hrms .border-teal-700,
+[class*='role-app-'] .hrms .border-emerald-600,
+[class*='role-app-'] .hrms .border-emerald-700 {
+  border-color: var(--teal-600) !important;
+}
+
+[class*='role-app-'] .hrms .border-t-emerald-500 {
+  border-top-color: var(--teal-600) !important;
+}
+
+[class*='role-app-'] .hrms .card-gold-edge {
+  box-shadow: inset 0 3px 0 var(--teal-600), var(--shadow) !important;
+}
+
+[class*='role-app-'] .hrms .crm-btn-primary,
+[class*='role-app-'] .hrms .crm-btn-gold {
+  background: var(--teal-700) !important;
+  border-color: var(--teal-900) !important;
+  color: #ffffff !important;
+}
+
+[class*='role-app-'] .hrms .crm-btn-primary:hover,
+[class*='role-app-'] .hrms .crm-btn-gold:hover {
+  background: var(--teal-900) !important;
+}
+
+[class*='role-app-'] .hrms .hover\:bg-teal-700:hover,
+[class*='role-app-'] .hrms .hover\:bg-emerald-700:hover {
+  background-color: var(--teal-900) !important;
+}
+
+[class*='role-app-'] .hrms .hover\:text-teal-600:hover,
+[class*='role-app-'] .hrms .hover\:text-emerald-600:hover {
+  color: var(--teal-600) !important;
+}
+
+[class*='role-app-'] .hrms .hover\:border-teal-500\/40:hover {
+  border-color: var(--teal-400) !important;
+}
+
+/* Hardcoded gradient buttons and cards adapt to active role */
+[class*='role-app-'] .hrms .from-\[\#1F6F78\],
+[class*='role-app-'] .hrms .from-teal-600 {
+  --tw-gradient-from: var(--teal-700) !important;
+  --tw-gradient-to: var(--teal-600) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+[class*='role-app-'] .hrms .to-\[\#2A8089\],
+[class*='role-app-'] .hrms .to-emerald-500 {
+  --tw-gradient-to: var(--teal-600) !important;
+}
+
+/* Avatar chips and table user initials */
+[class*='role-app-'] .hrms .rounded-full.bg-teal-700,
+[class*='role-app-'] .hrms .rounded-full.bg-teal-600 {
+  background-color: var(--teal-700) !important;
+  color: #ffffff !important;
+}
+
+/* Form controls & inputs */
+[class*='role-app-'] .hrms input:focus,
+[class*='role-app-'] .hrms select:focus,
+[class*='role-app-'] .hrms textarea:focus {
+  border-color: var(--teal-600) !important;
+  outline-color: var(--teal-400) !important;
+  box-shadow: 0 0 0 3px var(--teal-50) !important;
+}
+
+/* Celebration widget active tab */
+[class*='role-app-'] .hrms .bg-amber-100\/90 {
+  background-color: var(--teal-50) !important;
+}
+[class*='role-app-'] .hrms .text-\[\#8F621A\] {
+  color: var(--teal-700) !important;
+}
+[class*='role-app-'] .hrms .border-amber-200\/80 {
+  border-color: var(--teal-200) !important;
+}
+
+/* Links and actions */
+[class*='role-app-'] .hrms .text-\[\#B07D27\],
+[class*='role-app-'] .hrms .text-\[\#C8943A\] {
+  color: var(--teal-700) !important;
+}
+
+/* Topographic & Ambient Watermarks in Banners */
+[class*='role-app-'] .hrms .text-amber-500\/20,
+[class*='role-app-'] .hrms .text-teal-700\/20 {
+  color: var(--teal-400) !important;
+  opacity: 0.3 !important;
+}
+[class*='role-app-'] .hrms .border-amber-400\/40,
+[class*='role-app-'] .hrms .border-amber-300\/30,
+[class*='role-app-'] .hrms .border-amber-200\/30,
+[class*='role-app-'] .hrms .border-amber-300\/25 {
+  border-color: var(--teal-200) !important;
+}
+[class*='role-app-'] .hrms .bg-teal-500\/10 {
+  background-color: var(--teal-400) !important;
+  opacity: 0.15 !important;
 }

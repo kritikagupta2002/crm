@@ -920,7 +920,8 @@
 
 /* Profile menu: the demo's roles as one-line rows (role, its person, a tick), then the account actions. */
 .user-menu {
-  width: 320px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
   max-height: calc(100vh - var(--chrome-height) - 16px);
   padding: 8px;
   overflow-y: auto;
@@ -962,6 +963,7 @@
 .role-row-person {
   font-size: 12.5px;
   color: var(--ink-3);
+  white-space: nowrap;
 }
 
 /* What the role opens and changes, under its name. */
@@ -975,6 +977,7 @@
 .role-row-brief {
   font-size: 11.5px;
   color: var(--ink-3);
+  white-space: nowrap;
 }
 
 .role-row.is-selected .role-row-brief {
@@ -1001,6 +1004,84 @@
 
 .role-row.is-selected .role-row-check {
   visibility: visible;
+}
+
+/* Role dot indicators in Switch role menu */
+.role-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.role-admin .role-dot       { background: #3e6b7c; }
+.role-hr .role-dot          { background: #388e3c; }
+.role-accountant .role-dot  { background: #6ed8e8; box-shadow: 0 0 0 1px rgba(11, 143, 166, 0.30); }
+.role-team-lead .role-dot   { background: #e7e098; box-shadow: 0 0 0 1px rgba(120, 108, 18, 0.4); }
+.role-employee .role-dot    { background: #f12a6c; }
+
+/* Selected state per role */
+.role-row.role-admin.is-selected {
+  background: rgba(62, 107, 124, 0.12);
+}
+.role-row.role-admin.is-selected .role-row-name {
+  color: #2d5361;
+}
+.role-row.role-admin.is-selected .role-row-person,
+.role-row.role-admin.is-selected .role-row-check,
+.role-row.role-admin.is-selected .role-row-brief {
+  color: #3e6b7c;
+}
+
+.role-row.role-hr.is-selected {
+  background: rgba(56, 142, 60, 0.10);
+}
+.role-row.role-hr.is-selected .role-row-name {
+  color: #1b5e20;
+}
+.role-row.role-hr.is-selected .role-row-person,
+.role-row.role-hr.is-selected .role-row-check,
+.role-row.role-hr.is-selected .role-row-brief {
+  color: #388e3c;
+}
+
+.role-row.role-accountant.is-selected {
+  background: rgba(110, 216, 232, 0.15);
+}
+.role-row.role-accountant.is-selected .role-row-name {
+  color: #0e5f6b;
+}
+.role-row.role-accountant.is-selected .role-row-person,
+.role-row.role-accountant.is-selected .role-row-check,
+.role-row.role-accountant.is-selected .role-row-brief {
+  color: #0b8fa6;
+}
+
+.role-row.role-team-lead.is-selected {
+  background: rgba(231, 224, 152, 0.25);
+}
+.role-row.role-team-lead.is-selected .role-row-name {
+  color: #786c12;
+}
+.role-row.role-team-lead.is-selected .role-row-person,
+.role-row.role-team-lead.is-selected .role-row-check,
+.role-row.role-team-lead.is-selected .role-row-brief {
+  color: #8f8216;
+}
+
+.role-row.role-employee.is-selected {
+  background: rgba(241, 42, 108, 0.12);
+}
+.role-row.role-employee.is-selected .role-row-name {
+  color: #c91450;
+}
+.role-row.role-employee.is-selected .role-row-person,
+.role-row.role-employee.is-selected .role-row-check,
+.role-row.role-employee.is-selected .role-row-brief {
+  color: #f12a6c;
 }
 
 /* Field Member: the row opens the field team; each member signs in as themselves. */
@@ -1087,6 +1168,80 @@
   font-weight: 600;
   white-space: nowrap;
   animation: fade 0.2s ease;
+}
+
+.role-badge.role-badge-admin {
+  background: #edf4f7;
+  color: #2d5361;
+  border: 1px solid rgba(62, 107, 124, 0.35);
+}
+
+.role-badge.role-badge-hr {
+  background: #e5f5e0;
+  color: #1b5e20;
+  border: 1px solid rgba(56, 142, 60, 0.40);
+}
+
+.role-badge.role-badge-accountant {
+  background: #edfbfd;
+  color: #0e5f6b;
+  border: 1px solid rgba(110, 216, 232, 0.50);
+}
+
+.role-badge.role-badge-team-lead {
+  background: #fdfceb;
+  color: #786c12;
+  border: 1px solid rgba(231, 224, 152, 0.6);
+}
+
+.role-badge.role-badge-employee {
+  background: #fef1f5;
+  color: #c91450;
+  border: 1px solid rgba(241, 42, 108, 0.35);
+}
+
+/* User avatar ring for active role */
+.avatar.avatar-role-admin {
+  box-shadow: 0 0 0 2px #3e6b7c;
+}
+.avatar.avatar-role-hr {
+  box-shadow: 0 0 0 2px #388e3c;
+}
+.avatar.avatar-role-accountant {
+  box-shadow: 0 0 0 2px #6ed8e8;
+}
+.avatar.avatar-role-team-lead {
+  box-shadow: 0 0 0 2px #e7e098;
+}
+.avatar.avatar-role-employee {
+  box-shadow: 0 0 0 2px #f12a6c;
+}
+
+/* Role pills in Settings and Audit Log */
+.role-pill-admin {
+  background: #edf4f7 !important;
+  color: #2d5361 !important;
+  border: 1px solid rgba(62, 107, 124, 0.35) !important;
+}
+.role-pill-hr {
+  background: #e5f5e0 !important;
+  color: #1b5e20 !important;
+  border: 1px solid rgba(56, 142, 60, 0.40) !important;
+}
+.role-pill-accountant {
+  background: #edfbfd !important;
+  color: #0e5f6b !important;
+  border: 1px solid rgba(110, 216, 232, 0.50) !important;
+}
+.role-pill-team-lead {
+  background: #fdfceb !important;
+  color: #786c12 !important;
+  border: 1px solid rgba(231, 224, 152, 0.6) !important;
+}
+.role-pill-employee {
+  background: #fef1f5 !important;
+  color: #c91450 !important;
+  border: 1px solid rgba(241, 42, 108, 0.35) !important;
 }
 
 /* ---------- WhatsApp, duplicates, notes, clickable cards ---------- */

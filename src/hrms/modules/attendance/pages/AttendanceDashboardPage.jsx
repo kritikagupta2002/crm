@@ -263,7 +263,7 @@ export const AttendanceDashboardPage = () => {
               </div>
             </div>
             <div className="mt-1">
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
+              <div className="text-xl sm:text-2xl font-serif font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
                 {kpi.value}
               </div>
             </div>

@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ============================================================
  *  LAYOUT — CRM Theme
  *  App shell, sidebar, topbar, main content area.
@@ -352,7 +352,7 @@ a.menu-row,
 .menu-row.is-selected svg      { color: var(--teal-700); }
 .menu-row:disabled             { opacity: 0.45; cursor: default; }
 
-.user-menu { width: 260px; }
+.user-menu { width: 380px; max-width: calc(100vw - 32px); }
 
 
 /* ════════════════════════════════════════════════════════════

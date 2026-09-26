@@ -4,7 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { ContourLines } from '../../components/common/ContourLines'
 import { Logo } from '../../components/common/Logo'
 import { MountainRange } from '../../components/common/MountainRange'
-import { ROLE_ACCESS, ROLE_USERS, ROLES, useCrm } from '../../context/crm'
+import { ROLE_ACCESS, ROLE_USERS, ROLES, roleSlug, useCrm } from '../../context/crm'
 import { baseProjects } from '../../data/projects'
 import { FIELD_MEMBERS } from '../../data/staff'
 import { allProjects } from '../../utils/projects'
@@ -48,7 +48,7 @@ function TeamForm({ onDone }) {
       <fieldset className="role-pick">
         <legend className="field-label">Sign in as</legend>
         {ROLES.map((r) => (
-          <label key={r} className={signInAs === r ? 'is-selected' : ''}>
+          <label key={r} className={`role-pick-${roleSlug(r)} ${signInAs === r ? 'is-selected' : ''}`}>
             <input type="radio" name="role" value={r} checked={signInAs === r} onChange={() => setSignInAs(r)} />
             <strong>{r}</strong>
             <span>{r === 'Employee' ? `${FIELD_MEMBERS.length} people` : ROLE_USERS[r].name}</span>

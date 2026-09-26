@@ -13,6 +13,7 @@ import { leaveService } from '@/modules/leave/services/leave.service';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { EmployeeDashboard } from '../components/EmployeeDashboard';
 import { getDailyQuote } from '@/data';
+import { useCrm, ROLE_COLORS } from '../../../../context/crm';
 // Live Digital Clock isolated component to prevent parent dashboard re-renders
 const LiveClock = ({ className }) => {
     const [time, setTime] = useState(() => new Date().toLocaleTimeString('en-US', {
@@ -50,6 +51,8 @@ const upcomingHolidaysList = [
     { title: 'Diwali', date: '08 Nov 2026', day: 'Sunday', badge: 'Gazetted' },
 ];
 const AdminDashboard = () => {
+    const { role } = useCrm();
+    const roleColor = ROLE_COLORS[role]?.color || '#1F6F78';
     const { user, updateUser } = useAuth();
     const { currentRole, setRole } = useRole();
     const { isDark } = useTheme();
@@ -226,8 +229,8 @@ const AdminDashboard = () => {
                 counts['Others'] += days;
         });
         const colors = isDark
-            ? { 'CL': '#2DD4BF', 'SL': '#FBBF24', 'EL': '#F87171', 'ML': '#60A5FA', 'Others': '#94A3B8' }
-            : { 'CL': '#1F6F78', 'SL': '#C8943A', 'EL': '#D24C47', 'ML': '#31485A', 'Others': '#7C8B96' };
+            ? { 'CL': roleColor, 'SL': '#FBBF24', 'EL': '#F87171', 'ML': '#60A5FA', 'Others': '#94A3B8' }
+            : { 'CL': roleColor, 'SL': '#C8943A', 'EL': '#D24C47', 'ML': '#31485A', 'Others': '#7C8B96' };
         return [
             { type: 'CL', count: counts['CL'], color: colors['CL'] },
             { type: 'SL', count: counts['SL'], color: colors['SL'] },
@@ -392,7 +395,7 @@ const AdminDashboard = () => {
                   <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-normal">
                     {(greeting || 'Good evening')},
                   </p>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1E293B] dark:text-white tracking-tight mt-0.5">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-extrabold text-[#1E293B] dark:text-white tracking-tight mt-0.5">
                     {(user?.name?.split(' ')[0] || 'there')}!
                   </h1>
                   <p className="text-slate-500 dark:text-slate-400 text-[11px] sm:text-sm mt-0.5 sm:mt-1 font-normal">
@@ -521,7 +524,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Total Employees</p>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.total}</h3>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-serif font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.total}</h3>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
@@ -540,7 +543,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Present Today</p>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.present}</h3>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-serif font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.present}</h3>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
@@ -559,7 +562,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Absent Today</p>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.absent}</h3>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-serif font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.absent}</h3>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
@@ -578,7 +581,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">On Leave</p>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.leave}</h3>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-serif font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.leave}</h3>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
@@ -597,7 +600,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Late Arrivals</p>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.late}</h3>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-serif font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.late}</h3>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
@@ -616,7 +619,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">New Joiners</p>
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.newJoiners}</h3>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-serif font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.newJoiners}</h3>
                 </div>
               </div>
               <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
@@ -653,7 +656,7 @@ const AdminDashboard = () => {
                 {/* Legend */}
                 <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-300 mb-4 flex-wrap">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-xs bg-[#1F6F78] dark:bg-[#2DD4BF]"/>
+                    <span className="w-2.5 h-2.5 rounded-xs" style={{ backgroundColor: roleColor }}/>
                     <span>Present</span>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -682,7 +685,7 @@ const AdminDashboard = () => {
             boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
             fontSize: '12px',
         }}/>
-                    <Bar dataKey="present" stackId="a" fill={isDark ? '#2DD4BF' : '#1F6F78'} radius={[0, 0, 0, 0]} barSize={20} isAnimationActive={false}/>
+                    <Bar dataKey="present" stackId="a" fill={roleColor} radius={[0, 0, 0, 0]} barSize={20} isAnimationActive={false}/>
                     <Bar dataKey="absent" stackId="a" fill={isDark ? '#F87171' : '#D24C47'} radius={[0, 0, 0, 0]} barSize={20} isAnimationActive={false}/>
                     <Bar dataKey="leave" stackId="a" fill={isDark ? '#FBBF24' : '#C8943A'} radius={[3, 3, 0, 0]} barSize={20} isAnimationActive={false}/>
                   </BarChart>

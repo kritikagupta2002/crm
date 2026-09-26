@@ -64,11 +64,278 @@
   --amber: #c27a12;
   --amber-bg: #fcf0dc;
 
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-body: var(--font-sans);
+  --font-heading: var(--font-serif);
   --radius: 8px;
   --radius-lg: 14px;
   --shadow: 0 1px 2px rgba(15, 42, 61, 0.04), 0 4px 16px rgba(15, 42, 61, 0.04);
+}
+
+/* ════════════════════════════════════════════════════════════
+   ROLE-BASED PALETTE OVERRIDES
+   - Admin:      #3e6b7c (Slate Teal)
+   - HR:         #ed6ad3 (Pink Orchid)
+   - Accountant: #58fd77 (Bright Green)
+   - Team Lead:  #e7e098 (Soft Sand Gold)
+   - Employee:   #f12a6c (Crimson Rose)
+   ════════════════════════════════════════════════════════════ */
+
+.role-app-admin {
+  --teal-900: #274753;
+  --teal-800: #335968;
+  --teal-700: #3e6b7c;
+  --teal-600: #4a7c90;
+  --teal-500: #578ea4;
+  --teal-400: #689bb0;
+  --teal-200: #b3d0dc;
+  --teal-100: #d9e7ed;
+  --teal-50:  #f0f5f7;
+  --nav-active: #3e6b7c;
+  --nav-active-edge: #7ab2c7;
+  --sidebar-icon: #4a7c90;
+  --role-color: #3e6b7c;
+  --role-color-deep: #274753;
+  --role-bg: #edf4f7;
+  --role-border: rgba(62, 107, 124, 0.35);
+  --blue: #3e6b7c;
+  --blue-bg: #edf4f7;
+}
+
+.role-app-hr {
+  /* HR Palette: #e5f5e0 mint-green */
+  --teal-900: #1b5e20;   /* deepest green — hover states */
+  --teal-800: #2e7d32;   /* dark green */
+  --teal-700: #388e3c;   /* primary green — active color */
+  --teal-600: #4caf50;   /* medium green */
+  --teal-500: #66bb6a;   /* soft green */
+  --teal-400: #a5d6a7;   /* light green */
+  --teal-200: #c8e6c9;   /* pale green */
+  --teal-100: #e5f5e0;   /* mint — HR signature */
+  --teal-50:  #f1f8f1;   /* near-white mint */
+  --nav-active:      #388e3c;
+  --nav-active-edge: #e5f5e0;
+  --sidebar-icon:    #4caf50;
+  --role-color:      #388e3c;
+  --role-color-deep: #1b5e20;
+  --role-bg:         #e5f5e0;
+  --role-border:     rgba(56, 142, 60, 0.35);
+  --blue:    #388e3c;
+  --blue-bg: #e5f5e0;
+}
+
+.role-app-accountant {
+  /* Accountant Palette: #6ed8e8 cyan */
+  --teal-900: #0e5f6b;   /* darkest cyan — hover states */
+  --teal-800: #0c7a8a;   /* dark cyan */
+  --teal-700: #0b8fa6;   /* primary active */
+  --teal-600: #12b8d0;   /* medium cyan */
+  --teal-500: #38cde0;   /* soft cyan */
+  --teal-400: #6ed8e8;   /* user’s color — accent */
+  --teal-200: #aaedf5;   /* pale cyan */
+  --teal-100: #cdf4f9;   /* very light cyan */
+  --teal-50:  #edfbfd;   /* near-white cyan */
+  --nav-active:      #0b8fa6;
+  --nav-active-edge: #6ed8e8;
+  --sidebar-icon:    #12b8d0;
+  --role-color:      #6ed8e8;
+  --role-color-deep: #0b8fa6;
+  --role-bg:         #edfbfd;
+  --role-border:     rgba(110, 216, 232, 0.45);
+  --blue:    #0b8fa6;
+  --blue-bg: #edfbfd;
+}
+
+.role-app-team-lead {
+  --teal-900: #5e520a;
+  --teal-800: #73640e;
+  --teal-700: #8c7b12;
+  --teal-600: #ab9718;
+  --teal-500: #c2ac21;
+  --teal-400: #cfbc3a;
+  --teal-200: #ede5a4;
+  --teal-100: #f7f4d2;
+  --teal-50:  #fdfceb;
+  --nav-active: #8c7b12;
+  --nav-active-edge: #e7e098;
+  --sidebar-icon: #8c7b12;
+  --role-color: #e7e098;
+  --role-color-deep: #8c7b12;
+  --role-bg: #fdfceb;
+  --role-border: rgba(231, 224, 152, 0.6);
+  --blue: #8c7b12;
+  --blue-bg: #fdfceb;
+}
+
+.role-app-employee {
+  --teal-900: #a81144;
+  --teal-800: #bf144e;
+  --teal-700: #d61858;
+  --teal-600: #f12a6c;
+  --teal-500: #f44c82;
+  --teal-400: #f76897;
+  --teal-200: #fcb6cd;
+  --teal-100: #fedce6;
+  --teal-50:  #fef1f5;
+  --nav-active: #d61858;
+  --nav-active-edge: #f12a6c;
+  --sidebar-icon: #e11d62;
+  --role-color: #f12a6c;
+  --role-color-deep: #d61858;
+  --role-bg: #fef1f5;
+  --role-border: rgba(241, 42, 108, 0.35);
+  --blue: #d61858;
+  --blue-bg: #fef1f5;
+}
+
+
+/* ──────────────────────────────────────────────────────────
+   SIDEBAR: force role color on nav-item active + icons
+   (using concrete values so HRMS :root resets cannot win)
+   ────────────────────────────────────────────────────────── */
+
+/* Admin — teal */
+.role-app-admin .nav-item.is-active {
+  background: #3e6b7c !important;
+  box-shadow: 0 2px 8px rgba(62, 107, 124, 0.28);
+}
+.role-app-admin .nav-item.is-active::before                { background: #7ab2c7 !important; }
+.role-app-admin .sidebar .nav-item.is-active svg           { color: #fff !important; }
+.role-app-admin .sidebar .nav-item:not(.is-active) svg     { color: #4a7c90 !important; }
+
+/* HR — mint-green */
+.role-app-hr .nav-item.is-active {
+  background: #388e3c !important;
+  box-shadow: 0 2px 8px rgba(56, 142, 60, 0.30);
+}
+.role-app-hr .nav-item.is-active::before           { background: #e5f5e0 !important; }
+.role-app-hr .sidebar .nav-item.is-active svg      { color: #fff !important; }
+.role-app-hr .sidebar .nav-item:not(.is-active) svg { color: #4caf50 !important; }
+
+/* Accountant — cyan */
+.role-app-accountant .nav-item.is-active {
+  background: #0b8fa6 !important;
+  box-shadow: 0 2px 8px rgba(11, 143, 166, 0.30);
+}
+.role-app-accountant .nav-item.is-active::before                { background: #6ed8e8 !important; }
+.role-app-accountant .sidebar .nav-item.is-active svg           { color: #fff !important; }
+.role-app-accountant .sidebar .nav-item:not(.is-active) svg     { color: #12b8d0 !important; }
+
+/* Team Lead — golden-olive */
+.role-app-team-lead .nav-item.is-active {
+  background: #8c7b12 !important;
+  box-shadow: 0 2px 8px rgba(140, 123, 18, 0.28);
+}
+.role-app-team-lead .nav-item.is-active::before                { background: #e7e098 !important; }
+.role-app-team-lead .sidebar .nav-item.is-active svg           { color: #fff !important; }
+.role-app-team-lead .sidebar .nav-item:not(.is-active) svg     { color: #8c7b12 !important; }
+
+/* Employee — hot-pink */
+.role-app-employee .nav-item.is-active {
+  background: #d61858 !important;
+  box-shadow: 0 2px 8px rgba(214, 24, 88, 0.28);
+}
+.role-app-employee .nav-item.is-active::before                { background: #f12a6c !important; }
+.role-app-employee .sidebar .nav-item.is-active svg           { color: #fff !important; }
+.role-app-employee .sidebar .nav-item:not(.is-active) svg     { color: #e11d62 !important; }
+
+
+/* Tone Info scoped by active role — drives stat cards, pills, progress bars and icons */
+.role-app-admin .tone-info      { --tone: #3e6b7c; --tone-bg: #edf4f7; }
+.role-app-hr .tone-info         { --tone: #388e3c; --tone-bg: #e5f5e0; }
+.role-app-accountant .tone-info { --tone: #0b8fa6; --tone-bg: #edfbfd; }
+.role-app-team-lead .tone-info  { --tone: #8c7b12; --tone-bg: #fdfceb; }
+.role-app-employee .tone-info   { --tone: #d61858; --tone-bg: #fef1f5; }
+
+/* Role-based primary buttons, interactive controls, tabs and highlights */
+[class*='role-app-'] .btn-primary,
+[class*='role-app-'] .crm-btn-primary {
+  background: var(--teal-700) !important;
+  border-color: var(--teal-700) !important;
+  color: #fff !important;
+}
+
+[class*='role-app-'] .btn-primary:hover,
+[class*='role-app-'] .crm-btn-primary:hover {
+  background: var(--teal-900) !important;
+  border-color: var(--teal-900) !important;
+}
+
+[class*='role-app-'] .btn-outline {
+  color: var(--teal-700) !important;
+  border-color: var(--teal-200) !important;
+}
+
+[class*='role-app-'] .btn-outline:hover {
+  background: var(--teal-50) !important;
+  border-color: var(--teal-400) !important;
+  color: var(--teal-900) !important;
+}
+
+[class*='role-app-'] .stage-tab.is-active {
+  border-bottom-color: var(--teal-700) !important;
+  color: var(--teal-700) !important;
+}
+
+[class*='role-app-'] .stage-tab.is-active span {
+  background: var(--teal-50) !important;
+  color: var(--teal-700) !important;
+}
+
+[class*='role-app-'] .segmented button.is-selected {
+  background: var(--teal-50) !important;
+  color: var(--teal-900) !important;
+}
+
+[class*='role-app-'] .link-button,
+[class*='role-app-'] a.link-accent {
+  color: var(--teal-700) !important;
+}
+
+[class*='role-app-'] .link-button:hover,
+[class*='role-app-'] a.link-accent:hover {
+  color: var(--teal-900) !important;
+}
+
+[class*='role-app-'] input:focus,
+[class*='role-app-'] select:focus,
+[class*='role-app-'] textarea:focus {
+  border-color: var(--teal-600) !important;
+  box-shadow: 0 0 0 3px var(--teal-50) !important;
+  outline: none !important;
+}
+
+[class*='role-app-'] input[type="checkbox"]:checked,
+[class*='role-app-'] input[type="radio"]:checked {
+  accent-color: var(--teal-700) !important;
+}
+
+/* Ensure Tailwind and HRMS utility classes adapt to active role colors */
+[class*='role-app-'] .bg-teal-600,
+[class*='role-app-'] .bg-teal-700 {
+  background-color: var(--teal-600) !important;
+}
+[class*='role-app-'] .text-teal-600,
+[class*='role-app-'] .text-teal-700 {
+  color: var(--teal-700) !important;
+}
+[class*='role-app-'] .border-teal-600,
+[class*='role-app-'] .border-teal-700 {
+  border-color: var(--teal-600) !important;
+}
+[class*='role-app-'] .bg-teal-50 {
+  background-color: var(--teal-50) !important;
+}
+[class*='role-app-'] .from-teal-600 {
+  --tw-gradient-from: var(--teal-600) var(--tw-gradient-from-position) !important;
+}
+[class*='role-app-'] .hover\:bg-teal-700:hover {
+  background-color: var(--teal-900) !important;
+}
+[class*='role-app-'] .hover\:text-teal-600:hover {
+  color: var(--teal-600) !important;
 }
 
 *,
@@ -78,7 +345,10 @@
 }
 
 html,
-body {
+body,
+#root,
+.app-shell,
+[class*='role-app-'] {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
@@ -86,6 +356,7 @@ body {
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
@@ -98,9 +369,41 @@ h3 {
 button,
 select,
 input,
-textarea {
-  font: inherit;
+textarea,
+optgroup {
+  font-family: inherit;
   color: inherit;
+}
+
+/* Monospace fonts for code, metrics, voucher IDs, and hashes */
+code,
+kbd,
+samp,
+pre,
+.mono,
+.font-mono,
+[class*='font-mono'] {
+  font-family: var(--font-mono) !important;
+}
+
+/* Signature Fraunces serif typography across all CRM workspaces and roles */
+.font-serif,
+.font-heading,
+.font-fraunces,
+.page-title h1,
+.page-header h1,
+.portal-hero h1,
+.stat-value,
+.glance-figures dd,
+.workflow-company,
+.logo-name,
+.logo-sub,
+.stage-counts strong,
+.vendor-scores strong,
+.visit-date b,
+.totals .grand dd,
+.quote-meta > div strong {
+  font-family: var(--font-serif) !important;
 }
 
 button {

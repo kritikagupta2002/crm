@@ -9,7 +9,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
+import { useCrm, ROLE_COLORS } from '../../../../context/crm';
 export const EmployeeDashboard = () => {
+    const { role } = useCrm();
+    const roleColor = ROLE_COLORS[role]?.color || '#1F6F78';
+    const roleBg = ROLE_COLORS[role]?.bg || '#f0fdf4';
     const { user, switchRole } = useAuth();
     const { setRole } = useRole();
     const navigate = useNavigate();
@@ -304,7 +308,7 @@ export const EmployeeDashboard = () => {
             <div className="min-w-0 space-y-0.5">
               {/* Row 1: Name + Role Chip + ID + ESS */}
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white truncate">
+                <h1 className="text-base sm:text-lg font-serif font-bold tracking-tight text-slate-900 dark:text-white truncate">
                   {user?.name || empProfile?.name || 'Rohan Deshmukh'}
                 </h1>
 
@@ -375,7 +379,7 @@ export const EmployeeDashboard = () => {
 
             <Button variant="primary" size="sm" onClick={() => navigate('/hr/leave/apply')} className={`h-8 text-xs font-semibold shadow-xs ${bannerStyle === 'midnight'
             ? '!bg-gradient-to-r !from-amber-500 !to-amber-600 hover:!from-amber-600 hover:!to-amber-700 !text-slate-950 font-bold'
-            : 'bg-gradient-to-r from-[#1F6F78] to-[#2A8089] hover:from-[#175960] hover:to-[#1F6F78] text-white'}`} leftIcon={<CalendarPlus className="w-3.5 h-3.5"/>}>
+            : 'text-white'}`} style={bannerStyle !== 'midnight' ? { backgroundColor: roleColor, borderColor: roleColor } : undefined} leftIcon={<CalendarPlus className="w-3.5 h-3.5"/>}>
               Apply Leave
             </Button>
           </div>
@@ -385,7 +389,7 @@ export const EmployeeDashboard = () => {
       {/* ── 2. Live Punch Clock & Personal Attendance KPI Row ───────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Live Punch Clock Widget */}
-        <Card className="p-4 sm:p-5 flex flex-col justify-between border-t-2 border-t-emerald-500">
+        <Card className="p-4 sm:p-5 flex flex-col justify-between border-t-2" style={{ borderTopColor: roleColor }}>
           <div>
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
@@ -417,18 +421,18 @@ export const EmployeeDashboard = () => {
             </div>
 
             {/* Shift Remaining Countdown Banner */}
-            <div className="mb-3 p-2.5 rounded-xl bg-gradient-to-r from-teal-50 via-emerald-50/60 to-teal-50 dark:from-teal-950/40 dark:via-emerald-950/30 dark:to-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 shadow-2xs">
+            <div className="mb-3 p-2.5 rounded-xl border shadow-2xs" style={{ background: roleBg, borderColor: `${roleColor}40` }}>
               <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-semibold text-teal-800 dark:text-teal-300 flex items-center gap-1.5">
-                  <Timer className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 animate-pulse"/>
+                <span className="font-semibold flex items-center gap-1.5" style={{ color: roleColor }}>
+                  <Timer className="w-3.5 h-3.5 animate-pulse" style={{ color: roleColor }}/>
                   {shiftRemaining.isOvertime ? 'Overtime Active' : 'Shift Time Remaining'}
                 </span>
-                <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 bg-teal-100/90 dark:bg-teal-900/60 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: `${roleColor}25`, color: roleColor }}>
                   {shiftRemaining.isOvertime ? 'OT Session' : `${shiftRemaining.progressPercent}% Elapsed`}
                 </span>
               </div>
               <div className="flex items-baseline justify-between">
-                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-teal-950 dark:text-teal-100 tabular-nums tracking-wider">
+                <div className="text-2xl sm:text-3xl font-extrabold font-mono tabular-nums tracking-wider text-slate-900 dark:text-white">
                   {shiftRemaining.formatted}
                 </div>
                 <div className="text-right text-[11px] text-slate-500 dark:text-slate-400">
@@ -439,7 +443,7 @@ export const EmployeeDashboard = () => {
               <div className="w-full bg-slate-200/80 dark:bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div className={`h-1.5 rounded-full transition-all duration-700 ease-out ${shiftRemaining.isOvertime
             ? 'bg-amber-500'
-            : 'bg-gradient-to-r from-teal-600 to-emerald-500'}`} style={{ width: `${shiftRemaining.progressPercent}%` }}/>
+            : ''}`} style={!shiftRemaining.isOvertime ? { width: `${shiftRemaining.progressPercent}%`, backgroundColor: roleColor } : { width: `${shiftRemaining.progressPercent}%` }}/>
               </div>
             </div>
 
@@ -493,7 +497,7 @@ export const EmployeeDashboard = () => {
                 </div>
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
+                <span className="text-2xl sm:text-3xl font-serif font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
                   21
                 </span>
                 <span className="text-xs font-semibold text-slate-400">/ 24 Working Days</span>
@@ -514,7 +518,7 @@ export const EmployeeDashboard = () => {
                 </div>
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
+                <span className="text-2xl sm:text-3xl font-serif font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
                   2
                 </span>
                 <span className="text-xs font-semibold text-slate-400">Days (Sep 2026)</span>
@@ -535,7 +539,7 @@ export const EmployeeDashboard = () => {
                 </div>
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
+                <span className="text-2xl sm:text-3xl font-serif font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
                   1
                 </span>
                 <span className="text-xs font-semibold text-slate-400">Grace Applied</span>
@@ -556,7 +560,7 @@ export const EmployeeDashboard = () => {
                 </div>
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
+                <span className="text-2xl sm:text-3xl font-serif font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
                   168
                 </span>
                 <span className="text-xs font-semibold text-slate-400">Total Hours</span>
@@ -574,7 +578,7 @@ export const EmployeeDashboard = () => {
       <Card className="p-4 sm:p-5">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">My Leave Balances (2026)</h2>
+            <h2 className="text-sm font-serif font-bold text-slate-900 dark:text-white">My Leave Balances (2026)</h2>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">Approved quota according to BGSPL HR Policy</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave/balance')} className="text-xs h-7 px-2.5" rightIcon={<ChevronRight className="w-3.5 h-3.5"/>}>
@@ -589,7 +593,7 @@ export const EmployeeDashboard = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500"/>
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 tabular-nums tracking-tight">
+              <span className="text-2xl font-serif font-extrabold text-blue-600 dark:text-blue-400 tabular-nums tracking-tight">
                 {userLeaveBalances.cl.available}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
@@ -612,7 +616,7 @@ export const EmployeeDashboard = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500"/>
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums tracking-tight">
+              <span className="text-2xl font-serif font-extrabold text-amber-600 dark:text-amber-400 tabular-nums tracking-tight">
                 {userLeaveBalances.sl.available}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
@@ -635,7 +639,7 @@ export const EmployeeDashboard = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"/>
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums tracking-tight">
+              <span className="text-2xl font-serif font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums tracking-tight">
                 {userLeaveBalances.el.available}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
@@ -684,7 +688,7 @@ export const EmployeeDashboard = () => {
                 <Receipt className="w-4 h-4"/>
               </div>
               <div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white">My Claims & Expenses</h2>
+                <h2 className="text-xs font-serif font-bold text-slate-900 dark:text-white">My Claims & Expenses</h2>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400">Site travel, lodging & fuel reimbursements</p>
               </div>
             </div>
@@ -727,7 +731,7 @@ export const EmployeeDashboard = () => {
                 <CalendarDays className="w-4 h-4"/>
               </div>
               <div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white">Upcoming Company Holidays</h2>
+                <h2 className="text-xs font-serif font-bold text-slate-900 dark:text-white">Upcoming Company Holidays</h2>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400">Official BGSPL Rajasthan Calendar</p>
               </div>
             </div>

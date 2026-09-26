@@ -195,6 +195,46 @@
   background: var(--teal-50);
 }
 
+.role-pick label.role-pick-admin.is-selected {
+  border-color: #3e6b7c;
+  background: rgba(62, 107, 124, 0.12);
+}
+.role-pick label.role-pick-admin.is-selected strong {
+  color: #2d5361;
+}
+
+.role-pick label.role-pick-hr.is-selected {
+  border-color: #ed6ad3;
+  background: rgba(237, 106, 211, 0.12);
+}
+.role-pick label.role-pick-hr.is-selected strong {
+  color: #b32694;
+}
+
+.role-pick label.role-pick-accountant.is-selected {
+  border-color: #58fd77;
+  background: rgba(88, 253, 119, 0.16);
+}
+.role-pick label.role-pick-accountant.is-selected strong {
+  color: #166534;
+}
+
+.role-pick label.role-pick-team-lead.is-selected {
+  border-color: #e7e098;
+  background: rgba(231, 224, 152, 0.25);
+}
+.role-pick label.role-pick-team-lead.is-selected strong {
+  color: #786c12;
+}
+
+.role-pick label.role-pick-employee.is-selected {
+  border-color: #f12a6c;
+  background: rgba(241, 42, 108, 0.12);
+}
+.role-pick label.role-pick-employee.is-selected strong {
+  color: #c91450;
+}
+
 .role-pick label:has(input:focus-visible) {
   box-shadow: 0 0 0 3px var(--teal-100);
 }

@@ -1,5 +1,5 @@
 import { Menu } from 'lucide-react'
-import { useCrm } from '../../context/crm'
+import { roleSlug, useCrm } from '../../context/crm'
 import { GlobalSearch } from './GlobalSearch'
 import { NotificationsMenu } from './NotificationsMenu'
 import { UserMenu } from './UserMenu'
@@ -16,7 +16,7 @@ export function Topbar({ onMenuClick }) {
       <GlobalSearch />
 
       <div className="topbar-right">
-        {role !== 'Admin' && <span className="role-badge">Viewing as {role}</span>}
+        {role !== 'Admin' && <span className={`role-badge role-badge-${roleSlug(role)}`}>Viewing as {role}</span>}
         <NotificationsMenu />
         <UserMenu />
       </div>

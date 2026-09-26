@@ -93,7 +93,7 @@ function QuoteDrawer({ lead, quote, settings, amount, canAccept, onAccept, onClo
 
   return (
     <Portal>
-      <div className="drawer-root">
+      <div className="drawer-root client-portal">
         <div className="drawer-backdrop" onClick={onClose} />
         <aside className="enquiry-drawer quote-view" role="dialog" aria-modal="true" aria-labelledby={titleId}>
           <header className="drawer-header no-print">
@@ -701,7 +701,7 @@ export function ClientPortalPage() {
   const companyPhone = settings.phone.replace(/\D/g, '').slice(-10)
 
   return (
-    <div className="portal">
+    <div className="portal client-portal">
       <header className="portal-top">
         <div className="portal-top-inner">
           <div className="portal-brand">

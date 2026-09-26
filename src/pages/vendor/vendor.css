@@ -1,3 +1,141 @@
+/* ============================================================
+ *  VENDOR PORTAL — STRICT COLOR PALETTE
+ *
+ *  Palette:
+ *  - Primary Blue:    #1771b7  (RGB: 23, 113, 183)
+ *  - Light Blue:      #81d4fa  (RGB: 129, 212, 250)
+ *  - Blue-Grey:       #8397a3  (RGB: 131, 151, 163)
+ *  - Medium Grey:     #959595  (RGB: 149, 149, 149)
+ *  - Light Grey:      #aaaaaa  (RGB: 170, 170, 170)
+ *
+ *  Strict color-only redesign:
+ *  - 100% preservation of all layouts, typography, shapes & hierarchy
+ *  - Zero green, red, orange, yellow, purple, or teal
+ * ============================================================ */
+
+.vendor-shell,
+.vendor-register,
+.vendor-portal {
+  /* ── Primary Blue (#1771b7) ───────────────────────────────── */
+  --teal-900: #0f5289;
+  --teal-700: #1771b7;
+  --teal-600: #1771b7;
+  --teal-400: #4fa8e0;
+  --teal-200: #81d4fa;
+  --teal-100: #dff1fb;
+  --teal-50:  #eaf3fb;
+
+  /* ── Light Blue (#81d4fa) ─────────────────────────────────── */
+  --gold-600: #1771b7;
+  --gold-500: #81d4fa;
+  --gold-200: #81d4fa;
+  --gold-100: #e1f5fe;
+
+  /* ── Blue-Grey (#8397a3) & Medium Grey (#959595) ──────────── */
+  --ink:           #0f2a3d;
+  --ink-2:         #4a5b68;
+  --ink-3:         #959595;
+  --sidebar-text:  #0f2a3d;
+  --sidebar-muted: #8397a3;
+  --sidebar-icon:  #8397a3;
+  --sidebar-bg:    #edf2f5;
+  --sidebar-line:  #d1dbe0;
+  --chrome-line:   #d1dbe0;
+  --sidebar-hover: rgba(131, 151, 163, 0.12);
+
+  /* ── Light Grey (#aaaaaa) & Dividers ──────────────────────── */
+  --line:      #d1dbe0;
+  --line-soft: #e8eef1;
+
+  /* ── Mountain illustration palette ────────────────────────── */
+  --mtn-far:         #aaaaaa;
+  --mtn-far-2:       #b8c4cb;
+  --mtn-lit:         #99a7b0;
+  --mtn-rock:        #8397a3;
+  --mtn-shade:       #959595;
+  --mtn-deep:        #55626a;
+  --mtn-base:        #38434a;
+  --mtn-forest-back: #6c7c85;
+  --mtn-forest-mid:  #4d5c64;
+  --mtn-forest:      #313f47;
+
+  /* ── Navigation active state ──────────────────────────────── */
+  --nav-active:      #1771b7;
+  --nav-active-edge: #81d4fa;
+
+  /* ── Semantic status overrides (No green, red, orange/amber) ─ */
+  --blue:            #1771b7;
+  --blue-bg:         #eaf3fb;
+  --green:           #1771b7;
+  --green-bg:        #e1f5fe;
+  --amber:           #81d4fa;
+  --amber-bg:        #e1f5fe;
+  --red:             #8397a3;
+  --red-bg:          #edf1f4;
+}
+
+/* ── Tone classes: strict palette mapping ── */
+.vendor-shell .tone-info,
+.vendor-register .tone-info {
+  --tone: #1771b7;
+  --tone-bg: #eaf3fb;
+}
+
+.vendor-shell .tone-attention,
+.vendor-register .tone-attention {
+  --tone: #81d4fa;
+  --tone-bg: #e1f5fe;
+}
+
+.vendor-shell .tone-urgent,
+.vendor-register .tone-urgent {
+  --tone: #8397a3;
+  --tone-bg: #edf1f4;
+}
+
+.vendor-shell .tone-good,
+.vendor-register .tone-good {
+  --tone: #1771b7;
+  --tone-bg: #e1f5fe;
+}
+
+.vendor-shell .tone-neutral,
+.vendor-register .tone-neutral {
+  --tone: #959595;
+  --tone-bg: #f4f5f6;
+}
+
+/* Icon contrast in tone-attention stat card */
+.vendor-shell .stat-card.tone-attention .stat-icon {
+  color: #1771b7;
+}
+
+/* Status badge color overrides */
+.vendor-shell .nav-badge.is-info {
+  background: #1771b7;
+  color: #ffffff;
+}
+
+.vendor-shell .nav-badge.is-attention {
+  background: #81d4fa;
+  color: #0f2a3d;
+}
+
+.vendor-shell .nav-badge.is-urgent {
+  background: #8397a3;
+  color: #ffffff;
+}
+
+.vendor-shell .nav-badge.is-teal {
+  background: #1771b7;
+  color: #ffffff;
+}
+
+/* Bell notification dot */
+.vendor-shell .bell-dot {
+  background: #81d4fa;
+}
+
 /* ---------- Vendor portal: the client portal's frame, with work orders instead of projects ---------- */
 .vendor-order {
   display: flex;
@@ -203,7 +341,7 @@
   border: 1px dashed var(--teal-200);
   border-radius: var(--radius);
   background: var(--teal-50);
-  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 15px;
   letter-spacing: 0.12em;
   color: var(--ink);

@@ -1,7 +1,7 @@
 import { Check, ChevronDown, History, LogOut, RotateCcw, Send, Settings } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ROLE_ACCESS, ROLE_USERS, ROLES, canOpen, initialsOf, useCrm } from '../../context/crm'
+import { ROLE_ACCESS, ROLE_USERS, ROLES, canOpen, initialsOf, roleSlug, useCrm } from '../../context/crm'
 import { RoleLink } from '../common/RoleLink'
 import { usePopover } from '../common/usePopover'
 import { FIELD_MEMBERS } from '../../data/staff'
@@ -31,7 +31,7 @@ export function UserMenu() {
   return (
     <div className="popover-wrap" ref={ref}>
       <button className="user-chip" onClick={() => setOpen(!open)} aria-expanded={open} aria-haspopup="menu">
-        <span className="avatar">{initialsOf(user.name)}</span>
+        <span className={`avatar avatar-role-${roleSlug(role)}`}>{initialsOf(user.name)}</span>
         <span className="user-meta">
           <strong>{user.name}</strong>
           <span>{user.title}</span>
@@ -42,17 +42,21 @@ export function UserMenu() {
         <div className="popover user-menu" role="menu">
           <p className="user-menu-label">Switch role</p>
           <div className="user-menu-roles">
-            {ROLES.map((r) =>
-              r === 'Employee' ? (
+            {ROLES.map((r) => {
+              const slug = roleSlug(r)
+              return r === 'Employee' ? (
                 <div key={r} className="role-group">
                   <button
-                    className={`role-row ${role === r ? 'is-selected' : ''}`}
+                    className={`role-row role-${slug} ${role === r ? 'is-selected' : ''}`}
                     title={ROLE_ACCESS[r].note}
                     aria-expanded={teamOpen}
                     onClick={() => setTeamOpen(!teamOpen)}
                   >
                     <span className="role-row-text">
-                      <span className="role-row-name">{r}</span>
+                      <span className="role-row-name">
+                        <span className="role-dot" aria-hidden="true" />
+                        {r}
+                      </span>
                       <span className="role-row-brief">{ROLE_ACCESS[r].brief}</span>
                     </span>
                     <span className="role-row-person">{role === r ? fieldMember : `${FIELD_MEMBERS.length} people`}</span>
@@ -67,7 +71,7 @@ export function UserMenu() {
                             key={m.name}
                             role="menuitemradio"
                             aria-checked={current}
-                            className={`role-row role-member ${current ? 'is-selected' : ''}`}
+                            className={`role-row role-member role-${slug} ${current ? 'is-selected' : ''}`}
                             onClick={() => switchTo(r, m.name)}
                           >
                             <span className="role-row-name">{m.name}</span>
@@ -84,19 +88,22 @@ export function UserMenu() {
                   key={r}
                   role="menuitemradio"
                   aria-checked={role === r}
-                  className={`role-row ${role === r ? 'is-selected' : ''}`}
+                  className={`role-row role-${slug} ${role === r ? 'is-selected' : ''}`}
                   title={ROLE_ACCESS[r].note}
                   onClick={() => switchTo(r)}
                 >
                   <span className="role-row-text">
-                    <span className="role-row-name">{r}</span>
+                    <span className="role-row-name">
+                      <span className="role-dot" aria-hidden="true" />
+                      {r}
+                    </span>
                     <span className="role-row-brief">{ROLE_ACCESS[r].brief}</span>
                   </span>
                   <span className="role-row-person">{ROLE_USERS[r].name}</span>
                   <Check size={15} className="role-row-check" aria-hidden="true" />
                 </button>
-              ),
-            )}
+              )
+            })}
           </div>
 
           <div className="popover-divider" />

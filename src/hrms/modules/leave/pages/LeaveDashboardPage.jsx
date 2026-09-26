@@ -71,7 +71,7 @@ export const LeaveDashboardPage = () => {
                 <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: b.color }}/>
               </div>
               <div className="flex items-baseline gap-2 mt-1">
-                <span className="text-2xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">{b.available}</span>
+                <span className="text-2xl font-serif font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">{b.available}</span>
                 <span className="text-xs font-semibold text-slate-400">/ {b.totalAllocated} days</span>
               </div>
             </div>

@@ -28,7 +28,7 @@ function UpiQr({ link }) {
   const [src, setSrc] = useState('')
   useEffect(() => {
     let live = true
-    QRCode.toDataURL(link, { margin: 1, width: 200, color: { dark: '#12303f', light: '#ffffff' } }).then((url) => live && setSrc(url))
+    QRCode.toDataURL(link, { margin: 1, width: 200, color: { dark: '#474747', light: '#ffffff' } }).then((url) => live && setSrc(url))
     return () => {
       live = false
     }
@@ -76,7 +76,7 @@ function PayDrawer({ lead, due, onClose }) {
 
   return (
     <Portal>
-      <div className="drawer-root">
+      <div className="drawer-root client-portal">
         <div className="drawer-backdrop" onClick={onClose} />
         <aside className="enquiry-drawer pay-drawer" role="dialog" aria-modal="true" aria-labelledby={titleId}>
           <header className="drawer-header">

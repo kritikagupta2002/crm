@@ -1,7 +1,7 @@
 import { Bell, Building2, Check, FileText, Layers, RotateCcw, ShieldCheck, Workflow } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { BILL_ROLES, PERMISSIONS, ROLE_ACCESS, ROLE_USERS, initialsOf, useCrm } from '../../context/crm'
+import { BILL_ROLES, PERMISSIONS, ROLE_ACCESS, ROLE_USERS, initialsOf, roleSlug, useCrm } from '../../context/crm'
 import { LOST_REASONS, SERVICE_DETAILS, SERVICES } from '../../data/mockData'
 import { FIELD_MEMBERS } from '../../data/staff'
 import { AUTOMATIONS, CHANNELS, automationOf } from '../../utils/automations'
@@ -182,7 +182,7 @@ export function SettingsPage() {
                 <li key={person.name}>
                   <span className="avatar small-avatar">{initialsOf(person.name)}</span>
                   <strong>{person.name}</strong>
-                  <span className="pill tone-neutral role-pill">{role}</span>
+                  <span className={`pill role-pill role-pill-${roleSlug(role)}`}>{role}</span>
                 </li>
               ))}
           </ul>

@@ -2,7 +2,7 @@ import { Download, History, Search } from 'lucide-react'
 import { useState } from 'react'
 import { usePaged } from '../../components/common/Pager'
 import { RoleLink } from '../../components/common/RoleLink'
-import { ROLES, useCrm } from '../../context/crm'
+import { ROLES, roleSlug, useCrm } from '../../context/crm'
 import { TODAY } from '../../data/mockData'
 import { seededInteractions } from '../../utils/clientHistory'
 import { addDays, formatDayMonth, formatTime, toISODate } from '../../utils/date'
@@ -139,7 +139,7 @@ export function AuditLogPage() {
                     <td className="nowrap">{whenOf(e)}</td>
                     <td>
                       <div className="cell-strong">{e.who}</div>
-                      <span className={`pill role-pill ${e.role === 'Client' ? 'tone-info' : e.role === 'Vendor' ? 'tone-attention' : 'tone-neutral'}`}>{e.role}</span>
+                      <span className={`pill role-pill role-pill-${roleSlug(e.role)} ${e.role === 'Client' ? 'tone-info' : e.role === 'Vendor' ? 'tone-attention' : ''}`}>{e.role}</span>
                     </td>
                     <td>
                       {e.lead ? (
