@@ -9,6 +9,25 @@ import { Select } from '@/components/common/Select';
 import { DatePicker } from '@/components/common/DatePicker';
 import { useToast } from '@/contexts/ToastContext';
 import { employeeService } from '@/modules/employees/services/employee.service';
+import { storage } from '@/core/storage/storage';
+
+function getNextEmployeeId() {
+    try {
+        const employees = storage.getEmployees();
+        const maxNum = employees.reduce((max, emp) => {
+            const match = String(emp.employeeId || '').match(/BGS-(\d+)/i);
+            if (match) {
+                const num = parseInt(match[1], 10);
+                return Math.max(max, isNaN(num) ? 0 : num);
+            }
+            return max;
+        }, 0);
+        return `BGS-${String(maxNum + 1).padStart(3, '0')}`;
+    } catch {
+        return 'BGS-011';
+    }
+}
+
 const STEPS = [
     { id: 1, label: 'Basic Details', icon: User, desc: 'Identity & Contacts' },
     { id: 2, label: 'Job Details', icon: Briefcase, desc: 'Department & Role' },
@@ -22,7 +41,7 @@ export const AddEmployeePage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     // Form State
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState(() => ({
         // Step 1: Basic Details
         fullName: '',
         avatarUrl: '',
@@ -37,7 +56,7 @@ export const AddEmployeePage = () => {
         state: 'Rajasthan',
         pincode: '302017',
         // Step 2: Job Details
-        employeeId: `BGS-0${Math.floor(11 + Math.random() * 89)}`,
+        employeeId: getNextEmployeeId(),
         department: 'Geology & Mineral Exploration',
         designation: 'Field Geologist',
         joiningDate: new Date().toLocaleDateString('en-CA'),
@@ -59,7 +78,7 @@ export const AddEmployeePage = () => {
         emergencyRelation: 'Parent / Spouse',
         emergencyPhone: '',
         role: 'employee',
-    });
+    }));
     // Statutory Age Bounds (18 to 65 years)
     const minDobDate = '1961-01-01'; // 65 yrs max age
     const maxDobDate = useMemo(() => {

@@ -27,10 +27,20 @@ export const MonthlyAttendancePage = () => {
         }
         return rawEmployees;
     }, [isEmp, empId, rawEmployees]);
-    const [currentMonth, setCurrentMonth] = useState('September 2026');
+    const [activeDate, setActiveDate] = useState(() => new Date(2026, 8, 1)); // Default: September 2026
+    const currentMonth = activeDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const handlePrevMonth = () => {
+        setActiveDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    };
+
+    const handleNextMonth = () => {
+        setActiveDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    };
+
     // Filtered employees
     const filteredEmployees = employees.filter((emp) => {
         if (!isEmp) {
@@ -48,31 +58,122 @@ export const MonthlyAttendancePage = () => {
         }
         return true;
     });
-    // Days 1 to 30
-    const days = Array.from({ length: 30 }, (_, i) => i + 1);
-    // Helper to generate consistent mock status for matrix cells
-    const getCellStatus = (empIndex, day) => {
-        // Sundays (e.g. 6, 13, 20, 27)
-        if (day % 7 === 6)
+
+    // Dynamic days for active month
+    const totalDays = new Date(activeDate.getFullYear(), activeDate.getMonth() + 1, 0).getDate();
+    const days = Array.from({ length: totalDays }, (_, i) => i + 1);
+
+    // Live storage data
+    const allAttendance = useMemo(() => storage.getAttendance() || [], []);
+    const allLeaves = useMemo(() => storage.getLeaveRequests() || [], []);
+
+    const attendanceMap = useMemo(() => {
+        const map = new Map();
+        for (const rec of allAttendance) {
+            map.set(`${rec.employeeId}_${rec.date}`, rec);
+        }
+        return map;
+    }, [allAttendance]);
+
+    // Real status for matrix cells based on employee and day
+    const getCellStatus = (emp, day) => {
+        const year = activeDate.getFullYear();
+        const month = String(activeDate.getMonth() + 1).padStart(2, '0');
+        const dayStr = String(day).padStart(2, '0');
+        const dateIso = `${year}-${month}-${dayStr}`;
+        const cellDate = new Date(year, activeDate.getMonth(), day);
+        const dayOfWeek = cellDate.getDay();
+
+        // Weekly Off (Sunday)
+        if (dayOfWeek === 0) {
             return { label: 'WO', bg: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' };
-        // Employee 8 on leave days 18, 19
-        if (empIndex === 7 && (day === 18 || day === 19))
-            return { label: 'LV', bg: 'bg-purple-100 text-purple-700 font-bold dark:bg-purple-950/70 dark:text-purple-300' };
-        // Employee 9 absent day 18
-        if (empIndex === 8 && day === 18)
-            return { label: 'A', bg: 'bg-rose-100 text-rose-700 font-bold dark:bg-rose-950/70 dark:text-rose-300' };
-        // Employee 5 late on day 18
-        if (empIndex === 4 && day === 18)
-            return { label: 'L', bg: 'bg-amber-100 text-amber-700 font-bold dark:bg-amber-950/70 dark:text-amber-300' };
-        // Future days (say > 18)
-        if (day > 18)
+        }
+
+        // Future day check
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (cellDate > today) {
             return { label: '-', bg: 'text-slate-300 dark:text-slate-600' };
+        }
+
+        // Check real attendance punch from storage
+        const rec = attendanceMap.get(`${emp.employeeId}_${dateIso}`);
+        if (rec) {
+            if (rec.status === 'Present') {
+                return { label: 'P', bg: 'bg-emerald-50 text-emerald-700 font-semibold dark:bg-emerald-950/70 dark:text-emerald-300' };
+            }
+            if (rec.status === 'Late') {
+                return { label: 'L', bg: 'bg-amber-100 text-amber-700 font-bold dark:bg-amber-950/70 dark:text-amber-300' };
+            }
+            if (rec.status === 'Absent') {
+                return { label: 'A', bg: 'bg-rose-100 text-rose-700 font-bold dark:bg-rose-950/70 dark:text-rose-300' };
+            }
+            if (rec.status === 'On Leave' || rec.status === 'Leave') {
+                return { label: 'LV', bg: 'bg-purple-100 text-purple-700 font-bold dark:bg-purple-950/70 dark:text-purple-300' };
+            }
+        }
+
+        // Check approved leaves
+        const hasLeave = allLeaves.some((l) => 
+            l.employeeId === emp.employeeId && 
+            (l.status === 'Approved' || l.status === 'HR Approved') &&
+            l.startDate <= dateIso && l.endDate >= dateIso
+        );
+        if (hasLeave) {
+            return { label: 'LV', bg: 'bg-purple-100 text-purple-700 font-bold dark:bg-purple-950/70 dark:text-purple-300' };
+        }
+
+        // Deterministic status for past weekdays without punch
+        const seed = (parseInt(String(emp.employeeId).replace(/\D/g, '') || '1', 10) * 17 + day * 13) % 100;
+        if (seed < 4) {
+            return { label: 'A', bg: 'bg-rose-100 text-rose-700 font-bold dark:bg-rose-950/70 dark:text-rose-300' };
+        }
+        if (seed < 12) {
+            return { label: 'L', bg: 'bg-amber-100 text-amber-700 font-bold dark:bg-amber-950/70 dark:text-amber-300' };
+        }
         return { label: 'P', bg: 'bg-emerald-50 text-emerald-700 font-semibold dark:bg-emerald-950/70 dark:text-emerald-300' };
     };
+
+    const getEmpMonthlyStats = (emp) => {
+        let present = 0, absent = 0, leave = 0, late = 0, wo = 0;
+        for (const d of days) {
+            const s = getCellStatus(emp, d);
+            if (s.label === 'P') present++;
+            else if (s.label === 'L') { present++; late++; }
+            else if (s.label === 'A') absent++;
+            else if (s.label === 'LV') leave++;
+            else if (s.label === 'WO') wo++;
+        }
+        return { present, absent, leave, late, wo };
+    };
+
+    const selfStats = useMemo(() => {
+        if (!employees.length) return { present: 0, absent: 0, leave: 0, late: 0, wo: 0 };
+        return getEmpMonthlyStats(employees[0]);
+    }, [employees, days, activeDate, attendanceMap, allLeaves]);
+
+    const handleExportMatrix = () => {
+        const headers = ['Employee ID,Staff Member,Department,Project,' + days.map((d) => `Day ${d}`).join(',') + ',Total Present,Total Absent,Total Leave'];
+        const rows = filteredEmployees.map((emp) => {
+            const stats = getEmpMonthlyStats(emp);
+            const dayCols = days.map((d) => getCellStatus(emp, d).label);
+            return `"${emp.employeeId}","${emp.name}","${emp.employment.department}","${getEmployeeProject(emp)}",${dayCols.join(',')},${stats.present},${stats.absent},${stats.leave}`;
+        });
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `Monthly_Attendance_${activeDate.getFullYear()}_${String(activeDate.getMonth() + 1).padStart(2, '0')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success(`Exported monthly attendance matrix for ${currentMonth}.`, 'Export Complete');
+    };
+
     return (<div className="space-y-6">
       <PageHeader title={isEmp ? 'My Monthly Attendance Matrix' : 'Monthly Attendance Matrix'} description={isEmp
-            ? 'Your personal monthly presence, shift records, and weekly-off matrix for September 2026.'
-            : 'Comprehensive monthly presence, shift leave, and weekly-off matrix across all personnel.'} breadcrumbs={[
+            ? `Your personal monthly presence, shift records, and weekly-off matrix for ${currentMonth}.`
+            : `Comprehensive monthly presence, shift leave, and weekly-off matrix across all personnel for ${currentMonth}.`} breadcrumbs={[
             { label: isEmp ? 'My Portal' : 'Dashboard', path: '/hr' },
             { label: 'Attendance', path: '/hr/attendance' },
             { label: isEmp ? 'My Monthly Matrix' : 'Monthly Matrix' },
@@ -80,8 +181,8 @@ export const MonthlyAttendancePage = () => {
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/attendance')} leftIcon={<ArrowLeft className="w-4 h-4"/>}>
               {isEmp ? 'My Attendance Log' : 'Back to Overview'}
             </Button>
-            <Button variant="primary" size="sm" onClick={() => toast.success(isEmp ? 'Your monthly attendance matrix exported.' : 'Monthly biometric attendance matrix exported to Excel.', 'Export Generated')} leftIcon={<Download className="w-4 h-4"/>}>
-              {isEmp ? 'Export My Log (.xlsx)' : 'Export Matrix (.xlsx)'}
+            <Button variant="primary" size="sm" onClick={handleExportMatrix} leftIcon={<Download className="w-4 h-4"/>}>
+              {isEmp ? 'Export My Log (.csv)' : 'Export Matrix (.csv)'}
             </Button>
           </div>}/>
 
@@ -93,7 +194,7 @@ export const MonthlyAttendancePage = () => {
             </div>
             <div>
               <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Present Days</p>
-              <p className="text-lg font-black text-slate-900 dark:text-white">21 / 24 Days</p>
+              <p className="text-lg font-black text-slate-900 dark:text-white">{selfStats.present} / {days.length - selfStats.wo} Days</p>
             </div>
           </Card>
           <Card className="p-3.5 flex items-center gap-3 border-l-4 border-l-amber-500">
@@ -102,7 +203,7 @@ export const MonthlyAttendancePage = () => {
             </div>
             <div>
               <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Late Marks</p>
-              <p className="text-lg font-black text-slate-900 dark:text-white">1 (Within Grace)</p>
+              <p className="text-lg font-black text-slate-900 dark:text-white">{selfStats.late} (Within Grace)</p>
             </div>
           </Card>
           <Card className="p-3.5 flex items-center gap-3 border-l-4 border-l-purple-500">
@@ -111,7 +212,7 @@ export const MonthlyAttendancePage = () => {
             </div>
             <div>
               <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Leaves Taken</p>
-              <p className="text-lg font-black text-slate-900 dark:text-white">2 Days (Approved)</p>
+              <p className="text-lg font-black text-slate-900 dark:text-white">{selfStats.leave} Days (Approved)</p>
             </div>
           </Card>
           <Card className="p-3.5 flex items-center gap-3 border-l-4 border-l-slate-400">
@@ -120,7 +221,7 @@ export const MonthlyAttendancePage = () => {
             </div>
             <div>
               <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Weekly Offs</p>
-              <p className="text-lg font-black text-slate-900 dark:text-white">4 Sundays</p>
+              <p className="text-lg font-black text-slate-900 dark:text-white">{selfStats.wo} Sundays</p>
             </div>
           </Card>
         </div>)}
@@ -128,11 +229,11 @@ export const MonthlyAttendancePage = () => {
       {/* Month Navigator & Legend Bar */}
       <Card className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="p-1.5" onClick={() => toast.info('Navigating to previous pay period', 'Calendar')}>
+          <Button variant="outline" size="sm" className="p-1.5" onClick={handlePrevMonth} title="Previous Month">
             <ChevronLeft className="w-4 h-4"/>
           </Button>
-          <span className="text-sm font-bold text-slate-900 dark:text-slate-100 px-3">{currentMonth}</span>
-          <Button variant="outline" size="sm" className="p-1.5" onClick={() => toast.info('Navigating to next pay period', 'Calendar')}>
+          <span className="text-sm font-bold text-slate-900 dark:text-slate-100 px-3 min-w-[140px] text-center">{currentMonth}</span>
+          <Button variant="outline" size="sm" className="p-1.5" onClick={handleNextMonth} title="Next Month">
             <ChevronRight className="w-4 h-4"/>
           </Button>
         </div>
@@ -233,16 +334,21 @@ export const MonthlyAttendancePage = () => {
                       </div>
                     </td>
                     {days.map((day) => {
-                const status = getCellStatus(empIdx, day);
-                return (<td key={day} className="p-1 border-r border-slate-100 dark:border-[#253344]">
-                          <span className={`inline-block w-6 h-6 leading-6 rounded text-[10px] ${status.bg}`}>
-                            {status.label}
-                          </span>
-                        </td>);
-            })}
-                    <td className="font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/30 dark:bg-emerald-950/20">15</td>
-                    <td className="font-bold text-rose-700 dark:text-rose-400 bg-rose-50/30 dark:bg-rose-950/20">{empIdx === 8 ? 1 : 0}</td>
-                    <td className="font-bold text-purple-700 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20">{empIdx === 7 ? 2 : 0}</td>
+                      const status = getCellStatus(emp, day);
+                      return (<td key={day} className="p-1 border-r border-slate-100 dark:border-[#253344]">
+                                <span className={`inline-block w-6 h-6 leading-6 rounded text-[10px] ${status.bg}`}>
+                                  {status.label}
+                                </span>
+                              </td>);
+                    })}
+                    {(() => {
+                      const stats = getEmpMonthlyStats(emp);
+                      return (<>
+                        <td className="font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/30 dark:bg-emerald-950/20">{stats.present}</td>
+                        <td className="font-bold text-rose-700 dark:text-rose-400 bg-rose-50/30 dark:bg-rose-950/20">{stats.absent}</td>
+                        <td className="font-bold text-purple-700 dark:text-purple-400 bg-purple-50/30 dark:bg-purple-950/20">{stats.leave}</td>
+                      </>);
+                    })()}
                   </tr>)))}
             </tbody>
           </table>

@@ -371,8 +371,15 @@ select,
 input,
 textarea,
 optgroup {
-  font-family: inherit;
+  font-family: var(--font-sans);
   color: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  font-family: var(--font-sans);
+  color: var(--ink-3);
+  opacity: 1;
 }
 
 /* Monospace fonts for code, metrics, voucher IDs, and hashes */

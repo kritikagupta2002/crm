@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
     Clock, CheckCircle2, XCircle, HelpCircle, ShieldCheck, 
     Paperclip, MessageSquare, Eye, 
@@ -19,14 +19,15 @@ import { expenseService } from '@/modules/expenses/services/expense.service';
 import { reimbursementService } from '@/modules/reimbursement/services/reimbursement.service';
 import { STANDARD_PROJECTS } from '@/core/constants/projects';
 import { AttachmentPreviewModal } from '@/components/common/AttachmentPreviewModal';
+import { storage } from '@/core/storage/storage';
 
 export const FinanceExpenseClaimsPage = () => {
     const { user } = useAuth();
     const toast = useToast();
 
-    const [expenses, setExpenses] = useState([]);
-    const [reimbursements, setReimbursements] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [expenses, setExpenses] = useState(() => storage.getExpenses() || []);
+    const [reimbursements, setReimbursements] = useState(() => storage.getReimbursements() || []);
+    const [isLoading, setIsLoading] = useState(false);
 
     // Filters
     const [typeFilter, setTypeFilter] = useState('all'); // all | expense | reimbursement
@@ -60,8 +61,7 @@ export const FinanceExpenseClaimsPage = () => {
 
     const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
 
-    const loadAllClaims = async () => {
-        setIsLoading(true);
+    const loadAllClaims = useCallback(async () => {
         try {
             const [expData, rmbData] = await Promise.all([
                 expenseService.getExpenses(),
@@ -69,16 +69,14 @@ export const FinanceExpenseClaimsPage = () => {
             ]);
             setExpenses(expData || []);
             setReimbursements(rmbData || []);
-        } catch (err) {
+        } catch {
             toast.error('Failed to load expense and reimbursement claims', 'Error');
-        } finally {
-            setIsLoading(false);
         }
-    };
+    }, [toast]);
 
     useEffect(() => {
         loadAllClaims();
-    }, []);
+    }, [loadAllClaims]);
 
     // Combine all claims into a unified schema for finance review
     const unifiedClaims = useMemo(() => {

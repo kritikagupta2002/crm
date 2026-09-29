@@ -1384,14 +1384,38 @@ export const ReportsPage = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => toast.success(`Generated ${customModule}_export.csv ready for download.`, 'CSV Export Ready')} leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600"/>}>
-                  Export CSV
-                </Button>
-                <Button variant="primary" size="sm" onClick={() => toast.success(`Executive Excel workbook for ${customModule} created.`, 'Excel Generated')} leftIcon={<Download className="w-3.5 h-3.5"/>}>
-                  Download Excel (.XLSX)
-                </Button>
-              </div>
+              {(() => {
+                const handleExportCustomCsv = (isExcel = false) => {
+                  const dataset = customDataset[customModule] || [];
+                  if (!dataset.length) {
+                    toast.info('No data records available to export for this module.', 'Notice');
+                    return;
+                  }
+                  const fieldDefs = selectedFields.map((fId) => moduleFieldMap[customModule]?.find((f) => f.id === fId) || { id: fId, label: fId });
+                  const headers = fieldDefs.map((f) => `"${f.label}"`).join(',');
+                  const rows = dataset.map((row) => fieldDefs.map((f) => `"${row[f.id] ?? ''}"`).join(','));
+                  const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+                  const encodedUri = encodeURI(csvContent);
+                  const link = document.createElement('a');
+                  link.href = encodedUri;
+                  link.download = `${customModule}_export_${new Date().toLocaleDateString('en-CA')}.csv`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success(`Exported ${dataset.length} ${customModule} records to ${isExcel ? 'Excel workbook (.csv)' : 'CSV'}.`, 'Export Complete');
+                };
+
+                return (
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => handleExportCustomCsv(false)} leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600"/>}>
+                      Export CSV
+                    </Button>
+                    <Button variant="primary" size="sm" onClick={() => handleExportCustomCsv(true)} leftIcon={<Download className="w-3.5 h-3.5"/>}>
+                      Download Excel (.XLSX)
+                    </Button>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="overflow-x-auto custom-sidebar-scroll mt-4">

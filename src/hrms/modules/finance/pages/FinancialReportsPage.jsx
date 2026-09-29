@@ -113,7 +113,37 @@ export const FinancialReportsPage = () => {
         toast.success(`Generated ${activeReport.title} for ${startDate} to ${endDate}`, 'Report Compiled');
     };
     const handleDownload = () => {
-        toast.success(`Exporting ${activeReport.title} in ${exportFormat} format...`, 'File Downloading');
+        const reportData = [
+            `=================================================================`,
+            `          BANSAL GEO SOLUTIONS PVT. LTD. - FINANCIAL STATEMENT   `,
+            `=================================================================`,
+            `Report: ${activeReport.title}`,
+            `Category: ${activeReport.category}`,
+            `Reporting Window: ${startDate} to ${endDate}`,
+            `Format: ${exportFormat}`,
+            `Generated On: ${new Date().toLocaleString()}`,
+            `-----------------------------------------------------------------`,
+            `Gross Exploration & Drilling Revenue: INR 48,35,640`,
+            `Direct Geological & Field Operations Cost: INR -22,14,300`,
+            `Geoscientist & Staff Payroll Compensation: INR -14,60,000`,
+            `Rig Equipment Depreciation & Software Licences: INR -2,40,000`,
+            `Statutory Tax Provision: INR -1,65,840`,
+            `Net Profit After Tax (PAT): INR 7,55,500`,
+            `-----------------------------------------------------------------`,
+            `Status: Audited & Approved by CFO`,
+            `=================================================================`
+        ].join('\n');
+        const ext = exportFormat === 'CSV' ? 'csv' : (exportFormat === 'Excel' ? 'csv' : 'txt');
+        const blob = new Blob([reportData], { type: exportFormat === 'CSV' ? 'text/csv;charset=utf-8' : 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${activeReport.id}_${startDate}_${endDate}.${ext}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success(`Exported ${activeReport.title} successfully.`, 'File Downloaded');
     };
     return (<div className="space-y-6 font-inter">
       <PageHeader title="Financial Reports" description="Generate, audit, and export consolidated financial statements, statutory tax schedules, and project cost analyses." breadcrumbs={[
@@ -200,7 +230,7 @@ export const FinancialReportsPage = () => {
                   Fiscal Reporting Window: {startDate} to {endDate}
                 </p>
               </div>
-              <Button variant="outline" size="sm" leftIcon={<Printer className="w-3.5 h-3.5"/>} onClick={() => toast.success('Sent to corporate printer.', 'Print Triggered')}>
+              <Button variant="outline" size="sm" leftIcon={<Printer className="w-3.5 h-3.5"/>} onClick={() => window.print()}>
                 Print
               </Button>
             </div>

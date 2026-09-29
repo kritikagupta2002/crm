@@ -18,6 +18,26 @@ export const PayrollHistoryPage = () => {
         };
         load();
     }, []);
+
+    const handleExportLedger = () => {
+        if (!runs.length) {
+            toast.info('No payroll run records available to export.', 'Export Notice');
+            return;
+        }
+        const headers = ['Run ID,Payroll Month,Total Employees,Gross Payroll (INR),Net Disbursed (INR),Deductions (INR),Processed Date,Authorized By,Status'];
+        const rows = runs.map((r) => 
+            `"${r.id}","${r.month}",${r.totalEmployees},${r.totalGross},${r.totalNet},${r.totalDeductions},"${r.processedDate}","${r.processedBy}","${r.status}"`
+        );
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.href = encodedUri;
+        link.download = `Payroll_Run_History_Ledger_${new Date().toLocaleDateString('en-CA')}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Payroll history audit ledger exported to CSV.', 'Export Complete');
+    };
     const columns = [
         {
             key: 'month',
@@ -85,7 +105,7 @@ export const PayrollHistoryPage = () => {
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/payroll')} leftIcon={<ArrowLeft className="w-4 h-4"/>}>
               Payroll Overview
             </Button>
-            <Button variant="primary" size="sm" onClick={() => toast.success('Exporting fiscal year payroll audit ledger.', 'Export Ready')} leftIcon={<Download className="w-4 h-4"/>}>
+            <Button variant="primary" size="sm" onClick={handleExportLedger} leftIcon={<Download className="w-4 h-4"/>}>
               Export FY Ledger
             </Button>
           </div>}/>

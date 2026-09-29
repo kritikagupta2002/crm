@@ -23,10 +23,16 @@ export const DailyAttendancePage = () => {
         const load = async () => {
             const data = await attendanceService.getAttendance();
             setRecords(data);
+            if (data && data.length > 0 && !data.some((d) => d.date === selectedDate)) {
+                const latestDate = [...new Set(data.map((d) => d.date))].sort().pop();
+                if (latestDate) setSelectedDate(latestDate);
+            }
         };
         load();
     }, []);
     const filteredRecords = records.filter((r) => {
+        if (selectedDate && r.date !== selectedDate)
+            return false;
         if (selectedDept !== 'all' && r.department !== selectedDept)
             return false;
         if (selectedProject !== 'all' && getEmployeeProjectById(r.employeeId) !== selectedProject)
@@ -37,6 +43,27 @@ export const DailyAttendancePage = () => {
             return false;
         return true;
     });
+
+    const handleExportCSV = () => {
+        if (!filteredRecords.length) {
+            toast.info('No attendance punch records found for the selected date and filters.', 'Export Notice');
+            return;
+        }
+        const headers = ['Emp ID,Staff Member,Department,Project / Site,Check In,Check Out,Working Hours,Late By,Overtime,Punch Source,Status'];
+        const rows = filteredRecords.map((r) => {
+            const proj = getEmployeeProjectById(r.employeeId);
+            return `"${r.employeeId}","${r.employeeName}","${r.department}","${proj}","${r.checkIn}","${r.checkOut}","${r.workingHours}","${r.lateBy}","${r.overtime}","${r.punchSource}","${r.status}"`;
+        });
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `Daily_Attendance_${selectedDate || 'all'}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success(`Exported ${filteredRecords.length} attendance records to CSV for ${selectedDate}.`, 'Export Complete');
+    };
     const columns = [
         {
             key: 'employeeId',
@@ -111,7 +138,7 @@ export const DailyAttendancePage = () => {
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/attendance')} leftIcon={<ArrowLeft className="w-4 h-4"/>}>
               Back to Overview
             </Button>
-            <Button variant="outline" size="sm" onClick={() => toast.success('Exporting daily shift punch records.', 'Export Complete')} leftIcon={<Download className="w-4 h-4"/>}>
+            <Button variant="outline" size="sm" onClick={handleExportCSV} leftIcon={<Download className="w-4 h-4"/>}>
               Export Day Report
             </Button>
           </div>}/>

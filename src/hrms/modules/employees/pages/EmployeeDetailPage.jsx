@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit2, Mail, Phone, MapPin, Calendar, Building2, FileText, Award, CheckCircle2, Eye, QrCode } from 'lucide-react';
+import { ArrowLeft, Edit2, Mail, Phone, MapPin, Calendar, Building2, FileText, Award, CheckCircle2, Eye, QrCode, Download } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Card } from '@/components/common/Card';
 import { Tabs } from '@/components/common/Tabs';
@@ -28,6 +28,7 @@ export const EmployeeDetailPage = () => {
     const [activeTab, setActiveTab] = useState('overview');
     const [isLoading, setIsLoading] = useState(true);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+    const [previewDoc, setPreviewDoc] = useState(null);
     // Dynamic Module Data
     const [leaveBalances, setLeaveBalances] = useState([]);
     const [leaveRequests, setLeaveRequests] = useState([]);
@@ -869,7 +870,7 @@ export const EmployeeDetailPage = () => {
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
                         {doc.status}
                       </span>
-                      <Button variant="ghost" size="sm" onClick={() => toast.info(`Viewing ${doc.fileName}`, 'Document Preview')}>
+                      <Button variant="ghost" size="sm" onClick={() => setPreviewDoc(doc)} title={`Preview ${doc.fileName}`}>
                         <Eye className="w-3.5 h-3.5"/>
                       </Button>
                     </div>
@@ -878,6 +879,65 @@ export const EmployeeDetailPage = () => {
                 No documents currently uploaded. Go to Employee Documents to upload verified credentials.
               </div>)}
           </Card>)}
+
+        {/* Document Preview Modal */}
+        {previewDoc && (
+          <Modal isOpen={!!previewDoc} onClose={() => setPreviewDoc(null)} title={previewDoc.documentType}>
+            <div className="space-y-4 text-xs font-inter">
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">File Name:</span>
+                  <span className="font-mono text-teal-800 dark:text-teal-400">{previewDoc.fileName}</span>
+                </div>
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">Document Type:</span>
+                  <span>{previewDoc.documentType}</span>
+                </div>
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">File Size:</span>
+                  <span>{previewDoc.fileSize}</span>
+                </div>
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <span className="font-bold text-slate-700 dark:text-slate-300">Verification Status:</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
+                    {previewDoc.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-xl border border-dashed border-teal-600/30 dark:border-teal-500/30 bg-teal-50/20 dark:bg-teal-950/10 text-center space-y-2">
+                <FileText className="w-10 h-10 text-teal-700 dark:text-teal-400 mx-auto" />
+                <p className="font-semibold text-slate-800 dark:text-slate-200">Official Corporate Record Verified</p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400">Digitally certified document under Bansal Geo HR Compliance</p>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <Button variant="outline" size="sm" onClick={() => setPreviewDoc(null)}>
+                  Close
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  leftIcon={<Download className="w-4 h-4" />}
+                  onClick={() => {
+                    const blob = new Blob([`Bansal Geo Corporate Document: ${previewDoc.documentType}\nFile: ${previewDoc.fileName}\nVerified: Yes`], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = previewDoc.fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    toast.success(`Downloaded ${previewDoc.fileName}`, 'File Saved');
+                  }}
+                >
+                  Download File
+                </Button>
+              </div>
+            </div>
+          </Modal>
+        )}
       </div>
     </div>);
 };

@@ -44,6 +44,51 @@ export const TdsTaxPage = () => {
         document.body.removeChild(link);
         toast.success('TDS register exported to CSV', 'Export Completed');
     };
+
+    const handleGenerateForm26Q = () => {
+        const headers = ['Challan Number,SectionCode,DeducteePAN,DeducteeName,GrossPaymentINR,TDSRate,TDSAmountINR,Quarter,FY,Status'];
+        const rows = taxRecords.map((r) => 
+            `"${r.challanNumber}","${r.section}","${r.panNumber}","${r.deducteeName}",${r.grossAmount},${r.tdsRate},${r.tdsAmount},"${r.quarter}","${r.financialYear}","${r.status}"`
+        );
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.href = encodedUri;
+        link.download = `Form26Q_Q2_FY2026-27_Return_Schedule.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Form 26Q return schedule downloaded.', 'Return Prepared');
+    };
+
+    const handleDownloadForm16A = (r) => {
+        const certText = [
+            '=================================================================',
+            '            FORM NO. 16A - CERTIFICATE OF DEDUCTION OF TAX      ',
+            '                      UNDER SECTION 203 OF THE I.T. ACT          ',
+            '=================================================================',
+            `Deductor: Bansal Geo Solutions Pvt. Ltd. (TAN: JPRB12345C)`,
+            `Deductee: ${r.deducteeName} (PAN: ${r.panNumber})`,
+            `Challan Ref: ${r.challanNumber}`,
+            `Section: ${r.section}`,
+            `Quarter / FY: ${r.quarter} / ${r.financialYear}`,
+            `Gross Payment: INR ${r.grossAmount.toLocaleString('en-IN')}`,
+            `TDS Rate: ${r.tdsRate}%`,
+            `Total Tax Deposited: INR ${r.tdsAmount.toLocaleString('en-IN')}`,
+            `Deposit Status: ${r.status}`,
+            '================================================================='
+        ].join('\n');
+        const blob = new Blob([certText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Form16A_${r.panNumber}_${r.challanNumber}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success(`Form 16A Certificate for ${r.deducteeName} downloaded.`, 'Certificate Downloaded');
+    };
     const columns = [
         {
             key: 'challanNumber',
@@ -136,7 +181,7 @@ export const TdsTaxPage = () => {
               Deposit Challan
             </Button>) : (<Button variant="outline" size="sm" className="h-7 text-[11px] px-2.5 whitespace-nowrap" onClick={(e) => {
                         e.stopPropagation();
-                        toast.info(`Form 16A TDS Certificate generated for ${r.deducteeName}`, 'Certificate Ready');
+                        handleDownloadForm16A(r);
                     }}>
               Form 16A
             </Button>)}
@@ -152,7 +197,7 @@ export const TdsTaxPage = () => {
             <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4"/>} onClick={handleExport}>
               Export TDS Register
             </Button>
-            <Button variant="primary" size="sm" leftIcon={<FileSpreadsheet className="w-4 h-4"/>} onClick={() => toast.success('Form 26Q Quarterly Schedule generated for Q2 FY 2026-27.', 'Return Prepared')}>
+            <Button variant="primary" size="sm" leftIcon={<FileSpreadsheet className="w-4 h-4"/>} onClick={handleGenerateForm26Q}>
               Generate Form 26Q
             </Button>
           </div>}/>

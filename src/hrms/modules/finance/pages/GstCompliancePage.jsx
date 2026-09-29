@@ -45,6 +45,49 @@ export const GstCompliancePage = () => {
         document.body.removeChild(link);
         toast.success('GST records exported to CSV', 'Export Completed');
     };
+
+    const handleDownloadGstr1Json = () => {
+        const payload = {
+            gstin: '08AABCB1234F1Z5',
+            fp: '092026',
+            version: 'GSTR1_v3.1',
+            hash: 'SHA256_' + Date.now(),
+            b2b: gstTransactions.map((t) => ({
+                ctin: t.counterPartyGstin,
+                inv: [{
+                    inum: t.docNumber,
+                    idt: t.invoiceDate,
+                    val: t.taxableValue + t.totalGst,
+                    pos: '08',
+                    itms: [{
+                        num: 1,
+                        itm_det: {
+                            txval: t.taxableValue,
+                            rt: 18,
+                            iamt: t.igst,
+                            camt: t.cgst,
+                            samt: t.sgst
+                        }
+                    }]
+                }]
+            })),
+            summary: {
+                totalTaxable: gstTransactions.reduce((acc, t) => acc + t.taxableValue, 0),
+                totalGst: gstTransactions.reduce((acc, t) => acc + t.totalGst, 0),
+                recordCount: gstTransactions.length
+            }
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `GSTR1_08AABCB1234F1Z5_092026.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success('GSTR-1 JSON payload downloaded for GST Portal.', 'Download Complete');
+    };
     const columns = [
         {
             key: 'docNumber',
@@ -142,7 +185,7 @@ export const GstCompliancePage = () => {
             <Button variant="secondary" size="sm" leftIcon={<Download className="w-4 h-4"/>} onClick={handleExport}>
               Export Register
             </Button>
-            <Button variant="primary" size="sm" leftIcon={<FileSpreadsheet className="w-4 h-4"/>} onClick={() => toast.success('GSTR-1 JSON export payload prepared for GST Portal upload.', 'GSTR-1 Payload Ready')}>
+            <Button variant="primary" size="sm" leftIcon={<FileSpreadsheet className="w-4 h-4"/>} onClick={handleDownloadGstr1Json}>
               Download GSTR-1 JSON
             </Button>
           </div>}/>

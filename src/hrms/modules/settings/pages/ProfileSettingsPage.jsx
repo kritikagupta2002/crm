@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Save, Camera } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
@@ -9,9 +9,28 @@ import { useToast } from '@/contexts/ToastContext';
 export const ProfileSettingsPage = () => {
     const { user, updateUser } = useAuth();
     const toast = useToast();
+    const fileInputRef = useRef(null);
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
     const [phone, setPhone] = useState('+91 98876 95208');
+
+    const handlePhotoChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) {
+            toast.error('Image size must be less than 2MB.', 'File Too Large');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (typeof reader.result === 'string') {
+                updateUser({ avatarUrl: reader.result });
+                toast.success('Profile avatar updated successfully.', 'Photo Changed');
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleSave = (e) => {
         e.preventDefault();
         updateUser({ name, email });
@@ -26,7 +45,14 @@ export const ProfileSettingsPage = () => {
         <div className="flex items-center gap-4">
           <Avatar src={user?.avatarUrl} name={user?.name} size="xl"/>
           <div>
-            <Button type="button" variant="outline" size="sm" onClick={() => toast.info('Photo upload dialog triggered.', 'Avatar Upload')} leftIcon={<Camera className="w-3.5 h-3.5"/>}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handlePhotoChange}
+              accept="image/png, image/jpeg, image/jpg"
+              className="hidden"
+            />
+            <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} leftIcon={<Camera className="w-3.5 h-3.5"/>}>
               Change Photo
             </Button>
             <p className="text-[11px] text-slate-400 mt-1">JPG, PNG up to 2MB</p>

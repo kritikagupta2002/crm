@@ -350,6 +350,7 @@
 }
 :where(.hrms) button,:where(.hrms) input:where([type='button']),:where(.hrms) input:where([type='reset']),:where(.hrms) input:where([type='submit']){
   -webkit-appearance: button;
+  appearance: button;
   
   background-color: transparent;
   
@@ -370,6 +371,7 @@
 }
 :where(.hrms) [type='search']{
   -webkit-appearance: textfield;
+  appearance: textfield;
   
   outline-offset: -2px;
   
@@ -427,9 +429,6 @@
 }
 :where(.hrms) img,:where(.hrms) svg,:where(.hrms) video,:where(.hrms) canvas,:where(.hrms) audio,:where(.hrms) iframe,:where(.hrms) embed,:where(.hrms) object{
   display: block;
-  
-  vertical-align: middle;
-  
 }
 :where(.hrms) img,:where(.hrms) video{
   max-width: 100%;
@@ -774,12 +773,14 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  line-clamp: 1;
 }
 .hrms .line-clamp-2{
   overflow: hidden;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 .hrms .block{
   display: block;
@@ -4607,6 +4608,7 @@
     display: block;
     -webkit-box-orient: horizontal;
     -webkit-line-clamp: none;
+    line-clamp: none;
   }
 .hrms .sm\:inline{
     display: inline;

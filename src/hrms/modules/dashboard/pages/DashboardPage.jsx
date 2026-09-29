@@ -14,27 +14,7 @@ import { attendanceService } from '@/modules/attendance/services/attendance.serv
 import { EmployeeDashboard } from '../components/EmployeeDashboard';
 import { getDailyQuote } from '@/data';
 import { useCrm, ROLE_COLORS } from '../../../../context/crm';
-// Live Digital Clock isolated component to prevent parent dashboard re-renders
-const LiveClock = ({ className }) => {
-    const [time, setTime] = useState(() => new Date().toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true,
-    }));
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setTime(new Date().toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true,
-            }));
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
-    return <span className={className}>{time}</span>;
-};
+
 const birthdaysList = [
     { name: 'Aman Jain', role: 'Software Engineer', date: '10 Sep', avatar: '' },
     { name: 'Priya Sharma', role: 'Project Coordinator', date: '12 Sep', avatar: '' },
@@ -53,8 +33,7 @@ const upcomingHolidaysList = [
 const AdminDashboard = () => {
     const { role } = useCrm();
     const roleColor = ROLE_COLORS[role]?.color || '#1F6F78';
-    const { user, updateUser } = useAuth();
-    const { currentRole, setRole } = useRole();
+    const { user } = useAuth();
     const { isDark } = useTheme();
     const toast = useToast();
     const navigate = useNavigate();
@@ -63,10 +42,10 @@ const AdminDashboard = () => {
     const [allAttendance, setAllAttendance] = useState(() => storage.getAttendance());
     const [allLeaveRequests, setAllLeaveRequests] = useState(() => storage.getLeaveRequests());
     // State
-    const [pendingLeaves, setPendingLeaves] = useState([]);
-    const [greeting, setGreeting] = useState('');
-    const [hasClockedIn, setHasClockedIn] = useState(true);
-    const [chartTab, setChartTab] = useState('attendance');
+    const [greeting] = useState(() => {
+        const hour = new Date().getHours();
+        return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    });
     // Dashboard Global Filters State
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedLocation, setSelectedLocation] = useState('all');
@@ -238,7 +217,7 @@ const AdminDashboard = () => {
             { type: 'ML', count: counts['ML'], color: colors['ML'] },
             { type: 'Others', count: counts['Others'], color: colors['Others'] },
         ];
-    }, [allLeaveRequests, leaveRange, isDark]);
+    }, [allLeaveRequests, leaveRange, isDark, roleColor]);
     // Interactive Quick Leave Modal
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveType, setLeaveType] = useState('Casual Leave (CL)');
@@ -259,14 +238,6 @@ const AdminDashboard = () => {
     };
     // Greeting and initial data
     useEffect(() => {
-        const hour = new Date().getHours();
-        if (hour < 12)
-            setGreeting('Good morning');
-        else if (hour < 17)
-            setGreeting('Good afternoon');
-        else
-            setGreeting('Good evening');
-        refreshData();
         window.addEventListener('focus', refreshData);
         return () => window.removeEventListener('focus', refreshData);
     }, []);
@@ -280,23 +251,6 @@ const AdminDashboard = () => {
         await leaveService.reviewLeave(id, 'Rejected', user?.name || 'Kritika Gupta', 'Rejected via HR Command Center');
         refreshData();
         toast.info(`Leave request rejected for ${empName}`, 'Status Updated');
-    };
-    // Employee Clock In/Out Toggle
-    const handleClockToggle = async () => {
-        try {
-            const type = hasClockedIn ? 'checkOut' : 'checkIn';
-            await attendanceService.recordPunch(user?.employeeId || 'BGS-006', type, 'Field GPS & Biometric - Bhilwara Exploration Camp');
-            setHasClockedIn(!hasClockedIn);
-            if (!hasClockedIn) {
-                toast.success('Punched in successfully at Bhilwara Exploration Project site.', 'Check-In Recorded');
-            }
-            else {
-                toast.info('Punched out successfully. Total shift duration logged: 08h 14m.', 'Check-Out Recorded');
-            }
-        }
-        catch {
-            toast.error('Could not connect to biometric sync node.', 'Error');
-        }
     };
     // Employee Quick Leave Submit
     const handleQuickLeaveSubmit = async (e) => {
@@ -324,35 +278,6 @@ const AdminDashboard = () => {
         catch {
             toast.error('Failed to submit leave.', 'Error');
         }
-    };
-    // Role Switcher shortcut inside dashboard
-    const handleSwitchToEmployee = () => {
-        setRole('employee');
-        updateUser({
-            id: 'emp-006',
-            name: 'Rohan Deshmukh',
-            email: 'rohan.deshmukh@bansalgeo.com',
-            role: 'employee',
-            employeeId: 'BGS-006',
-            avatarUrl: '',
-            department: 'Geology & Mineral Exploration',
-            designation: 'Senior Exploration Geologist',
-        });
-        toast.info('Switched to Employee Self-Service View (Rohan Deshmukh)', 'View Switched');
-    };
-    const handleSwitchToHR = () => {
-        setRole('hr');
-        updateUser({
-            id: 'emp-004',
-            name: 'Kritika Gupta',
-            email: 'kritika.gupta@bansalgeo.com',
-            role: 'hr',
-            employeeId: 'BGS-004',
-            avatarUrl: '',
-            department: 'Human Resources & Admin',
-            designation: 'Head - HR & Administration',
-        });
-        toast.info('Switched to HR & Admin Command Center (Kritika Gupta)', 'View Switched');
     };
     // 1. Stacked Attendance Trends (matching reference)
     // Tab for Celebrations widget
