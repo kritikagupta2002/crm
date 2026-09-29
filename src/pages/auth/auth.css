@@ -201,19 +201,19 @@
 }
 
 .role-pick label.role-pick-hr.is-selected {
-  border-color: #ed6ad3;
-  background: rgba(237, 106, 211, 0.12);
+  border-color: #388e3c;
+  background: rgba(56, 142, 60, 0.12);
 }
 .role-pick label.role-pick-hr.is-selected strong {
-  color: #b32694;
+  color: #1b5e20;
 }
 
 .role-pick label.role-pick-accountant.is-selected {
-  border-color: #58fd77;
-  background: rgba(88, 253, 119, 0.16);
+  border-color: #0b8fa6;
+  background: rgba(110, 216, 232, 0.18);
 }
 .role-pick label.role-pick-accountant.is-selected strong {
-  color: #166534;
+  color: #0e5f6b;
 }
 
 .role-pick label.role-pick-team-lead.is-selected {
