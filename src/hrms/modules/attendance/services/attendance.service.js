@@ -36,7 +36,6 @@ export const attendanceService = {
         const nowTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         let record = list.find((a) => a.employeeId === employeeId && a.date === today);
         if (!record) {
-            // Whoever punched in (the register used to put every punch under one fixed name).
             const emp = storage.getEmployees().find((e) => e.employeeId === employeeId);
             record = {
                 id: `att-${Date.now()}`,

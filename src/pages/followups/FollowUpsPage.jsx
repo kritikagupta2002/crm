@@ -10,7 +10,6 @@ const todayISO = toISODate(TODAY)
 const tomorrowISO = toISODate(addDays(TODAY, 1))
 const weekEndISO = toISODate(addDays(TODAY, 7))
 
-// Long groups show their first few; the rest are one click away.
 const GROUP_PREVIEW = 5
 
 const GROUPS = [
@@ -21,7 +20,6 @@ const GROUPS = [
   { id: 'later', label: 'Later', tone: 'tone-neutral', test: (d) => d > weekEndISO },
 ]
 
-/* One follow-up row: "Done" asks for a short outcome, "Reschedule" for a new date and time. */
 function FollowUpRow({ item, lead, tone }) {
   const { completeFollowUp, rescheduleFollowUp } = useCrm()
   const { may } = useAccess()

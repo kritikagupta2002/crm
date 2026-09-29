@@ -128,7 +128,6 @@ export const AttendanceDashboardPage = () => {
               </Button>)}
           </div>}/>
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
         {(isEmp
             ? [
@@ -275,7 +274,6 @@ export const AttendanceDashboardPage = () => {
           </div>))}
       </div>
 
-      {/* Attendance Table with Filter Bar */}
       <DataTable compact={true} columns={columns} data={filteredRecords} keyField="id" searchPlaceholder={isEmp ? 'Search my attendance records...' : 'Search employee, ID, location...'} searchFields={isEmp ? ['date', 'punchSource', 'status'] : ['employeeName', 'employeeId', 'department']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             {!isEmp && (<div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
                 <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[

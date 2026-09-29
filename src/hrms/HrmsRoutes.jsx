@@ -5,10 +5,6 @@ import { HrOnly, FinanceOnly } from './RoleRoute';
 import { useCrm } from '../context/crm';
 import { hrRoleOf } from './bridge';
 
-/*
- * The HRMS and Finance pages, mounted inside the CRM's layout (App.jsx). Paths moved under /hr so they don't
- * collide with the CRM's own /team, /reports and /settings; Finance stays at /finance. Pages load on first visit.
- */
 const HrmsShell = lazy(() => import('./HrmsShell'));
 const Shell = () => (
   <Suspense fallback={null}>
@@ -74,13 +70,11 @@ const PayrollSettingsPage = lazy(() => import('@/modules/settings/pages/PayrollS
 const NotificationSettingsPage = lazy(() => import('@/modules/settings/pages/NotificationSettingsPage').then((m) => ({ default: m.NotificationSettingsPage })));
 const SecuritySettingsPage = lazy(() => import('@/modules/settings/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
 
-// Role-aware landing pages, as in the HRMS: employees go to their own payslips and profile.
 const PayrollIndex = () => (hrRoleOf(useCrm().role) === 'employee' ? <Navigate to="/hr/payroll/payslips" replace /> : <PayrollDashboardPage />);
 const SettingsIndex = () => <Navigate to={hrRoleOf(useCrm().role) === 'employee' ? '/hr/settings/profile' : '/hr/settings/company'} replace />;
 
 export const hrmsRoutes = (
   <Route element={<Shell />}>
-    {/* Self-service: every signed-in person (what they see adapts to their role) */}
     <Route path="hr" element={<DashboardPage />} />
     <Route path="hr/attendance" element={<AttendanceDashboardPage />} />
     <Route path="hr/attendance/monthly" element={<MonthlyAttendancePage />} />
@@ -112,7 +106,6 @@ export const hrmsRoutes = (
       </Route>
     </Route>
 
-    {/* The HR team (Admin, Management) */}
     <Route element={<HrOnly />}>
       <Route path="hr/employees" element={<EmployeeListPage />} />
       <Route path="hr/employees/new" element={<AddEmployeePage />} />
@@ -137,7 +130,6 @@ export const hrmsRoutes = (
       <Route path="hr/reports" element={<ReportsPage />} />
     </Route>
 
-    {/* Finance & accounting: who opens each page is set in the CRM's ROLE_ACCESS */}
     <Route element={<FinanceOnly />}>
       <Route path="finance" element={<FinanceOverviewPage />} />
       <Route path="finance/invoices" element={<ClientInvoicesPage />} />

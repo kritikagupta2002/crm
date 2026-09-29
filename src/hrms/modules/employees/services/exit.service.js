@@ -201,7 +201,6 @@ export const exitService = {
                 clearanceDate: new Date().toLocaleDateString('en-CA'),
             }
             : c);
-        // If all 4 approved, advance status to 'FnF Pending'
         const allApproved = exit.clearances.every((c) => c.status === 'Approved');
         if (allApproved && exit.status === 'In Clearance') {
             exit.status = 'FnF Pending';

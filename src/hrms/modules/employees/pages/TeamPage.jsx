@@ -13,20 +13,16 @@ export { PROJECT_METADATA, DEPARTMENT_METADATA, getEmployeeProject, STANDARD_PRO
 
 export const TeamPage = () => {
     const navigate = useNavigate();
-    // View mode: 'department' | 'project' | 'grid'
     const [viewMode, setViewMode] = useState('department');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDept, setSelectedDept] = useState('All');
     const [selectedProject, setSelectedProject] = useState('All');
     const [selectedStatus, setSelectedStatus] = useState('All');
-    // Centralized datasets
     const employees = useMemo(() => storage.getEmployees(), []);
     const leaveRequests = useMemo(() => storage.getLeaveRequests(), []);
     const attendance = useMemo(() => storage.getAttendance(), []);
     const todayStr = new Date().toLocaleDateString('en-CA');
-    // Helper to determine live presence & availability status
     const getEmployeeStatus = (emp) => {
-        // 1. Check approved leave today
         const activeLeave = leaveRequests.find((l) => l.employeeId === emp.employeeId &&
             l.status === 'Approved' &&
             l.startDate <= todayStr &&
@@ -39,7 +35,6 @@ export const TeamPage = () => {
                 details: `On Leave until ${activeLeave.endDate} (${activeLeave.leaveType.split('(')[0].trim()})`,
             };
         }
-        // 2. Check punch-in today
         const todayPunch = attendance.find((a) => a.employeeId === emp.employeeId && a.date === todayStr && a.status === 'Present');
         if (todayPunch) {
             return {
@@ -49,7 +44,6 @@ export const TeamPage = () => {
                 details: `Checked in at ${todayPunch.checkIn || '09:00 AM'}`,
             };
         }
-        // 3. Field site assignment
         if (emp.employment?.workLocation?.includes('Field') || emp.employment?.workLocation?.includes('Bhilwara')) {
             return {
                 status: 'On Field Duty',
@@ -65,7 +59,6 @@ export const TeamPage = () => {
             details: 'Regular Schedule',
         };
     };
-    // Distinct department list
     const departments = useMemo(() => {
         const set = new Set();
         employees.forEach((e) => {
@@ -74,7 +67,6 @@ export const TeamPage = () => {
         });
         return Array.from(set);
     }, [employees]);
-    // Distinct project list
     const projects = useMemo(() => {
         const set = new Set();
         employees.forEach((e) => {
@@ -82,7 +74,6 @@ export const TeamPage = () => {
         });
         return Array.from(set);
     }, [employees]);
-    // Filtered employees list
     const filteredEmployees = useMemo(() => {
         return employees.filter((emp) => {
             const q = searchQuery.toLowerCase().trim();
@@ -104,7 +95,6 @@ export const TeamPage = () => {
             return matchesSearch && matchesDept && matchesProject && matchesStatus;
         });
     }, [employees, searchQuery, selectedDept, selectedProject, selectedStatus, leaveRequests, attendance]);
-    // Stat counts
     const onDutyCount = useMemo(() => {
         return employees.filter((e) => getEmployeeStatus(e).status === 'On Duty').length;
     }, [employees, attendance, leaveRequests]);
@@ -127,9 +117,7 @@ export const TeamPage = () => {
             Add Team Member
           </Button>}/>
 
-      {/* ── TOP STAT SUMMARY ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        {/* Total Staff */}
         <div className="bg-white dark:bg-[#1A2430] border border-slate-200 dark:border-[#253344] rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-shadow">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-[#1F6F78] dark:text-teal-400 flex items-center justify-center font-bold">
@@ -142,7 +130,6 @@ export const TeamPage = () => {
           </div>
         </div>
 
-        {/* Operational Departments */}
         <div onClick={() => setViewMode('department')} className={`bg-white dark:bg-[#1A2430] border rounded-2xl p-4 shadow-2xs hover:shadow-xs cursor-pointer transition-all ${viewMode === 'department'
             ? 'border-[#1F6F78] ring-2 ring-teal-500/20'
             : 'border-slate-200 dark:border-[#253344]'}`}>
@@ -157,7 +144,6 @@ export const TeamPage = () => {
           </div>
         </div>
 
-        {/* Active Projects */}
         <div onClick={() => setViewMode('project')} className={`bg-white dark:bg-[#1A2430] border rounded-2xl p-4 shadow-2xs hover:shadow-xs cursor-pointer transition-all ${viewMode === 'project'
             ? 'border-[#1F6F78] ring-2 ring-teal-500/20'
             : 'border-slate-200 dark:border-[#253344]'}`}>
@@ -172,7 +158,6 @@ export const TeamPage = () => {
           </div>
         </div>
 
-        {/* Duty & Field Deployments */}
         <div className="bg-white dark:bg-[#1A2430] border border-slate-200 dark:border-[#253344] rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-shadow">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
@@ -188,9 +173,7 @@ export const TeamPage = () => {
         </div>
       </div>
 
-      {/* ── VIEW SWITCHER TABS & FILTER BAR ── */}
       <Card className="p-4 shadow-2xs space-y-3.5">
-        {/* Top row: View Mode Switcher */}
         <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl text-xs font-semibold">
             <button type="button" onClick={() => setViewMode('department')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${viewMode === 'department'
@@ -224,7 +207,6 @@ export const TeamPage = () => {
             </button>
           </div>
 
-          {/* Quick status message */}
           <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
             <span>Showing</span>
             <strong className="text-slate-800 dark:text-slate-200 font-semibold">{filteredEmployees.length}</strong>
@@ -235,15 +217,12 @@ export const TeamPage = () => {
           </div>
         </div>
 
-        {/* Bottom row: Search & Dropdown Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {/* Search Input */}
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"/>
             <Input placeholder="Search name, ID, role, project..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9"/>
           </div>
 
-          {/* Department Filter */}
           <div>
             <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[
             { value: 'All', label: 'All Departments' },
@@ -251,7 +230,6 @@ export const TeamPage = () => {
         ]}/>
           </div>
 
-          {/* Project Filter */}
           <div>
             <Select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} options={[
             { value: 'All', label: 'All Projects' },
@@ -259,7 +237,6 @@ export const TeamPage = () => {
         ]}/>
           </div>
 
-          {/* Status Filter */}
           <div>
             <Select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} options={[
             { value: 'All', label: 'All Statuses' },
@@ -272,7 +249,6 @@ export const TeamPage = () => {
         </div>
       </Card>
 
-      {/* ── MAIN TEAM DISPLAY ── */}
       {filteredEmployees.length === 0 ? (<Card className="p-12 text-center">
           <Users className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3"/>
           <h4 className="text-base font-bold text-slate-700 dark:text-slate-200">No Team Members Found</h4>
@@ -282,7 +258,6 @@ export const TeamPage = () => {
             Clear All Filters
           </Button>
         </Card>) : viewMode === 'project' ? (
-        // ── 1. GROUPED BY PROJECT ──
         <div className="space-y-8">
           {projects.map((projectName) => {
                 const projectEmps = filteredEmployees.filter((e) => getEmployeeProject(e) === projectName);
@@ -299,7 +274,6 @@ export const TeamPage = () => {
                     desc: 'Exploration and project deliverables executing on site.',
                 };
                 return (<div key={projectName} className="space-y-4">
-                {/* Project Header Banner */}
                 <div className="bg-gradient-to-r from-teal-50/70 via-slate-50 to-blue-50/60 dark:from-[#15232d] dark:via-[#131d27] dark:to-[#172533] border border-teal-200/70 dark:border-teal-900/50 rounded-2xl p-4 sm:p-5 shadow-xs">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3.5">
@@ -350,14 +324,12 @@ export const TeamPage = () => {
                   </div>
                 </div>
 
-                {/* Team Members Grid for this Project */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {projectEmps.map((emp) => renderEmployeeCard(emp, getEmployeeStatus(emp), getEmployeeProject(emp), navigate))}
                 </div>
               </div>);
             })}
         </div>) : viewMode === 'department' ? (
-        // ── 2. GROUPED BY DEPARTMENT ──
         <div className="space-y-8">
           {departments.map((dept) => {
                 const deptEmps = filteredEmployees.filter((e) => e.employment?.department === dept);
@@ -371,7 +343,6 @@ export const TeamPage = () => {
                     desc: 'Operational departmental unit driving corporate goals.',
                 };
                 return (<div key={dept} className="space-y-4">
-                {/* Department Header Banner */}
                 <div className="bg-gradient-to-r from-slate-50 via-teal-50/40 to-slate-50 dark:from-[#15232d] dark:via-[#131d27] dark:to-[#172533] border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-3.5">
@@ -411,24 +382,20 @@ export const TeamPage = () => {
                   </div>
                 </div>
 
-                {/* Team Members Grid for this Department */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {deptEmps.map((emp) => renderEmployeeCard(emp, getEmployeeStatus(emp), getEmployeeProject(emp), navigate))}
                 </div>
               </div>);
             })}
         </div>) : (
-        // ── 3. FLAT GRID (ALL MEMBERS) ──
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEmployees.map((emp) => renderEmployeeCard(emp, getEmployeeStatus(emp), getEmployeeProject(emp), navigate))}
         </div>)}
     </div>);
 };
-// ── SUB-COMPONENT: TEAM MEMBER CARD ──
 function renderEmployeeCard(emp, statusObj, projectName, navigate) {
     return (<div key={emp.id || emp.employeeId} className="bg-white dark:bg-[#1A2430] border border-slate-200/90 dark:border-[#253344] rounded-2xl p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between">
       <div>
-        {/* Card Header: Avatar + Name + Live Badge */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="relative">
@@ -453,15 +420,12 @@ function renderEmployeeCard(emp, statusObj, projectName, navigate) {
           </span>
         </div>
 
-        {/* Card Body: Department, Project, Location, Schedule */}
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2.5 text-xs">
-          {/* Department */}
           <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
             <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0"/>
             <span className="font-medium truncate">{emp.employment?.department}</span>
           </div>
 
-          {/* Assigned Project */}
           <div className="flex items-center gap-2">
             <Compass className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0"/>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/50 text-[#1F6F78] dark:text-teal-300 border border-teal-200/60 dark:border-teal-800/40 truncate">
@@ -469,13 +433,11 @@ function renderEmployeeCard(emp, statusObj, projectName, navigate) {
             </span>
           </div>
 
-          {/* Location */}
           <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
             <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0"/>
             <span className="truncate">{emp.employment?.workLocation}</span>
           </div>
 
-          {/* Schedule / Check-in */}
           <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
             <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0"/>
             <span className="truncate font-medium">{statusObj.details}</span>
@@ -483,7 +445,6 @@ function renderEmployeeCard(emp, statusObj, projectName, navigate) {
         </div>
       </div>
 
-      {/* Card Footer: Quick Contact Actions + Profile Button */}
       <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           {emp.contact?.workEmail && (<a href={`mailto:${emp.contact.workEmail}`} className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors" title={emp.contact.workEmail}>

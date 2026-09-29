@@ -58,7 +58,6 @@ function FollowUpForm({ onSave, onCancel }) {
   )
 }
 
-/* Pending follow-ups for one lead, plus an inline form to schedule another. */
 export function LeadFollowUps({ lead, startWithForm = false }) {
   const { followUps, scheduleFollowUp } = useCrm()
   const { may } = useAccess()

@@ -1,6 +1,5 @@
 import React from 'react';
 
-/* Initials in a teal circle, as everywhere in the CRM (no photos: the demo has none of the real staff). */
 const SIZES = { xs: 24, sm: 32, md: 40, lg: 48, xl: 64 };
 
 const initialsOf = (name = '') => name

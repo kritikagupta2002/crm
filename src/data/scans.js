@@ -1,10 +1,5 @@
 import { TODAY } from './mockData'
 
-/*
- * The office scanner saves every government letter straight into a folder on the QNAP NAS (requirement WP6,
- * vendor sheet A3 and flowchart 3, step 1). Scans in that folder wait in the inbox until someone files each one
- * against its project (step 2). These are the scans waiting in the demo; new ones come in by upload.
- */
 export const SCAN_FOLDER = '\\\\QNAP-NAS\\Scans\\Govt-Letters'
 export const SCANNER = 'Front office scanner'
 

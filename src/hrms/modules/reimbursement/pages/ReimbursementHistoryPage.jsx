@@ -215,7 +215,6 @@ export const ReimbursementHistoryPage = () => {
                 }
             />
 
-            {/* View Mode Filters */}
             <div className="flex items-center gap-2 p-2 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mr-2">
                     <Filter className="w-3.5 h-3.5 text-amber-500"/>

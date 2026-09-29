@@ -21,7 +21,6 @@ import { RoleLink } from '../../components/common/RoleLink'
 const statusOf = (lead) => (progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length ? 'Active' : 'Onboarding')
 const sinceOf = (lead) => lead.wonOn ?? lead.createdOn
 
-/* Business value is left blank in the export when amounts are hidden for the current role. */
 const clientColumns = (hideMoney) => [
   { label: 'Client', value: (c) => c.company },
   { label: 'Contact person', value: (c) => c.contactPerson },
@@ -160,12 +159,10 @@ function ClientDrawer({ client, onClose }) {
   )
 }
 
-/* Every won enquiry becomes a client; the list shows who they are, what they bought and whether onboarding is done. */
 export function ClientsPage() {
   const money = useMoney()
   const { leads, activities } = useCrm()
   const [filters, setFilters] = useState({ search: '', state: '', status: '' })
-  // ?open=<id> opens a client's drawer, so notifications can link straight to it.
   const [params, setParams] = useSearchParams()
   const openId = params.get('open')
   const setOpenId = (id) => setParams(id ? { open: id } : {}, { replace: true })
@@ -185,7 +182,6 @@ export function ClientsPage() {
   const set = (key) => (e) => setFilters({ ...filters, [key]: e.target.value })
   const openClient = clients.find((c) => c.id === openId)
 
-  // When each client was last spoken to: call, meeting, visit, WhatsApp, email or the portal.
   const lastOf = Object.fromEntries(visible.map((c) => [c.id, lastContact(leadTimeline(c, activities))]))
 
   return (

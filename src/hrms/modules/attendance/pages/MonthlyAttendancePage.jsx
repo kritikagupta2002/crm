@@ -19,7 +19,6 @@ export const MonthlyAttendancePage = () => {
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
     const empId = user?.employeeId || 'BGS-006';
     const rawEmployees = storage.getEmployees();
-    // Strict Single-Employee Data Isolation: Employee only sees themselves
     const employees = useMemo(() => {
         if (isEmp) {
             const self = rawEmployees.filter((e) => e.employeeId === empId);
@@ -41,7 +40,6 @@ export const MonthlyAttendancePage = () => {
         setActiveDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
     };
 
-    // Filtered employees
     const filteredEmployees = employees.filter((emp) => {
         if (!isEmp) {
             if (selectedDept !== 'all' && emp.employment.department !== selectedDept)
@@ -59,11 +57,9 @@ export const MonthlyAttendancePage = () => {
         return true;
     });
 
-    // Dynamic days for active month
     const totalDays = new Date(activeDate.getFullYear(), activeDate.getMonth() + 1, 0).getDate();
     const days = Array.from({ length: totalDays }, (_, i) => i + 1);
 
-    // Live storage data
     const allAttendance = useMemo(() => storage.getAttendance() || [], []);
     const allLeaves = useMemo(() => storage.getLeaveRequests() || [], []);
 
@@ -75,7 +71,6 @@ export const MonthlyAttendancePage = () => {
         return map;
     }, [allAttendance]);
 
-    // Real status for matrix cells based on employee and day
     const getCellStatus = (emp, day) => {
         const year = activeDate.getFullYear();
         const month = String(activeDate.getMonth() + 1).padStart(2, '0');
@@ -84,19 +79,16 @@ export const MonthlyAttendancePage = () => {
         const cellDate = new Date(year, activeDate.getMonth(), day);
         const dayOfWeek = cellDate.getDay();
 
-        // Weekly Off (Sunday)
         if (dayOfWeek === 0) {
             return { label: 'WO', bg: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' };
         }
 
-        // Future day check
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         if (cellDate > today) {
             return { label: '-', bg: 'text-slate-300 dark:text-slate-600' };
         }
 
-        // Check real attendance punch from storage
         const rec = attendanceMap.get(`${emp.employeeId}_${dateIso}`);
         if (rec) {
             if (rec.status === 'Present') {
@@ -113,7 +105,6 @@ export const MonthlyAttendancePage = () => {
             }
         }
 
-        // Check approved leaves
         const hasLeave = allLeaves.some((l) => 
             l.employeeId === emp.employeeId && 
             (l.status === 'Approved' || l.status === 'HR Approved') &&
@@ -123,7 +114,6 @@ export const MonthlyAttendancePage = () => {
             return { label: 'LV', bg: 'bg-purple-100 text-purple-700 font-bold dark:bg-purple-950/70 dark:text-purple-300' };
         }
 
-        // Deterministic status for past weekdays without punch
         const seed = (parseInt(String(emp.employeeId).replace(/\D/g, '') || '1', 10) * 17 + day * 13) % 100;
         if (seed < 4) {
             return { label: 'A', bg: 'bg-rose-100 text-rose-700 font-bold dark:bg-rose-950/70 dark:text-rose-300' };
@@ -186,7 +176,6 @@ export const MonthlyAttendancePage = () => {
             </Button>
           </div>}/>
 
-      {/* Employee Personal Summary Stats (Shown only in Employee View) */}
       {isEmp && (<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Card className="p-3.5 flex items-center gap-3 border-l-4 border-l-emerald-500">
             <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-lg shrink-0">
@@ -226,7 +215,6 @@ export const MonthlyAttendancePage = () => {
           </Card>
         </div>)}
 
-      {/* Month Navigator & Legend Bar */}
       <Card className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="p-1.5" onClick={handlePrevMonth} title="Previous Month">
@@ -238,7 +226,6 @@ export const MonthlyAttendancePage = () => {
           </Button>
         </div>
 
-        {/* Legend */}
         <div className="flex items-center gap-3 text-xs flex-wrap text-slate-700 dark:text-slate-300">
           <span className="inline-flex items-center gap-1.5">
             <span className="w-4 h-4 rounded text-[10px] flex items-center justify-center font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300">P</span>
@@ -263,7 +250,6 @@ export const MonthlyAttendancePage = () => {
         </div>
       </Card>
 
-      {/* Filter Bar (Only shown for Admin / HR) */}
       {!isEmp && (<div className="flex flex-wrap items-center gap-3 bg-white dark:bg-[#1A2430] p-4 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
           <div className="w-full sm:w-64">
             <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by staff name or ID..." leftIcon={<Search className="w-4 h-4 text-slate-400"/>}/>
@@ -301,7 +287,6 @@ export const MonthlyAttendancePage = () => {
           </span>
         </div>)}
 
-      {/* Matrix Table */}
       <Card className="overflow-hidden">
         <div className="overflow-x-auto custom-sidebar-scroll">
           <table className="w-full text-center text-xs border-collapse min-w-[900px]">

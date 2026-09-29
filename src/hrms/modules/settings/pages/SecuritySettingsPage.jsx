@@ -71,7 +71,6 @@ export const SecuritySettingsPage = () => {
         showToast('All other active sessions have been terminated', 'success');
     };
     return (<div className="space-y-6">
-      {/* Change Password */}
       <Card className="p-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
           <div className="p-2.5 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 rounded-lg">
@@ -98,7 +97,6 @@ export const SecuritySettingsPage = () => {
         </form>
       </Card>
 
-      {/* Two-Factor Authentication */}
       <Card className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
           <div className="flex items-center gap-3">
@@ -134,7 +132,6 @@ export const SecuritySettingsPage = () => {
         </div>
       </Card>
 
-      {/* Active Sessions */}
       <Card className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
           <div className="flex items-center gap-3">
@@ -184,7 +181,6 @@ export const SecuritySettingsPage = () => {
         </div>
       </Card>
 
-      {/* Security Audit Log */}
       <Card className="p-6">
         <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-slate-800 mb-6">
           <div className="p-2.5 bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 rounded-lg shrink-0">

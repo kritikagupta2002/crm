@@ -55,7 +55,6 @@ export const RecordTransactionModal = ({ isOpen, onClose, onTransactionRecorded,
     };
     return (<Modal isOpen={isOpen} onClose={onClose} title="Record Payment / Receipt" description="Post an incoming receipt from a client or a disbursement payment to a vendor." maxWidth="2xl">
       <form onSubmit={handleSubmit} className="space-y-4 font-inter">
-        {/* Transaction Type Segmented Toggle */}
         <div className="flex items-center gap-2 p-1 bg-slate-100 dark:bg-[#111821] rounded-xl border border-slate-200 dark:border-[#253344]">
           <button type="button" onClick={() => setType('Receipt')} className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${type === 'Receipt'
             ? 'bg-emerald-600 text-white shadow-xs'

@@ -1,9 +1,3 @@
-/*
- * Subcontractors the project team hires for work it doesn't do in-house: drilling, lab testing,
- * drone flights, pumping tests. Seeded subcontracts pick the vendor that fits the service line.
- * tds: the section the payment falls under (194C contract work, 194J technical/professional) and its rate.
- * A vendor signs in to the vendor portal with its vendor ID and registered mobile.
- */
 export const VENDORS = [
   { id: 'VN-01', name: 'Rajasthan Drilling Co.', work: 'Core drilling', place: 'Udaipur', contact: 'H. Rawat', phone: '9829011401', email: 'accounts@rajdrill.in', gstin: '08AAKFR4521M1Z3', pan: 'AAKFR4521M', tds: { section: '194C', rate: 2 }, bank: { name: 'SBI, Udaipur', accountNo: '3844 1102 7781', ifsc: 'SBIN0001124' }, since: '2023-06-12' },
   { id: 'VN-02', name: 'GeoLab Analytical', work: 'Lab testing (NABL)', place: 'Jaipur', contact: 'Dr. S. Kothari', phone: '9829011402', email: 'lab@geolab.in', gstin: '08AAGCG7310K1Z8', pan: 'AAGCG7310K', tds: { section: '194J', rate: 2 }, bank: { name: 'HDFC Bank, Malviya Nagar', accountNo: '5020 0031 4471', ifsc: 'HDFC0000315' }, since: '2022-11-03' },
@@ -20,7 +14,6 @@ export const TDS_SECTIONS = [
   { section: '194J', rate: 10, label: '194J · professional services · 10%' },
 ]
 
-/* The work usually subcontracted on each service line, with a typical order value (₹). */
 export const SUBCONTRACT_BY_SERVICE = {
   'Mineral Exploration & Resources': { vendor: 'Rajasthan Drilling Co.', work: 'Core drilling, 4 holes × 60 m', amount: 480000 },
   'Mineral Economics & Valuation': { vendor: 'GeoLab Analytical', work: 'Grade analysis of 40 samples', amount: 96000 },
@@ -31,10 +24,8 @@ export const SUBCONTRACT_BY_SERVICE = {
   'Geotechnical Services': { vendor: 'GeoLab Analytical', work: 'Rock strength tests, 24 samples', amount: 110000 },
 }
 
-/* A subcontract moves through these in order; each step is recorded with who did it and when. */
 export const WORK_ORDER_STATUS = ['Issued', 'In progress', 'Completed', 'Bill received', 'Paid']
 
-/* Papers the demo's vendors gave when our team registered them (vendors approved in the app have their application's). */
 const ACCREDITATION = { 'VN-02': ['NABL certificate', 'NABL_TC-5512.pdf'], 'VN-03': ['DGCA remote pilot certificate', 'DGCA_RPC_Solanki.pdf'], 'VN-05': ['NABL certificate', 'NABL_TC-7719.pdf'] }
 const regDoc = (vendorId, kind, name, size, on) => ({ id: `${vendorId}-${kind.split(' ')[0]}`, kind, name, size, type: name.endsWith('.jpg') ? 'image/jpeg' : 'application/pdf', seeded: true, on })
 export const VENDOR_REGISTRATION_DOCS = Object.fromEntries(

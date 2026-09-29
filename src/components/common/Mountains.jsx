@@ -1,8 +1,3 @@
-/*
- * The mountain at the foot of the sidebar: hazy ranges, a rocky peak whose faces darken towards the
- * valley, snow under the ridge and on ledges, and a pine forest in front. Generated once (seeded
- * script); colours come from the --mtn-* tokens. The top fades out so it blends into the sidebar.
- */
 export function Mountains({ className }) {
   return (
     <svg className={className} viewBox="0 0 260 340" preserveAspectRatio="none" aria-hidden="true">

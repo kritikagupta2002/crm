@@ -202,7 +202,6 @@ export const TdsTaxPage = () => {
             </Button>
           </div>}/>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard title="Total TDS Withheld" value={`₹${(totalTdsDeducted / 1000).toFixed(1)}k`} caption="Gross tax deducted at source" icon={<Percent className="w-5 h-5 text-purple-700 dark:text-purple-300"/>} iconBgColor="bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300"/>
 
@@ -213,7 +212,6 @@ export const TdsTaxPage = () => {
         <StatCard title="Tax Records" value={taxRecords.length} caption="Active challan schedules" icon={<Shield className="w-5 h-5 text-blue-700 dark:text-blue-300"/>} iconBgColor="bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"/>
       </div>
 
-      {/* Filter Tabs */}
       <div className="flex items-center gap-2 p-1 bg-white dark:bg-[#142028] rounded-xl border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] overflow-x-auto w-fit">
         {['all', 'Q1', 'Q2', 'Q3', 'Q4'].map((q) => (<button key={q} onClick={() => setQuarterFilter(q)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${quarterFilter === q
                 ? 'bg-[var(--teal-700,#1f6f78)] text-white shadow-2xs'
@@ -222,7 +220,6 @@ export const TdsTaxPage = () => {
           </button>))}
       </div>
 
-      {/* Data Table */}
       <DataTable columns={columns} data={filteredRecords} keyField="id" searchable searchPlaceholder="Search TDS records by challan #, deductee, PAN, or section..." searchFields={['challanNumber', 'deducteeName', 'panNumber', 'section']} pageSize={10} emptyTitle="No TDS records found" emptyDescription="Tax records will appear here as deductions are booked against vendor payments."/>
     </div>);
 };

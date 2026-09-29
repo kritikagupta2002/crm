@@ -21,8 +21,6 @@ const employeePermissions = () => {
     allModules.forEach(m => {
         result[m] = { view: false, create: false, edit: false, delete: false, approve: false, export: false };
     });
-    // Employee can only access personal self-service modules:
-    // dashboard, own attendance, own leaves, personal documents, own payslips, personal expenses/reimbursement, notifications, and profile settings
     result.dashboard = { view: true, create: false, edit: false, delete: false, approve: false, export: false };
     result.employees = { view: false, create: false, edit: false, delete: false, approve: false, export: false };
     result.organization = { view: false, create: false, edit: false, delete: false, approve: false, export: false };

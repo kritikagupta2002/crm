@@ -14,7 +14,6 @@ export const DepartmentsPage = () => {
     const [departments, setDepartments] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDept, setEditingDept] = useState(null);
-    // Filters
     const [selectedLocation, setSelectedLocation] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [name, setName] = useState('');
@@ -173,7 +172,6 @@ export const DepartmentsPage = () => {
               </Button>)}
           </div>}/>
 
-      {/* Add/Edit Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingDept ? 'Edit Department' : 'Create New Department'} description="Define structural wing, department head, and operational location." footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
               Cancel

@@ -19,10 +19,8 @@ export const PerformanceRecordsPage = () => {
     const [selectedDept, setSelectedDept] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
-    // Modal States
     const [viewingAppraisal, setViewingAppraisal] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    // New Appraisal Form State
     const [formEmployeeId, setFormEmployeeId] = useState('BGS-006');
     const [formEmployeeName, setFormEmployeeName] = useState('Rohan Deshmukh');
     const [formDepartment, setFormDepartment] = useState('Geology & Mineral Exploration');
@@ -43,7 +41,6 @@ export const PerformanceRecordsPage = () => {
     useEffect(() => {
         loadData();
     }, []);
-    // Filtered appraisals
     const filteredAppraisals = useMemo(() => {
         return appraisals.filter((a) => {
             const matchCycle = selectedCycle === 'all' || a.reviewCycle === selectedCycle;
@@ -55,7 +52,6 @@ export const PerformanceRecordsPage = () => {
             return matchCycle && matchDept && matchSearch;
         });
     }, [appraisals, selectedCycle, selectedDept, searchQuery]);
-    // Overall Statistics
     const stats = useMemo(() => {
         const total = appraisals.length;
         const avg = total > 0 ? (appraisals.reduce((acc, a) => acc + a.overallScore, 0) / total).toFixed(2) : '0';
@@ -94,7 +90,6 @@ export const PerformanceRecordsPage = () => {
         });
         toast.success(`Performance appraisal recorded for ${formEmployeeName}.`, 'Appraisal Finalized');
         setIsCreateModalOpen(false);
-        // Reset form
         setFormStrengths('');
         setFormAreas('');
         setFormFeedback('');
@@ -125,7 +120,6 @@ export const PerformanceRecordsPage = () => {
         }
     };
     return (<div className="space-y-6 pb-12 animate-fade-in">
-      {/* Header */}
       <PageHeader title="Performance Records & Appraisals" description="Annual appraisal matrices, KPI goal evaluations, managerial reviews, and promotion recommendations." breadcrumbs={[
             { label: 'Dashboard', path: '/hr' },
             { label: 'Workforce', path: '/hr/employees' },
@@ -136,7 +130,6 @@ export const PerformanceRecordsPage = () => {
             </Button>
           </div>}/>
 
-      {/* 4 KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         <StatCard title="Average Score (Out of 5.0)" value={`${stats.avg} / 5.0`} icon={<Star className="w-5 h-5 text-[#C8943A]"/>} iconBgColor="bg-amber-50 dark:bg-amber-950/40 text-[#C8943A] border border-amber-200/60" change="Strong Bench" changeType="increase" caption="Company-wide index"/>
         <StatCard title="Top Performers" value={`${stats.top} Staff`} icon={<Award className="w-5 h-5 text-teal-700"/>} iconBgColor="bg-teal-50 dark:bg-teal-950/40 text-teal-700 border border-teal-200/60" change="Outstanding" changeType="increase" caption="Rated 4.6+ score"/>
@@ -144,10 +137,8 @@ export const PerformanceRecordsPage = () => {
         <StatCard title="Total Reviews Evaluated" value={`${stats.total} Records`} icon={<Users className="w-5 h-5 text-[#31485A] dark:text-slate-300"/>} iconBgColor="bg-slate-100 dark:bg-slate-800 text-[#31485A] border border-slate-200/60" change="Active Cycles" changeType="neutral" caption="All active divisions"/>
       </div>
 
-      {/* Filter & Search Bar */}
       <Card className="p-3.5 sm:p-4">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-          {/* Search Input */}
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"/>
             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by employee name, BGS ID, or role..." className="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 shadow-2xs transition-all"/>
@@ -156,9 +147,7 @@ export const PerformanceRecordsPage = () => {
               </button>)}
           </div>
 
-          {/* Filters */}
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Cycle Filter */}
             <div className="relative min-w-[180px]">
               <select value={selectedCycle} onChange={(e) => setSelectedCycle(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
                 <option value="all">📅 All Review Cycles</option>
@@ -169,7 +158,6 @@ export const PerformanceRecordsPage = () => {
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>
 
-            {/* Department Filter */}
             <div className="relative min-w-[160px]">
               <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
                 <option value="all">🏢 All Departments</option>
@@ -181,7 +169,6 @@ export const PerformanceRecordsPage = () => {
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>
 
-            {/* Reset Button */}
             {(selectedCycle !== 'all' || selectedDept !== 'all' || searchQuery) && (<button type="button" onClick={() => {
                 setSelectedCycle('all');
                 setSelectedDept('all');
@@ -191,7 +178,6 @@ export const PerformanceRecordsPage = () => {
                 <span>Reset</span>
               </button>)}
 
-            {/* Counter Badge */}
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 text-xs font-medium border border-slate-200/70 dark:border-slate-700/60">
               <span className="font-bold text-slate-900 dark:text-white tabular-nums">{filteredAppraisals.length}</span>
               <span>records</span>
@@ -200,7 +186,6 @@ export const PerformanceRecordsPage = () => {
         </div>
       </Card>
 
-      {/* Main Table */}
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -221,7 +206,6 @@ export const PerformanceRecordsPage = () => {
                     No performance appraisals found matching search filters.
                   </td>
                 </tr>) : (filteredAppraisals.map((appr) => (<tr key={appr.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
-                    {/* Employee Profile */}
                     <td className="py-3.5 px-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         {appr.avatar ? (<img src={appr.avatar} alt={appr.employeeName} className="w-9 h-9 rounded-full object-cover shrink-0 ring-2 ring-teal-600/20 dark:ring-teal-500/20"/>) : (<div className="w-9 h-9 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold flex items-center justify-center text-xs ring-2 ring-teal-600/20 shrink-0">
@@ -243,7 +227,6 @@ export const PerformanceRecordsPage = () => {
                       </div>
                     </td>
 
-                    {/* Cycle */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300 font-medium">
                         <Calendar className="w-3.5 h-3.5 text-slate-400"/>
@@ -252,7 +235,6 @@ export const PerformanceRecordsPage = () => {
                       <p className="text-[10px] text-slate-400 mt-0.5">Evaluated {appr.reviewDate}</p>
                     </td>
 
-                    {/* Score & Rating Badge */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-0.5 rounded-md text-[10.5px] font-bold ${getRatingBadgeClass(appr.rating)}`}>
@@ -265,7 +247,6 @@ export const PerformanceRecordsPage = () => {
                       </div>
                     </td>
 
-                    {/* Goal Delivery */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <div className="w-36">
                         <div className="flex justify-between text-[10.5px] font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -278,20 +259,17 @@ export const PerformanceRecordsPage = () => {
                       </div>
                     </td>
 
-                    {/* Reviewer */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <p className="font-medium text-slate-800 dark:text-slate-200">{appr.reviewerName}</p>
                       <p className="text-[10px] text-slate-400">{appr.reviewerDesignation}</p>
                     </td>
 
-                    {/* Status */}
                     <td className="py-3 px-4 whitespace-nowrap">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadgeClass(appr.status)}`}>
                         {appr.status}
                       </span>
                     </td>
 
-                    {/* Action */}
                     <td className="py-3 px-4 text-right whitespace-nowrap">
                       <button type="button" onClick={() => setViewingAppraisal(appr)} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-800/60 transition-colors shadow-2xs">
                         <Eye className="w-3.5 h-3.5"/>
@@ -304,10 +282,8 @@ export const PerformanceRecordsPage = () => {
         </div>
       </Card>
 
-      {/* ── MODAL: VIEW APPRAISAL DOSSIER ── */}
       {viewingAppraisal && (<Modal isOpen={true} onClose={() => setViewingAppraisal(null)} title={`Performance Dossier • ${viewingAppraisal.employeeName} (${viewingAppraisal.employeeId})`} maxWidth="lg">
           <div className="space-y-5 text-xs">
-            {/* Header summary banner */}
             <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-50/70 via-amber-50/40 to-slate-50 dark:from-teal-950/30 dark:via-amber-950/20 dark:to-slate-900 border border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 {viewingAppraisal.avatar ? (<img src={viewingAppraisal.avatar} alt={viewingAppraisal.employeeName} className="w-12 h-12 rounded-full object-cover ring-2 ring-teal-600/30"/>) : (<div className="w-12 h-12 rounded-full bg-teal-700 text-white font-bold text-lg flex items-center justify-center">
@@ -342,7 +318,6 @@ export const PerformanceRecordsPage = () => {
               </div>
             </div>
 
-            {/* KPI Goals Evaluated */}
             <div>
               <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
                 <FileCheck className="w-3.5 h-3.5 text-teal-700"/>
@@ -369,7 +344,6 @@ export const PerformanceRecordsPage = () => {
               </div>
             </div>
 
-            {/* Strengths & Improvement Areas */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40">
                 <h5 className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1 mb-1">
@@ -392,7 +366,6 @@ export const PerformanceRecordsPage = () => {
               </div>
             </div>
 
-            {/* Manager Remarks & Recommendation */}
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200">
@@ -411,7 +384,6 @@ export const PerformanceRecordsPage = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
               <Button variant="outline" size="sm" onClick={() => {
                 toast.success(`Appraisal sheet downloaded for ${viewingAppraisal.employeeName}.`, 'Dossier Exported');
@@ -425,7 +397,6 @@ export const PerformanceRecordsPage = () => {
           </div>
         </Modal>)}
 
-      {/* ── MODAL: INITIATE / RECORD APPRAISAL ── */}
       {isCreateModalOpen && (<Modal isOpen={true} onClose={() => setIsCreateModalOpen(false)} title="Initiate Employee Performance Appraisal" maxWidth="lg">
           <div className="space-y-4 text-xs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

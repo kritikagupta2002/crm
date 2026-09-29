@@ -46,7 +46,6 @@ export function DashboardPage() {
         <LeadPipeline />
         <ConversionOverview />
       </div>
-      {/* Enquiries and their follow-ups are sales work: only for the roles that open them. */}
       {can('/leads') && (
         <div className="dash-row row-activity">
           <RecentEnquiries />

@@ -18,7 +18,6 @@ export const EmployeeDashboard = () => {
     const { setRole } = useRole();
     const navigate = useNavigate();
     const toast = useToast();
-    // Real-time ticking date & clock
     const [now, setNow] = useState(() => new Date());
     useEffect(() => {
         const timer = setInterval(() => {
@@ -26,7 +25,6 @@ export const EmployeeDashboard = () => {
         }, 1000);
         return () => clearInterval(timer);
     }, []);
-    // Formatted Current Time (HH:mm:ss with AM/PM)
     const currentTimeParts = useMemo(() => {
         const hours24 = now.getHours();
         const hours12 = hours24 % 12 || 12;
@@ -43,13 +41,11 @@ export const EmployeeDashboard = () => {
             full12: `${timeFormatted} ${ampm}`,
         };
     }, [now]);
-    // Current logged in / active employee profile
     const empProfile = useMemo(() => {
         const emps = storage.getEmployees();
         const empId = user?.employeeId || 'BGS-006';
         return emps.find((e) => e.employeeId === empId || (user?.name && e.name.toLowerCase() === user.name.toLowerCase()));
     }, [user?.employeeId, user?.name]);
-    // Current shift assignment dynamically resolved
     const empShift = useMemo(() => {
         const assignments = storage.getShiftAssignments ? storage.getShiftAssignments() : [];
         const empId = user?.employeeId || 'BGS-006';
@@ -68,7 +64,6 @@ export const EmployeeDashboard = () => {
             geofence: `${empProfile?.employment?.workLocation || 'Bhilwara Site Office'} Geofence`,
         };
     }, [user?.employeeId, empProfile]);
-    // Parse any time string (e.g. "02:30 PM") into Date relative to a reference day
     const parseTimeToDate = (timeStr, baseDate) => {
         const d = new Date(baseDate);
         const match = timeStr.trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?$/i);
@@ -87,7 +82,6 @@ export const EmployeeDashboard = () => {
         d.setHours(h, m, s, 0);
         return d;
     };
-    // Biometric punch state - dynamically initialize based on current hour and shift
     const [isClockedIn, setIsClockedIn] = useState(() => {
         const hour = new Date().getHours();
         return hour >= 6 && hour < 15;
@@ -97,11 +91,9 @@ export const EmployeeDashboard = () => {
         const hour = new Date().getHours();
         return hour >= 15 || hour < 6 ? '02:30 PM' : null;
     });
-    // Real-time Shift Countdown & Progress (Format: HH:mm:ss e.g. 03:00:13)
     const shiftRemaining = useMemo(() => {
         const startDate = parseTimeToDate(empShift.startTime, now);
         let endDate = parseTimeToDate(empShift.endTime, now);
-        // Overnight shift handling
         if (endDate <= startDate) {
             endDate.setDate(endDate.getDate() + 1);
         }
@@ -162,7 +154,6 @@ export const EmployeeDashboard = () => {
             toast.success(`Clocked in at ${now}. GPS Geofence verified at ${workLoc}.`, 'Punch In Recorded');
         }
     };
-    // Live dynamic leave balances (Zero Fake Numbers)
     const userLeaveBalances = useMemo(() => {
         const empId = user?.employeeId || 'BGS-006';
         const balances = storage.getBalancesForEmployee(empId, user?.name);
@@ -186,7 +177,6 @@ export const EmployeeDashboard = () => {
         };
         return { cl, sl, el };
     }, [user?.employeeId, user?.name]);
-    // Live leave requests for employee
     const personalLeaves = useMemo(() => {
         const empId = user?.employeeId || 'BGS-006';
         const allReqs = storage.getLeaveRequests();
@@ -231,7 +221,6 @@ export const EmployeeDashboard = () => {
             },
         ];
     }, [user?.employeeId, user?.name]);
-    // Live expense & reimbursement metrics for employee (zero fake numbers)
     const { pendingExpensesTotal, settledExpensesTotal } = useMemo(() => {
         const empId = user?.employeeId;
         if (!empId) {
@@ -254,7 +243,6 @@ export const EmployeeDashboard = () => {
             settledExpensesTotal: settledExp + settledRmb,
         };
     }, [user?.employeeId]);
-    // Dynamic time-of-day greeting
     const greeting = useMemo(() => {
         const hour = new Date().getHours();
         if (hour < 12)
@@ -263,7 +251,6 @@ export const EmployeeDashboard = () => {
             return 'Good afternoon';
         return 'Good evening';
     }, []);
-    // Employee banner visual theme style ('geo' = Bansal Geo Executive, 'glass' = Minimal Frosted Glass, 'midnight' = Midnight Gold)
     const [bannerStyle, setBannerStyle] = useState(() => {
         return localStorage.getItem('hrms_emp_banner_style') || 'geo';
     });
@@ -272,13 +259,11 @@ export const EmployeeDashboard = () => {
         localStorage.setItem('hrms_emp_banner_style', style);
     };
     return (<div className="space-y-4">
-      {/* ── 1. Welcome & Employee Profile Header (Ultra-Concise & Modern) ───────────── */}
       <div className={`relative overflow-hidden rounded-2xl border transition-all duration-300 p-3.5 sm:p-4 shadow-2xs ${bannerStyle === 'geo'
             ? 'bg-gradient-to-r from-white via-[#F8FBFA] to-[#EEF6F6] dark:from-[#0D1B22] dark:via-[#132730] dark:to-[#0A161C] border-slate-200/90 dark:border-teal-900/50 text-slate-900 dark:text-white'
             : bannerStyle === 'glass'
                 ? 'bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-white'
                 : 'bg-gradient-to-r from-[#0C1A20] via-[#12252E] to-[#0A161B] border-[#25424D]/80 text-white shadow-md'}`}>
-        {/* Subtle Topographic Watermark Lines */}
         {(bannerStyle === 'geo' || bannerStyle === 'midnight') && (<div className="absolute inset-0 pointer-events-none opacity-30 dark:opacity-10">
             <svg viewBox="0 0 1200 120" fill="none" className={`w-full h-full ${bannerStyle === 'midnight' ? 'text-teal-400/20' : 'text-teal-700/20 dark:text-teal-400/20'}`} stroke="currentColor">
               <path d="M0,60 C300,10 600,110 1200,40" strokeWidth="1.2"/>
@@ -287,16 +272,13 @@ export const EmployeeDashboard = () => {
             </svg>
           </div>)}
 
-        {/* Ambient Glow */}
         {bannerStyle === 'geo' && (<div className="absolute right-0 top-0 bottom-0 w-64 pointer-events-none overflow-hidden select-none">
             <div className="absolute right-4 -top-6 w-32 h-32 rounded-full border border-amber-300/25 pointer-events-none"/>
             <div className="absolute right-10 -bottom-8 w-36 h-36 bg-teal-500/10 rounded-full blur-2xl pointer-events-none"/>
           </div>)}
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-          {/* Left: Avatar + Concise 2-Row Identity Details */}
           <div className="flex items-center gap-3 min-w-0">
-            {/* Avatar */}
             <div className="relative shrink-0">
               <Avatar name={user?.name || ''} size="lg"/>
               <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 ring-1 ring-white dark:ring-slate-900" title={isClockedIn ? 'Clocked In • Active' : 'Clocked Out'}>
@@ -304,9 +286,7 @@ export const EmployeeDashboard = () => {
               </span>
             </div>
 
-            {/* Profile Info (Strictly 2 concise rows) */}
             <div className="min-w-0 space-y-0.5">
-              {/* Row 1: Name + Role Chip + ID + ESS */}
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-base sm:text-lg font-sans font-semibold tracking-tight text-slate-900 dark:text-white truncate">
                   {user?.name || empProfile?.name || 'Rohan Deshmukh'}
@@ -333,7 +313,6 @@ export const EmployeeDashboard = () => {
                 </span>
               </div>
 
-              {/* Row 2: Location • Manager • Shift */}
               <div className={`flex flex-wrap items-center gap-2 text-[11px] ${bannerStyle === 'midnight' ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-[#C8943A]"/>
@@ -353,9 +332,7 @@ export const EmployeeDashboard = () => {
             </div>
           </div>
 
-          {/* Right: Live Punch Capsule + Quick Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 flex-wrap">
-            {/* Live Clock / Punch Capsule */}
             <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-lg border text-[11px] font-semibold shadow-2xs ${bannerStyle === 'midnight'
             ? 'bg-slate-900/90 border-[#25424D] text-slate-200'
             : 'bg-white/90 dark:bg-slate-900/90 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200'}`}>
@@ -386,9 +363,7 @@ export const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* ── 2. Live Punch Clock & Personal Attendance KPI Row ───────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Live Punch Clock Widget */}
         <Card className="p-4 sm:p-5 flex flex-col justify-between border-t-2" style={{ borderTopColor: roleColor }}>
           <div>
             <div className="flex items-center justify-between">
@@ -405,7 +380,6 @@ export const EmployeeDashboard = () => {
               </span>
             </div>
 
-            {/* Live Clock Display */}
             <div className="my-3 text-center">
               <div className="inline-flex items-baseline justify-center gap-1.5">
                 <span className="text-3xl sm:text-4xl font-extrabold font-mono text-slate-900 dark:text-white tracking-tight tabular-nums">
@@ -420,7 +394,6 @@ export const EmployeeDashboard = () => {
               </p>
             </div>
 
-            {/* Shift Remaining Countdown Banner */}
             <div className="mb-3 p-2.5 rounded-xl border shadow-2xs" style={{ background: roleBg, borderColor: `${roleColor}40` }}>
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="font-semibold flex items-center gap-1.5" style={{ color: roleColor }}>
@@ -439,7 +412,6 @@ export const EmployeeDashboard = () => {
                   {shiftRemaining.isOvertime ? (<span className="text-amber-600 dark:text-amber-400 font-semibold">Post Shift Time</span>) : (<span>Shift Ends <strong className="text-slate-700 dark:text-slate-200">{empShift.endTime}</strong></span>)}
                 </div>
               </div>
-              {/* Progress bar */}
               <div className="w-full bg-slate-200/80 dark:bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div className={`h-1.5 rounded-full transition-all duration-700 ease-out ${shiftRemaining.isOvertime
             ? 'bg-amber-500'
@@ -447,7 +419,6 @@ export const EmployeeDashboard = () => {
               </div>
             </div>
 
-            {/* Shift & Geofence Details */}
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800 space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between items-center">
                 <span>Shift Timings:</span>
@@ -486,7 +457,6 @@ export const EmployeeDashboard = () => {
           </div>
         </Card>
 
-        {/* Attendance Summary 4-Grid Cards */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Card className="p-4 flex flex-col justify-between border-l-4 border-l-emerald-500">
             <div>
@@ -574,7 +544,6 @@ export const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* ── 3. Leave Balances & Applications ─────────────────────── */}
       <Card className="p-4 sm:p-5">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
@@ -657,7 +626,6 @@ export const EmployeeDashboard = () => {
           </div>
         </div>
 
-        {/* Recent Applications by Employee */}
         <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
           <h3 className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">My Recent Applications</h3>
           <div className="space-y-2">
@@ -678,9 +646,7 @@ export const EmployeeDashboard = () => {
         </div>
       </Card>
 
-      {/* ── 4. My Expenses & Upcoming Company Holidays ─────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* My Expenses & Reimbursements */}
         <Card className="p-4 sm:p-5">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
@@ -723,7 +689,6 @@ export const EmployeeDashboard = () => {
           </div>
         </Card>
 
-        {/* Company Holidays & Notice */}
         <Card className="p-4 sm:p-5">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">

@@ -11,11 +11,6 @@ import { clientProjects } from '../../utils/projects'
 
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
 
-/*
- * Project profit & loss: what each won job is worth (the accepted quotation, before GST) against what was
- * spent on outside firms for it. Only the Admin sees this (requirement E2: junior
- * accounts staff are kept out of P&L).
- */
 export function PnlReport({ switcher }) {
   const { leads, projectEdits } = useCrm()
   const money = useMoney()
@@ -24,7 +19,6 @@ export function PnlReport({ switcher }) {
   const rows = leadsForPeriod(leads, period)
     .filter((l) => l.stage === 'Won' && l.quoteValue)
     .map((lead) => {
-      // The quotation was for the client's first project; its subcontracts are the job's outside cost.
       const project = clientProjects(lead, projectEdits)[0]
       const orders = project?.workOrders ?? []
       const cost = orders.reduce((s, w) => s + (w.bill?.amount ?? w.amount), 0)

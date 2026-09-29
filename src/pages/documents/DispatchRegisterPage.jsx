@@ -15,10 +15,6 @@ import './documents.css'
 
 const TABS = { 'To dispatch': (d) => d.record.dispatch.status === 'To dispatch', 'On the way': (d) => d.record.dispatch.status === 'Dispatched', Received: (d) => d.record.dispatch.status === 'Received', All: () => true }
 
-/*
- * Flowchart step "Government document dispatch": the paper originals that go to clients — which are still to send,
- * which are on their way (with the docket to track them) and which have arrived. A row opens the document.
- */
 export function DispatchRegisterPage() {
   const { documents } = useCrm()
   const [params, setParams] = useSearchParams()

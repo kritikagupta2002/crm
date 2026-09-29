@@ -1,7 +1,3 @@
-/*
- * Downloads rows as a CSV file that opens directly in Excel.
- * The BOM makes Excel read it as UTF-8, so "₹" and Hindi names show correctly.
- */
 export function downloadCsv(filename, columns, rows) {
   const escape = (value) => {
     const text = value === null || value === undefined ? '' : String(value)

@@ -16,7 +16,6 @@ import '../projects/erm.css'
 const todayISO = toISODate(TODAY)
 const OPEN = ['Issued', 'In progress', 'Completed', 'Bill received']
 
-/* Who may take a step: the project side runs the work, Accounts records and checks bills, the CFO pays. */
 const canTake = (role, step) => (step.who === 'work' ? WORK_ROLES.includes(role) : BILL_ROLES[step.who].includes(role))
 
 function SubcontractForm({ projects, vendors, onDone }) {
@@ -80,7 +79,6 @@ function SubcontractForm({ projects, vendors, onDone }) {
   )
 }
 
-/* Vendor master: a new subcontractor with the details Accounts needs (GSTIN, PAN, TDS section, bank). */
 function VendorForm({ withBank, onDone }) {
   const { addVendor } = useCrm()
   const [form, setForm] = useState({ name: '', work: '', place: '', contact: '', phone: '', email: '', gstin: '', pan: '', tds: '1', bankName: '', accountNo: '', ifsc: '' })
@@ -183,8 +181,6 @@ function VendorForm({ withBank, onDone }) {
   )
 }
 
-
-/* One subcontract: its next step (for whoever may take it) and its record so far. */
 function WorkOrderDrawer({ order, vendor, onClose }) {
   const { role, recordWorkStep, settings } = useCrm()
   const money = useMoney()
@@ -248,7 +244,6 @@ function WorkOrderDrawer({ order, vendor, onClose }) {
   )
 }
 
-/* One subcontractor: the vendor master details and how they have delivered. Bank details only for Finance and the Admin. */
 function VendorDrawer({ vendor, stats, onOpenOrder, onClose }) {
   const money = useMoney()
   const { bank } = useAccess()
@@ -320,12 +315,6 @@ function VendorDrawer({ vendor, stats, onOpenOrder, onClose }) {
   )
 }
 
-/*
- * Subcontracts: work given to outside firms against a project, from order to payment, in the vendor sheet's
- * steps — delivery, bill, a 3-way check by Accounts (order, delivery, bill), then payment with TDS by the CFO.
- * (A client's work order to us is the CRM's Client Approval step; this is the other direction.) Coordinators
- * and team leads run the work; the amounts stay hidden from them.
- */
 export function SubcontractsPage() {
   const { leads, projectEdits, role, vendors } = useCrm()
   const money = useMoney()

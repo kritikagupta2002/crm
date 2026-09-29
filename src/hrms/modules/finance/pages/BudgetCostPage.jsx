@@ -119,7 +119,6 @@ export const BudgetCostPage = () => {
             </Button>
           </div>}/>
 
-      {/* 5 Summary Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         <StatCard title="Total Budget" value={`₹${(totalAllocated / 100000).toFixed(1)}L`} caption="Approved fiscal budget" icon={<PieChart className="w-5 h-5 text-teal-700 dark:text-teal-300"/>} iconBgColor="bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300"/>
 
@@ -132,7 +131,6 @@ export const BudgetCostPage = () => {
         <StatCard title="Net Variance" value={`${totalRemaining >= 0 ? '+' : '-'}${Math.abs(100 - utilizationRatio)}%`} caption={totalRemaining >= 0 ? 'Under fiscal budget' : 'Overrun warning'} change={totalRemaining >= 0 ? 'Favorable' : 'Overrun'} changeType={totalRemaining >= 0 ? 'increase' : 'decrease'} icon={<AlertTriangle className="w-5 h-5 text-purple-700 dark:text-purple-300"/>} iconBgColor="bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300"/>
       </div>
 
-      {/* Visual Pipeline Banner Communicating: Budget -> Allocation -> Cost / Expense -> Actual Spend -> Variance */}
       <Card className="p-4 sm:p-5 border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] overflow-hidden">
         <div className="mb-3">
           <span className="text-[10px] font-bold font-mono tracking-wider uppercase text-teal-700 dark:text-teal-400">
@@ -144,31 +142,26 @@ export const BudgetCostPage = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-3 items-center">
-          {/* Stage 1: Budget */}
           <div className="p-3 rounded-xl bg-teal-50/70 dark:bg-teal-950/40 border border-teal-200/80 dark:border-teal-800/50 text-center">
             <span className="text-[10px] font-bold uppercase text-teal-800 dark:text-teal-300 font-mono">Stage 1</span>
             <h4 className="text-xs font-bold text-teal-950 dark:text-teal-100 mt-0.5">Budget</h4>
             <p className="text-[11px] text-teal-800/80 dark:text-teal-300/80 font-mono mt-1">₹{(totalAllocated / 100000).toFixed(1)}L</p>
           </div>
 
-          {/* Arrow */}
           <div className="hidden sm:flex justify-center text-slate-300 dark:text-slate-600">
             <ArrowRight className="w-5 h-5"/>
           </div>
 
-          {/* Stage 2: Allocation */}
           <div className="p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-800/50 text-center">
             <span className="text-[10px] font-bold uppercase text-blue-800 dark:text-blue-300 font-mono">Stage 2</span>
             <h4 className="text-xs font-bold text-blue-950 dark:text-blue-100 mt-0.5">Allocation</h4>
             <p className="text-[11px] text-blue-800/80 dark:text-blue-300/80 font-mono mt-1">{budgets.length} Cost Centers</p>
           </div>
 
-          {/* Arrow */}
           <div className="hidden sm:flex justify-center text-slate-300 dark:text-slate-600">
             <ArrowRight className="w-5 h-5"/>
           </div>
 
-          {/* Stage 3: Actual Spend & Variance */}
           <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/50 text-center">
             <span className="text-[10px] font-bold uppercase text-emerald-800 dark:text-emerald-300 font-mono">Stage 3 & 4</span>
             <h4 className="text-xs font-bold text-emerald-950 dark:text-emerald-100 mt-0.5">Actual Spend & Variance</h4>
@@ -177,7 +170,6 @@ export const BudgetCostPage = () => {
         </div>
       </Card>
 
-      {/* Main Budget Data Table */}
       <DataTable columns={columns} data={budgets} keyField="id" searchable searchPlaceholder="Search budgets by project name or category..." searchFields={['costCenter', 'category', 'status']} pageSize={10} emptyTitle="No budget allocations found" emptyDescription="Add your first exploration project budget allocation."/>
 
       <AddBudgetModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onBudgetAdded={() => loadData()}/>

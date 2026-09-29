@@ -16,7 +16,6 @@ const digits = (value) => value.replace(/\D/g, '').slice(-10)
 const MAX_SIZE = 10 * 1024 * 1024
 const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`)
 
-/* How we first get back to the client, in their chosen way. */
 const FIRST_STEP = {
   Call: ['We call you', 'Within one working day, to understand the site and the scope.'],
   WhatsApp: ['We message you on WhatsApp', 'Within one working day, to understand the site and the scope.'],
@@ -24,7 +23,6 @@ const FIRST_STEP = {
 }
 const REPLY_VERB = { Call: 'call', WhatsApp: 'message', Email: 'email' }
 
-/* New enquiries go to whoever has the fewest open ones, like the team does by hand. */
 function nextOwner(leads) {
   const open = (name) => leads.filter((l) => l.assignedTo === name && l.stage !== 'Won' && l.stage !== 'Lost').length
   return [...TEAM].sort((a, b) => open(a) - open(b))[0]
@@ -54,7 +52,6 @@ function validate(form) {
   return errors
 }
 
-/* An open enquiry from the same mobile for one of the same services in the last two months: likely sent twice. */
 function earlierEnquiry(leads, form) {
   const phone = digits(form.phone)
   const since = toISODate(addDays(TODAY, -60))
@@ -64,7 +61,6 @@ function earlierEnquiry(leads, form) {
   )
 }
 
-/* After sending: the enquiry ID to keep (it is the portal login), what was sent, and what happens next. */
 function EnquiryDone({ created, settings, onAnother, onPortal }) {
   const [copied, setCopied] = useState(false)
   const services = servicesOf(created)
@@ -75,7 +71,6 @@ function EnquiryDone({ created, settings, onAnother, onPortal }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // Clipboard blocked: the ID is on screen to note down.
     }
   }
 
@@ -143,12 +138,6 @@ function EnquiryDone({ created, settings, onAnother, onPortal }) {
   )
 }
 
-/*
- * The public "Send an enquiry" page: what the website's enquiry button opens. Anyone can use it; a signed-in
- * client gets their details filled in. The enquiry lands in the CRM like any other and the client can
- * follow it in their portal straight away.
- */
-/* Tomorrow, or Monday when tomorrow is a Sunday. */
 const nextWorkingDay = () => {
   const day = addDays(TODAY, 1)
   return toISODate(day.getDay() === 0 ? addDays(day, 1) : day)
@@ -201,7 +190,6 @@ export function PublicEnquiryPage() {
       expectedTimeline: form.expectedTimeline || undefined,
       assignedTo: nextOwner(leads),
       description: form.description.trim() || undefined,
-      // The thank-you screen promises a call within one working day, so the owner gets that call on their list.
       followUp: { type: 'Call', date: nextWorkingDay(), time: '11:00' },
       files,
       byClient: true,
@@ -220,7 +208,6 @@ export function PublicEnquiryPage() {
       requestAnimationFrame(() => document.querySelector('.public-form .has-error input, .public-form .has-error select')?.focus())
       return
     }
-    // Sent twice by mistake? Say so first; the client can still send it.
     const match = earlierEnquiry(leads, form)
     if (match && !earlier) {
       setEarlier(match)

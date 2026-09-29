@@ -12,7 +12,6 @@ import '../projects/erm.css'
 const todayISO = toISODate(TODAY)
 const weekISO = toISODate(addDays(TODAY, 7))
 
-/* Project delivery at a glance: where every project stands, what is late, and who is carrying the work. */
 export function ErmDashboard() {
   const { leads, projectEdits } = useCrm()
   const projects = allProjects(leads, projectEdits)
@@ -22,7 +21,6 @@ export function ErmDashboard() {
   const dueThisWeek = openTasks.filter(({ task }) => task.due && task.due >= todayISO && task.due <= weekISO)
   const withAuthority = active.filter((p) => ERM_STAGES[p.stageIndex].key === 'approval')
 
-  // Hand-overs waiting on a person: no coordinator, no team, owners missing or closure pending; and anything overdue.
   const waiting = active
     .filter((p) => ['allocation', 'planning', 'tasks', 'closure'].includes(ERM_STAGES[p.stageIndex].key))
     .map((p) => ({ id: `s-${p.id}`, project: p, text: ERM_STAGES[p.stageIndex].todo, who: ERM_STAGES[p.stageIndex].owner, tone: 'tone-attention' }))

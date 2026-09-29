@@ -66,7 +66,6 @@ export const NotificationsPage = () => {
               Mark All as Read ({unreadCount})
             </Button>) : undefined}/>
 
-      {/* Filter Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto p-1 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344]">
         {['all', 'unread', 'Leave', 'Attendance', 'Payroll', 'Expense', 'Documents'].map((f) => (<button key={f} onClick={() => setFilterType(f)} className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${filterType === f
                 ? 'bg-blue-600 text-white shadow-xs'
@@ -75,7 +74,6 @@ export const NotificationsPage = () => {
           </button>))}
       </div>
 
-      {/* Notification List */}
       <Card className="divide-y divide-slate-100 dark:divide-[#253344] overflow-hidden">
         {filtered.length === 0 ? (<div className="p-12 text-center text-xs text-slate-400">
             No notifications matching this filter.

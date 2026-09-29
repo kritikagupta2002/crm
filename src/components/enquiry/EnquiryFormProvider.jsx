@@ -5,10 +5,6 @@ import { EnquiryFormContext } from '../../context/enquiryForm'
 import { AddEnquiryDrawer } from './AddEnquiryDrawer'
 import './enquiry.css'
 
-/*
- * Lets any button in the app open the enquiry drawer — blank for a new enquiry, or filled in to edit one.
- * A new enquiry lands on its Enquiry Details page; either way a toast confirms the save.
- */
 export function EnquiryFormProvider({ children }) {
   const navigate = useNavigate()
   const [form, setForm] = useState(null) // null = closed, { lead: null } = new, { lead } = edit

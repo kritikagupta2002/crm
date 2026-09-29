@@ -14,14 +14,9 @@ const FILTERS = [
   { id: 'ready', label: 'Ready to close', test: (a) => progressOf(APPROVAL_STEPS, a) === APPROVAL_STEPS.length },
 ]
 
-/*
- * After the client accepts a quotation: collect the work order, advance and signed agreement,
- * then close the deal as Won — which starts onboarding.
- */
 export function ClientApprovalPage() {
   const money = useMoney()
   const { leads, updateLead, changeStage } = useCrm()
-  // Sales ticks the PO and agreement, Accounts the advance; closing as Won is Sales'.
   const { may, locked } = useAccess()
   const [filter, setFilter] = useState('all')
 

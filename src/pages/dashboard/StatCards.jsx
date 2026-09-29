@@ -54,7 +54,6 @@ export function StatCards() {
           )}
         </StatCard>
       ) : (
-        // Accounts don't follow up enquiries; what they chase is the advance on accepted quotations.
         <StatCard tone={summary.advanceDue.value ? 'tone-attention' : 'tone-good'} icon={Wallet} label="Advance Due" value={summary.advanceDue.value} to="/client-approval">
           <span className="muted">
             {summary.advanceDue.value ? (

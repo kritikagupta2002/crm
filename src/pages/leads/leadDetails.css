@@ -22,7 +22,6 @@
   padding-top: 0;
 }
 
-/* Title on the left, actions on one line to the right; the meta line wraps before the buttons do. */
 @media (min-width: 1024px) {
   .lead-header {
     flex-wrap: nowrap;
@@ -52,7 +51,6 @@
   gap: 8px;
 }
 
-/* ---------- Layout: tabs on the left, summary on the right ---------- */
 .details-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -111,7 +109,6 @@
   text-align: center;
 }
 
-/* Open client questions: amber, apart from the follow-up count. */
 .details-tabs span.tab-question {
   background: var(--tone-bg);
   color: var(--tone);
@@ -121,7 +118,6 @@
   padding: 18px 22px 20px;
 }
 
-/* ---------- Overview ---------- */
 .overview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -176,7 +172,6 @@
   line-height: 1.6;
 }
 
-/* ---------- Project requirements ---------- */
 .panel-head {
   display: flex;
   align-items: flex-start;
@@ -237,7 +232,6 @@
   color: var(--ink-3);
 }
 
-/* ---------- Documents ---------- */
 .documents {
   display: flex;
   flex-direction: column;
@@ -314,7 +308,6 @@
   gap: 6px;
 }
 
-/* A client upload from the last week. */
 .new-pill {
   margin-left: 8px;
   padding: 1px 7px;
@@ -415,7 +408,6 @@
   color: var(--gold-600);
 }
 
-/* ---------- Follow-ups & activity ---------- */
 .activity-panel {
   display: flex;
   flex-direction: column;
@@ -427,7 +419,6 @@
   border-top: none;
 }
 
-/* ---------- Summary side ---------- */
 .details-side {
   display: flex;
   flex-direction: column;
@@ -469,7 +460,6 @@
 
 .side-facts dd {
   margin: 2px 0 0;
-  /* A long figure breaks inside the card instead of running out of it. */
   overflow-wrap: anywhere;
   font-family: var(--font-serif);
   font-size: 18px;
@@ -523,7 +513,6 @@
   color: inherit;
 }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 1100px) {
   .details-layout {
     grid-template-columns: minmax(0, 1fr);
@@ -549,21 +538,18 @@
   }
 }
 
-/* Phones: the action buttons flow from the left in rows instead of spreading to both edges. */
 @media (max-width: 640px) {
   .lead-header .page-actions {
     justify-content: flex-start;
   }
 }
 
-/* Client history: last contact above the timeline */
 .history-summary {
   margin: -4px 0 12px;
   font-size: 13px;
   color: var(--ink-2);
 }
 
-/* Client questions from the portal (CRM and portal) */
 .query-list {
   display: flex;
   flex-direction: column;
@@ -581,7 +567,6 @@
   animation: fade 0.3s ease both;
 }
 
-/* Client Questions page: the same cards, inside the page's card. */
 .questions-inbox {
   padding: 4px 20px 20px;
 }
@@ -655,7 +640,6 @@
   gap: 8px;
 }
 
-/* Payments (CRM): asking the client for a payment */
 .pay-request input {
   width: 100%;
   height: 36px;
@@ -666,7 +650,6 @@
   font-size: 13.5px;
 }
 
-/* A reported payment waiting on a workflow card (Client Approval) */
 .pay-check {
   display: flex;
   flex-direction: column;

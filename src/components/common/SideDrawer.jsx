@@ -2,7 +2,6 @@ import { X } from 'lucide-react'
 import { useEffect, useId } from 'react'
 import { Portal } from './Portal'
 
-/* A panel from the right for one record (a subcontract, a vendor, an application, a tender). Esc or the backdrop closes it. */
 export function SideDrawer({ title, sub, onClose, className = '', children }) {
   const titleId = useId()
   useEffect(() => {

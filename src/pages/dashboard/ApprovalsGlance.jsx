@@ -4,13 +4,11 @@ import { useAccess, useCrm } from '../../context/crm'
 import { formatNearDate } from '../../utils/date'
 import { allProjects } from '../../utils/projects'
 
-/* Government approvals at a glance: how many projects are where, and which ones are waiting on an authority. */
 export function ApprovalsGlance() {
   const { leads, projectEdits } = useCrm()
   const { can } = useAccess()
   const projects = allProjects(leads, projectEdits)
   const waiting = projects.filter((p) => p.status === 'Awaiting approval')
-  // Roles without the Projects page still see the list, just not as links.
   const linkTo = (p, content) =>
     can('/projects') ? (
       <Link to={`/projects/${p.id}`} className="glance-item">

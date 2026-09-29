@@ -1,5 +1,4 @@
 export const INITIAL_NOTIFICATIONS = [
-    // HR / Admin Notifications
     {
         id: 'notif-1',
         type: 'Leave',
@@ -55,7 +54,6 @@ export const INITIAL_NOTIFICATIONS = [
         priority: 'low',
         targetRole: 'hr',
     },
-    // Employee Personal Notifications (e.g. for Rohan Deshmukh)
     {
         id: 'notif-emp-1',
         type: 'Leave',

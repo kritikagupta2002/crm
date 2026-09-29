@@ -1,16 +1,3 @@
-/**
- * workingDays.ts
- * Single source of truth for leave duration and working day calculations.
- *
- * Rules:
- *  - Exclude Saturday (day 6) and Sunday (day 0)
- *  - Exclude Indian national public holidays for 2026
- *  - Exclude additional company holidays stored in LeaveSettings.companyHolidays
- *  - Pure string / local-date parsing to prevent timezone shift errors
- *
- * Used by: leave.service.ts, ApplyLeavePage.tsx, LeaveApprovalsPage.tsx, attendance sync
- */
-/** Indian national public holidays for the fiscal year 2026 */
 export const NATIONAL_HOLIDAYS_2026 = [
     '2026-01-26', // Republic Day
     '2026-03-29', // Good Friday
@@ -27,28 +14,16 @@ export const NATIONAL_HOLIDAYS_2026 = [
     '2026-11-24', // Guru Nanak Jayanti
     '2026-12-25', // Christmas Day
 ];
-/**
- * Parse a 'YYYY-MM-DD' string safely into a Date object in local time
- */
 export function parseLocalDate(dateStr) {
     const [year, month, day] = dateStr.split('-').map(Number);
     return new Date(year, month - 1, day, 12, 0, 0); // Noon local time avoids DST/timezone shifts
 }
-/**
- * Format a Date object to 'YYYY-MM-DD'
- */
 export function formatToDateStr(date) {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
 }
-/**
- * Returns true if the date is a working day:
- *  - Not Saturday or Sunday
- *  - Not a national holiday
- *  - Not in the company-specific holiday list
- */
 export function isWorkingDay(dateStr, companyHolidays = []) {
     const date = parseLocalDate(dateStr);
     const day = date.getDay();
@@ -60,14 +35,6 @@ export function isWorkingDay(dateStr, companyHolidays = []) {
         return false;
     return true;
 }
-/**
- * Count the number of working days between startDate and endDate (inclusive).
- * Returns -1 if end < start.
- *
- * @param startDateStr  YYYY-MM-DD
- * @param endDateStr    YYYY-MM-DD
- * @param companyHolidays  Optional list of additional YYYY-MM-DD holiday dates
- */
 export function countWorkingDays(startDateStr, endDateStr, companyHolidays = []) {
     if (!startDateStr || !endDateStr)
         return 0;
@@ -88,10 +55,6 @@ export function countWorkingDays(startDateStr, endDateStr, companyHolidays = [])
     }
     return count;
 }
-/**
- * Get all individual working dates (YYYY-MM-DD) within a range.
- * Useful for attendance synchronization.
- */
 export function getWorkingDates(startDateStr, endDateStr, companyHolidays = []) {
     if (!startDateStr || !endDateStr)
         return [];
@@ -110,10 +73,6 @@ export function getWorkingDates(startDateStr, endDateStr, companyHolidays = []) 
     }
     return workingDates;
 }
-/**
- * Get the list of all non-working dates within a range (weekends + holidays).
- * Used for displaying skipped days in the UI.
- */
 export function getNonWorkingDates(startDateStr, endDateStr, companyHolidays = []) {
     if (!startDateStr || !endDateStr)
         return [];
@@ -132,9 +91,6 @@ export function getNonWorkingDates(startDateStr, endDateStr, companyHolidays = [
     }
     return skipped;
 }
-/**
- * Format a date string YYYY-MM-DD to a human-friendly display.
- */
 export function formatDate(dateStr) {
     if (!dateStr)
         return '';

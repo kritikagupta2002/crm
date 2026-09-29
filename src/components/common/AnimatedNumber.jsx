@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
-/* Skip the count-up when motion is reduced, or when the tab is hidden (browsers pause animation frames there). */
 const instant = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || document.hidden
 
-/* Counts up to `value` (ease-out, ~0.7s) whenever it changes; `format` turns the number into text. */
 export function AnimatedNumber({ value, format = (n) => Math.round(n).toLocaleString('en-IN'), duration = 700 }) {
   const [shown, setShown] = useState(value)
   const from = useRef(0)

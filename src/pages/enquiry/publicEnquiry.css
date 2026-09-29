@@ -1,4 +1,3 @@
-/* ---------- Public enquiry form ---------- */
 .public-enquiry .portal-main {
   padding-block: 16px;
 }
@@ -154,7 +153,6 @@
   margin-top: 20px;
 }
 
-/* The enquiry ID the client keeps: it is their portal login. */
 .enquiry-id {
   display: inline-flex;
   align-items: center;

@@ -17,7 +17,6 @@ const GROUPS = [
   { key: 'member', label: 'Field team', people: FIELD_MEMBERS, about: (p) => p.skills },
 ]
 
-/* Free, normal or busy, from the running projects a person is on. */
 function loadOf(projects) {
   if (projects === 0) return { label: 'Free', tone: 'tone-good' }
   if (projects <= 2) return { label: 'Normal', tone: 'tone-info' }
@@ -34,7 +33,6 @@ const initials = (name) =>
     .slice(0, 2)
     .toUpperCase()
 
-/* The project team: who is on which project, what they have open, and who is free for the next allocation. */
 export function TeamPage() {
   const { leads, projectEdits } = useCrm()
   const [group, setGroup] = useTabParam(['all', ...GROUPS.map((g) => g.key), 'free'], 'all')

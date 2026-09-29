@@ -37,23 +37,18 @@ const AdminDashboard = () => {
     const { isDark } = useTheme();
     const toast = useToast();
     const navigate = useNavigate();
-    // Live master data directly from storage
     const [allEmployees, setAllEmployees] = useState(() => storage.getEmployees());
     const [allAttendance, setAllAttendance] = useState(() => storage.getAttendance());
     const [allLeaveRequests, setAllLeaveRequests] = useState(() => storage.getLeaveRequests());
-    // State
     const [greeting] = useState(() => {
         const hour = new Date().getHours();
         return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
     });
-    // Dashboard Global Filters State
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedLocation, setSelectedLocation] = useState('all');
     const [selectedPeriod, setSelectedPeriod] = useState('today');
-    // Interactive Chart Range Selectors
     const [attendanceRange, setAttendanceRange] = useState('7days');
     const [leaveRange, setLeaveRange] = useState('this_month');
-    // Dynamic Daily Quote Rotation (changes automatically every day, or click to shuffle)
     const [quoteOffset, setQuoteOffset] = useState(0);
     const [isQuoteFading, setIsQuoteFading] = useState(false);
     const activeQuote = useMemo(() => {
@@ -67,7 +62,6 @@ const AdminDashboard = () => {
             setIsQuoteFading(false);
         }, 150);
     };
-    // Dynamic Department List
     const departmentsList = useMemo(() => {
         const counts = {};
         allEmployees.forEach((e) => {
@@ -76,7 +70,6 @@ const AdminDashboard = () => {
         });
         return Object.entries(counts).map(([name, count]) => ({ name, count }));
     }, [allEmployees]);
-    // Dynamic Department Distribution for Pie Chart
     const departmentData = useMemo(() => {
         const palette = isDark
             ? ['#2DD4BF', '#38BDF8', '#FBBF24', '#A78BFA', '#F472B6', '#34D399', '#818CF8', '#FB923C']
@@ -90,7 +83,6 @@ const AdminDashboard = () => {
         }));
     }, [departmentsList, allEmployees, isDark]);
 
-    // Live Recent Expense Claim Activity
     const latestExpenseActivity = useMemo(() => {
         try {
             const exps = storage.getExpenses();
@@ -99,7 +91,6 @@ const AdminDashboard = () => {
             return null;
         }
     }, []);
-    // Dynamically Filtered Metrics for Stat Cards
     const currentStats = useMemo(() => {
         let filteredEmps = allEmployees;
         if (selectedDept !== 'all') {
@@ -119,7 +110,6 @@ const AdminDashboard = () => {
             return todayStr >= l.startDate && todayStr <= l.endDate;
         })
             .map((l) => l.employeeId));
-        // One day's register (the latest one recorded), each person counted once: the register holds many days.
         const day = allAttendance.reduce((d, a) => (a.date <= todayStr && a.date > d ? a.date : d), '');
         const dayRecords = allAttendance.filter((a) => a.date === day && empIds.has(a.employeeId));
         const present = new Set(dayRecords.filter((a) => a.status === 'Present' || a.status === 'Late').map((a) => a.employeeId)).size;
@@ -140,7 +130,6 @@ const AdminDashboard = () => {
         const latePercent = total > 0 ? ((late / total) * 100).toFixed(1) : '0';
         return { total, present, absent, leave, late, newJoiners, presentPercent, absentPercent, leavePercent, latePercent };
     }, [allEmployees, allAttendance, allLeaveRequests, selectedDept, selectedLocation]);
-    // Attendance Trend Data derived from live attendance counts
     const currentAttendanceData = useMemo(() => {
         const today = new Date();
         const todayStr = today.toLocaleDateString('en-CA');
@@ -171,7 +160,6 @@ const AdminDashboard = () => {
         }
         return result;
     }, [attendanceRange, allEmployees, allAttendance, allLeaveRequests]);
-    // Dynamic Leave Overview Data derived from real requests without fabricated multipliers
     const currentLeaveData = useMemo(() => {
         const now = new Date();
         const todayStr = now.toLocaleDateString('en-CA');
@@ -218,7 +206,6 @@ const AdminDashboard = () => {
             { type: 'Others', count: counts['Others'], color: colors['Others'] },
         ];
     }, [allLeaveRequests, leaveRange, isDark, roleColor]);
-    // Interactive Quick Leave Modal
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
     const [leaveType, setLeaveType] = useState('Casual Leave (CL)');
     const [leaveStartDate, setLeaveStartDate] = useState('2026-09-22');
@@ -233,15 +220,12 @@ const AdminDashboard = () => {
             setPendingLeaves(allLeaves.filter((l) => l.status === 'Pending'));
         }
         catch {
-            // ignore
         }
     };
-    // Greeting and initial data
     useEffect(() => {
         window.addEventListener('focus', refreshData);
         return () => window.removeEventListener('focus', refreshData);
     }, []);
-    // Handlers for HR Actions
     const handleApproveLeave = async (id, empName) => {
         await leaveService.reviewLeave(id, 'Approved', user?.name || 'Kritika Gupta', 'Approved via HR Command Center');
         refreshData();
@@ -252,7 +236,6 @@ const AdminDashboard = () => {
         refreshData();
         toast.info(`Leave request rejected for ${empName}`, 'Status Updated');
     };
-    // Employee Quick Leave Submit
     const handleQuickLeaveSubmit = async (e) => {
         e.preventDefault();
         if (!leaveReason.trim()) {
@@ -279,17 +262,10 @@ const AdminDashboard = () => {
             toast.error('Failed to submit leave.', 'Error');
         }
     };
-    // 1. Stacked Attendance Trends (matching reference)
-    // Tab for Celebrations widget
     const [celebrationTab, setCelebrationTab] = useState('birthdays');
     return (<div className="space-y-5 sm:space-y-6">
-      {/* ========================================================================= */}
-      {/* HR & ADMIN COMMAND CENTER VIEW                                             */}
-      {/* ========================================================================= */}
       <div className="space-y-5 animate-fade-in pb-12">
-          {/* ── TOP HERO HEADER SECTION ── */}
           <div className="relative rounded-3xl bg-gradient-to-r from-[#FAF9F6] via-[#FCFAF6] to-[#F5EFE6]/40 dark:from-[#111A26] dark:via-[#142130] dark:to-[#182738] border border-slate-200/80 dark:border-[#223347] p-4 sm:p-7 min-h-[140px] sm:min-h-[160px] flex items-center overflow-hidden shadow-xs dark:shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
-            {/* Topographic Lines Watermark Overlay */}
             <div className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-10">
               <svg viewBox="0 0 1200 200" fill="none" className="w-full h-full text-amber-500/20" stroke="currentColor">
                 <path d="M0,100 C300,20 600,180 1200,60" strokeWidth="1.5"/>
@@ -299,14 +275,11 @@ const AdminDashboard = () => {
               </svg>
             </div>
 
-            {/* Right side realistic mountain peaks bleed graphic */}
             <div className="absolute right-0 top-0 bottom-0 w-[46%] sm:w-[42%] md:w-[38%] pointer-events-none overflow-hidden select-none">
-              {/* Golden Sun & Concentric Contour Rings */}
               <div className="absolute right-10 top-2 w-44 h-44 rounded-full border border-amber-400/40 dark:border-amber-400/20 pointer-events-none"/>
               <div className="absolute right-4 -top-4 w-60 h-60 rounded-full border border-amber-300/30 dark:border-amber-400/15 pointer-events-none"/>
               <div className="absolute -right-6 -top-10 w-76 h-76 rounded-full border border-amber-200/30 dark:border-amber-400/10 pointer-events-none"/>
 
-              {/* High-res rugged mountain peaks image with left fade mask */}
               <img src="/hero-mountain.jpg" alt="Bansal Geo Mountains" className="absolute right-0 bottom-0 h-full w-full object-cover object-right-bottom opacity-20 sm:opacity-100 dark:opacity-30 sm:dark:opacity-60 dark:brightness-75 dark:contrast-125 transition-all duration-300" style={{
             maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 15%, black 45%, black 100%)',
             WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 15%, black 45%, black 100%)',
@@ -314,7 +287,6 @@ const AdminDashboard = () => {
             </div>
 
             <div className="relative z-10 w-full flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 pr-0 md:pr-8">
-              {/* Top row on mobile / Left column on desktop: Greeting + Mobile Date Chip */}
               <div className="flex items-start justify-between md:block gap-2">
                 <div className="max-w-xs">
                   <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-normal">
@@ -328,7 +300,6 @@ const AdminDashboard = () => {
                   </p>
                 </div>
 
-                {/* Mobile Date Badge (<768px) */}
                 <div className="md:hidden flex items-center gap-1.5 bg-white/95 dark:bg-[#131E2B]/95 backdrop-blur-md px-2.5 py-1.5 rounded-xl border border-slate-200/90 dark:border-[#223347] shadow-2xs shrink-0">
                   <Calendar className="w-3.5 h-3.5 text-[#2B5B84] dark:text-amber-400"/>
                   <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100">
@@ -337,7 +308,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Center: Daily Inspiration Quote stacked in 2 lines with gold underline (Visible on ALL devices) */}
               <div onClick={handleNextQuote} title="Daily Thought • Click to preview other thoughts" className="flex flex-col items-start relative pl-5 sm:pl-6 cursor-pointer select-none group my-1 md:my-0">
                 <span className="text-[#D97706] text-2xl sm:text-3xl md:text-4xl font-serif font-black absolute -left-0.5 sm:-left-1 -top-1.5 sm:-top-2 leading-none select-none transition-transform duration-300 group-hover:scale-110">
                   “
@@ -358,7 +328,6 @@ const AdminDashboard = () => {
                 <div className="w-12 sm:w-14 h-0.5 bg-[#D97706] mt-1.5 sm:mt-2 rounded-full transition-all duration-300 group-hover:w-28 group-hover:bg-amber-500"/>
               </div>
 
-              {/* Right: Date Card floating in front of mountains (Visible on tablet/desktop >= 768px) */}
               <div className="hidden md:flex items-center gap-3 sm:gap-4 shrink-0">
                 <div className="flex items-center gap-2.5 sm:gap-3 bg-white/95 dark:bg-[#131E2B]/95 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl border border-slate-200/90 dark:border-[#223347] shadow-xs">
                   <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-slate-100 dark:bg-[#1C2C3D] flex items-center justify-center text-[#2B5B84] dark:text-amber-400 shrink-0">
@@ -377,7 +346,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* ── DASHBOARD FILTERS BAR ── */}
           <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.2)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
@@ -393,7 +361,6 @@ const AdminDashboard = () => {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto [&>div]:w-full [&>div]:xs:w-auto [&>div]:flex-1 [&>div]:xs:flex-initial [&>div]:min-w-[130px]">
-              {/* Department Filter */}
               <div className="relative">
                 <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs">
                   <option value="all">🏢 All Departments ({allEmployees.length})</option>
@@ -404,7 +371,6 @@ const AdminDashboard = () => {
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
               </div>
 
-              {/* Location Filter */}
               <div className="relative">
                 <select value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs">
                   <option value="all">📍 All Locations</option>
@@ -415,7 +381,6 @@ const AdminDashboard = () => {
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
               </div>
 
-              {/* Date Period Filter */}
               <div className="relative">
                 <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs">
                   <option value="today">📅 Today (Live)</option>
@@ -427,7 +392,6 @@ const AdminDashboard = () => {
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
               </div>
 
-              {/* Reset Button */}
               {(selectedDept !== 'all' || selectedLocation !== 'all' || selectedPeriod !== 'today') && (<button onClick={() => {
                 setSelectedDept('all');
                 setSelectedLocation('all');
@@ -439,9 +403,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* ── ROW OF 6 STAT CARDS ── */}
           <div className="hr-stat-row">
-            {/* Card 1: Total Employees */}
             <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
               <div className="flex items-start gap-2.5 sm:gap-3">
                 <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-[#C8943A] dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -460,7 +422,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Card 2: Present Today */}
             <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
               <div className="flex items-start gap-2.5 sm:gap-3">
                 <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
@@ -479,7 +440,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Card 3: Absent Today */}
             <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
               <div className="flex items-start gap-2.5 sm:gap-3">
                 <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-[#D24C47] dark:text-rose-400 flex items-center justify-center shrink-0">
@@ -498,7 +458,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Card 4: On Leave */}
             <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
               <div className="flex items-start gap-2.5 sm:gap-3">
                 <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-[#C8943A] dark:text-amber-400 flex items-center justify-center shrink-0">
@@ -517,7 +476,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Card 5: Late Arrivals */}
             <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
               <div className="flex items-start gap-2.5 sm:gap-3">
                 <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800 text-[#4A5B68] dark:text-slate-300 flex items-center justify-center shrink-0">
@@ -536,7 +494,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Card 6: New Joiners */}
             <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
               <div className="flex items-start gap-2.5 sm:gap-3">
                 <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
@@ -556,9 +513,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* ── MIDDLE ROW: 3 VISUAL CHARTS ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
-            {/* Chart 1: Attendance Trend (5 cols) */}
             <div className="lg:col-span-5 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -578,7 +533,6 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {/* Legend */}
                 <div className="flex items-center gap-3 sm:gap-4 text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-300 mb-4 flex-wrap">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-xs" style={{ backgroundColor: roleColor }}/>
@@ -595,7 +549,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Stacked Bar Chart with Fixed Domain & Bottom Padding */}
               <div className="h-48 sm:h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={currentAttendanceData} margin={{ top: 10, right: 10, left: -20, bottom: 14 }}>
@@ -618,7 +571,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Chart 2: Department-wise Employees (4 cols) */}
             <div className="lg:col-span-4 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
               <div className="mb-2">
                 <h3 className="text-sm font-bold text-[#1E293B] dark:text-slate-100">
@@ -627,7 +579,6 @@ const AdminDashboard = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-2 py-2">
-                {/* Donut Chart with Centered Text */}
                 <div className="relative w-36 h-36 sm:w-40 sm:h-40 shrink-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -644,14 +595,12 @@ const AdminDashboard = () => {
         }}/>
                     </PieChart>
                   </ResponsiveContainer>
-                  {/* Center Text */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <span className="text-2xl font-black text-[#1E293B] dark:text-white leading-none">{allEmployees.length}</span>
                     <span className="text-[10px] text-slate-400 mt-0.5 font-medium">Employees</span>
                   </div>
                 </div>
 
-                {/* Legend List on Right / Below on Mobile */}
                 <div className="w-full sm:flex-1 grid grid-cols-2 sm:grid-cols-1 gap-x-2 gap-y-1.5 sm:space-y-1.5 text-[10px] sm:text-[11px] min-w-0">
                   {departmentData.map((d) => (<div key={d.name} className="flex items-center justify-between gap-1">
                       <div className="flex items-center gap-1.5 min-w-0">
@@ -666,7 +615,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* Chart 3: Leave Overview (3 cols) */}
             <div className="lg:col-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -684,7 +632,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Column Bar Chart with Adequate Domain & Margin */}
               <div className="h-48 sm:h-56 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={currentLeaveData} margin={{ top: 20, right: 10, left: -25, bottom: 14 }}>
@@ -708,9 +655,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* ── BOTTOM ROW: PENDING APPROVALS + RECENT ACTIVITY + CELEBRATIONS ── */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
-            {/* 1. Pending Approvals Table (6 cols) */}
             <div className="lg:col-span-6 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -728,7 +673,6 @@ const AdminDashboard = () => {
                   </button>
                 </div>
 
-                {/* Table */}
                 <div className="overflow-x-auto custom-sidebar-scroll">
                   <table className="w-full text-left text-xs border-collapse">
                     <thead>
@@ -740,7 +684,6 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-[#253344]">
-                      {/* Row 1: Ravi Gurjar */}
                       <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="py-3 px-3 whitespace-nowrap">
                           <div className="flex items-center gap-2.5">
@@ -774,7 +717,6 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
 
-                      {/* Row 2: Rohan Deshmukh */}
                       <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="py-3 px-3 whitespace-nowrap">
                           <div className="flex items-center gap-2.5">
@@ -808,7 +750,6 @@ const AdminDashboard = () => {
                         </td>
                       </tr>
 
-                      {/* Row 3: Vikramaditya Rathore */}
                       <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                         <td className="py-3 px-3 whitespace-nowrap">
                           <div className="flex items-center gap-2.5">
@@ -846,7 +787,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Bottom footer summary */}
               <div className="pt-3 mt-3 border-t border-slate-100 dark:border-[#253344] flex items-center justify-between">
                 <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                   3 requests awaiting manager review
@@ -858,7 +798,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* 2. Recent Activity Timeline (3 cols) */}
             <div className="lg:col-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -871,9 +810,7 @@ const AdminDashboard = () => {
                   </button>
                 </div>
 
-                {/* Activity List */}
                 <div className="space-y-3">
-                  {/* Item 1 */}
                   <div className="flex items-start gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/50 dark:border-teal-800/40">
                       <FileText className="w-4 h-4"/>
@@ -886,7 +823,6 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Item 2: Live Expense Activity */}
                   <div 
                     className="flex items-start gap-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 p-1 -m-1 rounded-xl transition-colors"
                     onClick={() => navigate('/hr/expenses/approvals')}
@@ -915,7 +851,6 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Item 3 */}
                   <div className="flex items-start gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#31485A] dark:text-slate-300 flex items-center justify-center shrink-0 border border-slate-200/60 dark:border-slate-700/50">
                       <FileCheck2 className="w-4 h-4"/>
@@ -928,7 +863,6 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Item 4 */}
                   <div className="flex items-start gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/50 dark:border-teal-800/40">
                       <Clock className="w-4 h-4"/>
@@ -941,7 +875,6 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Item 5 */}
                   <div className="flex items-start gap-2.5">
                     <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/50 dark:border-emerald-800/40">
                       <UserPlus className="w-4 h-4"/>
@@ -956,7 +889,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Bottom link */}
               <div className="pt-3 mt-3 border-t border-slate-100 dark:border-[#253344]">
                 <button type="button" onClick={() => navigate('/hr/notifications')} className="text-xs font-bold text-[#B07D27] dark:text-amber-400 hover:text-[#8F621A] dark:hover:text-amber-300 flex items-center gap-1 transition-colors">
                   <span>View all notifications</span>
@@ -965,10 +897,8 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-            {/* 3. Celebrations / Dates Widget (3 cols) */}
             <div className="lg:col-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
               <div>
-                {/* Tabs */}
                 <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#0E1622] border border-slate-200/60 dark:border-[#223347] mb-4">
                   <button type="button" onClick={() => setCelebrationTab('birthdays')} className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap text-center ${celebrationTab === 'birthdays'
             ? 'bg-amber-100/90 dark:bg-amber-500/20 text-[#8F621A] dark:text-amber-300 border border-amber-200/80 dark:border-amber-500/30 shadow-2xs font-bold'
@@ -987,7 +917,6 @@ const AdminDashboard = () => {
                   </button>
                 </div>
 
-                {/* Content based on Tab */}
                 {celebrationTab === 'birthdays' && (<div className="space-y-3">
                     {birthdaysList.map((b) => (<div key={b.name} className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
@@ -1034,7 +963,6 @@ const AdminDashboard = () => {
                   </div>)}
               </div>
 
-              {/* Bottom link */}
               <div className="pt-3 mt-2 border-t border-slate-100 dark:border-[#253344]">
                 <button type="button" onClick={() => {
             if (celebrationTab === 'holidays') {
@@ -1051,7 +979,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* ── FOOTER BAR ── */}
           <div className="pt-4 border-t border-slate-200/80 dark:border-[#253344] flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
             <div>
               © 2026 Bansal Geo Solutions Pvt. Ltd. &nbsp;|&nbsp; HRMS
@@ -1066,7 +993,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-      {/* Quick Leave Application Modal for Employees */}
       <Modal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} title="Apply for Employee Leave" maxWidth="md">
         <form onSubmit={handleQuickLeaveSubmit} className="space-y-4">
           <div>

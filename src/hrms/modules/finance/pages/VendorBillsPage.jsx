@@ -154,7 +154,6 @@ export const VendorBillsPage = () => {
             </Button>
           </div>}/>
 
-      {/* Filter Tabs */}
       <div className="flex items-center gap-2 p-1 bg-white dark:bg-[#142028] rounded-xl border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] overflow-x-auto w-fit">
         {['all', 'Approved', 'Pending Approval', 'Paid', 'Overdue'].map((st) => (<button key={st} onClick={() => setStatusFilter(st)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${statusFilter.toLowerCase() === st.toLowerCase()
                 ? 'bg-[var(--teal-700,#1f6f78)] text-white shadow-2xs'
@@ -163,7 +162,6 @@ export const VendorBillsPage = () => {
           </button>))}
       </div>
 
-      {/* Main Table */}
       <DataTable columns={columns} data={filteredBills} keyField="id" searchable searchPlaceholder="Search vendor bills by number, contractor name, or category..." searchFields={['billNumber', 'vendorName', 'category', 'status']} pageSize={10} emptyTitle="No vendor bills found" emptyDescription="Record a new vendor bill to begin tracking accounts payable."/>
 
       <AddVendorBillModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onBillAdded={() => loadData()}/>

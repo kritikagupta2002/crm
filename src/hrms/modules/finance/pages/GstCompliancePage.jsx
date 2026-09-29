@@ -190,7 +190,6 @@ export const GstCompliancePage = () => {
             </Button>
           </div>}/>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard title="Net GST Payable" value={`₹${(netGstLiability / 100000).toFixed(1)}L`} caption="Output GST minus Input Credit" change="Net Liability" changeType="neutral" icon={<ShieldCheck className="w-5 h-5 text-sky-700 dark:text-sky-300"/>} iconBgColor="bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300"/>
 
@@ -201,7 +200,6 @@ export const GstCompliancePage = () => {
         <StatCard title="Taxable Transactions" value={gstTransactions.length} caption="Active B2B supplies logged" icon={<FileSpreadsheet className="w-5 h-5 text-purple-700 dark:text-purple-300"/>} iconBgColor="bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300"/>
       </div>
 
-      {/* Return Filing Calendar / Tracker */}
       <div className="space-y-3">
         <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
           Statutory Return Filing Schedule & Status
@@ -234,7 +232,6 @@ export const GstCompliancePage = () => {
         </div>
       </div>
 
-      {/* Taxable Transactions Table */}
       <div className="space-y-3 pt-2">
         <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
           Taxable Supply Register & ITC Audit Ledger

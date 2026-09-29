@@ -4,7 +4,6 @@ import { progressOf } from '../../utils/workflow'
 import { useMoney } from '../../context/crm'
 import { RoleLink } from '../../components/common/RoleLink'
 
-/* One client's checklist card, shared by Client Approval and Onboarding. */
 export function WorkflowCard({ lead, steps, values, onToggle, locked, footer, meta, notice }) {
   const money = useMoney()
   const done = progressOf(steps, values)

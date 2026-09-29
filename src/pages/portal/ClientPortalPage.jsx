@@ -23,7 +23,6 @@ import './portal.css'
 
 const JOURNEY = ['Enquiry received', 'Requirement discussion', 'Quotation shared', 'Work order & advance', 'Project started']
 
-/* The ERM stages in the client's words. */
 const CLIENT_STAGE_LABELS = { allocation: 'Team allocated', planning: 'Planning', tasks: 'Work scheduled', work: 'Field & report work', submission: 'Filed with authority', approval: 'Government approval', closure: 'Handed over' }
 
 function journeyIndex(lead, quote) {
@@ -33,7 +32,6 @@ function journeyIndex(lead, quote) {
   return lead.stage === 'New Enquiry' ? 0 : 1
 }
 
-/* The client's wording for a quotation's status. */
 const QUOTE_STATUS = {
   Sent: ['Awaiting your response', 'tone-attention'],
   Revised: ['Revised · awaiting your response', 'tone-attention'],
@@ -59,7 +57,6 @@ function CardTitle({ icon: Icon, children }) {
   )
 }
 
-/* The steps up to the deal. Once there is a project, its stages (in the projects card) take over. */
 function Journey({ lead, quote }) {
   const current = journeyIndex(lead, quote)
   return (
@@ -278,9 +275,7 @@ function DocumentsCard({ lead, projects, readOnly }) {
   const { addDocuments, settings } = useCrm()
   const input = useRef(null)
   const [error, setError] = useState('')
-  // Enquiry documents (the client's uploads and what the team shared), then the project files the team has released.
   const projectFiles = projects.flatMap((p) => p.clientFiles.map((f) => ({ ...f, from: `${p.name} · ${f.from}` })))
-  // The team's own files show only once someone has shared them.
   const docs = [...(lead.documents ?? []).filter((d) => d.byClient || d.shared), ...projectFiles]
 
   const upload = (fileList) => {
@@ -352,7 +347,6 @@ function StepList({ steps, pendingLabel }) {
   )
 }
 
-/* Won clients: each project's work progress, the government approval it is heading for and the official letters. */
 function ProjectsCard({ lead, projects, settings }) {
   const [activeId, setActiveId] = useState(projects[0].id)
   const project = projects.find((p) => p.id === activeId) ?? projects[0]
@@ -445,7 +439,6 @@ function ProjectsCard({ lead, projects, settings }) {
   )
 }
 
-/* Won clients: what is already finished (quotation, approvals, onboarding) folds into one short card. */
 function CompletedCard({ items }) {
   const [open, setOpen] = useState(null)
   return (
@@ -474,7 +467,6 @@ function CompletedCard({ items }) {
   )
 }
 
-/* Ask the team a question in writing; the answer shows up here, so there's no need to chase by phone. */
 function QueriesCard({ lead, readOnly }) {
   const { raiseQuery } = useCrm()
   const [topic, setTopic] = useState(QUERY_TOPICS[0])
@@ -482,7 +474,6 @@ function QueriesCard({ lead, readOnly }) {
   const [writing, setWriting] = useState(false)
   const queries = queriesOf(lead)
 
-  // The phone's help bar opens the form from anywhere on the page.
   useEffect(() => {
     if (readOnly) return
     const open = () => setWriting(true)
@@ -552,7 +543,6 @@ function QueriesCard({ lead, readOnly }) {
   )
 }
 
-/* The bell in the top bar: the latest updates without scrolling, with a count of the ones not seen yet. */
 function PortalBell({ lead, updates }) {
   const { open, setOpen, ref } = usePopover()
   const key = `bansal-portal:seen:${lead.id}`
@@ -563,9 +553,7 @@ function PortalBell({ lead, updates }) {
       return new Set()
     }
   })
-  // The client's own actions aren't news to them.
   const news = updates.filter((u) => !u.you).slice(0, 8)
-  // Only the last month counts as new, so a first visit isn't a wall of old news.
   const monthAgo = toISODate(addDays(TODAY, -30))
   const unread = news.filter((u) => !seen.has(u.id) && (u.upcoming || u.date >= monthAgo)).length
 
@@ -578,7 +566,6 @@ function PortalBell({ lead, updates }) {
       try {
         localStorage.setItem(key, JSON.stringify([...all]))
       } catch {
-        // Only the count is affected.
       }
     }
   }
@@ -630,10 +617,6 @@ function UpdatesCard({ updates }) {
   )
 }
 
-/*
- * What a client sees after signing in with their enquiry ID and mobile number.
- * The team can open the same view read-only with /portal?lead=<id> ("Preview client portal").
- */
 export function ClientPortalPage() {
   const { leads, settings, teamSignedIn, clientLeadId, signOutClient, projectEdits, activities, followUps, role, documents } = useCrm()
   const money = useMoney()
@@ -643,7 +626,6 @@ export function ClientPortalPage() {
   const preview = teamSignedIn ? params.get('lead') : null
   const leadId = preview ?? clientLeadId
   const home = leads.find((l) => l.id === leadId)
-  // One login shows every enquiry made from the same mobile number.
   const related = home ? leads.filter((l) => l.id === home.id || (home.phone && l.phone && digits(l.phone) === digits(home.phone))) : []
   const lead = related.find((l) => l.id === activeId) ?? home
   const missingClientLead = !preview && clientLeadId && !home
@@ -652,7 +634,6 @@ export function ClientPortalPage() {
     if (lead) document.title = `${lead.company} · Client Portal`
   }, [lead])
 
-  // The client's enquiry can disappear when demo data is reset; sign them out cleanly.
   useEffect(() => {
     if (missingClientLead) signOutClient()
   }, [missingClientLead, signOutClient])
@@ -660,8 +641,6 @@ export function ClientPortalPage() {
   if (!lead) return teamSignedIn && !clientLeadId ? <Navigate to="/leads" replace /> : <Navigate to="/login" replace state={{ tab: 'client' }} />
 
   const quote = quoteFor(lead)
-  // The work still running comes first; finished projects follow.
-  // Government letters reach the client once they are verified and allowed for them (Document Management).
   const forClient = new Set(documents.filter(clientCanSee).map((d) => d.id))
   const projects = clientProjects(lead, projectEdits)
     .map((p) => ({ ...p, letters: p.letters.filter((l) => forClient.has(l.id)) }))
@@ -669,11 +648,9 @@ export function ClientPortalPage() {
   const updates = clientUpdates({ lead, quote, projects, activities, followUps })
   const amount = preview ? money.full : clientAmount
   const approvalStarted = quote?.status === 'Accepted' || lead.stage === 'Won'
-  // Who the client talks to: the account owner, and the project coordinator once the work is running.
   const coordinator = projects.find((p) => p.status !== 'Completed' && p.team.coordinator)?.team.coordinator
   const services = lead.services?.length > 1 ? lead.services : null
 
-  // Once the deal is won, finished stages stop taking a whole card each.
   const completed =
     lead.stage === 'Won'
       ? [

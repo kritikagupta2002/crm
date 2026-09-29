@@ -23,7 +23,6 @@ function CardTitle({ icon: Icon, children }) {
   )
 }
 
-/* The UPI QR for this amount; any UPI app (GPay, PhonePe, Paytm, BHIM) scans it. */
 function UpiQr({ link }) {
   const [src, setSrc] = useState('')
   useEffect(() => {
@@ -36,10 +35,6 @@ function UpiQr({ link }) {
   return src ? <img className="pay-qr" src={src} alt="UPI QR code to pay Bansal Geo" width="200" height="200" /> : <span className="pay-qr" />
 }
 
-/*
- * Paying one item (or anything else): the amount, a UPI QR and bank details to pay with, then the
- * payment's reference and a screenshot so Accounts can match it.
- */
 function PayDrawer({ lead, due, onClose }) {
   const { settings, submitPayment } = useCrm()
   const titleId = useId()
@@ -209,12 +204,10 @@ function PayDrawer({ lead, due, onClose }) {
   )
 }
 
-/* What the client owes and what they've paid; each due can be paid from here, or any other amount. */
 export function PaymentsCard({ lead, readOnly }) {
   const { projectEdits } = useCrm()
   const [paying, setPaying] = useState(null)
   const close = useCallback(() => setPaying(null), [])
-  // In the order they were created: the first is the project the quotation was for.
   const dues = duesFor(lead, clientProjects(lead, projectEdits))
   const reported = paymentsOf(lead)
   if (dues.length === 0 && reported.length === 0 && readOnly) return null

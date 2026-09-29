@@ -20,7 +20,6 @@ import { newService, serviceFields, servicesOf } from '../../utils/leads'
 
 const todayISO = toISODate(TODAY)
 
-/* Blank form for a new enquiry, or the lead's current values when editing. */
 const initialState = (lead) => ({
   clientType: lead?.clientType ?? 'Company',
   company: lead?.company ?? '',
@@ -44,7 +43,6 @@ const initialState = (lead) => ({
   followUpTime: '11:00',
 })
 
-/* Accepts "98290 12345", "+91 9829012345", "09829012345" — stores the 10-digit number. */
 const normalisePhone = (value) => value.replace(/[\s-]/g, '').replace(/^(\+91|0)/, '')
 
 function validate(form) {
@@ -54,7 +52,6 @@ function validate(form) {
   if (!/^[6-9]\d{9}$/.test(normalisePhone(form.phone))) errors.phone = 'Enter a valid 10-digit mobile number'
   if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = 'Enter a valid email address'
   if (form.estimatedValue && !(Number(form.estimatedValue) > 0)) errors.estimatedValue = 'Enter an amount in rupees'
-  // A typo guard: no consultancy job here runs past ₹1,000 Cr.
   else if (Number(form.estimatedValue) > 1e10) errors.estimatedValue = 'That is over ₹1,000 Cr. Check the amount'
   if (form.scheduleFollowUp) {
     if (!form.followUpDate) errors.followUpDate = 'Pick a date'
@@ -77,7 +74,6 @@ function Field({ label, error, required, hint, children, wide, span }) {
   )
 }
 
-/* A row of pill-shaped radio buttons; `tones` optionally colours each option (colour code). */
 function ChoiceChips({ label, name, options, value, onChange, tones }) {
   return (
     <fieldset className="field choice-field">
@@ -121,7 +117,6 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
   function update(key, value) {
     const next = { ...form, [key]: value }
     setForm(next)
-    // After the first submit attempt, re-check as the user fixes things.
     if (submitted) setErrors(validate(next))
   }
 
@@ -131,7 +126,6 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
     const found = validate(form)
     setErrors(found)
     if (Object.keys(found).length > 0) {
-      // Wait for the error styles to render, then take the user to the first problem.
       requestAnimationFrame(() => document.querySelector('.enquiry-drawer .has-error input, .enquiry-drawer .has-error select')?.focus())
       return
     }
@@ -170,7 +164,6 @@ export function AddEnquiryDrawer({ lead, onClose, onSaved }) {
 
   const isCompany = form.clientType === 'Company'
 
-  // Same mobile number or company name already in the CRM? Warn, but don't block: repeat clients are normal.
   const phone = normalisePhone(form.phone)
   const name = form.company.trim().toLowerCase()
   const duplicates = isEdit

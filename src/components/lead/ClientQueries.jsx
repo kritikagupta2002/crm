@@ -24,7 +24,6 @@ export function ReplyForm({ lead, query }) {
   )
 }
 
-/* One question: open ones take a reply from whoever answers that topic (utils/questions); others see who it waits for. */
 export function QueryItem({ lead, query, head }) {
   const { role, user, projectEdits } = useCrm()
   const open = query.status === 'Open'
@@ -54,7 +53,6 @@ export function QueryItem({ lead, query, head }) {
   )
 }
 
-/* Questions the client asked from the portal; open ones take a reply here, which the client then sees. */
 export function ClientQueries({ lead }) {
   const queries = queriesOf(lead)
   const open = queries.filter((q) => q.status === 'Open').length

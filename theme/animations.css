@@ -1,12 +1,4 @@
-﻿/*
- * ============================================================
- *  ANIMATIONS — CRM Theme
- *  Keyframes + animation utility classes.
- *  Requires tokens.css.
- * ============================================================
- */
 
-/* ── Keyframes ───────────────────────────────────────────── */
 @keyframes rise {
   from { opacity: 0; transform: translateY(10px); }
 }
@@ -19,12 +11,6 @@
   from { transform: scaleX(0); }
 }
 
-
-/* ── Page entrance animation ─────────────────────────────── */
-/*
- * Add .page-anim to the top-level page wrapper.
- * Cards inside it stagger in automatically.
- */
 .page-anim {
   animation: rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
@@ -38,14 +24,10 @@
 .page-anim :is(.stat-grid, .dash-row, .card-grid) > :nth-child(4)       { animation-delay: 0.15s; }
 .page-anim :is(.stat-grid, .dash-row, .card-grid) > :nth-child(n + 5)   { animation-delay: 0.2s;  }
 
-
-/* ── Tab panel swap ──────────────────────────────────────── */
 .tab-panel {
   animation: fade 0.25s ease both;
 }
 
-
-/* ── Lift on hover (stat cards, lift class) ──────────────── */
 .stat-card,
 .lift {
   transition: transform 0.18s ease, box-shadow 0.18s ease;
@@ -58,8 +40,6 @@
               0 8px 24px rgba(15, 42, 61, 0.08);
 }
 
-
-/* ── Bar / progress grow-in ──────────────────────────────── */
 .funnel-bar,
 .service-bar,
 .insight-track div,
@@ -68,15 +48,11 @@
   animation: grow-x 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
-
-/* ── Search / popover / notification pop-in ──────────────── */
 .search-results,
 .popover {
   animation: rise 0.18s ease both;
 }
 
-
-/* ── Reduced motion: disable everything ──────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

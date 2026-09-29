@@ -1,11 +1,5 @@
 import { TODAY } from './mockData'
 
-/*
- * Works put out to vendors (tenders), after eProc Rajasthan's tender page: the Admin publishes a work, every
- * approved vendor is told, vendors bid from the vendor portal, bids stay sealed until bidding closes, then the
- * Admin shortlists, rejects (with a reason) and allots one bid, which becomes the work order in Subcontracts.
- */
-
 export const TENDER_CATEGORIES = ['Services', 'Works', 'Goods']
 export const CONTRACT_FORMS = ['Lump-sum', 'Item rate', 'Percentage']
 
@@ -17,14 +11,12 @@ export const BID_REJECT_REASONS = [
   'Other',
 ]
 
-/* Papers a bid carries; the financial quote is required. */
 export const BID_DOCS = [
   { kind: 'Financial quote / BOQ', required: true },
   { kind: 'Technical documents', required: false },
   { kind: 'Experience certificates', required: false },
 ]
 
-/* Date-time `days` from today (negative: in the past) at `time`, as ISO. */
 const at = (days, time) => {
   const d = new Date(TODAY.getTime() + days * 86_400_000)
   const [h, m] = time.split(':').map(Number)
@@ -34,10 +26,6 @@ const at = (days, time) => {
 const doc = (id, kind, name, size) => ({ id, kind, name, size, type: 'application/pdf', seeded: true })
 const AUTHORITY = { name: 'Kritika Gupta', designation: 'Admin, Bansal Geo Solutions Pvt. Ltd.', address: 'Jaipur, Rajasthan' }
 
-/*
- * The demo's tenders, one of each kind: open with sealed bids, closed with bids to decide, and just published.
- * `service` picks the project the work is for (the first running project of that service line).
- */
 export const SEEDED_TENDERS = [
   {
     id: 'TN-2026-021',
@@ -215,7 +203,6 @@ export const SEEDED_BIDS = [
   },
 ]
 
-// A bid withdrawn before closing (eProc allows it; the firm can't bid again on that tender).
 SEEDED_BIDS.push({
   id: 'BD-021-03',
   tenderId: 'TN-2026-021',
@@ -237,10 +224,6 @@ SEEDED_BIDS.push({
   ],
 })
 
-/*
- * Vendors' questions on a tender (eProc's "Clarification"). The answer is published on the tender for every
- * bidder, without the asking firm's name.
- */
 export const SEEDED_CLARIFICATIONS = [
   {
     id: 'CL-021-01',
@@ -264,10 +247,6 @@ export const SEEDED_CLARIFICATIONS = [
   },
 ]
 
-/*
- * Earlier tenders, already decided, so every demo vendor has a history: one allotted to each of four firms, with the
- * other bids not selected, rejected (with the reason) or withdrawn. Their work orders are in SEEDED_TENDER_ORDERS.
- */
 const pastTender = (n, title, category, service, location, pincode, estimate, periodDays, published, allottedTo, bidId) => ({
   id: `TN-2026-0${n}`,
   refNo: `BG/VW/2026-27/0${n}`,
@@ -307,7 +286,6 @@ SEEDED_TENDERS.push(
   pastTender(18, 'Pumping test on 3 borewells', 'Borewell & pumping test', 'Hydrogeology & Groundwater', 'Ajmer, Rajasthan', '305001', 125000, 15, -40, 'VN-04', 'BD-018-01'),
 )
 
-/* A bid on an earlier tender. sent / decided: days from today. */
 const pastBid = (id, tenderId, vendorId, by, amount, days, sent, status, decided, extra = {}) => ({
   id,
   tenderId,
@@ -347,7 +325,6 @@ SEEDED_BIDS.push(
   pastBid('BD-018-02', 'TN-2026-018', 'VN-01', 'H. Rawat', 138000, 15, -34, 'Rejected', -30, { reason: 'Rate too high against the other bids', remark: 'L1 was 19% lower.' }),
   pastBid('BD-018-03', 'TN-2026-018', 'VN-02', 'Dr. S. Kothari', 121000, 16, -36, 'Withdrawn', null, { withdrawnAt: at(-33, '10:20') }),
   pastBid('BD-018-04', 'TN-2026-018', 'VN-06', 'K. Bishnoi', 130000, 15, -35, 'Withdrawn', null, { withdrawnAt: at(-33, '18:05') }),
-  // Sealed bids on the pumping test that is open now.
   pastBid('BD-022-01', 'TN-2026-022', 'VN-02', 'Dr. S. Kothari', 146000, 14, 0, 'Submitted', null),
   pastBid('BD-022-02', 'TN-2026-022', 'VN-05', 'P. Mathur', 158000, 15, 0, 'Submitted', null),
 )
@@ -359,7 +336,6 @@ SEEDED_CLARIFICATIONS.push(
   { id: 'CL-022-02', tenderId: 'TN-2026-022', vendorId: 'VN-05', question: 'Should the water samples also be tested for heavy metals?', askedAt: at(0, '13:20'), answer: null, answeredAt: null, answeredBy: null },
 )
 
-/* Tenders each demo vendor saved to come back to ("My Tenders"). */
 export const SEEDED_SAVED_TENDERS = {
   'VN-01': ['TN-2026-022', 'TN-2026-021'],
   'VN-02': ['TN-2026-022', 'TN-2026-021'],
@@ -369,10 +345,6 @@ export const SEEDED_SAVED_TENDERS = {
   'VN-06': ['TN-2026-022', 'TN-2026-019'],
 }
 
-/*
- * The work orders of the earlier allotted tenders, at different stages (days from today for each step; null: not
- * yet). The provider places each under a running project of the tender's service line.
- */
 export const SEEDED_TENDER_ORDERS = [
   { tenderId: 'TN-2026-014', bidId: 'BD-014-01', issued: -21, started: -19, due: -6, delivered: -9, billed: -7, checked: -5, paid: -3 },
   { tenderId: 'TN-2026-016', bidId: 'BD-016-01', issued: -15, started: -13, due: 12, delivered: null, billed: null, checked: null, paid: null },
@@ -380,7 +352,6 @@ export const SEEDED_TENDER_ORDERS = [
   { tenderId: 'TN-2026-018', bidId: 'BD-018-01', issued: -29, started: -27, due: -14, delivered: -16, billed: -14, checked: -12, paid: -9 },
 ]
 
-// One more earlier tender (paid), a withdrawn bid, and a work just put out that nobody has bid on yet.
 SEEDED_TENDERS.push(pastTender(11, 'Water quality monitoring of 6 wells, post-monsoon', 'Air, water & noise monitoring', 'Environment, Community & Permitting', 'Bhilwara, Rajasthan', '311001', 68000, 10, -58, 'VN-05', 'BD-011-01'), {
   id: 'TN-2026-024',
   refNo: 'BG/VW/2026-27/024',
@@ -416,12 +387,7 @@ SEEDED_BIDS.push(
 
 SEEDED_TENDER_ORDERS.push({ tenderId: 'TN-2026-011', bidId: 'BD-011-01', issued: -47, started: -45, due: -33, delivered: -34, billed: -32, checked: -30, paid: -26 })
 
-/*
- * The project each earlier tender was for, by name (projects are generated from the demo's leads; if one isn't
- * running on the day, the tender goes to a running project of its service line instead).
- */
 const FOR_PROJECT = { 'TN-2026-011': 'Dewatering System Design', 'TN-2026-014': 'Resource Estimation', 'TN-2026-016': 'Lease Renewal Support', 'TN-2026-017': 'DGPS Survey', 'TN-2026-018': 'Dewatering System Design' }
 SEEDED_TENDERS.forEach((t) => {
   if (FOR_PROJECT[t.id]) t.forProject = FOR_PROJECT[t.id]
 })
-

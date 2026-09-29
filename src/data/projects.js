@@ -4,13 +4,6 @@ import { LEADS, SERVICE_DETAILS, TODAY } from './mockData'
 import { COORDINATORS, FIELD_MEMBERS, teamLeadFor } from './staff'
 import { SUBCONTRACT_BY_SERVICE, VENDORS } from './vendors'
 
-/*
- * Projects for won clients, derived from the lead (like quotations), so the generated leads and
- * dashboard numbers stay exactly as they are. Each project has work milestones, the government
- * approval it is heading for (with the authority's real name) and the official letters issued on
- * the way. Anything the team marks in the CRM is kept separately as edits and laid over the top.
- */
-
 export const MILESTONES = [
   { key: 'kickoff', label: 'Kick-off & data collection', at: 0.08 },
   { key: 'field', label: 'Field survey & sampling', at: 0.35 },
@@ -19,7 +12,6 @@ export const MILESTONES = [
   { key: 'submission', label: 'Submission to authority', at: 1 },
 ]
 
-/* The approval each service line works towards. Days count from the submission milestone. */
 const APPROVALS = {
   'Mineral Exploration & Resources': {
     authority: (state) => `Department of Mines & Geology, ${state}`,
@@ -89,7 +81,6 @@ const APPROVALS = {
 
 const num = (lead) => Number(lead.id.split('-').pop()) || 1
 
-/* Field members whose skills suit the service line; the rest of the pool fills in. */
 const FIELD_BY_SERVICE = {
   'Environment, Community & Permitting': ['Pooja Meena', 'Ajay Kumar'],
   'Hydrogeology & Groundwater': ['Sunil Yadav', 'Imran Ali'],
@@ -98,13 +89,11 @@ const FIELD_BY_SERVICE = {
   'Mine Planning & Prefeasibility Study': ['Deepak Soni', 'Ajay Kumar'],
 }
 
-/* The team a running project was given. A project that hasn't started yet has none: the Admin allocates it. */
 function teamFor(service, n) {
   const pair = FIELD_BY_SERVICE[service] ?? [FIELD_MEMBERS[n % FIELD_MEMBERS.length].name, FIELD_MEMBERS[(n + 3) % FIELD_MEMBERS.length].name]
   return { coordinator: COORDINATORS[n % COORDINATORS.length].name, teamLead: teamLeadFor(service, n).name, members: pair }
 }
 
-/* What the field team does on site for each service line; seeded visits use these. */
 const FIELD_WORK = {
   'Mineral Exploration & Resources': ['Geological mapping', 'Core drilling & logging', 'Sample collection'],
   'Mineral Economics & Valuation': ['Site inspection & reserve check', 'Pit measurement'],
@@ -115,16 +104,13 @@ const FIELD_WORK = {
   'Geotechnical Services': ['Slope face mapping', 'Rock sample collection', 'Bench survey'],
 }
 
-/* How a submission reaches each authority. */
 export const SUBMISSION_MODES = ['PARIVESH portal', 'NOCAP portal (CGWA)', 'IBM online portal', 'By hand at the office', 'Speed post']
 const MODE_BY_CODE = { SEIAA: 'PARIVESH portal', CGWA: 'NOCAP portal (CGWA)', IBM: 'IBM online portal', DMG: 'By hand at the office', DGMS: 'By hand at the office' }
 
-/* Days after the final approval that each closure step was done on, for the demo's finished projects. */
 const CLOSURE_LAG = { handover: 3, payment: 10, archive: 20, feedback: 35 }
 
 const slug = (text) => text.replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
-/* Visits the field team has logged so far on a running project: photos and readings from each. */
 function seededVisits({ id, service, start, days, team, site, n }) {
   if (!start || !team.members?.length) return []
   const work = FIELD_WORK[service] ?? FIELD_WORK['Mineral Exploration & Resources']
@@ -149,13 +135,8 @@ function seededVisits({ id, service, start, days, team, site, n }) {
       }
     })
 }
-/* Approval steps the authority does on site: someone from the field team has to be there. */
 const SITE_STEPS = ['inspection', 'hearing']
 
-/*
- * Site work the team lead handed to the field team: follow-up work on a project still before its submission,
- * and, after it, being on site for the authority's inspection or hearing.
- */
 function seededFieldTasks({ id, team, submission, steps, n }) {
   const today = iso(TODAY)
   if (!team.members?.length || !submission) return []
@@ -178,7 +159,6 @@ function seededFieldTasks({ id, team, submission, steps, n }) {
   ]
 }
 
-/* The subcontract a running project placed, moving from issued to paid as the dates pass. */
 function seededWorkOrders({ id, service, start, days, n }) {
   if (!start) return []
   const job = SUBCONTRACT_BY_SERVICE[service]
@@ -197,11 +177,9 @@ function seededWorkOrders({ id, service, start, days, n }) {
   }
   const order = { id: orderId, vendor: job.vendor, work: job.work, amount, issuedOn, dueOn, startedOn: at(2, issuedOn) }
   if (status === 'In progress') return [order]
-  // Every fourth vendor delivers a few days late, so the performance figures have something to show.
   const late = n % 4 === 0
   order.delivery = { on: at(late ? 4 : -2), note: `${job.work} completed; report and raw data handed over.`, files: [{ id: `${orderId}-DLV`, name: `${orderId}_${slug(job.vendor)}_report.pdf`, size: 2_400_000 + ((n * 811) % 3_000_000), type: 'application/pdf' }], by: vendor?.contact ?? job.vendor }
   if (status === 'Completed') return [order]
-  // A bill still waiting to be checked sometimes comes in above the order value; the check flags it.
   const waiting = status === 'Bill received'
   const billAmount = waiting && n % 2 === 1 ? amount + Math.round(amount * 0.04) : amount
   order.bill = { no: `INV/${vendor?.id ?? 'VN'}/${(n * 7) % 300 + 100}`, date: at(5, order.delivery.on), amount: billAmount, file: { id: `${orderId}-BILL`, name: `${orderId}_invoice.pdf`, size: 310_000 + ((n * 97) % 200_000), type: 'application/pdf' }, by: vendor?.contact ?? job.vendor }
@@ -216,7 +194,6 @@ function seededWorkOrders({ id, service, start, days, n }) {
 const stateOfLead = (lead) => lead.location?.split(',').pop().trim() || 'Rajasthan'
 const iso = (d) => toISODate(d)
 
-/* When the deal was won: recorded in the app, else a stable date a few weeks after the enquiry. */
 export const wonDate = (lead) => lead.wonOn ?? seededWonOn(lead)
 
 function build({ id, lead, name, service, startedOn, days, n, team, site, createdOn, extra = false }) {
@@ -227,7 +204,6 @@ function build({ id, lead, name, service, startedOn, days, n, team, site, create
   const steps = approval.steps.map((s) => ({ ...s, date: submission ? iso(addDays(parseISODate(submission), s.days)) : null }))
   const place = site ?? lead.location ?? stateOfLead(lead)
   const refBase = `${approval.code}/${stateOfLead(lead).slice(0, 3).toUpperCase()}/${(startedOn ?? lead.createdOn).slice(0, 4)}/${1000 + ((n * 373) % 8999)}`
-  // After the final approval: report handed over, payment in, files archived, feedback taken, then closed.
   const lastApproval = steps[steps.length - 1]?.date
   const after = (d) => lastApproval && iso(addDays(parseISODate(lastApproval), d))
   const closureSeed = lastApproval && {
@@ -253,15 +229,12 @@ function build({ id, lead, name, service, startedOn, days, n, team, site, create
     fieldVisits: seededVisits({ id, service, start, days, team, site: place, n }),
     workOrders: seededWorkOrders({ id, service, start, days, n }),
     seedTasks: seededFieldTasks({ id, team, submission, steps, n }),
-    // The final report the team lead prepared; shown once the report milestone is done.
     reportFile: { id: `${id}-RPT`, name: `${slug(name)}_final_report.pdf`, size: 6_800_000 + ((n * 4513) % 2_400_000), type: 'application/pdf', category: 'Report', seeded: true },
-    // How the submission was filed; used once the submission milestone is done.
     submissionInfo: { mode: MODE_BY_CODE[approval.code], ackNo: `${refBase}/ACK`, files: [{ id: `${id}-SUB`, name: `${slug(name)}_submission.pdf`, size: 4_200_000 + ((n * 977) % 1_500_000), type: 'application/pdf' }] },
     closureSeed,
   }
 }
 
-/* The generated projects for a won lead: the one it was won for, and for some clients an earlier, finished one. */
 export function baseProjects(lead) {
   if (lead.stage !== 'Won') return []
   const n = num(lead)
@@ -282,7 +255,6 @@ export function baseProjects(lead) {
       createdOn: won,
     }),
   ]
-  // Some of the demo's existing clients also have an earlier, finished project; a client won in the app is new.
   if (n % 3 === 0 && LEADS.some((l) => l.id === lead.id)) {
     const options = SERVICE_DETAILS[lead.service] ?? [lead.serviceDetail]
     const earlier = options.find((d) => d !== lead.serviceDetail) ?? lead.serviceDetail
@@ -299,7 +271,6 @@ export function baseProjects(lead) {
       }),
     )
   }
-  // Repeat work for the same client, created in the ERM ("New project").
   ;(lead.extraProjects ?? []).forEach((p) => {
     projects.push(
       build({

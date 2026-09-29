@@ -159,7 +159,6 @@ export const PaymentsReceiptsPage = () => {
             </Button>
           </div>}/>
 
-      {/* Cash Flow Summary Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-4 rounded-xl border border-emerald-200/80 dark:border-emerald-800/40 bg-emerald-50/50 dark:bg-emerald-950/20">
           <span className="text-xs text-emerald-800 dark:text-emerald-300 font-medium">
@@ -189,7 +188,6 @@ export const PaymentsReceiptsPage = () => {
         </div>
       </div>
 
-      {/* Segmented Tabs */}
       <Tabs variant="pills" activeTab={activeTab} onChange={setActiveTab} tabs={[
             { id: 'all', label: 'All Transactions', count: transactions.length },
             {
@@ -204,7 +202,6 @@ export const PaymentsReceiptsPage = () => {
             },
         ]}/>
 
-      {/* Main Table */}
       <DataTable columns={columns} data={filteredTransactions} keyField="id" searchable searchPlaceholder="Search transactions by party, reference, or voucher #..." searchFields={['partyName', 'transactionNumber', 'referenceDoc', 'paymentMode']} pageSize={10} emptyTitle="No transactions recorded" emptyDescription="Record your first payment or receipt entry."/>
 
       <RecordTransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTransactionRecorded={() => loadData()}/>

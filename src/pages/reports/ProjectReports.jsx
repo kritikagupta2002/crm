@@ -16,7 +16,6 @@ const daysBetween = (a, b) => Math.round((parseISODate(b) - parseISODate(a)) / D
 const avg = (list) => (list.length ? Math.round(list.reduce((s, n) => s + n, 0) / list.length) : 0)
 const year = String(TODAY.getFullYear())
 
-/* Started, submitted and closed projects in each of the last six months. */
 function monthlyFlow(projects) {
   return Array.from({ length: 6 }, (_, i) => {
     const month = new Date(TODAY.getFullYear(), TODAY.getMonth() - 5 + i, 1)
@@ -31,7 +30,6 @@ function monthlyFlow(projects) {
   })
 }
 
-/* MIS view of project delivery: flow of work, where projects sit, how long approvals take and who is carrying the load. */
 export function ProjectReports({ switcher }) {
   const { leads, projectEdits } = useCrm()
   const projects = allProjects(leads, projectEdits)

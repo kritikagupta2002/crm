@@ -16,7 +16,6 @@ const TABS = ['New', 'Changes requested', 'Approved', 'Rejected', 'All']
 const STATUS_TONE = { New: 'tone-info', 'Changes requested': 'tone-attention', Approved: 'tone-good', Rejected: 'tone-urgent' }
 const timeOf = (iso) => new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
 
-/* The Admin's three answers. approve: TDS section to apply; changes: what to correct; reject: reason and note. */
 function Decision({ app, onDone }) {
   const { decideVendorApplication } = useCrm()
   const [mode, setMode] = useState(null)
@@ -100,7 +99,6 @@ function Decision({ app, onDone }) {
   )
 }
 
-/* One application: the checks first, then everything the firm filled in, its papers and what has happened so far. */
 function ApplicationDrawer({ app, onClose }) {
   const { vendors, vendorApplications, settings } = useCrm()
   const { may, bank } = useAccess()
@@ -213,10 +211,6 @@ function ApplicationDrawer({ app, onClose }) {
   )
 }
 
-/*
- * Vendor registrations from the public page (/vendor/register): the Admin checks each one and approves it (the firm
- * joins the vendor register), sends it back for changes, or rejects it with a reason. The firm is told by email.
- */
 export function VendorApplicationsPage() {
   const { vendorApplications, vendors } = useCrm()
   const [params, setParams] = useSearchParams()

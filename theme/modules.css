@@ -1,13 +1,4 @@
-﻿/*
- * ============================================================
- *  MODULES — CRM Theme
- *  Feature-specific styles: Follow-ups, Quotations, Approval,
- *  Onboarding, Reports, Settings, Portal, Search, Notifications.
- *  Requires tokens.css + components.css.
- * ============================================================
- */
 
-/* ── Module page wrapper ─────────────────────────────────── */
 .module-page {
   display: flex;
   flex-direction: column;
@@ -16,10 +7,6 @@
 .module-page .page-header { min-height: 0; }
 .module-page .table-wrap  { padding: 12px 20px 14px; }
 
-
-/* ════════════════════════════════════════════════════════════
-   FOLLOW-UPS
-   ════════════════════════════════════════════════════════════ */
 .fu-group       { padding: 6px 20px 10px; }
 
 .fu-group-title {
@@ -100,10 +87,6 @@
 .fu-inline input[type='date'],
 .fu-inline input[type='time'] { flex: 0 1 150px; }
 
-
-/* ════════════════════════════════════════════════════════════
-   QUOTATION BUILDER
-   ════════════════════════════════════════════════════════════ */
 .quote-builder { width: min(760px, 100vw); }
 .builder-lead  { margin: 16px 0; }
 
@@ -166,10 +149,6 @@
   color: var(--teal-900);
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   QUOTATION DOCUMENT
-   ════════════════════════════════════════════════════════════ */
 .quote-view { width: min(760px, 100vw); }
 
 .quote-doc {
@@ -237,10 +216,6 @@
   .print-area { position: absolute; inset: 0; margin: 0; border: none; box-shadow: none; }
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   APPROVAL / ONBOARDING WORKFLOW CARDS
-   ════════════════════════════════════════════════════════════ */
 .workflow-card {
   display: flex;
   flex-direction: column;
@@ -291,10 +266,6 @@
 }
 .workflow-foot .btn { height: 34px; font-size: 12.5px; }
 
-
-/* ════════════════════════════════════════════════════════════
-   REPORTS
-   ════════════════════════════════════════════════════════════ */
 .report-row   { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
 .report-chart { height: 280px; padding: 0 14px 16px; }
 .report-bars  { padding-top: 4px; }
@@ -313,10 +284,6 @@
   animation: grow-x 0.7s ease both;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   SETTINGS
-   ════════════════════════════════════════════════════════════ */
 .settings-grid    { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
 .settings-body    { display: flex; flex-direction: column; gap: 12px; padding: 0 20px 20px; }
 .settings-actions { display: flex; justify-content: flex-end; }
@@ -355,10 +322,6 @@
 }
 .service-list .muted { font-size: 12px; }
 
-
-/* ════════════════════════════════════════════════════════════
-   GLOBAL SEARCH RESULTS
-   ════════════════════════════════════════════════════════════ */
 .global-search { position: relative; flex: 1; max-width: 460px; }
 .global-search .search { max-width: none; }
 
@@ -399,10 +362,6 @@
   color: var(--ink-3);
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   NOTIFICATIONS
-   ════════════════════════════════════════════════════════════ */
 .notifications header {
   display: flex; align-items: center; justify-content: space-between; padding: 8px 10px;
 }
@@ -426,10 +385,6 @@
   color: var(--tone);
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   CLIENT PORTAL — letters, projects, vault, approvals glance
-   ════════════════════════════════════════════════════════════ */
 .portal-links {
   display: flex; flex-wrap: wrap; gap: 6px 18px;
   margin-top: 10px; padding-top: 10px;
@@ -474,7 +429,6 @@
 .letter-form input[type='file'] { height: auto; padding: 6px; font-size: 12.5px; }
 .letter-form-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
-/* Document vault */
 .vault-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .vault-head h3 { margin: 0; }
 .vault h4 { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 4px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
@@ -485,7 +439,6 @@
 .cell-sub svg       { vertical-align: -1px; }
 .letters-page       { padding: 0 20px 14px; }
 
-/* Approvals glance */
 .approvals-glance .glance-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
@@ -510,10 +463,6 @@ a.glance-item:hover strong { color: var(--teal-700); }
 .glance-item .muted { font-size: 12px; }
 .glance-when        { flex-shrink: 0; font-size: 12px; color: var(--ink-3); }
 
-
-/* ════════════════════════════════════════════════════════════
-   RESPONSIVE — MODULES
-   ════════════════════════════════════════════════════════════ */
 @media (max-width: 1100px) {
   .report-row { grid-template-columns: minmax(0, 1fr); }
 }

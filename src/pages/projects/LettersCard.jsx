@@ -10,18 +10,10 @@ import { canActOn } from '../../utils/projects'
 import { whatsappLink } from '../../utils/whatsapp'
 import { LetterForm } from '../clients/ProjectPanel'
 
-// Letters still on their way to the client (Document Management's steps), those already with the client, and all.
 const TABS = { 'To share': (r) => !r.letter.sharedOn && r.doc?.record.access?.client !== false, Shared: (r) => Boolean(r.letter.sharedOn), All: () => true }
 
-/*
- * Every official letter across the projects: record a letter against its project (and, once the work is filed,
- * against the approval step it belongs to). Each letter then goes through Document Management — verified by a
- * second person, given its access, shared — and the client sees it only after that. Scans are filed from the
- * Scan Inbox. ?letters=<tab> opens the card on that tab and scrolls to it (the stat card and old /letters links use this).
- */
 export function LettersCard({ projects }) {
   const { settings, shareDocument, scanInbox, documents } = useCrm()
-  // Letters go with the approval stage: a Team Lead (or the Admin) records them and tells the client.
   const canFile = canActOn(useAccess().role, 'approval')
   const [params, setParams] = useSearchParams()
   const [recording, setRecording] = useState(false)
@@ -33,7 +25,6 @@ export function LettersCard({ projects }) {
 
   useEffect(() => {
     if (!asked) return
-    // After the layout's own "new page starts at the top" scroll has run.
     const timer = setTimeout(() => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
     return () => clearTimeout(timer)
   }, [asked])
@@ -50,7 +41,6 @@ export function LettersCard({ projects }) {
     .sort((a, b) => b.letter.date.localeCompare(a.letter.date))
   const visible = rows.filter(TABS[tab])
   const { rows: pageRows, pager } = usePaged(visible, 6, tab)
-  // Letters come at any point of a running project: notices and queries before the filing, approvals after it.
   const open = projects.filter((p) => p.started || p.team.coordinator)
   const target = open.find((p) => p.id === projectId)
   const attachScan = (project, letter) => {
@@ -171,7 +161,6 @@ export function LettersCard({ projects }) {
                     {letter.sharedOn ? (
                       <span className="pill status-pill tone-good">Shared {formatNearDate(letter.sharedOn)}</span>
                     ) : doc && doc.stage !== 'To share' ? (
-                      // Before it can go to the client it is verified and given its access (Document Management).
                       <Link to={`/documents?open=${doc.id}`} className={`pill status-pill ${doc.rescan ? 'tone-urgent' : STAGE_TONE[doc.stage]}`}>
                         {doc.rescan ? 'Rescan' : doc.stage === 'Done' ? 'Office only' : doc.stage}
                       </Link>

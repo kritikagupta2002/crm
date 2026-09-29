@@ -22,7 +22,6 @@ export const ToastProvider = ({ children }) => {
     const warning = useCallback((msg, title) => showToast(msg, 'warning', title), [showToast]);
     return (<ToastContext.Provider value={{ toasts, showToast, removeToast, success, error, info, warning }}>
       {children}
-      {/* Toast Notification Container */}
       <div role="region" aria-label="Notifications" aria-live="polite" aria-atomic="false" className="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 max-w-md w-full pointer-events-none px-4">
         {toasts.map((toast) => {
             let bg = 'bg-white dark:bg-[#16222F] border-slate-200 dark:border-slate-700/80 text-slate-800 dark:text-slate-100 shadow-xl dark:shadow-[0_12px_32px_rgba(0,0,0,0.6)]';

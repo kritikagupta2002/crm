@@ -4,13 +4,8 @@ import { formatNearDate, monthShort, parseISODate, toISODate } from '../../utils
 
 const todayISO = toISODate(TODAY)
 
-/* Where a project's bar ends: closed, else the final approval (done or planned), else the planned submission. */
 const endOf = (p) => p.closure.closedOn ?? p.approvals[p.approvals.length - 1]?.date ?? p.dueOn
 
-/*
- * Every project as a bar across the calendar: the work up to submission (teal), then the time with the
- * authority (gold), with today marked. Projects that haven't been scheduled yet are listed below the chart.
- */
 export function ProjectTimeline({ projects }) {
   const scheduled = projects.filter((p) => p.startedOn)
   const waiting = projects.filter((p) => !p.startedOn)

@@ -20,7 +20,6 @@ function FileIcon({ file }) {
   return <File size={18} />
 }
 
-/* One file in a list: icon, name, size and date, with download, sharing with the client and remove, where allowed. */
 function FileRow({ file, date, note, onRemove, onShare }) {
   const { settings } = useCrm()
   return (
@@ -59,7 +58,6 @@ function FileRow({ file, date, note, onRemove, onShare }) {
   )
 }
 
-/* Files picked in a form: small and under 10 MB each. */
 function useFilePicker() {
   const [files, setFiles] = useState([])
   const [error, setError] = useState('')
@@ -72,9 +70,6 @@ function useFilePicker() {
   return { files, error, pick }
 }
 
-/* ---------- Stage actions ---------- */
-
-/* Filing with the authority: when, how, the acknowledgement number and what was filed. */
 export function SubmissionForm({ project }) {
   const { submitToAuthority } = useCrm()
   const [date, setDate] = useState(todayISO)
@@ -121,7 +116,6 @@ export function SubmissionForm({ project }) {
   )
 }
 
-/* Last stage: the hand-over checklist, then the project is closed. */
 export function ClosurePanel({ project }) {
   const { setClosureStep, closeProject } = useCrm()
   const [note, setNote] = useState('')
@@ -151,8 +145,6 @@ export function ClosurePanel({ project }) {
     </div>
   )
 }
-
-/* ---------- Field Work tab ---------- */
 
 const WORK_SUGGESTIONS = ['Geological mapping', 'Sample collection', 'Core drilling & logging', 'DGPS pillar survey', 'Drone flight & GCP marking', 'Water level survey of wells', 'Pumping test', 'Baseline air & water sampling', 'Slope face mapping', 'Site inspection']
 
@@ -224,7 +216,6 @@ export function FieldWorkTab({ project }) {
   const visits = project.fieldVisits
   const fileCount = visits.reduce((n, v) => n + v.files.length, 0)
   const canLog = Boolean(project.team.teamLead || project.team.members?.length)
-  // Field work is logged by the people doing it (and the Coordinator / Admin); Management and Accounts only read it.
   const mayLog = canActOn(useAccess().role, 'work')
 
   return (
@@ -279,8 +270,6 @@ export function FieldWorkTab({ project }) {
     </div>
   )
 }
-
-/* ---------- Documents tab ---------- */
 
 function Uploader({ project }) {
   const { addProjectDocuments } = useCrm()
@@ -348,12 +337,10 @@ function Uploader({ project }) {
 
 export function DocumentsTab({ project }) {
   const { removeProjectDocument, setFileShared, settings, role } = useCrm()
-  // Coordinators and the Admin decide what the client sees; others see the setting.
   const shareFor = (file) => (canActOn(role, 'submission') ? () => setFileShared(lead.id, project, file, !file.shared) : null)
   const { may } = useAccess()
   const canUpload = may('projects')
   const canFile = canActOn(role, 'approval')
-  // false, true (a new letter) or the approval step whose letter gets its scan.
   const [addingLetter, setAddingLetter] = useState(false)
   const lead = project.lead
   const company = lead.company

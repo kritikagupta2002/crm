@@ -8,7 +8,6 @@ import { Portal } from '../../components/common/Portal'
 import { QuoteDocument } from './QuoteDocument'
 import { RoleLink } from '../../components/common/RoleLink'
 
-/* The quotation as the client sees it, with the actions that move it along. "Print" uses the browser's print / save-as-PDF. */
 export function QuotationView({ leadId, onClose, onRevise, onReject }) {
   const money = useMoney()
   const { leads, settings, acceptQuotation, logActivity } = useCrm()

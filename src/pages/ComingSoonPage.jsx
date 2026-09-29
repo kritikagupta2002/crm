@@ -1,7 +1,6 @@
 import { Compass } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-/* Shown for any URL that doesn't match a page. */
 export function ComingSoonPage() {
   return (
     <div className="card coming-soon">

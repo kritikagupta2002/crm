@@ -72,7 +72,6 @@ export const LeaveHistoryPage = () => {
             toast.error('Failed to export leave archive.', 'Export Error');
         }
     };
-    // Strictly enforce that employees can NEVER see other employees' requests
     const scopedRequests = useMemo(() => {
         if (isEmployee || activeTab === 'mine') {
             return requests.filter((r) => r.employeeId === empId);
@@ -88,7 +87,6 @@ export const LeaveHistoryPage = () => {
             return true;
         });
     }, [scopedRequests, selectedStatus, selectedType]);
-    // Employee-specific columns
     const employeeColumns = [
         {
             key: 'appliedOn',
@@ -163,7 +161,6 @@ export const LeaveHistoryPage = () => {
             },
         },
     ];
-    // HR / Admin columns (includes Staff Member name and department)
     const hrColumns = [
         {
             key: 'appliedOn',
@@ -259,7 +256,6 @@ export const LeaveHistoryPage = () => {
             </Button>
           </div>}/>
 
-      {/* Mode Filter Tab (HR / Admin Only) */}
       {!isEmployee && (<div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
           <button onClick={() => setActiveTab('all')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${activeTab === 'all'
                 ? 'bg-blue-600 text-white'
@@ -273,7 +269,6 @@ export const LeaveHistoryPage = () => {
           </button>
         </div>)}
 
-      {/* Filters Bar */}
       <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-[#1A2430] p-3 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mr-1">
           <Filter className="w-3.5 h-3.5 text-blue-600"/>

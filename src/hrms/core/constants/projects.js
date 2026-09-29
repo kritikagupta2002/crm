@@ -98,7 +98,6 @@ export const DEPARTMENT_METADATA = {
     },
 };
 
-// Helper: Ensure 100% reliable project assignment for any employee
 export const getEmployeeProject = (emp) => {
     if (!emp) return 'Corporate Operations & Governance';
     if (emp.employment?.project)

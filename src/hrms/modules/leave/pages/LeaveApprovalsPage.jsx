@@ -23,7 +23,6 @@ export const LeaveApprovalsPage = () => {
     const [selectedType, setSelectedType] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
-    // Review modal state
     const [selectedReq, setSelectedReq] = useState(null);
     const [reviewMode, setReviewMode] = useState('Full');
     const [approvedDaysInput, setApprovedDaysInput] = useState(1);
@@ -208,14 +207,12 @@ export const LeaveApprovalsPage = () => {
             Leave Dashboard
           </Button>}/>
 
-      {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 bg-white dark:bg-[#1A2430] p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mr-1">
           <Filter className="w-3.5 h-3.5 text-blue-600"/>
           <span>Filters:</span>
         </div>
 
-        {/* Status Filter */}
         <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
           <Select options={[
             { value: 'all', label: 'All Statuses' },
@@ -227,7 +224,6 @@ export const LeaveApprovalsPage = () => {
         ]} value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}/>
         </div>
 
-        {/* Leave Type Filter */}
         <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
           <Select options={[
             { value: 'all', label: 'All Leave Types' },
@@ -240,7 +236,6 @@ export const LeaveApprovalsPage = () => {
         ]} value={selectedType} onChange={(e) => setSelectedType(e.target.value)}/>
         </div>
 
-        {/* Department Filter */}
         <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
           <Select options={[
             { value: 'all', label: 'All Departments' },
@@ -253,7 +248,6 @@ export const LeaveApprovalsPage = () => {
         ]} value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}/>
         </div>
 
-        {/* Project Filter */}
         <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[170px]">
           <Select options={[
             { value: 'all', label: 'All Projects / Sites' },
@@ -278,7 +272,6 @@ export const LeaveApprovalsPage = () => {
 
       <DataTable compact={true} columns={columns} data={filteredRequests} keyField="id" searchPlaceholder="Search applicants..." searchFields={['employeeName', 'employeeId', 'leaveType']}/>
 
-      {/* Review & Adjudication Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Adjudicate Leave Request" description={`Make approval, partial approval, or rejection decision for ${selectedReq?.employeeName}.`} footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
               Cancel
@@ -292,7 +285,6 @@ export const LeaveApprovalsPage = () => {
             </Button>
           </>}>
         <div className="space-y-4">
-          {/* Request Overview Banner */}
           <div className="p-3 bg-slate-50 dark:bg-[#121A24] rounded-xl text-xs space-y-1.5 border border-slate-200 dark:border-slate-800">
             <p><strong>Employee:</strong> {selectedReq?.employeeName} ({selectedReq?.employeeId})</p>
             <p><strong>Department:</strong> {selectedReq?.department}</p>
@@ -304,7 +296,6 @@ export const LeaveApprovalsPage = () => {
             <p><strong>Applicant Reason:</strong> "{selectedReq?.reason}"</p>
           </div>
 
-          {/* Decision Selector Tabs */}
           <div>
             <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               Decision Action
@@ -340,7 +331,6 @@ export const LeaveApprovalsPage = () => {
             </div>
           </div>
 
-          {/* Partial Approval Days Selector */}
           {reviewMode === 'Partial' && selectedReq && (<div className="p-3.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-2.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-amber-900 dark:text-amber-200">
@@ -374,7 +364,6 @@ export const LeaveApprovalsPage = () => {
               </div>
             </div>)}
 
-          {/* Quota & Balance Impact Calculation */}
           {selectedReq && (() => {
             const empBals = storage.getBalancesForEmployee(selectedReq.employeeId, selectedReq.employeeName);
             const currentBal = empBals.find((b) => b.leaveType === selectedReq.leaveType);
@@ -405,7 +394,6 @@ export const LeaveApprovalsPage = () => {
               </div>);
         })()}
 
-          {/* Approver Remarks */}
           <Textarea label="Approver Remarks / Instructions" value={comment} onChange={(e) => setComment(e.target.value)} rows={2}/>
         </div>
       </Modal>

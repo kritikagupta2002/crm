@@ -28,7 +28,6 @@ const blankApp = () => ({
   captchaOk: false,
 })
 
-/* The saved application as the form's starting point, when a firm corrects one that was sent back (its mobile is already verified). */
 const editable = (app) => ({
   ...blankApp(),
   ...app,
@@ -38,9 +37,7 @@ const editable = (app) => ({
   captchaOk: false,
 })
 
-/* Tidies what the firm typed before it is saved: upper-case PAN, GSTIN and IFSC; digits only in numbers; no form-only fields. */
 function tidy(app) {
-  // The second account number is only there to catch typos; the captcha and the verification are for this form only.
   const bank = { ...app.bank }
   delete bank.accountConfirm
   const contact = { ...app.contact, mobile: digitsOf(app.contact.mobile).slice(-10) }
@@ -57,23 +54,17 @@ function tidy(app) {
   }
 }
 
-/* A small sum instead of eProc's image captcha: the demo has no server to check one. */
 const newCaptcha = () => {
   const a = 2 + Math.floor(Math.random() * 8)
   const b = 1 + Math.floor(Math.random() * 9)
   return { question: `${a} + ${b}`, answer: String(a + b) }
 }
 
-/*
- * Mobile verification as on eProc: a code goes to the number and must be entered before the form can be sent.
- * The demo shows the code on screen, since no SMS goes out; it is valid for 15 minutes (eProc: 900 seconds).
- */
 function MobileVerify({ mobile, verified, onVerified, error }) {
   const [sent, setSent] = useState(null) // { code, to }
   const [code, setCode] = useState('')
   const [wrong, setWrong] = useState(false)
   const valid = /^[6-9][0-9]{9}$/.test(digitsOf(mobile).slice(-10))
-  // A different number needs a new code.
   const current = sent && sent.to === digitsOf(mobile).slice(-10) ? sent : null
 
   if (verified)
@@ -104,12 +95,6 @@ function MobileVerify({ mobile, verified, onVerified, error }) {
   )
 }
 
-/*
- * The registration form, laid out like eProc Rajasthan's "Online Enrollment of Corporate/Bidder" (login and
- * correspondence, company details with Company Type in place of Bidder Type, contact details, captcha), with what our
- * work needs added: kinds of work, GST, the bank account for payments and the papers. New, or an application sent
- * back for changes (then `existing` is set).
- */
 function RegisterForm({ existing, onDone }) {
   const { submitVendorApplication, resubmitVendorApplication } = useCrm()
   const [app, setApp] = useState(() => (existing ? editable(existing) : blankApp()))
@@ -128,7 +113,6 @@ function RegisterForm({ existing, onDone }) {
   const update = (path, value) => {
     const [section, key] = path.split('.')
     const next = key ? { ...app, [section]: { ...app[section], [key]: value } } : { ...app, [section]: value }
-    // A changed mobile has to be verified again.
     if (path === 'contact.mobile') next.contact.mobileVerified = false
     apply(next)
   }
@@ -420,7 +404,6 @@ function RegisterForm({ existing, onDone }) {
   )
 }
 
-/* After sending: the application number to keep, and what happens next. */
 function Submitted({ app, again, onTrack }) {
   const { settings } = useCrm()
   const [copied, setCopied] = useState(false)
@@ -430,7 +413,6 @@ function Submitted({ app, again, onTrack }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // Clipboard blocked: the number is on screen to note down.
     }
   }
   return (
@@ -478,7 +460,6 @@ const STATUS_WORDS = {
   Rejected: 'Not approved.',
 }
 
-/* A firm looks up its application with the number and the mobile it gave. */
 function Track({ onEdit }) {
   const { vendorApplications } = useCrm()
   const [params] = useSearchParams()
@@ -544,10 +525,6 @@ function Track({ onEdit }) {
   )
 }
 
-/*
- * Public page for subcontractors: register as a vendor (fields after eProc Rajasthan's bidder enrollment),
- * then check the application's status and correct it if it was sent back. ?track opens the status check.
- */
 export function VendorRegisterPage() {
   const { settings } = useCrm()
   const [params, setParams] = useSearchParams()

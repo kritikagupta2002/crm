@@ -3,7 +3,6 @@ import { useCrm } from '../../context/crm';
 import { INITIAL_ROLES } from '@/data/roles/roles';
 import { hrRoleOf } from '../bridge';
 
-/* The HRMS role follows the CRM role (see bridge.js); it is changed from the CRM's profile menu, not here. */
 const RoleContext = createContext(undefined);
 
 export const RoleProvider = ({ children }) => {

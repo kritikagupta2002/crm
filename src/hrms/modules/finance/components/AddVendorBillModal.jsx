@@ -99,7 +99,6 @@ export const AddVendorBillModal = ({ isOpen, onClose, onBillAdded, }) => {
         ]}/>
         </div>
 
-        {/* Totals computation */}
         <div className="bg-amber-50/70 dark:bg-amber-950/30 p-3 rounded-xl border border-amber-200/70 dark:border-amber-800/50 flex items-center justify-between">
           <div className="text-xs text-amber-800 dark:text-amber-300">
             GST Amount ({taxRate}%): <span className="font-mono font-bold">₹{taxAmount.toLocaleString('en-IN')}</span>

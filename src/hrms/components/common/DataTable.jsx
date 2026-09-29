@@ -9,7 +9,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
     const [sortKey, setSortKey] = useState(null);
     const [sortDirection, setSortDirection] = useState('asc');
     const [selectedIds, setSelectedIds] = useState(new Set());
-    // Reset to first page whenever the dataset changes from the parent
     useEffect(() => {
         setCurrentPage(1);
     }, [data]);
@@ -19,7 +18,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
         }
         return String(item[keyField]);
     };
-    // Optimized search filtering with fast-path string checks
     const filteredData = useMemo(() => {
         const term = searchTerm.trim().toLowerCase();
         if (!term)
@@ -31,7 +29,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
                     return val != null && String(val).toLowerCase().includes(term);
                 });
             }
-            // Default fast-path: search string/number values
             for (const key in item) {
                 if (Object.prototype.hasOwnProperty.call(item, key)) {
                     const val = item[key];
@@ -46,7 +43,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
             return false;
         });
     }, [data, searchTerm, searchFields]);
-    // Sorting
     const sortedData = useMemo(() => {
         if (!sortKey)
             return filteredData;
@@ -65,7 +61,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
             return sortDirection === 'asc' ? strA.localeCompare(strB) : strB.localeCompare(strA);
         });
     }, [filteredData, sortKey, sortDirection]);
-    // Pagination
     const totalPages = Math.ceil(sortedData.length / pageSize);
     const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * pageSize;
@@ -114,7 +109,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
     return (<div className={`bg-white dark:bg-[#161F2E] rounded-[14px] border border-[#E2E8F0] dark:border-[#253344] shadow-xs overflow-hidden flex flex-col relative
         ${goldTopBorder ? 'border-t-2 border-t-[#F59E0B]' : ''}
         ${className}`}>
-      {/* Table Toolbar */}
       {(searchable || filterComponent || actionsComponent) && (<div className={`${compact ? 'p-2 sm:p-2.5' : 'p-2.5 sm:p-3.5'} border-b border-[#E2E8F0] dark:border-[#253344] flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 bg-white dark:bg-[#161F2E]`}>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0 w-full xl:w-auto flex-wrap">
             {searchable && (<div className="relative w-full sm:w-64 md:w-72 lg:w-80 shrink-0">
@@ -143,7 +137,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
             </div>)}
         </div>)}
 
-      {/* Table Container with Smooth Touch Horizontal Scrolling */}
       <div className="overflow-x-auto custom-sidebar-scroll w-full touch-pan-x">
         <table className="w-full text-left border-collapse text-[13px] min-w-[720px] lg:min-w-full">
           <thead>
@@ -197,7 +190,6 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
         </table>
       </div>
 
-      {/* Table Pagination */}
       {sortedData.length > 0 && (<Pagination currentPage={currentPage} totalPages={totalPages} totalItems={sortedData.length} pageSize={pageSize} onPageChange={setCurrentPage} onPageSizeChange={(newSize) => {
                 setPageSize(newSize);
                 setCurrentPage(1);

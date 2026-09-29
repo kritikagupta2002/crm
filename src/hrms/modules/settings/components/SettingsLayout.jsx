@@ -28,7 +28,6 @@ export const SettingsLayout = () => {
         ]}/>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {/* Settings Navigation Sidebar */}
         <div className="md:col-span-1">
           <Card className="p-1.5 sm:p-2 flex md:flex-col overflow-x-auto custom-sidebar-scroll gap-1 md:space-y-1">
             {navItems.map((item) => (<NavLink key={item.path} to={item.path} className={({ isActive }) => `flex items-center gap-2.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${isActive
@@ -40,7 +39,6 @@ export const SettingsLayout = () => {
           </Card>
         </div>
 
-        {/* Subpage Container */}
         <div className="md:col-span-3">
           <Outlet />
         </div>

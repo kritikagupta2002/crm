@@ -1,4 +1,3 @@
-/* ---------- Vendor Workspace: applications ---------- */
 .app-drawer .drawer-body {
   gap: 14px;
 }
@@ -176,7 +175,6 @@
   }
 }
 
-/* ---------- Tenders ---------- */
 .tender-new .letter-form {
   margin: 0 20px 18px;
 }
@@ -232,7 +230,6 @@
   color: var(--green);
 }
 
-/* Bids before closing: only how many came in. */
 .sealed-box {
   display: flex;
   align-items: flex-start;
@@ -256,7 +253,6 @@
   gap: 2px;
 }
 
-/* Bids after closing, lowest first (L1, L2 …); a row opens to the bid's details and the decision. */
 .bid-list {
   display: flex;
   flex-direction: column;

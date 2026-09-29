@@ -24,10 +24,8 @@ const TABS = {
   Done: (t) => t.status === 'done',
 }
 
-/* Every task on every running project in one list: who has what, what is late, and what is due next. */
 export function TasksPage() {
   const { leads, projectEdits, updateProjectTask } = useCrm()
-  // Management follows the work; the project team changes it.
   const readOnly = !useAccess().may('projects')
   const [tab, setTab] = useTabParam(Object.keys(TABS), 'Open')
   const [person, setPerson] = useState('')

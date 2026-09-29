@@ -21,7 +21,6 @@ export const PayslipsPage = () => {
     const [payslips, setPayslips] = useState([]);
     const [selectedPayslip, setSelectedPayslip] = useState(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    // Filters
     const [selectedMonth, setSelectedMonth] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
@@ -195,7 +194,6 @@ export const PayslipsPage = () => {
               </Button>)}
           </div>}/>
 
-      {/* Official Branded Payslip Modal */}
       <Modal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} maxWidth="3xl" title="Official Salary Statement Preview" footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsPreviewOpen(false)}>
               Close
@@ -205,7 +203,6 @@ export const PayslipsPage = () => {
             </Button>
           </>}>
         {selectedPayslip && (<div className="printable-payslip p-6 bg-white dark:bg-[#1A2430] border border-slate-300 dark:border-[#253344] rounded-lg shadow-xs space-y-6 text-[#242424] dark:text-slate-200">
-            {/* Corporate Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-5 border-b-2 border-[#1A2430] dark:border-slate-700 gap-4 relative after:content-[''] after:absolute after:-bottom-[2px] after:left-0 after:w-32 after:h-[2px] after:bg-[#FEC13D]">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-lg bg-[#1A2430] flex items-center justify-center text-white shrink-0 border border-[#FEC13D]/40">
@@ -234,7 +231,6 @@ export const PayslipsPage = () => {
               </div>
             </div>
 
-            {/* Employee Demographics Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 dark:bg-[#111821] rounded-lg text-xs border border-slate-200 dark:border-[#253344]">
               <div>
                 <span className="text-slate-400 text-[10px] uppercase font-bold">Employee Name</span>
@@ -286,9 +282,7 @@ export const PayslipsPage = () => {
               </div>
             </div>
 
-            {/* Earnings vs Deductions Table */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Earnings */}
               <div className="border border-slate-200 dark:border-[#253344] rounded-lg overflow-hidden text-xs">
                 <div className="bg-slate-100 dark:bg-[#111821] px-3 py-2 font-bold text-slate-800 dark:text-slate-200 flex justify-between uppercase text-[11px]">
                   <span>Earnings Component</span>
@@ -326,7 +320,6 @@ export const PayslipsPage = () => {
                 </div>
               </div>
 
-              {/* Deductions */}
               <div className="border border-slate-200 dark:border-[#253344] rounded-lg overflow-hidden text-xs">
                 <div className="bg-slate-100 dark:bg-[#111821] px-3 py-2 font-bold text-slate-800 dark:text-slate-200 flex justify-between uppercase text-[11px]">
                   <span>Statutory Deductions</span>
@@ -361,7 +354,6 @@ export const PayslipsPage = () => {
               </div>
             </div>
 
-            {/* Net Take Home Banner: Strong Dark + Gold Contrast Motif */}
             <div className="p-4 bg-[#1A2430] border-2 border-[#FEC13D] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-sm">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#FEC13D]">
@@ -381,7 +373,6 @@ export const PayslipsPage = () => {
               </div>
             </div>
 
-            {/* Footer Signoff & Digital Verification QR */}
             <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-[#253344]">
               <div className="text-left">
                 <p className="font-semibold text-slate-800 dark:text-slate-200">Chhavi Bansal</p>
@@ -389,7 +380,6 @@ export const PayslipsPage = () => {
                 <p className="text-[10px] text-slate-400 mt-0.5">Bansal Geo Solutions Pvt. Ltd.</p>
               </div>
 
-              {/* Payslip Digital Authenticity QR Code */}
               <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/80 p-2 rounded-lg border border-slate-200 dark:border-slate-700">
                 <QRCodeCanvas
                   value={JSON.stringify({

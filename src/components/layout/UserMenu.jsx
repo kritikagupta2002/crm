@@ -7,11 +7,6 @@ import { usePopover } from '../common/usePopover'
 import { FIELD_MEMBERS } from '../../data/staff'
 import { NAV_ITEMS } from './navigation'
 
-/*
- * Profile menu. "Switch role" lets the demo show role-based access (e.g. Coordinators don't see amounts); each role
- * has its demo person, so the audit log shows who did what. What a role can open is in its row's tooltip.
- * Employee opens the staff list: each employee signs in as themselves and sees only their own tasks.
- */
 export function UserMenu() {
   const { role, user, fieldMember, setRole, changeCount, resetDemoData, signOut } = useCrm()
   const { open, setOpen, ref } = usePopover()
@@ -23,7 +18,6 @@ export function UserMenu() {
     setRole(r, person)
     setOpen(false)
     setTeamOpen(false)
-    // A page the new role can't open, or one that isn't in its menu, gives way to that role's home page.
     const item = NAV_ITEMS.find((i) => i.path === pathname)
     if (!canOpen(r, pathname) || (item?.only && !item.only.includes(r))) navigate(ROLE_ACCESS[r].home)
   }

@@ -8,7 +8,6 @@ import { nextWorkStep } from '../../utils/projects'
 import { WO_STATUS_TONE, vendorOrders, vendorStats } from '../../utils/workOrders'
 import { WorkOrderTrail, WorkStepForm } from '../erm/WorkOrderParts'
 
-/* What the vendor sees for each state of the order. */
 const VENDOR_NOTE = {
   Issued: 'Please confirm when the work starts.',
   'In progress': 'Upload the report or data here when the work is done.',
@@ -21,7 +20,6 @@ function OrderCard({ order, vendor, companyName }) {
   const { recordWorkStep } = useCrm()
   const [taking, setTaking] = useState(false)
   const next = nextWorkStep(order)
-  // The vendor starts the work, delivers it and sends the bill; checking and paying are ours.
   const theirs = next && ['start', 'deliver', 'bill'].includes(next.key)
   const take = (details) => {
     recordWorkStep(order.project.lead.id, order.project, order, next.key, details, { byVendor: true })
@@ -92,7 +90,6 @@ function OrderCard({ order, vendor, companyName }) {
   )
 }
 
-/* Work orders: the work allotted to this firm, from order to payment. The firm starts, delivers and bills here. */
 export function VendorOrdersPage() {
   const { vendor } = useOutletContext()
   const { leads, projectEdits, settings } = useCrm()
@@ -122,7 +119,6 @@ export function VendorOrdersPage() {
   )
 }
 
-/* Payments: what has been paid on each order, the TDS deducted, and what is still to come. */
 export function VendorPaymentsPage() {
   const { vendor } = useOutletContext()
   const { leads, projectEdits } = useCrm()

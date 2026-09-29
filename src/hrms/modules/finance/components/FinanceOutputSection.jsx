@@ -98,7 +98,6 @@ export const FinanceOutputSection = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {OUTPUT_ITEMS.map((item) => (<Card key={item.id} hoverable onClick={() => navigate(item.primaryPath)} className="p-4 sm:p-5 flex flex-col justify-between border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] group cursor-pointer transition-all hover:shadow-md hover:border-teal-500/60">
             <div>
-              {/* Header */}
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${item.accentBg} shrink-0`}>
                   {item.icon}
@@ -116,7 +115,6 @@ export const FinanceOutputSection = () => {
                 {item.description}
               </p>
 
-              {/* Bulleted Key Deliverables */}
               <div className="mt-3.5 pt-3 border-t border-[var(--line,#e1e8eb)]/80 dark:border-[#1e2c37]">
                 <p className="text-[11px] font-semibold text-[var(--ink-2,#4a5b68)] dark:text-slate-300 mb-1.5 font-inter">
                   Included Outputs:
@@ -130,7 +128,6 @@ export const FinanceOutputSection = () => {
               </div>
             </div>
 
-            {/* Action Bar */}
             <div className="mt-4 pt-3 border-t border-[var(--line,#e1e8eb)]/80 dark:border-[#1e2c37] flex items-center justify-between text-xs font-inter">
               <span className="font-semibold text-teal-700 dark:text-teal-400 group-hover:underline">
                 View Records

@@ -13,13 +13,11 @@ import '../projects/erm.css'
 import '../vendors/vendors.css'
 import './documents.css'
 
-/* Filing one scan: its project (and so its client), the lease and vendor it concerns, then the letter's details. */
 function FileScanForm({ scan, onDone }) {
   const { leads, projectEdits, vendors } = useCrm()
   const [projectId, setProjectId] = useState('')
   const [leaseNo, setLeaseNo] = useState('')
   const [vendorId, setVendorId] = useState('')
-  // Letters come at any point of a running project: notices and queries before the filing, approvals after it.
   const open = allProjects(leads, projectEdits).filter((p) => p.started || p.team.coordinator)
   const target = open.find((p) => p.id === projectId)
 
@@ -77,10 +75,6 @@ function FileScanForm({ scan, onDone }) {
   )
 }
 
-/*
- * Flowchart steps 1–3: the office scanner saves each government document to the NAS scanner folder; here someone files
- * it against its project, lease and vendor. Filed scans go on to verification (Documents).
- */
 export function ScanInboxPage() {
   const { scanInbox, documents } = useCrm()
   const { may } = useAccess()

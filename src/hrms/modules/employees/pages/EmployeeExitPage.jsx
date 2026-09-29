@@ -20,11 +20,9 @@ export const EmployeeExitPage = () => {
     const [selectedType, setSelectedType] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
     const [loading, setLoading] = useState(true);
-    // Modals
     const [isInitiateModalOpen, setIsInitiateModalOpen] = useState(false);
     const [managingClearanceExit, setManagingClearanceExit] = useState(null);
     const [viewingFnFExit, setViewingFnFExit] = useState(null);
-    // Initiate Exit Form
     const [formEmpName, setFormEmpName] = useState('Deepak Chouhan');
     const [formEmpId, setFormEmpId] = useState('BGS-024');
     const [formDept, setFormDept] = useState('Geology & Mineral Exploration');
@@ -138,7 +136,6 @@ export const EmployeeExitPage = () => {
         }
     };
     return (<div className="space-y-6 pb-12 animate-fade-in">
-      {/* Header */}
       <PageHeader title="Employee Exit & Separation Management" description="Resignation processing, 4-department clearance workflows (IT, Admin, Finance, HR), and Full & Final (F&F) settlements." breadcrumbs={[
             { label: 'Dashboard', path: '/hr' },
             { label: 'Workforce', path: '/hr/employees' },
@@ -147,7 +144,6 @@ export const EmployeeExitPage = () => {
             Initiate Exit / Resignation
           </Button>}/>
 
-      {/* 4 Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         <StatCard title="Active Exits in Pipeline" value={`${stats.active} Cases`} icon={<UserMinus className="w-5 h-5 text-teal-700 dark:text-teal-400"/>} iconBgColor="bg-teal-50 dark:bg-teal-950/40 text-teal-700 border border-teal-200/60" change="In Pipeline" changeType="neutral" caption="Resignations under process"/>
         <StatCard title="Pending Clearances" value={`${stats.pendingClearanceCount} Sign-offs`} icon={<Clock className="w-5 h-5 text-[#B07D27] dark:text-amber-400"/>} iconBgColor="bg-amber-50 dark:bg-amber-950/40 text-[#B07D27] border border-amber-200/60" change="Dept Tasks" changeType="neutral" caption="IT, Admin, Finance, HR"/>
@@ -155,10 +151,8 @@ export const EmployeeExitPage = () => {
         <StatCard title="Notice Period Compliance" value={`${stats.avgNotice}%`} icon={<FileCheck2 className="w-5 h-5 text-[#31485A] dark:text-slate-300"/>} iconBgColor="bg-slate-100 dark:bg-slate-800 text-[#31485A] border border-slate-200/60" change="Adherence" changeType="increase" caption="Standard 30 days served"/>
       </div>
 
-      {/* Search & Filter Bar */}
       <Card className="p-3.5 sm:p-4 border border-slate-200/90 dark:border-[#253344] shadow-xs">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
-          {/* Search Input */}
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"/>
             <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search by employee name, BGS ID, or role..." className="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 shadow-2xs transition-all"/>
@@ -167,9 +161,7 @@ export const EmployeeExitPage = () => {
               </button>)}
           </div>
 
-          {/* Filters & Actions Group */}
           <div className="flex flex-wrap items-center gap-2.5">
-            {/* Status Filter */}
             <div className="relative min-w-[160px]">
               <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
                 <option value="all">📁 All Exit Statuses</option>
@@ -180,7 +172,6 @@ export const EmployeeExitPage = () => {
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>
 
-            {/* Exit Type Filter */}
             <div className="relative min-w-[155px]">
               <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
                 <option value="all">📋 All Exit Types</option>
@@ -191,7 +182,6 @@ export const EmployeeExitPage = () => {
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>
 
-            {/* Department Filter */}
             <div className="relative min-w-[160px]">
               <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
                 <option value="all">🏢 All Departments</option>
@@ -203,7 +193,6 @@ export const EmployeeExitPage = () => {
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>
 
-            {/* Reset Button (when active filters exist) */}
             {(selectedStatus !== 'all' || selectedType !== 'all' || selectedDept !== 'all' || searchQuery) && (<button type="button" onClick={() => {
                 setSelectedStatus('all');
                 setSelectedType('all');
@@ -214,7 +203,6 @@ export const EmployeeExitPage = () => {
                 <span>Reset</span>
               </button>)}
 
-            {/* Counter Badge */}
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100/90 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 text-xs font-medium border border-slate-200/70 dark:border-slate-700/60">
               <span className="font-bold text-slate-900 dark:text-white tabular-nums">{filteredExits.length}</span>
               <span>records</span>
@@ -223,7 +211,6 @@ export const EmployeeExitPage = () => {
         </div>
       </Card>
 
-      {/* Exits Table */}
       <Card className="overflow-hidden border border-slate-200/90 dark:border-[#253344] shadow-xs">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -245,7 +232,6 @@ export const EmployeeExitPage = () => {
                 </tr>) : (filteredExits.map((exit) => {
             const approvedClearances = exit.clearances.filter((c) => c.status === 'Approved').length;
             return (<tr key={exit.id} className="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors">
-                      {/* Employee */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           {exit.avatar ? (<img src={exit.avatar} alt={exit.employeeName} className="w-9 h-9 rounded-full object-cover ring-2 ring-teal-600/20 dark:ring-teal-500/20 shrink-0"/>) : (<div className="w-9 h-9 rounded-full bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 font-bold flex items-center justify-center text-xs ring-2 ring-teal-600/20 shrink-0">
@@ -267,7 +253,6 @@ export const EmployeeExitPage = () => {
                         </div>
                       </td>
 
-                      {/* Dates */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <div>
                           <span className="inline-block px-2 py-0.5 rounded-md text-[10.5px] font-semibold bg-slate-100 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700">
@@ -282,7 +267,6 @@ export const EmployeeExitPage = () => {
                         </div>
                       </td>
 
-                      {/* 4-Dept Clearance Status */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5 mb-1.5">
                           {exit.clearances.map((c) => {
@@ -302,7 +286,6 @@ export const EmployeeExitPage = () => {
                         </div>
                       </td>
 
-                      {/* F&F Settlement */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {exit.fnf ? (<div>
                             <p className="font-bold text-[13.5px] text-slate-900 dark:text-white tabular-nums tracking-tight">
@@ -317,7 +300,6 @@ export const EmployeeExitPage = () => {
                           </div>) : (<span className="text-[11px] font-medium text-slate-400">Pending Clearances</span>)}
                       </td>
 
-                      {/* Status */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10.5px] font-bold ${getStatusBadge(exit.status)}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${exit.status === 'Settled & Relieved'
@@ -329,7 +311,6 @@ export const EmployeeExitPage = () => {
                         </span>
                       </td>
 
-                      {/* Actions */}
                       <td className="py-3.5 px-4 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
                           <button type="button" onClick={() => setManagingClearanceExit(exit)} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 dark:bg-[#1A2430] dark:hover:bg-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all shadow-2xs hover:shadow cursor-pointer">
@@ -349,7 +330,6 @@ export const EmployeeExitPage = () => {
         </div>
       </Card>
 
-      {/* ── MODAL: 4-DEPARTMENT CLEARANCES ── */}
       {managingClearanceExit && (<Modal isOpen={true} onClose={() => setManagingClearanceExit(null)} title={`Department Clearances • ${managingClearanceExit.employeeName} (${managingClearanceExit.employeeId})`} maxWidth="lg">
           <div className="space-y-4 text-xs">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -366,7 +346,6 @@ export const EmployeeExitPage = () => {
               </span>
             </div>
 
-            {/* Checklist per department */}
             <div className="space-y-3">
               {managingClearanceExit.clearances.map((c) => (<div key={c.id} className="p-3.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-white dark:bg-[#1A2430] shadow-2xs">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -411,10 +390,8 @@ export const EmployeeExitPage = () => {
           </div>
         </Modal>)}
 
-      {/* ── MODAL: FULL & FINAL (F&F) SETTLEMENT SHEET ── */}
       {viewingFnFExit && viewingFnFExit.fnf && (<Modal isOpen={true} onClose={() => setViewingFnFExit(null)} title={`Full & Final (F&F) Settlement Statement • ${viewingFnFExit.employeeName}`} maxWidth="lg">
           <div className="space-y-4 text-xs">
-            {/* Header info */}
             <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-bold text-slate-900 dark:text-white text-xs">
@@ -430,9 +407,7 @@ export const EmployeeExitPage = () => {
               </div>
             </div>
 
-            {/* Calculations Breakdown */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {/* Earnings & Payables */}
               <div className="p-3.5 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/40">
                 <h5 className="font-bold text-emerald-800 dark:text-emerald-300 text-xs uppercase tracking-wider mb-2.5 pb-1 border-b border-emerald-200/60">
                   Gross Payables & Accruals
@@ -461,7 +436,6 @@ export const EmployeeExitPage = () => {
                 </div>
               </div>
 
-              {/* Deductions */}
               <div className="p-3.5 rounded-xl bg-rose-50/40 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/40">
                 <h5 className="font-bold text-rose-800 dark:text-rose-300 text-xs uppercase tracking-wider mb-2.5 pb-1 border-b border-rose-200/60">
                   Deductions & Recoveries
@@ -487,7 +461,6 @@ export const EmployeeExitPage = () => {
               </div>
             </div>
 
-            {/* Net Amount Banner */}
             <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 flex items-center justify-between">
               <div>
                 <span className="text-[10.5px] font-bold uppercase tracking-wider text-[#8F621A] dark:text-amber-400">
@@ -507,7 +480,6 @@ export const EmployeeExitPage = () => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
               <Button variant="outline" size="sm" onClick={() => {
                 toast.success(`Relieving & Experience Certificate for ${viewingFnFExit.employeeName} generated.`, 'Certificate Ready');
@@ -527,7 +499,6 @@ export const EmployeeExitPage = () => {
           </div>
         </Modal>)}
 
-      {/* ── MODAL: INITIATE RESIGNATION / EXIT ── */}
       {isInitiateModalOpen && (<Modal isOpen={true} onClose={() => setIsInitiateModalOpen(false)} title="Initiate Employee Separation / Exit" maxWidth="md">
           <div className="space-y-4 text-xs">
             <Input label="Employee Full Name" value={formEmpName} onChange={(e) => setFormEmpName(e.target.value)} placeholder="e.g. Deepak Chouhan" required/>

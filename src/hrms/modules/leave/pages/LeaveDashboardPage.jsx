@@ -60,7 +60,6 @@ export const LeaveDashboardPage = () => {
             </Button>
           </div>}/>
 
-      {/* Leave Balances Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
         {balances.slice(0, 4).map((b) => (<Card key={b.leaveType} className="p-3 flex flex-col justify-between">
             <div>
@@ -85,7 +84,6 @@ export const LeaveDashboardPage = () => {
           </Card>))}
       </div>
 
-      {/* Quick Access Tiles - Role-Adaptive */}
       <div className={`grid grid-cols-2 ${isEmp ? 'sm:grid-cols-4' : 'sm:grid-cols-3 lg:grid-cols-5'} gap-2.5`}>
         <button onClick={() => navigate('/hr/leave/apply')} className="p-2.5 sm:p-3 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] hover:border-blue-400 dark:hover:border-blue-500/60 hover:shadow-2xs transition-all text-left group">
           <CalendarPlus className="w-4 h-4 text-blue-600 dark:text-blue-400 mb-1 group-hover:scale-110 transition-transform"/>
@@ -126,7 +124,6 @@ export const LeaveDashboardPage = () => {
           </button>)}
       </div>
 
-      {/* Recent Applications & Approvals */}
       <Card className="p-3.5 sm:p-4">
         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-[#253344] mb-3">
           <div>

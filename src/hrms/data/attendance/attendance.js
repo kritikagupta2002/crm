@@ -1,10 +1,5 @@
 import { INITIAL_EMPLOYEES } from '../employees/employees';
 
-/*
- * The biometric register for the last four weeks up to today, for everyone on the rolls, so the HR pages' "today"
- * is today (the register used to stop on a fixed date). Sundays are off. The same person and day always get the
- * same entry, so the figures don't change between visits.
- */
 const pad = (n) => String(n).padStart(2, '0');
 const isoOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const clock = (mins) => `${pad(((Math.floor(mins / 60) + 11) % 12) + 1)}:${pad(mins % 60)} ${mins >= 720 ? 'PM' : 'AM'}`;
@@ -21,7 +16,6 @@ function buildRegister() {
         day.setDate(day.getDate() - back);
         if (day.getDay() === 0)
             continue;
-        // Before 9 am nobody has punched in yet today.
         if (back === 0 && nowMins < 540)
             continue;
         const date = isoOf(day);

@@ -4,7 +4,6 @@ import { getUpcomingFollowUps } from '../../utils/dashboardStats'
 import { formatTime, monthShort, parseISODate } from '../../utils/date'
 import { RoleLink } from '../../components/common/RoleLink'
 
-/* Same colour code as the rest of the dashboard: red = overdue, amber = today, blue = coming up. */
 const STATUS_TONE = {
   Overdue: 'tone-urgent',
   Today: 'tone-attention',

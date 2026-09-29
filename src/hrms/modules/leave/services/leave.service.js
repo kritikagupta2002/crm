@@ -1,8 +1,5 @@
 import { storage } from '@/core/storage/storage';
 import { countWorkingDays, getWorkingDates } from '@/modules/leave/utils/workingDays';
-/**
- * Shared helper to check if a proposed date range conflicts with an existing leave request.
- */
 export function checkDateConflict(existingRequests, employeeId, startDateStr, endDateStr, excludeRequestId) {
     const s = new Date(startDateStr);
     const e = new Date(endDateStr);
@@ -18,9 +15,6 @@ export function checkDateConflict(existingRequests, employeeId, startDateStr, en
         return s <= rEnd && e >= rStart;
     }) || null;
 }
-/**
- * Sync attendance records when leave is approved or cancelled.
- */
 function syncAttendanceForLeave(req, action) {
     try {
         const holidays = storage.getLeaveSettings()?.companyHolidays || [];
@@ -57,7 +51,6 @@ function syncAttendanceForLeave(req, action) {
             });
         }
         else {
-            // Revert leave records
             approvedDates.forEach((dateStr) => {
                 const idx = attendanceList.findIndex((a) => a.employeeId === req.employeeId && a.date === dateStr && a.status === 'On Leave');
                 if (idx !== -1) {
@@ -79,9 +72,6 @@ function syncAttendanceForLeave(req, action) {
         console.error('Failed to sync attendance for leave:', err);
     }
 }
-/**
- * Dispatch an in-app notification for leave lifecycle events
- */
 function dispatchLeaveNotification(title, message, targetRole = 'all', level = 'info') {
     try {
         const list = storage.getNotifications();
@@ -117,7 +107,6 @@ export const leaveService = {
         return new Promise((resolve) => setTimeout(() => resolve(storage.getLeaveRequests()), 50));
     },
     applyLeave: async (data) => {
-        // 1. Date chronology validation
         const start = new Date(data.startDate);
         const end = new Date(data.endDate);
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
@@ -126,21 +115,17 @@ export const leaveService = {
         if (end < start) {
             throw new Error('End date cannot be earlier than start date.');
         }
-        // 2. Working days calculation (excluding weekends and public holidays)
         const holidays = storage.getLeaveSettings()?.companyHolidays || [];
         const calculatedDays = countWorkingDays(data.startDate, data.endDate, holidays);
         if (calculatedDays <= 0) {
             throw new Error('Selected date range contains 0 working days. Weekends and national holidays do not consume leave balance.');
         }
-        // 3. Maximum single request limit (30 days unless Maternity/Paternity)
         if (data.leaveType !== 'Maternity / Paternity Leave' && calculatedDays > 30) {
             throw new Error('Single leave application cannot exceed 30 working days. Please submit in separate phases.');
         }
-        // 4. Policy limits for specific leave types
         if (data.leaveType === 'Casual Leave (CL)' && calculatedDays > 3) {
             throw new Error('Casual Leave (CL) cannot exceed 3 consecutive working days per application as per BGSPL HR Policy. Please utilize Earned Leave (EL) for extended absences.');
         }
-        // 5. Quota balance limit check (considering both used and pending commitments)
         const balances = storage.getBalancesForEmployee(data.employeeId, data.employeeName);
         const currentBalance = balances.find((b) => b.leaveType === data.leaveType);
         if (currentBalance) {
@@ -149,13 +134,11 @@ export const leaveService = {
                 throw new Error(`Insufficient leave quota: You have ${currentBalance.available} days remaining, with ${currentBalance.pending} days already pending approval (${availableForNew} days available to apply), but requested ${calculatedDays} day(s).`);
             }
         }
-        // 6. Overlapping request check
         const existingRequests = storage.getLeaveRequests();
         const overlapping = checkDateConflict(existingRequests, data.employeeId, data.startDate, data.endDate);
         if (overlapping) {
             throw new Error(`Overlapping request: You already have a ${overlapping.status} leave application (${overlapping.leaveType}: ${overlapping.startDate} to ${overlapping.endDate}) covering this time period.`);
         }
-        // 7. Reason & phone validation
         if (!data.reason || data.reason.trim().length < 10) {
             throw new Error('Please provide a substantive justification (minimum 10 characters).');
         }
@@ -177,9 +160,7 @@ export const leaveService = {
             status: 'Pending',
         };
         storage.setLeaveRequests([newReq, ...existingRequests]);
-        // Refresh employee balance state
         storage.getBalancesForEmployee(data.employeeId, data.employeeName);
-        // Notify HR
         dispatchLeaveNotification('New Leave Request Submitted', `${data.employeeName} submitted a new request for ${calculatedDays} working day(s) of ${data.leaveType}.`, 'hr', 'info');
         return new Promise((resolve) => setTimeout(() => resolve(newReq), 80));
     },
@@ -229,16 +210,13 @@ export const leaveService = {
         req.approverComment = approverComment;
         req.reviewedAt = new Date().toISOString();
         storage.setLeaveRequests([...list]);
-        // Recalculate balance for this employee
         storage.getBalancesForEmployee(req.employeeId, req.employeeName);
-        // Sync Attendance
         if (finalStatus === 'Approved' || finalStatus === 'Partially Approved') {
             syncAttendanceForLeave(req, 'apply');
         }
         else {
             syncAttendanceForLeave(req, 'remove');
         }
-        // Dispatch notification to employee
         const statusText = finalStatus === 'Partially Approved'
             ? `partially approved (${finalApprovedDays} of ${requested} days approved, ${finalRejectedDays} days rejected)`
             : finalStatus.toLowerCase();
@@ -253,9 +231,7 @@ export const leaveService = {
         const prevStatus = req.status;
         req.status = 'Cancelled';
         storage.setLeaveRequests([...list]);
-        // Recompute balance (approved days refund is automatically handled because used sums Approved/PartiallyApproved)
         storage.getBalancesForEmployee(req.employeeId, req.employeeName);
-        // Revert attendance if it was previously approved
         if (prevStatus === 'Approved' || prevStatus === 'Partially Approved') {
             syncAttendanceForLeave(req, 'remove');
         }

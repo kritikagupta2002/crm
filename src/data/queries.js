@@ -1,10 +1,6 @@
 import { TODAY } from './mockData'
 import { addDays, toISODate } from '../utils/date'
 
-/*
- * Questions clients have asked from the portal: one answered and one still open, so the demo shows
- * both sides. Anything asked or answered in the app is kept on the enquiry as `queries`.
- */
 const at = (days, time) => `${toISODate(addDays(TODAY, days))}T${time}:00.000Z`
 
 export const QUERY_TOPICS = ['Project', 'Documents', 'Billing', 'Other']
@@ -60,5 +56,4 @@ const SEEDED = {
   ],
 }
 
-/* A client's questions: the ones asked in the app, else the demo's seeded ones. Newest first. */
 export const queriesOf = (lead) => [...(lead.queries ?? SEEDED[lead.id] ?? [])].sort((a, b) => b.at.localeCompare(a.at))

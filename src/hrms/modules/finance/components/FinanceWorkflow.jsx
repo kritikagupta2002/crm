@@ -99,10 +99,8 @@ export const FinanceWorkflow = () => {
         </div>
       </div>
 
-      {/* Responsive Workflow Grid / Stepper */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {WORKFLOW_STEPS.map((stage, idx) => (<Card key={stage.step} hoverable onClick={() => navigate(stage.path)} className="p-4 flex flex-col justify-between border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] transition-all hover:shadow-md hover:border-teal-500/50 group cursor-pointer relative overflow-hidden">
-            {/* Top Bar: Step Number + Tag */}
             <div className="flex items-center justify-between gap-2 mb-2.5">
               <div className="flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-[var(--ink,#0f2a3d)] dark:text-slate-200 flex items-center justify-center font-mono group-hover:bg-teal-700 group-hover:text-white transition-colors">
@@ -117,7 +115,6 @@ export const FinanceWorkflow = () => {
               </div>
             </div>
 
-            {/* Title & Description */}
             <div className="flex-1">
               <h3 className="text-xs sm:text-sm font-bold text-[var(--ink,#0f2a3d)] dark:text-slate-100 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors font-inter flex items-center gap-1.5">
                 {stage.title}
@@ -127,7 +124,6 @@ export const FinanceWorkflow = () => {
               </p>
             </div>
 
-            {/* Footer / Direction indicator */}
             <div className="mt-3 pt-2.5 border-t border-[var(--line,#e1e8eb)]/80 dark:border-[#1e2c37] flex items-center justify-between text-xs text-[var(--ink-3,#7c8b96)] dark:text-slate-400 group-hover:text-teal-700 dark:group-hover:text-teal-300 font-inter">
               <span className="text-[11px] font-medium">Open Stage Module</span>
               <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform"/>

@@ -5,7 +5,6 @@ import { openQuotes, quoteFor } from './workflow'
 const countStage = (leads, stage) => leads.filter((lead) => lead.stage === stage).length
 const quotedValue = (leads, stage) => leads.filter((lead) => lead.stage === stage).reduce((sum, lead) => sum + (lead.quoteValue ?? 0), 0)
 
-/* Percentage change; null when there is nothing to compare against. */
 function change(current, previous) {
   if (previous === 0) return null
   return Math.round(((current - previous) / previous) * 100)
@@ -30,9 +29,7 @@ export function getSummary({ leads, followUps }, period) {
   const won = countStage(current, 'Won')
   const wonPrev = countStage(previous, 'Won')
   const followUpsDue = countFollowUpsDue(followUps)
-  // Waiting on the client is a current state, like follow-ups due, so it isn't limited to the period.
   const awaiting = openQuotes(leads)
-  // Accepted, but the 50% advance hasn't come in yet (the same amount the client portal asks for).
   const advanceDue = leads.filter((l) => l.stage !== 'Lost' && l.approval?.quoteAccepted && !l.approval?.advanceReceived && quoteFor(l))
 
   const rate = current.length ? (won / current.length) * 100 : 0
@@ -84,7 +81,6 @@ export function getServiceMix(leads, period) {
   })
 }
 
-/* Last six calendar months, oldest first — independent of the period filter. */
 export function getMonthlyTrend(leads) {
   return Array.from({ length: 6 }, (_, i) => {
     const monthDate = new Date(TODAY.getFullYear(), TODAY.getMonth() - 5 + i, 1)
@@ -101,7 +97,6 @@ export function getMonthlyTrend(leads) {
   })
 }
 
-/* Newest first; the ID breaks ties so enquiries added today land on top. */
 export function getRecentEnquiries(leads, limit = 5) {
   return [...leads].sort((a, b) => b.createdOn.localeCompare(a.createdOn) || b.id.localeCompare(a.id)).slice(0, limit)
 }

@@ -26,11 +26,9 @@ const QUOTE_COLUMNS = [
   { label: 'Status', value: (r) => r.quote.displayStatus },
 ]
 
-/* ?new=<leadId> opens the builder for that enquiry, ?open=<leadId> opens its quotation — used by other pages. */
 export function QuotationsPage() {
   const money = useMoney()
   const { leads, changeStage } = useCrm()
-  // Anyone who sees amounts can export; only Sales (and the Admin) make and change quotations.
   const canSell = useAccess().may('sales')
   const [params, setParams] = useSearchParams()
   const [tab, setTab] = useState('All')
@@ -53,7 +51,6 @@ export function QuotationsPage() {
   const accepted = quotes.filter((r) => r.quote.status === 'Accepted')
   const decided = accepted.length + quotes.filter((r) => r.quote.status === 'Rejected').length
 
-  // Quotations can only be built for open enquiries; a link to a won/lost one shows its quotation instead.
   const requested = params.get('new') !== null ? params.get('new') || undefined : params.get('revise') || null
   const requestedLead = requested ? leads.find((l) => l.id === requested) : null
   const isClosedLead = requestedLead && (requestedLead.stage === 'Won' || requestedLead.stage === 'Lost')

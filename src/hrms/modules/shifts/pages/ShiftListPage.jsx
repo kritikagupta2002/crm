@@ -95,7 +95,6 @@ export const ShiftListPage = () => {
                 { label: 'My Schedule' },
             ]}/>
 
-        {/* Assigned Shift Hero Banner */}
         <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-200/80 dark:border-amber-800/60 bg-white dark:bg-[#1A2430] shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1.5">
@@ -146,7 +145,6 @@ export const ShiftListPage = () => {
           </div>
         </div>
 
-        {/* 7-Day Weekly Roster Table */}
         <div className="bg-white dark:bg-[#1A2430] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-2xs overflow-hidden">
           <div className="p-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-2">

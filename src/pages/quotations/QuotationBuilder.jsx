@@ -9,10 +9,6 @@ import { servicesOf } from '../../utils/leads'
 
 const blankItem = () => ({ description: '', qty: 1, rate: '' })
 
-/*
- * Build or revise a quotation. New quotations start from the lead's service; revisions start from
- * the current quotation with the version bumped. Saving sends it (the lead moves to Proposal Sent).
- */
 export function QuotationBuilder({ leadId, onClose, onSaved }) {
   const money = useMoney()
   const { leads, settings, saveQuotation } = useCrm()
@@ -23,7 +19,6 @@ export function QuotationBuilder({ leadId, onClose, onSaved }) {
   const current = lead ? quoteFor(lead) : null
 
   const initial = (l, q) => ({
-    // A new quotation gets a line for each service the client asked for.
     items: q ? q.items.map((i) => ({ ...i })) : [...(l ? servicesOf(l) : [{ serviceDetail: '' }]).map((x) => ({ description: x.serviceDetail, qty: 1, rate: '' })), blankItem()],
     discountPct: q?.discountPct ?? 0,
     validDays: q?.validDays ?? settings.quoteValidityDays,

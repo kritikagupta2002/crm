@@ -154,7 +154,6 @@ export const ClientInvoicesPage = () => {
             </Button>
           </div>}/>
 
-      {/* Filter Component */}
       <div className="flex items-center gap-2 p-1 bg-white dark:bg-[#142028] rounded-xl border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] overflow-x-auto w-fit">
         {['all', 'Paid', 'Pending', 'Partially Paid', 'Overdue', 'Draft'].map((st) => (<button key={st} onClick={() => setStatusFilter(st)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${statusFilter.toLowerCase() === st.toLowerCase()
                 ? 'bg-[var(--teal-700,#1f6f78)] text-white shadow-2xs'
@@ -163,13 +162,10 @@ export const ClientInvoicesPage = () => {
           </button>))}
       </div>
 
-      {/* Data Table */}
       <DataTable columns={columns} data={filteredInvoices} keyField="id" searchable searchPlaceholder="Search invoices by number, client, or date..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No invoices found" emptyDescription="Get started by creating your first client invoice."/>
 
-      {/* Create Modal */}
       <CreateInvoiceModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onInvoiceCreated={() => loadData()}/>
 
-      {/* Invoice Document Preview Modal */}
       {selectedInvoiceForPreview && (<Modal isOpen={!!selectedInvoiceForPreview} onClose={() => setSelectedInvoiceForPreview(null)} title={`Invoice Preview - ${selectedInvoiceForPreview.invoiceNumber}`} description="Official GST Tax Invoice Preview Document" maxWidth="2xl" footer={<div className="flex items-center justify-between w-full">
               <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                 Status: {selectedInvoiceForPreview.status}
@@ -182,7 +178,6 @@ export const ClientInvoicesPage = () => {
               </Button>
             </div>}>
           <div className="space-y-4 text-xs font-inter p-3 border border-slate-200 dark:border-[#253344] rounded-xl bg-white dark:bg-[#161F2E]">
-            {/* Header info */}
             <div className="flex justify-between border-b pb-3 border-slate-200 dark:border-[#253344]">
               <div>
                 <h3 className="font-bold text-sm text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-fraunces">
@@ -200,7 +195,6 @@ export const ClientInvoicesPage = () => {
               </div>
             </div>
 
-            {/* Bill To */}
             <div>
               <p className="font-bold text-[11px] uppercase tracking-wider text-slate-400 font-mono">Billed To:</p>
               <p className="font-semibold text-sm text-[var(--ink,#0f2a3d)] dark:text-slate-100">
@@ -210,7 +204,6 @@ export const ClientInvoicesPage = () => {
               {selectedInvoiceForPreview.billingAddress && (<p className="text-slate-500">{selectedInvoiceForPreview.billingAddress}</p>)}
             </div>
 
-            {/* Items Table */}
             <div className="border rounded-lg overflow-hidden border-slate-200 dark:border-[#253344]">
               <table className="w-full text-left">
                 <thead className="bg-slate-50 dark:bg-[#111821] text-[11px] font-semibold text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-[#253344]">
@@ -232,7 +225,6 @@ export const ClientInvoicesPage = () => {
               </table>
             </div>
 
-            {/* Totals */}
             <div className="flex justify-end pt-2">
               <div className="w-64 space-y-1 text-right">
                 <div className="flex justify-between text-slate-500">

@@ -1,12 +1,7 @@
-/*
- * A text PDF built by hand (PDF 1.4, Helvetica) — enough for demo letters and document copies,
- * with no library. Lines: [{ text, size?, bold?, gap? }]; long lines wrap.
- */
 const PAGE_W = 595
 const PAGE_H = 842
 const MARGIN = 56
 
-// Helvetica's standard encoding has no ₹ or typographic dashes/quotes; keep the text readable.
 const clean = (s) =>
   String(s)
     .replace(/₹\s?/g, 'Rs. ')
@@ -31,7 +26,6 @@ function wrap(text, size) {
 }
 
 export function textPdf(lines) {
-  // Lines flow onto as many A4 pages as they need.
   const pages = [[]]
   let y = PAGE_H - MARGIN
   lines.forEach(({ text = '', size = 11, bold = false, gap = 6 }) => {
@@ -45,7 +39,6 @@ export function textPdf(lines) {
     })
     y -= gap
   })
-  // Objects: 1 catalog, 2 pages, 3-4 fonts, then a page and its content stream for each page.
   const pageRef = (i) => 5 + i * 2
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',

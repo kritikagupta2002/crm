@@ -1,6 +1,5 @@
 import React from 'react';
 
-/* The CRM's status pill, in the CRM's colour code: blue info, amber attention, red urgent, green good. */
 const TONES = {
     info: 'tone-info',
     attention: 'tone-attention',

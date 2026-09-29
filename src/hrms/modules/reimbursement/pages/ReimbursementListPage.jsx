@@ -31,13 +31,11 @@ export const ReimbursementListPage = () => {
     const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
     const [previewAttachment, setPreviewAttachment] = useState(null);
 
-    // Filters
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
 
-    // Claim Form State (Employee)
     const [category, setCategory] = useState('Mobile & Internet');
     const [claimProject, setClaimProject] = useState(() => getEmployeeProjectById(user?.employeeId));
     const [claimAmount, setClaimAmount] = useState('2500');
@@ -47,21 +45,18 @@ export const ReimbursementListPage = () => {
     const [formError, setFormError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Review Modal State (HR)
     const [selectedClaimForReview, setSelectedClaimForReview] = useState(null);
     const [approvedAmountInput, setApprovedAmountInput] = useState('');
     const [reviewRemarksInput, setReviewRemarksInput] = useState('');
     const [reviewError, setReviewError] = useState('');
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
-    // Employee Query Response State
     const [isQueryResponseModalOpen, setIsQueryResponseModalOpen] = useState(false);
     const [selectedClaimForQuery, setSelectedClaimForQuery] = useState(null);
     const [queryResponseInput, setQueryResponseInput] = useState('');
     const [queryResponseError, setQueryResponseError] = useState('');
     const [isSubmittingQueryResponse, setIsSubmittingQueryResponse] = useState(false);
 
-    // Details & Audit Modal State
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [selectedClaimDetails, setSelectedClaimDetails] = useState(null);
 
@@ -72,7 +67,6 @@ export const ReimbursementListPage = () => {
                 setClaims([]);
                 return;
             }
-            // Strict authoritative isolation by employeeId only
             setClaims(data.filter((c) => c.employeeId === user.employeeId));
         } else {
             setClaims(data);
@@ -253,7 +247,6 @@ export const ReimbursementListPage = () => {
         setIsDetailsModalOpen(true);
     };
 
-    // Auto-calculate dynamic status & rejected amount in Review Modal
     const modalClaimedNum = selectedClaimForReview ? Number(selectedClaimForReview.claimAmount || 0) : 0;
     const modalApprovedNum = Number(approvedAmountInput) || 0;
     const modalRejectedNum = Math.max(0, modalClaimedNum - modalApprovedNum);
@@ -562,7 +555,6 @@ export const ReimbursementListPage = () => {
                 }
             />
 
-            {/* Filter Controls */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 bg-white dark:bg-[#1A2430] p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
                 <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[130px]">
                     <Select 
@@ -656,7 +648,6 @@ export const ReimbursementListPage = () => {
                 searchFields={isEmp ? ['claimId', 'category', 'remarks'] : ['claimId', 'employeeName', 'category', 'remarks']}
             />
 
-            {/* Claim Submission Modal (Employee) */}
             <Modal 
                 isOpen={isClaimModalOpen} 
                 onClose={() => setIsClaimModalOpen(false)} 
@@ -745,7 +736,6 @@ export const ReimbursementListPage = () => {
                 </div>
             </Modal>
 
-            {/* Adjudication Modal with Partial Approval (HR) */}
             <Modal 
                 isOpen={isReviewModalOpen} 
                 onClose={() => setIsReviewModalOpen(false)} 
@@ -813,7 +803,6 @@ export const ReimbursementListPage = () => {
                             </div>
                         </div>
 
-                        {/* Amount Adjudication Card */}
                         <div className="p-3.5 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/30 space-y-3">
                             <div className="flex items-center justify-between">
                                 <label className="font-bold text-slate-800 dark:text-slate-200">
@@ -837,7 +826,6 @@ export const ReimbursementListPage = () => {
                                 className="font-mono text-base font-bold"
                             />
 
-                            {/* Live Reconciliation Ledger */}
                             <div className="grid grid-cols-3 gap-2 text-center pt-1">
                                 <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                     <span className="text-[10px] uppercase font-bold text-slate-400 block">Claimed</span>
@@ -865,7 +853,6 @@ export const ReimbursementListPage = () => {
                 )}
             </Modal>
 
-            {/* Employee Query Response Modal (Requirement 6) */}
             <Modal
                 isOpen={isQueryResponseModalOpen}
                 onClose={() => setIsQueryResponseModalOpen(false)}
@@ -930,7 +917,6 @@ export const ReimbursementListPage = () => {
                 )}
             </Modal>
 
-            {/* Details & Audit Trail Modal */}
             <Modal
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
@@ -958,7 +944,6 @@ export const ReimbursementListPage = () => {
                             </div>
                         </div>
 
-                        {/* Supporting Attachment */}
                         <div className="space-y-1">
                             <span className="font-bold text-slate-700 dark:text-slate-300">Supporting Attachment</span>
                             {selectedClaimDetails.receiptFileName ? (
@@ -1039,7 +1024,6 @@ export const ReimbursementListPage = () => {
                 )}
             </Modal>
 
-            {/* Photo / Attachment Preview Modal */}
             <AttachmentPreviewModal 
                 isOpen={!!previewAttachment} 
                 onClose={() => setPreviewAttachment(null)} 

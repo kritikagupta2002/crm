@@ -18,17 +18,12 @@ const whenOf = (iso) => {
   return `${formatDayMonth(iso.slice(0, 10))}, ${formatTime(`${d.getHours()}:${d.getMinutes()}`)}`
 }
 
-/*
- * Every message the automations sent (Settings → Automations): who got it, on which channel, and what it said.
- * Demo: the messages are recorded here; the live system sends them through the WhatsApp Business API and email.
- */
 export function MessagesPage() {
   const { outbox, leads } = useCrm()
   const { can } = useAccess()
   const [audience, setAudience] = useState('all')
   const [search, setSearch] = useState('')
 
-  // What went out before the demo was opened, then everything sent in the app.
   const past = useMemo(() => seededMessages(), [])
   const q = search.trim().toLowerCase()
   const all = [...past, ...outbox].sort((a, b) => b.at.localeCompare(a.at))

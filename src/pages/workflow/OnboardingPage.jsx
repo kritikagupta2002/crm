@@ -10,7 +10,6 @@ import { RoleLink } from '../../components/common/RoleLink'
 
 const isDone = (lead) => progressOf(ONBOARDING_STEPS, lead.onboarding) === ONBOARDING_STEPS.length
 
-/* Won deals become active clients once KYC, documents, kick-off, team and portal access are done. */
 export function OnboardingPage() {
   const { leads, updateLead } = useCrm()
   const { locked } = useAccess()

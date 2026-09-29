@@ -29,7 +29,6 @@ export const FinanceExpenseClaimsPage = () => {
     const [reimbursements, setReimbursements] = useState(() => storage.getReimbursements() || []);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Filters
     const [typeFilter, setTypeFilter] = useState('all'); // all | expense | reimbursement
     const [financeStatusFilter, setFinanceStatusFilter] = useState('all'); // all | 'Pending Review' | 'Approved' | 'Rejected' | 'Query Raised' | 'Settled'
     const [deptFilter, setDeptFilter] = useState('all');
@@ -38,7 +37,6 @@ export const FinanceExpenseClaimsPage = () => {
     const [employeeFilter, setEmployeeFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Modal States
     const [selectedClaim, setSelectedClaim] = useState(null);
     const [previewAttachment, setPreviewAttachment] = useState(null);
     const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
@@ -78,7 +76,6 @@ export const FinanceExpenseClaimsPage = () => {
         loadAllClaims();
     }, [loadAllClaims]);
 
-    // Combine all claims into a unified schema for finance review
     const unifiedClaims = useMemo(() => {
         const exp = (expenses || []).map((e) => ({
             ...e,
@@ -103,9 +100,7 @@ export const FinanceExpenseClaimsPage = () => {
         return [...exp, ...rmb];
     }, [expenses, reimbursements]);
 
-    // Live Metrics (Requirement 20: NO FAKE NUMBERS)
     const metrics = useMemo(() => {
-        // Finance only reviews claims that have passed HR Verification (Approved or Partially Approved)
         const hrQualified = unifiedClaims.filter(c => c.hrStatus === 'Approved' || c.hrStatus === 'Partially Approved');
 
         const pendingReview = hrQualified.filter(c => c.financeStatus === 'Pending Review' && c.queryStatus !== 'Query Raised').length;
@@ -129,7 +124,6 @@ export const FinanceExpenseClaimsPage = () => {
         };
     }, [unifiedClaims]);
 
-    // Distinct filter options
     const departments = useMemo(() => {
         const set = new Set();
         unifiedClaims.forEach(c => { if (c.department) set.add(c.department); });
@@ -152,15 +146,12 @@ export const FinanceExpenseClaimsPage = () => {
         return Array.from(map.entries()).map(([id, label]) => ({ value: id, label }));
     }, [unifiedClaims]);
 
-    // Filtered Claims
     const filteredClaims = useMemo(() => {
         return unifiedClaims.filter((c) => {
-            // Type Filter
             if (typeFilter !== 'all' && c.claimType.toLowerCase() !== typeFilter.toLowerCase()) {
                 return false;
             }
 
-            // Finance Status Filter
             if (financeStatusFilter === 'pending') {
                 if (c.financeStatus !== 'Pending Review' || c.queryStatus === 'Query Raised') return false;
             } else if (financeStatusFilter === 'queries') {
@@ -175,19 +166,14 @@ export const FinanceExpenseClaimsPage = () => {
                 if (c.settlementStatus !== 'Settled' && c.status !== 'Settled') return false;
             }
 
-            // Department
             if (deptFilter !== 'all' && c.department !== deptFilter) return false;
 
-            // Project
             if (projectFilter !== 'all' && c.project !== projectFilter) return false;
 
-            // Category
             if (categoryFilter !== 'all' && c.category !== categoryFilter) return false;
 
-            // Employee
             if (employeeFilter !== 'all' && c.employeeId !== employeeFilter) return false;
 
-            // Search
             if (searchQuery.trim()) {
                 const q = searchQuery.toLowerCase();
                 const match = (c.employeeName && c.employeeName.toLowerCase().includes(q)) ||
@@ -202,7 +188,6 @@ export const FinanceExpenseClaimsPage = () => {
         });
     }, [unifiedClaims, typeFilter, financeStatusFilter, deptFilter, projectFilter, categoryFilter, employeeFilter, searchQuery]);
 
-    // Action Handlers
     const handleOpenApprove = (claim) => {
         setSelectedClaim(claim);
         setApproveRemarks('Verified supporting tax invoices and field exploration ledger. Approved for disbursement.');
@@ -604,7 +589,6 @@ export const FinanceExpenseClaimsPage = () => {
                 }
             />
 
-            {/* Live Metrics Grid (Requirement 20) */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                 <StatCard 
                     title="Pending Finance" 
@@ -656,7 +640,6 @@ export const FinanceExpenseClaimsPage = () => {
                 />
             </div>
 
-            {/* Filter Bar */}
             <div className="bg-white dark:bg-[#142028] p-4 rounded-xl border border-slate-200/80 dark:border-[#253344] shadow-xs space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
                     <div className="w-48">
@@ -753,7 +736,6 @@ export const FinanceExpenseClaimsPage = () => {
                 </div>
             </div>
 
-            {/* Claims DataTable */}
             <DataTable 
                 columns={columns} 
                 data={filteredClaims} 
@@ -762,7 +744,6 @@ export const FinanceExpenseClaimsPage = () => {
                 emptyMessage="No expense or reimbursement claims found matching the filter criteria." 
             />
 
-            {/* 1. Finance Approval Modal */}
             <Modal 
                 isOpen={isApproveModalOpen} 
                 onClose={() => setIsApproveModalOpen(false)}
@@ -860,7 +841,6 @@ export const FinanceExpenseClaimsPage = () => {
                 )}
             </Modal>
 
-            {/* 2. Raise Clarification Query Modal */}
             <Modal 
                 isOpen={isQueryModalOpen} 
                 onClose={() => setIsQueryModalOpen(false)}
@@ -917,7 +897,6 @@ export const FinanceExpenseClaimsPage = () => {
                 )}
             </Modal>
 
-            {/* 3. Review Response & Resolve Query Modal */}
             <Modal 
                 isOpen={isResolveModalOpen} 
                 onClose={() => setIsResolveModalOpen(false)}
@@ -976,7 +955,6 @@ export const FinanceExpenseClaimsPage = () => {
                 )}
             </Modal>
 
-            {/* 4. Finance Rejection Modal */}
             <Modal 
                 isOpen={isRejectModalOpen} 
                 onClose={() => setIsRejectModalOpen(false)}
@@ -1022,7 +1000,6 @@ export const FinanceExpenseClaimsPage = () => {
                 )}
             </Modal>
 
-            {/* 5. Settlement / Payment Disbursement Modal */}
             <Modal 
                 isOpen={isSettleModalOpen} 
                 onClose={() => setIsSettleModalOpen(false)}
@@ -1115,7 +1092,6 @@ export const FinanceExpenseClaimsPage = () => {
                 )}
             </Modal>
 
-            {/* 6. Complete Audit Trail / History Modal */}
             <Modal 
                 isOpen={isAuditModalOpen} 
                 onClose={() => setIsAuditModalOpen(false)}
@@ -1143,7 +1119,6 @@ export const FinanceExpenseClaimsPage = () => {
                             </div>
                         </div>
 
-                        {/* Supporting Attachment */}
                         {selectedClaim.receiptFileName && (
                             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs">
                                 <div className="flex items-center gap-2.5 truncate mr-3">
@@ -1211,7 +1186,6 @@ export const FinanceExpenseClaimsPage = () => {
                 )}
             </Modal>
 
-            {/* Photo / Attachment Preview Modal */}
             <AttachmentPreviewModal 
                 isOpen={!!previewAttachment} 
                 onClose={() => setPreviewAttachment(null)} 

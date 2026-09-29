@@ -31,7 +31,6 @@ export const ReportsPage = () => {
     const [dateRange, setDateRange] = useState('this_month');
     const [leaveSearch, setLeaveSearch] = useState('');
 
-    // Expense & Reimbursement Report Filter State
     const [expenseSearch, setExpenseSearch] = useState('');
     const [expenseModuleType, setExpenseModuleType] = useState('all');
     const [expenseStatusFilter, setExpenseStatusFilter] = useState('all');
@@ -40,7 +39,6 @@ export const ReportsPage = () => {
     const [expenseCategoryFilter, setExpenseCategoryFilter] = useState('all');
     const [selectedEmployee, setSelectedEmployee] = useState('all');
 
-    // Custom Report Builder State
     const [customModule, setCustomModule] = useState('employees');
     const [selectedFields, setSelectedFields] = useState([
         'employeeId', 'name', 'department', 'designation', 'status'
@@ -125,7 +123,6 @@ export const ReportsPage = () => {
     const allExpenses = storage.getExpenses();
     const allReimbursements = storage.getReimbursements();
 
-    // Date Range Matching Helper
     const matchesDateRange = (dateStr, range) => {
         if (!dateStr) return true;
         if (range === 'this_month') return dateStr >= '2026-09-01' && dateStr <= '2026-09-30';
@@ -135,7 +132,6 @@ export const ReportsPage = () => {
         return true;
     };
 
-    // Unified Expense & Reimbursement Records
     const unifiedExpenseRecords = React.useMemo(() => {
         const expList = (allExpenses || []).map(e => ({
             id: e.id,
@@ -202,7 +198,6 @@ export const ReportsPage = () => {
         return [...expList, ...reimbList];
     }, [allExpenses, allReimbursements]);
 
-    // Filtered MIS Expense Records
     const filteredMisExpenseRecords = React.useMemo(() => {
         return unifiedExpenseRecords.filter(r => {
             if (selectedDept !== 'all' && r.department !== selectedDept) return false;
@@ -229,8 +224,6 @@ export const ReportsPage = () => {
         });
     }, [unifiedExpenseRecords, selectedDept, selectedProject, dateRange, expenseModuleType, expenseStatusFilter, expenseFinanceStatusFilter, expenseQueryStatusFilter, expenseCategoryFilter, selectedEmployee, expenseSearch]);
 
-
-    // Accurate Reporting Metrics from Live Data
     const expenseMetrics = React.useMemo(() => {
         const expItems = filteredMisExpenseRecords.filter(r => r.type === 'Expense');
         const reimbItems = filteredMisExpenseRecords.filter(r => r.type === 'Reimbursement');
@@ -265,7 +258,6 @@ export const ReportsPage = () => {
         };
     }, [filteredMisExpenseRecords]);
 
-    // Distinct Categories for Filter Dropdown
     const distinctCategories = React.useMemo(() => {
         const set = new Set();
         unifiedExpenseRecords.forEach(r => {
@@ -274,7 +266,6 @@ export const ReportsPage = () => {
         return Array.from(set).sort();
     }, [unifiedExpenseRecords]);
 
-    // Category Breakdown Chart Data
     const expenseCategoryChartData = React.useMemo(() => {
         const catMap = {};
         filteredMisExpenseRecords.forEach(r => {
@@ -443,7 +434,6 @@ export const ReportsPage = () => {
     const handleSelectAllFields = () => {
         setSelectedFields(moduleFieldMap[customModule].map(f => f.id));
     };
-    // Report Datasets
     const attendanceReportData = [
         { department: 'Geology', onTime: 82, late: 8, absent: 4 },
         { department: 'Mining', onTime: 79, late: 10, absent: 5 },
@@ -554,7 +544,6 @@ export const ReportsPage = () => {
             </Button>
           </div>}/>
 
-      {/* Global Filter Bar */}
       <Card className="p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full sm:w-auto flex-wrap">
           <div className="w-full sm:w-48">
@@ -602,10 +591,8 @@ export const ReportsPage = () => {
         </div>
       </Card>
 
-      {/* Report Module Tabs */}
       <Tabs tabs={reportTabs} activeTab={activeReportTab} onChange={setActiveReportTab}/>
 
-      {/* Report Content Panels */}
       {activeReportTab === 'attendance' && (<div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard title="Overall Attendance Rate" value="93.8%" icon={<Users className="w-5 h-5"/>} iconBgColor="bg-blue-50 text-blue-600" change="+1.2%" changeType="increase" caption="vs previous quarter"/>
@@ -704,7 +691,6 @@ export const ReportsPage = () => {
         </div>)}
 
       {activeReportTab === 'leave' && (<div className="space-y-6">
-          {/* Executive Stat Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <StatCard title="Total Applications" value={`${misSummary.totalRequests}`} icon={<FileCheck2 className="w-5 h-5"/>} iconBgColor="bg-blue-50 text-blue-600" caption="Submissions logged"/>
             <StatCard title="Total Requested Days" value={`${misSummary.totalRequestedDays}d`} icon={<Calendar className="w-5 h-5"/>} iconBgColor="bg-purple-50 text-purple-600" caption="Across all categories"/>
@@ -713,7 +699,6 @@ export const ReportsPage = () => {
             <StatCard title="Rejected / Cancelled" value={`${misSummary.totalRejectedDays}d`} icon={<UserMinus className="w-5 h-5"/>} iconBgColor="bg-rose-50 text-rose-600" caption={`${misSummary.cancelledCount} cancelled`}/>
           </div>
 
-          {/* Departmental Leave Distribution Chart */}
           <ChartCard title="Departmental Leave Utilization & Commitments (Working Days)" subtitle="Real-time breakdown of approved leave days, pending requests, and rejected durations by operating division" action={<div className="flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-xs bg-[#10B981]"/>
@@ -752,7 +737,6 @@ export const ReportsPage = () => {
             </ResponsiveContainer>
           </ChartCard>
 
-          {/* Master MIS Audit Ledger Table */}
           <Card className="p-5 shadow-2xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
               <div>
@@ -845,10 +829,8 @@ export const ReportsPage = () => {
           </Card>
         </div>)}
 
-      {/* Expenses & Reimbursements Tab */}
       {activeReportTab === 'expenses' && (
         <div className="space-y-6">
-          {/* Executive Section Header: Expenses */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -905,7 +887,6 @@ export const ReportsPage = () => {
             </div>
           </div>
 
-          {/* Executive Section Header: Reimbursements */}
           <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -962,7 +943,6 @@ export const ReportsPage = () => {
             </div>
           </div>
 
-          {/* Expenditure Category Analytics Chart */}
           <ChartCard
             title="Expenditure & Claims by Category (₹ INR)"
             subtitle="Comparison of requested claim amounts vs authorized approved values and disbursed settlements"
@@ -1031,7 +1011,6 @@ export const ReportsPage = () => {
             )}
           </ChartCard>
 
-          {/* Master MIS Audit Ledger Table */}
           <Card className="p-5 shadow-2xs">
             <div className="flex flex-col gap-3 pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1056,7 +1035,6 @@ export const ReportsPage = () => {
                 </div>
               </div>
 
-              {/* Sub-Filters */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2.5 pt-2">
                 <div className="relative col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-1">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -1296,7 +1274,6 @@ export const ReportsPage = () => {
         </Card>)}
 
       {activeReportTab === 'custom' && (<div className="space-y-6">
-          {/* Custom Report Configuration Card */}
           <Card className="p-6 border border-slate-200 dark:border-slate-800">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div>
@@ -1321,7 +1298,6 @@ export const ReportsPage = () => {
               </div>
             </div>
 
-            {/* Step 1: Select Module */}
             <div className="mt-5">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
                 1. Select Target Data Repository
@@ -1343,7 +1319,6 @@ export const ReportsPage = () => {
               </div>
             </div>
 
-            {/* Step 2: Choose Fields */}
             <div className="mt-5">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
@@ -1364,7 +1339,6 @@ export const ReportsPage = () => {
             </div>
           </Card>
 
-          {/* Results Table Preview */}
           <Card className="p-6 border border-slate-200 dark:border-slate-800">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 gap-3">
               <div>
@@ -1445,7 +1419,6 @@ export const ReportsPage = () => {
         </div>)}
 
       {activeReportTab === 'insights' && (<div className="space-y-6">
-          {/* Executive Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard title="Workforce Retention Rate" value="94.8%" icon={<Users className="w-5 h-5"/>} iconBgColor="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" change="+1.6% QoQ" changeType="increase" caption="vs Q1 FY 2026-27"/>
             <StatCard title="Avg Performance Index" value="4.31 / 5.0" icon={<Award className="w-5 h-5"/>} iconBgColor="bg-teal-50 text-[#1F6F78] dark:bg-teal-950/40 dark:text-teal-400" change="Top Quartile" changeType="increase" caption="Across all 6 Divisions"/>
@@ -1453,7 +1426,6 @@ export const ReportsPage = () => {
             <StatCard title="Operational Cost Efficiency" value="92.4%" icon={<TrendingUp className="w-5 h-5"/>} iconBgColor="bg-amber-50 text-[#C8943A] dark:bg-amber-950/40 dark:text-amber-400" change="Optimal Budget ROI" changeType="increase" caption="Expenditure vs Output"/>
           </div>
 
-          {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ChartCard title="Division KPI vs Headcount Ratio" subtitle="Performance index correlation with team size">
               <ResponsiveContainer width="100%" height={260}>
@@ -1541,7 +1513,6 @@ export const ReportsPage = () => {
             </ChartCard>
           </div>
 
-          {/* Division Health Scorecard Table */}
           <Card className="p-6 border border-slate-200 dark:border-slate-800">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">
               Divisional Health & Operational Scorecard

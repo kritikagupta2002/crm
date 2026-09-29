@@ -32,11 +32,6 @@ function FollowUpCell({ date }) {
   return <span className={`follow-date ${tone}`}>{date === todayISO ? 'Today' : formatDayMonth(date)}</span>
 }
 
-/* 1 … 4 5 6 … 12 — first, last and the pages around the current one. */
-/*
- * Parent passes a `key` built from the filters, so paging restarts whenever the filters change.
- * Rows-per-page lives in the parent so it survives those restarts.
- */
 export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onScheduleFollowUp, onMarkWon, onMarkLost }) {
   const money = useMoney()
   const [sort, setSort] = useState({ key: 'date', direction: 'desc' })
@@ -83,12 +78,10 @@ export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onSchedu
               return (
                 <tr key={lead.id} className="clickable-row" onClick={() => onOpen(lead.id)}>
                   <td>
-                    {/* A real button so the row can be opened from the keyboard; its click bubbles to the row. */}
                     <button className="row-link">{lead.company}</button>
                     <div className="cell-sub mono-sub" title={lead.contactPerson}>
                       {lead.id}
                     </div>
-                    {/* A question from the client portal waiting for a reply: straight to it. */}
                     {openQuestions > 0 && (
                       <Link to={`/leads/${lead.id}?tab=activity`} className="question-tag tone-attention" onClick={(e) => e.stopPropagation()}>
                         <MessageCircleQuestion size={12} /> {openQuestions} question{openQuestions === 1 ? '' : 's'}
@@ -127,7 +120,6 @@ export function LeadsTable({ leads, pageSize, onPageSizeChange, onOpen, onSchedu
                       label={`Actions for ${lead.company}`}
                       items={[
                         { label: 'View details', icon: Eye, onSelect: () => onOpen(lead.id) },
-                        // A handler the role isn't allowed is null, and its item is left out.
                         ...(isClosed
                           ? []
                           : [

@@ -67,13 +67,11 @@ export function LeadsPage() {
     try {
       localStorage.setItem(VIEW_KEY, next)
     } catch {
-      // Remembering the view is only a convenience.
     }
   }
 
   const setFilter = (key) => (e) => setFilters({ ...filters, [key]: e.target.value })
 
-  // Moving a card to "Lost" asks for a reason first.
   const moveLead = (id, stage) => (stage === 'Lost' ? setLosingLeadId(id) : changeStage(id, stage))
   const openDetails = (id) => setOpenLead({ id, withFollowUpForm: false })
   const closeDrawer = useCallback(() => setOpenLead(null), [])

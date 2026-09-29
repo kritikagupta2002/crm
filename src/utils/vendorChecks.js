@@ -10,20 +10,16 @@ const EMAIL_RE = /^\S+@\S+\.\S+$/
 const clean = (v) => String(v ?? '').replace(/\s+/g, '').toUpperCase()
 export const digitsOf = (v) => String(v ?? '').replace(/\D/g, '')
 
-/* The documents a firm must upload: the PAN card and a cancelled cheque, and the GST certificate if it has a GSTIN. */
 export const requiredDocs = (app) => VENDOR_DOCS.filter((d) => d.required === true || (d.required === 'gst' && app.tax?.gstRegistered)).map((d) => d.kind)
 
-/* What the registration form must have before it can be sent: { 'section.field': message }. */
 export function validateApplication(app, files) {
   const e = {}
   const need = (path, value, message) => {
     if (!String(value ?? '').trim()) e[path] = message
   }
-  // Login & correspondence (verified mobile: with the vendor ID, it signs in to the vendor portal)
   if (!EMAIL_RE.test(app.contact.email.trim())) e['contact.email'] = 'Enter a valid email address.'
   if (!MOBILE_RE.test(digitsOf(app.contact.mobile).slice(-10))) e['contact.mobile'] = 'Enter a 10-digit mobile number.'
   else if (!app.contact.mobileVerified) e['contact.mobile'] = 'Verify the mobile number with the code we send.'
-  // Company details (eProc's section, Company Type in place of Bidder Type)
   need('firm.name', app.firm.name, 'Enter the company name or licence holder’s name.')
   if (app.firm.preferential) need('firm.preference', app.firm.preference, 'Choose the preference category.')
   need('firm.regNo', app.firm.regNo, 'Enter the registration number.')
@@ -36,7 +32,6 @@ export function validateApplication(app, files) {
   need('firm.legalStatus', app.firm.legalStatus, 'Choose the legal status.')
   need('firm.category', app.firm.category, 'Choose the company category.')
   if (!app.work.categories.length) e['work.categories'] = 'Choose at least one kind of work.'
-  // Contact details
   need('contact.name', app.contact.name, 'Enter the contact person’s name.')
   need('contact.dob', app.contact.dob, 'Enter the date of birth.')
   if (!PAN_RE.test(clean(app.tax.pan))) e['tax.pan'] = 'PAN has 10 characters, like ABCDE1234F.'
@@ -58,11 +53,6 @@ export function validateApplication(app, files) {
   return e
 }
 
-/*
- * What the Admin checks before approving: formats, that the GSTIN belongs to this PAN and state, the papers, and that
- * the PAN, GSTIN or bank account isn't already with another vendor or application.
- * Returns [{ label, ok, note }].
- */
 export function applicationChecks(app, vendors, applications) {
   const pan = clean(app.tax.pan)
   const gstin = clean(app.tax.gstin)
@@ -85,7 +75,6 @@ export function applicationChecks(app, vendors, applications) {
   const missing = requiredDocs(app).filter((k) => !kinds.has(k))
   checks.push({ label: 'Documents', ok: !missing.length, note: missing.length ? `Missing: ${missing.join(', ')}` : `${app.documents.length} uploaded, required ones present` })
 
-  // Already with us: another vendor or another live application with the same PAN, GSTIN or bank account.
   const clashes = []
   vendors.forEach((v) => {
     if (clean(v.pan) === pan) clashes.push(`PAN is ${v.id} ${v.name}`)
@@ -102,7 +91,6 @@ export function applicationChecks(app, vendors, applications) {
   return checks
 }
 
-/* The TDS section a vendor's work usually falls under: technical services 194J (labs, surveys, consultants), contract work 194C. */
 export function suggestedTds(app) {
   if (['Laboratory', 'Survey Agency', 'Consultant'].includes(app.firm.companyType)) return { section: '194J', rate: 2 }
   return { section: '194C', rate: app.firm.legalStatus === 'Proprietorship' ? 1 : 2 }

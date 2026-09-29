@@ -159,7 +159,6 @@ export const ReceivablesPage = () => {
             { label: 'Receivables' },
         ]}/>
 
-      {/* 5 Summary Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         <StatCard title="Total Receivable" value={`₹${(totalReceivable / 100000).toFixed(1)}L`} caption="Gross client billed" icon={<Clock className="w-5 h-5 text-teal-700 dark:text-teal-300"/>} iconBgColor="bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300"/>
         <StatCard title="Collected" value={`₹${(totalCollected / 100000).toFixed(1)}L`} caption="In bank account" change="Deposited" changeType="increase" icon={<CheckCircle2 className="w-5 h-5 text-emerald-700 dark:text-emerald-300"/>} iconBgColor="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300"/>
@@ -168,7 +167,6 @@ export const ReceivablesPage = () => {
         <StatCard title="Due Soon" value={`₹${(dueSoonAmount / 100000).toFixed(1)}L`} caption="Within 30 days" icon={<Clock className="w-5 h-5 text-blue-700 dark:text-blue-300"/>} iconBgColor="bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300"/>
       </div>
 
-      {/* Aging Schedule Filter Buttons */}
       <div className="flex items-center gap-2 p-1 bg-white dark:bg-[#142028] rounded-xl border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] overflow-x-auto w-fit">
         {[
             { key: 'all', label: 'All Aging' },
@@ -183,10 +181,8 @@ export const ReceivablesPage = () => {
           </button>))}
       </div>
 
-      {/* Main Table */}
       <DataTable columns={columns} data={filteredReceivables} keyField="id" searchable searchPlaceholder="Search receivables by invoice, client, or status..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No receivables found" emptyDescription="All invoices in this aging bucket are settled."/>
 
-      {/* Record Collection Modal */}
       {selectedReceivable && (<Modal isOpen={!!selectedReceivable} onClose={() => setSelectedReceivable(null)} title={`Record Collection - ${selectedReceivable.invoiceNumber}`} description={`Record customer payment from ${selectedReceivable.clientName}`} maxWidth="md">
           <form onSubmit={handleRecordCollectionSubmit} className="space-y-4 font-inter">
             <div className="bg-slate-50 dark:bg-[#111821] p-3 rounded-xl border border-slate-200 dark:border-[#253344] space-y-1 text-xs">

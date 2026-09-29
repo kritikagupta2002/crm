@@ -17,17 +17,12 @@ import { ProjectReports } from './ProjectReports'
 const todayISO = toISODate(TODAY)
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0)
 
-/*
- * Who sees which report: sales figures for management and accounts, project delivery for management and
- * coordinators, and P&L only for the roles allowed to see it (the junior accountant is not).
- */
 const REPORT_VIEWS = [
   { key: 'sales', label: 'Sales', roles: ['Admin', 'Accountant'] },
   { key: 'projects', label: 'Projects', roles: ['Admin', 'Team Lead'] },
   { key: 'pnl', label: 'P&L', roles: Object.keys(ROLE_ACCESS).filter((r) => ROLE_ACCESS[r].pnl) },
 ]
 
-/* One Reports page with a Sales / Projects switch. */
 export function ReportsPage() {
   const { role } = useCrm()
   const [params, setParams] = useSearchParams()
@@ -48,7 +43,6 @@ export function ReportsPage() {
   return <SalesReports switcher={switcher} />
 }
 
-/* MIS view of the CRM for management: volume, conversion, where enquiries come from, why deals are lost, who is performing. */
 function SalesReports({ switcher }) {
   const money = useMoney()
   const { leads, followUps } = useCrm()

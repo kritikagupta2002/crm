@@ -23,7 +23,6 @@ export const LeaveBalancePage = () => {
     const [balances, setBalances] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [myRequests, setMyRequests] = useState([]);
-    // Load employees & personal requests on mount
     useEffect(() => {
         const emps = storage.getEmployees();
         setEmployees(emps);
@@ -33,7 +32,6 @@ export const LeaveBalancePage = () => {
         };
         loadRequests();
     }, [loggedInEmpId, isEmployee, selectedEmpId]);
-    // Load balances based on role and selected employee
     useEffect(() => {
         const loadBalances = async () => {
             if (isEmployee) {
@@ -51,7 +49,6 @@ export const LeaveBalancePage = () => {
         };
         loadBalances();
     }, [isEmployee, selectedEmpId, loggedInEmpId]);
-    // Master Ledger Data: ONLY calculated and accessed for Admin / HR
     const masterLedger = useMemo(() => {
         if (isEmployee)
             return [];
@@ -102,7 +99,6 @@ export const LeaveBalancePage = () => {
         }
         return employees.find((e) => e.employeeId === selectedEmpId);
     }, [isEmployee, employees, selectedEmpId, loggedInEmpId, user]);
-    // Aggregate totals for the personal overview
     const totalAllocatedDays = useMemo(() => balances.reduce((sum, b) => sum + (b.totalAllocated || 0), 0), [balances]);
     const totalAvailableDays = useMemo(() => balances.reduce((sum, b) => sum + (b.available || 0), 0), [balances]);
     const totalUtilizedDays = useMemo(() => balances.reduce((sum, b) => sum + (b.used || 0), 0), [balances]);
@@ -123,7 +119,6 @@ export const LeaveBalancePage = () => {
             </Button>
           </div>}/>
 
-      {/* ── EMPLOYEE SELF-SERVICE PERSONAL PROFILE BANNER ── */}
       {isEmployee && (<Card className="p-4 sm:p-5 bg-gradient-to-r from-blue-900/90 via-slate-800 to-slate-900 text-white border-0 shadow-sm">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -173,7 +168,6 @@ export const LeaveBalancePage = () => {
           </div>
         </Card>)}
 
-      {/* ── ADMIN ONLY: EMPLOYEE SELECTOR & FILTER BAR ── */}
       {!isEmployee && (<Card className="p-4 shadow-2xs">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 w-full md:w-auto">
@@ -195,7 +189,6 @@ export const LeaveBalancePage = () => {
           </div>
         </Card>)}
 
-      {/* ── INDIVIDUAL QUOTA TILES (FOR SELECTED EMPLOYEE OR CURRENT USER) ── */}
       {selectedEmpId !== 'all' || isEmployee ? (<div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
             {balances.map((b) => {
@@ -221,7 +214,6 @@ export const LeaveBalancePage = () => {
                       <span className="text-xs text-slate-400 font-semibold">/ {b.totalAllocated} days available</span>
                     </div>
 
-                    {/* Progress Bar */}
                     <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full mt-3 overflow-hidden flex">
                       <div className="h-full rounded-full transition-all duration-300" style={{ width: `${Math.min(100, usedPct)}%`, backgroundColor: b.color }} title={`Utilized: ${b.used} days`}/>
                     </div>
@@ -244,7 +236,6 @@ export const LeaveBalancePage = () => {
             })}
           </div>
 
-          {/* Utilization Ledger for Selected Employee */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <Card className="p-4 sm:p-5">
@@ -313,7 +304,6 @@ export const LeaveBalancePage = () => {
               </Card>
             </div>
 
-            {/* Policy & Entitlement Rules Summary */}
             <div className="space-y-4">
               <Card className="p-4 sm:p-5 shadow-2xs space-y-3">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
@@ -362,7 +352,6 @@ export const LeaveBalancePage = () => {
             </div>
           </div>
         </div>) : (
-        /* ── ADMIN ONLY: MASTER LEAVE LEDGER TABLE ACROSS ALL STAFF ── */
         <Card className="p-5 shadow-2xs">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
             <div>

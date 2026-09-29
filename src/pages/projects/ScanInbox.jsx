@@ -8,10 +8,6 @@ import { downloadDocument } from '../../utils/files'
 const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`)
 const timeOf = (iso) => new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
 
-/*
- * Scans waiting in the NAS scanner folder (flowchart 3, steps 1–2). Filing one opens the letter form with the scan
- * as its copy; canFile: the Coordinator or the Admin (the approval stage's owners).
- */
 export function ScanInbox({ canFile, onFile }) {
   const { scanInbox, addScans, discardScan, settings } = useCrm()
   const input = useRef(null)

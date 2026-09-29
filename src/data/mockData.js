@@ -1,11 +1,5 @@
 import { addDays, toISODate } from '../utils/date'
 
-/*
- * Demo data is generated from a fixed seed so every refresh shows the same records,
- * and dates are anchored to "today" so the demo never looks stale.
- * Every number on the dashboard is derived from these arrays, so totals always agree.
- */
-
 function seededRandom(seed) {
   let s = seed
   return () => {
@@ -37,7 +31,6 @@ export const TEAM = ['K. Sharma', 'R. Mehta', 'S. Verma', 'A. Singh', 'P. Joshi'
 
 export const STAGES = ['New Enquiry', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost']
 
-/* Bansal Geo's seven service lines, as listed on bansalgeo.com. */
 export const SERVICES = [
   'Mineral Exploration & Resources',
   'Mineral Economics & Valuation',
@@ -71,7 +64,6 @@ export const MINERALS = [
   'Other',
 ]
 
-/* The bansalgeo.com enquiry form opens WhatsApp, so website and WhatsApp enquiries are one source. */
 export const LEAD_SOURCES = ['Phone Call', 'Website / WhatsApp', 'Referral', 'Walk-in', 'Email']
 
 export const FOLLOW_UP_TYPES = ['Call', 'Meeting', 'Site Visit', 'Presentation', 'Review']
@@ -123,13 +115,6 @@ const SUFFIXES = [
 const FIRST_NAMES = ['Mahesh', 'Suresh', 'Anita', 'Rakesh', 'Pooja', 'Vikram', 'Neha', 'Arjun', 'Deepak', 'Kavita', 'Rohit', 'Sunita']
 const LAST_NAMES = ['Jain', 'Agarwal', 'Rathore', 'Choudhary', 'Gupta', 'Shekhawat', 'Meena', 'Bhati', 'Saini', 'Mathur']
 
-/*
- * Distribution targets — change these to reshape the demo.
- * One row per month (oldest first, last row = current month) with how many of that month's
- * enquiries sit in each stage today. Older months are further down the funnel.
- * Column order: New, Contacted, Qualified, Proposal Sent, Negotiation, Won, Lost.
- * Totals: 20 / 17 / 14 / 11 / 8 / 12 / 4 = 86 leads.
- */
 const MONTHLY_PLAN = [
   [0, 2, 2, 2, 1, 2, 1],
   [0, 2, 2, 2, 2, 3, 1],
@@ -148,7 +133,6 @@ const SERVICE_COUNTS = [
   ['Geotechnical Services', 7],
 ]
 
-/* Each month's enquiries as { date, stage }, with dates spread across that month (up to today). */
 function buildMonthlyEnquiries() {
   return MONTHLY_PLAN.flatMap((stageCounts, index) => {
     const monthsAgo = MONTHLY_PLAN.length - 1 - index
@@ -163,7 +147,6 @@ function buildMonthlyEnquiries() {
   })
 }
 
-/* Days from today for the next follow-up: a few slipped (overdue), most in the next two weeks. */
 function followUpOffset() {
   const roll = rand()
   if (roll < 0.06) return -1 - Math.floor(rand() * 3)
@@ -177,19 +160,6 @@ function buildCompanyNames(count) {
   return [...names]
 }
 
-/*
- * A lead looks like:
- * { id, company, contactPerson, service, serviceDetail, assignedTo, stage,
- *   createdOn: 'YYYY-MM-DD', nextFollowUp: 'YYYY-MM-DD' | null }
- * Enquiries added through the form also carry mineral and referredBy when given.
- * Leads that have been quoted also carry quoteValue (₹); lost leads carry lostReason.
- * All leads carry priority, clientType, preferredContact, expectedTimeline, estimatedValue and description;
- * leads from Qualified onwards also carry project { title, type, siteLocation, scope, technical, startDate, budget, instructions }.
- * Documents and tags added in the demo are stored as documents [] and tags [].
- * Quotation workflow: quoteStatus ('Sent' | 'Revised' | 'Accepted' | 'Rejected'), a saved quote {…} once built
- * in the app, approval { quoteAccepted, poReceived, advanceReceived, agreementSigned } and
- * onboarding { kyc, leaseDocs, kickoff, teamAssigned, portal }.
- */
 function buildLeads() {
   const enquiries = buildMonthlyEnquiries().sort((a, b) => a.date.getTime() - b.date.getTime())
   const services = shuffle(repeat(SERVICE_COUNTS))
@@ -241,10 +211,6 @@ function buildFollowUps(leads) {
     })
 }
 
-/*
- * Quotation value (₹) for every lead that has received a quotation.
- * Uses its own random stream so adding amounts doesn't change any other generated data.
- */
 const QUOTED_STAGES = ['Proposal Sent', 'Negotiation', 'Won', 'Lost']
 const QUOTE_RANGES = {
   'Mineral Exploration & Resources': [250000, 900000],
@@ -266,11 +232,6 @@ function withQuotations(leads) {
   })
 }
 
-/*
- * Contact details, source and location for the generated leads (plus a reason on lost ones).
- * Also on its own random stream, so the rest of the demo data stays exactly the same.
- */
-/* Mining districts; Rajasthan (home market, Jaipur office) is listed most often so it dominates. */
 const DISTRICTS = [
   'Rajsamand, Rajasthan',
   'Udaipur, Rajasthan',
@@ -308,11 +269,6 @@ function withContactDetails(leads) {
   })
 }
 
-/*
- * Enquiry and project details for the generated leads. Leads that are Qualified or further along
- * already have project requirements filled in; earlier ones don't yet — just like real enquiries.
- * Own random stream again, so nothing generated above changes.
- */
 const STAGE_ORDER = ['New Enquiry', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost']
 
 function withEnquiryDetails(leads) {
@@ -351,11 +307,6 @@ function withEnquiryDetails(leads) {
   })
 }
 
-/*
- * Where each lead is in the post-quotation workflow (own random stream):
- * about half the Negotiation leads have accepted the quotation and are collecting approvals;
- * Won leads have finished approvals, and older ones have finished onboarding too.
- */
 function withLifecycle(leads) {
   const r = seededRandom(8123)
   return leads.map((lead) => {

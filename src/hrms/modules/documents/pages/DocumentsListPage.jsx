@@ -21,7 +21,6 @@ export const DocumentsListPage = () => {
     const [isUploadOpen, setIsUploadOpen] = useState(false);
     const [previewDoc, setPreviewDoc] = useState(null);
     const [docToDelete, setDocToDelete] = useState(null);
-    // Upload Form State
     const [docTitle, setDocTitle] = useState('');
     const [docCategory, setDocCategory] = useState('Company Documents');
     const [docDesc, setDocDesc] = useState('');
@@ -140,7 +139,6 @@ export const DocumentsListPage = () => {
             Upload Document
           </Button>}/>
 
-      {/* Category Filter Pills */}
       <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] overflow-x-auto">
         {categories.map((cat) => (<button key={cat} onClick={() => setSelectedCategory(cat)} className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${selectedCategory === cat
                 ? 'bg-blue-600 text-white shadow-xs'
@@ -151,7 +149,6 @@ export const DocumentsListPage = () => {
 
       <DataTable columns={columns} data={filteredDocs} keyField="id" searchPlaceholder="Search document title, file name, or author..." searchFields={['title', 'fileName', 'uploadedBy']} onRowClick={(d) => setPreviewDoc(d)}/>
 
-      {/* Upload Modal */}
       <Modal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} title="Upload Corporate Document" description="Add technical procedures, statutory filings, or employee credential proofs." footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsUploadOpen(false)}>
               Cancel
@@ -177,7 +174,6 @@ export const DocumentsListPage = () => {
         </div>
       </Modal>
 
-      {/* Document Preview Modal */}
       <Modal isOpen={!!previewDoc} onClose={() => setPreviewDoc(null)} maxWidth="2xl" title={previewDoc?.title} description={`Category: ${previewDoc?.category} • Uploaded by ${previewDoc?.uploadedBy}`} footer={<>
             <Button variant="outline" size="sm" onClick={() => setPreviewDoc(null)}>
               Close
@@ -200,7 +196,6 @@ export const DocumentsListPage = () => {
         </div>
       </Modal>
 
-      {/* Delete Dialog */}
       <ConfirmationDialog isOpen={!!docToDelete} onClose={() => setDocToDelete(null)} onConfirm={handleDelete} title="Delete Document" message={`Are you sure you want to permanently remove "${docToDelete?.title}" from the corporate document vault?`} confirmText="Yes, Delete Document" variant="danger"/>
     </div>);
 };

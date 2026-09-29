@@ -12,7 +12,6 @@ const dispatchNotification = (notif) => {
         };
         storage.setNotifications([item, ...notifs]);
     } catch {
-        // non-blocking
     }
 };
 
@@ -28,7 +27,6 @@ export const expenseService = {
     },
 
     submitExpense: async (data) => {
-        // 1. Service-Layer Validation
         if (!data.employeeId || typeof data.employeeId !== 'string' || !data.employeeId.trim()) {
             throw new Error('Employee ID is required to file an expense claim.');
         }
@@ -61,7 +59,6 @@ export const expenseService = {
 
         const list = storage.getExpenses();
 
-        // 2. Duplicate Detection
         const isDuplicate = list.some((e) => 
             e.employeeId === data.employeeId &&
             e.date === data.date &&
@@ -75,7 +72,6 @@ export const expenseService = {
             throw new Error(`Duplicate claim detected: A claim for ₹${amount.toLocaleString('en-IN')} in '${data.category}' on ${data.date} has already been submitted.`);
         }
 
-        // 3. Assemble complete canonical data structure
         const expNum = `EXP-BGS-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
         const newExp = {
             id: `exp-${Date.now()}`,
@@ -98,7 +94,6 @@ export const expenseService = {
             receiptDataUrl: data.receiptDataUrl || data.receiptUrl || null,
             status: 'Pending',
             submittedOn: today,
-            // HR Verification fields
             hrStatus: 'Pending',
             hrApprovedAmount: 0,
             hrRejectedAmount: 0,
@@ -108,12 +103,10 @@ export const expenseService = {
             approvedBy: null, // legacy
             reviewedOn: null, // legacy
             remarks: '', // legacy
-            // Finance Review fields
             financeStatus: 'None',
             financeReviewer: null,
             financeReviewedOn: null,
             financeRemarks: '',
-            // Query fields
             queryStatus: 'No Query',
             queryId: null,
             queryRaisedBy: null,
@@ -123,14 +116,12 @@ export const expenseService = {
             queryRespondedOn: null,
             queryResolvedOn: null,
             queryAttachment: null,
-            // Settlement fields
             settlementStatus: 'None',
             settledAmount: 0,
             settlementDate: null,
             settledOn: null,
             settledBy: null,
             settlementReference: null,
-            // Complete Audit History
             auditHistory: [
                 {
                     id: `aud-${Date.now()}-sub`,
@@ -145,7 +136,6 @@ export const expenseService = {
 
         storage.setExpenses([newExp, ...list]);
 
-        // Notification 1: Employee submits Expense
         dispatchNotification({
             type: 'Expense',
             targetRole: 'hr',
@@ -244,7 +234,6 @@ export const expenseService = {
                 details: `HR approved payable amount ₹${approvedAmount.toLocaleString('en-IN')}; rejected ₹${rejectedAmt.toLocaleString('en-IN')}. Forwarded to Finance for verification.`,
             });
 
-            // Notification 3 / 4: HR approves or partially approves -> To Employee
             dispatchNotification({
                 type: 'Expense',
                 targetRole: 'employee',
@@ -253,7 +242,6 @@ export const expenseService = {
                 actionLink: '/hr/expenses',
             });
 
-            // Notification 6: Finance receives review request
             dispatchNotification({
                 type: 'Finance',
                 targetRole: 'hr',
@@ -262,7 +250,6 @@ export const expenseService = {
                 actionLink: '/finance/claims',
             });
         } else {
-            // HR Rejected
             item.financeStatus = 'None';
             item.settlementStatus = 'None';
             item.queryStatus = 'No Query';
@@ -277,7 +264,6 @@ export const expenseService = {
                 details: `Claim rejected by HR. Justification: ${remarks || 'None provided'}`,
             });
 
-            // Notification 5: HR rejects -> To Employee
             dispatchNotification({
                 type: 'Expense',
                 targetRole: 'employee',
@@ -336,7 +322,6 @@ export const expenseService = {
 
         storage.setExpenses([...list]);
 
-        // Notification 9: Finance approves
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
@@ -386,7 +371,6 @@ export const expenseService = {
 
         storage.setExpenses([...list]);
 
-        // Notification 10: Finance rejects
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
@@ -442,7 +426,6 @@ export const expenseService = {
 
         storage.setExpenses([...list]);
 
-        // Notification 7: Finance raises query -> To Employee
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
@@ -495,7 +478,6 @@ export const expenseService = {
 
         storage.setExpenses([...list]);
 
-        // Notification 8: Employee responds -> To Finance
         dispatchNotification({
             type: 'Finance',
             targetRole: 'hr',
@@ -549,27 +531,22 @@ export const expenseService = {
             throw new Error(`Expense claim with ID ${id} not found.`);
         }
 
-        // Rule 1: HR Approval Check
         if (item.hrStatus !== 'Approved' && item.hrStatus !== 'Partially Approved') {
             throw new Error(`Settlement Blocked: HR must approve the claim before settlement. Current HR status: ${item.hrStatus || item.status}`);
         }
 
-        // Rule 2: Finance Review Approval Check
         if (item.financeStatus !== 'Approved') {
             throw new Error(`Settlement Blocked: Claim must be verified and approved by Finance first. Current Finance status: ${item.financeStatus}`);
         }
 
-        // Rule 3: Query Outstanding Check
         if (item.queryStatus === 'Query Raised') {
             throw new Error('Settlement Blocked: Cannot settle claim while an active query is outstanding.');
         }
 
-        // Rule 4: Already Settled Check (Idempotency)
         if (item.settlementStatus === 'Settled' || item.status === 'Settled') {
             throw new Error(`Claim ${item.expenseNumber} has already been settled and disbursed.`);
         }
 
-        // Rule 5: Payable amount is STRICTLY HR Approved Amount
         const payableAmount = Number(item.hrApprovedAmount !== undefined ? item.hrApprovedAmount : item.approvedAmount || 0);
         if (payableAmount <= 0) {
             throw new Error('Cannot settle a claim with ₹0 approved payable amount.');
@@ -584,10 +561,7 @@ export const expenseService = {
             : 'Finance & Accounts';
         const settlementDate = typeof settlementData === 'object' && settlementData?.settlementDate ? settlementData.settlementDate : today;
 
-        // REQUIREMENT 11: FINANCE WRITE INTEGRITY & FAILURE HANDLING
-        // Post transaction and journal entry FIRST. If either fails, do NOT mark claim as Settled.
         try {
-            // Check idempotency in finance ledger to prevent duplicate entries
             const existingTxns = await financeService.getTransactions();
             const alreadyHasTxn = existingTxns.some(t => t.referenceDoc === item.expenseNumber);
 
@@ -618,12 +592,10 @@ export const expenseService = {
                 });
             }
         } catch (finErr) {
-            // If finance write fails, DO NOT mark claim as Settled!
             console.error('Critical Finance synchronization failure during expense settlement:', finErr);
             throw new Error(`Finance ledger write failed: ${finErr.message || 'Unknown error'}. Claim remains pending and was NOT marked settled.`);
         }
 
-        // ONLY AFTER SUCCESSFUL FINANCE TRANSACTION: Mark claim Settled
         item.status = 'Settled';
         item.settlementStatus = 'Settled';
         item.settledAmount = payableAmount;
@@ -647,7 +619,6 @@ export const expenseService = {
 
         storage.setExpenses([...list]);
 
-        // Notification 11: Claim settled -> To Employee
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',

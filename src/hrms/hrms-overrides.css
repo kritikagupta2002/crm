@@ -1,11 +1,4 @@
-/*
- * Hand-written glue between the HRMS pages and the CRM design (hrms.css is generated; this file is not).
- * Only for the HRMS pages: everything is under .hrms.
- */
 
-/* ════════════════════════════════════════════════════════════
-   UNIFIED CRM WORKSPACE FONTS IN HRMS (ALL ROLES & PAGES)
-   ════════════════════════════════════════════════════════════ */
 .hrms {
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Fraunces', Georgia, serif;
@@ -43,7 +36,6 @@
   font-family: var(--font-mono) !important;
 }
 
-/* Page headers & titles: Fraunces Serif exactly like CRM workspace */
 .hrms .page-header h1,
 .hrms .page-title h1,
 .hrms .font-serif,
@@ -66,7 +58,6 @@
   line-height: 1.15;
 }
 
-/* Card headers: Inter Sans-serif 600 16px exactly like CRM workspace */
 .hrms .card-header h2,
 .hrms .card-header h3,
 .hrms .card h2,
@@ -79,9 +70,6 @@
   line-height: 1.5 !important;
 }
 
-/* ════════════════════════════════════════════════════════════
-   STANDARDIZED TABLE TYPOGRAPHY (MATCHES CRM MASTER SYSTEM)
-   ════════════════════════════════════════════════════════════ */
 .hrms table,
 .hrms .data-table {
   font-family: var(--font-sans) !important;
@@ -120,9 +108,6 @@
   font-weight: 500 !important;
 }
 
-/* ════════════════════════════════════════════════════════════
-   STANDARDIZED FORM TYPOGRAPHY (MATCHES CRM MASTER SYSTEM)
-   ════════════════════════════════════════════════════════════ */
 .hrms input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
 .hrms select,
 .hrms textarea {
@@ -156,9 +141,6 @@
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   STANDARDIZED BUTTON TYPOGRAPHY (MATCHES CRM MASTER SYSTEM)
-   ════════════════════════════════════════════════════════════ */
 .hrms .btn,
 .hrms button.btn {
   font-family: var(--font-sans) !important;
@@ -185,7 +167,6 @@
   font-weight: 500 !important;
 }
 
-/* Stat Cards & KPI Figures in HRMS — Fraunces serif exactly like CRM workspace */
 .hrms .stat-value,
 .hrms strong.stat-value,
 .hrms .stat-card strong,
@@ -204,7 +185,6 @@
   line-height: 1.05;
 }
 
-/* Page header: the CRM's, with a small badge beside the title when a page has one. */
 .hrms .page-header {
   margin-bottom: 16px;
 }
@@ -228,7 +208,6 @@
   gap: 10px;
 }
 
-/* Button variants the CRM doesn't have. */
 .hrms .btn-outline {
   color: var(--teal-700);
   border-color: var(--teal-200);
@@ -254,7 +233,6 @@
   flex-shrink: 0;
 }
 
-/* Cards: a gold top edge where the module marks a card as featured. */
 .hrms .card-gold-edge {
   box-shadow: inset 0 3px 0 var(--gold-500), var(--shadow);
 }
@@ -270,12 +248,10 @@
   gap: 3px;
 }
 
-/* Form labels in the module used a brown; the CRM's labels are ink. */
 .hrms .text-\[\#3D2D1E\] {
   color: var(--ink);
 }
 
-/* The module's accent orange becomes the CRM's gold. */
 .hrms .text-\[\#D5860B\] {
   color: var(--gold-600);
 }
@@ -288,7 +264,6 @@
   border-color: var(--gold-500);
 }
 
-/* HR dashboard: six figures, three a row until the screen is wide enough for all six, two on a phone. */
 .hrms .hr-stat-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -308,17 +283,6 @@
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   ROLE-BASED HRMS COMPONENT THEME ADAPTERS
-   ════════════════════════════════════════════════════════════ */
-
-/*
- * HRMS has its own :root that resets --nav-active and --sidebar-icon.
- * We must re-declare the role-specific teal scale at the role container
- * level so it wins over the HRMS :root defaults.
- */
-
-/* ── HR role ── mint-green palette */
 .role-app-hr {
   --teal-900: #1b5e20;
   --teal-800: #2e7d32;
@@ -340,34 +304,29 @@
   --blue-bg: #e5f5e0;
 }
 
-/* ── Admin role ── teal palette */
 .role-app-admin {
   --nav-active:   #3e6b7c;
   --nav-active-edge: #7ab2c7;
   --sidebar-icon: #3e6b7c;
 }
 
-/* ── Accountant role ── cyan palette */
 .role-app-accountant {
   --nav-active:      #0b8fa6;
   --nav-active-edge: #6ed8e8;
   --sidebar-icon:    #12b8d0;
 }
 
-/* ── Team Lead role ── gold-yellow palette */
 .role-app-team-lead {
   --nav-active:      #8c7b12;
   --nav-active-edge: #e7e098;
   --sidebar-icon:    #8c7b12;
 }
 
-/* ── Employee role ── hot-pink palette */
 .role-app-employee {
   --nav-active:      #d61858;
   --nav-active-edge: #f12a6c;
   --sidebar-icon:    #e11d62;
 }
-
 
 [class*='role-app-'] .hrms .accent-role,
 [class*='role-app-'] .hrms .text-teal-600,
@@ -441,7 +400,6 @@
   border-color: var(--teal-400) !important;
 }
 
-/* Hardcoded gradient buttons and cards adapt to active role */
 [class*='role-app-'] .hrms .from-\[\#1F6F78\],
 [class*='role-app-'] .hrms .from-teal-600 {
   --tw-gradient-from: var(--teal-700) !important;
@@ -454,14 +412,12 @@
   --tw-gradient-to: var(--teal-600) !important;
 }
 
-/* Avatar chips and table user initials */
 [class*='role-app-'] .hrms .rounded-full.bg-teal-700,
 [class*='role-app-'] .hrms .rounded-full.bg-teal-600 {
   background-color: var(--teal-700) !important;
   color: #ffffff !important;
 }
 
-/* Form controls & inputs */
 [class*='role-app-'] .hrms input:focus,
 [class*='role-app-'] .hrms select:focus,
 [class*='role-app-'] .hrms textarea:focus {
@@ -470,7 +426,6 @@
   box-shadow: 0 0 0 3px var(--teal-50) !important;
 }
 
-/* Celebration widget active tab */
 [class*='role-app-'] .hrms .bg-amber-100\/90 {
   background-color: var(--teal-50) !important;
 }
@@ -481,13 +436,11 @@
   border-color: var(--teal-200) !important;
 }
 
-/* Links and actions */
 [class*='role-app-'] .hrms .text-\[\#B07D27\],
 [class*='role-app-'] .hrms .text-\[\#C8943A\] {
   color: var(--teal-700) !important;
 }
 
-/* Topographic & Ambient Watermarks in Banners */
 [class*='role-app-'] .hrms .text-amber-500\/20,
 [class*='role-app-'] .hrms .text-teal-700\/20 {
   color: var(--teal-400) !important;

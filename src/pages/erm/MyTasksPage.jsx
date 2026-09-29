@@ -12,12 +12,9 @@ import '../projects/erm.css'
 
 const monthStartISO = toISODate(TODAY).slice(0, 8) + '01'
 
-/* The field team's phone screen: my open tasks with one-tap status, my sites, and logging a visit with photos. */
 export function MyTasksPage() {
   const { leads, projectEdits, updateProjectTask, role, fieldMember, setFieldMember } = useCrm()
   const projects = allProjects(leads, projectEdits).filter((p) => p.status !== 'Completed')
-  // A field member sees only their own work (whoever signed in, see "Switch role"). The Admin previews the
-  // screen for any member of the field team.
   const signedIn = role === 'Employee'
   const me = fieldMember
   const [logging, setLogging] = useState(null)

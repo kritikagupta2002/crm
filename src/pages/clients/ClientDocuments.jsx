@@ -9,7 +9,6 @@ import { clientProjects } from '../../utils/projects'
 const MAX_SIZE = 10 * 1024 * 1024
 const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`)
 
-/* The client's document vault: files shared either way, and every government letter across their projects. */
 export function ClientDocuments({ client }) {
   const { addDocuments, setDocumentShared, projectEdits, settings } = useCrm()
   const canShare = useAccess().may('contact')

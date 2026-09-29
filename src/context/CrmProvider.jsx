@@ -15,17 +15,9 @@ import { SEEDED_BIDS, SEEDED_CLARIFICATIONS, SEEDED_SAVED_TENDERS, SEEDED_TENDER
 import { LIVE_BID, closingOf, formatDateTime, seededTenderOrder, tenderPhase } from '../utils/tenders'
 import { CrmContext, DEFAULT_SETTINGS, OLD_ROLES, ROLE_ACCESS, ROLE_USERS } from './crm'
 
-/*
- * Holds the demo's data in React state. Generated mock data is the base; everything done
- * through the UI (enquiries, stage changes, notes, follow-ups, quotations, settings) is kept
- * separately in localStorage so it survives a refresh and can be reset in one go.
- * Later, this provider is the one place to swap for real API calls.
- */
 const STORAGE_KEY = 'bansal-crm-demo:v2'
 const ROLE_KEY = 'bansal-crm:role'
-// Which of the field team is signed in when the role is Field Member (each sees only their own work).
 const FIELD_KEY = 'bansal-crm:field-member'
-// The team, a client and a vendor each have their own sign-in, so one browser can show the CRM and a portal side by side.
 const SESSION_KEY = 'bansal-crm:session'
 const CLIENT_KEY = 'bansal-crm:client-session'
 const VENDOR_KEY = 'bansal-crm:vendor-session'
@@ -33,7 +25,6 @@ const VENDOR_LOGINS_KEY = 'bansal-crm:vendor-logins'
 const OLD_STORAGE_KEY = 'bansal-crm-demo:added:v1'
 const EMPTY = { leads: [], followUps: [], followUpEdits: {}, edits: {}, activities: [], settings: {}, projects: {}, vendors: [], outbox: [], scans: { added: [], filed: {}, discarded: [] }, vendorApps: {}, tenders: {}, bids: {}, clarifications: {}, savedTenders: {}, docs: {} }
 
-/* Keeps uploaded files for this session and returns their details for the record. */
 const fileRecords = (files, extra = {}) =>
   files.map((file) => {
     const record = { id: `PF-${Date.now()}-${Math.round(Math.random() * 1e6)}`, name: file.name, size: file.size, type: file.type || 'application/octet-stream', addedOn: toISODate(new Date()), ...extra }
@@ -41,7 +32,6 @@ const fileRecords = (files, extra = {}) =>
     return record
   })
 
-/* A project's closure as it stands (seeded steps included), so a first edit keeps what was already ticked. */
 const closureOf = (project) => ({ steps: Object.fromEntries(project.closure.steps.map((c) => [c.key, c.date ?? false])) })
 
 function loadChanges() {
@@ -51,14 +41,12 @@ function loadChanges() {
       const parsed = JSON.parse(raw)
       if (Array.isArray(parsed.leads) && Array.isArray(parsed.activities)) return { ...EMPTY, ...parsed }
     }
-    // Carry over enquiries saved by the first version of the demo.
     const old = localStorage.getItem(OLD_STORAGE_KEY)
     if (old) {
       const parsed = JSON.parse(old)
       if (Array.isArray(parsed.leads)) return { ...EMPTY, leads: parsed.leads, followUps: parsed.followUps ?? [] }
     }
   } catch {
-    // Storage unavailable or corrupted: start from the generated data only.
   }
   return EMPTY
 }
@@ -80,7 +68,6 @@ const FOLLOW_UP_TITLES = {
 const CLOSED_STAGES = ['Won', 'Lost']
 const stageIndex = (stage) => STAGES.indexOf(stage)
 
-/* extra: { by: 'client', clientText } for things done in the client portal — they notify the team. */
 const newActivity = (leadId, type, text, extra) => ({
   id: `AC-${Date.now()}-${Math.round(Math.random() * 1e6)}`,
   leadId,
@@ -93,11 +80,6 @@ const newActivity = (leadId, type, text, extra) => ({
 const editLead = (prev, id, patch) => ({ ...prev.edits, [id]: { ...prev.edits[id], ...patch } })
 const log = (prev, id, type, text, extra) => [...prev.activities, newActivity(id, type, text, extra)]
 
-/*
- * Automations (utils/automations.js): the message an event sends, if Settings has it on, goes into the outbox
- * and the client's history. Called inside the updaters below, so a change and its message are saved together.
- * to: { audience: 'client' | 'field', name, phone, email }.
- */
 function sendAuto(prev, key, leadId, to, ctx) {
   if (!to) return prev
   const settings = { ...DEFAULT_SETTINGS, ...prev.settings }
@@ -109,16 +91,13 @@ function sendAuto(prev, key, leadId, to, ctx) {
   return { ...prev, outbox: [...(prev.outbox ?? []), item], activities: log(prev, leadId, 'message', `Sent automatically on ${via} to ${to.name}: ${message.subject}`) }
 }
 
-/* A change to one project's edits, for a document step (its shared letters, a new scan). */
 const letterEdit = (state, doc, change) => {
   const edits = state.projects[doc.project.id] ?? {}
   return { ...state, projects: { ...state.projects, [doc.project.id]: { ...edits, ...change(edits) } } }
 }
 
-/* Seeded records with the app's changes laid over them: a record changed or added in the app is kept whole under its id. */
 const withSaved = (seeded, saved = {}) => [...seeded.map((x) => saved[x.id] ?? x), ...Object.values(saved).filter((x) => !seeded.some((s) => s.id === x.id))]
 
-// Who a bid's history entries name while bids are sealed (the bid itself keeps the firm).
 const SEALED_BIDDER = 'A bidder (sealed)'
 
 const vendorContact = (vendor) => vendor && { audience: 'vendor', name: `${vendor.contact} (${vendor.name})`, phone: vendor.phone, email: vendor.email }
@@ -141,7 +120,6 @@ function loadFieldMember() {
 
 function loadRole() {
   try {
-    // A role saved by the eight-role builds opens as the role it became.
     const stored = localStorage.getItem(ROLE_KEY)
     const saved = OLD_ROLES[stored] ?? stored
     return ROLE_ACCESS[saved] ? saved : 'Admin'
@@ -150,10 +128,6 @@ function loadRole() {
   }
 }
 
-/*
- * Demo sign-in, one per side: the team ({ type: 'team' }), a client ({ leadId }) and a vendor ({ vendorId }).
- * No password check — that comes with a backend.
- */
 function loadJSON(key) {
   try {
     return JSON.parse(localStorage.getItem(key))
@@ -166,7 +140,6 @@ function store(key, value) {
     if (value) localStorage.setItem(key, JSON.stringify(value))
     else localStorage.removeItem(key)
   } catch {
-    // Without storage the demo simply asks to sign in again after a refresh.
   }
 }
 
@@ -175,7 +148,6 @@ const loadVendor = () => loadJSON(VENDOR_KEY)?.vendorId ?? null
 function loadClient() {
   const saved = loadJSON(CLIENT_KEY)?.leadId
   if (saved) return saved
-  // An older demo kept the client's sign-in in the team key: move it to its own.
   const old = loadJSON(SESSION_KEY)
   if (old?.type !== 'client' || !old.leadId) return null
   store(CLIENT_KEY, { leadId: old.leadId })
@@ -183,7 +155,6 @@ function loadClient() {
   return old.leadId
 }
 
-/* Stamps each new activity with who did it: the client or vendor on their portal, else the signed-in team member. */
 function withActors(prev, next, actor) {
   if (next.activities === prev.activities || next.activities.length <= prev.activities.length) return next
   const known = new Set(prev.activities.map((a) => a.id))
@@ -202,7 +173,6 @@ export function CrmProvider({ children }) {
   const [changes, setRawChanges] = useState(loadChanges)
   const [role, setRoleState] = useState(loadRole)
   const [fieldMember, setFieldMemberState] = useState(loadFieldMember)
-  // The person signed in: one per role, except the field team, where it is whichever member signed in.
   const user = useMemo(() => {
     if (role !== 'Employee') return ROLE_USERS[role] ?? ROLE_USERS.Admin
     const member = FIELD_MEMBERS.find((m) => m.name === fieldMember)
@@ -212,9 +182,7 @@ export function CrmProvider({ children }) {
   const [clientLeadId, setClientLeadId] = useState(loadClient)
   const [vendorId, setVendorId] = useState(loadVendor)
 
-  // Read inside the updaters below, so each change is logged against whoever is signed in at that moment.
   const actorRef = useRef(null)
-  // The documents as last computed (Document Management), for actions that start from a document's earlier record.
   const documentsRef = useRef([])
   useEffect(() => {
     actorRef.current = { role, name: user.name }
@@ -226,11 +194,9 @@ export function CrmProvider({ children }) {
     try {
       localStorage.setItem(FIELD_KEY, name)
     } catch {
-      // Only the remembered person is lost.
     }
   }, [])
 
-  // person: for Field Member, which member of the field team.
   const setRole = useCallback(
     (next, person) => {
       setRoleState(next)
@@ -238,7 +204,6 @@ export function CrmProvider({ children }) {
       try {
         localStorage.setItem(ROLE_KEY, next)
       } catch {
-        // Remembering the role is only a convenience.
       }
     },
     [setFieldMember],
@@ -266,7 +231,6 @@ export function CrmProvider({ children }) {
   }, [])
   const signInVendor = useCallback((id) => {
     setVendorId(id)
-    // "Last login" in the vendor portal is the sign-in before this one.
     const logins = loadJSON(VENDOR_LOGINS_KEY) ?? {}
     store(VENDOR_KEY, { vendorId: id, previousLogin: logins[id] ?? null })
     store(VENDOR_LOGINS_KEY, { ...logins, [id]: new Date().toISOString() })
@@ -281,14 +245,9 @@ export function CrmProvider({ children }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(changes))
       localStorage.removeItem(OLD_STORAGE_KEY)
     } catch {
-      // Not critical for a demo; data just won't survive a refresh.
     }
   }, [changes])
 
-  /*
-   * Other tabs of the demo (the CRM in one, the client portal in another) write to the same storage.
-   * Pick up their changes straight away, so each tab shows the latest data and never saves over it.
-   */
   useEffect(() => {
     const onStorage = (e) => {
       if (e.storageArea !== localStorage) return
@@ -305,10 +264,6 @@ export function CrmProvider({ children }) {
 
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...changes.settings }), [changes.settings])
 
-  /*
-   * Leads and follow-ups are derived together: a follow-up is pending unless it was completed or
-   * its lead is closed, and each lead's "next follow-up" is its earliest pending one.
-   */
   const { leads, followUps, completedFollowUps } = useMemo(() => {
     const merged = [...LEADS, ...changes.leads].map((lead) => (changes.edits[lead.id] ? { ...lead, ...changes.edits[lead.id] } : lead))
     const closed = new Set(merged.filter((lead) => CLOSED_STAGES.includes(lead.stage)).map((lead) => lead.id))
@@ -327,7 +282,6 @@ export function CrmProvider({ children }) {
 
   const findLead = useCallback((id) => leads.find((l) => l.id === id), [leads])
 
-  /* byClient: sent from the public enquiry page. files: documents that came with it (lease papers, maps). */
   const addEnquiry = useCallback(
     ({ followUp, files = [], byClient = false, ...details }) => {
       const createdBy = byClient ? { role: 'Client', name: details.contactPerson } : actorRef.current
@@ -369,12 +323,10 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* kind: Note, Call, WhatsApp, Email or Meeting — how the conversation happened. */
   const addNote = useCallback((id, text, kind = 'Note') => {
     setChanges((prev) => ({ ...prev, activities: log(prev, id, kind === 'Note' ? 'note' : 'contact', kind === 'Note' ? text : `${kind} — ${text}`) }))
   }, [setChanges])
 
-  /* Records that something was shared with the client (e.g. a quotation on WhatsApp). */
   const logActivity = useCallback((id, type, text, extra) => {
     setChanges((prev) => ({ ...prev, activities: log(prev, id, type, text, extra) }))
   }, [setChanges])
@@ -409,7 +361,6 @@ export function CrmProvider({ children }) {
     }))
   }, [setChanges])
 
-  /* Saves edited fields (details form, project, checklists) and notes it in the activity log. */
   const updateLead = useCallback((id, patch, activityText) => {
     setChanges((prev) => ({
       ...prev,
@@ -418,19 +369,16 @@ export function CrmProvider({ children }) {
     }))
   }, [setChanges])
 
-  /* Saves a new or revised quotation; sending one moves an early-stage lead to "Proposal Sent". */
   const saveQuotation = useCallback(
     (id, quote) => {
       const lead = findLead(id)
       if (!lead) return
       const revising = Boolean(lead.quote || lead.quoteValue)
-      // The first quotation's date stays on record; a revision gets its own date.
       const firstSentOn = lead.firstSentOn ?? (revising ? pinnedQuote(lead)?.sentOn : quote.sentOn)
       const patch = { quote, quoteValue: quote.net, quoteStatus: revising ? 'Revised' : 'Sent', changeRequest: undefined, firstSentOn }
       if (stageIndex(lead.stage) < stageIndex('Proposal Sent') || lead.stage === 'Lost') patch.stage = 'Proposal Sent'
       if (revising && lead.stage === 'Proposal Sent') patch.stage = 'Negotiation'
       const text = `${revising ? `Quotation revised (v${quote.version})` : 'Quotation sent'} — ₹${quote.net.toLocaleString('en-IN')} + GST`
-      // The client gets the quotation (with its number and total) by email.
       const sentQuote = quoteFor({ ...lead, ...patch })
       setChanges((prev) =>
         sendAuto({ ...prev, edits: editLead(prev, id, patch), activities: log(prev, id, 'quote', text) }, 'quotation', id, clientOf(lead), { lead, quote: sentQuote, revised: revising }),
@@ -439,7 +387,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* Client accepted the quotation: it moves into Client Approval (PO, advance, agreement). */
   const acceptQuotation = useCallback(
     (id, { byClient = false } = {}) => {
       const lead = findLead(id)
@@ -453,7 +400,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* The client asked for changes from the portal: the quotation now waits on the team until it is revised. */
   const requestQuoteChanges = useCallback(
     (id, message, quoteNumber) => {
       const lead = findLead(id)
@@ -466,14 +412,12 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* byClient: uploaded from the client portal, so the log says where it came from. */
   const addDocuments = useCallback(
     (id, files, { byClient = false } = {}) => {
       const lead = findLead(id)
       if (!lead || files.length === 0) return
       const added = files.map((file) => {
         const doc = { id: `DOC-${Date.now()}-${Math.round(Math.random() * 1e6)}`, name: file.name, size: file.size, type: file.type, addedOn: toISODate(new Date()) }
-        // The client's own uploads are theirs to see; the team's stay with the team until someone shares them.
         if (byClient) doc.byClient = true
         else doc.shared = false
         rememberFile(doc.id, file)
@@ -487,7 +431,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* A team document on the enquiry, shown to the client on the portal or kept to the team. */
   const setDocumentShared = useCallback(
     (id, docId, shared) => {
       const lead = findLead(id)
@@ -502,7 +445,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* Marks a project milestone or approval step done (today) or not done. kind: 'milestones' | 'approvals'. */
   const setProjectStep = useCallback((leadId, project, kind, key, done, label) => {
     const lead = findLead(leadId)
     const step = kind === 'approvals' && done ? project.approvals.find((s) => s.key === key) : null
@@ -510,12 +452,10 @@ export function CrmProvider({ children }) {
       const edits = prev.projects[project.id] ?? {}
       const next = { ...edits, [kind]: { ...edits[kind], [key]: done ? toISODate(TODAY) : false } }
       const saved = { ...prev, projects: { ...prev.projects, [project.id]: next }, activities: log(prev, leadId, 'project', `${project.name}: ${label} ${done ? 'done' : 'reopened'}`) }
-      // An approval step done is news for the client.
       return step ? sendAuto(saved, 'approval', leadId, clientOf(lead), { lead, project, step }) : saved
     })
   }, [findLead, setChanges])
 
-  /* ERM: set the project's coordinator, team lead or field team (patch of { coordinator, teamLead, members }). */
   const setProjectTeam = useCallback((leadId, project, patch) => {
     const text = Object.entries(patch)
       .map(([key, value]) => `${{ coordinator: 'Coordinator', teamLead: 'Team lead', members: 'Field team' }[key]}: ${Array.isArray(value) ? value.join(', ') || 'none' : value || 'none'}`)
@@ -524,7 +464,6 @@ export function CrmProvider({ children }) {
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
       const team = { ...project.team, ...edits.team, ...patch }
-      // A full team in the ERM also ticks the client's onboarding step "Project team assigned".
       const staffed = team.coordinator && team.teamLead && team.members?.length && lead && !lead.onboarding?.teamAssigned
       return {
         ...prev,
@@ -535,12 +474,7 @@ export function CrmProvider({ children }) {
     })
   }, [findLead, setChanges])
 
-  /*
-   * ERM: change a task's owner, due date or status. A standard task marked done also completes the
-   * project milestone of the same name, so the CRM drawer and the client portal follow along.
-   */
   const updateProjectTask = useCallback((leadId, project, task, patch) => {
-    // A new owner gets the task from today (their notifications show it as new).
     const change = patch.assignee !== undefined && patch.assignee !== task.assignee ? { ...patch, assignedOn: patch.assignee ? toISODate(TODAY) : null } : patch
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
@@ -556,7 +490,6 @@ export function CrmProvider({ children }) {
         }
         next = { ...edits, milestones, tasks: { ...edits.tasks, [task.key]: saved } }
       } else {
-        // A seeded task becomes one of the team's own the first time it is changed.
         const own = edits.customTasks ?? []
         const base = own.some((t) => t.id === task.id) ? own : [...own, { id: task.id, title: task.title, assignee: task.assignee, due: task.due, status: task.status, doneOn: task.doneOn }]
         const customTasks = base.map((t) =>
@@ -566,7 +499,6 @@ export function CrmProvider({ children }) {
       }
       const what = patch.status ? `marked ${patch.status === 'in-progress' ? 'in progress' : patch.status === 'todo' ? 'to do' : 'done'}` : patch.assignee !== undefined ? `assigned to ${patch.assignee || 'nobody'}` : 'due date changed'
       const saved = { ...prev, projects: { ...prev.projects, [project.id]: next }, activities: log(prev, leadId, 'project', `${project.name}: "${task.title}" ${what}`) }
-      // A task handed to someone in the field team reaches them on WhatsApp.
       const handedTo = patch.assignee && patch.assignee !== task.assignee ? memberOf(patch.assignee) : null
       return handedTo ? sendAuto(saved, 'task', leadId, handedTo, { lead: project.lead ?? findLead(leadId), project, task: { ...task, ...patch } }) : saved
     })
@@ -585,14 +517,6 @@ export function CrmProvider({ children }) {
     })
   }, [findLead, setChanges])
 
-  /*
-   * Records an official letter (scanned or received) against a project; the client sees it in the portal.
-   * forStep links it to an approval step (vendor sheet: "link the scanned PDF to the client's task"): the step
-   * is marked done on the letter's date if it wasn't already, and the scan becomes that step's letter.
-   */
-  // scan: a scan from the NAS inbox (flowchart 3, step 2); it becomes the letter's copy and leaves the inbox.
-  // links: { vendorId, leaseNo } for Document Management. The scan waits for a second person to verify it, then for
-  // its access; the client is told when it is shared with them (authorizeDocument), not here.
   const addGovtLetter = useCallback((leadId, project, { title, authority, ref, date, file, forStep, scan, links = {} }) => {
     const letter = { id: `GL-${Date.now()}`, title, authority, ref, date }
     if (forStep) letter.forStep = forStep
@@ -600,16 +524,13 @@ export function CrmProvider({ children }) {
       letter.fileId = `${letter.id}-file`
       rememberFile(letter.fileId, file)
     } else if (scan) {
-      // An uploaded scan's file is kept under the scan's id; a seeded one downloads as a generated copy.
       letter.fileId = scan.id
     }
     const step = forStep && project.approvals.find((s) => s.key === forStep)
     const lead = findLead(leadId)
-    // A letter for an approval step is shown to the client as that step's letter.
     const shownAs = step?.letter ? `${project.id}-${forStep}` : letter.id
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
-      // A scan replaces an earlier one recorded for the same step.
       const others = (edits.letters ?? []).filter((l) => !forStep || l.forStep !== forStep)
       const approvals = step && !step.done ? { ...edits.approvals, [forStep]: date } : edits.approvals
       let next = {
@@ -621,7 +542,6 @@ export function CrmProvider({ children }) {
         const scans = { ...EMPTY.scans, ...prev.scans }
         next = { ...next, scans: { ...scans, filed: { ...scans.filed, [scan.id]: { projectId: project.id, letterId: letter.id, on: toISODate(TODAY) } } } }
       }
-      // A new copy of a letter already on file keeps its links, access and history, and goes back for verification.
       const now = new Date().toISOString()
       const by = actorRef.current.name
       const earlier = prev.docs?.[shownAs] ?? documentsRef.current.find((d) => d.id === shownAs)?.record
@@ -638,8 +558,6 @@ export function CrmProvider({ children }) {
     return { ...letter, stepKey: step?.letter ? forStep : undefined }
   }, [findLead, setChanges])
 
-  /* ERM: changes one project's edits and logs it on the client's activity. */
-  // then(next): a follow-up on the saved change, e.g. the automatic message it sends.
   const editProject = useCallback((leadId, project, change, text, then) => {
     setChanges((prev) => {
       const edits = prev.projects[project.id] ?? {}
@@ -648,7 +566,6 @@ export function CrmProvider({ children }) {
     })
   }, [setChanges])
 
-  /* ERM: a new project for an existing client (repeat work). It starts in Allocation, waiting for a coordinator. */
   const createProject = useCallback(
     (leadId, { id, name, service, site, startedOn, days }) => {
       const lead = findLead(leadId)
@@ -663,7 +580,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* ERM: a field visit with its photos and readings. */
   const addFieldVisit = useCallback(
     (leadId, project, { date, by, activity, location, notes, files }) => {
       const visit = { id: `FV-${Date.now()}`, date, by, activity, location, notes, files: fileRecords(files) }
@@ -672,14 +588,12 @@ export function CrmProvider({ children }) {
     [editProject],
   )
 
-  /* ERM: the work is filed with the authority; the submission milestone is done on the date it was filed. */
   const submitToAuthority = useCallback(
     (leadId, project, { date, mode, ackNo, files }) => {
       const submission = { mode, ackNo, files: fileRecords(files), by: project.team.coordinator }
       editProject(
         leadId,
         project,
-        // Filing is also the first step of the approval ("report submitted", "application filed").
         (e) => ({ submission, milestones: { ...e.milestones, submission: date }, approvals: { ...e.approvals, [project.approvals[0].key]: date } }),
         `${project.name}: submitted to ${project.authority} via ${mode}${ackNo ? ` · Ack. ${ackNo}` : ''}`,
         (next) => sendAuto(next, 'submitted', leadId, clientOf(findLead(leadId)), { lead: findLead(leadId), project, mode, ackNo }),
@@ -688,7 +602,6 @@ export function CrmProvider({ children }) {
     [editProject, findLead],
   )
 
-  /* ERM: tick or untick a closure step; closing the project once they are all done. */
   const setClosureStep = useCallback(
     (leadId, project, key, done, label) => {
       editProject(
@@ -717,7 +630,6 @@ export function CrmProvider({ children }) {
     [editProject, findLead],
   )
 
-  /* ERM: files kept against a project (reports, maps, field data). */
   const addProjectDocuments = useCallback(
     (leadId, project, files, category) => {
       if (files.length === 0) return
@@ -734,7 +646,6 @@ export function CrmProvider({ children }) {
     [editProject],
   )
 
-  /* ERM: a project file the client can (or can no longer) download from the portal. */
   const setFileShared = useCallback(
     (leadId, project, file, shared) => {
       editProject(
@@ -748,7 +659,6 @@ export function CrmProvider({ children }) {
     [editProject, findLead],
   )
 
-  /* Client portal: a question for the team. It stays open until someone answers it. */
   const raiseQuery = useCallback(
     (id, { topic, message }) => {
       const lead = findLead(id)
@@ -763,7 +673,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* The team's answer to a client's question; the client sees it on the portal. */
   const answerQuery = useCallback(
     (id, queryId, reply) => {
       const lead = findLead(id)
@@ -777,7 +686,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* Client portal: the client paid (UPI, bank or cheque) and reports it with the reference and a screenshot. */
   const submitPayment = useCallback(
     (id, { dueKey, title, amount, method, utr, paidOn, file }) => {
       const lead = findLead(id)
@@ -797,10 +705,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /*
-   * Accounts confirms (or rejects) a reported payment. A confirmed advance ticks "Advance payment received"
-   * in Client Approval; a confirmed balance ticks "Final payment received" in the project's closure.
-   */
   const verifyPayment = useCallback(
     (id, paymentId, ok, note) => {
       const lead = findLead(id)
@@ -827,14 +731,12 @@ export function CrmProvider({ children }) {
           projects,
           activities: log(prev, id, 'payment', ok ? `Payment of ${rupees} for ${payment.title} verified — received` : `Payment of ${rupees} for ${payment.title} not found in the account${note ? `: ${note}` : ''}`),
         }
-        // A verified payment sends the client a receipt.
         return ok ? sendAuto(saved, 'payment', id, clientOf(lead), { lead, payment }) : saved
       })
     },
     [findLead, setChanges],
   )
 
-  /* The team asks the client for a payment (government fee, extra work); it shows up as due on the portal. */
   const requestPayment = useCallback(
     (id, { title, amount }) => {
       const lead = findLead(id)
@@ -849,11 +751,6 @@ export function CrmProvider({ children }) {
     [findLead, setChanges],
   )
 
-  /* ERM: the client was told about a government letter on WhatsApp. */
-  /*
-   * Scan inbox (WP6, flowchart 3): scans from the NAS scanner folder wait here until filed against a project
-   * (addGovtLetter with the scan). New scans come in by upload; one that isn't a government letter is set aside.
-   */
   const addScans = useCallback(
     (files) => {
       const added = files.map((file) => {
@@ -888,7 +785,6 @@ export function CrmProvider({ children }) {
     [editProject],
   )
 
-  /* ERM: a subcontract (drilling, lab testing, drone survey) given to an outside firm against a project. */
   const addWorkOrder = useCallback(
     (leadId, project, order) => {
       editProject(leadId, project, (e) => ({ workOrders: [...(e.workOrders ?? []), { ...order, status: 'Issued', issuedOn: toISODate(TODAY) }] }), `${project.name}: subcontract ${order.id} issued to ${order.vendor} — ${order.work}`)
@@ -896,10 +792,6 @@ export function CrmProvider({ children }) {
     [editProject],
   )
 
-  /*
-   * Subcontract steps, in order: started → delivery recorded → bill recorded → bill checked → payment released.
-   * step: 'start' | 'deliver' | 'bill' | 'check' | 'pay'. byVendor: done by the vendor on the vendor portal.
-   */
   const recordWorkStep = useCallback(
     (leadId, project, order, step, details = {}, { byVendor = false } = {}) => {
       const today = toISODate(TODAY)
@@ -920,11 +812,9 @@ export function CrmProvider({ children }) {
         patch = { check: { on: today, ok: true, by: who, note: details.note || null } }
         text = 'bill checked against the order and the delivery — ready to pay'
       } else if (step === 'check') {
-        // A bill that doesn't match goes back to the vendor; the work stays delivered, waiting for a corrected bill.
         patch = { bill: null, check: null, returned: [...(order.returned ?? []), { ...order.bill, returnedOn: today, reason: details.note || 'Does not match the order', by: who }] }
         text = `bill ${order.bill?.no} returned to the vendor — ${details.note || 'does not match the order'}`
       } else if (step === 'pay') {
-        // TDS is on the bill's value before GST.
         const tds = { ...details.tds, amount: Math.round(((order.bill?.amount ?? order.amount) * details.tds.rate) / 100) }
         patch = { payment: { on: today, gross: details.gross, tds, ref: details.ref, by: who } }
         text = `payment released — ₹${Math.round(details.gross - tds.amount).toLocaleString('en-IN')} after TDS ${tds.section} ₹${tds.amount.toLocaleString('en-IN')}`
@@ -943,7 +833,6 @@ export function CrmProvider({ children }) {
     [setChanges],
   )
 
-  /* A subcontractor registered by the team (vendor master); the seeded ones are in data/vendors.js. */
   const addVendor = useCallback(
     (details) => {
       setChanges((prev) => {
@@ -957,10 +846,6 @@ export function CrmProvider({ children }) {
 
   const vendors = useMemo(() => [...VENDORS, ...(changes.vendors ?? [])], [changes.vendors])
 
-  /*
-   * Vendor registration (data/vendorApplications.js): the demo's applications plus those sent in the app; any
-   * application changed in the app is kept whole in changes.vendorApps under its id.
-   */
   const vendorApplications = useMemo(() => {
     const saved = changes.vendorApps ?? {}
     const seeded = SEEDED_APPLICATIONS.map((a) => saved[a.id] ?? a)
@@ -971,7 +856,6 @@ export function CrmProvider({ children }) {
   const vendorOf = (app) => ({ audience: 'vendor', name: `${app.contact.name} (${app.firm.name})`, phone: app.contact.mobile, email: app.contact.email })
   const docRecords = (files) => fileRecords(files.map((f) => f.file)).map((rec, i) => ({ ...rec, kind: files[i].kind }))
 
-  /* A firm registers on the public page; returns its application number. files: [{ file, kind }]. */
   const submitVendorApplication = useCallback(
     (details, files) => {
       const year = TODAY.getFullYear()
@@ -989,7 +873,6 @@ export function CrmProvider({ children }) {
     [setChanges, vendorApplications],
   )
 
-  /* The firm corrects an application that was sent back, and sends it again. */
   const resubmitVendorApplication = useCallback(
     (id, details, files) => {
       const app = vendorApplications.find((a) => a.id === id)
@@ -1001,10 +884,6 @@ export function CrmProvider({ children }) {
     [setChanges, vendorApplications],
   )
 
-  /*
-   * The Admin's decision. approve: the firm joins the vendor register with a vendor ID (tds: the section Finance
-   * applies); changes: sent back with a note; reject: with a reason. The firm hears by email (and WhatsApp once approved).
-   */
   const decideVendorApplication = useCallback(
     (id, decision, { note = '', reason = '', tds } = {}) => {
       const app = vendorApplications.find((a) => a.id === id)
@@ -1053,10 +932,6 @@ export function CrmProvider({ children }) {
     [setChanges, vendorApplications],
   )
 
-  /*
-   * The demo's earlier tenders were allotted before the app opened: their work orders sit under a running project
-   * of the tender's service line (or the first running project), like orders issued in the app.
-   */
   const tenderOrders = useMemo(() => {
     const running = allProjects(leads, {}).filter((p) => p.status !== 'Completed' && p.startedOn)
     return SEEDED_TENDER_ORDERS.flatMap((spec) => {
@@ -1068,7 +943,6 @@ export function CrmProvider({ children }) {
     })
   }, [leads])
 
-  /* Project edits as every page reads them: what was changed in the app, plus the seeded tenders' work orders. */
   const projectEdits = useMemo(() => {
     const merged = { ...changes.projects }
     tenderOrders.forEach(({ projectId, order }) => {
@@ -1078,17 +952,11 @@ export function CrmProvider({ children }) {
     return merged
   }, [changes.projects, tenderOrders])
 
-  /* Every government letter as a document on its way through Document Management (utils/documents). */
   const documents = useMemo(() => govtDocuments(allProjects(leads, projectEdits), changes.docs, vendors), [leads, projectEdits, changes.docs, vendors])
   useEffect(() => {
     documentsRef.current = documents
   }, [documents])
 
-  /*
-   * Document Management: one step on a government document, saved with its line on the document's timeline and
-   * logged against the client (the audit log). patch(record) gives the fields that change; then(next, record) adds
-   * what goes with the step elsewhere (the project's shared letters, the automatic message).
-   */
   const docStep = useCallback(
     (doc, patch, text, then) =>
       setChanges((prev) => {
@@ -1101,7 +969,6 @@ export function CrmProvider({ children }) {
     [setChanges],
   )
 
-  /* A second person checks the scan against the original: verified, or back for a rescan with the reason. */
   const verifyDocument = useCallback(
     (doc, { ok, reason, note }) =>
       docStep(
@@ -1112,7 +979,6 @@ export function CrmProvider({ children }) {
     [docStep],
   )
 
-  /* A rescan: the new copy (an upload or a scan from the inbox) replaces the old one and goes back for verification. */
   const replaceDocScan = useCallback(
     (doc, { file, scan }) => {
       const fileId = file ? `${doc.id}-r${Date.now()}` : scan.id
@@ -1134,18 +1000,12 @@ export function CrmProvider({ children }) {
     [docStep],
   )
 
-  /* The lease and the vendor the document belongs to (the client and project come with its project). */
   const linkDocument = useCallback(
     (doc, links) =>
       docStep(doc, (base) => ({ links: { ...base.links, ...links } }), `Links updated: ${[links.leaseNo ? `lease ${links.leaseNo}` : 'no lease', links.vendorId ? vendorName(links.vendorId, vendors) : 'no vendor'].join(', ')}`),
     [docStep, vendors],
   )
 
-  /*
-   * Who may open it: the office always; the client (their portal) and the linked vendor (the vendor portal) when
-   * allowed. original: the paper original goes to the client (the dispatch register). Allowing the client sends the
-   * automatic message (vendor sheet C2), which counts as sharing it when it goes on WhatsApp.
-   */
   const authorizeDocument = useCallback(
     (doc, { client, vendor, original }) => {
       const lead = findLead(doc.lead.id) ?? doc.lead
@@ -1168,13 +1028,11 @@ export function CrmProvider({ children }) {
     [docStep, findLead, vendors],
   )
 
-  /* Shared by hand: the team told the client on WhatsApp (or marked it done when there is no mobile number). */
   const shareDocument = useCallback(
     (doc, how = 'WhatsApp') => docStep(doc, () => ({}), how === 'WhatsApp' ? 'Shared with the client — portal and WhatsApp' : 'Marked as shared with the client', (next) => letterEdit(next, doc, (e) => ({ sharedLetters: { ...e.sharedLetters, [doc.id]: toISODate(TODAY) } }))),
     [docStep],
   )
 
-  /* The paper original: to be sent or not, sent (how, docket, on), and received by the client. */
   const requestDispatch = useCallback(
     (doc, needed) => docStep(doc, (base) => ({ dispatch: { ...base.dispatch, status: needed ? 'To dispatch' : 'Not needed' } }), needed ? 'Original to go to the client' : 'No original to send'),
     [docStep],
@@ -1188,9 +1046,7 @@ export function CrmProvider({ children }) {
     [docStep],
   )
 
-  /* Tenders and bids (data/tenders.js): the demo's, with what was published, bid and decided in the app. */
   const tenders = useMemo(() => {
-    // The seeded allotted tenders point at their seeded work orders.
     const seeded = SEEDED_TENDERS.map((t) => {
       const placed = tenderOrders.find((o) => o.order.tenderId === t.id)
       return placed ? { ...t, projectId: placed.projectId, allotted: { ...t.allotted, orderId: placed.order.id, projectId: placed.projectId } } : t
@@ -1199,7 +1055,6 @@ export function CrmProvider({ children }) {
   }, [changes.tenders, tenderOrders])
   const bids = useMemo(() => withSaved(SEEDED_BIDS, changes.bids).sort((a, b) => a.submittedAt.localeCompare(b.submittedAt)), [changes.bids])
 
-  /* The Admin puts a work out for bids; every approved vendor hears of it. Returns the tender ID. */
   const publishTender = useCallback(
     (details, files) => {
       const year = TODAY.getFullYear()
@@ -1231,7 +1086,6 @@ export function CrmProvider({ children }) {
     [setChanges, tenders, settings],
   )
 
-  /* Bidding ends now instead of on the closing date (the bids open for the Admin). */
   const closeBidding = useCallback(
     (tenderId) => {
       const tender = tenders.find((t) => t.id === tenderId)
@@ -1247,14 +1101,12 @@ export function CrmProvider({ children }) {
     [setChanges, tenders],
   )
 
-  /* A vendor bids from the vendor portal, or revises its bid while bidding is open. Returns the bid ID. */
   const submitBid = useCallback(
     (tenderId, vendorId, details, files) => {
       const tender = tenders.find((t) => t.id === tenderId)
       const vendor = vendors.find((v) => v.id === vendorId)
       if (!tender || !vendor || tenderPhase(tender) !== 'Open') return null
       const existing = bids.find((b) => b.tenderId === tenderId && b.vendorId === vendorId)
-      // A withdrawn bid can't come back (as on eProc).
       if (existing?.status === 'Withdrawn') return null
       const now = new Date().toISOString()
       const id = existing?.id ?? `BD-${tenderId.split('-').pop()}-${String(bids.filter((b) => b.tenderId === tenderId).length + 1).padStart(2, '0')}`
@@ -1263,7 +1115,6 @@ export function CrmProvider({ children }) {
         : { ...details, id, tenderId, vendorId, submittedAt: now, documents: docRecords(files), status: 'Submitted', history: [{ at: now, action: 'Bid submitted', by: vendor.contact }] }
       setChanges((prev) =>
         sendAuto(
-          // Sealed: until bidding closes the record says a bid came in, never whose or for how much.
           { ...prev, bids: { ...prev.bids, [id]: bid }, activities: log(prev, null, 'vendor', `Bid ${id} ${existing ? 'revised' : 'received'} on tender ${tenderId}`, { by: 'vendor', vendor: SEALED_BIDDER }) },
           'bidReceived',
           null,
@@ -1276,7 +1127,6 @@ export function CrmProvider({ children }) {
     [setChanges, tenders, bids, vendors],
   )
 
-  /* The Admin's first look after bidding closes: shortlist a bid, or reject it with a reason (the vendor is told why). */
   const decideBid = useCallback(
     (bidId, decision, { reason = '', note = '' } = {}) => {
       const bid = bids.find((b) => b.id === bidId)
@@ -1306,10 +1156,6 @@ export function CrmProvider({ children }) {
     [setChanges, tenders, bids, vendors],
   )
 
-  /*
-   * The Admin approves one shortlisted bid: the work is allotted, its work order is issued in Subcontracts against
-   * the project, and every other open bid on the tender is marked not selected. All vendors are told.
-   */
   const allotBid = useCallback(
     (bidId, project, dueOn) => {
       const bid = bids.find((b) => b.id === bidId)
@@ -1346,7 +1192,6 @@ export function CrmProvider({ children }) {
     [setChanges, tenders, bids, vendors],
   )
 
-  /* A vendor takes its bid back before bidding closes; it can't bid on that tender again. */
   const withdrawBid = useCallback(
     (bidId) => {
       const bid = bids.find((b) => b.id === bidId)
@@ -1368,7 +1213,6 @@ export function CrmProvider({ children }) {
     [setChanges, tenders, bids, vendors],
   )
 
-  /* Vendors' questions on tenders (eProc's "Clarification"): asked from the vendor portal, answered on the Tenders page. */
   const clarifications = useMemo(() => withSaved(SEEDED_CLARIFICATIONS, changes.clarifications).sort((a, b) => b.askedAt.localeCompare(a.askedAt)), [changes.clarifications])
 
   const askClarification = useCallback(
@@ -1384,7 +1228,6 @@ export function CrmProvider({ children }) {
     [setChanges, clarifications, vendors],
   )
 
-  /* The Admin's answer: published on the tender for every bidder; the firm that asked is told by email. */
   const answerClarification = useCallback(
     (id, answer) => {
       const item = clarifications.find((c) => c.id === id)
@@ -1404,7 +1247,6 @@ export function CrmProvider({ children }) {
     [setChanges, clarifications, tenders, vendors],
   )
 
-  /* Tenders a vendor saved to come back to (eProc's "My Tenders"): vendor ID → tender IDs. */
   const savedTenders = useMemo(() => ({ ...SEEDED_SAVED_TENDERS, ...changes.savedTenders }), [changes.savedTenders])
   const toggleSavedTender = useCallback(
     (vendorId, tenderId) =>
@@ -1415,7 +1257,6 @@ export function CrmProvider({ children }) {
     [setChanges],
   )
 
-  /* The client got their portal login on WhatsApp; for a won client this also ticks the onboarding step. */
   const markPortalShared = useCallback(
     (id) => {
       const lead = findLead(id)
@@ -1445,13 +1286,11 @@ export function CrmProvider({ children }) {
   const updateSettings = useCallback((patch) => setChanges((prev) => ({ ...prev, settings: { ...prev.settings, ...patch } })), [setChanges])
 
   const resetDemoData = useCallback(() => {
-    // The HRMS keeps its own demo data in this browser (bgspl_* keys); one reset clears the whole app.
     try {
       Object.keys(localStorage)
         .filter((k) => k.startsWith('bgspl_') || k.startsWith('hrms_'))
         .forEach((k) => localStorage.removeItem(k))
     } catch {
-      // Storage unavailable: nothing saved to clear.
     }
     setChanges(EMPTY)
   }, [setChanges])

@@ -84,7 +84,6 @@ function ProjectForm({ initial, onSave, onCancel }) {
   )
 }
 
-/* Project scope, site and technical details — usually filled in after the first few conversations. */
 export function ProjectRequirements({ lead }) {
   const money = useMoney()
   const { updateLead } = useCrm()

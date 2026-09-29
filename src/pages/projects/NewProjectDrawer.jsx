@@ -8,7 +8,6 @@ import '../../components/enquiry/enquiry.css'
 
 const DURATIONS = [30, 45, 60, 90, 120, 180]
 
-/* New projects run in their own number series, clear of the ones that come from won enquiries. */
 function nextProjectId(projects) {
   const year = String(TODAY.getFullYear()).slice(2)
   const used = projects.filter((p) => p.id.startsWith(`PR-${year}-`)).map((p) => Number(p.id.split('-').pop()))
@@ -16,7 +15,6 @@ function nextProjectId(projects) {
   return `PR-${year}-${n}`
 }
 
-/* Repeat work for a client already on the books: the project starts in Allocation, waiting for a coordinator. */
 export function NewProjectDrawer({ clients, projects, onClose, onCreated }) {
   const { createProject } = useCrm()
   const titleId = useId()

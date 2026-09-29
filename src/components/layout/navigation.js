@@ -1,9 +1,7 @@
 import { ArrowLeftRight, BadgeIndianRupee, BarChart3, BookOpen, Briefcase, Building2, CalendarCheck, CalendarClock, CalendarDays, ClipboardCheck, ClipboardList, Clock, Contact, FileScan, FileSignature, Files, Gavel, FileSpreadsheet, FileText, FolderKanban, FolderLock, Gauge, HandCoins, Home, Landmark, LayoutDashboard, ListTodo, MessageCircleQuestion, Network, Percent, PiggyBank, Receipt, Scale, Settings2, ShieldCheck, Truck, UserPlus, UserRound, Users, UsersRound, Wallet } from 'lucide-react'
 
-// Roles that use the HRMS for themselves only (their own attendance, leave, pay, claims, documents).
 const SELF_SERVICE = ['Accountant', 'Team Lead', 'Employee']
 
-/* Two workspaces in one app: sales (CRM) and project delivery (ERM). Each role sees only what it can open; `only` limits an item to the roles it is for. */
 export const NAV_GROUPS = [
   {
     title: 'CRM Workspace',
@@ -30,7 +28,6 @@ export const NAV_GROUPS = [
     ],
   },
   {
-    // Outside firms: who may work for us (registrations), and the work given to them.
     title: 'Vendor Workspace',
     items: [
       { label: 'Vendor Applications', path: '/vendor-applications', icon: UserPlus, badge: 'vendorAppsNew' },
@@ -39,7 +36,6 @@ export const NAV_GROUPS = [
     ],
   },
   {
-    // Government documents from the scanner to the client: file, verify, set access, share, dispatch the original.
     title: 'Document Management',
     items: [
       { label: 'Documents', path: '/documents', icon: Files, badge: 'docsToAct', end: true },
@@ -48,7 +44,6 @@ export const NAV_GROUPS = [
     ],
   },
   {
-    // Nikhil's HRMS (src/hrms), in his four modules. The HR team runs it; everyone else sees their own attendance, leave, pay and claims.
     title: 'HRMS & Attendance',
     items: [
       { label: 'HR Dashboard', path: '/hr', icon: LayoutDashboard, end: true },
@@ -89,7 +84,6 @@ export const NAV_GROUPS = [
     ],
   },
   {
-    // Roles & permissions stay in the CRM's own Settings (the eight roles), not a second copy here.
     title: 'MIS & Reports',
     items: [
       { label: 'Executive Reports', path: '/hr/reports', icon: BarChart3 },
@@ -98,5 +92,4 @@ export const NAV_GROUPS = [
   },
 ]
 
-/* Settings and the audit log live in the profile menu; they are listed here so the pages still get their titles. */
 export const NAV_ITEMS = [...NAV_GROUPS.flatMap((group) => group.items), { label: 'Settings', path: '/settings' }, { label: 'Audit Log', path: '/audit-log' }, { label: 'Sent messages', path: '/messages' }]

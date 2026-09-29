@@ -43,7 +43,6 @@ export const PayrollDashboardPage = () => {
             </Button>
           </div>}/>
 
-      {/* KPI Cards (INR) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
         <StatCard compact={true} title="Total Monthly Payroll" value={`₹${totalGross.toLocaleString('en-IN')}`} icon={<BadgeIndianRupee className="w-4 h-4"/>} iconBgColor="bg-blue-50 dark:bg-blue-950/50 text-blue-600 border border-blue-100 dark:border-blue-800/60" change="+4.2%" changeType="increase" caption="Gross compensation"/>
         <StatCard compact={true} title="Net Disbursed" value={`₹${totalNet.toLocaleString('en-IN')}`} icon={<CheckCircle2 className="w-4 h-4"/>} iconBgColor="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 border border-emerald-100 dark:border-emerald-800/60" caption="August 2026 Disbursed"/>
@@ -51,7 +50,6 @@ export const PayrollDashboardPage = () => {
         <StatCard compact={true} title="Employees On Payroll" value={String(totalStaff)} icon={<Users className="w-4 h-4"/>} iconBgColor="bg-amber-50 dark:bg-amber-950/50 text-amber-600 border border-amber-100 dark:border-amber-800/60" caption="100% compliant"/>
       </div>
 
-      {/* Action Shortcut Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
         <button onClick={() => navigate('/hr/payroll/process')} className="p-3 sm:p-3.5 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] hover:border-blue-500 dark:hover:border-blue-500/60 hover:shadow-2xs transition-all text-left group flex flex-col justify-between">
           <div>
@@ -99,7 +97,6 @@ export const PayrollDashboardPage = () => {
         </button>
       </div>
 
-      {/* Recent Payroll Runs Table */}
       <Card className="p-3.5 sm:p-4">
         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 mb-3">
           <div>

@@ -1,7 +1,3 @@
-/*
- * Topographic contour lines — the brand's decorative motif (a nod to survey maps).
- * Every fourth line is drawn in the accent colour, like index contours on a survey map.
- */
 export function ContourLines({ className, lines = 14, color = 'var(--teal-200)', accent = 'var(--gold-200)' }) {
   return (
     <svg className={className} viewBox="0 0 600 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">

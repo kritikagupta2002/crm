@@ -43,7 +43,6 @@ function Person({ name, role }) {
   )
 }
 
-/* Coordinator, team lead and field team, editable. `only` limits the form to the fields for the current stage. */
 function TeamForm({ project, onSave, onCancel, only }) {
   const [coordinator, setCoordinator] = useState(project.team.coordinator ?? '')
   const [teamLead, setTeamLead] = useState(project.team.teamLead ?? '')
@@ -114,7 +113,6 @@ function TeamForm({ project, onSave, onCancel, only }) {
   )
 }
 
-/* The stages, and the one thing to do next right under them. */
 function StageCard({ project, onOpenTab }) {
   const { setProjectTeam, setProjectStep, role } = useCrm()
   const lead = project.lead
@@ -513,7 +511,6 @@ function OverviewTab({ project }) {
   )
 }
 
-/* The project's history: what happened on it, from creation to closure, newest first. */
 function HistoryTab({ project }) {
   const { activities } = useCrm()
   const logged = activities
@@ -536,7 +533,6 @@ function HistoryTab({ project }) {
   )
 }
 
-/* One project in the ERM: its stage, the next hand-over, the team, the tasks and the approval. */
 export function ProjectDetailPage() {
   const { projectId } = useParams()
   const { leads, projectEdits, activities, settings } = useCrm()
@@ -609,4 +605,3 @@ export function ProjectDetailPage() {
     </div>
   )
 }
-

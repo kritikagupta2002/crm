@@ -1,22 +1,7 @@
-/* ============================================================
- *  VENDOR PORTAL — STRICT COLOR PALETTE
- *
- *  Palette:
- *  - Primary Blue:    #1771b7  (RGB: 23, 113, 183)
- *  - Light Blue:      #81d4fa  (RGB: 129, 212, 250)
- *  - Blue-Grey:       #8397a3  (RGB: 131, 151, 163)
- *  - Medium Grey:     #959595  (RGB: 149, 149, 149)
- *  - Light Grey:      #aaaaaa  (RGB: 170, 170, 170)
- *
- *  Strict color-only redesign:
- *  - 100% preservation of all layouts, typography, shapes & hierarchy
- *  - Zero green, red, orange, yellow, purple, or teal
- * ============================================================ */
 
 .vendor-shell,
 .vendor-register,
 .vendor-portal {
-  /* ── Primary Blue (#1771b7) ───────────────────────────────── */
   --teal-900: #0f5289;
   --teal-700: #1771b7;
   --teal-600: #1771b7;
@@ -25,13 +10,11 @@
   --teal-100: #dff1fb;
   --teal-50:  #eaf3fb;
 
-  /* ── Light Blue (#81d4fa) ─────────────────────────────────── */
   --gold-600: #1771b7;
   --gold-500: #81d4fa;
   --gold-200: #81d4fa;
   --gold-100: #e1f5fe;
 
-  /* ── Blue-Grey (#8397a3) & Medium Grey (#959595) ──────────── */
   --ink:           #0f2a3d;
   --ink-2:         #4a5b68;
   --ink-3:         #959595;
@@ -43,11 +26,9 @@
   --chrome-line:   #d1dbe0;
   --sidebar-hover: rgba(131, 151, 163, 0.12);
 
-  /* ── Light Grey (#aaaaaa) & Dividers ──────────────────────── */
   --line:      #d1dbe0;
   --line-soft: #e8eef1;
 
-  /* ── Mountain illustration palette ────────────────────────── */
   --mtn-far:         #aaaaaa;
   --mtn-far-2:       #b8c4cb;
   --mtn-lit:         #99a7b0;
@@ -59,11 +40,9 @@
   --mtn-forest-mid:  #4d5c64;
   --mtn-forest:      #313f47;
 
-  /* ── Navigation active state ──────────────────────────────── */
   --nav-active:      #1771b7;
   --nav-active-edge: #81d4fa;
 
-  /* ── Semantic status overrides (No green, red, orange/amber) ─ */
   --blue:            #1771b7;
   --blue-bg:         #eaf3fb;
   --green:           #1771b7;
@@ -74,7 +53,6 @@
   --red-bg:          #edf1f4;
 }
 
-/* ── Tone classes: strict palette mapping ── */
 .vendor-shell .tone-info,
 .vendor-register .tone-info {
   --tone: #1771b7;
@@ -105,12 +83,10 @@
   --tone-bg: #f4f5f6;
 }
 
-/* Icon contrast in tone-attention stat card */
 .vendor-shell .stat-card.tone-attention .stat-icon {
   color: #1771b7;
 }
 
-/* Status badge color overrides */
 .vendor-shell .nav-badge.is-info {
   background: #1771b7;
   color: #ffffff;
@@ -131,12 +107,10 @@
   color: #ffffff;
 }
 
-/* Bell notification dot */
 .vendor-shell .bell-dot {
   background: #81d4fa;
 }
 
-/* ---------- Vendor portal: the client portal's frame, with work orders instead of projects ---------- */
 .vendor-order {
   display: flex;
   flex-direction: column;
@@ -174,7 +148,6 @@
   }
 }
 
-/* ---------- Vendor registration (public page) ---------- */
 .vendor-form .upper {
   text-transform: uppercase;
 }
@@ -256,7 +229,6 @@
   accent-color: var(--teal-700);
 }
 
-/* The last part of the form (the captcha) closes it without a rule under it. */
 .vendor-captcha {
   border-bottom: none;
 }
@@ -269,7 +241,6 @@
   margin: -4px 0 10px;
 }
 
-/* Mobile with +91, then the verification code beside it. */
 .mobile-row {
   display: flex;
   flex-wrap: wrap;
@@ -416,21 +387,6 @@
   }
 }
 
-/* ---------- Works and bids (vendor portal) ---------- */
-
-
-
-
-
-
-
-
-
-
-
-
-/* The tender page: eProc's sections as label / value pairs, then the bid. */
-
 .eproc-section h2 {
   margin-bottom: 10px;
   padding-bottom: 8px;
@@ -496,7 +452,6 @@
   }
 }
 
-/* ---------- Vendor portal frame (the app's sidebar and top bar, eProc's menu) ---------- */
 .vendor-topline {
   display: flex;
   flex-direction: column;
@@ -589,7 +544,6 @@
   overflow-wrap: anywhere;
 }
 
-/* Search Active Tenders: eProc's search box. */
 .search-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -650,7 +604,6 @@
   background: none;
 }
 
-/* Clarifications: questions and answers on a tender. */
 .clarify-form {
   display: flex;
   flex-direction: column;
@@ -771,10 +724,6 @@
   }
 }
 
-/*
- * The vendor menu is short and always open (like eProc's), so it is set tighter than the CRM's to fit on the screen
- * without scrolling: smaller rows and section headings, no open/close arrows.
- */
 .vendor-shell .sidebar-nav {
   gap: 2px;
   padding: 10px 12px;
@@ -815,8 +764,6 @@
   font-weight: 500;
 }
 
-
-/* Short laptop screens. */
 @media (max-height: 880px) {
   .vendor-shell .nav-item {
     height: 34px;
@@ -837,8 +784,6 @@
   }
 }
 
-/* ---------- Vendor home ---------- */
-/* The welcome band: the portal's contour lines and mountain range, the firm and what it does. */
 .vendor-hero {
   position: relative;
   overflow: hidden;
@@ -915,7 +860,6 @@
   margin-top: 6px;
 }
 
-/* Open works as tiles: what, how soon it closes, where, for how much. */
 .work-tiles {
   display: flex;
   flex-direction: column;
@@ -992,7 +936,6 @@
   color: var(--teal-700);
 }
 
-/* Latest on your bids: a timeline, each entry dotted in its result's colour. */
 .vendor-timeline {
   position: relative;
   margin: 0;
@@ -1045,7 +988,6 @@
   color: var(--ink);
 }
 
-/* Work in progress: each order with a five-step tracker. */
 .order-tracks {
   display: flex;
   flex-direction: column;
@@ -1102,7 +1044,6 @@
   color: var(--ink-3);
 }
 
-/* The line to the next step. */
 .order-steps li:not(:last-child)::after {
   content: '';
   position: absolute;
@@ -1168,7 +1109,6 @@
   }
 }
 
-/* ---------- Tender page ---------- */
 .vendor-page.tender-page {
   max-width: 1200px;
 }
@@ -1178,7 +1118,6 @@
   margin-bottom: -6px;
 }
 
-/* The summary: what, which tender, and the five facts a bidder looks for first. */
 .tender-summary {
   position: relative;
   overflow: hidden;
@@ -1279,7 +1218,6 @@
   color: var(--teal-700);
 }
 
-/* Bids close takes the closing chip's colour. */
 .tender-facts .tender-fact-close {
   border-color: var(--tone);
   background: var(--tone-bg);
@@ -1295,7 +1233,6 @@
   font-weight: 500;
 }
 
-/* Details on the left, dates and the bid on the right. */
 .tender-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -1487,7 +1424,6 @@
   font-size: 11px;
 }
 
-/* ---------- Vendor sidebar: tinted icon squares, gold-marked sections, coloured counts, a help card ---------- */
 .vendor-shell .sidebar-section {
   gap: 8px;
   color: var(--sidebar-muted);
@@ -1564,13 +1500,10 @@
   background: rgba(255, 255, 255, 0.28);
 }
 
-/* Help on the mountain, where the CRM has its motto: white type over the forest. */
-/* The mountain fills the room under the menu; only its hazy top reaches past the last link. */
 .vendor-shell .sidebar-mountains {
   height: clamp(170px, calc(var(--sidebar-room, 300px) + 36px), 340px);
 }
 
-/* Laptop screens: the help keeps just the phone and email. */
 @media (max-height: 800px) {
   .vendor-help > span {
     display: none;
@@ -1635,7 +1568,6 @@
   background: var(--teal-600);
 }
 
-/* The narrow (icons-only) menu has no room for the help text. */
 @media (min-width: 1024px) {
   .vendor-shell.menu-toggled .vendor-help {
     display: none;

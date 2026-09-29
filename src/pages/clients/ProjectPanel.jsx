@@ -10,14 +10,6 @@ import { PROJECT_STATUS_TONE, canActOn, clientProjects } from '../../utils/proje
 
 const doneMap = (steps) => Object.fromEntries(steps.map((s) => [s.key, s.done]))
 
-/*
- * Record a government letter against a project, with its scan. Once the work is filed, the letter can be
- * linked to an approval step (vendor sheet: "link the scanned PDF to the client's task"): the step is marked
- * done and the scan becomes that step's letter, so the client sees one letter with the real copy.
- * forStep: open the form already linked to a step (e.g. "Attach scan" on a letter that has none).
- * scan: a scan from the NAS inbox, which is the letter's copy (no file to choose).
- * links: the lease and vendor it belongs to (Document Management's scan inbox).
- */
 export function LetterForm({ lead, project, onDone, forStep: initialStep = '', scan, links }) {
   const { addGovtLetter } = useCrm()
   const submitted = project.milestones[project.milestones.length - 1].done
@@ -26,7 +18,6 @@ export function LetterForm({ lead, project, onDone, forStep: initialStep = '', s
   const defaults = (key) => {
     const step = steps.find((s) => s.key === key)
     const existing = key && letterFor(key)
-    // Numbered after every letter the approval will bring, so a new letter never shares a reference with one.
     const nextRef = `${project.refBase}/${project.approvals.filter((s) => s.letter).length + project.letters.filter((l) => !l.stepKey).length + 1}`
     return { title: existing?.title ?? step?.letter ?? '', ref: existing?.ref ?? nextRef, date: existing?.date ?? toISODate(TODAY) }
   }
@@ -102,7 +93,6 @@ export function LetterForm({ lead, project, onDone, forStep: initialStep = '', s
 export function ProjectBlock({ lead, project }) {
   const { setProjectStep, settings } = useCrm()
   const { role, may } = useAccess()
-  // Work steps are the project team's; approval steps and letters follow the ERM approval stage (Coordinator, Admin).
   const workLocked = may('projects') ? () => null : () => 'Marked by the project team'
   const canFile = canActOn(role, 'approval')
   const [adding, setAdding] = useState(false)
@@ -158,7 +148,6 @@ export function ProjectBlock({ lead, project }) {
           ))}
         </ul>
       )}
-      {/* A new letter goes to the client only after it is verified and given its access (Document Management). */}
       {justAdded && (
         <p className="muted small">
           {justAdded.title} is filed; it reaches the client once it is verified.{' '}
@@ -187,7 +176,6 @@ export function ProjectBlock({ lead, project }) {
   )
 }
 
-/* The team's view of a client's projects in the Client Master drawer; what is marked here shows in the client portal. */
 export function ProjectPanel({ lead }) {
   const { projectEdits } = useCrm()
   const projects = clientProjects(lead, projectEdits)

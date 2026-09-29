@@ -14,7 +14,6 @@ import { vendorOrders } from '../../utils/workOrders'
 
 const rupees = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`
 
-/* Home: who the firm is to us, what is open to bid on, where its bids stand, and how its work orders are going. */
 export function VendorHomePage() {
   const { vendor } = useOutletContext()
   const { tenders, bids, clarifications, leads, projectEdits } = useCrm()
@@ -190,7 +189,6 @@ export function VendorHomePage() {
   )
 }
 
-/* My Account: the firm as registered with us (eProc's "My Accounts"). Changes go through Accounts. */
 export function VendorAccountPage() {
   const { vendor } = useOutletContext()
   const { vendorApplications, settings } = useCrm()
@@ -269,12 +267,10 @@ export function VendorAccountPage() {
   )
 }
 
-/* My Documents: the papers the firm gave at registration and with each bid. */
 export function VendorDocumentsPage() {
   const { vendor } = useOutletContext()
   const { vendorApplications, bids, tenders, settings, documents } = useCrm()
   const app = vendorApplications.find((a) => a.id === vendor.applicationId || a.vendorId === vendor.id)
-  // Government letters on works the firm is on, which our team has checked and allowed it to see.
   const shared = documents.filter((d) => vendorCanSee(d, vendor.id))
   const rows = [
     ...(app ? app.documents.map((d) => ({ ...d, from: `Registration ${app.id}`, on: localDay(app.submittedAt) })) : (VENDOR_REGISTRATION_DOCS[vendor.id] ?? []).map((d) => ({ ...d, from: 'Registration' }))),

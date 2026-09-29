@@ -13,7 +13,6 @@ const dispatchNotification = (notif) => {
         };
         storage.setNotifications([item, ...notifs]);
     } catch {
-        // non-blocking
     }
 };
 
@@ -29,7 +28,6 @@ export const reimbursementService = {
     },
 
     submitClaim: async (data) => {
-        // 1. Service Layer Validation
         if (!data.employeeId || typeof data.employeeId !== 'string' || !data.employeeId.trim()) {
             throw new Error('Employee ID is required to file a reimbursement claim.');
         }
@@ -56,7 +54,6 @@ export const reimbursementService = {
 
         const list = storage.getReimbursements();
 
-        // 2. Duplicate Detection
         const isDuplicate = list.some((r) => 
             r.employeeId === data.employeeId &&
             r.category?.toLowerCase() === data.category?.toLowerCase() &&
@@ -73,7 +70,6 @@ export const reimbursementService = {
         const resolvedProject = data.project || getEmployeeProjectById(data.employeeId);
         const claimId = `RMB-${new Date().getFullYear()}-${Math.floor(10 + Math.random() * 90)}`;
 
-        // 3. Assemble canonical entity
         const newClaim = {
             id: `rmb-${Date.now()}`,
             claimId,
@@ -95,7 +91,6 @@ export const reimbursementService = {
             receiptDataUrl: data.receiptDataUrl || data.receiptUrl || null,
             status: 'Pending',
             submittedOn: today,
-            // HR Verification fields
             hrStatus: 'Pending',
             hrApprovedAmount: 0,
             hrRejectedAmount: 0,
@@ -105,12 +100,10 @@ export const reimbursementService = {
             approvedBy: null, // legacy
             reviewedOn: null, // legacy
             reviewRemarks: '', // legacy
-            // Finance Review fields
             financeStatus: 'None',
             financeReviewer: null,
             financeReviewedOn: null,
             financeRemarks: '',
-            // Query fields
             queryStatus: 'No Query',
             queryId: null,
             queryRaisedBy: null,
@@ -120,14 +113,12 @@ export const reimbursementService = {
             queryRespondedOn: null,
             queryResolvedOn: null,
             queryAttachment: null,
-            // Settlement fields
             settlementStatus: 'None',
             settledAmount: 0,
             settlementDate: null,
             disbursementDate: null,
             settledBy: null,
             settlementReference: null,
-            // Complete Audit History
             auditHistory: [
                 {
                     id: `aud-${Date.now()}-sub`,
@@ -142,7 +133,6 @@ export const reimbursementService = {
 
         storage.setReimbursements([newClaim, ...list]);
 
-        // Notification 2: Employee submits Reimbursement
         dispatchNotification({
             type: 'Reimbursement',
             targetRole: 'hr',
@@ -257,7 +247,6 @@ export const reimbursementService = {
                 details: `HR approved payable amount ₹${approvedAmount.toLocaleString('en-IN')}; rejected ₹${rejectedAmt.toLocaleString('en-IN')}. Forwarded to Finance for verification.`,
             });
 
-            // Notification 3 / 4: HR approves or partially approves -> To Employee
             dispatchNotification({
                 type: 'Reimbursement',
                 targetRole: 'employee',
@@ -266,7 +255,6 @@ export const reimbursementService = {
                 actionLink: '/hr/reimbursement',
             });
 
-            // Notification 6: Finance receives review request
             dispatchNotification({
                 type: 'Finance',
                 targetRole: 'hr',
@@ -275,7 +263,6 @@ export const reimbursementService = {
                 actionLink: '/finance/claims',
             });
         } else {
-            // HR Rejected
             item.financeStatus = 'None';
             item.settlementStatus = 'None';
             item.queryStatus = 'No Query';
@@ -290,7 +277,6 @@ export const reimbursementService = {
                 details: `Allowance claim rejected by HR. Reason: ${remarks || 'None provided'}`,
             });
 
-            // Notification 5: HR rejects -> To Employee
             dispatchNotification({
                 type: 'Reimbursement',
                 targetRole: 'employee',
@@ -349,7 +335,6 @@ export const reimbursementService = {
 
         storage.setReimbursements([...list]);
 
-        // Notification 9: Finance approves
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
@@ -399,7 +384,6 @@ export const reimbursementService = {
 
         storage.setReimbursements([...list]);
 
-        // Notification 10: Finance rejects
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
@@ -455,7 +439,6 @@ export const reimbursementService = {
 
         storage.setReimbursements([...list]);
 
-        // Notification 7: Finance raises query -> To Employee
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
@@ -508,7 +491,6 @@ export const reimbursementService = {
 
         storage.setReimbursements([...list]);
 
-        // Notification 8: Employee responds -> To Finance
         dispatchNotification({
             type: 'Finance',
             targetRole: 'hr',
@@ -562,27 +544,22 @@ export const reimbursementService = {
             throw new Error(`Reimbursement claim with ID ${id} not found.`);
         }
 
-        // Rule 1: HR Approval Check
         if (item.hrStatus !== 'Approved' && item.hrStatus !== 'Partially Approved') {
             throw new Error(`Settlement Blocked: HR must approve the claim before settlement. Current HR status: ${item.hrStatus || item.status}`);
         }
 
-        // Rule 2: Finance Review Approval Check
         if (item.financeStatus !== 'Approved') {
             throw new Error(`Settlement Blocked: Claim must be verified and approved by Finance first. Current Finance status: ${item.financeStatus}`);
         }
 
-        // Rule 3: Query Outstanding Check
         if (item.queryStatus === 'Query Raised') {
             throw new Error('Settlement Blocked: Cannot settle claim while an active query is outstanding.');
         }
 
-        // Rule 4: Already Settled Check (Idempotency)
         if (item.settlementStatus === 'Settled' || item.status === 'Settled') {
             throw new Error(`Claim ${item.claimId} has already been settled and disbursed.`);
         }
 
-        // Rule 5: Payable amount is STRICTLY HR Approved Amount
         const payableAmount = Number(item.hrApprovedAmount !== undefined ? item.hrApprovedAmount : item.approvedAmount || 0);
         if (payableAmount <= 0) {
             throw new Error('Cannot settle an allowance claim with ₹0 approved payable amount.');
@@ -597,10 +574,7 @@ export const reimbursementService = {
             : 'Finance & Accounts';
         const settlementDate = typeof settlementData === 'object' && settlementData?.settlementDate ? settlementData.settlementDate : today;
 
-        // REQUIREMENT 11: FINANCE WRITE INTEGRITY & FAILURE HANDLING
-        // Post transaction and journal entry FIRST. If either fails, do NOT mark claim as Settled.
         try {
-            // Check idempotency in finance ledger to prevent duplicate entries
             const existingTxns = await financeService.getTransactions();
             const alreadyHasTxn = existingTxns.some(t => t.referenceDoc === item.claimId);
 
@@ -631,12 +605,10 @@ export const reimbursementService = {
                 });
             }
         } catch (finErr) {
-            // If finance write fails, DO NOT mark claim as Settled!
             console.error('Critical Finance synchronization failure during reimbursement settlement:', finErr);
             throw new Error(`Finance ledger write failed: ${finErr.message || 'Unknown error'}. Claim remains pending and was NOT marked settled.`);
         }
 
-        // ONLY AFTER SUCCESSFUL FINANCE TRANSACTION: Mark claim Settled
         item.status = 'Settled';
         item.settlementStatus = 'Settled';
         item.settledAmount = payableAmount;
@@ -660,7 +632,6 @@ export const reimbursementService = {
 
         storage.setReimbursements([...list]);
 
-        // Notification 11: Claim settled -> To Employee
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',

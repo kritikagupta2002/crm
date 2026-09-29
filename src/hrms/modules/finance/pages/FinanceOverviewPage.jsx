@@ -49,7 +49,6 @@ export const FinanceOverviewPage = () => {
             </Button>
           </div>}/>
 
-      {/* 6 High-Impact Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
         <StatCard title="Total Invoices" value={`₹${(metrics.totalInvoicesAmount / 100000).toFixed(1)}L`} caption={`${metrics.totalInvoicesCount} invoices issued`} change="+12.4%" changeType="increase" icon={<FileText className="w-5 h-5 text-teal-700 dark:text-teal-300"/>} iconBgColor="bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300" onClick={() => navigate('/finance/invoices')}/>
 
@@ -64,13 +63,10 @@ export const FinanceOverviewPage = () => {
         <StatCard title="Budget Utilization" value={`${metrics.budgetUtilizationPercent}%`} caption={`₹${(metrics.totalBudgetSpent / 10000000).toFixed(2)}Cr of ₹${(metrics.totalBudget / 10000000).toFixed(2)}Cr`} change="On Track" changeType="increase" icon={<PieChart className="w-5 h-5 text-rose-700 dark:text-rose-300"/>} iconBgColor="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300" onClick={() => navigate('/finance/budget')}/>
       </div>
 
-      {/* Visual Workflow Section (The 9 Stages from Reference) */}
       <FinanceWorkflow />
 
-      {/* Output Section (The 4 Deliverables from Reference) */}
       <FinanceOutputSection />
 
-      {/* Quick Action Modals */}
       <CreateInvoiceModal isOpen={isInvoiceModalOpen} onClose={() => setIsInvoiceModalOpen(false)} onInvoiceCreated={() => loadData()}/>
 
       <RecordTransactionModal isOpen={isTxnModalOpen} onClose={() => setIsTxnModalOpen(false)} onTransactionRecorded={() => loadData()}/>

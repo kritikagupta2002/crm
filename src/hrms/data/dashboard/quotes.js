@@ -217,10 +217,6 @@ export const DAILY_QUOTES = [
         author: 'Bansal Geo Solutions',
     },
 ];
-/**
- * Deterministically returns the daily quote based on the day of the year.
- * Rotates automatically every single day at midnight.
- */
 export function getDailyQuote(date = new Date(), offset = 0) {
     const start = new Date(date.getFullYear(), 0, 0);
     const diff = date.getTime() -

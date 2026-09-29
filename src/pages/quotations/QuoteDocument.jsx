@@ -1,7 +1,6 @@
 import { Logo } from '../../components/common/Logo'
 import { formatDate } from '../../utils/date'
 
-/* The printable quotation. amount() formats rupees — masked for some staff roles, always shown to the client. */
 export function QuoteDocument({ lead, quote, settings, amount }) {
   return (
     <article className="quote-doc print-area">

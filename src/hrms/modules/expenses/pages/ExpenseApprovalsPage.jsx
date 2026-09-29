@@ -26,7 +26,6 @@ export const ExpenseApprovalsPage = () => {
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
 
-    // Review Modal State
     const [selectedExp, setSelectedExp] = useState(null);
     const [approvedAmountInput, setApprovedAmountInput] = useState('');
     const [remarks, setRemarks] = useState('');
@@ -102,7 +101,6 @@ export const ExpenseApprovalsPage = () => {
         }
     };
 
-    // Auto-calculate dynamic status & rejected amount in Review Modal
     const reqAmount = selectedExp ? Number(selectedExp.requestedAmount !== undefined ? selectedExp.requestedAmount : selectedExp.amount || 0) : 0;
     const currentApprovedNum = Number(approvedAmountInput) || 0;
     const calculatedRejected = Math.max(0, reqAmount - currentApprovedNum);
@@ -317,7 +315,6 @@ export const ExpenseApprovalsPage = () => {
                 }
             />
 
-            {/* Filter Controls */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 bg-white dark:bg-[#1A2430] p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
                 <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300 mr-1">
                     <Filter className="w-3.5 h-3.5 text-amber-500"/>
@@ -413,7 +410,6 @@ export const ExpenseApprovalsPage = () => {
                 searchFields={['employeeName', 'expenseNumber', 'project', 'category']}
             />
 
-            {/* Adjudication Modal with Partial Approval & Reconciliation */}
             <Modal 
                 isOpen={isReviewModalOpen} 
                 onClose={() => setIsReviewModalOpen(false)} 
@@ -442,7 +438,6 @@ export const ExpenseApprovalsPage = () => {
                         </div>
                     )}
 
-                    {/* Claim Details Summary */}
                     <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl space-y-1.5">
                         <div className="flex justify-between">
                             <span className="text-slate-500">Claimant:</span>
@@ -477,7 +472,6 @@ export const ExpenseApprovalsPage = () => {
                         </div>
                     </div>
 
-                    {/* Amount Adjudication Card */}
                     <div className="p-3.5 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/30 space-y-3">
                         <div className="flex items-center justify-between">
                             <label className="font-bold text-slate-800 dark:text-slate-200">
@@ -501,7 +495,6 @@ export const ExpenseApprovalsPage = () => {
                             className="font-mono text-base font-bold"
                         />
 
-                        {/* Live Reconciliation Ledger */}
                         <div className="grid grid-cols-3 gap-2 text-center pt-1">
                             <div className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                 <span className="text-[10px] uppercase font-bold text-slate-400 block">Requested</span>
@@ -528,7 +521,6 @@ export const ExpenseApprovalsPage = () => {
                 </div>
             </Modal>
 
-            {/* Photo / Attachment Preview Modal */}
             <AttachmentPreviewModal 
                 isOpen={!!previewAttachment} 
                 onClose={() => setPreviewAttachment(null)} 

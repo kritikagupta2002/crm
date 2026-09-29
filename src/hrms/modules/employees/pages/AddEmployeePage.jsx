@@ -40,9 +40,7 @@ export const AddEmployeePage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
-    // Form State
     const [formData, setFormData] = useState(() => ({
-        // Step 1: Basic Details
         fullName: '',
         avatarUrl: '',
         gender: 'Male',
@@ -55,7 +53,6 @@ export const AddEmployeePage = () => {
         city: 'Jaipur',
         state: 'Rajasthan',
         pincode: '302017',
-        // Step 2: Job Details
         employeeId: getNextEmployeeId(),
         department: 'Geology & Mineral Exploration',
         designation: 'Field Geologist',
@@ -65,13 +62,11 @@ export const AddEmployeePage = () => {
         workLocation: 'Jaipur Corporate HQ',
         status: 'Active',
         project: 'Bhilwara Lead-Zinc Core Drilling',
-        // Step 3: Bank & Payroll
         accountHolderName: '',
         bankName: 'HDFC Bank',
         accountNumber: '',
         ifscCode: 'HDFC0001234',
         baseSalary: '55000',
-        // Step 4: Statutory & Emergency
         panNumber: 'ABCDE1234F',
         uanNumber: '100987654321',
         emergencyName: 'Family Contact',
@@ -79,7 +74,6 @@ export const AddEmployeePage = () => {
         emergencyPhone: '',
         role: 'employee',
     }));
-    // Statutory Age Bounds (18 to 65 years)
     const minDobDate = '1961-01-01'; // 65 yrs max age
     const maxDobDate = useMemo(() => {
         const d = new Date();
@@ -113,7 +107,6 @@ export const AddEmployeePage = () => {
     const validateStep = (step) => {
         const errs = {};
         if (step === 1) {
-            // Full Name Limits
             const name = formData.fullName.trim();
             if (!name) {
                 errs.fullName = 'Full Name is required';
@@ -127,7 +120,6 @@ export const AddEmployeePage = () => {
             else if (!/^[A-Za-z\s.'-]+$/.test(name)) {
                 errs.fullName = 'Full Name can only contain letters, spaces, dots, and hyphens';
             }
-            // Mobile Phone Limits (Exact 10 digits starting with 6-9)
             const phone = formData.phone.trim();
             if (!phone) {
                 errs.phone = 'Mobile Phone is required';
@@ -138,7 +130,6 @@ export const AddEmployeePage = () => {
             else if (!/^[6-9]\d{9}$/.test(phone)) {
                 errs.phone = 'Must be a valid 10-digit Indian mobile starting with 6, 7, 8, or 9';
             }
-            // Work Email Limits
             const workEmail = formData.workEmail.trim();
             if (!workEmail) {
                 errs.workEmail = 'Work Email is required';
@@ -149,7 +140,6 @@ export const AddEmployeePage = () => {
             else if (workEmail.length > 80) {
                 errs.workEmail = 'Email address cannot exceed 80 characters';
             }
-            // Personal Email Limits (Optional)
             const personalEmail = formData.personalEmail.trim();
             if (personalEmail) {
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personalEmail)) {
@@ -159,7 +149,6 @@ export const AddEmployeePage = () => {
                     errs.personalEmail = 'Email address cannot exceed 80 characters';
                 }
             }
-            // Date of Birth & Legal Age Limits (18 to 65 years)
             if (formData.dob) {
                 if (calculatedAge === null || calculatedAge < 18) {
                     errs.dob = `Statutory Age Limit: Candidate must be at least 18 years old (currently ${calculatedAge ?? 0} yrs)`;
@@ -171,13 +160,11 @@ export const AddEmployeePage = () => {
             else {
                 errs.dob = 'Date of birth is required';
             }
-            // City Limit
             if (formData.city && formData.city.length > 40) {
                 errs.city = 'City cannot exceed 40 characters';
             }
         }
         else if (step === 2) {
-            // Employee ID Limits
             const empId = formData.employeeId.trim();
             if (!empId) {
                 errs.employeeId = 'Employee ID is required';
@@ -190,7 +177,6 @@ export const AddEmployeePage = () => {
             }
             if (!formData.department.trim())
                 errs.department = 'Department is required';
-            // Designation Limits
             const desig = formData.designation.trim();
             if (!desig) {
                 errs.designation = 'Designation is required';
@@ -208,7 +194,6 @@ export const AddEmployeePage = () => {
             }
         }
         else if (step === 3) {
-            // Base Salary Limits
             const sal = Number(formData.baseSalary);
             if (isNaN(sal) || sal <= 0) {
                 errs.baseSalary = 'Valid monthly base salary is required';
@@ -219,12 +204,10 @@ export const AddEmployeePage = () => {
             else if (sal > 2500000) {
                 errs.baseSalary = 'Company Limit: Monthly salary cannot exceed ₹25,00,000 / month';
             }
-            // Bank Account Number Limits
             const acc = formData.accountNumber.trim();
             if (acc && !/^\d{9,18}$/.test(acc)) {
                 errs.accountNumber = `Account Number Limit: Must be 9 to 18 digits (currently ${acc.length} digits)`;
             }
-            // IFSC Code Limits
             const ifsc = formData.ifscCode.trim();
             if (ifsc && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
                 errs.ifscCode = 'IFSC Format: Must be exactly 11 characters (e.g. HDFC0001234)';
@@ -237,17 +220,14 @@ export const AddEmployeePage = () => {
             }
         }
         else if (step === 4) {
-            // PAN Number Limits
             const pan = formData.panNumber.trim();
             if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
                 errs.panNumber = 'PAN Format: Must be 10 characters alphanumeric (e.g. ABCDE1234F)';
             }
-            // UAN Number Limits
             const uan = formData.uanNumber.trim();
             if (uan && !/^\d{12}$/.test(uan)) {
                 errs.uanNumber = `UAN Limit: Must be exactly 12 numeric digits (currently ${uan.length}/12)`;
             }
-            // Emergency Phone Limits
             const emerg = formData.emergencyPhone.trim();
             if (emerg) {
                 if (emerg.length !== 10) {
@@ -351,14 +331,12 @@ export const AddEmployeePage = () => {
         }
     };
     return (<div className="max-w-4xl mx-auto space-y-6 pb-12">
-      {/* ── HEADER ── */}
       <PageHeader title="Enroll New Employee" description="Complete the guided 4-step onboarding workflow with statutory data validation and real-time field limits." breadcrumbs={[
             { label: 'HRMS', path: '/hr' },
             { label: 'Employees', path: '/hr/employees' },
             { label: 'New Onboarding' },
         ]}/>
 
-      {/* ── STEPPER PROGRESS BAR ── */}
       <div className="bg-white dark:bg-[#151D24] p-4 sm:p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {STEPS.map((s) => {
@@ -390,10 +368,8 @@ export const AddEmployeePage = () => {
         </div>
       </div>
 
-      {/* ── STEP CONTENT ── */}
       <Card className="p-5 sm:p-7 shadow-xs">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* STEP 1: BASIC DETAILS */}
           {currentStep === 1 && (<div className="space-y-6">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -406,10 +382,8 @@ export const AddEmployeePage = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                {/* Full Name */}
                 <Input label="Full Name" isRequired placeholder="e.g. Rahul Sharma" value={formData.fullName} maxLength={50} onChange={(e) => handleChange('fullName', e.target.value.replace(/[^A-Za-z\s.'-]/g, '').slice(0, 50))} error={errors.fullName}/>
 
-                {/* Mobile Phone */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Mobile Phone <span className="text-rose-500 font-bold">*</span>
@@ -425,20 +399,16 @@ export const AddEmployeePage = () => {
                   {errors.phone && (<span className="text-xs text-rose-600 font-medium block mt-1">{errors.phone}</span>)}
                 </div>
 
-                {/* Work Email */}
                 <Input label="Work Email" isRequired type="email" placeholder="name@bansalgeo.com" value={formData.workEmail} maxLength={80} onChange={(e) => handleChange('workEmail', e.target.value.trim().slice(0, 80))} error={errors.workEmail}/>
 
-                {/* Personal Email */}
                 <Input label="Personal Email (Optional)" type="email" placeholder="name@gmail.com" value={formData.personalEmail} maxLength={80} onChange={(e) => handleChange('personalEmail', e.target.value.trim().slice(0, 80))} error={errors.personalEmail}/>
 
-                {/* Gender */}
                 <Select label="Gender" value={formData.gender} onChange={(e) => handleChange('gender', e.target.value)} options={[
                 { value: 'Male', label: 'Male' },
                 { value: 'Female', label: 'Female' },
                 { value: 'Other', label: 'Other' },
             ]}/>
 
-                {/* Date of Birth */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Date of Birth <span className="text-rose-500 font-bold">*</span>
@@ -447,7 +417,6 @@ export const AddEmployeePage = () => {
                   {errors.dob ? (<span className="text-xs text-rose-600 font-medium block mt-1">{errors.dob}</span>) : calculatedAge !== null ? (<span className="text-[11px] text-slate-400 block mt-1">Age: {calculatedAge} years</span>) : null}
                 </div>
 
-                {/* Blood Group */}
                 <Select label="Blood Group" value={formData.bloodGroup} onChange={(e) => handleChange('bloodGroup', e.target.value)} options={[
                 { value: 'A+', label: 'A+' },
                 { value: 'A-', label: 'A-' },
@@ -459,12 +428,10 @@ export const AddEmployeePage = () => {
                 { value: 'O-', label: 'O-' },
             ]}/>
 
-                {/* Current City */}
                 <Input label="Current City" placeholder="Jaipur" value={formData.city} maxLength={40} onChange={(e) => handleChange('city', e.target.value.slice(0, 40))} error={errors.city}/>
               </div>
             </div>)}
 
-          {/* STEP 2: JOB DETAILS */}
           {currentStep === 2 && (<div className="space-y-6">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -477,10 +444,8 @@ export const AddEmployeePage = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                {/* Employee ID */}
                 <Input label="Employee ID" isRequired placeholder="e.g. BGS-011" value={formData.employeeId} maxLength={15} onChange={(e) => handleChange('employeeId', e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 15))} error={errors.employeeId}/>
 
-                {/* Department */}
                 <Select label="Department" isRequired value={formData.department} onChange={(e) => handleChange('department', e.target.value)} options={[
                 { value: 'Geology & Mineral Exploration', label: 'Geology & Mineral Exploration' },
                 { value: 'Mining & Mine Planning', label: 'Mining & Mine Planning' },
@@ -491,10 +456,8 @@ export const AddEmployeePage = () => {
                 { value: 'Executive Management', label: 'Executive Management' },
             ]} error={errors.department}/>
 
-                {/* Designation */}
                 <Input label="Designation" isRequired placeholder="e.g. Field Geologist" value={formData.designation} maxLength={50} onChange={(e) => handleChange('designation', e.target.value.slice(0, 50))} error={errors.designation}/>
 
-                {/* Joining Date */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Joining Date <span className="text-rose-500 font-bold">*</span>
@@ -503,10 +466,8 @@ export const AddEmployeePage = () => {
                   {errors.joiningDate && (<span className="text-xs text-rose-600 font-medium block mt-1">{errors.joiningDate}</span>)}
                 </div>
 
-                {/* Reporting Manager */}
                 <Input label="Reporting Manager" placeholder="e.g. Dr. Amit Kumar Bansal" value={formData.reportingManager} maxLength={50} onChange={(e) => handleChange('reportingManager', e.target.value.slice(0, 50))} error={errors.reportingManager}/>
 
-                {/* Employment Type */}
                 <Select label="Employment Type" value={formData.employmentType} onChange={(e) => handleChange('employmentType', e.target.value)} options={[
                 { value: 'Full-Time', label: 'Full-Time Regular' },
                 { value: 'Contract', label: 'Contractual' },
@@ -515,7 +476,6 @@ export const AddEmployeePage = () => {
                 { value: 'Intern', label: 'Intern / Trainee' },
             ]}/>
 
-                {/* Work Location */}
                 <Select label="Work Location" value={formData.workLocation} onChange={(e) => handleChange('workLocation', e.target.value)} options={[
                 { value: 'Jaipur Corporate HQ', label: 'Jaipur Corporate HQ' },
                 { value: 'Bhilwara Site Office', label: 'Bhilwara Site Office' },
@@ -523,7 +483,6 @@ export const AddEmployeePage = () => {
                 { value: 'Remote / Field', label: 'Remote / Field Exploration' },
             ]}/>
 
-                {/* Assigned Project / Site Assignment */}
                 <Select label="Assigned Project / Site Assignment" value={formData.project} onChange={(e) => handleChange('project', e.target.value)} options={[
                 { value: 'Bhilwara Lead-Zinc Core Drilling', label: 'Bhilwara Lead-Zinc Core Drilling' },
                 { value: 'Jaipur Ring Road Drone Photogrammetry', label: 'Jaipur Ring Road Drone Photogrammetry' },
@@ -534,7 +493,6 @@ export const AddEmployeePage = () => {
               </div>
             </div>)}
 
-          {/* STEP 3: BANK & PAYROLL */}
           {currentStep === 3 && (<div className="space-y-6">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -547,7 +505,6 @@ export const AddEmployeePage = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                {/* Base Monthly Salary */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
@@ -560,21 +517,16 @@ export const AddEmployeePage = () => {
                   <Input type="number" placeholder="e.g. 55000" value={formData.baseSalary} min={10000} max={2500000} onChange={(e) => handleChange('baseSalary', e.target.value.replace(/\D/g, ''))} error={errors.baseSalary}/>
                 </div>
 
-                {/* Bank Name */}
                 <Input label="Bank Name" placeholder="e.g. HDFC Bank / State Bank of India" value={formData.bankName} maxLength={50} onChange={(e) => handleChange('bankName', e.target.value.slice(0, 50))} error={errors.bankName}/>
 
-                {/* Account Holder Name */}
                 <Input label="Account Holder Name" placeholder={formData.fullName || 'Candidate Name'} value={formData.accountHolderName} maxLength={50} onChange={(e) => handleChange('accountHolderName', e.target.value.slice(0, 50))} error={errors.accountHolderName}/>
 
-                {/* Bank Account Number */}
                 <Input label="Bank Account Number" placeholder="e.g. 50100234567890" value={formData.accountNumber} maxLength={18} inputMode="numeric" onChange={(e) => handleChange('accountNumber', e.target.value.replace(/\D/g, '').slice(0, 18))} error={errors.accountNumber}/>
 
-                {/* IFSC Code */}
                 <Input label="IFSC Code" placeholder="e.g. HDFC0001234" value={formData.ifscCode} maxLength={11} onChange={(e) => handleChange('ifscCode', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 11))} error={errors.ifscCode}/>
               </div>
             </div>)}
 
-          {/* STEP 4: STATUTORY & EMERGENCY */}
           {currentStep === 4 && (<div className="space-y-6">
               <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
                 <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -587,19 +539,14 @@ export const AddEmployeePage = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-                {/* PAN Number */}
                 <Input label="PAN Number" placeholder="e.g. ABCDE1234F" value={formData.panNumber} maxLength={10} onChange={(e) => handleChange('panNumber', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))} error={errors.panNumber}/>
 
-                {/* UAN Number */}
                 <Input label="UAN (EPFO) Number" placeholder="e.g. 100987654321" value={formData.uanNumber} maxLength={12} inputMode="numeric" onChange={(e) => handleChange('uanNumber', e.target.value.replace(/\D/g, '').slice(0, 12))} error={errors.uanNumber}/>
 
-                {/* Emergency Contact Name */}
                 <Input label="Emergency Contact Name" placeholder="e.g. Suresh Kumar" value={formData.emergencyName} maxLength={50} onChange={(e) => handleChange('emergencyName', e.target.value.slice(0, 50))} error={errors.emergencyName}/>
 
-                {/* Emergency Relationship */}
                 <Input label="Emergency Relationship" placeholder="e.g. Father / Spouse / Sibling" value={formData.emergencyRelation} maxLength={40} onChange={(e) => handleChange('emergencyRelation', e.target.value.slice(0, 40))} error={errors.emergencyRelation}/>
 
-                {/* Emergency Phone */}
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Emergency Phone
@@ -615,14 +562,12 @@ export const AddEmployeePage = () => {
                   {errors.emergencyPhone && (<span className="text-xs text-rose-600 font-medium block mt-1">{errors.emergencyPhone}</span>)}
                 </div>
 
-                {/* Portal Access Role */}
                 <Select label="Portal Access Role" value={formData.role} onChange={(e) => handleChange('role', e.target.value)} options={[
                 { value: 'employee', label: 'Standard Staff (Employee Self-Service)' },
                 { value: 'hr', label: 'HR / Admin Access' },
             ]}/>
               </div>
 
-              {/* Onboarding Summary Box */}
               <div className="bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/40 rounded-xl p-4 text-xs space-y-1 text-slate-700 dark:text-slate-300">
                 <div className="font-bold text-[#1F6F78] dark:text-teal-400 mb-1 flex items-center gap-1.5">
                   <FileCheck2 className="w-4 h-4"/> Ready for Automated Cross-Module Enrollment
@@ -640,7 +585,6 @@ export const AddEmployeePage = () => {
               </div>
             </div>)}
 
-          {/* ── FOOTER ACTIONS ── */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div>
               {currentStep > 1 && (<Button type="button" variant="secondary" onClick={handleBack} disabled={isSubmitting} leftIcon={<ArrowLeft className="w-4 h-4"/>}>

@@ -13,11 +13,6 @@ const PERIODS = { 7: 'Last 7 days', 30: 'Last 30 days', all: 'All time' }
 
 const whenOf = (entry) => (entry.at ? `${formatDayMonth(entry.at.slice(0, 10))}, ${formatTime(`${new Date(entry.at).getHours()}:${new Date(entry.at).getMinutes()}`)}` : formatDayMonth(entry.date))
 
-/*
- * Every change, with who made it and when (RBAC requirement: audit logs). Changes made in the app carry the
- * signed-in person and role, or the client / vendor on their portal. The demo's earlier history is shown
- * against the enquiry's owner.
- */
 function buildEntries(leads, activities) {
   const byId = new Map(leads.map((l) => [l.id, l]))
   const logged = activities.map((a) => {
@@ -64,7 +59,6 @@ export function AuditLogPage() {
     (e) => (!who || e.role === who) && (!since || e.sort.slice(0, 10) >= since) && (!q || `${e.who} ${e.text} ${e.lead?.company ?? ''} ${e.lead?.id ?? ''}`.toLowerCase().includes(q)),
   )
   const { rows, pager } = usePaged(entries, 15, `${q}|${who}|${period}`)
-  // Enquiries created in the app are recorded on the enquiry itself, not in the activity log.
   const inApp = activities.filter((a) => a.actor).length + leads.filter((l) => l.createdBy).length
 
   return (

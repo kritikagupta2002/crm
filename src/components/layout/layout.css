@@ -6,7 +6,6 @@
   transition: grid-template-columns 0.2s ease;
 }
 
-/* ---------- Sidebar ---------- */
 .sidebar {
   position: sticky;
   top: 0;
@@ -66,7 +65,6 @@
   color: var(--sidebar-muted);
 }
 
-/* The logo's default colours are for dark backgrounds; the sidebar is light. */
 .sidebar .logo-name {
   color: var(--ink);
 }
@@ -83,7 +81,6 @@
   overflow-y: auto;
 }
 
-/* Still scrolls on short screens, but without a visible scrollbar. */
 .sidebar-nav {
   scrollbar-width: none;
 }
@@ -97,7 +94,6 @@
   flex-direction: column;
 }
 
-/* Module header: opens its menu; one module is open at a time. */
 .sidebar-section {
   display: flex;
   align-items: center;
@@ -127,10 +123,6 @@
   color: var(--teal-700);
 }
 
-/*
- * One line per module name, and the arrow always shows: a long name (Expense & Reimbursement) is set a little
- * tighter to fit, and on a very narrow sidebar it ends in "…" rather than push the arrow out.
- */
 .sidebar-section-label {
   min-width: 0;
   overflow: hidden;
@@ -167,7 +159,6 @@
   gap: 4px;
   min-height: 0;
   overflow: hidden;
-  /* Room for the active item, which reaches out to the sidebar's edge. */
   margin-left: -12px;
   padding: 0 0 0 12px;
 }
@@ -190,8 +181,6 @@
   transition: background 0.15s, color 0.15s;
 }
 
-/* A long label gives way to its badge instead of pushing it out of the sidebar. */
-/* The icon's box: plain in the CRM, a tinted square in the vendor portal. */
 .nav-icon {
   display: inline-flex;
   flex-shrink: 0;
@@ -218,7 +207,6 @@
   color: var(--ink);
 }
 
-/* Active item runs to the sidebar's edge, like a tab pulled out of the panel. */
 .nav-item.is-active {
   margin-left: -12px;
   padding-left: 26px;
@@ -261,10 +249,6 @@
   background: rgba(255, 255, 255, 0.25);
 }
 
-/*
- * Mountain drawing at the foot of the sidebar. It sits behind the menu at its full size so it is never
- * cropped; its top fades out, so on shorter screens the last menu items simply sit over the faded sky.
- */
 .sidebar-brand,
 .sidebar-nav {
   position: relative;
@@ -282,7 +266,6 @@
 .sidebar-mountains {
   display: block;
   width: 100%;
-  /* Full size on most screens; on short ones a little lower so the menu stays clear of the peak. */
   height: clamp(220px, calc((100vh - 520px) * 1.23), 340px);
   animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s backwards;
 }
@@ -308,14 +291,12 @@
   background: var(--gold-500);
 }
 
-/* Shorter screens: a tighter menu so it stays clear of the mountain. */
 @media (max-height: 860px) {
   .nav-item {
     height: 40px;
   }
 }
 
-/* A long open menu reaches the bottom: the mountain and motto fade out rather than sit under the links. */
 .sidebar-footer {
   transition: opacity 0.25s ease;
 }
@@ -324,14 +305,12 @@
   opacity: 0;
 }
 
-/* Very short screens: the menu needs all the room. */
 @media (max-height: 680px) {
   .sidebar-footer {
     display: none;
   }
 }
 
-/* ---------- Main column ---------- */
 .app-main {
   display: flex;
   flex-direction: column;
@@ -347,7 +326,6 @@
   gap: 16px;
   height: var(--chrome-height);
   padding: 0 24px;
-  /* White, so the header, the grey sidebar and the content area read as three separate parts. */
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
@@ -538,13 +516,11 @@
   display: none;
 }
 
-/* ---------- Desktop: menu button collapses sidebar to an icon rail ---------- */
 @media (min-width: 1024px) {
   .app-shell.menu-toggled {
     --sidebar-width: 76px;
   }
 
-  /* The icon rail shows every page; the module headers step aside. */
   .menu-toggled .nav-group-items {
     grid-template-rows: 1fr;
   }
@@ -587,7 +563,6 @@
   }
 }
 
-/* ---------- Tablet / mobile: sidebar becomes a drawer ---------- */
 @media (max-width: 1023px) {
   .app-shell {
     grid-template-columns: minmax(0, 1fr);
@@ -645,37 +620,26 @@
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   ROLE-BASED SIDEBAR COLOURS
-   Concrete values + !important so HRMS :root resets never win.
-   ════════════════════════════════════════════════════════════ */
-
-/* Admin — deep teal */
 .role-app-admin .nav-item.is-active           { background: #3e6b7c !important; box-shadow: 0 2px 10px rgba(62,107,124,0.30) !important; }
 .role-app-admin .nav-item.is-active::before   { background: #7ab2c7 !important; }
 .role-app-admin .nav-item:not(.is-active) svg { color: #4a7c90 !important; }
 
-/* HR — mint-green */
 .role-app-hr .nav-item.is-active           { background: #388e3c !important; box-shadow: 0 2px 10px rgba(56,142,60,0.35) !important; }
 .role-app-hr .nav-item.is-active::before   { background: #e5f5e0 !important; }
 .role-app-hr .nav-item:not(.is-active) svg { color: #4caf50 !important; }
 
-/* Accountant — cyan */
 .role-app-accountant .nav-item.is-active           { background: #0b8fa6 !important; box-shadow: 0 2px 10px rgba(11,143,166,0.30) !important; }
 .role-app-accountant .nav-item.is-active::before   { background: #6ed8e8 !important; }
 .role-app-accountant .nav-item:not(.is-active) svg { color: #12b8d0 !important; }
 
-/* Team Lead — golden-olive */
 .role-app-team-lead .nav-item.is-active           { background: #8c7b12 !important; box-shadow: 0 2px 10px rgba(140,123,18,0.30) !important; }
 .role-app-team-lead .nav-item.is-active::before   { background: #e7e098 !important; }
 .role-app-team-lead .nav-item:not(.is-active) svg { color: #8c7b12 !important; }
 
-/* Employee — hot-pink */
 .role-app-employee .nav-item.is-active           { background: #d61858 !important; box-shadow: 0 2px 10px rgba(214,24,88,0.30) !important; }
 .role-app-employee .nav-item.is-active::before   { background: #f12a6c !important; }
 .role-app-employee .nav-item:not(.is-active) svg { color: #e11d62 !important; }
 
-/* Section label colour when its group has the active page */
 .role-app-hr .sidebar-section.has-active         { color: #388e3c !important; }
 .role-app-accountant .sidebar-section.has-active { color: #0b8fa6 !important; }
 .role-app-team-lead .sidebar-section.has-active  { color: #8c7b12 !important; }

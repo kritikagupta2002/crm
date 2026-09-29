@@ -6,7 +6,6 @@ import { LOST_REASONS, SERVICE_DETAILS, SERVICES } from '../../data/mockData'
 import { FIELD_MEMBERS } from '../../data/staff'
 import { AUTOMATIONS, CHANNELS, automationOf } from '../../utils/automations'
 
-/* What each permission lets a role change, in words (PERMISSIONS in context/crm.js). */
 const CHANGES = {
   sales: 'enquiries & quotations',
   contact: 'notes & follow-ups',
@@ -17,7 +16,6 @@ const CHANGES = {
   documents: 'government documents',
 }
 
-/* Which portal questions each role answers (utils/questions). */
 const QUESTIONS = {
   Employee: 'questions before the win',
   'Team Lead': 'project & document questions',
@@ -35,10 +33,8 @@ function changesOf(role) {
   return list.length ? list.join(', ').replace(/^./, (c) => c.toUpperCase()) : 'Nothing — view only'
 }
 
-/* Staff and the role-based access rules (RBAC): the same ROLE_ACCESS and PERMISSIONS the menu, pages and buttons follow. */
 const ACCESS = [
   ...Object.entries(ROLE_ACCESS).map(([role, a]) => ({ role, sees: a.note, changes: changesOf(role) })),
-  // Outside the team: each signs in to their own portal and sees only their own records.
   { role: 'Client', sees: 'Client portal: their enquiries, quotations, projects, approvals, letters and payments', changes: 'Accept a quotation, pay, upload, ask' },
   { role: 'Vendor', sees: 'Vendor portal: their work orders, deliveries, bills and payments', changes: 'Their deliveries and bills' },
 ]
@@ -92,7 +88,6 @@ function CompanyForm({ settings, onSave }) {
       {field(company, setCompany, 'phone', 'Phone')}
       {field(company, setCompany, 'email', 'Email')}
       {field(company, setCompany, 'gstin', 'GSTIN', { placeholder: 'Shown on quotations when added' })}
-      {/* Where clients pay from the portal (UPI QR and bank transfer). */}
       {field(company, setCompany, 'upiId', 'UPI ID for client payments')}
       {field(company, setCompany, 'accountName', 'Bank account name')}
       {field(company, setCompany, 'accountNo', 'Account number')}
@@ -175,7 +170,6 @@ export function SettingsPage() {
 
         <Section icon={ShieldCheck} title="Team & Access">
           <ul className="team-list">
-            {/* One sign-in per role, and one per member of the field team. */}
             {Object.entries(ROLE_USERS)
               .flatMap(([role, person]) => (role === 'Employee' ? FIELD_MEMBERS.map((m) => [role, m]) : [[role, person]]))
               .map(([role, person]) => (

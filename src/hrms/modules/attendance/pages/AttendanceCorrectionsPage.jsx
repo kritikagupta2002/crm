@@ -26,11 +26,9 @@ export const AttendanceCorrectionsPage = () => {
     const [selectedReq, setSelectedReq] = useState(null);
     const [reviewAction, setReviewAction] = useState('Approved');
     const [reviewComment, setReviewComment] = useState('');
-    // Filters
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
-    // Form states
     const [date, setDate] = useState('2026-09-17');
     const [currentCheckIn, setCurrentCheckIn] = useState('10:15 AM');
     const [currentCheckOut, setCurrentCheckOut] = useState('06:00 PM');
@@ -230,7 +228,6 @@ export const AttendanceCorrectionsPage = () => {
               </Button>)}
           </div>}/>
 
-      {/* Apply Modal */}
       <Modal isOpen={isApplyOpen} onClose={() => setIsApplyOpen(false)} title="Apply for Punch Correction" description="Submit biometric attendance regularization for managerial sign-off." footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsApplyOpen(false)}>
               Cancel
@@ -256,7 +253,6 @@ export const AttendanceCorrectionsPage = () => {
         </div>
       </Modal>
 
-      {/* Review Modal */}
       <Modal isOpen={isReviewOpen} onClose={() => setIsReviewOpen(false)} title={`${reviewAction} Punch Correction`} description={`Sign off on correction request submitted by ${selectedReq?.employeeName}.`} footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsReviewOpen(false)}>
               Cancel

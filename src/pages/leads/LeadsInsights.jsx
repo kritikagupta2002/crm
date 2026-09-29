@@ -22,7 +22,6 @@ function BarList({ rows, total, color }) {
   )
 }
 
-/* Where the (filtered) enquiries come from — both breakdowns follow the page's filters. */
 export function LeadsInsights({ leads }) {
   const sources = countBy(leads, (lead) => lead.source)
   const states = countBy(leads, stateOf, 5)

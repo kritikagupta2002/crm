@@ -32,7 +32,6 @@ function setStored(key, val) {
     }
 }
 export const financeService = {
-    // Invoices
     async getInvoices() {
         return getStored(KEYS.INVOICES, INITIAL_CLIENT_INVOICES);
     },
@@ -45,7 +44,6 @@ export const financeService = {
         };
         const updated = [newInvoice, ...invoices];
         setStored(KEYS.INVOICES, updated);
-        // Also synchronize into Receivables
         const receivables = await this.getReceivables();
         const newReceivable = {
             id: `rec-${Date.now()}`,
@@ -61,7 +59,6 @@ export const financeService = {
             agingBucket: '0-30',
         };
         setStored(KEYS.RECEIVABLES, [newReceivable, ...receivables]);
-        // Also log automatic Accounting Sales Entry
         const entries = await this.getAccountingEntries();
         const autoEntry = {
             id: `entry-${Date.now()}`,
@@ -90,7 +87,6 @@ export const financeService = {
         });
         setStored(KEYS.INVOICES, updated);
     },
-    // Receivables
     async getReceivables() {
         return getStored(KEYS.RECEIVABLES, INITIAL_RECEIVABLES);
     },
@@ -109,9 +105,7 @@ export const financeService = {
         });
         setStored(KEYS.RECEIVABLES, updatedReceivables);
         if (targetRec) {
-            // Sync invoice status
             await this.updateInvoiceStatus(targetRec.invoiceId, targetRec.status, targetRec.receivedAmount);
-            // Create transaction record
             const transactions = await this.getTransactions();
             const newTxn = {
                 id: `txn-${Date.now()}`,
@@ -127,7 +121,6 @@ export const financeService = {
                 remarks,
             };
             setStored(KEYS.TRANSACTIONS, [newTxn, ...transactions]);
-            // Create double entry
             const entries = await this.getAccountingEntries();
             const autoEntry = {
                 id: `entry-${Date.now()}`,
@@ -145,7 +138,6 @@ export const financeService = {
             setStored(KEYS.ENTRIES, [autoEntry, ...entries]);
         }
     },
-    // Vendor Bills
     async getVendorBills() {
         return getStored(KEYS.BILLS, INITIAL_VENDOR_BILLS);
     },
@@ -157,7 +149,6 @@ export const financeService = {
         };
         const updated = [newBill, ...bills];
         setStored(KEYS.BILLS, updated);
-        // Auto accounting purchase entry
         const entries = await this.getAccountingEntries();
         const autoEntry = {
             id: `entry-${Date.now()}`,
@@ -180,7 +171,6 @@ export const financeService = {
         const updated = bills.map((b) => (b.id === id ? { ...b, status } : b));
         setStored(KEYS.BILLS, updated);
     },
-    // Transactions
     async getTransactions() {
         return getStored(KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS);
     },
@@ -193,7 +183,6 @@ export const financeService = {
         setStored(KEYS.TRANSACTIONS, [newTxn, ...txns]);
         return newTxn;
     },
-    // Accounting Entries
     async getAccountingEntries() {
         return getStored(KEYS.ENTRIES, INITIAL_ACCOUNTING_ENTRIES);
     },
@@ -206,7 +195,6 @@ export const financeService = {
         setStored(KEYS.ENTRIES, [newEntry, ...entries]);
         return newEntry;
     },
-    // Tax Records
     async getTaxRecords() {
         return getStored(KEYS.TAX_RECORDS, INITIAL_TAX_RECORDS);
     },
@@ -224,14 +212,12 @@ export const financeService = {
         const updated = records.map((r) => (r.id === id ? { ...r, status } : r));
         setStored(KEYS.TAX_RECORDS, updated);
     },
-    // GST Returns & Transactions
     async getGstReturns() {
         return getStored(KEYS.GST_RETURNS, INITIAL_GST_RETURNS);
     },
     async getGstTransactions() {
         return getStored(KEYS.GST_TRANSACTIONS, INITIAL_GST_TRANSACTIONS);
     },
-    // Budgets
     async getBudgets() {
         return getStored(KEYS.BUDGETS, INITIAL_BUDGET_ITEMS);
     },
@@ -249,7 +235,6 @@ export const financeService = {
         setStored(KEYS.BUDGETS, [newItem, ...budgets]);
         return newItem;
     },
-    // Metrics for Overview Dashboard
     async getOverviewMetrics() {
         const invoices = await this.getInvoices();
         const receivables = await this.getReceivables();

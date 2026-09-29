@@ -153,7 +153,6 @@ export const DailyAttendancePage = () => {
           </div>
         </div>
 
-        {/* Department Filter */}
         <div className="w-full sm:w-48">
           <Select options={[
             { value: 'all', label: 'All Departments' },
@@ -166,7 +165,6 @@ export const DailyAttendancePage = () => {
         ]} value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}/>
         </div>
 
-        {/* Project Filter */}
         <div className="w-full sm:w-52">
           <Select options={[
             { value: 'all', label: 'All Projects / Sites' },
@@ -174,7 +172,6 @@ export const DailyAttendancePage = () => {
         ]} value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)}/>
         </div>
 
-        {/* Status Filter */}
         <div className="w-full sm:w-36">
           <Select options={[
             { value: 'all', label: 'All Statuses' },
@@ -185,7 +182,6 @@ export const DailyAttendancePage = () => {
         ]} value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}/>
         </div>
 
-        {/* Punch Source Filter */}
         <div className="w-full sm:w-44">
           <Select options={[
             { value: 'all', label: 'All Punch Sources' },

@@ -8,7 +8,6 @@ const heading = (text) => ({ text, size: 13, bold: true, gap: 6 })
 const line = (text, gap = 3) => ({ text, size: 10.5, gap })
 const date = (iso) => (iso ? formatDate(iso) : '-')
 
-/* The whole project on paper: team, stages, tasks, field work, submission, approval, closure and history. */
 export function downloadProjectReport(project, { activities, companyName }) {
   const { lead, team } = project
   const logged = activities.filter((a) => a.leadId === lead.id && a.type === 'project' && (a.text.includes(project.id) || a.text.startsWith(project.name))).map((a) => ({ date: a.at.slice(0, 10), sort: a.at, text: a.text }))

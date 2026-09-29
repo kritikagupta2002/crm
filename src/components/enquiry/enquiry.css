@@ -1,10 +1,7 @@
-/* ---------- Drawer shell ---------- */
 .drawer-root {
   position: fixed;
   inset: 0;
   z-index: 60;
-  /* The drawer slides in from off-screen. clip (not hidden) also stops the browser from scrolling this
-     box sideways when a field is focused mid-slide, which left the form shifted off the left edge. */
   overflow: hidden;
   overflow: clip;
 }
@@ -72,7 +69,6 @@
   min-width: 120px;
 }
 
-/* ---------- Form ---------- */
 .form-section {
   margin: 0;
   padding: 12px 0 14px;
@@ -105,7 +101,6 @@
   gap: 12px 16px;
 }
 
-/* The enquiry form drawer is wider and lays fields three a row, so it needs far less scrolling. */
 .enquiry-drawer.is-wide-form {
   width: min(840px, 100vw);
 }
@@ -136,7 +131,6 @@
   grid-column: 1 / -1;
 }
 
-/* One or more services: each row is area + service, with a remove button once there are two. */
 .service-picker {
   grid-column: 1 / -1;
   display: flex;
@@ -249,7 +243,6 @@
   color: var(--ink-3);
 }
 
-/* ---------- Choice chips (radio buttons styled as pills) ---------- */
 .choice-field {
   margin: 0;
   padding: 0;
@@ -282,7 +275,6 @@
   cursor: pointer;
 }
 
-/* The real radio stays inside its chip (and out of sight), so it never widens the form on a phone. */
 .choice-chip input {
   position: absolute;
   inset: 0;
@@ -322,7 +314,6 @@
   outline-offset: 2px;
 }
 
-/* ---------- Toggle switch ---------- */
 .toggle {
   display: inline-flex;
   align-items: center;
@@ -376,7 +367,6 @@
   outline-offset: 2px;
 }
 
-/* ---------- Toast ---------- */
 .toast {
   position: fixed;
   right: 24px;

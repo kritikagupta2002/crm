@@ -1,4 +1,3 @@
-/* High = red, Medium = amber, Low = neutral — same colour code as the rest of the app. */
 const PRIORITY_TONE = { High: 'tone-urgent', Medium: 'tone-attention', Low: 'tone-neutral' }
 
 export function PriorityPill({ priority }) {

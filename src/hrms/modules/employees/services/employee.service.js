@@ -1,7 +1,6 @@
 import { storage } from '@/core/storage/storage';
 export const employeeService = {
     getAll: async () => {
-        // Simulate brief network latency
         return new Promise(resolve => setTimeout(() => resolve(storage.getEmployees()), 100));
     },
     getById: async (id) => {
@@ -16,9 +15,7 @@ export const employeeService = {
         };
         const updated = [newEmployee, ...list];
         storage.setEmployees(updated);
-        // 1. Initialize personal leave balances for this employee
         storage.getBalancesForEmployee(newEmployee.employeeId, newEmployee.name);
-        // 2. Initialize attendance slot for today
         try {
             const today = new Date().toLocaleDateString('en-CA');
             const attendanceList = storage.getAttendance();
@@ -44,7 +41,6 @@ export const employeeService = {
         catch (e) {
             console.error('Error initializing attendance for new employee:', e);
         }
-        // 3. Initialize default salary structure based on onboarding salary
         try {
             const salaryList = storage.getSalaryStructures();
             const existingSal = salaryList.some((s) => s.employeeId === newEmployee.employeeId);
@@ -88,7 +84,6 @@ export const employeeService = {
         catch (e) {
             console.error('Error initializing salary structure:', e);
         }
-        // 4. Initialize onboarding identity & credential documents dossier
         try {
             const docList = storage.getEmployeeDocuments();
             const existingDocs = docList.some((d) => d.employeeId === newEmployee.employeeId);

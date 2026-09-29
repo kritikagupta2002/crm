@@ -40,7 +40,6 @@ function readSeen(vendorId) {
   }
 }
 
-/* When this vendor signed in before the current visit (eProc shows it beside the name). */
 function readPreviousLogin() {
   try {
     return JSON.parse(localStorage.getItem('bansal-crm:vendor-session') || 'null')?.previousLogin ?? null
@@ -49,7 +48,6 @@ function readPreviousLogin() {
   }
 }
 
-/* The vendor's bell: new works to bid on, every decision on its bids and answers to its questions. */
 function VendorBell({ vendorId }) {
   const { tenders, bids, clarifications } = useCrm()
   const { open, setOpen, ref } = usePopover()
@@ -62,7 +60,6 @@ function VendorBell({ vendorId }) {
     try {
       localStorage.setItem(seenKey(vendorId), JSON.stringify([...next]))
     } catch {
-      // Only affects the dot.
     }
   }
 
@@ -112,10 +109,6 @@ function VendorBell({ vendorId }) {
   )
 }
 
-/*
- * The vendor portal's frame, after eProc Rajasthan's bidder screens (account, documents, bid management) in the
- * CRM's own design: the same sidebar, top bar and page layout as the team's app.
- */
 export function VendorLayout() {
   const { vendorId, vendors, tenders, bids, clarifications, savedTenders, leads, projectEdits, signOutVendor, settings } = useCrm()
   const navigate = useNavigate()

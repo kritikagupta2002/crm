@@ -1,26 +1,10 @@
-﻿/*
- * ============================================================
- *  COMPONENTS — CRM Theme
- *  Cards, buttons, pills, tables, forms, progress, checklist.
- *  Requires tokens.css.
- * ============================================================
- */
 
-/* ════════════════════════════════════════════════════════════
-   TONE SYSTEM
-   Apply one of these classes to a parent element to colour
-   every child component that uses --tone / --tone-bg.
-   ════════════════════════════════════════════════════════════ */
 .tone-info      { --tone: var(--blue);  --tone-bg: var(--blue-bg);  }
 .tone-attention { --tone: var(--amber); --tone-bg: var(--amber-bg); }
 .tone-urgent    { --tone: var(--red);   --tone-bg: var(--red-bg);   }
 .tone-good      { --tone: var(--green); --tone-bg: var(--green-bg); }
 .tone-neutral   { --tone: var(--ink-3); --tone-bg: #eef1f3;         }
 
-
-/* ════════════════════════════════════════════════════════════
-   CARD
-   ════════════════════════════════════════════════════════════ */
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -28,7 +12,6 @@
   box-shadow: var(--shadow);
 }
 
-/* Card header row */
 .card-header {
   display: flex;
   align-items: center;
@@ -58,7 +41,6 @@
   color: var(--ink-3);
 }
 
-/* Card grid (auto-fill responsive) */
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -66,10 +48,6 @@
   align-items: start;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   STAT CARDS  (KPI widgets)
-   ════════════════════════════════════════════════════════════ */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -81,7 +59,6 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px 18px;
-  /* Coloured top edge carries the card's tone */
   box-shadow: inset 0 3px 0 var(--tone), var(--shadow);
 }
 
@@ -116,16 +93,11 @@
   line-height: 1.4;
 }
 
-/* Clickable stat card variant */
 .stat-card.is-link {
   color: inherit;
   cursor: pointer;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   BUTTONS
-   ════════════════════════════════════════════════════════════ */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -149,7 +121,6 @@
 .btn:active        { transform: scale(0.97); }
 .btn:disabled      { opacity: 0.5; cursor: default; }
 
-/* Size modifier */
 .btn.btn-small {
   height: 32px;
   padding: 0 12px;
@@ -157,7 +128,6 @@
   gap: 6px;
 }
 
-/* Variants */
 .btn-primary {
   background: var(--teal-700);
   border-color: var(--teal-700);
@@ -206,7 +176,6 @@
   border-color: var(--whatsapp);
 }
 
-/* Link-style button (no border/background) */
 .link-button {
   display: inline-flex;
   align-items: center;
@@ -220,7 +189,6 @@
 }
 .link-button:hover { color: var(--teal-900); }
 
-/* Icon-only button */
 .icon-button {
   position: relative;
   display: grid;
@@ -245,11 +213,6 @@
 }
 .icon-button.small:hover { background: var(--bg); }
 
-
-/* ════════════════════════════════════════════════════════════
-   PILLS / BADGES
-   ════════════════════════════════════════════════════════════ */
-/* Generic pill */
 .pill {
   display: inline-flex;
   align-items: center;
@@ -261,7 +224,6 @@
   white-space: nowrap;
 }
 
-/* Status / quote status / role pill  — inherit tone */
 .status-pill,
 .quote-status,
 .role-pill {
@@ -269,7 +231,6 @@
   color: var(--tone);
 }
 
-/* Priority pill with coloured dot */
 .priority-pill {
   background: var(--tone-bg);
   color: var(--tone);
@@ -281,13 +242,11 @@
   background: var(--tone);
 }
 
-/* Active/success pill */
 .active-pill {
   background: var(--green-bg);
   color: var(--green);
 }
 
-/* Role badge (gold) */
 .role-badge {
   padding: 4px 10px;
   border-radius: 999px;
@@ -298,10 +257,6 @@
   white-space: nowrap;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   SEGMENTED CONTROL
-   ════════════════════════════════════════════════════════════ */
 .segmented {
   display: inline-flex;
   padding: 3px;
@@ -328,10 +283,6 @@
   font-weight: 600;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   PAGE HEADER
-   ════════════════════════════════════════════════════════════ */
 .page-header {
   position: relative;
   display: flex;
@@ -365,10 +316,6 @@
   }
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   DATA TABLE
-   ════════════════════════════════════════════════════════════ */
 .table-wrap {
   position: relative;
   overflow-x: auto;
@@ -408,7 +355,6 @@
 .data-table .nowrap        { white-space: nowrap; }
 .num { text-align: right !important; font-variant-numeric: tabular-nums; }
 
-/* Row action menu */
 .row-menu { position: relative; }
 
 .row-menu-list {
@@ -450,19 +396,11 @@
   color: var(--red);
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   FILTER TABS  (border-bottom tab row on cards)
-   ════════════════════════════════════════════════════════════ */
 .filter-tabs {
   padding: 0;
   border-bottom: 1px solid var(--line);
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   AVATAR
-   ════════════════════════════════════════════════════════════ */
 .avatar {
   width: 30px;
   height: 30px;
@@ -481,10 +419,6 @@
   font-size: 12px;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   PROGRESS BAR + CHECKLIST
-   ════════════════════════════════════════════════════════════ */
 .progress {
   height: 6px;
   border-radius: 999px;
@@ -545,10 +479,6 @@
   transform: scale(1.05);
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   COMING SOON / EMPTY STATE
-   ════════════════════════════════════════════════════════════ */
 .coming-soon {
   padding: 56px 24px;
   display: flex;
@@ -561,7 +491,6 @@
 .coming-soon h1 { font-size: 18px; color: var(--ink); }
 .coming-soon p  { margin: 0 0 10px; }
 
-/* No-access / 403 page */
 .no-access {
   display: flex;
   flex-direction: column;
@@ -576,10 +505,6 @@
   color: var(--ink);
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   DUPLICATE / CHANGE-REQUEST WARNING BOX
-   ════════════════════════════════════════════════════════════ */
 .duplicate-warning {
   display: flex;
   gap: 10px;
@@ -615,10 +540,6 @@
 .change-request strong { color: #8a5a0b; }
 .change-request p { margin: 0; color: var(--ink); }
 
-
-/* ════════════════════════════════════════════════════════════
-   RESET / DANGER BOX
-   ════════════════════════════════════════════════════════════ */
 .reset-box {
   display: flex;
   align-items: center;
@@ -634,10 +555,6 @@
   font-size: 13px;
 }
 
-
-/* ════════════════════════════════════════════════════════════
-   SAVED NOTE CONFIRMATION
-   ════════════════════════════════════════════════════════════ */
 .saved-note {
   display: inline-flex;
   align-items: center;

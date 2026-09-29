@@ -1,5 +1,4 @@
 :root {
-  /* Brand */
   --teal-900: #0e4a52;
   --teal-700: #1f6f78;
   --teal-600: #2a8089;
@@ -12,24 +11,20 @@
   --gold-200: #ecd6ae;
   --gold-100: #f7ebd5;
 
-  /* Neutrals */
   --ink: #0f2a3d;
   --ink-2: #4a5b68;
   --ink-3: #7c8b96;
   --bg: #f4f7f8;
   --surface: #ffffff;
-  /* Sidebar and header share one grey so the app frame reads apart from the lighter content area. */
   --chrome: #e4eaed;
   --chrome-hover: #d8e0e4;
   --chrome-line: #d3dce1;
-  /* Light grey sidebar: a shade darker than the content area, with a line, so it reads as its own panel. */
   --sidebar-bg: #e6ebee;
   --sidebar-hover: rgba(15, 42, 61, 0.06);
   --sidebar-line: #d3dce1;
   --sidebar-text: #34495a;
   --sidebar-muted: #627079;
   --sidebar-icon: var(--teal-600);
-  /* Sidebar mountain drawing: cool greys from the far haze to the dark forest, white snow. */
   --mtn-far: #c9d1d5;
   --mtn-far-2: #b3bdc2;
   --mtn-lit: #a3adb3;
@@ -42,10 +37,8 @@
   --mtn-forest-back: #6f7b82;
   --mtn-forest-mid: #505c63;
   --mtn-forest: #36424a;
-  /* Active menu item: the brand teal, like the primary buttons; the gold edge ties it to the logo. */
   --nav-active: var(--teal-700);
   --nav-active-edge: var(--gold-500);
-  /* Logo navy, for the sign-in brand panel. */
   --navy: #12303e;
   --navy-text: #bccbd2;
   --navy-muted: #7f99a5;
@@ -53,8 +46,6 @@
   --line: #e1e8eb;
   --line-soft: #edf1f3;
 
-  /* Status — one meaning everywhere: blue = new/info, amber = in progress/needs attention,
-     red = overdue/lost, green = won/on track. */
   --blue: #2f6fb3;
   --blue-bg: #e6effa;
   --green: #2e9e6b;
@@ -73,15 +64,6 @@
   --radius-lg: 14px;
   --shadow: 0 1px 2px rgba(15, 42, 61, 0.04), 0 4px 16px rgba(15, 42, 61, 0.04);
 }
-
-/* ════════════════════════════════════════════════════════════
-   ROLE-BASED PALETTE OVERRIDES
-   - Admin:      #3e6b7c (Slate Teal)
-   - HR:         #ed6ad3 (Pink Orchid)
-   - Accountant: #58fd77 (Bright Green)
-   - Team Lead:  #e7e098 (Soft Sand Gold)
-   - Employee:   #f12a6c (Crimson Rose)
-   ════════════════════════════════════════════════════════════ */
 
 .role-app-admin {
   --teal-900: #274753;
@@ -105,7 +87,6 @@
 }
 
 .role-app-hr {
-  /* HR Palette: #e5f5e0 mint-green */
   --teal-900: #1b5e20;   /* deepest green — hover states */
   --teal-800: #2e7d32;   /* dark green */
   --teal-700: #388e3c;   /* primary green — active color */
@@ -127,7 +108,6 @@
 }
 
 .role-app-accountant {
-  /* Accountant Palette: #6ed8e8 cyan */
   --teal-900: #0e5f6b;   /* darkest cyan — hover states */
   --teal-800: #0c7a8a;   /* dark cyan */
   --teal-700: #0b8fa6;   /* primary active */
@@ -190,13 +170,6 @@
   --blue-bg: #fef1f5;
 }
 
-
-/* ──────────────────────────────────────────────────────────
-   SIDEBAR: force role color on nav-item active + icons
-   (using concrete values so HRMS :root resets cannot win)
-   ────────────────────────────────────────────────────────── */
-
-/* Admin — teal */
 .role-app-admin .nav-item.is-active {
   background: #3e6b7c !important;
   box-shadow: 0 2px 8px rgba(62, 107, 124, 0.28);
@@ -205,7 +178,6 @@
 .role-app-admin .sidebar .nav-item.is-active svg           { color: #fff !important; }
 .role-app-admin .sidebar .nav-item:not(.is-active) svg     { color: #4a7c90 !important; }
 
-/* HR — mint-green */
 .role-app-hr .nav-item.is-active {
   background: #388e3c !important;
   box-shadow: 0 2px 8px rgba(56, 142, 60, 0.30);
@@ -214,7 +186,6 @@
 .role-app-hr .sidebar .nav-item.is-active svg      { color: #fff !important; }
 .role-app-hr .sidebar .nav-item:not(.is-active) svg { color: #4caf50 !important; }
 
-/* Accountant — cyan */
 .role-app-accountant .nav-item.is-active {
   background: #0b8fa6 !important;
   box-shadow: 0 2px 8px rgba(11, 143, 166, 0.30);
@@ -223,7 +194,6 @@
 .role-app-accountant .sidebar .nav-item.is-active svg           { color: #fff !important; }
 .role-app-accountant .sidebar .nav-item:not(.is-active) svg     { color: #12b8d0 !important; }
 
-/* Team Lead — golden-olive */
 .role-app-team-lead .nav-item.is-active {
   background: #8c7b12 !important;
   box-shadow: 0 2px 8px rgba(140, 123, 18, 0.28);
@@ -232,7 +202,6 @@
 .role-app-team-lead .sidebar .nav-item.is-active svg           { color: #fff !important; }
 .role-app-team-lead .sidebar .nav-item:not(.is-active) svg     { color: #8c7b12 !important; }
 
-/* Employee — hot-pink */
 .role-app-employee .nav-item.is-active {
   background: #d61858 !important;
   box-shadow: 0 2px 8px rgba(214, 24, 88, 0.28);
@@ -241,15 +210,12 @@
 .role-app-employee .sidebar .nav-item.is-active svg           { color: #fff !important; }
 .role-app-employee .sidebar .nav-item:not(.is-active) svg     { color: #e11d62 !important; }
 
-
-/* Tone Info scoped by active role — drives stat cards, pills, progress bars and icons */
 .role-app-admin .tone-info      { --tone: #3e6b7c; --tone-bg: #edf4f7; }
 .role-app-hr .tone-info         { --tone: #388e3c; --tone-bg: #e5f5e0; }
 .role-app-accountant .tone-info { --tone: #0b8fa6; --tone-bg: #edfbfd; }
 .role-app-team-lead .tone-info  { --tone: #8c7b12; --tone-bg: #fdfceb; }
 .role-app-employee .tone-info   { --tone: #d61858; --tone-bg: #fef1f5; }
 
-/* Role-based primary buttons, interactive controls, tabs and highlights */
 [class*='role-app-'] .btn-primary,
 [class*='role-app-'] .crm-btn-primary {
   background: var(--teal-700) !important;
@@ -312,7 +278,6 @@
   accent-color: var(--teal-700) !important;
 }
 
-/* Ensure Tailwind and HRMS utility classes adapt to active role colors */
 [class*='role-app-'] .bg-teal-600,
 [class*='role-app-'] .bg-teal-700 {
   background-color: var(--teal-600) !important;
@@ -382,7 +347,6 @@ textarea::placeholder {
   opacity: 1;
 }
 
-/* Monospace fonts for code, metrics, voucher IDs, and hashes */
 code,
 kbd,
 samp,
@@ -393,7 +357,6 @@ pre,
   font-family: var(--font-mono) !important;
 }
 
-/* Signature Fraunces serif typography across all CRM workspaces and roles */
 .font-serif,
 .font-heading,
 .font-fraunces,
@@ -427,7 +390,6 @@ a {
   outline-offset: 2px;
 }
 
-/* Shared building blocks */
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -516,7 +478,6 @@ a {
   --tone-bg: #eef1f3;
 }
 
-/* Priority pill: coloured dot + tinted background from the tone class. */
 .priority-pill {
   background: var(--tone-bg);
   color: var(--tone);
@@ -529,7 +490,6 @@ a {
   background: var(--tone);
 }
 
-/* ---------- Text helpers ---------- */
 .text-ink {
   color: var(--ink);
 }
@@ -555,7 +515,6 @@ a {
   color: var(--red);
 }
 
-/* ---------- Data tables ---------- */
 .table-wrap {
   position: relative; /* contains the absolutely-positioned sr-only header label */
   overflow-x: auto;
@@ -569,12 +528,10 @@ a {
   min-width: 660px;
 }
 
-/* Wide tables keep readable columns on a phone and scroll sideways instead of squeezing. */
 .data-table:has(th:nth-child(7)) {
   min-width: 780px;
 }
 
-/* IDs (BG-2026-038, SC-26-041-1) never break across lines. */
 .data-table .mono-sub {
   white-space: nowrap;
 }
@@ -637,7 +594,6 @@ a {
   color: var(--ink-3);
 }
 
-/* ---------- Row action menu ---------- */
 .icon-button.small {
   width: 30px;
   height: 30px;
@@ -702,7 +658,6 @@ a {
   color: var(--red);
 }
 
-/* ---------- Stat cards ---------- */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -714,7 +669,6 @@ a {
   flex-direction: column;
   gap: 6px;
   padding: 14px 16px;
-  /* Coloured top edge carries the card's tone. */
   box-shadow: inset 0 3px 0 var(--tone), var(--shadow);
 }
 
@@ -759,7 +713,6 @@ a {
   line-height: 1.4;
 }
 
-/* Small phones: two cards a row leave no room beside the icon, so the label goes under it. */
 @media (max-width: 380px) {
   .stat-top {
     flex-direction: column;
@@ -777,7 +730,6 @@ a {
   }
 }
 
-/* ---------- Page header (shared by all pages) ---------- */
 .page-header {
   position: relative;
   display: flex;
@@ -816,7 +768,6 @@ a {
   gap: 12px;
 }
 
-/* Titles and meta lines may shrink and wrap instead of being clipped by the header. */
 .page-title {
   min-width: 0;
 }
@@ -908,7 +859,6 @@ a {
   color: var(--ink-3);
 }
 
-/* Tone classes set --tone / --tone-bg for any component that follows the colour code. */
 .tone-info {
   --tone: var(--blue);
   --tone-bg: var(--blue-bg);
@@ -962,7 +912,6 @@ a {
     justify-content: space-between;
   }
 
-  /* Header buttons share the row evenly instead of sitting at odd widths. */
   .page-actions > .btn {
     flex: 1 1 auto;
   }
@@ -977,7 +926,6 @@ a {
   white-space: nowrap;
 }
 
-/* ---------- Motion ---------- */
 @keyframes rise {
   from {
     opacity: 0;
@@ -997,14 +945,10 @@ a {
   }
 }
 
-/* Each page slides in gently when the route changes (AppLayout keys it by path). */
 .page-anim {
-  /* "backwards", not "both": a finished transform animation would keep making this element
-     the containing block for any position: fixed child (drawers, dialogs, menus). */
   animation: rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
-/* Cards in a page rise one after another. */
 .page-anim .card {
   animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
@@ -1056,7 +1000,6 @@ a {
   transform: scale(0.97);
 }
 
-/* ---------- Progress + checklist (approval, onboarding) ---------- */
 .progress {
   height: 6px;
   border-radius: 999px;
@@ -1134,10 +1077,6 @@ a {
   }
 }
 
-/*
- * Touch screens (phones, tablets): every control gets a finger-sized target, and form text is 16px so the
- * phone doesn't zoom in when a field is tapped. With a mouse the layout stays as it is.
- */
 @media (pointer: coarse) {
   .btn {
     height: 40px;

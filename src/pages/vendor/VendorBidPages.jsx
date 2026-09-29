@@ -34,7 +34,6 @@ function SaveButton({ vendorId, tenderId }) {
 
 const BLANK_SEARCH = { id: '', keyword: '', contractForm: '', tenderCategory: '', category: '', location: '' }
 
-/* Search Active Tenders: every work open for bids, with eProc's search fields. */
 export function VendorSearchTendersPage() {
   const { vendor } = useOutletContext()
   const { tenders, bids, settings } = useCrm()
@@ -196,7 +195,6 @@ export function VendorSearchTendersPage() {
   )
 }
 
-/* My Tenders: works the firm saved to come back to, open or not. */
 export function VendorMyTendersPage() {
   const { vendor } = useOutletContext()
   const { tenders, bids, savedTenders } = useCrm()
@@ -257,7 +255,6 @@ export function VendorMyTendersPage() {
   )
 }
 
-/* My Active Bids: bids still in the running. A sealed bid can be withdrawn until bidding closes. */
 export function VendorActiveBidsPage() {
   const { vendor } = useOutletContext()
   const { tenders, bids, withdrawBid } = useCrm()
@@ -350,7 +347,6 @@ export function VendorActiveBidsPage() {
   )
 }
 
-/* Clarification: the firm's questions on tenders and our answers; a new question on any open tender. */
 export function VendorClarificationsPage() {
   const { vendor } = useOutletContext()
   const { tenders, clarifications, askClarification } = useCrm()
@@ -439,7 +435,6 @@ export function VendorClarificationsPage() {
   )
 }
 
-/* Tender Status: every tender the firm bid on and its stage, as in eProc. */
 export function VendorTenderStatusPage() {
   const { vendor } = useOutletContext()
   const { tenders, bids, settings } = useCrm()
@@ -511,7 +506,6 @@ export function VendorTenderStatusPage() {
   )
 }
 
-/* My Bids History: every bid and how it ended; My Withdrawn Bids: the ones the firm took back. */
 export function VendorBidsHistoryPage({ withdrawn = false }) {
   const { vendor } = useOutletContext()
   const { tenders, bids } = useCrm()

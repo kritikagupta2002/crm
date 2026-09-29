@@ -7,10 +7,6 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import './hrms.css';
 import './hrms-overrides.css';
 
-/*
- * Every HRMS and Finance page renders inside the CRM's layout (sidebar, top bar, sign-in) through this shell. The
- * .hrms wrapper is what the module's stylesheet is scoped to, so its styles never reach the CRM's own pages.
- */
 const Loading = () => <p className="muted" style={{ padding: 24 }}>Loading…</p>;
 
 export default function HrmsShell() {

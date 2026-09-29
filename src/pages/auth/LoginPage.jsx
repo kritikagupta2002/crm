@@ -13,7 +13,6 @@ import './auth.css'
 
 const digits = (value) => value.replace(/\D/g, '').slice(-10)
 
-/* What the brand panel says to each kind of visitor. */
 const BRAND_COPY = {
   team: ['Enquiries to active clients, tracked in one place.', 'Mineral exploration, mine planning, environment & permitting, hydrogeology and GIS mapping.'],
   client: ['Your project, approvals and government letters in one place.', 'Follow the work stage by stage, download official letters and documents, and review quotations.'],
@@ -25,7 +24,6 @@ function TeamForm({ onDone }) {
   const [email, setEmail] = useState('kritika.gupta@bansalgeo.com')
   const [password, setPassword] = useState('demo1234')
   const [signInAs, setSignInAs] = useState(role)
-  // The field team signs in person by person: each sees only their own tasks.
   const [member, setMember] = useState(fieldMember)
 
   return (
@@ -82,7 +80,6 @@ function ClientForm({ onDone }) {
   const [mobile, setMobile] = useState('')
   const [error, setError] = useState('')
 
-  // Demo clients at different points: a won client with projects, and one with a quotation to decide on.
   const demos = [
     {
       lead: leads.find((l) => l.stage === 'Won' && baseProjects(l).length > 1 && progressOf(ONBOARDING_STEPS, l.onboarding) === ONBOARDING_STEPS.length),
@@ -149,8 +146,6 @@ function VendorForm({ onDone }) {
   const [mobile, setMobile] = useState('')
   const [error, setError] = useState('')
 
-  // Demo vendors, one per stage of an order (up to three firms). The seeded orders move on with the date, so
-  // whichever stages exist today are offered: there is always something to show.
   const orders = allProjects(leads, projectEdits).flatMap((p) => p.workOrders)
   const demos = [
     ['Issued', 'work to start'],
@@ -222,10 +217,6 @@ const TABS = [
   { key: 'vendor', label: 'Vendor', icon: HardHat },
 ]
 
-/*
- * Entry screen for the team, clients and vendors. Each has its own sign-in, so the team can keep the CRM
- * open while previewing a portal. Opening /login while signed in goes straight on, unless a tab was asked for.
- */
 export function LoginPage() {
   const { teamSignedIn, clientLeadId, vendorId } = useCrm()
   const { state } = useLocation()
@@ -236,7 +227,6 @@ export function LoginPage() {
     document.title = 'Sign in · Bansal Geo CRM'
   }, [])
 
-  // Sent here from a CRM page: that page once the team is signed in. Opened directly: straight to whichever side is signed in.
   if (state?.from) {
     if (teamSignedIn) return <Navigate to={state.from} replace />
   } else if (!state?.tab) {

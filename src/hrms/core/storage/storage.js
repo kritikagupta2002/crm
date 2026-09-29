@@ -64,7 +64,6 @@ export const storage = {
     getLeaveSettings: () => getItem(STORAGE_KEYS.LEAVE_SETTINGS, INITIAL_LEAVE_SETTINGS),
     setLeaveSettings: (val) => {
         setItem(STORAGE_KEYS.LEAVE_SETTINGS, val);
-        // Keep leave types in sync with newly saved settings
         try {
             const types = getItem(STORAGE_KEYS.LEAVE_TYPES, INITIAL_LEAVE_TYPES);
             const updatedTypes = types.map((t) => {
@@ -83,7 +82,6 @@ export const storage = {
             setItem(STORAGE_KEYS.LEAVE_TYPES, updatedTypes);
         }
         catch {
-            // fallback
         }
     },
     getBalancesForEmployee: (employeeId, employeeName) => {
@@ -99,11 +97,9 @@ export const storage = {
         ];
         const empRequests = requests.filter((r) => r.employeeId === employeeId);
         const balances = quotas.map((q) => {
-            // Approved used days: from Approved or Partially Approved requests
             const used = empRequests
                 .filter((r) => (r.status === 'Approved' || r.status === 'Partially Approved') && r.leaveType === q.leaveType)
                 .reduce((sum, r) => sum + (Number(r.approvedDays ?? r.days) || 0), 0);
-            // Pending committed days: from Pending requests
             const pending = empRequests
                 .filter((r) => r.status === 'Pending' && r.leaveType === q.leaveType)
                 .reduce((sum, r) => sum + (Number(r.requestedDays ?? r.days) || 0), 0);
@@ -156,7 +152,6 @@ export const storage = {
                     return { ...r, requestedDays: total, approvedDays: 0, rejectedDays: total, days: total };
                 }
                 else {
-                    // Pending
                     return { ...r, requestedDays: total, approvedDays: 0, rejectedDays: 0, days: total };
                 }
             }
@@ -365,7 +360,6 @@ export const storage = {
                     itemChanged = true;
                 }
             } else {
-                // Pending
                 if (copy.approvedAmount === undefined) {
                     copy.approvedAmount = 0;
                     itemChanged = true;
@@ -376,7 +370,6 @@ export const storage = {
                 }
             }
 
-            // Canonical Multi-Stage Lifecycle Fields
             if (!copy.hrStatus) {
                 if (copy.status === 'Settled' || copy.status === 'Paid') {
                     copy.hrStatus = copy.approvedAmount < req ? 'Partially Approved' : 'Approved';
@@ -470,7 +463,6 @@ export const storage = {
                 itemChanged = true;
             }
 
-            // Lifecycle Audit History
             if (!Array.isArray(copy.auditHistory) || copy.auditHistory.length === 0) {
                 const history = [
                     {
@@ -590,7 +582,6 @@ export const storage = {
                     itemChanged = true;
                 }
             } else {
-                // Pending
                 if (copy.approvedAmount === undefined) {
                     copy.approvedAmount = 0;
                     itemChanged = true;
@@ -601,13 +592,11 @@ export const storage = {
                 }
             }
 
-            // Ensure Project Traceability for Reimbursements
             if (!copy.project) {
                 copy.project = getProjectFallback(copy.employeeId);
                 itemChanged = true;
             }
 
-            // Canonical Multi-Stage Lifecycle Fields
             if (!copy.hrStatus) {
                 if (copy.status === 'Settled' || copy.status === 'Paid') {
                     copy.hrStatus = copy.approvedAmount < claim ? 'Partially Approved' : 'Approved';
@@ -701,7 +690,6 @@ export const storage = {
                 itemChanged = true;
             }
 
-            // Lifecycle Audit History
             if (!Array.isArray(copy.auditHistory) || copy.auditHistory.length === 0) {
                 const history = [
                     {
@@ -779,7 +767,6 @@ export const storage = {
         designation: 'Head - HR & Administration',
     }),
     setActiveUser: (val) => setItem(STORAGE_KEYS.ACTIVE_USER, val),
-    // Only the HRMS's own saved data: the CRM keeps its demo data in the same browser.
     resetAll: () => {
         Object.keys(localStorage).filter((k) => k.startsWith('bgspl_') || k.startsWith('hrms_')).forEach((k) => localStorage.removeItem(k));
         window.location.reload();

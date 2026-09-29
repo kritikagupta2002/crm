@@ -66,7 +66,6 @@ export const EmployeeListPage = () => {
         document.body.removeChild(link);
         toast.success('Employee directory exported to CSV.', 'Export Complete');
     };
-    // Filtered employees
     const filteredEmployees = employees.filter((emp) => {
         if (selectedDept !== 'all' && emp.employment.department !== selectedDept)
             return false;
@@ -80,7 +79,6 @@ export const EmployeeListPage = () => {
             return false;
         return true;
     });
-    // Summary Metrics
     const totalEmployees = employees.length;
     const activeEmployees = employees.filter((e) => e.employment.status === 'Active').length;
     const onLeaveEmployees = employees.filter((e) => e.employment.status === 'On Leave').length;
@@ -241,7 +239,6 @@ export const EmployeeListPage = () => {
             </Button>
           </div>}/>
 
-      {/* 4 Summary Metric Stat Cards */}
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <StatCard title="Total Workforce" value={totalEmployees} icon={<Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#D5860B]"/>} iconBgColor="bg-amber-50 dark:bg-amber-950/50 text-[#D5860B] border border-amber-200/60 dark:border-amber-800/60" change="+2 this quarter" changeType="increase" caption="Corporate & Site"/>
         <StatCard title="Active on Duty" value={activeEmployees} icon={<UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600"/>} iconBgColor="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 border border-emerald-200/60 dark:border-emerald-800/60" change={`${totalEmployees ? Math.round((activeEmployees / totalEmployees) * 100) : 0}% deployed`} changeType="increase" caption="Jaipur, Bhilwara, Udaipur"/>
@@ -249,7 +246,6 @@ export const EmployeeListPage = () => {
         <StatCard title="Specialized Units" value={totalDepartments} icon={<Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"/>} iconBgColor="bg-blue-50 dark:bg-blue-950/50 text-blue-600 border border-blue-200/60 dark:border-blue-800/60" change="6 Active Depts" changeType="neutral" caption="Mining & Mineral Division"/>
       </div>
 
-      {/* Directory Table with Filters */}
       <DataTable compact={true} columns={columns} data={filteredEmployees} keyField="id" searchPlaceholder="Search by name, employee ID, role..." searchFields={['name', 'employeeId']} onRowClick={(emp) => navigate(`/hr/employees/${emp.id}`)} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full sm:w-auto flex-1 sm:flex-initial min-w-full xs:min-w-[150px]">
               <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[
@@ -308,7 +304,6 @@ export const EmployeeListPage = () => {
               </Button>)}
           </div>}/>
 
-      {/* Confirmation Dialog for Delete */}
       <ConfirmationDialog isOpen={!!employeeToDelete} onClose={() => setEmployeeToDelete(null)} onConfirm={handleDelete} title="Delete Employee Record" message={`Are you sure you want to remove ${employeeToDelete?.name} (${employeeToDelete?.employeeId}) from the directory? This action cannot be undone.`} confirmText="Yes, Delete Record" variant="danger"/>
     </div>);
 };

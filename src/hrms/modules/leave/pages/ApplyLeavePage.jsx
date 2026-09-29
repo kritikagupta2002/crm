@@ -53,7 +53,6 @@ export const ApplyLeavePage = () => {
     const companyHolidays = useMemo(() => {
         return storage.getLeaveSettings()?.companyHolidays || [];
     }, []);
-    // Load live balances and existing applications for validation and limit checks
     useEffect(() => {
         const fetchMetadata = async () => {
             try {
@@ -89,7 +88,6 @@ export const ApplyLeavePage = () => {
     const watchedStartDate = watch('startDate');
     const watchedEndDate = watch('endDate');
     const watchedReason = watch('reason') || '';
-    // Current balance for selected category
     const activeBalance = useMemo(() => {
         return balances.find((b) => b.leaveType === watchedLeaveType) || {
             leaveType: watchedLeaveType,
@@ -100,53 +98,44 @@ export const ApplyLeavePage = () => {
             color: '#3B82F6',
         };
     }, [balances, watchedLeaveType]);
-    // Pending days for the selected leave category (committed by existing pending applications)
     const pendingDays = useMemo(() => {
         return existingRequests
             .filter((r) => r.status === 'Pending' && r.leaveType === watchedLeaveType)
             .reduce((sum, r) => sum + (Number(r.requestedDays || r.days) || 0), 0);
     }, [existingRequests, watchedLeaveType]);
-    // Truly available quota that can be applied for right now
     const availableToApply = useMemo(() => {
         return Math.max(0, activeBalance.totalAllocated - activeBalance.used - pendingDays);
     }, [activeBalance.totalAllocated, activeBalance.used, pendingDays]);
-    // Compute number of working days excluding Saturday, Sunday, and configured holidays
     const calculatedDays = useMemo(() => {
         if (!watchedStartDate || !watchedEndDate)
             return 0;
         return countWorkingDays(watchedStartDate, watchedEndDate, companyHolidays);
     }, [watchedStartDate, watchedEndDate, companyHolidays]);
-    // Get list of non-working days (weekends + holidays) in the selected range
     const skippedDates = useMemo(() => {
         if (!watchedStartDate || !watchedEndDate)
             return [];
         return getNonWorkingDates(watchedStartDate, watchedEndDate, companyHolidays);
     }, [watchedStartDate, watchedEndDate, companyHolidays]);
-    // Projected remaining balance after this application (from unreserved quota)
     const projectedRemaining = useMemo(() => {
         if (calculatedDays <= 0)
             return availableToApply;
         return availableToApply - calculatedDays;
     }, [availableToApply, calculatedDays]);
-    // Specific policy & limit validation rules
     const isInvertedDate = calculatedDays === -1;
     const isOverQuota = calculatedDays > 0 && calculatedDays > availableToApply;
     const isClLimitExceeded = watchedLeaveType === 'Casual Leave (CL)' && calculatedDays > 3;
     const isMaxDurationExceeded = watchedLeaveType !== 'Maternity / Paternity Leave' && calculatedDays > 30;
-    // Overlap verification with existing pending/approved requests
     const overlappingRequest = useMemo(() => {
         if (calculatedDays <= 0)
             return null;
         return checkDateConflict(existingRequests, empId, watchedStartDate, watchedEndDate);
     }, [watchedStartDate, watchedEndDate, calculatedDays, existingRequests, empId]);
-    // 1-Click resolution: automatically adjusts dates to avoid overlapping with existing leave
     const handleAutoAdjustDates = () => {
         if (!overlappingRequest)
             return;
         const reqStart = new Date(overlappingRequest.startDate);
         const start = new Date(watchedStartDate);
         if (start < reqStart) {
-            // User's start is before the conflicting leave: set end date to the day before
             const dayBefore = new Date(reqStart);
             dayBefore.setDate(dayBefore.getDate() - 1);
             const formatted = dayBefore.toLocaleDateString('en-CA');
@@ -154,7 +143,6 @@ export const ApplyLeavePage = () => {
             toast.info(`Adjusted End Date to ${formatted} to avoid overlap.`, 'Dates Updated');
         }
         else {
-            // User's start overlaps inside: set start date to day after conflicting leave
             const reqEnd = new Date(overlappingRequest.endDate);
             const dayAfter = new Date(reqEnd);
             dayAfter.setDate(dayAfter.getDate() + 1);
@@ -163,14 +151,12 @@ export const ApplyLeavePage = () => {
             toast.info(`Adjusted Start Date to ${formatted} to avoid overlap.`, 'Dates Updated');
         }
     };
-    // 1-Click resolution: withdraws conflicting previous leave directly
     const handleWithdrawConflicting = async () => {
         if (!overlappingRequest)
             return;
         try {
             await leaveService.cancelLeave(overlappingRequest.id);
             toast.success(`Conflicting application (${overlappingRequest.leaveType}: ${overlappingRequest.startDate} to ${overlappingRequest.endDate}) has been withdrawn.`, 'Application Withdrawn');
-            // Refresh metadata
             const [userBals, allReqs] = await Promise.all([
                 leaveService.getBalances(empId),
                 leaveService.getRequests(),
@@ -182,7 +168,6 @@ export const ApplyLeavePage = () => {
             toast.error('Failed to withdraw conflicting leave request.', 'Error');
         }
     };
-    // Master blocking rule
     const isBlockedByValidation = isInvertedDate ||
         isOverQuota ||
         isClLimitExceeded ||
@@ -216,7 +201,6 @@ export const ApplyLeavePage = () => {
             toast.error(err.message || 'Failed to submit application. Please check input parameters.', 'Error');
         }
     };
-    // Options for all 6 leave types with real availability
     const leaveTypeOptions = [
         'Casual Leave (CL)',
         'Sick Leave (SL)',
@@ -248,7 +232,6 @@ export const ApplyLeavePage = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <Card className="p-5 sm:p-6 space-y-5">
-          {/* Employee Demographic Header */}
           <div className="flex flex-wrap items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 gap-2">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
@@ -268,12 +251,10 @@ export const ApplyLeavePage = () => {
             </span>
           </div>
 
-          {/* 1. Leave Type Selector with Live Quota */}
           <div>
             <Select label="Leave Type Category" isRequired {...register('leaveType')} options={leaveTypeOptions} error={errors.leaveType?.message}/>
           </div>
 
-          {/* 2. Real-Time Quota Ledger Card */}
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
@@ -326,13 +307,11 @@ export const ApplyLeavePage = () => {
             </div>
           </div>
 
-          {/* 3. Date Selection & Calculated Duration */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <DatePicker label="Start Date" isRequired {...register('startDate')} error={errors.startDate?.message}/>
             <DatePicker label="End Date" isRequired {...register('endDate')} error={errors.endDate?.message}/>
           </div>
 
-          {/* 4. Calculated Duration Banner (Working Days) */}
           <div className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2 transition-colors ${isInvertedDate || calculatedDays === 0
             ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300'
             : 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/60'}`}>
@@ -364,8 +343,6 @@ export const ApplyLeavePage = () => {
             </div>
           </div>
 
-          {/* ── 5. Specific Validation & Limit Warnings ──────────────────── */}
-          {/* Over Quota Limit Alert */}
           {isOverQuota && (<div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60 text-xs text-rose-800 dark:text-rose-200 flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5"/>
               <div>
@@ -376,7 +353,6 @@ export const ApplyLeavePage = () => {
               </div>
             </div>)}
 
-          {/* Casual Leave 3-Day Limit Alert */}
           {isClLimitExceeded && (<div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
               <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"/>
               <div>
@@ -387,7 +363,6 @@ export const ApplyLeavePage = () => {
               </div>
             </div>)}
 
-          {/* Sick Leave > 2 Days Medical Proof Requirement */}
           {watchedLeaveType === 'Sick Leave (SL)' && calculatedDays > 2 && (<div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-xs text-blue-800 dark:text-blue-200 flex items-start gap-2.5">
               <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"/>
               <div>
@@ -397,7 +372,6 @@ export const ApplyLeavePage = () => {
               </div>
             </div>)}
 
-          {/* Maximum Duration Warning */}
           {isMaxDurationExceeded && (<div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60 text-xs text-rose-800 dark:text-rose-200 flex items-start gap-2.5">
               <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5"/>
               <div>
@@ -407,7 +381,6 @@ export const ApplyLeavePage = () => {
               </div>
             </div>)}
 
-          {/* Overlapping Request Conflict Alert with 1-Click Resolution */}
           {overlappingRequest && (<div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-xs space-y-3">
               <div className="flex items-start gap-2.5 text-amber-900 dark:text-amber-100">
                 <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"/>
@@ -430,7 +403,6 @@ export const ApplyLeavePage = () => {
               </div>
             </div>)}
 
-          {/* 6. Reason for Leave */}
           <div>
             <Textarea label="Reason / Purpose of Absence" isRequired placeholder="State clear official or personal justification for leave application..." rows={3} {...register('reason')} error={errors.reason?.message}/>
             <div className="flex justify-between items-center text-[11px] text-slate-400 mt-1">
@@ -441,12 +413,10 @@ export const ApplyLeavePage = () => {
             </div>
           </div>
 
-          {/* 7. Emergency Contact Details */}
           <div>
             <Input label="Emergency Contact Phone" isRequired placeholder="+91 98876 95208" {...register('contactDuringLeave')} error={errors.contactDuringLeave?.message} helperText="Reachability number for project coordination during absence (10-digit Indian mobile)"/>
           </div>
 
-          {/* 8. Submission and Action Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-blue-500"/>

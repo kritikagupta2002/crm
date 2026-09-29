@@ -8,7 +8,6 @@ import { quoteFor } from '../../utils/workflow'
 
 const LIMIT = 5
 
-/* Searches enquiries, clients, quotations and projects; arrow keys + Enter to pick, "/" anywhere to focus. */
 export function GlobalSearch() {
   const { leads, projectEdits } = useCrm()
   const navigate = useNavigate()

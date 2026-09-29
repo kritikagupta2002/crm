@@ -30,7 +30,6 @@ export const ExpenseListPage = () => {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [previewAttachment, setPreviewAttachment] = useState(null);
 
-    // Employee Query Response State
     const [isQueryResponseModalOpen, setIsQueryResponseModalOpen] = useState(false);
     const [selectedClaimForQuery, setSelectedClaimForQuery] = useState(null);
     const [queryResponseInput, setQueryResponseInput] = useState('');
@@ -46,7 +45,6 @@ export const ExpenseListPage = () => {
                 setExpenses([]);
                 return;
             }
-            // Strict authoritative isolation by employeeId only
             setExpenses(data.filter((e) => e.employeeId === user.employeeId));
         } else {
             setExpenses(data);
@@ -297,7 +295,6 @@ export const ExpenseListPage = () => {
                 }
             />
 
-            {/* Filter Controls */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 bg-white dark:bg-[#1A2430] p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
                 <div className="flex items-center gap-1 text-xs font-bold text-slate-700 dark:text-slate-300 mr-1">
                     <Filter className="w-3.5 h-3.5 text-amber-500"/>
@@ -397,7 +394,6 @@ export const ExpenseListPage = () => {
                 searchFields={isEmp ? ['expenseNumber', 'category', 'project', 'description'] : ['expenseNumber', 'employeeName', 'category', 'project', 'description']}
             />
 
-            {/* Employee Query Response Modal (Requirement 6) */}
             <Modal
                 isOpen={isQueryResponseModalOpen}
                 onClose={() => setIsQueryResponseModalOpen(false)}
@@ -462,7 +458,6 @@ export const ExpenseListPage = () => {
                 )}
             </Modal>
 
-            {/* Claim Details Modal with Complete Lifecycle Audit */}
             <Modal
                 isOpen={isDetailsModalOpen}
                 onClose={() => setIsDetailsModalOpen(false)}
@@ -504,7 +499,6 @@ export const ExpenseListPage = () => {
                             </div>
                         </div>
 
-                        {/* Amount Reconciliation Card */}
                         <div className="p-3.5 bg-white dark:bg-[#16202C] border border-slate-200 dark:border-[#253344] rounded-xl grid grid-cols-3 gap-2 text-center">
                             <div className="p-2 rounded-lg bg-slate-50 dark:bg-slate-800">
                                 <span className="text-[10px] uppercase font-bold text-slate-400 block">Requested</span>
@@ -526,7 +520,6 @@ export const ExpenseListPage = () => {
                             </div>
                         </div>
 
-                        {/* Justification & Receipt */}
                         <div className="space-y-2">
                             <label className="font-bold text-slate-700 dark:text-slate-300">Justification & Technical Scope</label>
                             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 italic">
@@ -534,7 +527,6 @@ export const ExpenseListPage = () => {
                             </div>
                         </div>
 
-                        {/* Attachment info */}
                         <div className="space-y-1.5">
                             <label className="font-bold text-slate-700 dark:text-slate-300">Supporting Attachment</label>
                             {selectedClaimDetails.receiptFileName ? (
@@ -566,7 +558,6 @@ export const ExpenseListPage = () => {
                             )}
                         </div>
 
-                        {/* Query & Clarification Thread */}
                         {selectedClaimDetails.queryMessage && (
                             <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg space-y-1.5">
                                 <span className="font-bold text-amber-800 dark:text-amber-300 block">Finance Query History:</span>
@@ -580,7 +571,6 @@ export const ExpenseListPage = () => {
                             </div>
                         )}
 
-                        {/* Chronological Lifecycle Audit Trail */}
                         <div>
                             <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5">
                                 Chronological Lifecycle Audit Trail
@@ -612,7 +602,6 @@ export const ExpenseListPage = () => {
                             </div>
                         </div>
 
-                        {/* Settlement Summary if Disbursed */}
                         {selectedClaimDetails.settlementStatus === 'Settled' && (
                             <div className="p-2.5 rounded-lg bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800/60 text-teal-800 dark:text-teal-300 space-y-0.5 text-[11px]">
                                 <p className="font-bold flex items-center gap-1">
@@ -626,7 +615,6 @@ export const ExpenseListPage = () => {
                 )}
             </Modal>
 
-            {/* Photo / Attachment Preview Modal */}
             <AttachmentPreviewModal 
                 isOpen={!!previewAttachment} 
                 onClose={() => setPreviewAttachment(null)} 

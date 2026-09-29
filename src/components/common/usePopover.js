@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 
-/* Open/close state for a small popover: closes on outside click or Escape. Attach `ref` to the wrapper. */
 export function usePopover() {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)

@@ -24,7 +24,6 @@ const todayISO = toISODate(TODAY)
 const running = (projects) => projects.filter((p) => p.status !== 'Completed' && p.startedOn)
 const asISO = (date, time) => new Date(`${date}T${time}`).toISOString()
 
-/* The Admin puts a work out for bids: the fields of eProc's tender page that matter for our subcontracts. */
 function NewTenderForm({ projects, onDone }) {
   const { publishTender } = useCrm()
   const closes = toISODate(addDays(TODAY, 7))
@@ -260,7 +259,6 @@ function NewTenderForm({ projects, onDone }) {
   )
 }
 
-/* One bid, opened: what the firm offered, its papers, and the Admin's next step for it. */
 function BidDetail({ bid, tender, vendor, project, projects, canDecide }) {
   const { decideBid, allotBid, settings } = useCrm()
   const money = useMoney()
@@ -425,7 +423,6 @@ function BidDetail({ bid, tender, vendor, project, projects, canDecide }) {
   )
 }
 
-/* Vendors' questions on a tender: the Admin answers; the answer is published for every bidder. */
 function TenderClarifications({ tender }) {
   const { clarifications, vendors, answerClarification } = useCrm()
   const { may } = useAccess()
@@ -477,7 +474,6 @@ function TenderClarifications({ tender }) {
   )
 }
 
-/* One tender: its details, the bids (sealed while bidding is open), and the decisions. */
 function TenderDrawer({ tender, projects, onClose }) {
   const { bids, vendors, closeBidding, settings } = useCrm()
   const { may } = useAccess()
@@ -486,7 +482,6 @@ function TenderDrawer({ tender, projects, onClose }) {
   const [confirmClose, setConfirmClose] = useState(false)
   const phase = tenderPhase(tender)
   const project = projectOfTender(tender, projects)
-  // A bid the firm withdrew before closing is no longer in the running.
   const all = bids.filter((b) => b.tenderId === tender.id)
   const received = all.filter((b) => b.status !== 'Withdrawn')
   const withdrawn = all.length - received.length
@@ -653,10 +648,6 @@ function TenderDrawer({ tender, projects, onClose }) {
   )
 }
 
-/*
- * Tenders (vendor sheet, flowchart 4; after eProc Rajasthan): works put out to every approved vendor, bids sealed
- * until bidding closes, then shortlisted, rejected with a reason, and one allotted as a work order.
- */
 export function TendersPage() {
   const { tenders, bids, leads, projectEdits } = useCrm()
   const { may } = useAccess()

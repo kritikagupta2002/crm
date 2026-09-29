@@ -10,12 +10,10 @@ import { financeService } from '@/modules/finance/services/finance.service';
 export const CreateInvoiceModal = ({ isOpen, onClose, onInvoiceCreated, }) => {
     const toast = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    // Client Details
     const [clientName, setClientName] = useState('');
     const [clientGstin, setClientGstin] = useState('');
     const [clientEmail, setClientEmail] = useState('');
     const [billingAddress, setBillingAddress] = useState('');
-    // Invoice Details
     const [invoiceNumber, setInvoiceNumber] = useState(() => `INV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`);
     const [invoiceDate, setInvoiceDate] = useState(() => new Date().toLocaleDateString('en-CA'));
     const [dueDate, setDueDate] = useState(() => {
@@ -26,7 +24,6 @@ export const CreateInvoiceModal = ({ isOpen, onClose, onInvoiceCreated, }) => {
     const [paymentTerms, setPaymentTerms] = useState('Net 30 Days');
     const [taxRate, setTaxRate] = useState(18);
     const [notes, setNotes] = useState('Payment by RTGS/NEFT to HDFC Jaipur Corporate Account.');
-    // Line items
     const [items, setItems] = useState([
         {
             id: 'item-1',
@@ -115,7 +112,6 @@ export const CreateInvoiceModal = ({ isOpen, onClose, onInvoiceCreated, }) => {
     };
     return (<Modal isOpen={isOpen} onClose={onClose} title="Create Client Invoice" description="Issue a new GST-compliant invoice with line items, tax breakdown, and automatic receivables entry." maxWidth="3xl">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Client Details Section */}
         <div className="bg-slate-50 dark:bg-[#111821]/70 p-3.5 rounded-xl border border-slate-200/80 dark:border-[#253344] space-y-3">
           <span className="text-[11px] font-bold text-[var(--ink-2,#4a5b68)] dark:text-slate-300 uppercase tracking-wider font-mono">
             1. Client & Billing Information
@@ -130,7 +126,6 @@ export const CreateInvoiceModal = ({ isOpen, onClose, onInvoiceCreated, }) => {
           </div>
         </div>
 
-        {/* Invoice Header Details */}
         <div className="bg-slate-50 dark:bg-[#111821]/70 p-3.5 rounded-xl border border-slate-200/80 dark:border-[#253344] space-y-3">
           <span className="text-[11px] font-bold text-[var(--ink-2,#4a5b68)] dark:text-slate-300 uppercase tracking-wider font-mono">
             2. Invoice Dates & Terms
@@ -157,7 +152,6 @@ export const CreateInvoiceModal = ({ isOpen, onClose, onInvoiceCreated, }) => {
           </div>
         </div>
 
-        {/* Dynamic Line Items Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-[var(--ink-2,#4a5b68)] dark:text-slate-300 uppercase tracking-wider font-mono">
@@ -191,7 +185,6 @@ export const CreateInvoiceModal = ({ isOpen, onClose, onInvoiceCreated, }) => {
           </div>
         </div>
 
-        {/* Calculation & Totals Summary */}
         <div className="bg-teal-50/70 dark:bg-teal-950/30 p-3 rounded-xl border border-teal-200/80 dark:border-teal-800/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-inter">
           <div className="flex items-center gap-2 text-xs text-teal-800 dark:text-teal-300">
             <Calculator className="w-4 h-4"/>
@@ -207,10 +200,8 @@ export const CreateInvoiceModal = ({ isOpen, onClose, onInvoiceCreated, }) => {
           </div>
         </div>
 
-        {/* Notes */}
         <Textarea label="Notes & Remittance Instructions" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2}/>
 
-        {/* Modal Actions */}
         <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-200 dark:border-[#253344]">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
             Cancel

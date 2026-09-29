@@ -7,11 +7,6 @@ import {
 import { Button } from '@/components/common/Button';
 import { attachmentStorage } from '@/core/storage/attachmentStorage';
 
-/**
- * Universal Attachment Preview Modal for HR/Admin.
- * Pure viewer for HR/Admin to inspect documents uploaded by employees.
- * Responsive sizing: Compact card for document details, wide canvas for real image/PDF previews.
- */
 export const AttachmentPreviewModal = ({
     isOpen,
     onClose,
@@ -31,7 +26,6 @@ export const AttachmentPreviewModal = ({
     );
     const fileExt = fileName?.includes('.') ? fileName.split('.').pop()?.toUpperCase() : (isPdf ? 'PDF' : 'DOC');
 
-    // Load the exact document uploaded by employee
     useEffect(() => {
         if (!isOpen || !attachment) {
             setRealImageUrl(null);
@@ -43,7 +37,6 @@ export const AttachmentPreviewModal = ({
         setIsLoading(true);
 
         const loadUploadedDocument = async () => {
-            // 1. Direct DataURL or Blob in attachment object
             const rawUrl = attachment.receiptUrl || attachment.receiptDataUrl || attachment.url || attachment.fileUrl;
             if (rawUrl && (rawUrl.startsWith('data:') || rawUrl.startsWith('blob:') || rawUrl.startsWith('http'))) {
                 if (isMounted) {
@@ -53,7 +46,6 @@ export const AttachmentPreviewModal = ({
                 return;
             }
 
-            // 2. Query IndexedDB by claimKey
             const storedByClaim = await attachmentStorage.getFile(claimKey);
             if (storedByClaim && (storedByClaim.rawDataUrl || storedByClaim.previewDataUrl)) {
                 if (isMounted) {
@@ -63,7 +55,6 @@ export const AttachmentPreviewModal = ({
                 return;
             }
 
-            // 3. Query IndexedDB by fileName
             if (fileName) {
                 const storedByName = await attachmentStorage.getFile(fileName);
                 if (storedByName && (storedByName.rawDataUrl || storedByName.previewDataUrl)) {
@@ -75,7 +66,6 @@ export const AttachmentPreviewModal = ({
                 }
             }
 
-            // Binary data not present (pre-backend mock record)
             if (isMounted) {
                 setRealImageUrl(null);
                 setIsLoading(false);
@@ -89,7 +79,6 @@ export const AttachmentPreviewModal = ({
         };
     }, [isOpen, attachment, claimKey, fileName]);
 
-    // Close on Escape key
     useEffect(() => {
         if (!isOpen) return;
         const handleKeyDown = (e) => {
@@ -148,7 +137,6 @@ export const AttachmentPreviewModal = ({
                     realImageUrl ? 'max-w-4xl max-h-[92vh]' : 'max-w-md'
                 } bg-white dark:bg-[#111821] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden transition-all duration-200`}
             >
-                {/* Modal Header */}
                 <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/80 dark:bg-[#16202C]">
                     <div className="flex items-center gap-2.5 min-w-0">
                         <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 shrink-0">
@@ -166,7 +154,6 @@ export const AttachmentPreviewModal = ({
                         </div>
                     </div>
 
-                    {/* Toolbar Actions */}
                     <div className="flex items-center gap-1 shrink-0 ml-2">
                         {realImageUrl && (
                             <>
@@ -235,7 +222,6 @@ export const AttachmentPreviewModal = ({
                     </div>
                 </div>
 
-                {/* Modal Body */}
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center p-12 text-center text-slate-500">
                         <RefreshCw className="w-7 h-7 animate-spin text-blue-600 mb-2.5"/>
@@ -264,9 +250,7 @@ export const AttachmentPreviewModal = ({
                         )}
                     </div>
                 ) : (
-                    /* Clean, Compact Document Proof Inspection Card */
                     <div className="p-6 flex flex-col items-center text-center space-y-4">
-                        {/* File Thumbnail Badge */}
                         <div className="relative">
                             <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border border-blue-200/80 dark:border-blue-800/60 flex flex-col items-center justify-center shadow-xs">
                                 {isPdf ? (
@@ -283,7 +267,6 @@ export const AttachmentPreviewModal = ({
                             </div>
                         </div>
 
-                        {/* File Name & Status Tag */}
                         <div className="space-y-1 max-w-full">
                             <h4 className="text-sm font-bold text-slate-900 dark:text-white break-all leading-snug px-2">
                                 {fileName}
@@ -294,7 +277,6 @@ export const AttachmentPreviewModal = ({
                             </span>
                         </div>
 
-                        {/* Metadata Details Ledger */}
                         <div className="w-full bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border border-slate-200/80 dark:border-slate-700/80 divide-y divide-slate-200/60 dark:divide-slate-700/60 text-xs">
                             <div className="flex items-center justify-between py-1.5 first:pt-0">
                                 <span className="text-slate-500 dark:text-slate-400">Claim ID</span>

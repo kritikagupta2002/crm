@@ -1,19 +1,5 @@
-/* ============================================================
- *  CLIENT PORTAL — STRICT COLOR PALETTE
- *
- *  Palette:
- *  - Primary Orange:  #ff8927  (RGB: 255, 137, 39)
- *  - Dark Charcoal:   #474747  (RGB: 71, 71, 71)
- *  - Sun Gold/Yellow: #ffd730  (RGB: 255, 215, 48)
- *  - Sky Cyan:        #85e3ff  (RGB: 133, 227, 255)
- *  - Light Grey:      #e5e5e5  (RGB: 229, 229, 229)
- *
- *  Strict color-only redesign:
- *  - 100% preservation of all layouts, typography, shapes & hierarchy
- * ============================================================ */
 
 .client-portal {
-  /* ── Primary Orange (#ff8927) ────────────────────────────── */
   --teal-900: #d4670c;
   --teal-700: #ff8927;
   --teal-600: #ff8927;
@@ -22,13 +8,11 @@
   --teal-100: #ffe5cf;
   --teal-50:  #fff5ed;
 
-  /* ── Sun Gold / Yellow (#ffd730) ─────────────────────────── */
   --gold-600: #c89700;
   --gold-500: #ffd730;
   --gold-200: #ffe980;
   --gold-100: #fff9d6;
 
-  /* ── Dark Charcoal / Ink (#474747) ───────────────────────── */
   --ink:           #474747;
   --ink-2:         #616161;
   --ink-3:         #8a8a8a;
@@ -40,11 +24,9 @@
   --chrome-line:   #e5e5e5;
   --sidebar-hover: rgba(255, 137, 39, 0.08);
 
-  /* ── Light Grey (#e5e5e5) & Dividers ─────────────────────── */
   --line:      #e5e5e5;
   --line-soft: #eeeeee;
 
-  /* ── Mountain illustration palette ───────────────────────── */
   --mtn-far:         #e5e5e5;
   --mtn-far-2:       #d8d8d8;
   --mtn-lit:         #c6c6c6;
@@ -56,11 +38,9 @@
   --mtn-forest-mid:  #3e3e3e;
   --mtn-forest:      #2b2b2b;
 
-  /* ── Navigation & Brand Highlights ───────────────────────── */
   --nav-active:      #ff8927;
   --nav-active-edge: #ffd730;
 
-  /* ── Semantic status overrides ───────────────────────────── */
   --blue:            #0284c7;
   --blue-bg:         #eaf9ff;
   --green:           #ff8927;
@@ -70,12 +50,10 @@
   --red:             #c04515;
   --red-bg:          #fff0eb;
 
-  /* ── Base surfaces ────────────────────────────────────────── */
   --bg:              #f8f9fa;
   --surface:         #ffffff;
 }
 
-/* ── Tone classes: strict palette mapping ── */
 .client-portal .tone-info {
   --tone: #0284c7;
   --tone-bg: #eaf9ff;
@@ -101,7 +79,6 @@
   --tone-bg: #f5f5f5;
 }
 
-/* ── Primary & Action Buttons ── */
 .client-portal .btn-primary {
   background: #ff8927;
   border-color: #ff8927;
@@ -124,7 +101,6 @@
   border-color: #e06c0e;
 }
 
-/* ── Top brand tag & links ── */
 .client-portal .portal-tag {
   color: #ff8927;
   border-left-color: #e5e5e5;
@@ -138,7 +114,6 @@
   color: #c89700;
 }
 
-/* ── Journey Tracker ── */
 .client-portal .journey li.is-done::before,
 .client-portal .journey li.is-current::before {
   background: #ff8927;
@@ -160,7 +135,6 @@
   border-color: #e5e5e5;
 }
 
-/* ── ERM Stage Dots (Projects Card) ── */
 .client-portal .is-done > .erm-dot {
   border-color: #ff8927;
   background: #ff8927;
@@ -173,7 +147,6 @@
   box-shadow: 0 0 0 4px rgba(133, 227, 255, 0.45);
 }
 
-/* ── Project Milestones ── */
 .client-portal .milestones li.is-done:not(:last-child)::after {
   background: #ff8927;
 }
@@ -192,7 +165,6 @@
   color: #ff8927;
 }
 
-/* ── Updates Feed ── */
 .client-portal .portal-updates li::before {
   background: #85e3ff;
 }
@@ -210,13 +182,11 @@
   border-color: #ff8927;
 }
 
-/* ── Notification Bell Count Dot ── */
 .client-portal .portal-bell-count {
   background: #ff8927;
   color: #ffffff;
 }
 
-/* ── Done checklist tick & completed stages ── */
 .client-portal .done-tick {
   background: #ff8927;
   color: #ffffff;
@@ -227,7 +197,6 @@
   border-color: #ff8927;
 }
 
-/* ── Preview banner & Alert notes ── */
 .client-portal .portal-preview {
   background: #fff9d6;
   color: #8a6400;
@@ -240,7 +209,6 @@
   border: 1px solid rgba(255, 215, 48, 0.5);
 }
 
-/* ── Quote Summary & Document ── */
 .client-portal .quote-summary-total strong {
   color: #d4670c;
 }
@@ -253,7 +221,6 @@
   color: #c89700;
 }
 
-/* ── Payments & QR ── */
 .client-portal .pay-done-icon {
   background: #fff5ed;
   color: #ff8927;
@@ -268,13 +235,11 @@
   color: #d4670c;
 }
 
-/* ── Card Title Icon Chip ── */
 .client-portal .title-icon {
   background: #fff5ed;
   color: #ff8927;
 }
 
-/* ── Mobile Help Bar & Footer ── */
 .client-portal .portal-help-bar {
   border-top: 1px solid #e5e5e5;
   background: #ffffff;
@@ -285,7 +250,6 @@
   border-top: 1px solid #e5e5e5;
 }
 
-/* ---------- Client portal ---------- */
 .portal {
   min-height: 100vh;
   display: flex;
@@ -415,7 +379,6 @@
   background: var(--bg);
 }
 
-/* Journey tracker: done = green, current = teal ring, upcoming = grey. */
 .journey {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -840,7 +803,6 @@
     text-align: left;
   }
 
-  /* Five steps don't fit side by side on a phone: stack them as a vertical list. */
   .journey {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -869,7 +831,6 @@
   }
 }
 
-/* ---------- Projects, approvals, letters, updates ---------- */
 .portal-service select {
   margin-top: 6px;
   height: 32px;
@@ -1118,14 +1079,12 @@
     padding: 0 10px;
   }
 
-  /* Letter and file names wrap on phones instead of being cut off. */
   .portal-docs strong {
     white-space: normal;
     overflow-wrap: anywhere;
   }
 }
 
-/* ---------- Completed stages (won clients) ---------- */
 .done-list {
   display: flex;
   flex-direction: column;
@@ -1183,7 +1142,6 @@
   animation: rise 0.25s ease backwards;
 }
 
-/* A card shown inside the Completed card: no frame, and the row already names it. */
 .portal-bare .portal-card-head h2 {
   display: none;
 }
@@ -1210,7 +1168,6 @@
   }
 }
 
-/* ---------- Brand band (portal and enquiry form) ---------- */
 .portal-band {
   position: relative;
   overflow: hidden;
@@ -1227,7 +1184,6 @@
   pointer-events: none;
 }
 
-/* The sidebar's mountains as a range along the right, fading into the band on the left. */
 .band-range {
   position: absolute;
   right: 0;
@@ -1235,13 +1191,11 @@
   width: min(50%, 780px);
   height: 100%;
   pointer-events: none;
-  /* Fade on the visible left edge, whatever part of the drawing is showing. */
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40%);
   mask-image: linear-gradient(to right, transparent 0, #000 40%);
   animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s backwards;
 }
 
-/* The short enquiry band shows the whole range, peaks included, at its own height. */
 .portal-band.is-compact .band-range {
   width: auto;
   aspect-ratio: 760 / 300;
@@ -1275,7 +1229,6 @@
   color: var(--ink-2);
 }
 
-/* Greeting, then the service as a chip under it, so the text keeps the full width. */
 .portal-band .portal-hero-head {
   flex-direction: column;
   align-items: flex-start;
@@ -1307,7 +1260,6 @@
   background: var(--surface);
 }
 
-/* Upcoming steps stay solid over the grey. */
 .portal-band .journey-dot {
   background: var(--surface);
 }
@@ -1316,14 +1268,12 @@
   background: var(--green);
 }
 
-/* Wide screens: the greeting and tracker keep clear of the range. */
 @media (min-width: 1280px) {
   .portal-band:not(.is-compact) .portal-band-inner {
     padding-right: 440px;
   }
 }
 
-/* Narrower: the range would sit behind the text, so it steps back. */
 @media (max-width: 1279px) {
   .band-range {
     width: 70%;
@@ -1331,7 +1281,6 @@
   }
 }
 
-/* Cards start over the band's lower edge. */
 .portal-band + .portal-main {
   position: relative;
   margin-top: -60px;
@@ -1341,7 +1290,6 @@
   margin-top: -40px;
 }
 
-/* ---------- Card titles with an icon chip ---------- */
 .portal-card h2.card-title-icon {
   display: flex;
   align-items: center;
@@ -1384,12 +1332,10 @@
   }
 }
 
-/* The project's ERM stages, in the client's words */
 .portal-stages {
   margin: 14px 0 6px;
 }
 
-/* Phones: the seven stages as a row of dots, with the current one named underneath. */
 .portal-stage-caption {
   display: none;
 }
@@ -1439,7 +1385,6 @@
   font-size: 12.5px;
 }
 
-/* Top bar bell: latest updates without scrolling */
 .portal-bell {
   position: relative;
 }
@@ -1474,7 +1419,6 @@
   font-size: 13px;
 }
 
-/* Phones: the cards in one column, in the order a client needs them. */
 @media (max-width: 900px) {
   .portal-grid > .portal-col {
     display: contents;
@@ -1514,7 +1458,6 @@
   }
 }
 
-/* Phones: WhatsApp and "Ask a question" stay one tap away. */
 .portal-help-bar {
   display: none;
 }
@@ -1539,13 +1482,11 @@
     justify-content: center;
   }
 
-  /* Room for the bar under the last card. */
   .portal:has(.portal-help-bar) .portal-main {
     padding-bottom: 84px;
   }
 }
 
-/* Payments: dues with a Pay button, and the client's reported payments */
 .pay-dues,
 .pay-history {
   display: flex;
@@ -1614,7 +1555,6 @@
   color: var(--red);
 }
 
-/* Pay drawer */
 .pay-drawer {
   width: min(600px, 100vw);
 }

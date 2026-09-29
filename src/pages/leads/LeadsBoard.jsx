@@ -8,11 +8,6 @@ import { queriesOf } from '../../data/queries'
 
 const todayISO = toISODate(TODAY)
 
-/*
- * Kanban board: drag a card to another column to change its stage.
- * (Native HTML drag and drop — on touch screens, stages are changed from the lead's detail panel.)
- * Without onMove (a role that can't change stages) the cards only open.
- */
 export function LeadsBoard({ leads, onOpen, onMove }) {
   const money = useMoney()
   const [dragging, setDragging] = useState(null)

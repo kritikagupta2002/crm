@@ -5,7 +5,6 @@ import { clientTimeline, lastContact, leadTimeline } from '../../utils/clientHis
 import { formatDayMonth, formatNearDate, formatTime, toISODate } from '../../utils/date'
 import { clientProjects } from '../../utils/projects'
 
-/* Log how the conversation happened, so the timeline doubles as a communication log. */
 const NOTE_KINDS = ['Note', 'Call', 'WhatsApp', 'Email', 'Meeting']
 
 function formatWhen(iso) {
@@ -13,10 +12,6 @@ function formatWhen(iso) {
   return `${formatDayMonth(toISODate(date))}, ${formatTime(`${date.getHours()}:${date.getMinutes()}`)}`
 }
 
-/*
- * Notes box plus the history: the enquiry's conversations, quotation and deal, newest first. For a client
- * (withProjects) the main moments of its projects are added, with the last contact on top.
- */
 export function LeadActivity({ lead, withProjects = false, title = 'Activity', limit }) {
   const { activities, addNote, projectEdits } = useCrm()
   const { may } = useAccess()

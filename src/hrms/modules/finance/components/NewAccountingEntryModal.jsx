@@ -73,13 +73,11 @@ export const NewAccountingEntryModal = ({ isOpen, onClose, onEntryCreated, }) =>
 
         <Input label="Supporting Document Reference" placeholder="e.g. INV-2026-001 / BILL-89 / BOARD-APPROVAL" value={reference} onChange={(e) => setReference(e.target.value)}/>
 
-        {/* Double Entry Rows */}
         <div className="space-y-3 p-3.5 rounded-xl bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344]">
           <span className="text-[11px] font-bold text-[var(--ink-2,#4a5b68)] dark:text-slate-300 uppercase tracking-wider font-mono">
             Double Entry Ledger Accounts
           </span>
 
-          {/* Debit Row */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
             <div className="sm:col-span-8">
               <Select label="Debit Account (Dr.)" value={debitAccount} onChange={(e) => setDebitAccount(e.target.value)} options={[
@@ -96,7 +94,6 @@ export const NewAccountingEntryModal = ({ isOpen, onClose, onEntryCreated, }) =>
             </div>
           </div>
 
-          {/* Credit Row */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
             <div className="sm:col-span-8">
               <Select label="Credit Account (Cr.)" value={creditAccount} onChange={(e) => setCreditAccount(e.target.value)} options={[
@@ -112,7 +109,6 @@ export const NewAccountingEntryModal = ({ isOpen, onClose, onEntryCreated, }) =>
             </div>
           </div>
 
-          {/* Balance validation alert */}
           <div className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between ${isBalanced
             ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50'
             : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-200 dark:border-rose-800/50'}`}>

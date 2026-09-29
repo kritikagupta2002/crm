@@ -1,9 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 
-/**
- * Reusable QR Code Canvas component powered by qrcode
- */
 export const QRCodeCanvas = ({
   value,
   size = 128,

@@ -1,7 +1,3 @@
-/*
- * The project side of the team (the CRM's TEAM in mockData is the sales team).
- * Team leads are matched to the service line they lead; field members carry their field skills.
- */
 export const COORDINATORS = [
   { name: 'A. Singh', title: 'Project Coordinator' },
   { name: 'N. Rathore', title: 'Project Coordinator' },
@@ -14,7 +10,6 @@ export const TEAM_LEADS = [
   { name: 'M. Khan', title: 'Environment Specialist', services: ['Environment, Community & Permitting'] },
 ]
 
-/* phone: for task messages on WhatsApp (demo numbers). */
 export const FIELD_MEMBERS = [
   { name: 'Ajay Kumar', title: 'Field Geologist', skills: 'Mapping, sampling', phone: '9829022101' },
   { name: 'Deepak Soni', title: 'Surveyor', skills: 'DGPS, total station', phone: '9829022102' },

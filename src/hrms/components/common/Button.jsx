@@ -1,7 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 
-/* The CRM's buttons (.btn and its variants), so HR and Finance pages look like the rest of the app. */
 const VARIANTS = {
     primary: 'btn-primary',
     secondary: '',

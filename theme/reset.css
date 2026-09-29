@@ -1,10 +1,3 @@
-/*
- * ============================================================
- *  BASE RESET — CRM Theme
- *  Global resets, body defaults, base element styles.
- *  Requires tokens.css to be loaded first.
- * ============================================================
- */
 
 *,
 *::before,
@@ -58,7 +51,6 @@ a {
   outline-offset: 2px;
 }
 
-/* ── Screen-reader only utility ──────────────────────────── */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -68,7 +60,6 @@ a {
   white-space: nowrap;
 }
 
-/* ── Reduced motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

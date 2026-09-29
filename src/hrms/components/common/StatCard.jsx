@@ -1,7 +1,6 @@
 import React from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 
-/* The CRM's stat card (KpiCard): the tone colours the icon and the top edge. The tone comes from the colour the page gave the icon. */
 const toneOf = (colours = '') => {
     if (/emerald|green/.test(colours))
         return 'tone-good';

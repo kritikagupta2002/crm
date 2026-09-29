@@ -25,10 +25,6 @@ function readSeen() {
   }
 }
 
-/*
- * What needs attention right now. The red dot shows while there are items not yet marked as read.
- * The Settings toggles decide whether overdue follow-ups and new enquiries are included.
- */
 export function NotificationsMenu() {
   const { leads, followUps, settings, activities, projectEdits, role, user, scanInbox, vendorApplications, tenders, bids, clarifications, vendors, documents } = useCrm()
   const { can, may } = useAccess()
@@ -37,13 +33,11 @@ export function NotificationsMenu() {
   const [seen, setSeen] = useState(readSeen)
   const company = (id) => leads.find((l) => l.id === id)?.company
 
-  // A client's question reaches whoever answers its topic: Accounts for billing, the project team for the work, Sales before the win.
   const who = { role, userName: user.name, projectEdits }
   const questions = questionsFor(who, leads)
     .filter((q) => q.status === 'Open' && canAnswer(who, q.lead, q.topic))
     .map((q) => ({ id: `q-${q.id}`, tone: 'tone-attention', icon: MessageCircleQuestion, title: `Question from ${q.lead.company}: ${q.topic}`, sub: q.message, to: '/questions' }))
 
-  // Payments the client reported from the portal wait for Accounts, the ones who verify them.
   const toVerify = !may('payments')
     ? []
     : leads.flatMap((l) =>
@@ -65,7 +59,6 @@ export function NotificationsMenu() {
       to: a.type === 'quote' ? `/quotations?open=${a.leadId}` : a.type === 'document' ? `/leads/${a.leadId}?tab=documents` : `/leads/${a.leadId}?tab=activity`,
     }))
 
-  // Project delivery: late tasks, projects waiting for a coordinator, new letters and projects ready to close.
   const projects = can('/projects') ? allProjects(leads, projectEdits) : []
   const running = projects.filter((p) => p.stageIndex < ERM_STAGES.length)
   const fromErm = [
@@ -85,7 +78,6 @@ export function NotificationsMenu() {
       .map((p) => ({ id: `rc-${p.id}`, tone: 'tone-info', icon: CheckCircle2, title: `Ready to close: ${p.name}`, sub: `${p.lead.company} · approval received`, to: `/projects/${p.id}` })),
   ]
 
-  // Subcontracts: bills for Accounts to check and for the CFO to pay; what vendors sent from their portal.
   const orders = can('/subcontracts') ? (projects.length ? projects : allProjects(leads, projectEdits)).flatMap((p) => p.workOrders.map((w) => ({ ...w, project: p }))) : []
   const bills = orders
     .filter((w) => ['check', 'pay'].includes(nextWorkStep(w)?.key) && BILL_ROLES[nextWorkStep(w).key].includes(role))
@@ -101,10 +93,8 @@ export function NotificationsMenu() {
     .filter((a) => a.by === 'vendor' && a.at.slice(0, 10) >= weekAgoISO)
     .slice(-6)
     .reverse()
-    // "Project: subcontract SC-… (Vendor) — bill X recorded — ₹…": what the vendor did is everything after the vendor's name.
     .map((a) => ({ id: `vn-${a.id}`, tone: 'tone-info', icon: HardHat, title: `${a.vendor}: ${(a.text.includes(') — ') ? a.text.slice(a.text.indexOf(') — ') + 4) : a.text).replace(' (vendor portal)', '')}`, sub: `Vendor portal · ${formatDayMonth(a.at.slice(0, 10))}`, to: a.text.startsWith('Bid ') ? '/tenders' : '/subcontracts' }))
 
-  // The field team hears about their own work: late tasks, tasks due by tomorrow and tasks handed to them this week.
   const myTasks =
     role !== 'Employee'
       ? []
@@ -120,13 +110,11 @@ export function NotificationsMenu() {
             return []
           })
 
-  // Scans from the NAS scanner folder wait for whoever files government letters.
   const scans =
     canActOn(role, 'approval') && scanInbox.length
       ? [{ id: `scan-${scanInbox[0].id}-${scanInbox.length}`, tone: 'tone-attention', icon: FileScan, title: `${scanInbox.length} scan${scanInbox.length === 1 ? '' : 's'} to file`, sub: `Scanner folder · latest ${formatDayMonth(scanInbox[0].scannedAt.slice(0, 10))}`, to: '/documents/scan-inbox' }]
       : []
 
-  // Documents to check: verification is never by the person who filed the scan; rescans go back to whoever files.
   const docsToVerify = may('documents') ? documents.filter((d) => d.stage === 'To verify' && !d.rescan && d.record.filedBy !== user.name) : []
   const rescans = may('documents') ? documents.filter((d) => d.rescan) : []
   const docChecks = [
@@ -134,14 +122,12 @@ export function NotificationsMenu() {
     ...rescans.map((d) => ({ id: `dr-${d.id}-${d.record.verify.at}`, tone: 'tone-urgent', icon: FileWarning, title: `Rescan: ${d.letter.title}`, sub: `${d.lead.company} · ${d.record.verify.reason}`, to: `/documents?open=${d.id}` })),
   ]
 
-  // Vendor registrations waiting for the Admin.
   const registrations = may('vendors')
     ? vendorApplications
         .filter((a) => a.status === 'New')
         .map((a) => ({ id: `va-${a.id}-${a.history.length}`, tone: 'tone-info', icon: UserPlus, title: `Vendor registration: ${a.firm.name}`, sub: `${a.id} · ${a.work.categories.join(', ')}`, to: `/vendor-applications?open=${a.id}` }))
     : []
 
-  // Tenders whose bidding has closed: the bids wait for the Admin to shortlist, reject or allot.
   const tenderDecisions = may('vendors')
     ? tenders
         .filter((t) => tenderPhase(t) === 'Evaluation')
@@ -150,7 +136,6 @@ export function NotificationsMenu() {
         .map(({ t, waiting }) => ({ id: `tn-${t.id}-${waiting}`, tone: 'tone-attention', icon: Gavel, title: `Bids to decide: ${t.title}`, sub: `${t.id} · ${waiting} bid${waiting === 1 ? '' : 's'} waiting`, to: `/tenders?open=${t.id}` }))
     : []
 
-  // Vendors' questions on tenders, for the Admin to answer.
   const tenderQuestions = may('vendors')
     ? clarifications
         .filter((c) => !c.answer)
@@ -203,7 +188,6 @@ export function NotificationsMenu() {
     try {
       localStorage.setItem(SEEN_KEY, JSON.stringify([...next]))
     } catch {
-      // Only affects the dot.
     }
   }
 

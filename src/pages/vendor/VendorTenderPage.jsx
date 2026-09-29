@@ -13,7 +13,6 @@ const MAX_SIZE = 10 * 1024 * 1024
 const rupees = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`
 const formatSize = (bytes) => (bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`)
 
-/* One eProc-style section: a heading and label / value pairs, two to a row. */
 function Section({ title, rows }) {
   return (
     <section className="card portal-card eproc-section">
@@ -32,7 +31,6 @@ function Section({ title, rows }) {
   )
 }
 
-/* The bid: amount, time, how the work will be done, papers, declaration. Also used to revise a bid while bidding is open. */
 function BidForm({ tender, vendor, existing, onDone }) {
   const { submitBid } = useCrm()
   const [bid, setBid] = useState(() => ({
@@ -181,7 +179,6 @@ function BidForm({ tender, vendor, existing, onDone }) {
   )
 }
 
-/* The vendor's own bid, as sent, with where it stands. */
 function YourBid({ bid, tender, onRevise }) {
   const { withdrawBid } = useCrm()
   const [confirming, setConfirming] = useState(false)
@@ -260,10 +257,6 @@ function YourBid({ bid, tender, onRevise }) {
   )
 }
 
-/*
- * Questions on this tender (eProc's "Clarification"): answered ones are shown to every bidder without the asking
- * firm's name; the firm also sees its own questions still waiting. While bidding is open it can ask a new one.
- */
 function Clarifications({ tender, vendor }) {
   const { clarifications, askClarification } = useCrm()
   const [question, setQuestion] = useState('')
@@ -321,7 +314,6 @@ function Clarifications({ tender, vendor }) {
   )
 }
 
-/* eProc's critical dates as a timeline: what has happened is filled in, the next step is marked. */
 function DatesTimeline({ tender }) {
   return (
     <ol className="dates-timeline">
@@ -338,10 +330,6 @@ function DatesTimeline({ tender }) {
   )
 }
 
-/*
- * One work put out for bids, after eProc Rajasthan's tender page: a summary with what matters most (value, EMD,
- * period, place, closing), the details and documents, the questions, and the firm's bid.
- */
 export function VendorTenderPage() {
   const { tenderId } = useParams()
   const { vendor } = useOutletContext()

@@ -3,7 +3,6 @@ import { useAccess, useCrm } from '../../context/crm'
 import { portalInvite } from '../../utils/projects'
 import { whatsappLink } from '../../utils/whatsapp'
 
-/* Sends the client their portal login on WhatsApp (link, enquiry ID, "use your mobile") and records it. */
 export function SharePortalButton({ lead, className = 'btn btn-whatsapp', label = 'Share portal access' }) {
   const { settings, markPortalShared } = useCrm()
   const { may } = useAccess()

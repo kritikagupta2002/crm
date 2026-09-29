@@ -29,7 +29,6 @@ export const EmployeeDetailPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [previewDoc, setPreviewDoc] = useState(null);
-    // Dynamic Module Data
     const [leaveBalances, setLeaveBalances] = useState([]);
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [attendanceLogs, setAttendanceLogs] = useState([]);
@@ -54,7 +53,6 @@ export const EmployeeDetailPage = () => {
                     ]);
                     setAppraisals(appList);
                     setExitRecord(exitItem || null);
-                    // Centralized storage data
                     const balances = storage.getBalancesForEmployee(emp.employeeId, emp.name);
                     setLeaveBalances(balances);
                     const leaves = storage.getLeaveRequests().filter((l) => l.employeeId === emp.employeeId);
@@ -105,7 +103,6 @@ export const EmployeeDetailPage = () => {
         { id: 'documents', label: 'Documents' },
     ];
 
-    // Calculated overview stats
     const totalAvailableLeave = leaveBalances.reduce((sum, b) => sum + (b.available || 0), 0);
     const tenureYears = employee.employment.joiningDate
         ? Math.max(0.1, ((new Date().getTime() - new Date(employee.employment.joiningDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))).toFixed(1)
@@ -126,7 +123,6 @@ export const EmployeeDetailPage = () => {
             </Button>
           </div>}/>
 
-      {/* Header Banner Card */}
       <Card className="p-6 bg-gradient-to-r from-white via-slate-50 to-blue-50/30 dark:from-[#142028] dark:via-[#142028] dark:to-blue-950/20 border border-slate-200/80 dark:border-[#253344]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
           <div className="flex items-start sm:items-center gap-4 sm:gap-6">
@@ -183,7 +179,6 @@ export const EmployeeDetailPage = () => {
         </div>
       </Card>
 
-      {/* Digital ID QR Modal */}
       <Modal
         isOpen={isQrModalOpen}
         onClose={() => setIsQrModalOpen(false)}
@@ -251,12 +246,9 @@ export const EmployeeDetailPage = () => {
         </div>
       </Modal>
 
-      {/* Tabs Navigation */}
       <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab}/>
 
-      {/* Tab Content Areas */}
       <div className="mt-4">
-        {/* 1. Overview Tab */}
         {activeTab === 'overview' && (<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <Card className="p-5">
@@ -288,7 +280,6 @@ export const EmployeeDetailPage = () => {
                 </div>
               </Card>
 
-              {/* Performance & Appraisals Summary */}
               <Card className="p-5">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 mb-4">
                   <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -318,7 +309,6 @@ export const EmployeeDetailPage = () => {
               </Card>
             </div>
 
-            {/* Quick Details Sidebar */}
             <div className="space-y-6">
               <Card className="p-5">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
@@ -382,7 +372,6 @@ export const EmployeeDetailPage = () => {
             </div>
           </div>)}
 
-        {/* 2. Personal Details Tab */}
         {activeTab === 'personal' && (<Card className="p-6">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
               Personal Information & Demographics
@@ -429,7 +418,6 @@ export const EmployeeDetailPage = () => {
             </div>
           </Card>)}
 
-        {/* 3. Job Details Tab (Employment + Exit Status) */}
         {activeTab === 'job' && (<div className="space-y-6">
             <Card className="p-6">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
@@ -473,7 +461,6 @@ export const EmployeeDetailPage = () => {
               </div>
             </Card>
 
-            {/* Clearance & Exit Status */}
             <Card className="p-6">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
                 Service Standing & Separation Status
@@ -495,7 +482,6 @@ export const EmployeeDetailPage = () => {
             </Card>
           </div>)}
 
-        {/* 4. Attendance Tab */}
         {activeTab === 'attendance' && (<Card className="p-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -536,7 +522,6 @@ export const EmployeeDetailPage = () => {
             </div>
           </Card>)}
 
-        {/* 5. Leave Tab */}
         {activeTab === 'leave' && (<div className="space-y-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
               {leaveBalances.map((b) => (<div key={b.leaveType} className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#1A2430]">
@@ -587,7 +572,6 @@ export const EmployeeDetailPage = () => {
             </Card>
           </div>)}
 
-        {/* 6. Payroll Tab */}
         {activeTab === 'payroll' && (<div className="space-y-6">
             <Card className="p-6">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
@@ -663,7 +647,6 @@ export const EmployeeDetailPage = () => {
             </Card>
           </div>)}
 
-        {/* Expenses & Claims Tab */}
         {activeTab === 'expenses' && (() => {
             const allClaims = [
                 ...empExpenses.map((e) => ({
@@ -710,7 +693,6 @@ export const EmployeeDetailPage = () => {
 
             return (
                 <div className="space-y-6">
-                    {/* Financial Summary Cards */}
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                         <div className="p-4 bg-white dark:bg-[#142028] rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
                             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">Total Requested</span>
@@ -749,7 +731,6 @@ export const EmployeeDetailPage = () => {
                         </div>
                     </div>
 
-                    {/* Claims Ledger */}
                     <Card className="p-5">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
                             <div>
@@ -842,7 +823,6 @@ export const EmployeeDetailPage = () => {
             );
         })()}
 
-        {/* 7. Documents Tab */}
         {activeTab === 'documents' && (<Card className="p-6">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
@@ -880,7 +860,6 @@ export const EmployeeDetailPage = () => {
               </div>)}
           </Card>)}
 
-        {/* Document Preview Modal */}
         {previewDoc && (
           <Modal isOpen={!!previewDoc} onClose={() => setPreviewDoc(null)} title={previewDoc.documentType}>
             <div className="space-y-4 text-xs font-inter">

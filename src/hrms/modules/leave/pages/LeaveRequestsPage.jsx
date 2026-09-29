@@ -40,7 +40,6 @@ export const LeaveRequestsPage = () => {
             toast.error('Failed to withdraw leave request.', 'Error');
         }
     };
-    // Strict employee data isolation: employee can ONLY see their own applications
     const scopedRequests = useMemo(() => {
         if (isEmployee) {
             return requests.filter((r) => r.employeeId === empId);
@@ -62,7 +61,6 @@ export const LeaveRequestsPage = () => {
             return true;
         });
     }, [scopedRequests, selectedStatus, selectedType, selectedDept, selectedProject, isEmployee]);
-    // Employee-specific columns (clean, personal, with direct withdraw option)
     const employeeColumns = [
         {
             key: 'appliedOn',
@@ -144,7 +142,6 @@ export const LeaveRequestsPage = () => {
             },
         },
     ];
-    // Admin / HR columns (company-wide view across all personnel and sites)
     const hrColumns = [
         {
             key: 'appliedOn',
@@ -257,14 +254,12 @@ export const LeaveRequestsPage = () => {
             </Button>
           </div>}/>
 
-      {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-[#1A2430] p-4 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mr-1">
           <Filter className="w-4 h-4 text-blue-600"/>
           <span>Filters:</span>
         </div>
 
-        {/* Status Filter */}
         <div className="w-full sm:w-48">
           <Select options={[
             { value: 'all', label: 'All Statuses' },
@@ -276,7 +271,6 @@ export const LeaveRequestsPage = () => {
         ]} value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}/>
         </div>
 
-        {/* Leave Category Filter */}
         <div className="w-full sm:w-48">
           <Select options={[
             { value: 'all', label: 'All Categories' },
@@ -289,7 +283,6 @@ export const LeaveRequestsPage = () => {
         ]} value={selectedType} onChange={(e) => setSelectedType(e.target.value)}/>
         </div>
 
-        {/* Admin Only: Department & Project Filters */}
         {!isEmployee && (<>
             <div className="w-full sm:w-56">
               <Select options={[

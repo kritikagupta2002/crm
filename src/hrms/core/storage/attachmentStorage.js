@@ -1,14 +1,8 @@
-/**
- * attachmentStorage.js
- * High-capacity client-side persistent storage for expense & reimbursement receipts.
- * Uses IndexedDB to store high-res photos and documents (>5MB) without localStorage quota issues.
- */
 
 const DB_NAME = 'HRMS_ATTACHMENTS_DB';
 const DB_VERSION = 1;
 const STORE_NAME = 'attachments';
 
-// In-memory session cache for instant access
 const memoryCache = new Map();
 
 function openDB() {
@@ -35,14 +29,9 @@ function openDB() {
     });
 }
 
-/**
- * Compresses an image file using an offscreen HTML5 canvas.
- * Reduces an 8-15 MB phone photo/screenshot to ~150-300 KB while preserving high visual fidelity.
- */
 export function compressImageFile(file, maxDimension = 1600, quality = 0.85) {
     return new Promise((resolve) => {
         if (!file || !file.type.startsWith('image/')) {
-            // For non-images (PDFs), return raw DataURL
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
             reader.onerror = () => resolve(null);
@@ -75,7 +64,6 @@ export function compressImageFile(file, maxDimension = 1600, quality = 0.85) {
                 ctx.imageSmoothingQuality = 'high';
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Use JPEG for general photos or PNG if transparency needed
                 const outputType = file.type === 'image/png' && file.size < 2 * 1024 * 1024 ? 'image/png' : 'image/jpeg';
                 const compressedDataUrl = canvas.toDataURL(outputType, quality);
                 resolve(compressedDataUrl);
@@ -89,17 +77,12 @@ export function compressImageFile(file, maxDimension = 1600, quality = 0.85) {
 }
 
 export const attachmentStorage = {
-    /**
-     * Stores a receipt file into IndexedDB and returns an optimized preview DataURL.
-     */
     saveFile: async (key, file) => {
         if (!key || !file) return null;
 
         try {
-            // 1. Generate optimized preview DataURL
             const previewDataUrl = await compressImageFile(file);
 
-            // 2. Read full raw DataURL
             const rawDataUrl = await new Promise((resolve) => {
                 const reader = new FileReader();
                 reader.onload = (e) => resolve(e.target.result);
@@ -107,7 +90,6 @@ export const attachmentStorage = {
                 reader.readAsDataURL(file);
             });
 
-            // 3. Cache in memory
             memoryCache.set(String(key), {
                 previewDataUrl,
                 rawDataUrl: rawDataUrl || previewDataUrl,
@@ -116,7 +98,6 @@ export const attachmentStorage = {
                 fileType: file.type,
             });
 
-            // 4. Save to IndexedDB
             const db = await openDB();
             if (db) {
                 const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -145,9 +126,6 @@ export const attachmentStorage = {
         }
     },
 
-    /**
-     * Saves raw DataURL directly (useful for migrating or manual linking)
-     */
     saveDataUrl: async (key, dataUrl, meta = {}) => {
         if (!key || !dataUrl) return;
 
@@ -179,18 +157,13 @@ export const attachmentStorage = {
         }
     },
 
-    /**
-     * Retrieves an attachment from memory cache or IndexedDB by key.
-     */
     getFile: async (key) => {
         if (!key) return null;
 
-        // 1. Check memory cache first
         if (memoryCache.has(String(key))) {
             return memoryCache.get(String(key));
         }
 
-        // 2. Check IndexedDB
         try {
             const db = await openDB();
             if (!db) return null;
@@ -215,9 +188,6 @@ export const attachmentStorage = {
         }
     },
 
-    /**
-     * Removes an attachment by key from memory cache and IndexedDB.
-     */
     removeFile: async (key) => {
         if (!key) return;
         memoryCache.delete(String(key));
@@ -233,9 +203,6 @@ export const attachmentStorage = {
         }
     },
 
-    /**
-     * Clears all stored attachments.
-     */
     clearAll: async () => {
         memoryCache.clear();
         try {

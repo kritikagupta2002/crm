@@ -1,8 +1,3 @@
-/*
- * A wide range of snowy rock peaks over a pine forest, in the sidebar mountain's greys (the --mtn-*
- * tokens). The top fades into the background; a side fade, where needed, is a CSS mask on the element.
- * Generated once (seeded script).
- */
 export function MountainRange({ className }) {
   return (
     <svg className={className} viewBox="0 0 760 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">

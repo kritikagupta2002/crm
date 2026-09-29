@@ -9,10 +9,6 @@ export function ProgressBar({ done, total, tone = 'tone-good' }) {
   )
 }
 
-/*
- * Tickable steps (approval, onboarding). Ticking or unticking calls onToggle(key, nextValue).
- * locked(step) returns why the current role can't tick a step (shown on hover), or nothing.
- */
 export function Checklist({ steps, values = {}, onToggle, disabled, locked }) {
   return (
     <ul className="checklist">

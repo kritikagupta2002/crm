@@ -25,7 +25,6 @@ export const EmployeeDocumentsPage = () => {
     const [selectedStatus, setSelectedStatus] = useState('All');
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState(null);
-    // Form State
     const [selectedEmpId, setSelectedEmpId] = useState('');
     const [docType, setDocType] = useState('Aadhaar Card');
     const [expiryDate, setExpiryDate] = useState('');
@@ -192,7 +191,6 @@ export const EmployeeDocumentsPage = () => {
             Upload Document
           </Button>}/>
 
-      {/* Summary Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card className="p-4 flex items-center gap-3">
           <div className="p-2.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 rounded-lg shrink-0">
@@ -238,7 +236,6 @@ export const EmployeeDocumentsPage = () => {
         </Card>
       </div>
 
-      {/* Filters & Table */}
       <Card className="p-4 space-y-4">
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
@@ -284,7 +281,6 @@ export const EmployeeDocumentsPage = () => {
         <DataTable keyField="id" columns={columns} data={filteredRecords} searchPlaceholder={isEmp ? 'Search my documents...' : 'Search by employee, document type, file name...'} searchable pageSize={10}/>
       </Card>
 
-      {/* Upload Modal */}
       <Modal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} title={isEmp ? 'Upload Personal Credential or KYC Document' : 'Upload Employee Credential or KYC Document'} maxWidth="md">
         <form onSubmit={handleUploadSubmit} className="space-y-4">
           {isEmp ? (<div className="p-3 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200/80 dark:border-blue-800/60 text-xs">
@@ -325,7 +321,6 @@ export const EmployeeDocumentsPage = () => {
         </form>
       </Modal>
 
-      {/* Preview Modal */}
       <Modal isOpen={!!selectedDoc} onClose={() => setSelectedDoc(null)} title="Document Verification Details" maxWidth="md">
         {selectedDoc && (<div className="space-y-4">
             <div className="p-4 bg-slate-50 rounded-lg border border-slate-200/70 space-y-2 text-xs">

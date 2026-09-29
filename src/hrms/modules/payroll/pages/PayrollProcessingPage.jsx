@@ -68,7 +68,6 @@ export const PayrollProcessingPage = () => {
             </Button>
           </div>
         </Card>) : (<div className="space-y-6">
-          {/* Month Selector Bar */}
           <Card className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
               <span className="text-xs font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">
@@ -89,7 +88,6 @@ export const PayrollProcessingPage = () => {
             </div>
           </Card>
 
-          {/* Preliminary Batch Summary */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div className="p-4 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
               <span className="text-xs text-slate-400 font-semibold uppercase">Personnel</span>
@@ -109,7 +107,6 @@ export const PayrollProcessingPage = () => {
             </div>
           </div>
 
-          {/* Verification Table */}
           <Card className="overflow-hidden">
             <div className="p-4 border-b border-slate-100 dark:border-[#253344] flex items-center justify-between">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">Employee Disbursal Roster</h3>
@@ -151,7 +148,6 @@ export const PayrollProcessingPage = () => {
             </div>
           </Card>
 
-          {/* Action Bar */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
             <Button variant="outline" onClick={() => navigate('/hr/payroll')}>
               Cancel

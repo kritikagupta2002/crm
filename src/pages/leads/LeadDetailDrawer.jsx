@@ -15,7 +15,6 @@ import { RoleLink } from '../../components/common/RoleLink'
 
 const todayISO = toISODate(TODAY)
 
-/* Quick look at a lead from the list; "Open full details" goes to the Enquiry Details page. */
 export function LeadDetailDrawer({ leadId, startWithFollowUpForm = false, onClose, onMarkLost }) {
   const money = useMoney()
   const { leads } = useCrm()

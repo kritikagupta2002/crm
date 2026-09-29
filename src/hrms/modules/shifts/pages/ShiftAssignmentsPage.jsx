@@ -18,7 +18,6 @@ export const ShiftAssignmentsPage = () => {
     const [assignments, setAssignments] = useState([]);
     const [shifts, setShifts] = useState([]);
     const [employees, setEmployees] = useState([]);
-    // Filter states
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
     const [selectedShift, setSelectedShift] = useState('all');
@@ -175,7 +174,6 @@ export const ShiftAssignmentsPage = () => {
               </Button>)}
           </div>}/>
 
-      {/* Assign Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Assign Shift to Staff Member" description="Map employee to an operational schedule and weekly rest day." footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
               Cancel

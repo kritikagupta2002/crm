@@ -17,7 +17,6 @@ import './erm.css'
 const TABS = ['All', 'In progress', 'Awaiting approval', 'Approved', 'Completed', 'Not started']
 const monthAgoISO = toISODate(addDays(TODAY, -30))
 
-/* Every won client's projects in one list: where the work is, which approval is with which authority, and the letters received. */
 export function ProjectsPage() {
   const { leads, projectEdits, role } = useCrm()
   const [params, setParams] = useSearchParams()

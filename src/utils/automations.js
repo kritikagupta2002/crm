@@ -1,17 +1,10 @@
 import { formatDate } from './date'
 
-/*
- * Automatic messages (requirement WP7 / WP20, vendor sheet C2): when something the client or the field team
- * should hear about happens in the app, a WhatsApp and/or an email goes out on its own. Settings → Automations
- * decides which events send on which channel. The demo keeps every message in the outbox (Sent messages);
- * the live system sends them through the WhatsApp Business API and the mail server.
- */
 export const CHANNELS = [
   { key: 'whatsapp', label: 'WhatsApp' },
   { key: 'email', label: 'Email' },
 ]
 
-/* to: who receives it. channels: what each event sends on until Settings changes it. */
 export const AUTOMATIONS = [
   { key: 'letter', label: 'Government letter received', to: 'Client', channels: { whatsapp: true, email: true }, note: 'with the scanned letter attached' },
   { key: 'submitted', label: 'Work filed with the authority', to: 'Client', channels: { whatsapp: true, email: true } },
@@ -37,10 +30,8 @@ export const AUTOMATIONS = [
 
 const DEFAULTS = Object.fromEntries(AUTOMATIONS.map((a) => [a.key, a.channels]))
 
-/* An event's channels as set in Settings: { whatsapp, email }. */
 export const automationOf = (settings, key) => ({ ...DEFAULTS[key], ...settings.automations?.[key] })
 
-/* The channels a message can really go on: WhatsApp needs a number, email an address. */
 export const channelsFor = (settings, key, to) => {
   const set = automationOf(settings, key)
   return CHANNELS.map((c) => c.key).filter((c) => set[c] && (c === 'whatsapp' ? to.phone : to.email))
@@ -49,7 +40,6 @@ export const channelsFor = (settings, key, to) => {
 const rupees = (n) => `₹${Math.round(n).toLocaleString('en-IN')}`
 const portal = () => `${window.location.origin}/login`
 
-/* The words of each message: { subject, text, attachment }. ctx carries what the event is about. */
 export function messageFor(key, ctx) {
   const { lead, project, companyName } = ctx
   const dear = lead ? `Dear ${lead.contactPerson},` : ''

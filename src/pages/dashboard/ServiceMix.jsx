@@ -3,7 +3,6 @@ import { useCrm } from '../../context/crm'
 import { usePeriod } from '../../context/period'
 import { getServiceMix } from '../../utils/dashboardStats'
 
-/* Simple ranked bars — easier to read than a seven-slice donut. */
 export function ServiceMix() {
   const { period } = usePeriod()
   const mix = getServiceMix(useCrm().leads, period).sort((a, b) => b.count - a.count)

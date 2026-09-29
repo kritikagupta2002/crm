@@ -1,4 +1,3 @@
-/* All dates are handled as local calendar days (no time zone shifts). */
 
 export function toISODate(date) {
   const y = date.getFullYear()
@@ -28,7 +27,6 @@ export const formatDayMonth = (value) => {
   return `${String(date.getDate()).padStart(2, '0')} ${monthShort(date)}`
 }
 
-/* "21 Sep" for this year, "12 Oct 2025" for any other, so older records don't read as this year's. */
 export const formatNearDate = (value) => (value.slice(0, 4) === String(new Date().getFullYear()) ? formatDayMonth(value) : formatDate(value))
 
 export const formatLongDate = (date) =>
@@ -39,7 +37,6 @@ export const formatLongDate = (date) =>
     year: 'numeric',
   })
 
-/* Fixed names: some browsers print "Sept" for en-GB. */
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export const monthShort = (date) => MONTHS[date.getMonth()]
@@ -50,10 +47,6 @@ export function formatTime(value) {
   return `${String(((h + 11) % 12) + 1).padStart(2, '0')}:${String(m).padStart(2, '0')} ${suffix}`
 }
 
-/*
- * Returns { start, end } for the period (both dates inclusive).
- * Indian financial year: quarters are Apr–Jun, Jul–Sep, Oct–Dec, Jan–Mar; the year starts 1 April.
- */
 export function periodRange(period, today, offset = 0) {
   const y = today.getFullYear()
   const m = today.getMonth()

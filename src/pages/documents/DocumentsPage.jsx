@@ -16,7 +16,6 @@ import '../projects/erm.css'
 import '../vendors/vendors.css'
 import './documents.css'
 
-/* The flowchart as a row of steps: the scan inbox first, then where the filed documents wait. */
 const PIPELINE = [
   { key: 'To file', icon: Inbox, hint: 'Scans in the inbox' },
   { key: 'To verify', icon: ShieldCheck, hint: 'Second person checks' },
@@ -28,7 +27,6 @@ const PIPELINE = [
 const VIEWS = ['Government documents', 'Other documents']
 const ACCESS_FILTERS = { 'Any access': () => true, 'Client can see': (d) => d.record.access?.client, 'Vendor can see': (d) => d.record.access?.vendor, 'Office only': (d) => d.record.access && !d.record.access.client && !d.record.access.vendor }
 
-/* Every other file the system holds, read-only here, with where it lives: enquiries, projects, vendors, tenders. */
 function otherDocuments({ leads, projects, vendorApplications, tenders, can }) {
   const rows = []
   if (can('/leads'))
@@ -127,11 +125,6 @@ function OtherDocuments() {
   )
 }
 
-/*
- * Document Management (the flowchart): government documents from the scanner to the client, each step done by
- * someone and kept on its audit trail. The pipeline filters the list; a row opens the document. The other files the
- * system holds (enquiries, projects, vendors, tenders) are listed under Other documents, read-only.
- */
 export function DocumentsPage() {
   const { documents, scanInbox, settings, vendors } = useCrm()
   const [params, setParams] = useSearchParams()

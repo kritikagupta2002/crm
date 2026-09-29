@@ -1,10 +1,6 @@
 import { BID_DOCS } from '../data/tenders'
 import { addDays, formatDate, formatNearDate, toISODate } from './date'
 
-/*
- * Where a tender stands. Open: taking bids (sealed). Evaluation: bidding closed, bids opened, no allotment yet.
- * Allotted: one bid won and became a work order. Closing early (the Admin's "close bidding now") counts as closed.
- */
 export function tenderPhase(tender, now = Date.now()) {
   if (tender.status === 'Allotted') return 'Allotted'
   if (tender.status === 'Cancelled') return 'Cancelled'
@@ -16,19 +12,14 @@ export const PHASE_LABEL = { Open: 'Open for bids', Evaluation: 'To decide', All
 export const PHASE_TONE = { Open: 'tone-info', Evaluation: 'tone-attention', Allotted: 'tone-good', Cancelled: 'tone-neutral' }
 export const BID_TONE = { Submitted: 'tone-info', Shortlisted: 'tone-attention', Allotted: 'tone-good', Rejected: 'tone-urgent', 'Not selected': 'tone-neutral', Withdrawn: 'tone-neutral' }
 
-/* Bids still in the running: not withdrawn, not yet decided against. */
 export const LIVE_BID = ['Submitted', 'Shortlisted']
 
-/* When bidding ends: the closing date, or when the Admin closed it early. */
 export const closingOf = (tender) => tender.closedEarlyAt ?? tender.closesAt
 
-/* "24 Sep 2026, 05:00 pm" from an ISO date-time. */
 export const formatDateTime = (iso) => `${formatDate(localDay(iso))}, ${new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`
 
-/* The local calendar day of an ISO date-time (the ISO string itself is UTC). */
 export const localDay = (iso) => new Date(iso).toLocaleDateString('en-CA')
 
-/* "in 4 days", "today", "closed 2 days ago": how far a date-time is from now, in days. */
 export function daysFrom(iso, now = Date.now()) {
   const day = (t) => new Date(new Date(t).toDateString()).getTime()
   const diff = Math.round((day(iso) - day(now)) / 86_400_000)
@@ -38,12 +29,10 @@ export function daysFrom(iso, now = Date.now()) {
   return diff > 0 ? `in ${diff} days` : `${-diff} days ago`
 }
 
-/* The project a tender is for: the one chosen when it was published, else the first running project of its service line. */
 export function projectOfTender(tender, projects) {
   return projects.find((p) => p.id === tender.projectId) ?? projects.find((p) => p.service === tender.service && p.status !== 'Completed' && p.startedOn) ?? null
 }
 
-/* What a bid must have before it can be sent: { field: message }. */
 export function validateBid(bid, tender, files) {
   const e = {}
   if (!(Number(bid.amount) > 0)) e.amount = 'Enter your quoted amount.'
@@ -58,10 +47,6 @@ export function validateBid(bid, tender, files) {
   return e
 }
 
-/*
- * What a vendor is told in their portal's bell: new works (published in the last week, not yet bid on) and
- * every decision on their bids, and answers to their questions. Newest first.
- */
 export function vendorNotices(vendorId, tenders, bids, clarifications = [], now = Date.now()) {
   const mine = bids.filter((b) => b.vendorId === vendorId)
   const weekAgo = now - 7 * 86_400_000
@@ -87,10 +72,8 @@ export function vendorNotices(vendorId, tenders, bids, clarifications = [], now 
   return [...works, ...decisions, ...answers].sort((a, b) => b.at.localeCompare(a.at))
 }
 
-/* eProc's "Organisation Chain", for our works: the company, then the service line the work is for. */
 export const orgChain = (tender, companyName) => `${companyName.replace(/ Pvt\. Ltd\.?$/, '')} › ${tender.service ?? tender.category}`
 
-/* Where a tender stands, as a bidder sees it (eProc's "Tender Stage"). */
 export function stageFor(tender, vendorId) {
   const phase = tenderPhase(tender)
   if (phase === 'Open') return { label: 'Bid submission', tone: 'tone-info', sub: `closes ${daysFrom(closingOf(tender))}` }
@@ -99,10 +82,6 @@ export function stageFor(tender, vendorId) {
   return { label: phase, tone: 'tone-neutral', sub: '' }
 }
 
-/*
- * The work order of one of the demo's earlier allotted tenders (data/tenders.js, SEEDED_TENDER_ORDERS): each step on
- * the day given, counted from today, so the order sits at the same stage whatever the date.
- */
 export function seededTenderOrder(spec, tender, bid, vendor, project, today) {
   const day = (n) => (n === null ? null : toISODate(addDays(today, n)))
   const id = `SC-${project.id.slice(3)}-${Number(tender.id.split('-').pop())}`
@@ -117,8 +96,6 @@ export function seededTenderOrder(spec, tender, bid, vendor, project, today) {
   return order
 }
 
-
-/* The "bids close" chip: its words and colour by how soon (red within a day, amber within three, else blue). */
 export function closingChip(tender, now = Date.now()) {
   const phase = tenderPhase(tender, now)
   if (phase !== 'Open') return { label: phase === 'Allotted' ? 'Allotted' : 'Bidding closed', tone: phase === 'Allotted' ? 'tone-good' : 'tone-neutral' }
@@ -126,11 +103,9 @@ export function closingChip(tender, now = Date.now()) {
   return { label: hours < 24 ? `Closes in ${Math.max(1, Math.round(hours))} h` : `Closes ${daysFrom(closingOf(tender), now)}`, tone: hours < 24 ? 'tone-urgent' : hours < 72 ? 'tone-attention' : 'tone-info' }
 }
 
-/* How far a work order has got, for the five-step tracker: Issued, Started, Delivered, Billed, Paid. */
 export const ORDER_STEPS = ['Issued', 'Started', 'Delivered', 'Billed', 'Paid']
 export const orderStep = (status) => ({ Issued: 0, 'In progress': 1, Completed: 2, 'Bill received': 3, Paid: 4 })[status] ?? 0
 
-/* eProc's critical dates in order, each marked done, next (the coming one) or later. */
 export function tenderDates(tender, now = Date.now()) {
   const steps = [
     ['Published', tender.publishedAt],
@@ -141,4 +116,3 @@ export function tenderDates(tender, now = Date.now()) {
   const next = steps.findIndex(([, at]) => new Date(at).getTime() > now)
   return steps.map(([label, at], i) => ({ label, at, state: next === -1 || i < next ? 'is-done' : i === next ? 'is-next' : '' }))
 }
-

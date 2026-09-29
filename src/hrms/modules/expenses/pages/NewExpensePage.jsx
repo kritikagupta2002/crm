@@ -134,7 +134,6 @@ export const NewExpensePage = () => {
                 }
             />
 
-            {/* Validation Error Banner */}
             {Object.keys(errors).length > 0 && (
                 <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 flex items-start gap-3 text-rose-800 dark:text-rose-300">
                     <AlertCircle className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5"/>

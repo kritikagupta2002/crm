@@ -5,24 +5,14 @@ import { seededInteractions } from './clientHistory'
 import { formatDayMonth, toISODate } from './date'
 
 const todayISO = toISODate(TODAY)
-// Letters older than this went to the client before the demo's records begin; newer ones still wait (utils/documents).
 export const sharedBeforeISO = toISODate(new Date(TODAY.getTime() - 10 * 86_400_000))
 
-/*
- * A step is done when its planned date has passed, unless the team has marked it otherwise:
- * an edit is the ISO date it was done on, or false for "not done yet".
- */
 function resolve(step, edit) {
   if (edit === false) return { ...step, done: false }
   if (typeof edit === 'string') return { ...step, done: true, date: edit }
   return { ...step, done: Boolean(step.date && step.date <= todayISO) }
 }
 
-/*
- * The ERM stages (vendor sheet C1: Admin → Project Coordinator → Team Lead → Field Member →
- * Govt Submission → Final Approval), ending with the project's closure. A stage is done when its
- * hand-over has happened.
- */
 export const ERM_STAGES = [
   { key: 'allocation', label: 'Allocation', owner: 'Admin', todo: 'Assign a project coordinator', waiting: 'Waiting for a coordinator' },
   { key: 'planning', label: 'Planning', owner: 'Team Lead', todo: 'Choose the team lead and field team', waiting: 'Waiting for a team' },
@@ -33,7 +23,6 @@ export const ERM_STAGES = [
   { key: 'closure', label: 'Project closure', owner: 'Team Lead', todo: 'Hand over and close the project', waiting: 'Approved, to be handed over' },
 ]
 
-/* Which roles can do each stage's hand-over; everyone else with ERM access follows it read-only. */
 const STAGE_ACTORS = {
   allocation: ['Admin'],
   planning: ['Admin', 'Team Lead'],
@@ -46,7 +35,6 @@ const STAGE_ACTORS = {
 
 export const canActOn = (role, stageKey) => Boolean(STAGE_ACTORS[stageKey]?.includes(role))
 
-/* What has to happen before a project is closed. */
 export const CLOSURE_STEPS = [
   { key: 'handover', label: 'Final report and approval handed over to the client' },
   { key: 'payment', label: 'Final payment received' },
@@ -54,17 +42,14 @@ export const CLOSURE_STEPS = [
   { key: 'feedback', label: 'Client feedback taken' },
 ]
 
-/* Kinds of file kept against a project. */
 export const DOC_CATEGORIES = ['Report', 'Field data', 'Maps & drawings', 'Submission', 'Other']
 
-/* Who does each of the standard tasks, by role in the project team. */
 const TASK_OWNER = { kickoff: 'teamLead', field: 'member', analysis: 'teamLead', report: 'teamLead', submission: 'coordinator' }
 
 export const TASK_STATUS = { todo: 'To do', 'in-progress': 'In progress', done: 'Done' }
 
 function buildTasks(base, edits, team, milestones, started) {
   const current = milestones.find((m) => !m.done)
-  // Some running projects have slipped on their current task, so the demo has overdue work to show.
   const slipped = Number(base.id.split('-').pop()) % 2 === 0
   const standard = milestones.map((m) => {
     const saved = edits.tasks?.[m.key] ?? {}
@@ -75,29 +60,21 @@ function buildTasks(base, edits, team, milestones, started) {
     const due = saved.due ?? (isCurrent && slipped && m.date > todayISO ? toISODate(new Date(TODAY.getTime() - 2 * 86_400_000)) : m.date)
     return { key: m.key, title: m.label, assignee, assignedOn: saved.assignedOn ?? null, due, status, doneOn: m.done ? m.date : null, standard: true }
   })
-  // Seeded field tasks, then the team's own; a seeded task the team has changed is stored with its edits.
   const own = edits.customTasks ?? []
   const extra = [...(base.seedTasks ?? []).filter((t) => !own.some((o) => o.id === t.id)), ...own].map((t) => ({ ...t, standard: false }))
   return [...standard, ...extra].map((t) => ({ ...t, overdue: t.status !== 'done' && Boolean(t.due) && t.due < todayISO }))
 }
 
-/*
- * A subcontract with what has been recorded on it: started, delivered, billed, bill checked, paid.
- * The status follows from the last step recorded, so it can only move forward in order.
- * oldStatus: a status picked by hand in an earlier version of the demo, used until a step is recorded.
- */
 export function resolveWorkOrder(order, edit = {}, oldStatus) {
   const w = { ...order, ...edit }
   const derived = w.payment ? 'Paid' : w.bill ? 'Bill received' : w.delivery ? 'Completed' : w.startedOn ? 'In progress' : 'Issued'
   const status = Object.keys(edit).length || !oldStatus ? derived : oldStatus
-  // The check compares the three records: order value, delivered work and the bill (3-way match).
   const billDiff = w.bill ? w.bill.amount - w.amount : 0
   const match = w.bill ? { order: true, delivery: Boolean(w.delivery), amount: billDiff === 0, diff: billDiff } : null
   const late = w.delivery ? w.delivery.on > w.dueOn : status !== 'Paid' && w.dueOn < todayISO && !w.delivery
   return { ...w, status, match, late, delayDays: w.delivery ? Math.round((new Date(w.delivery.on) - new Date(w.dueOn)) / 86_400_000) : null }
 }
 
-/* What comes next on a subcontract, and which side does it. */
 export function nextWorkStep(w) {
   if (w.status === 'Issued') return { key: 'start', label: 'Mark started', who: 'work' }
   if (w.status === 'In progress') return { key: 'deliver', label: 'Record delivery', who: 'work' }
@@ -109,16 +86,12 @@ export function nextWorkStep(w) {
 
 export const PROJECT_STATUS_TONE = { 'Not started': 'tone-neutral', 'In progress': 'tone-info', 'Awaiting approval': 'tone-attention', Approved: 'tone-good', Completed: 'tone-good' }
 
-/* A client's projects with the team's edits applied: milestones, approval steps, letters and a status. */
 export function clientProjects(lead, projectEdits = {}) {
   return baseProjects(lead).map((base) => {
     const edits = projectEdits[base.id] ?? {}
     const milestones = base.milestones.map((m) => resolve(m, edits.milestones?.[m.key]))
-    // Approval steps can't run ahead of the submission.
     const submitted = milestones[milestones.length - 1].done
     const approvals = base.approvals.map((s) => (submitted ? resolve(s, edits.approvals?.[s.key]) : { ...s, done: false }))
-    // A scanned letter recorded against an approval step becomes that step's letter (one letter, with the real scan).
-    // The demo's other letters (notices, queries, permissions: data/documents) come first, then what was recorded in the app.
     const recorded = [...(SEEDED_LETTERS[base.id] ?? []).map((l) => ({ ...l, authority: base.authority, fileId: `${l.id}-scan` })), ...(edits.letters ?? [])]
     const stepLetters = approvals
       .filter((s) => s.done && s.letter)
@@ -132,20 +105,15 @@ export function clientProjects(lead, projectEdits = {}) {
       ...stepLetters,
       ...recorded.filter((r) => !merged.has(r.id)).map((r) => ({ ...r, stepLabel: r.forStep ? base.approvals.find((s) => s.key === r.forStep)?.label : undefined })),
     ]
-      // Older letters were already passed on to the client; the last ten days' still wait for a WhatsApp.
-      // letterFiles: a new scan attached after a rescan (Document Management).
       .map((l) => ({ ...l, fileId: edits.letterFiles?.[l.id] ?? l.fileId, sharedOn: edits.sharedLetters?.[l.id] ?? l.sharedOn ?? (l.stepKey && l.date < sharedBeforeISO ? l.date : null) }))
       .sort((a, b) => b.date.localeCompare(a.date))
     const milestonesDone = milestones.filter((m) => m.done).length
     const approvalsDone = approvals.filter((s) => s.done).length
-    // A project whose start date is still ahead (just won) hasn't started, even though it has a plan.
-    // Started once its date has come, or earlier if the team has already ticked work off.
     const firstDone = milestones.find((m) => m.done)?.date
     const startedOn = firstDone && (!base.startedOn || firstDone < base.startedOn) ? firstDone : base.startedOn
     const started = Boolean(startedOn && startedOn <= todayISO)
     const approved = approvalsDone === approvals.length
 
-    // Closure: the demo's finished projects carry their own closure record until the team changes it.
     const seed = approved && edits.closure === undefined ? base.closureSeed : null
     const closureSteps = seed ? seed.steps : (edits.closure?.steps ?? {})
     const closedOn = seed ? seed.closedOn : approved ? (edits.closure?.closedOn ?? null) : null
@@ -153,9 +121,6 @@ export function clientProjects(lead, projectEdits = {}) {
 
     const status = !started && milestonesDone === 0 ? 'Not started' : approved ? (closedOn ? 'Completed' : 'Approved') : submitted ? 'Awaiting approval' : 'In progress'
     const submissionDate = milestones[milestones.length - 1].date
-    // Which files the client can download from the portal. The final report goes to the client once it is
-    // filed with the authority (the balance falls due then) or at the hand-over; everything else stays with
-    // the team until someone shares it.
     const handedOver = submitted || closure.steps.find((c) => c.key === 'handover')?.done
     const share = (file, byDefault = false) => ({ ...file, shared: edits.sharedFiles?.[file.id] ?? Boolean(byDefault) })
     const baseSubmission = submitted ? { ...base.submissionInfo, ...edits.submission, date: submissionDate } : null
@@ -163,7 +128,6 @@ export function clientProjects(lead, projectEdits = {}) {
     const fieldVisits = [...base.fieldVisits, ...(edits.fieldVisits ?? [])].map((v) => ({ ...v, files: v.files.map((f) => share(f)) })).sort((a, b) => b.date.localeCompare(a.date))
     const reportDone = milestones.find((m) => m.key === 'report')
     const documents = [...(reportDone?.done && base.reportFile ? [share({ ...base.reportFile, addedOn: reportDone.date }, handedOver)] : []), ...(edits.documents ?? []).map((d) => share(d))]
-    // Everything the client can download, with where it came from.
     const clientFiles = [
       ...documents.filter((d) => d.shared).map((d) => ({ ...d, from: d.category })),
       ...(submission?.files ?? []).filter((f) => f.shared).map((f) => ({ ...f, addedOn: f.addedOn ?? submission.date, from: 'Filed with the authority' })),
@@ -183,16 +147,11 @@ export function clientProjects(lead, projectEdits = {}) {
       approved,
       Boolean(closedOn),
     ]
-    // Stages run in order: the current one is the first not yet handed over.
     const stageIndex = done.findIndex((d) => !d) === -1 ? ERM_STAGES.length : done.findIndex((d) => !d)
     const stages = ERM_STAGES.map((st, i) => ({ ...st, done: i < stageIndex }))
-    // What happened on the project before anyone changed it in the ERM (the demo's seeded record).
-    // Changes made in the ERM are logged as activities, so nothing appears twice.
     const history = [
-      // A project created in the ERM is already in the activity log.
       base.createdOn && !base.extra && { kind: 'created', date: base.createdOn, text: `Project created — work confirmed by ${lead.company}` },
       started && !edits.team && team.coordinator && { kind: 'team', date: startedOn, text: `Team allocated: ${team.coordinator} (coordinator), ${team.teamLead} (team lead), ${team.members.join(', ')}` },
-      // The submission and the authority's first step are one event; the submission line covers both.
       ...milestones.filter((m) => m.done && m.key !== 'submission' && edits.milestones?.[m.key] === undefined).map((m) => ({ kind: 'milestone', date: m.date, text: `${m.label} done` })),
       ...base.fieldVisits.map((v) => ({ kind: 'visit', date: v.date, text: `Field visit: ${v.activity} by ${v.by}${v.files.length ? ` (${v.files.length} files)` : ''}` })),
       ...base.workOrders.map((w) => ({ kind: 'subcontract', date: w.issuedOn, text: `Subcontract ${w.id} issued to ${w.vendor} — ${w.work}` })),
@@ -210,7 +169,6 @@ export function clientProjects(lead, projectEdits = {}) {
   })
 }
 
-/* Where a project stands right now: the first open milestone, else the approval step with the authority. */
 function currentStep(p) {
   if (p.status === 'Completed') return { label: 'Project closed', date: p.closure.closedOn }
   if (p.status === 'Approved') return { label: 'Closure pending', date: null }
@@ -224,7 +182,6 @@ function currentStep(p) {
 
 const STATUS_ORDER = ['Awaiting approval', 'In progress', 'Approved', 'Not started', 'Completed']
 
-/* Every won client's projects, busiest first, each with its client lead and current step. */
 export function allProjects(leads, projectEdits) {
   return leads
     .flatMap((lead) => clientProjects(lead, projectEdits).map((p) => ({ ...p, lead, now: currentStep(p) })))
@@ -233,10 +190,6 @@ export function allProjects(leads, projectEdits) {
 
 const FOLLOW_UP_FOR_CLIENT = /^(Site Visit|Meeting|Presentation) scheduled for (.*)$/
 
-/*
- * What the client sees as "Latest updates": milestones of their own enquiry and project, never the
- * team's internal notes or calls. Newest first.
- */
 const CLIENT_MILESTONES = { accepted: 'You accepted the quotation', advance: 'We received your advance payment', won: 'Your project is confirmed' }
 
 export function clientUpdates({ lead, quote, projects, activities, followUps }) {
@@ -245,14 +198,12 @@ export function clientUpdates({ lead, quote, projects, activities, followUps }) 
     const sentOn = lead.firstSentOn ?? quote.sentOn
     items.push({ id: 'quote', text: `Quotation ${quote.number.replace(/-R\d+$/, '')} shared with you`, date: sentOn, sort: `${sentOn}T00:00:01` })
   }
-  // The demo's older deals were accepted, paid and confirmed before the app was opened: the same dates the team's timeline shows.
   seededInteractions(lead)
     .filter((i) => CLIENT_MILESTONES[i.key])
     .forEach((i, n) => items.push({ id: i.id, text: CLIENT_MILESTONES[i.key], date: i.date, sort: `${i.date}T00:00:0${n + 2}` }))
   activities
     .filter((a) => a.leadId === lead.id)
     .forEach((a) => {
-      // Activities carry a time, so things done on the same day keep their real order.
       const date = a.at.slice(0, 10)
       const sort = `${date}T${new Date(a.at).toTimeString().slice(0, 8)}`
       if (a.by === 'client') items.push({ id: a.id, text: a.clientText ?? a.text, date, sort, you: true })
@@ -270,14 +221,12 @@ export function clientUpdates({ lead, quote, projects, activities, followUps }) 
   projects.forEach((p) => {
     let step = 0
     const stepSort = (date) => `${date}T${date === todayISO ? '23:59' : '12:00'}:${String(step++).padStart(2, '0')}`
-    // Filing is also the approval's first step; on the same day it is one update, not two.
     const filed = p.approvals[0]
     const filedWithSubmission = (m) => m.key === 'submission' && filed?.done && filed.date === m.date
     p.milestones.filter((m) => m.done && !filedWithSubmission(m)).forEach((m) => items.push({ id: `${p.id}-${m.key}`, text: `${p.name}: ${m.label.toLowerCase()} done`, date: m.date, sort: stepSort(m.date) }))
     p.approvals
       .filter((s) => s.done)
       .forEach((s) => {
-        // The step's official letter comes with it, ready to download.
         const letter = p.letters.find((l) => l.stepKey === s.key || l.forStep === s.key)
         items.push({ id: `${p.id}-a-${s.key}`, text: `${p.name}: ${s.label}${letter ? ` — ${letter.title} is ready to download` : ''}`, date: s.date, sort: stepSort(s.date), letter: Boolean(letter) })
       })
@@ -290,7 +239,6 @@ export function clientUpdates({ lead, quote, projects, activities, followUps }) 
     .sort((a, b) => (b.sort ?? b.date).localeCompare(a.sort ?? a.date))
 }
 
-/* WhatsApp message that gives a client their portal login. */
 export function portalInvite(lead, settings) {
   const url = `${window.location.origin}/login`
   return `Dear ${lead.contactPerson}, you can now follow your work with ${settings.companyName} online: quotations, approvals, project progress and government letters.\n\nPortal: ${url}\nEnquiry ID: ${lead.id}\nLogin with your registered mobile number.\n\n— ${lead.assignedTo}, ${settings.companyName}`

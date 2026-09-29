@@ -1,12 +1,5 @@
 import { TODAY } from './mockData'
 
-/*
- * Vendor self-registration (requirement WP8; fields after eProc Rajasthan's "Online Enrollment of Corporate/Bidder"):
- * a firm applies on the public page, the Admin approves, sends it back for changes, or rejects it with a reason.
- * An approved firm joins the vendor register and signs in to the vendor portal with its vendor ID and mobile.
- */
-
-/* The kinds of outside work the project team hires. A vendor picks the ones it does; tenders go out by these. */
 export const WORK_CATEGORIES = [
   'Core drilling',
   'Lab testing (NABL)',
@@ -20,10 +13,6 @@ export const WORK_CATEGORIES = [
   'Other',
 ]
 
-/*
- * The form follows eProc's "Company Details" section. Where eProc asks Bidder Type (Indian / Foreign), we ask the
- * kind of firm, which is what matters for our work; Legal Status and Company Category keep eProc's meaning.
- */
 export const COMPANY_TYPES = ['Contractor', 'Laboratory', 'Survey Agency', 'Consultant', 'Supplier / Equipment Hire']
 export const LEGAL_STATUS = ['Proprietorship', 'Partnership', 'LLP', 'Private Limited Company', 'Public Limited Company', 'Joint Venture', 'Others']
 export const COMPANY_CATEGORIES = ['Micro Unit as per MSME', 'Small Unit as per MSME', 'Medium Unit as per MSME', 'Ancillary Unit', 'SSI', 'Others']
@@ -31,10 +20,8 @@ export const PREFERENCE_CATEGORIES = ['MSME', 'Startup']
 export const TITLES = ['Mr', 'Ms', 'Mrs', 'Dr', 'Sri']
 export const ACCOUNT_TYPES = ['Current', 'Savings']
 
-/* Micro / Small / Medium from the company category, or null when the firm isn't an MSME unit. */
 export const msmeOf = (firm) => firm.category?.match(/^(Micro|Small|Medium) Unit/)?.[1] ?? null
 
-/* States with their GST state code (the first two digits of a GSTIN). */
 export const STATE_CODES = {
   'Andhra Pradesh': '37',
   Bihar: '10',
@@ -60,7 +47,6 @@ export const STATE_CODES = {
 }
 export const STATES = Object.keys(STATE_CODES)
 
-/* Papers a firm uploads; `required` ones are checked before approval (GST certificate only if GST registered). */
 export const VENDOR_DOCS = [
   { kind: 'PAN card', required: true },
   { kind: 'Cancelled cheque', required: true },
@@ -85,7 +71,6 @@ const at = (daysAgo, time) => {
 }
 const doc = (id, kind, name, size) => ({ id, kind, name, size, type: name.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg', seeded: true })
 
-/* Applications waiting in the demo: two new, one sent back, one rejected. */
 export const SEEDED_APPLICATIONS = [
   {
     id: 'VR-2026-012',

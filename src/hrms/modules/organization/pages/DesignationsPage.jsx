@@ -17,11 +17,9 @@ export const DesignationsPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDesig, setEditingDesig] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
-    // Filters
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedLevel, setSelectedLevel] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
-    // Form State
     const [title, setTitle] = useState('');
     const [code, setCode] = useState('');
     const [department, setDepartment] = useState('Geology & Mineral Exploration');
@@ -37,7 +35,6 @@ export const DesignationsPage = () => {
     useEffect(() => {
         loadData();
     }, []);
-    // Live count of active employees per designation directly from storage (Zero Fake Numbers)
     const staffCounts = useMemo(() => {
         const counts = {};
         const employees = storage.getEmployees();
@@ -62,14 +59,12 @@ export const DesignationsPage = () => {
             return staffCounts[codeKey];
         return d.employeeCount || 0;
     };
-    // Dynamic Department list combining designations and system departments
     const availableDepartments = useMemo(() => {
         const fromDesig = designations.map((d) => d.department);
         const fromDepts = storage.getDepartments().map((dept) => dept.name);
         const set = new Set([...fromDesig, ...fromDepts].filter(Boolean));
         return Array.from(set).sort();
     }, [designations]);
-    // Filtering
     const filteredDesignations = useMemo(() => {
         return designations.filter((d) => {
             if (selectedDept !== 'all' && d.department !== selectedDept)
@@ -81,7 +76,6 @@ export const DesignationsPage = () => {
             return true;
         });
     }, [designations, selectedDept, selectedLevel, selectedStatus]);
-    // KPI Summary Metrics
     const metrics = useMemo(() => {
         const totalDesignations = designations.length;
         const executiveSenior = designations.filter((d) => ['L6', 'L5'].includes(d.level)).length;
@@ -113,7 +107,6 @@ export const DesignationsPage = () => {
     };
     const validateForm = () => {
         const newErrors = {};
-        // Title validation & limits
         const trimmedTitle = title.trim();
         if (!trimmedTitle) {
             newErrors.title = 'Designation title is required.';
@@ -131,7 +124,6 @@ export const DesignationsPage = () => {
                 newErrors.title = `A designation titled "${trimmedTitle}" already exists.`;
             }
         }
-        // Code validation & limits
         const trimmedCode = code.trim().toUpperCase();
         if (!trimmedCode) {
             newErrors.code = 'Designation code is required.';
@@ -152,7 +144,6 @@ export const DesignationsPage = () => {
                 newErrors.code = `Code "${trimmedCode}" is already used by "${duplicateCode.title}".`;
             }
         }
-        // Experience limit
         if (minExp.trim().length > 25) {
             newErrors.minExp = 'Experience text cannot exceed 25 characters.';
         }
@@ -325,7 +316,6 @@ export const DesignationsPage = () => {
             Add Designation
           </Button>}/>
 
-      {/* Top Metric Cards */}
       <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         <StatCard title="Total Designations" value={metrics.totalDesignations} icon={<Briefcase className="w-5 h-5 text-teal-600 dark:text-teal-400"/>} iconBgColor="bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300" caption="Configured in organization" compact/>
         <StatCard title="Executive & Senior (L5-L6)" value={metrics.executiveSenior} icon={<Award className="w-5 h-5 text-amber-600 dark:text-amber-400"/>} iconBgColor="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300" caption="Leadership & consultant roles" compact/>
@@ -334,7 +324,6 @@ export const DesignationsPage = () => {
       </div>
 
       <DataTable compact={true} columns={columns} data={filteredDesignations} keyField="id" searchPlaceholder="Search designations by title, code, department, level..." searchFields={['title', 'code', 'department', 'level']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-            {/* Department Filter with all active departments */}
             <div className="w-full sm:w-auto flex-1 sm:flex-initial min-w-full xs:min-w-[160px] sm:min-w-[170px]">
               <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[
                 { label: 'All Departments', value: 'all' },
@@ -345,7 +334,6 @@ export const DesignationsPage = () => {
             ]}/>
             </div>
 
-            {/* Hierarchy Level Filter with complete L1 through L6 */}
             <div className="w-full sm:w-auto flex-1 sm:flex-initial min-w-full xs:min-w-[140px] sm:min-w-[150px]">
               <Select value={selectedLevel} onChange={(e) => setSelectedLevel(e.target.value)} options={[
                 { label: 'All Levels (L1-L6)', value: 'all' },
@@ -358,7 +346,6 @@ export const DesignationsPage = () => {
             ]}/>
             </div>
 
-            {/* Status Filter */}
             <div className="w-full sm:w-auto flex-1 sm:flex-initial min-w-full xs:min-w-[110px] sm:min-w-[120px]">
               <Select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} options={[
                 { label: 'All Statuses', value: 'all' },
@@ -367,7 +354,6 @@ export const DesignationsPage = () => {
             ]}/>
             </div>
 
-            {/* Reset Filters */}
             {(selectedDept !== 'all' || selectedLevel !== 'all' || selectedStatus !== 'all') && (<Button variant="ghost" size="sm" onClick={() => {
                     setSelectedDept('all');
                     setSelectedLevel('all');
@@ -378,7 +364,6 @@ export const DesignationsPage = () => {
               </Button>)}
           </div>}/>
 
-      {/* Add / Edit Designation Modal with Strict Limits */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingDesig ? 'Edit Designation' : 'Create New Designation'} description="Configure designation grade, hierarchy seniority band, and department assignment." footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
               Cancel
@@ -398,7 +383,6 @@ export const DesignationsPage = () => {
             </div>
             <div>
               <Input label="Designation Code" isRequired maxLength={12} value={code} onChange={(e) => {
-            // Automatic uppercase and limit to valid characters
             const sanitized = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
             setCode(sanitized);
             if (errors.code)
@@ -448,7 +432,6 @@ export const DesignationsPage = () => {
         </div>
       </Modal>
 
-      {/* Delete Confirmation Modal with Safety Guard */}
       <Modal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Delete Designation" description="Are you sure you want to delete this designation? This action cannot be undone." footer={<>
             <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
               Cancel

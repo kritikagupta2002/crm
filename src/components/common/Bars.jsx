@@ -1,4 +1,3 @@
-/* Horizontal bars for report cards: a label, a count with a note, and a bar scaled to the largest row. */
 export function Bars({ rows, color }) {
   const max = Math.max(...rows.map((r) => r.count), 1)
   return (

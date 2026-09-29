@@ -16,10 +16,8 @@ export const SalaryStructurePage = () => {
     const [structures, setStructures] = useState([]);
     const [editingStruct, setEditingStruct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // Filters
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
-    // Form states
     const [basic, setBasic] = useState(0);
     const [hra, setHra] = useState(0);
     const [conveyance, setConveyance] = useState(0);
@@ -194,7 +192,6 @@ export const SalaryStructurePage = () => {
               </Button>)}
           </div>}/>
 
-      {/* Edit Structure Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={`Adjust Compensation: ${editingStruct?.employeeName}`} description="Modify monthly earnings components and statutory deductions." maxWidth="2xl" footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
               Cancel
@@ -204,7 +201,6 @@ export const SalaryStructurePage = () => {
             </Button>
           </>}>
         <div className="space-y-5">
-          {/* Earnings */}
           <div>
             <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
               Monthly Earnings (₹)
@@ -218,7 +214,6 @@ export const SalaryStructurePage = () => {
             </div>
           </div>
 
-          {/* Deductions */}
           <div className="pt-3 border-t border-slate-100">
             <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
               Statutory Monthly Deductions (₹)
@@ -230,7 +225,6 @@ export const SalaryStructurePage = () => {
             </div>
           </div>
 
-          {/* Computed Summary */}
           <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
             <div>
               <span className="text-[11px] text-slate-500 uppercase font-semibold">Gross Monthly</span>

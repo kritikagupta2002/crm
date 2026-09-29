@@ -7,7 +7,6 @@ import { questionsFor } from '../../utils/questions'
 
 const TABS = { Waiting: (q) => q.status === 'Open', Answered: (q) => q.status !== 'Open', All: () => true }
 
-/* Who sees what here, in words, for the page's subtitle. */
 const SCOPE = {
   Admin: 'every question from the client portal',
   Employee: 'questions from enquiries not yet won, and general ones',
@@ -15,15 +14,10 @@ const SCOPE = {
   Accountant: 'billing questions',
 }
 
-/*
- * Questions clients asked on the portal, in one place and sent to whoever answers them (utils/questions):
- * Accounts for billing, the project team for the work, Sales before the deal is won.
- */
 export function QuestionsPage() {
   const { leads, role, user, projectEdits } = useCrm()
   const [tab, setTab] = useState('Waiting')
   const mine = questionsFor({ role, userName: user.name, projectEdits }, leads)
-  // Longest waiting first; answered ones newest first.
   const visible = mine.filter(TABS[tab]).sort((a, b) => (tab === 'Waiting' ? a.at.localeCompare(b.at) : b.at.localeCompare(a.at)))
 
   return (

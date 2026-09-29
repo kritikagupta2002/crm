@@ -70,10 +70,6 @@ function Tags({ lead }) {
   )
 }
 
-/*
- * The enquiry's documents: the client's uploads from the portal and the team's own files, which stay with the team
- * until someone shares them. The demo keeps only file details, not contents.
- */
 export function LeadDocuments({ lead }) {
   const { addDocuments, removeDocument, setDocumentShared, settings } = useCrm()
   const canEdit = useAccess().may('contact')
@@ -150,7 +146,6 @@ export function LeadDocuments({ lead }) {
                   </span>
                 </div>
                 <span className="doc-actions">
-                  {/* The team's own files stay with the team until shared; the client's uploads are theirs already. */}
                   {!doc.byClient && (
                     <button
                       className={`share-toggle ${doc.shared ? 'is-on' : ''}`}

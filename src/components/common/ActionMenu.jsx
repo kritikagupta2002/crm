@@ -4,11 +4,6 @@ import { Portal } from './Portal'
 
 const MENU_GAP = 4
 
-/*
- * "⋯" button with a small menu. items: [{ label, icon, onSelect, tone?: 'good' | 'danger' }].
- * The menu is fixed-positioned next to the button so scrolling table wrappers can't clip it,
- * and it opens upwards when there isn't room below. Clicks inside don't bubble, so it can sit in a clickable row.
- */
 export function ActionMenu({ label, items }) {
   const [position, setPosition] = useState(null) // null = closed
   const ref = useRef(null)

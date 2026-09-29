@@ -20,7 +20,6 @@ const STEPS = [
 ]
 const timeOf = (iso) => new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
 
-/* Where it stands, as five ticks: filed → verified → access → shared → original. */
 function StepTrack({ doc }) {
   const done = STEPS.map(([, test]) => test(doc))
   const now = done.indexOf(false)
@@ -36,7 +35,6 @@ function StepTrack({ doc }) {
   )
 }
 
-/* Second pair of eyes: verified, or back for a rescan with what is wrong. */
 function VerifyStep({ doc, blocked }) {
   const { verifyDocument } = useCrm()
   const [rescan, setRescan] = useState(false)
@@ -89,7 +87,6 @@ function VerifyStep({ doc, blocked }) {
   )
 }
 
-/* After a rescan request: the new copy, uploaded or taken from the scan inbox. */
 function RescanStep({ doc }) {
   const { replaceDocScan, scanInbox } = useCrm()
   const input = useRef(null)
@@ -143,7 +140,6 @@ function RescanStep({ doc }) {
   )
 }
 
-/* Who may open it: always the office; the client and the linked vendor if allowed; and whether the original goes out. */
 function AuthorizeStep({ doc }) {
   const { authorizeDocument, settings } = useCrm()
   const [client, setClient] = useState(doc.kind !== 'Circular')
@@ -211,7 +207,6 @@ function ShareStep({ doc }) {
   )
 }
 
-/* The original on its way: how it went, the docket, the day. */
 function DispatchStep({ doc }) {
   const { dispatchDocument } = useCrm()
   const [mode, setMode] = useState(DISPATCH_MODES[0])
@@ -287,7 +282,6 @@ function ReceiveStep({ doc }) {
   )
 }
 
-/* The lease number and the vendor on the work, changed in place. */
 function LinksForm({ doc, onDone }) {
   const { linkDocument, vendors } = useCrm()
   const [leaseNo, setLeaseNo] = useState(doc.record.links.leaseNo ?? '')
@@ -330,7 +324,6 @@ function LinksForm({ doc, onDone }) {
 
 const STEP_TITLE = { 'To verify': 'Verify the scan', 'To authorize': 'Set who can see it', 'To share': 'Share with the client', 'To dispatch': 'Dispatch the original' }
 
-/* One government document: the scan, what it is linked to, the step it waits at, its access, the original and its trail. */
 export function DocumentDrawer({ doc, onClose }) {
   const { settings, vendors, user } = useCrm()
   const { may } = useAccess()

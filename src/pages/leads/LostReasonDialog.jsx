@@ -2,7 +2,6 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { LOST_REASONS } from '../../data/mockData'
 import { Portal } from '../../components/common/Portal'
 
-/* Asks why a lead was lost before marking it — the reason feeds lost-deal reporting later. */
 export function LostReasonDialog({ company, onConfirm, onCancel }) {
   const [reason, setReason] = useState(LOST_REASONS[0])
   const titleId = useId()

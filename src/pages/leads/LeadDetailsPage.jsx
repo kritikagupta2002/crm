@@ -85,7 +85,6 @@ const TABS = [
   { id: 'activity', label: 'Follow-ups & Activity' },
 ]
 
-/* Everything about one enquiry. The tab lives in the URL (?tab=…) so a specific tab can be shared or reloaded. */
 export function LeadDetailsPage() {
   const money = useMoney()
   const { leadId } = useParams()
@@ -116,9 +115,7 @@ export function LeadDetailsPage() {
   const pendingCount = followUps.filter((f) => f.leadId === lead.id).length
   const isClosed = lead.stage === 'Won' || lead.stage === 'Lost'
   const counts = { documents: lead.documents?.length ?? 0, activity: pendingCount }
-  // Questions the client asked on the portal and nobody has answered yet: their own badge on the tab.
   const openQuestions = queriesOf(lead).filter((q) => q.status === 'Open').length
-  // What the client uploaded on the portal this week, so it isn't missed.
   const newUploads = (lead.documents ?? []).filter(isNewFromClient).length
 
   return (
@@ -206,7 +203,6 @@ export function LeadDetailsPage() {
             {tab === 'documents' && <LeadDocuments lead={lead} />}
             {tab === 'activity' && (
               <div className="activity-panel">
-                {/* Always here, first: what the client asked on the portal (or a line saying nothing yet). */}
                 <section className="lead-section first">
                   <ClientQueries lead={lead} />
                 </section>

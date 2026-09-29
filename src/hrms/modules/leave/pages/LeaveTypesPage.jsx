@@ -111,7 +111,6 @@ export const LeaveTypesPage = () => {
 
       <DataTable columns={columns} data={types} keyField="id" searchPlaceholder="Search leave policies..." searchFields={['name', 'code']}/>
 
-      {/* Add Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Configure New Leave Category" description="Establish entitlement rules, carry-forward, and encashability." footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsModalOpen(false)}>
               Cancel

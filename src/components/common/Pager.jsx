@@ -1,7 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 
-/* First, last and the pages around the current one; gaps become "…". */
 export function pageList(current, count) {
   const pages = []
   for (let p = 0; p < count; p++) {
@@ -11,10 +10,6 @@ export function pageList(current, count) {
   return pages
 }
 
-/*
- * Client-side paging for a list: returns the rows of the current page and the pager bar.
- * resetKey (e.g. the active tab and search) sends it back to page 1 when the filters change.
- */
 export function usePaged(items, pageSize = 10, resetKey = '') {
   const [state, setState] = useState({ page: 0, key: resetKey })
   if (state.key !== resetKey) setState({ page: 0, key: resetKey })

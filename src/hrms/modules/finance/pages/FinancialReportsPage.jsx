@@ -7,7 +7,6 @@ import { Select } from '@/components/common/Select';
 import { Input } from '@/components/common/Input';
 import { useToast } from '@/contexts/ToastContext';
 const REPORT_CATALOG = [
-    // 1. Invoices & Payments
     {
         id: 'rep-ar-aging',
         category: 'Invoices & Payments',
@@ -29,7 +28,6 @@ const REPORT_CATALOG = [
         description: 'Summary of contractor settlements, rig leases, and assay lab payments.',
         format: 'Excel',
     },
-    // 2. Accounting Records
     {
         id: 'rep-trial-balance',
         category: 'Accounting Records',
@@ -51,7 +49,6 @@ const REPORT_CATALOG = [
         description: 'Comparison of corporate bank statement lines against internal transaction vouchers.',
         format: 'PDF',
     },
-    // 3. TDS / GST Reports
     {
         id: 'rep-tds-26q',
         category: 'TDS / GST Reports',
@@ -73,7 +70,6 @@ const REPORT_CATALOG = [
         description: 'Automated matching of eligible Input Tax Credit against uploaded supplier invoices.',
         format: 'Excel',
     },
-    // 4. Financial Reports & Costing
     {
         id: 'rep-pnl',
         category: 'Financial Reports',
@@ -152,7 +148,6 @@ export const FinancialReportsPage = () => {
             { label: 'Financial Reports' },
         ]}/>
 
-      {/* Filter & Generation Bar */}
       <Card className="p-4 sm:p-5 border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37]">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 flex-1">
@@ -183,9 +178,7 @@ export const FinancialReportsPage = () => {
         </div>
       </Card>
 
-      {/* Catalog & Preview Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Report Selection Catalog */}
         <div className="lg:col-span-5 space-y-3">
           <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
             Available Reports in Output Framework
@@ -215,7 +208,6 @@ export const FinancialReportsPage = () => {
           </div>
         </div>
 
-        {/* Right Column: Dynamic Report Preview Pane */}
         <div className="lg:col-span-7">
           <Card className="p-5 border border-[var(--line,#e1e8eb)] dark:border-[#1e2c37] space-y-4">
             <div className="flex items-center justify-between border-b pb-3 border-[var(--line,#e1e8eb)] dark:border-[#1e2c37]">
@@ -235,7 +227,6 @@ export const FinancialReportsPage = () => {
               </Button>
             </div>
 
-            {/* Simulated Live Financial Statement Preview */}
             <div className="space-y-4 text-xs font-inter">
               <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-[#111821] border border-slate-200/80 dark:border-[#253344] space-y-2">
                 <div className="flex justify-between font-semibold text-slate-700 dark:text-slate-200">

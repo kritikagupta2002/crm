@@ -27,12 +27,10 @@ export const Modal = ({ isOpen, onClose, title, description, children, footer, m
         '4xl': 'max-w-4xl',
     };
     return (<div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
       <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-fade-in" onClick={onClose}/>
 
       <div className="flex min-h-full items-center justify-center p-2.5 sm:p-4 text-center">
         <div className={`relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#1A2430] text-left shadow-[0_8px_40px_-8px_rgba(139,90,43,0.15),0_20px_60px_-20px_rgba(139,90,43,0.10)] dark:shadow-[0_25px_50px_rgba(0,0,0,0.6)] transition-all w-full ${maxWidthClasses[maxWidth]} my-2 sm:my-8 border border-[#E8E4DC]/90 dark:border-[#253344]`} onClick={(e) => e.stopPropagation()}>
-          {/* Modal Header */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#F0EDE8] dark:border-[#253344] bg-[#FAFAF8]/60 dark:bg-[#111821]/50">
             <div className="min-w-0 flex-1">
               {typeof title === 'string' ? (<h3 className="text-sm sm:text-base font-semibold text-[#1A2430] dark:text-slate-100 truncate">{title}</h3>) : (title)}
@@ -43,12 +41,10 @@ export const Modal = ({ isOpen, onClose, title, description, children, footer, m
             </button>
           </div>
 
-          {/* Modal Body */}
           <div className="px-4 sm:px-6 py-4 sm:py-5 max-h-[75vh] overflow-y-auto">
             {children}
           </div>
 
-          {/* Modal Footer */}
           {footer && (<div className="px-4 sm:px-6 py-3 sm:py-4 bg-[#FAFAF8]/80 dark:bg-[#111821]/70 border-t border-[#F0EDE8] dark:border-[#253344] flex flex-wrap items-center justify-end gap-2 sm:gap-3 [&>button]:w-full [&>button]:sm:w-auto">
               {footer}
             </div>)}

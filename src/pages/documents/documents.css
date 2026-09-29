@@ -1,9 +1,7 @@
-/* ---------- Document Management ---------- */
 .page-title .back-link {
   margin-bottom: 4px;
 }
 
-/* The flowchart as a row: the scan inbox, then each step a filed document waits at. */
 .doc-pipeline {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -82,7 +80,6 @@
   white-space: nowrap;
 }
 
-/* The arrow to the next step sits in the gap between two tiles. */
 .doc-pipe-arrow {
   position: absolute;
   top: 50%;
@@ -133,7 +130,6 @@
   margin-left: auto;
 }
 
-/* ---------- One document (drawer) ---------- */
 .doc-kind {
   padding: 2px 8px;
   border-radius: 6px;
@@ -246,7 +242,6 @@
   flex-shrink: 0;
 }
 
-/* The step it waits at, with what to do. */
 .doc-step {
   display: flex;
   flex-direction: column;
@@ -280,7 +275,6 @@
   margin: 0;
 }
 
-/* The step box is the frame; its form sits in it without one of its own. */
 .doc-step .app-decision {
   padding: 0;
   border: 0;
@@ -416,7 +410,6 @@
   margin-top: 10px;
 }
 
-/* The audit trail, newest first. */
 .doc-trail {
   position: relative;
   display: flex;
@@ -478,7 +471,6 @@
   background: var(--surface);
 }
 
-/* ---------- Scan inbox and dispatch register ---------- */
 .doc-filing .record-letter-body {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -33,7 +33,6 @@ function RequestForm({ lead, onDone }) {
   )
 }
 
-/* A payment the client reported for one due (e.g. the advance), with Verify / Not received, for workflow cards. */
 export function PaymentCheck({ lead, dueKey }) {
   const { settings, verifyPayment } = useCrm()
   const money = useMoney()
@@ -68,10 +67,6 @@ export function PaymentCheck({ lead, dueKey }) {
   )
 }
 
-/*
- * Money from the client: what is due (advance, balance, anything requested) and the payments the client
- * reported from the portal with their screenshot. Accounts confirms each one against the bank account.
- */
 export function ClientPayments({ lead }) {
   const { projectEdits, settings, verifyPayment } = useCrm()
   const money = useMoney()
@@ -81,7 +76,6 @@ export function ClientPayments({ lead }) {
   const dues = duesFor(lead, clientProjects(lead, projectEdits))
   const reported = paymentsOf(lead)
   const toCheck = reported.filter((p) => p.status === 'Submitted').length
-  // Verifying and asking for money is Accounts' job (and the Admin's); others see the record.
   const canVerify = useAccess().may('payments')
 
   return (

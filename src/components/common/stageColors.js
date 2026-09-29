@@ -1,8 +1,3 @@
-/*
- * Stages follow the dashboard colour code:
- * blue = getting started, amber = in progress (needs attention), green = won, red = lost.
- * Shades deepen as a lead moves further along within its phase.
- */
 export const STAGE_COLORS = {
   'New Enquiry': { bg: '#eaf2fc', fg: '#1f5a99', dot: '#6a9fd8' },
   Contacted: { bg: '#d6e6f8', fg: '#1f5a99', dot: 'var(--blue)' },

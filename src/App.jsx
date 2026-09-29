@@ -46,12 +46,10 @@ export default function App() {
     <CrmProvider>
       <PeriodProvider>
         <BrowserRouter>
-          {/* Inside the router so saving a new enquiry can open its details page. */}
           <EnquiryFormProvider>
             <Routes>
               <Route path="login" element={<LoginPage />} />
               <Route path="portal" element={<ClientPortalPage />} />
-              {/* The vendor portal: its own sign-in and menu (after eProc's bidder screens), in the app's design. */}
               <Route path="vendor" element={<VendorLayout />}>
                 <Route index element={<VendorHomePage />} />
                 <Route path="account" element={<VendorAccountPage />} />

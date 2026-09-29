@@ -39,10 +39,6 @@ function FilePick({ files, onChange, multiple = true, label = 'Attach files' }) 
   )
 }
 
-/*
- * The form for the next step on a subcontract. step: 'deliver' | 'bill' | 'check' | 'pay'.
- * onSubmit(details) gets what recordWorkStep needs.
- */
 export function WorkStepForm({ order, step, vendor, onSubmit, onCancel, forVendor = false }) {
   const [on, setOn] = useState(todayISO)
   const [note, setNote] = useState('')
@@ -245,7 +241,6 @@ function FileLinks({ files, company, companyName }) {
   )
 }
 
-/* The subcontract's record, step by step: who did what, when, with the files. money hides amounts for operations roles. */
 export function WorkOrderTrail({ order, money, company, companyName }) {
   const full = money?.full ?? rupees
   const steps = [

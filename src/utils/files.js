@@ -1,11 +1,6 @@
 import { formatDate } from './date'
 import { textPdf } from './pdf'
 
-/*
- * Files uploaded in this browser session are kept in memory so they can be downloaded again.
- * The demo stores only file details, so after a refresh (or for sample records) a download
- * gives a generated PDF copy instead.
- */
 const sessionFiles = new Map()
 
 export const rememberFile = (id, file) => sessionFiles.set(id, file)
@@ -23,7 +18,6 @@ export function downloadBlob(filename, blob) {
 
 const pdfName = (name) => (/\.pdf$/i.test(name) ? name : `${name.replace(/\.[^.]+$/, '')}.pdf`)
 
-/* A document from a lead's Documents list: the real file if we still have it, else a placeholder copy. */
 export function downloadDocument(doc, { company, companyName }) {
   const file = sessionFiles.get(doc.id)
   if (file) return downloadBlob(doc.name, file)
@@ -39,7 +33,6 @@ export function downloadDocument(doc, { company, companyName }) {
   )
 }
 
-/* An official letter recorded against a project (approval order, notice, acknowledgement). */
 export function downloadLetter(letter, { project, lead, companyName }) {
   const file = letter.fileId && sessionFiles.get(letter.fileId)
   if (file) return downloadBlob(file.name, file)
