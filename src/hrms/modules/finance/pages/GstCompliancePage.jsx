@@ -160,7 +160,7 @@ export const GstCompliancePage = () => {
 
       {/* Return Filing Calendar / Tracker */}
       <div className="space-y-3">
-        <h3 className="text-sm font-bold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-fraunces">
+        <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
           Statutory Return Filing Schedule & Status
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -193,7 +193,7 @@ export const GstCompliancePage = () => {
 
       {/* Taxable Transactions Table */}
       <div className="space-y-3 pt-2">
-        <h3 className="text-sm font-bold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-fraunces">
+        <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
           Taxable Supply Register & ITC Audit Ledger
         </h3>
         <DataTable columns={columns} data={gstTransactions} keyField="id" searchable searchPlaceholder="Search GST transactions by document, party, or GSTIN..." searchFields={['docNumber', 'counterPartyName', 'counterPartyGstin', 'supplyType']} pageSize={10}/>

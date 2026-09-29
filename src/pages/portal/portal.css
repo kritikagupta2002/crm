@@ -378,7 +378,7 @@
   margin: 0 0 6px;
   font-family: var(--font-serif);
   font-size: 28px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -512,9 +512,9 @@
 
 .portal-card h2 {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 500;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -1370,7 +1370,8 @@
 
   .portal-band h1,
   .band-title {
-    font-size: 23px;
+    font-size: 26px;
+    line-height: 1.15;
   }
 
   .band-range {

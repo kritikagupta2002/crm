@@ -122,7 +122,7 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
                 <input type="text" value={searchTerm} onChange={(e) => {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
-                }} placeholder={searchPlaceholder} className={`w-full text-xs font-inter pl-9 pr-8 border border-[#E2E8F0] dark:border-[#253344] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#627079] dark:placeholder:text-slate-500 text-[#0F172A] dark:text-slate-200 bg-[#F8FAFC] dark:bg-[#111821] transition-all duration-200 ${compact ? 'h-[34px] py-1.5' : 'h-[38px] py-2'} shadow-2xs`}/>
+                }} placeholder={searchPlaceholder} className={`w-full text-[13px] font-inter pl-9 pr-8 border border-[#E2E8F0] dark:border-[#253344] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#627079] dark:placeholder:text-slate-500 text-[#0F172A] dark:text-slate-200 bg-[#F8FAFC] dark:bg-[#111821] transition-all duration-200 ${compact ? 'h-[34px] py-1.5' : 'h-[38px] py-2'} shadow-2xs`}/>
                 {searchTerm && (<button type="button" onClick={() => {
                         setSearchTerm('');
                         setCurrentPage(1);
@@ -130,7 +130,7 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
                     <X className="w-3 h-3"/>
                   </button>)}
               </div>)}
-            {sortedData.length > 0 && (<span className="hidden sm:inline-flex items-center text-[10.5px] font-inter font-medium text-[#627079] dark:text-slate-400 bg-[#F8FAFC] dark:bg-[#111821] px-2.5 py-1 rounded-full border border-[#E2E8F0] dark:border-[#253344] shadow-2xs">
+            {sortedData.length > 0 && (<span className="hidden sm:inline-flex items-center text-xs font-inter font-medium text-[#627079] dark:text-slate-400 bg-[#F8FAFC] dark:bg-[#111821] px-2.5 py-1 rounded-full border border-[#E2E8F0] dark:border-[#253344] shadow-2xs">
                 {sortedData.length} {sortedData.length === 1 ? 'record' : 'records'}
               </span>)}
             {filterComponent && (<div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">
@@ -145,9 +145,9 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
 
       {/* Table Container with Smooth Touch Horizontal Scrolling */}
       <div className="overflow-x-auto custom-sidebar-scroll w-full touch-pan-x">
-        <table className="w-full text-left border-collapse text-xs min-w-[720px] lg:min-w-full">
+        <table className="w-full text-left border-collapse text-[13px] min-w-[720px] lg:min-w-full">
           <thead>
-            <tr className="bg-[#F8FAFC] dark:bg-[#111821] border-b border-[#E2E8F0] dark:border-[#253344] text-[#627079] dark:text-slate-400 font-inter font-semibold text-[11px] uppercase tracking-wider">
+            <tr className="bg-[#F8FAFC] dark:bg-[#111821] border-b border-[#E2E8F0] dark:border-[#253344] text-[#0f2a3d] dark:text-slate-300 font-inter font-semibold text-[12.5px]">
               {selectable && (<th className={`${compact ? 'py-2 px-2.5' : 'py-2.5 px-3'} w-10`}>
                   <input type="checkbox" checked={isAllSelected} onChange={(e) => handleSelectAll(e.target.checked)} className="rounded border-[#CBD5E1] text-teal-700 focus:ring-teal-600 cursor-pointer w-3.5 h-3.5"/>
                 </th>)}

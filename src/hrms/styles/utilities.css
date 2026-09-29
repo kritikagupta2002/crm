@@ -1,4 +1,4 @@
-﻿/*
+/*
  * ============================================================
  *  THEME INDEX â€” CRM Theme
  *
@@ -3134,7 +3134,7 @@ html,
   -o-tab-size: 4;
      tab-size: 4;
   /* 3 */
-  font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--font-sans);
   /* 4 */
   font-feature-settings: normal;
   /* 5 */
@@ -3223,7 +3223,7 @@ code,
 kbd,
 samp,
 pre {
-  font-family: "JetBrains Mono", monospace;
+  font-family: var(--font-mono);
   /* 1 */
   font-feature-settings: normal;
   /* 2 */
@@ -3546,7 +3546,7 @@ html {
 body {
   background-color: var(--bg);
   color: var(--ink-2);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -3570,14 +3570,14 @@ body {
 }
 
 h1, h2, h3 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: var(--font-serif);
   color: var(--ink);
   letter-spacing: -0.02em;
   font-weight: 500;
 }
 
 h4, h5, h6 {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   color: var(--ink);
   letter-spacing: -0.01em;
   font-weight: 600;
@@ -6854,27 +6854,27 @@ td {
 }
 
 .font-fraunces {
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--font-serif);
 }
 
 .font-heading {
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--font-heading);
 }
 
 .font-inter {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .font-mono {
-  font-family: "JetBrains Mono", monospace;
+  font-family: var(--font-mono);
 }
 
 .font-sans {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
 .font-serif {
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--font-serif);
 }
 
 .text-2xl {

@@ -53,11 +53,7 @@
 .hrms .welcome-banner h1,
 .hrms .hero-banner h1,
 .hrms .profile-header h1,
-.hrms h1,
-.hrms .card-crm h2,
-.hrms .card h2,
-.hrms .card-header h2,
-.hrms .card-header h3 {
+.hrms h1 {
   font-family: var(--font-serif) !important;
   letter-spacing: -0.01em;
 }
@@ -68,6 +64,125 @@
   font-size: 32px;
   font-weight: 600;
   line-height: 1.15;
+}
+
+/* Card headers: Inter Sans-serif 600 16px exactly like CRM workspace */
+.hrms .card-header h2,
+.hrms .card-header h3,
+.hrms .card h2,
+.hrms .card-crm h2,
+.hrms .chart-title {
+  font-family: var(--font-sans) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+  line-height: 1.5 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   STANDARDIZED TABLE TYPOGRAPHY (MATCHES CRM MASTER SYSTEM)
+   ════════════════════════════════════════════════════════════ */
+.hrms table,
+.hrms .data-table {
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  line-height: 1.5;
+}
+
+.hrms table th,
+.hrms .data-table th,
+.hrms .enterprise-table-header {
+  font-family: var(--font-sans) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+  line-height: 1.5;
+}
+
+.hrms table td,
+.hrms .data-table td {
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.hrms .cell-sub,
+.hrms table td small,
+.hrms table td .cell-muted {
+  font-size: 12px !important;
+  font-weight: 400;
+}
+
+.hrms .cell-strong,
+.hrms table td strong {
+  font-weight: 500 !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   STANDARDIZED FORM TYPOGRAPHY (MATCHES CRM MASTER SYSTEM)
+   ════════════════════════════════════════════════════════════ */
+.hrms input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+.hrms select,
+.hrms textarea {
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.hrms label,
+.hrms .field-label {
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+}
+
+.hrms .field-helper,
+.hrms .field-error {
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+@media (pointer: coarse) {
+  .hrms input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+  .hrms select,
+  .hrms textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   STANDARDIZED BUTTON TYPOGRAPHY (MATCHES CRM MASTER SYSTEM)
+   ════════════════════════════════════════════════════════════ */
+.hrms .btn,
+.hrms button.btn {
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: normal !important;
+}
+
+.hrms .btn.btn-small,
+.hrms button.btn-small {
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+}
+
+.hrms .crm-btn-primary {
+  font-family: var(--font-sans) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+}
+
+.hrms .crm-btn-secondary {
+  font-family: var(--font-sans) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
 /* Stat Cards & KPI Figures in HRMS — Fraunces serif exactly like CRM workspace */
@@ -103,7 +218,7 @@
 
 .hrms .page-title-badge {
   display: inline-flex;
-  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-family: var(--font-sans);
 }
 
 .hrms .page-actions {

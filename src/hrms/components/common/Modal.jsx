@@ -35,7 +35,7 @@ export const Modal = ({ isOpen, onClose, title, description, children, footer, m
           {/* Modal Header */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#F0EDE8] dark:border-[#253344] bg-[#FAFAF8]/60 dark:bg-[#111821]/50">
             <div className="min-w-0 flex-1">
-              {typeof title === 'string' ? (<h3 className="text-sm sm:text-base font-bold text-[#1A2430] dark:text-slate-100 truncate">{title}</h3>) : (title)}
+              {typeof title === 'string' ? (<h3 className="text-sm sm:text-base font-semibold text-[#1A2430] dark:text-slate-100 truncate">{title}</h3>) : (title)}
               {description && (<p className="text-xs text-[#8B7355] dark:text-slate-400 mt-0.5">{description}</p>)}
             </div>
             <button onClick={onClose} className="rounded-lg p-1.5 text-[#A09080] hover:text-[#1A2430] dark:hover:text-slate-200 hover:bg-[#F5F0E8] dark:hover:bg-[#253344] transition-all duration-200 focus:outline-none shrink-0 ml-2" aria-label="Close modal">

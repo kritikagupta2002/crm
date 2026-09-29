@@ -505,8 +505,8 @@
 }
 
 .vendor-topline strong {
-  font-family: var(--font-serif);
-  font-size: 16px;
+  font-family: var(--font-sans);
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -811,7 +811,8 @@
 .vendor-shell .nav-item {
   height: 38px;
   gap: 12px;
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 

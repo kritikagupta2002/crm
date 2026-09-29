@@ -6,7 +6,7 @@ export const Textarea = forwardRef(({ label, error, helperText, isRequired, clas
           {label}
           {isRequired && <span className="text-rose-500 font-bold">*</span>}
         </label>)}
-      <textarea ref={ref} id={textareaId} rows={rows} disabled={disabled} className={`w-full rounded-lg text-sm bg-white dark:bg-[#111821] border transition-all duration-150 p-3 placeholder:text-slate-400 dark:placeholder:text-slate-500
+      <textarea ref={ref} id={textareaId} rows={rows} disabled={disabled} className={`w-full rounded-lg text-[13px] font-inter bg-white dark:bg-[#111821] border transition-all duration-150 p-3 placeholder:text-slate-400 dark:placeholder:text-slate-500
           ${disabled ? 'bg-[#F8F4EE] dark:bg-[#0c1219] text-[#A09080] dark:text-slate-500 cursor-not-allowed border-[#E8E4DC] dark:border-[#253344]' : 'text-[#2D3748] dark:text-slate-200'}
           ${error ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-200' : 'border-[#E8E4DC] dark:border-[#374B63] focus:border-[#D5860B] focus:ring-2 focus:ring-[#FEC13D]/25'}
           focus:outline-none shadow-xs ${className}`} {...props}/>

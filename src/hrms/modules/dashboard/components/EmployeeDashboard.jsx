@@ -308,7 +308,7 @@ export const EmployeeDashboard = () => {
             <div className="min-w-0 space-y-0.5">
               {/* Row 1: Name + Role Chip + ID + ESS */}
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-base sm:text-lg font-serif font-bold tracking-tight text-slate-900 dark:text-white truncate">
+                <h1 className="text-base sm:text-lg font-sans font-semibold tracking-tight text-slate-900 dark:text-white truncate">
                   {user?.name || empProfile?.name || 'Rohan Deshmukh'}
                 </h1>
 
@@ -578,7 +578,7 @@ export const EmployeeDashboard = () => {
       <Card className="p-4 sm:p-5">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-sm font-serif font-bold text-slate-900 dark:text-white">My Leave Balances (2026)</h2>
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">My Leave Balances (2026)</h2>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">Approved quota according to BGSPL HR Policy</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave/balance')} className="text-xs h-7 px-2.5" rightIcon={<ChevronRight className="w-3.5 h-3.5"/>}>
@@ -688,7 +688,7 @@ export const EmployeeDashboard = () => {
                 <Receipt className="w-4 h-4"/>
               </div>
               <div>
-                <h2 className="text-xs font-serif font-bold text-slate-900 dark:text-white">My Claims & Expenses</h2>
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">My Claims & Expenses</h2>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400">Site travel, lodging & fuel reimbursements</p>
               </div>
             </div>
@@ -731,7 +731,7 @@ export const EmployeeDashboard = () => {
                 <CalendarDays className="w-4 h-4"/>
               </div>
               <div>
-                <h2 className="text-xs font-serif font-bold text-slate-900 dark:text-white">Upcoming Company Holidays</h2>
+                <h2 className="text-base font-semibold text-slate-900 dark:text-white">Upcoming Company Holidays</h2>
                 <p className="text-[10px] text-slate-500 dark:text-slate-400">Official BGSPL Rajasthan Calendar</p>
               </div>
             </div>

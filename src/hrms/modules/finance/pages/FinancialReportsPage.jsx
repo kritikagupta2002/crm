@@ -157,7 +157,7 @@ export const FinancialReportsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Report Selection Catalog */}
         <div className="lg:col-span-5 space-y-3">
-          <h3 className="text-sm font-bold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-fraunces">
+          <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
             Available Reports in Output Framework
           </h3>
           <div className="space-y-2 max-h-[640px] overflow-y-auto pr-1">
@@ -193,7 +193,7 @@ export const FinancialReportsPage = () => {
                 <span className="text-[10px] font-mono font-bold tracking-wider text-teal-700 dark:text-teal-400 uppercase">
                   {activeReport.category}
                 </span>
-                <h3 className="text-base font-bold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-fraunces">
+                <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
                   {activeReport.title}
                 </h3>
                 <p className="text-xs text-[var(--ink-3,#7c8b96)] dark:text-slate-400">

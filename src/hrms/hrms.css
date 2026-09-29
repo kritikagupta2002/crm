@@ -1,6 +1,6 @@
 /* Built by scripts/build-hrms-css.py from the CSS under src/hrms: scoped to .hrms, no dark mode, keyframes prefixed hr-. Do not edit by hand. */
 /* index.css */
-.hrms{--font-heading: 'Fraunces', Georgia, serif;--font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;--font-mono: 'JetBrains Mono', monospace;--space-0-5: 0.125rem;--space-1:   0.25rem;--space-1-5: 0.375rem;--space-2:   0.5rem;--space-2-5: 0.625rem;--space-3:   0.75rem;--space-4:   1rem;--space-5:   1.25rem;--space-6:   1.5rem;--space-8:   2rem;--space-10:  2.5rem;--space-12:  3rem;--space-16:  4rem;--radius-xs: 2px;--radius-sm: 4px;--radius-md: 10px;--radius-xl: 20px;--radius-full: 9999px;--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);--transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);--transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);--transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);--sidebar-width: 272px;--whatsapp:    #128c4b;--whatsapp-bg: #e8f7ee;--success-button: #2e9e6b;--brand-gold: #c8943a;--brand-gold-light: #ecd6ae;--brand-ochre: #1f6f78;--brand-slate: #1f6f78;--brand-charcoal: #4a5b68;--brand-canvas: #f4f7f8;--brand-surface: #ffffff;--brand-border: #d3dce1;--brand-muted: #7c8b96;--shadow-warm: rgba(15, 42, 61, 0.04);--shadow-gold: rgba(200, 148, 58, 0.15);}
+.hrms{--font-heading: var(--font-serif);--font-body: var(--font-sans);--font-mono: var(--font-mono);--space-0-5: 0.125rem;--space-1:   0.25rem;--space-1-5: 0.375rem;--space-2:   0.5rem;--space-2-5: 0.625rem;--space-3:   0.75rem;--space-4:   1rem;--space-5:   1.25rem;--space-6:   1.5rem;--space-8:   2rem;--space-10:  2.5rem;--space-12:  3rem;--space-16:  4rem;--radius-xs: 2px;--radius-sm: 4px;--radius-md: 10px;--radius-xl: 20px;--radius-full: 9999px;--shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);--shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);--transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);--transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);--transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);--sidebar-width: 272px;--whatsapp:    #128c4b;--whatsapp-bg: #e8f7ee;--success-button: #2e9e6b;--brand-gold: #c8943a;--brand-gold-light: #ecd6ae;--brand-ochre: #1f6f78;--brand-slate: #1f6f78;--brand-charcoal: #4a5b68;--brand-canvas: #f4f7f8;--brand-surface: #ffffff;--brand-border: #d3dce1;--brand-muted: #7c8b96;--shadow-warm: rgba(15, 42, 61, 0.04);--shadow-gold: rgba(200, 148, 58, 0.15);}
 .hrms .card-crm,.hrms .card-premium{
   background: var(--surface);
   border: 1px solid var(--chrome-line);
@@ -67,10 +67,8 @@
 .hrms .enterprise-table-header{
   background-color: #FAFAF8;
   color: #1A2430;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 12.5px;
+  font-weight: 600;
   border-bottom: 1px solid #E8E4DC;
 }
 .hrms .enterprise-table-row{
@@ -254,7 +252,7 @@
   -o-tab-size: 4;
      tab-size: 4;
   
-  font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--font-sans);
   
   font-feature-settings: normal;
   
@@ -293,7 +291,7 @@
   font-weight: bolder;
 }
 :where(.hrms) code,:where(.hrms) kbd,:where(.hrms) samp,:where(.hrms) pre{
-  font-family: "JetBrains Mono", monospace;
+  font-family: var(--font-mono);
   
   font-feature-settings: normal;
   
@@ -447,7 +445,7 @@
 .hrms{
   
   color: var(--ink-2);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -455,14 +453,14 @@
   text-rendering: optimizeLegibility;
 }
 :where(.hrms) h4,:where(.hrms) h5,:where(.hrms) h6{
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-sans);
   color: var(--ink);
   letter-spacing: -0.01em;
   font-weight: 600;
 }
 :where(.hrms) label{
-  font-size: 13.5px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--ink-2);
 }
 :where(.hrms) table{
@@ -2875,22 +2873,22 @@
   vertical-align: middle;
 }
 .hrms .font-fraunces{
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--font-serif);
 }
 .hrms .font-heading{
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--font-heading);
 }
 .hrms .font-inter{
-  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
 }
 .hrms .font-mono{
-  font-family: "JetBrains Mono", monospace;
+  font-family: var(--font-mono);
 }
 .hrms .font-sans{
-  font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 .hrms .font-serif{
-  font-family: "Fraunces", Georgia, serif;
+  font-family: var(--font-serif);
 }
 .hrms .text-2xl{
   font-size: 1.5rem;
@@ -5267,8 +5265,8 @@
   margin-bottom: 1.25rem;
 }
 .hrms .chart-title{
-  font-family: var(--font-heading);
-  font-size: 1.125rem;
+  font-family: var(--font-sans);
+  font-size: 16px;
   font-weight: 600;
   color: var(--ink);
 }

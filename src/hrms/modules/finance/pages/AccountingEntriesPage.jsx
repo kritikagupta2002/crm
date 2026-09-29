@@ -147,7 +147,7 @@ export const AccountingEntriesPage = () => {
             <BookOpen className="w-5 h-5"/>
           </div>
           <div>
-            <h3 className="font-bold text-sm sm:text-base text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-fraunces">
+            <h3 className="font-semibold text-base text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
               General Ledger Balance Verification
             </h3>
             <p className="text-xs text-[var(--ink-3,#7c8b96)] dark:text-slate-400 mt-0.5">

@@ -81,7 +81,7 @@ export const FinanceOutputSection = () => {
             <span className="px-2 py-0.5 rounded-md text-[10px] font-bold font-mono tracking-wider bg-teal-100 text-teal-800 dark:bg-teal-900/60 dark:text-teal-200">
               WORKFLOW DELIVERABLES
             </span>
-            <h2 className="text-base sm:text-lg font-bold text-[var(--ink,#0f2a3d)] dark:text-[#f0f4f7] font-fraunces">
+            <h2 className="text-base sm:text-lg font-semibold text-[var(--ink,#0f2a3d)] dark:text-[#f0f4f7] font-fraunces">
               Financial Outputs & Record Packages
             </h2>
           </div>

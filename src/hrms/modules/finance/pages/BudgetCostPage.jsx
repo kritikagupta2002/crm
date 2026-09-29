@@ -138,7 +138,7 @@ export const BudgetCostPage = () => {
           <span className="text-[10px] font-bold font-mono tracking-wider uppercase text-teal-700 dark:text-teal-400">
             FINANCIAL FLOW CONTINUUM
           </span>
-          <h3 className="text-sm sm:text-base font-bold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-fraunces">
+          <h3 className="text-base font-semibold text-[var(--ink,#0f2a3d)] dark:text-slate-100 font-sans">
             Budget Lifecycle & Variance Flow
           </h3>
         </div>
