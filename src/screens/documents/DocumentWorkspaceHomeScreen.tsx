@@ -87,48 +87,25 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
           </View>
         </View>
 
-        <View style={styles.kpiSection}>
-          <Text style={styles.sectionHeader}>EDMS REPOSITORY SNAPSHOT</Text>
-          <View style={styles.kpiGrid}>
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="TOTAL RECORDS"
-                value={String(totalGovt)}
-                caption={`${waitingDocs.length} in processing`}
-                icon={<FileText size={18} color="#0D9488" />}
-                chart={<MiniBarChart values={[10, 18, 25, Math.max(30, totalGovt)]} color="#0D9488" height={26} barWidth={5} />}
-              />
-            </View>
-
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="SCAN INBOX"
-                value={String(scanInbox.length)}
-                caption="NAS Folder Queue"
-                icon={<FileScan size={18} color={scanInbox.length > 0 ? "#D97706" : "#16A34A"} />}
-                chart={<MiniBarChart values={[4, 2, 7, Math.max(3, scanInbox.length)]} color="#D97706" height={26} barWidth={5} />}
-              />
-            </View>
-
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="TO VERIFY"
-                value={String(toVerify.length)}
-                caption={rescans.length > 0 ? `${rescans.length} Rescans Req` : '4-Eyes Review'}
-                icon={<ShieldAlert size={18} color={toVerify.length > 0 ? "#EF4444" : "#16A34A"} />}
-                chart={<DonutChart percentage={verifiedPct} color={toVerify.length > 0 ? "#EF4444" : "#10B981"} size={38} strokeWidth={5} />}
-              />
-            </View>
-
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="DISPATCHES"
-                value={String(toDispatch.length + pendingDispatches.length)}
-                caption="Physical Originals"
-                icon={<Truck size={18} color="#2563EB" />}
-                trend={{ value: 'In Transit', isPositive: true }}
-              />
-            </View>
+        <View style={styles.metricsStrip}>
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: '#0d9488' }]}>{totalGovt}</Text>
+            <Text style={styles.metricLbl}>Total Records</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: scanInbox.length > 0 ? '#d97706' : '#16a34a' }]}>{scanInbox.length}</Text>
+            <Text style={styles.metricLbl}>Scan Inbox</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: toVerify.length > 0 ? '#dc2626' : '#16a34a' }]}>{toVerify.length}</Text>
+            <Text style={styles.metricLbl}>To Verify</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: '#2563eb' }]}>{toDispatch.length + pendingDispatches.length}</Text>
+            <Text style={styles.metricLbl}>Dispatches</Text>
           </View>
         </View>
 
@@ -438,18 +415,37 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
     color: '#0D9488',
   },
-  kpiSection: {
-    marginBottom: spacing.md,
-  },
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
-    marginTop: spacing.sm,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
-  kpiCol: {
-    width: '50%',
-    padding: spacing.xs,
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   launchpadSection: {
     marginBottom: spacing.md,

@@ -34,6 +34,44 @@ export const styles = StyleSheet.create({
   tabContent: {
     gap: spacing.md,
   },
+  metricsStrip: {
+    paddingRight: spacing.sm,
+    gap: spacing.sm,
+  },
+  metricCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    padding: spacing.sm,
+    minWidth: 125,
+  },
+  metricIconWrap: {
+    width: 26,
+    height: 26,
+    borderRadius: borderRadius.sm,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  metricValue: {
+    ...typography.bodyMedium,
+    fontWeight: '800',
+    color: colors.text.primary,
+  },
+  metricLabel: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: colors.text.tertiary,
+    marginTop: 2,
+    letterSpacing: 0.5,
+  },
+  metricSub: {
+    fontSize: 10,
+    color: colors.text.secondary,
+    marginTop: 1,
+  },
   kpiGrid: {
     flexDirection: 'row',
     gap: spacing.sm,

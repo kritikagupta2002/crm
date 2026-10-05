@@ -152,64 +152,38 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         />
       }
     >
-      <View style={styles.kpiContainer}>
-        <View style={styles.kpiRow}>
-          <TouchableOpacity
-            style={[styles.kpiCard, activeTab === 'In progress' && styles.kpiCardSelected]}
-            onPress={() => setActiveTab(activeTab === 'In progress' ? 'All' : 'In progress')}
-          >
-            <View style={styles.kpiHeader}>
-              <FolderKanban size={16} color={colors.info} />
-              <Text style={[styles.kpiVal, { color: colors.info }]}>
-                {countByStatus('In progress')}
-              </Text>
-            </View>
-            <Text style={styles.kpiLabel}>Work in Progress</Text>
-            <Text style={styles.kpiSub}>Survey & analysis</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.kpiCard, activeTab === 'Awaiting approval' && styles.kpiCardSelected]}
-            onPress={() => setActiveTab(activeTab === 'Awaiting approval' ? 'All' : 'Awaiting approval')}
-          >
-            <View style={styles.kpiHeader}>
-              <Landmark size={16} color={colors.warning} />
-              <Text style={[styles.kpiVal, { color: colors.warning }]}>
-                {countByStatus('Awaiting approval')}
-              </Text>
-            </View>
-            <Text style={styles.kpiLabel}>With Authority</Text>
-            <Text style={styles.kpiSub}>Approval pending</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.kpiCard}
-            onPress={() => {}}
-          >
-            <View style={styles.kpiHeader}>
-              <ScrollText size={16} color={colors.success} />
-              <Text style={[styles.kpiVal, { color: colors.success }]}>
-                {recentLettersCount}
-              </Text>
-            </View>
-            <Text style={styles.kpiLabel}>Letters Received</Text>
-            <Text style={styles.kpiSub}>Past 30 days</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.kpiCard, activeTab === 'Not started' && styles.kpiCardSelected]}
-            onPress={() => setActiveTab(activeTab === 'Not started' ? 'All' : 'Not started')}
-          >
-            <View style={styles.kpiHeader}>
-              <CircleDashed size={16} color={colors.textMuted} />
-              <Text style={[styles.kpiVal, { color: colors.textMuted }]}>
-                {countByStatus('Not started')}
-              </Text>
-            </View>
-            <Text style={styles.kpiLabel}>Not Started</Text>
-            <Text style={styles.kpiSub}>Allocation stage</Text>
-          </TouchableOpacity>
+      <View style={styles.metricsStrip}>
+        <TouchableOpacity
+          style={styles.metricItem}
+          onPress={() => setActiveTab(activeTab === 'In progress' ? 'All' : 'In progress')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.metricVal, { color: colors.info }]}>{countByStatus('In progress')}</Text>
+          <Text style={styles.metricLbl}>In Progress</Text>
+        </TouchableOpacity>
+        <View style={styles.metricDivider} />
+        <TouchableOpacity
+          style={styles.metricItem}
+          onPress={() => setActiveTab(activeTab === 'Awaiting approval' ? 'All' : 'Awaiting approval')}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.metricVal, { color: colors.warning }]}>{countByStatus('Awaiting approval')}</Text>
+          <Text style={styles.metricLbl}>With Govt</Text>
+        </TouchableOpacity>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.success }]}>{recentLettersCount}</Text>
+          <Text style={styles.metricLbl}>Letters</Text>
         </View>
+        <View style={styles.metricDivider} />
+        <TouchableOpacity
+          style={styles.metricItem}
+          onPress={() => setActiveTab(activeTab === 'Not started' ? 'All' : 'Not started')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.metricVal}>{countByStatus('Not started')}</Text>
+          <Text style={styles.metricLbl}>Pending</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.toolbar}>
@@ -354,7 +328,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
                 })}
               </View>
 
-              <View style={styles.nowAtRow}>
+              <View style={styles.timelineNowAtRow}>
                 <Clock size={12} color={colors.textMuted} />
                 <Text style={styles.nowAtText}>
                   Now: {item.now?.label || item.stageName}
@@ -403,9 +377,9 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
                   </Text>
                 </View>
 
-                <View style={styles.nowAtCard}>
+                <View style={styles.nowAtRow}>
                   <Clock size={12} color={colors.primary} />
-                  <Text style={styles.nowAtLabel}>Current Step:</Text>
+                  <Text style={styles.nowAtLabel}>Current:</Text>
                   <Text style={styles.nowAtValue} numberOfLines={1}>
                     {item.now?.label || stageLabel}
                   </Text>
@@ -543,43 +517,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  kpiContainer: {
-    marginBottom: spacing.xs,
-  },
-  kpiRow: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-  kpiCard: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    padding: spacing.xs + 2,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-  },
-  kpiCardSelected: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primary + '08',
-  },
-  kpiHeader: {
+  metricsStrip: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 2,
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
-  kpiVal: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.bold,
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
   },
-  kpiLabel: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.textPrimary,
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
   },
-  kpiSub: {
-    fontSize: typography.fontSizes.xxs - 2,
-    color: colors.textMuted,
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   toolbar: {
     marginVertical: spacing.xs,
@@ -690,6 +658,11 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: spacing.sm,
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    padding: 12,
   },
   cardTopRow: {
     flexDirection: 'row',
@@ -708,14 +681,14 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   stageTag: {
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: '#f1f5f9',
     paddingHorizontal: 6,
     paddingVertical: 1,
     borderRadius: radius.xs,
   },
   stageTagText: {
     fontSize: typography.fontSizes.xxs,
-    color: colors.textSecondary,
+    color: '#475569',
     fontWeight: typography.fontWeights.medium,
   },
   projectTitle: {
@@ -748,14 +721,10 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     flex: 1,
   },
-  nowAtCard: {
+  nowAtRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: colors.surfaceMuted,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radius.xs,
     marginVertical: 4,
   },
   nowAtLabel: {
@@ -889,7 +858,7 @@ const styles = StyleSheet.create({
   timelineConnectorDone: {
     backgroundColor: colors.success,
   },
-  nowAtRow: {
+  timelineNowAtRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,

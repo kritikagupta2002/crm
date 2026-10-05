@@ -15,6 +15,8 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
   onSelect,
   style,
 }) => {
+  const isDense = options.length >= 4;
+
   return (
     <View style={[styles.container, style]}>
       {options.map((opt, idx) => {
@@ -24,11 +26,17 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
             key={opt}
             activeOpacity={0.75}
             onPress={() => onSelect(idx)}
-            style={[styles.segment, isSelected ? styles.selectedSegment : null]}
+            style={[
+              styles.segment,
+              isDense && { paddingHorizontal: 2 },
+              isSelected ? styles.selectedSegment : null,
+            ]}
           >
             <Text
               style={[styles.label, isSelected ? styles.selectedLabel : null]}
               numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={isDense ? 0.72 : 0.8}
             >
               {opt}
             </Text>

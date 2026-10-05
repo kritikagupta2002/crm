@@ -164,8 +164,7 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
           title="Commercial CRM"
           subtitle="Exploration Enquiries & Pipeline Oversight"
           showBack
-          scenicBanner
-          badge="Commercial Operations"
+          badge="Commercial Workspace"
           onBack={() => navigation.goBack()}
           rightAction={
             can('manage', 'crm') ? (
@@ -173,6 +172,7 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
                 activeOpacity={0.75}
                 style={styles.addBtn}
                 onPress={() => navigation.navigate('Leads')}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
                 <Plus size={18} color="#ffffff" strokeWidth={2.4} />
               </TouchableOpacity>
@@ -486,37 +486,37 @@ const styles = StyleSheet.create({
   },
   qaScroll: {
     flexDirection: 'row',
-    gap: 14,
+    gap: 12,
     paddingVertical: spacing.xs,
     marginBottom: spacing.md,
   },
   qaItem: {
     alignItems: 'center',
-    width: 60,
+    width: 58,
   },
   qaIconWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
+    marginBottom: 4,
     ...shadows.xs,
   },
   qaLabel: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '600',
     color: '#334155',
     textAlign: 'center',
   },
   conversionCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 18,
-    padding: spacing.md + 2,
+    borderRadius: radius.md,
+    padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.border.default,
     marginBottom: spacing.md,
-    ...shadows.sm,
+    ...shadows.xs,
   },
   conversionHeader: {
     flexDirection: 'row',
@@ -525,13 +525,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   conversionLabel: {
-    fontSize: 10,
-    fontWeight: '800',
+    fontSize: 9.5,
+    fontWeight: '700',
     color: '#64748b',
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   conversionRate: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: '#059669',
     marginTop: 2,
@@ -549,24 +549,24 @@ const styles = StyleSheet.create({
     color: '#0f172a',
   },
   progressTrack: {
-    height: 7,
+    height: 6,
     backgroundColor: '#e2e8f0',
-    borderRadius: 4,
+    borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
     backgroundColor: '#059669',
-    borderRadius: 4,
+    borderRadius: 3,
   },
   pipelineCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 18,
+    borderRadius: radius.md,
     padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.border.default,
     marginBottom: spacing.md,
-    ...shadows.sm,
+    ...shadows.xs,
   },
   pipelineRow: {
     marginBottom: spacing.sm,
@@ -610,14 +610,14 @@ const styles = StyleSheet.create({
   },
   approvalCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 18,
+    borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border.default,
-    borderLeftWidth: 4,
+    borderLeftWidth: 3.5,
     borderLeftColor: '#d97706',
-    ...shadows.sm,
+    ...shadows.xs,
   },
   approvalHeader: {
     flexDirection: 'row',
@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
   },
   approvalCompany: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#0f172a',
   },
   approvalService: {

@@ -542,10 +542,12 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: colors.surface,
+    backgroundColor: '#ffffff',
     borderRadius: radius.md,
     padding: 3,
     marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
   tabItem: {
     flex: 1,

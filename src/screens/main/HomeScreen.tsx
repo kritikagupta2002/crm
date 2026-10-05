@@ -8,9 +8,9 @@ import {
   ScrollView,
   Dimensions,
   StatusBar,
+  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Circle, Rect, Text as SvgText } from 'react-native-svg';
 import {
   Crown,
   Building2,
@@ -42,96 +42,25 @@ import { useHrms } from '../../context/HrmsContext';
 import { useNotifications } from '../../context/NotificationContext';
 import { misService } from '../../services';
 
-const drillingRigImg = require('../../../assets/drilling-rig.jpg');
 const drRajeshImg = require('../../../assets/dr-rajesh-bansal.jpg');
 
 interface HomeScreenProps {
   navigation: any;
 }
 
-const DonutProgress = React.memo<{ percentage: number; color?: string }>(({
-  percentage,
-  color = '#0d9488',
-}) => {
-  const size = 44;
-  const strokeWidth = 4.5;
-  const radiusVal = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radiusVal;
-  const safePct = Math.min(100, Math.max(0, isNaN(percentage) ? 0 : Math.round(percentage)));
-  const strokeDashoffset = circumference - (circumference * safePct) / 100;
-
-  return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radiusVal}
-          stroke="#f1f5f9"
-          strokeWidth={strokeWidth}
-          fill="none"
-        />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radiusVal}
-          stroke={safePct === 0 ? '#cbd5e1' : color}
-          strokeWidth={strokeWidth}
-          fill="none"
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-        <SvgText
-          x={size / 2}
-          y={size / 2 + 3.5}
-          fontSize="10"
-          fontWeight="bold"
-          fill={safePct === 0 ? '#64748b' : '#0f172a'}
-          textAnchor="middle"
-        >
-          {`${safePct}%`}
-        </SvgText>
-      </Svg>
-    </View>
-  );
-});
-
-const MiniBars = React.memo<{ color?: string; heights?: number[] }>(({
-  color = '#0284c7',
-  heights = [10, 16, 22, 28],
-}) => {
-  const width = 36;
-  const height = 30;
-  const barWidth = 5;
-  const gap = 3;
-
-  return (
-    <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
-      {heights.map((h, i) => {
-        const x = 3 + i * (barWidth + gap);
-        const y = height - h;
-        const opacity = 0.35 + (i / (heights.length - 1)) * 0.65;
-        return (
-          <Rect
-            key={i}
-            x={x}
-            y={y}
-            width={barWidth}
-            height={h}
-            rx={1.5}
-            fill={color}
-            opacity={opacity}
-          />
-        );
-      })}
-    </Svg>
-  );
-});
-
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
+  const isCompact = screenWidth < 360;
+  const isTablet = screenWidth >= 600;
+  const contentPadding = isCompact ? 12 : 16;
+  const quickActionGap = 8;
+  const quickActionCols = isTablet ? 6 : 3;
+  const containerWidth = isTablet ? Math.min(screenWidth, 680) : screenWidth;
+  const quickActionWidth = Math.floor(
+    (containerWidth - contentPadding * 2 - quickActionGap * (quickActionCols - 1)) / quickActionCols
+  );
+
   const { session, role } = useAuth();
   const { unreadCount } = useNotifications();
   const { projects } = useCrm();
@@ -278,9 +207,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       edges={['bottom']}
       contentContainerStyle={styles.screenScrollContent}
     >
-      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top + 6, 16) }]}>
+      {/* Top Identity & Status Header */}
+      <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top + 6, 16), paddingHorizontal: contentPadding }]}>
         <View style={styles.headerTopRow}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -361,46 +291,28 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
       </View>
 
-      <View style={styles.bodyContent}>
-        <View style={styles.attendanceCommandCard}>
-          <View style={styles.attendanceCardHeader}>
-            <View style={styles.attendanceHeaderLeft}>
-              <View style={[styles.statusIndicatorDot, isCheckedIn ? styles.dotPresent : styles.dotAbsent]} />
-              <Text style={styles.attendanceCardTitle}>
-                {isCheckedIn ? 'ON DUTY • CHECKED IN' : 'ATTENDANCE • PENDING'}
+      <View style={[styles.bodyContent, { paddingHorizontal: contentPadding }]}>
+        {/* Attendance Command Section - Single Clear Primary Action */}
+        <View style={styles.attendanceCard}>
+          <View style={styles.attendanceHeader}>
+            <View style={styles.attendanceStatusRow}>
+              <View style={[styles.statusDot, isCheckedIn ? styles.dotPresent : styles.dotAbsent]} />
+              <Text style={styles.attendanceStatusTitle}>
+                {isCheckedIn ? 'ON DUTY • CHECKED IN' : 'ATTENDANCE PENDING'}
               </Text>
             </View>
-            <View style={styles.geotagBadge}>
+            <View style={styles.geotagPill}>
               <MapPin size={11} color={colors.primaryDark} />
-              <Text style={styles.geotagBadgeText}>Field Geotag Active</Text>
+              <Text style={styles.geotagText}>Field GPS Verified</Text>
             </View>
           </View>
 
-          <View style={styles.attendanceTimingRow}>
-            <View style={styles.timingCol}>
-              <Text style={styles.timingLabel}>Punch In</Text>
-              <Text style={styles.timingValue}>
-                {todayAttendance?.punchIn && todayAttendance.punchIn !== '-'
-                  ? todayAttendance.punchIn
-                  : '--:--'}
-              </Text>
-            </View>
-            <View style={styles.timingDivider} />
-            <View style={styles.timingCol}>
-              <Text style={styles.timingLabel}>Punch Out</Text>
-              <Text style={styles.timingValue}>
-                {todayAttendance?.punchOut && todayAttendance.punchOut !== '-'
-                  ? todayAttendance.punchOut
-                  : '--:--'}
-              </Text>
-            </View>
-            <View style={styles.timingDivider} />
-            <View style={styles.timingCol}>
-              <Text style={styles.timingLabel}>Shift Status</Text>
-              <Text style={[styles.timingValue, isCheckedIn ? { color: colors.success } : { color: colors.warning }]}>
-                {isCheckedIn ? 'Present' : 'Not Punched'}
-              </Text>
-            </View>
+          <View style={styles.attendanceInfoBlock}>
+            <Text style={styles.attendanceDetailText}>
+              {isCheckedIn
+                ? `Punched in at ${todayAttendance?.punchIn || '--:--'} • Field Biometric Verified`
+                : 'No check-in recorded today • General Shift (09:00 - 18:00)'}
+            </Text>
           </View>
 
           <Button
@@ -410,120 +322,102 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             variant={isCheckedIn ? 'danger' : 'primary'}
             size="md"
             icon={<Clock size={16} color="#ffffff" strokeWidth={2.2} />}
-            style={styles.punchActionBtn}
+            style={styles.punchBtn}
           />
         </View>
 
-        <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>Key Operational Metrics</Text>
-          <View style={styles.timePillContainer}>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => setTimeFilter('today')}
-              style={[styles.timePill, timeFilter === 'today' && styles.timePillActive]}
-            >
-              <Text style={[styles.timePillText, timeFilter === 'today' && styles.timePillTextActive]}>
-                Today
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => setTimeFilter('week')}
-              style={[styles.timePill, timeFilter === 'week' && styles.timePillActive]}
-            >
-              <Text style={[styles.timePillText, timeFilter === 'week' && styles.timePillTextActive]}>
-                Week
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => setTimeFilter('month')}
-              style={[styles.timePill, timeFilter === 'month' && styles.timePillActive]}
-            >
-              <Text style={[styles.timePillText, timeFilter === 'month' && styles.timePillTextActive]}>
-                Month
-              </Text>
-            </TouchableOpacity>
+        {/* Unified Operational Snapshot Card */}
+        <View style={styles.snapshotCard}>
+          <View style={styles.snapshotHeader}>
+            <Text style={styles.snapshotTitle}>OPERATIONAL METRICS</Text>
+            <View style={styles.timeFilterWrap}>
+              {(['today', 'week', 'month'] as const).map((t) => (
+                <TouchableOpacity
+                  key={t}
+                  activeOpacity={0.7}
+                  onPress={() => setTimeFilter(t)}
+                  style={[styles.filterTab, timeFilter === t && styles.filterTabActive]}
+                >
+                  <Text style={[styles.filterTabText, timeFilter === t && styles.filterTabTextActive]}>
+                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
 
-        <View style={styles.kpiContainer}>
-          <View style={styles.kpiRow}>
-            <View style={styles.kpiCard}>
-              <View style={styles.kpiTopRow}>
-                <View style={[styles.kpiIconWrap, { backgroundColor: '#ecfdf5' }]}>
-                  <Users size={16} color="#059669" strokeWidth={2.2} />
-                </View>
-                <DonutProgress
-                  percentage={timeFilter === 'today' ? safeAttendancePct : timeFilter === 'week' ? 80 : 92}
-                  color="#0d9488"
-                />
-              </View>
-              <Text style={styles.kpiLabel}>STAFF MUSTER</Text>
-              <Text style={[styles.kpiValue, { color: colors.primaryDark }]}>
+          <View style={styles.snapshotGrid}>
+            <View style={styles.snapshotCol}>
+              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>MUSTER</Text>
+              <Text
+                style={[styles.snapshotVal, { color: colors.primaryDark }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
                 {timeFilter === 'today'
-                  ? `${attMetrics.presentToday} / ${attMetrics.totalStaff}`
+                  ? `${attMetrics.presentToday}/${attMetrics.totalStaff}`
                   : timeFilter === 'week'
-                  ? '4 / 5'
-                  : '5 / 5'}
+                  ? '4/5'
+                  : '5/5'}
               </Text>
-              <Text style={styles.kpiSubtext} numberOfLines={1}>
+              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
                 {timeFilter === 'today'
-                  ? `${safeAttendancePct}% present today`
+                  ? `${safeAttendancePct}%`
                   : timeFilter === 'week'
-                  ? '80.0% weekly average'
-                  : '92.0% monthly average'}
+                  ? '80%'
+                  : '92%'}
               </Text>
             </View>
 
-            <View style={styles.kpiCard}>
-              <View style={styles.kpiTopRow}>
-                <View style={[styles.kpiIconWrap, { backgroundColor: '#f0f9ff' }]}>
-                  <FolderKanban size={16} color="#0284c7" strokeWidth={2.2} />
-                </View>
-                <MiniBars color="#0284c7" heights={[10, 16, 22, 28]} />
-              </View>
-              <Text style={styles.kpiLabel}>ACTIVE PROJECTS</Text>
-              <Text style={[styles.kpiValue, { color: '#0284c7' }]}>
+            <View style={styles.snapshotDivider} />
+
+            <View style={styles.snapshotCol}>
+              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>PROJECTS</Text>
+              <Text
+                style={[styles.snapshotVal, { color: '#0284c7' }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
                 {commMetrics.activeProjects || projects.length}
               </Text>
-              <Text style={styles.kpiSubtext} numberOfLines={1}>Field exploration</Text>
+              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Active</Text>
             </View>
-          </View>
 
-          <View style={styles.kpiRow}>
-            <View style={styles.kpiCard}>
-              <View style={styles.kpiTopRow}>
-                <View style={[styles.kpiIconWrap, { backgroundColor: '#fffbeb' }]}>
-                  <TrendingUp size={16} color="#d97706" strokeWidth={2.2} />
-                </View>
-                <MiniBars color="#d97706" heights={[12, 18, 24, 30]} />
-              </View>
-              <Text style={styles.kpiLabel}>COMMERCIAL PIPELINE</Text>
-              <Text style={[styles.kpiValue, { color: '#d97706' }]}>
+            <View style={styles.snapshotDivider} />
+
+            <View style={styles.snapshotCol}>
+              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>PIPELINE</Text>
+              <Text
+                style={[styles.snapshotVal, { color: '#d97706' }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
                 {formatCurrency(commMetrics.pipelineValue || 5664000)}
               </Text>
-              <Text style={styles.kpiSubtext} numberOfLines={1}>
-                {commMetrics.conversionRate}% conversion rate
-              </Text>
+              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{commMetrics.conversionRate}% win</Text>
             </View>
 
-            <View style={styles.kpiCard}>
-              <View style={styles.kpiTopRow}>
-                <View style={[styles.kpiIconWrap, { backgroundColor: '#fef2f2' }]}>
-                  <FileCheck size={16} color="#dc2626" strokeWidth={2.2} />
-                </View>
-                <MiniBars color="#dc2626" heights={[14, 20, 26, 28]} />
-              </View>
-              <Text style={styles.kpiLabel}>PENDING APPROVALS</Text>
-              <Text style={[styles.kpiValue, { color: '#dc2626' }]}>
+            <View style={styles.snapshotDivider} />
+
+            <View style={styles.snapshotCol}>
+              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>GATES</Text>
+              <Text
+                style={[styles.snapshotVal, { color: '#dc2626' }]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
                 {commMetrics.pendingApprovals || 1}
               </Text>
-              <Text style={styles.kpiSubtext} numberOfLines={1}>Director quotation gate</Text>
+              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Action req</Text>
             </View>
           </View>
         </View>
 
+        {/* Quick Actions Grid */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <TouchableOpacity
@@ -536,80 +430,77 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.quickActionsScroll}
-        >
+        <View style={[styles.quickActionsGrid, { gap: quickActionGap }]}>
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('Leads')}
-            style={styles.actionItem}
+            style={[styles.actionGridItem, { width: quickActionWidth }]}
           >
-            <View style={[styles.actionIconBox, { backgroundColor: '#ecfdf5' }]}>
-              <Users size={20} color="#059669" strokeWidth={2} />
+            <View style={styles.actionIconContainer}>
+              <Users size={18} color={colors.primaryDark} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Leads</Text>
+            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Leads</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('Projects')}
-            style={styles.actionItem}
+            style={[styles.actionGridItem, { width: quickActionWidth }]}
           >
-            <View style={[styles.actionIconBox, { backgroundColor: '#f0f9ff' }]}>
-              <FolderKanban size={20} color="#0284c7" strokeWidth={2} />
+            <View style={styles.actionIconContainer}>
+              <FolderKanban size={18} color={colors.primaryDark} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Projects</Text>
+            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Projects</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('Tenders')}
-            style={styles.actionItem}
+            style={[styles.actionGridItem, { width: quickActionWidth }]}
           >
-            <View style={[styles.actionIconBox, { backgroundColor: '#fffbeb' }]}>
-              <Shield size={20} color="#d97706" strokeWidth={2} />
+            <View style={styles.actionIconContainer}>
+              <Shield size={18} color={colors.primaryDark} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Bids</Text>
+            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Bids</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('QuoteApprovals')}
-            style={styles.actionItem}
+            style={[styles.actionGridItem, { width: quickActionWidth }]}
           >
-            <View style={[styles.actionIconBox, { backgroundColor: '#fef2f2' }]}>
-              <FileCheck size={20} color="#dc2626" strokeWidth={2} />
+            <View style={styles.actionIconContainer}>
+              <FileCheck size={18} color={colors.primaryDark} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Approvals</Text>
+            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Approvals</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('Vendors')}
-            style={styles.actionItem}
+            style={[styles.actionGridItem, { width: quickActionWidth }]}
           >
-            <View style={[styles.actionIconBox, { backgroundColor: '#f5f3ff' }]}>
-              <Truck size={20} color="#7c3aed" strokeWidth={2} />
+            <View style={styles.actionIconContainer}>
+              <Truck size={18} color={colors.primaryDark} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Vendors</Text>
+            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Vendors</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('MisReports')}
-            style={styles.actionItem}
+            style={[styles.actionGridItem, { width: quickActionWidth }]}
           >
-            <View style={[styles.actionIconBox, { backgroundColor: '#f0fdf4' }]}>
-              <BarChart3 size={20} color="#16a34a" strokeWidth={2} />
+            <View style={styles.actionIconContainer}>
+              <BarChart3 size={18} color={colors.primaryDark} strokeWidth={2} />
             </View>
-            <Text style={styles.actionLabel}>Reports</Text>
+            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Reports</Text>
           </TouchableOpacity>
-        </ScrollView>
+        </View>
 
+        {/* Active Geological Project Card */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>Active Geological Project</Text>
+          <Text style={styles.sectionTitle}>Active Geological Block</Text>
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Projects')}
@@ -621,7 +512,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         <TouchableOpacity
-          activeOpacity={0.85}
+          activeOpacity={0.8}
           onPress={() => {
             if (featuredProject) {
               navigation.navigate('ProjectDetail', { projectId: featuredProject.id });
@@ -629,52 +520,47 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               navigation.navigate('Projects');
             }
           }}
-          style={styles.projectCard}
+          style={styles.projectPreviewCard}
         >
-          <View style={styles.projectHeaderRow}>
-            <Image source={drillingRigImg} style={styles.projectThumb} />
-            <View style={styles.projectMainInfo}>
-              <View style={styles.projectBadgeRow}>
-                <View style={styles.projectCodeBadge}>
-                  <Text style={styles.projectCodeText}>
-                    {featuredProject?.projectCode || 'PRJ-GEO-2026-001'}
-                  </Text>
-                </View>
-                <View style={styles.projectStageBadge}>
-                  <Text style={styles.projectStageText}>
-                    {featuredProject?.stageName ? `Stage 3: ${featuredProject.stageName}` : 'Stage 3: Task Execution'}
-                  </Text>
-                </View>
+          <View style={styles.projectCardHeader}>
+            <View style={styles.projectBadges}>
+              <View style={styles.codeBadge}>
+                <Text style={styles.codeBadgeText}>
+                  {featuredProject?.projectCode || 'PRJ-GEO-2026-001'}
+                </Text>
               </View>
-
-              <Text style={styles.projectTitle} numberOfLines={2}>
-                {featuredProject?.title || 'Bhilwara Lead-Zinc Exploration Block'}
-              </Text>
-
-              <View style={styles.projectLocationRow}>
-                <MapPin size={11} color={colors.textSecondary} />
-                <Text style={styles.projectLocationText} numberOfLines={1}>
-                  {featuredProject?.clientName || 'Hindustan Zinc Ltd'} • {featuredProject?.location || 'Bhilwara, Rajasthan'}
+              <View style={styles.stageBadge}>
+                <Text style={styles.stageBadgeText}>
+                  {featuredProject?.stageName ? `Stage 3: ${featuredProject.stageName}` : 'Stage 3: Task Execution'}
                 </Text>
               </View>
             </View>
+            <ChevronRight size={16} color={colors.textTertiary} />
           </View>
 
-          <View style={styles.projectFooter}>
-            <View style={styles.projectBudgetCol}>
-              <View style={styles.budgetLabelRow}>
-                <Coins size={12} color={colors.primaryDark} />
-                <Text style={styles.budgetLabel}>Baseline Budget</Text>
-              </View>
-              <Text style={styles.budgetValue}>
+          <Text style={styles.projectTitle} numberOfLines={2}>
+            {featuredProject?.title || 'Bhilwara Lead-Zinc Exploration Block'}
+          </Text>
+
+          <View style={styles.projectLocationRow}>
+            <MapPin size={12} color={colors.textMuted} />
+            <Text style={styles.projectLocationText} numberOfLines={1}>
+              {featuredProject?.clientName || 'Hindustan Zinc Ltd'} • {featuredProject?.location || 'Bhilwara, Rajasthan'}
+            </Text>
+          </View>
+
+          <View style={styles.projectStatsRow}>
+            <View style={styles.budgetCol}>
+              <Text style={styles.statLabel}>Baseline Budget</Text>
+              <Text style={styles.statValue}>
                 {formatCurrency(featuredProject?.baselineBudget || 4200000)}
               </Text>
             </View>
 
-            <View style={styles.projectProgressCol}>
+            <View style={styles.progressCol}>
               <View style={styles.progressLabelRow}>
-                <Text style={styles.progressLabel}>Execution</Text>
-                <Text style={styles.progressPercent}>60%</Text>
+                <Text style={styles.statLabel}>Execution</Text>
+                <Text style={styles.progressValue}>60%</Text>
               </View>
               <View style={styles.progressBarTrack}>
                 <View style={[styles.progressBarFill, { width: '60%' }]} />
@@ -683,6 +569,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
         </TouchableOpacity>
 
+        {/* Recent Activity Section */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <TouchableOpacity
@@ -695,60 +582,63 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.activityList}>
+        <View style={styles.activityCard}>
           <TouchableOpacity
-            activeOpacity={0.75}
+            activeOpacity={0.7}
             onPress={() => navigation.navigate('Projects')}
-            style={styles.activityItem}
+            style={styles.activityRow}
           >
-            <View style={[styles.activityIconCircle, { backgroundColor: '#ecfdf5' }]}>
-              <FileText size={16} color="#059669" strokeWidth={2.2} />
+            <View style={[styles.activityIconCircle, { backgroundColor: '#f0fdfa' }]}>
+              <FileText size={15} color={colors.primaryDark} strokeWidth={2.2} />
             </View>
-            <View style={styles.activityTextCol}>
-              <Text style={styles.activityItemTitle}>New Exploration Project Created</Text>
-              <Text style={styles.activityItemSub} numberOfLines={1}>
+            <View style={styles.activityContent}>
+              <Text style={styles.activityTitle}>New Exploration Project Created</Text>
+              <Text style={styles.activitySub} numberOfLines={1}>
                 {featuredProject?.title || 'Bhilwara Lead-Zinc Exploration Block'}
               </Text>
             </View>
-            <Text style={styles.activityTimeText}>2h ago</Text>
-            <ChevronRight size={16} color={colors.textTertiary} />
+            <Text style={styles.activityTime}>2h ago</Text>
+            <ChevronRight size={14} color={colors.textTertiary} />
           </TouchableOpacity>
 
+          <View style={styles.activityDivider} />
+
           <TouchableOpacity
-            activeOpacity={0.75}
+            activeOpacity={0.7}
             onPress={() => navigation.navigate('QuoteApprovals')}
-            style={styles.activityItem}
+            style={styles.activityRow}
           >
             <View style={[styles.activityIconCircle, { backgroundColor: '#f0f9ff' }]}>
-              <CheckCircle2 size={16} color="#0284c7" strokeWidth={2.2} />
+              <CheckCircle2 size={15} color="#0284c7" strokeWidth={2.2} />
             </View>
-            <View style={styles.activityTextCol}>
-              <Text style={styles.activityItemTitle}>Commercial Quotation Pending</Text>
-              <Text style={styles.activityItemSub} numberOfLines={1}>
+            <View style={styles.activityContent}>
+              <Text style={styles.activityTitle}>Commercial Quotation Pending</Text>
+              <Text style={styles.activitySub} numberOfLines={1}>
                 QTE-2026-042 • Tata Steel Exploration
               </Text>
             </View>
-            <Text style={styles.activityTimeText}>5h ago</Text>
-            <ChevronRight size={16} color={colors.textTertiary} />
+            <Text style={styles.activityTime}>5h ago</Text>
+            <ChevronRight size={14} color={colors.textTertiary} />
           </TouchableOpacity>
         </View>
 
+        {/* Role & Authorized Scope Summary */}
         <View style={styles.roleSummaryCard}>
           <View style={styles.roleHeaderRow}>
             <View style={styles.roleIconWrap}>
-              <Layers size={18} color={colors.primaryDark} strokeWidth={2.2} />
+              <Layers size={16} color={colors.primaryDark} strokeWidth={2.2} />
             </View>
             <View style={styles.roleTitleCol}>
               <Text style={styles.roleHeaderTitle}>{roleTitle}</Text>
               <Text style={styles.roleHeaderSubtitle}>Authorized Role Scope</Text>
             </View>
             <TouchableOpacity
-              activeOpacity={0.75}
+              activeOpacity={0.7}
               onPress={() => navigation.navigate('MisReports')}
               style={styles.roleActionBtn}
             >
               <Text style={styles.roleActionText}>View MIS</Text>
-              <ArrowRight size={12} color={colors.primaryDark} strokeWidth={2} />
+              <ArrowRight size={11} color={colors.primaryDark} strokeWidth={2} />
             </TouchableOpacity>
           </View>
           <Text style={styles.roleDescText}>{roleDescription}</Text>
@@ -770,31 +660,34 @@ const styles = StyleSheet.create({
   headerContainer: {
     backgroundColor: '#ffffff',
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.sm + 4,
     borderBottomWidth: 1,
     borderBottomColor: colors.border.default,
+    maxWidth: 680,
+    alignSelf: 'center',
+    width: '100%',
     ...shadows.xs,
   },
   headerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.sm + 2,
+    marginBottom: spacing.xs + 3,
   },
   avatarWrapper: {
     position: 'relative',
     marginRight: spacing.md,
   },
   avatarImage: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     borderWidth: 1.5,
     borderColor: colors.primaryDark,
   },
   avatarInitialsBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: '#0f766e',
     alignItems: 'center',
     justifyContent: 'center',
@@ -802,7 +695,7 @@ const styles = StyleSheet.create({
     borderColor: '#14b8a6',
   },
   avatarInitialsText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '800',
     color: '#ffffff',
     letterSpacing: 0.5,
@@ -813,8 +706,8 @@ const styles = StyleSheet.create({
     right: -2,
     backgroundColor: colors.primaryDark,
     borderRadius: radius.full,
-    width: 16,
-    height: 16,
+    width: 15,
+    height: 15,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
@@ -830,7 +723,7 @@ const styles = StyleSheet.create({
   },
   userNameText: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.textPrimary,
     letterSpacing: -0.2,
   },
@@ -838,7 +731,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 2,
+    marginTop: 1,
   },
   companySubtext: {
     fontSize: 11,
@@ -848,7 +741,7 @@ const styles = StyleSheet.create({
   bellButton: {
     width: 38,
     height: 38,
-    borderRadius: radius.full,
+    borderRadius: radius.md,
     backgroundColor: colors.surfaceSubtle,
     alignItems: 'center',
     justifyContent: 'center',
@@ -861,17 +754,17 @@ const styles = StyleSheet.create({
     top: 2,
     right: 2,
     backgroundColor: colors.danger,
-    minWidth: 15,
-    height: 15,
+    minWidth: 14,
+    height: 14,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 3,
+    paddingHorizontal: 2.5,
     borderWidth: 1.5,
     borderColor: '#ffffff',
   },
   bellBadgeText: {
-    fontSize: 8.5,
+    fontSize: 8,
     fontWeight: '800',
     color: '#ffffff',
   },
@@ -917,32 +810,36 @@ const styles = StyleSheet.create({
   bodyContent: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
+    maxWidth: 680,
+    alignSelf: 'center',
+    width: '100%',
   },
 
-  attendanceCommandCard: {
+  /* Attendance Card */
+  attendanceCard: {
     backgroundColor: '#ffffff',
     borderRadius: radius.lg,
-    padding: spacing.md + 2,
+    padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.border.default,
     marginBottom: spacing.lg,
     ...shadows.xs,
   },
-  attendanceCardHeader: {
+  attendanceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.sm + 2,
+    marginBottom: 8,
   },
-  attendanceHeaderLeft: {
+  attendanceStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  statusIndicatorDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  statusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 3.5,
   },
   dotPresent: {
     backgroundColor: colors.success,
@@ -950,73 +847,58 @@ const styles = StyleSheet.create({
   dotAbsent: {
     backgroundColor: colors.warning,
   },
-  attendanceCardTitle: {
+  attendanceStatusTitle: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.textPrimary,
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
-  geotagBadge: {
+  geotagPill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
     backgroundColor: colors.primaryBg,
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: radius.full,
+    borderRadius: radius.sm,
   },
-  geotagBadgeText: {
+  geotagText: {
     fontSize: 9.5,
-    fontWeight: '700',
+    fontWeight: '600',
     color: colors.primaryDark,
   },
-  attendanceTimingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  attendanceInfoBlock: {
     backgroundColor: colors.surfaceSubtle,
     borderRadius: radius.md,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.md,
+    paddingVertical: spacing.xs + 3,
+    paddingHorizontal: spacing.sm + 2,
+    marginBottom: spacing.sm + 2,
   },
-  timingCol: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  timingDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: colors.borderMedium,
-  },
-  timingLabel: {
-    fontSize: 10,
-    color: colors.textMuted,
+  attendanceDetailText: {
+    fontSize: 12,
+    color: colors.textSecondary,
     fontWeight: '500',
-    marginBottom: 2,
   },
-  timingValue: {
-    fontSize: 12.5,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  punchActionBtn: {
+  punchBtn: {
     marginTop: 0,
+    minHeight: 44,
   },
 
+  /* Section Header & Filters */
   sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 4,
     marginBottom: spacing.sm,
   },
   sectionTitle: {
-    fontSize: 14.5,
-    fontWeight: '800',
+    fontSize: 14,
+    fontWeight: '700',
     color: colors.textPrimary,
     letterSpacing: -0.2,
   },
-  timePillContainer: {
+  timeFilterWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surfaceSubtle,
@@ -1025,20 +907,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.default,
   },
-  timePill: {
+  filterTab: {
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: radius.sm,
   },
-  timePillActive: {
+  filterTabActive: {
     backgroundColor: colors.primaryDark,
   },
-  timePillText: {
+  filterTabText: {
     fontSize: 10,
     color: colors.textSecondary,
     fontWeight: '500',
   },
-  timePillTextActive: {
+  filterTabTextActive: {
     color: '#ffffff',
     fontWeight: '700',
   },
@@ -1050,87 +932,99 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: 11.5,
     color: colors.primaryDark,
-    fontWeight: '700',
+    fontWeight: '600',
   },
 
-  kpiContainer: {
+  /* Unified Operational Snapshot */
+  snapshotCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    marginBottom: spacing.lg,
+    ...shadows.xs,
+  },
+  snapshotHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm + 2,
+  },
+  snapshotTitle: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.textMuted,
+    letterSpacing: 0.6,
+  },
+  snapshotGrid: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  snapshotCol: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  snapshotDivider: {
+    width: 1,
+    height: 36,
+    backgroundColor: colors.borderLight,
+  },
+  snapshotLabel: {
+    fontSize: 8.5,
+    fontWeight: '700',
+    color: colors.textTertiary,
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  snapshotVal: {
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: -0.3,
+  },
+  snapshotSub: {
+    fontSize: 9.5,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+
+  /* Quick Actions Grid */
+  quickActionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginBottom: spacing.lg,
   },
-  kpiRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  kpiCard: {
-    flex: 1,
+  actionGridItem: {
+    width: '30.5%',
+    alignItems: 'center',
     backgroundColor: '#ffffff',
-    borderRadius: radius.lg,
-    padding: spacing.md,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: 4,
     borderWidth: 1,
     borderColor: colors.border.default,
     ...shadows.xs,
   },
-  kpiTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-  },
-  kpiIconWrap: {
-    width: 28,
-    height: 28,
+  actionIconContainer: {
+    width: 36,
+    height: 36,
     borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  kpiLabel: {
-    fontSize: 9.5,
-    fontWeight: '700',
-    color: colors.textMuted,
-    letterSpacing: 0.3,
-  },
-  kpiValue: {
-    fontSize: 17,
-    fontWeight: '800',
-    marginTop: 2,
-    letterSpacing: -0.3,
-  },
-  kpiSubtext: {
-    fontSize: 10,
-    color: colors.textMuted,
-    marginTop: 2,
-    fontWeight: '500',
-  },
-
-  quickActionsScroll: {
-    flexDirection: 'row',
-    gap: 10,
-    paddingVertical: 2,
-    marginBottom: spacing.lg,
-  },
-  actionItem: {
-    alignItems: 'center',
-    width: 56,
-  },
-  actionIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: radius.md + 2,
+    backgroundColor: colors.primaryBg,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    ...shadows.xs,
   },
   actionLabel: {
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: '600',
     color: colors.textPrimary,
     textAlign: 'center',
   },
 
-  projectCard: {
+  /* Active Project Preview */
+  projectPreviewCard: {
     backgroundColor: '#ffffff',
     borderRadius: radius.lg,
     padding: spacing.md,
@@ -1139,96 +1033,82 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     ...shadows.xs,
   },
-  projectHeaderRow: {
+  projectCardHeader: {
     flexDirection: 'row',
-  },
-  projectThumb: {
-    width: 76,
-    height: 76,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceSubtle,
-  },
-  projectMainInfo: {
-    flex: 1,
-    paddingLeft: spacing.md,
     justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
   },
-  projectBadgeRow: {
+  projectBadges: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginBottom: 3,
+    gap: 6,
   },
-  projectCodeBadge: {
+  codeBadge: {
     backgroundColor: colors.primaryBg,
     paddingHorizontal: 6,
     paddingVertical: 1.5,
-    borderRadius: radius.full,
+    borderRadius: radius.sm,
     borderWidth: 1,
     borderColor: '#99f6e4',
   },
-  projectCodeText: {
-    fontSize: 8.5,
-    fontWeight: '800',
+  codeBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
     color: colors.primaryDark,
   },
-  projectStageBadge: {
-    backgroundColor: colors.accentBg,
+  stageBadge: {
+    backgroundColor: colors.surfaceSubtle,
     paddingHorizontal: 6,
     paddingVertical: 1.5,
-    borderRadius: radius.full,
+    borderRadius: radius.sm,
   },
-  projectStageText: {
-    fontSize: 8.5,
-    fontWeight: '700',
-    color: colors.accentDark,
+  stageBadgeText: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: colors.textSecondary,
   },
   projectTitle: {
-    fontSize: 12.5,
-    fontWeight: '800',
+    fontSize: 13.5,
+    fontWeight: '700',
     color: colors.textPrimary,
-    lineHeight: 16,
+    lineHeight: 18,
+    marginBottom: 4,
   },
   projectLocationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 3,
-    marginTop: 2,
+    gap: 4,
+    marginBottom: spacing.sm + 2,
   },
   projectLocationText: {
-    fontSize: 10,
+    fontSize: 11,
     color: colors.textMuted,
-    fontWeight: '500',
+    fontWeight: '400',
   },
-  projectFooter: {
+  projectStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: spacing.sm,
-    marginTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.borderLight,
   },
-  projectBudgetCol: {
+  budgetCol: {
     flex: 1,
   },
-  budgetLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  budgetLabel: {
+  statLabel: {
     fontSize: 9.5,
     color: colors.textMuted,
     fontWeight: '500',
   },
-  budgetValue: {
+  statValue: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.textPrimary,
     marginTop: 1,
   },
-  projectProgressCol: {
+  progressCol: {
     width: 90,
   },
   progressLabelRow: {
@@ -1236,12 +1116,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 3,
   },
-  progressLabel: {
-    fontSize: 9.5,
-    color: colors.textMuted,
-    fontWeight: '500',
-  },
-  progressPercent: {
+  progressValue: {
     fontSize: 9.5,
     fontWeight: '700',
     color: colors.primaryDark,
@@ -1258,7 +1133,8 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
 
-  activityList: {
+  /* Activity Card */
+  activityCard: {
     backgroundColor: '#ffffff',
     borderRadius: radius.lg,
     borderWidth: 1,
@@ -1266,12 +1142,10 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
     ...shadows.xs,
   },
-  activityItem: {
+  activityRow: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
   },
   activityIconCircle: {
     width: 32,
@@ -1281,28 +1155,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: spacing.sm + 2,
   },
-  activityTextCol: {
+  activityContent: {
     flex: 1,
+    paddingRight: spacing.xs,
   },
-  activityItemTitle: {
+  activityTitle: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '600',
     color: colors.textPrimary,
   },
-  activityItemSub: {
+  activitySub: {
     fontSize: 10.5,
     color: colors.textMuted,
     marginTop: 1,
   },
-  activityTimeText: {
+  activityTime: {
     fontSize: 10,
     color: colors.textTertiary,
     marginRight: spacing.xs,
   },
+  activityDivider: {
+    height: 1,
+    backgroundColor: colors.borderLight,
+  },
 
+  /* Role Scope Card */
   roleSummaryCard: {
     backgroundColor: '#ffffff',
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     padding: spacing.md,
     borderWidth: 1,
     borderColor: colors.border.default,
@@ -1311,11 +1191,11 @@ const styles = StyleSheet.create({
   roleHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   roleIconWrap: {
-    width: 30,
-    height: 30,
+    width: 28,
+    height: 28,
     borderRadius: radius.sm,
     backgroundColor: colors.primaryBg,
     alignItems: 'center',
@@ -1326,12 +1206,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   roleHeaderTitle: {
-    fontSize: 13,
-    fontWeight: '800',
+    fontSize: 12.5,
+    fontWeight: '700',
     color: colors.textPrimary,
   },
   roleHeaderSubtitle: {
-    fontSize: 10,
+    fontSize: 9.5,
     color: colors.textMuted,
   },
   roleActionBtn: {
@@ -1339,18 +1219,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 3,
     backgroundColor: colors.primaryBg,
-    paddingHorizontal: 8,
-    paddingVertical: 3.5,
-    borderRadius: radius.full,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
   },
   roleActionText: {
-    fontSize: 10.5,
+    fontSize: 10,
     fontWeight: '700',
     color: colors.primaryDark,
   },
   roleDescText: {
-    fontSize: 11,
+    fontSize: 10.5,
     color: colors.textSecondary,
-    lineHeight: 16,
+    lineHeight: 15,
   },
 });

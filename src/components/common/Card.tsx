@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle, StyleProp, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ViewStyle, StyleProp, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { colors, radius, spacing, shadows } from '../../theme';
 
 interface CardProps {
@@ -15,6 +15,10 @@ export const Card: React.FC<CardProps> = ({
   onPress,
   variant = 'elevated',
 }) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const isCompact = screenWidth < 360;
+  const responsivePadding = isCompact ? spacing.md : spacing.lg;
+
   const getVariantStyle = () => {
     switch (variant) {
       case 'outlined':
@@ -32,14 +36,14 @@ export const Card: React.FC<CardProps> = ({
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onPress}
-        style={[styles.card, getVariantStyle(), style]}
+        style={[styles.card, { padding: responsivePadding }, getVariantStyle(), style]}
       >
         {children}
       </TouchableOpacity>
     );
   }
 
-  return <View style={[styles.card, getVariantStyle(), style]}>{children}</View>;
+  return <View style={[styles.card, { padding: responsivePadding }, getVariantStyle(), style]}>{children}</View>;
 };
 
 const styles = StyleSheet.create({

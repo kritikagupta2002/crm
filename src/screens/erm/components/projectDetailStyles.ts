@@ -13,6 +13,11 @@ export const styles = StyleSheet.create({
   },
   headerCard: {
     marginBottom: spacing.xs,
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    padding: 14,
   },
   titleRow: {
     flexDirection: 'row',
@@ -59,6 +64,11 @@ export const styles = StyleSheet.create({
   },
   stepperCard: {
     marginBottom: spacing.sm,
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    padding: 14,
   },
   stepperHeader: {
     marginBottom: spacing.sm,

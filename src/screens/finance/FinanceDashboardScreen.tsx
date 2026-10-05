@@ -174,47 +174,45 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
         <View style={styles.kpiSection}>
           <Text style={styles.sectionHeader}>FINANCIAL LEDGER SNAPSHOT</Text>
 
-          <View style={styles.kpiGrid}>
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="GROSS INVOICED"
-                value={`₹${(totalInvoiced / 100000).toFixed(1)}L`}
-                caption={`${invoices.length} invoices issued`}
-                icon={<TrendingUp size={18} color="#0D9488" />}
-                chart={<MiniBarChart values={[30, 45, 60, Math.min(80, Math.round(totalInvoiced / 100000))]} color="#0D9488" height={26} barWidth={5} />}
-              />
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.metricsStrip}>
+            <View style={styles.metricCard}>
+              <View style={styles.metricIconWrap}>
+                <TrendingUp size={14} color="#0D9488" />
+              </View>
+              <Text style={styles.metricValue}>₹{(totalInvoiced / 100000).toFixed(1)}L</Text>
+              <Text style={styles.metricLabel}>GROSS INVOICED</Text>
+              <Text style={styles.metricSub}>{invoices.length} invoices issued</Text>
             </View>
 
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="OUTSTANDING AR"
-                value={`₹${(receivables / 100000).toFixed(1)}L`}
-                caption={overdueInvoicesCount > 0 ? `${overdueInvoicesCount} overdue bills` : 'Healthy collection'}
-                icon={<IndianRupee size={18} color={receivables > 0 ? "#D97706" : "#16A34A"} />}
-                chart={<DonutChart percentage={collectionPct} color={receivables > 0 ? "#F59E0B" : "#10B981"} size={38} strokeWidth={5} />}
-              />
+            <View style={styles.metricCard}>
+              <View style={styles.metricIconWrap}>
+                <IndianRupee size={14} color={receivables > 0 ? "#D97706" : "#16A34A"} />
+              </View>
+              <Text style={styles.metricValue}>₹{(receivables / 100000).toFixed(1)}L</Text>
+              <Text style={styles.metricLabel}>OUTSTANDING AR</Text>
+              <Text style={styles.metricSub}>{overdueInvoicesCount > 0 ? `${overdueInvoicesCount} overdue bills` : 'Healthy collection'}</Text>
             </View>
 
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="VENDOR BILLS (AP)"
-                value={`₹${(totalPayables / 100000).toFixed(1)}L`}
-                caption={`${vendorBills.length} contractor bills`}
-                icon={<TrendingDown size={18} color="#D97706" />}
-                chart={<MiniBarChart values={[20, 35, 50, Math.min(70, Math.round(totalPayables / 100000))]} color="#D97706" height={26} barWidth={5} />}
-              />
+            <View style={styles.metricCard}>
+              <View style={styles.metricIconWrap}>
+                <TrendingDown size={14} color="#D97706" />
+              </View>
+              <Text style={styles.metricValue}>₹{(totalPayables / 100000).toFixed(1)}L</Text>
+              <Text style={styles.metricLabel}>VENDOR BILLS (AP)</Text>
+              <Text style={styles.metricSub}>{vendorBills.length} contractor bills</Text>
             </View>
 
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="NET CASH FLOW"
-                value={`${netCashFlow >= 0 ? '+' : ''}₹${(netCashFlow / 100000).toFixed(1)}L`}
-                caption={netCashFlow >= 0 ? 'Operating Surplus' : 'Operating Deficit'}
-                icon={<TrendingUp size={18} color={netCashFlow >= 0 ? "#16A34A" : "#EF4444"} />}
-                trend={{ value: netCashFlow >= 0 ? 'Surplus' : 'Deficit', isPositive: netCashFlow >= 0 }}
-              />
+            <View style={styles.metricCard}>
+              <View style={styles.metricIconWrap}>
+                <TrendingUp size={14} color={netCashFlow >= 0 ? "#16A34A" : "#EF4444"} />
+              </View>
+              <Text style={[styles.metricValue, { color: netCashFlow >= 0 ? '#16A34A' : '#EF4444' }]}>
+                {netCashFlow >= 0 ? '+' : ''}₹{(netCashFlow / 100000).toFixed(1)}L
+              </Text>
+              <Text style={styles.metricLabel}>NET CASH FLOW</Text>
+              <Text style={styles.metricSub}>{netCashFlow >= 0 ? 'Surplus' : 'Deficit'}</Text>
             </View>
-          </View>
+          </ScrollView>
         </View>
 
         <View style={styles.launchpadSection}>
@@ -423,14 +421,44 @@ const styles = StyleSheet.create({
   kpiSection: {
     marginBottom: spacing.md,
   },
-  kpiGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
+  metricsStrip: {
+    paddingRight: spacing.sm,
+    gap: spacing.sm,
   },
-  kpiCol: {
-    width: '50%',
-    padding: spacing.xs,
+  metricCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.light,
+    padding: spacing.sm,
+    minWidth: 130,
+    ...shadows.xs,
+  },
+  metricIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.sm,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  metricValue: {
+    fontSize: typography.fontSizes.base,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.primary,
+  },
+  metricLabel: {
+    fontSize: 9,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text.tertiary,
+    marginTop: 2,
+    letterSpacing: 0.5,
+  },
+  metricSub: {
+    fontSize: 10,
+    color: colors.text.secondary,
+    marginTop: 1,
   },
   launchpadSection: {
     marginBottom: spacing.md,

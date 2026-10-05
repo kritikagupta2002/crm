@@ -162,38 +162,26 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         />
       }
     >
-      <View style={styles.statGrid}>
-        <StatCard
-          title="Overdue"
-          value={counts.overdue}
-          subtitle="Need attention first"
-          icon={<AlertTriangle size={18} color={colors.danger} />}
-          color={colors.danger}
-        />
-        <StatCard
-          title="Due Today"
-          value={counts.today}
-          subtitle={todayISO}
-          icon={<Clock size={18} color={colors.warning} />}
-          color={colors.warning}
-        />
-      </View>
-
-      <View style={styles.statGrid}>
-        <StatCard
-          title="Next 7 Days"
-          value={counts.next7Days}
-          subtitle="Upcoming schedule"
-          icon={<CalendarDays size={18} color={colors.info} />}
-          color={colors.info}
-        />
-        <StatCard
-          title="Completed"
-          value={counts.completed}
-          subtitle="Interactions logged"
-          icon={<CalendarCheck2 size={18} color={colors.primary} />}
-          color={colors.primary}
-        />
+      <View style={styles.metricsStrip}>
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: counts.overdue > 0 ? colors.danger : '#0f172a' }]}>{counts.overdue}</Text>
+          <Text style={styles.metricLbl}>Overdue</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: counts.today > 0 ? colors.warning : '#0f172a' }]}>{counts.today}</Text>
+          <Text style={styles.metricLbl}>Today</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={styles.metricVal}>{counts.next7Days}</Text>
+          <Text style={styles.metricLbl}>Next 7 Days</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.success }]}>{counts.completed}</Text>
+          <Text style={styles.metricLbl}>Done</Text>
+        </View>
       </View>
 
       <Input
@@ -490,9 +478,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  statGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    gap: spacing.sm,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   searchBar: {
     marginTop: spacing.xs,

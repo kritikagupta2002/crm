@@ -90,9 +90,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
           title={clientName}
           subtitle={`Client Portal • Enquiry #${clientEnquiryId}`}
           showBack={false}
-          scenicBanner
-          badge="External Client Access"
-          badgeIcon={<Building size={11} color="#ffffff" strokeWidth={2.4} />}
           rightAction={
             <TouchableOpacity style={styles.logoutBtn} onPress={logout} activeOpacity={0.75}>
               <LogOut size={16} color={colors.danger} />

@@ -138,100 +138,43 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
         />
       }
     >
-      <View style={styles.kpiGrid}>
+      <View style={styles.metricsStrip}>
         <TouchableOpacity
-          style={styles.kpiCard}
+          style={styles.metricItem}
           onPress={() => navigation.navigate('Projects')}
-          activeOpacity={0.75}
+          activeOpacity={0.7}
         >
-          <View style={styles.kpiLeft}>
-            <View style={[styles.kpiIconWrap, { backgroundColor: '#f0f9ff' }]}>
-              <FolderKanban size={17} color="#0284c7" strokeWidth={2.2} />
-            </View>
-            <Text style={styles.kpiLabel}>ACTIVE PROJECTS</Text>
-            <Text style={[styles.kpiVal, { color: '#0284c7' }]}>{activeProjects.length}</Text>
-            <Text style={styles.kpiSub}>{completedProjects.length} completed</Text>
-          </View>
-          <View style={styles.kpiChart}>
-            <MiniBarsChart color="#38bdf8" heights={[10, 16, 22, 28]} />
-          </View>
+          <Text style={[styles.metricVal, { color: colors.primary }]}>{activeProjects.length}</Text>
+          <Text style={styles.metricLbl}>Active Blocks</Text>
         </TouchableOpacity>
-
+        <View style={styles.metricDivider} />
         <TouchableOpacity
-          style={styles.kpiCard}
+          style={styles.metricItem}
           onPress={() => navigation.navigate('MainTabs', { screen: 'TasksTab' })}
-          activeOpacity={0.75}
+          activeOpacity={0.7}
         >
-          <View style={styles.kpiLeft}>
-            <View
-              style={[
-                styles.kpiIconWrap,
-                { backgroundColor: overdueTasks.length > 0 ? '#fef2f2' : '#ecfdf5' },
-              ]}
-            >
-              <AlertTriangle
-                size={17}
-                color={overdueTasks.length > 0 ? '#dc2626' : '#059669'}
-                strokeWidth={2.2}
-              />
-            </View>
-            <Text style={styles.kpiLabel}>OVERDUE TASKS</Text>
-            <Text
-              style={[
-                styles.kpiVal,
-                { color: overdueTasks.length > 0 ? '#dc2626' : '#059669' },
-              ]}
-            >
-              {overdueTasks.length}
-            </Text>
-            <Text style={styles.kpiSub}>
-              {overdueTasks.length > 0 ? 'Past deadline' : 'All on schedule'}
-            </Text>
-          </View>
-          <View style={styles.kpiChart}>
-            <MiniBarsChart
-              color={overdueTasks.length > 0 ? '#f87171' : '#10b981'}
-              heights={[14, 20, 24, 26]}
-            />
-          </View>
+          <Text style={[styles.metricVal, { color: overdueTasks.length > 0 ? colors.danger : colors.success }]}>
+            {overdueTasks.length}
+          </Text>
+          <Text style={styles.metricLbl}>Overdue</Text>
         </TouchableOpacity>
-      </View>
-
-      <View style={styles.kpiGrid}>
+        <View style={styles.metricDivider} />
         <TouchableOpacity
-          style={styles.kpiCard}
+          style={styles.metricItem}
           onPress={() => navigation.navigate('MainTabs', { screen: 'TasksTab' })}
-          activeOpacity={0.75}
+          activeOpacity={0.7}
         >
-          <View style={styles.kpiLeft}>
-            <View style={[styles.kpiIconWrap, { backgroundColor: '#fffbeb' }]}>
-              <CalendarClock size={17} color="#d97706" strokeWidth={2.2} />
-            </View>
-            <Text style={styles.kpiLabel}>DUE THIS WEEK</Text>
-            <Text style={[styles.kpiVal, { color: '#d97706' }]}>{dueThisWeekTasks.length}</Text>
-            <Text style={styles.kpiSub}>Next 7 days work</Text>
-          </View>
-          <View style={styles.kpiChart}>
-            <MiniBarsChart color="#f59e0b" heights={[10, 18, 22, 28]} />
-          </View>
+          <Text style={[styles.metricVal, { color: colors.warning }]}>{dueThisWeekTasks.length}</Text>
+          <Text style={styles.metricLbl}>Due Week</Text>
         </TouchableOpacity>
-
+        <View style={styles.metricDivider} />
         <TouchableOpacity
-          style={styles.kpiCard}
+          style={styles.metricItem}
           onPress={() => navigation.navigate('Projects', { stageKey: 'approval' })}
-          activeOpacity={0.75}
+          activeOpacity={0.7}
         >
-          <View style={styles.kpiLeft}>
-            <View style={[styles.kpiIconWrap, { backgroundColor: '#f0fdf4' }]}>
-              <Landmark size={17} color="#16a34a" strokeWidth={2.2} />
-            </View>
-            <Text style={styles.kpiLabel}>WITH AUTHORITY</Text>
-            <Text style={[styles.kpiVal, { color: '#16a34a' }]}>{withAuthorityProjects.length}</Text>
-            <Text style={styles.kpiSub}>Govt approvals</Text>
-          </View>
-          <View style={styles.kpiChart}>
-            <MiniBarsChart color="#4ade80" heights={[12, 16, 24, 26]} />
-          </View>
+          <Text style={[styles.metricVal, { color: colors.info }]}>{withAuthorityProjects.length}</Text>
+          <Text style={styles.metricLbl}>Authority</Text>
         </TouchableOpacity>
       </View>
 
@@ -470,51 +413,37 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
 };
 
 const styles = StyleSheet.create({
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-    marginBottom: spacing.md,
-  },
-  kpiCard: {
-    width: '48.5%',
-    backgroundColor: colors.surface,
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderLeftWidth: 4,
-    ...shadows.sm,
-  },
-  kpiIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.sm,
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
-  kpiVal: {
-    fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
   },
-  kpiLabel: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.textSecondary,
-    marginTop: 2,
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
   },
-  kpiSub: {
-    fontSize: typography.fontSizes.xxs,
-    color: colors.textMuted,
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
     marginTop: 1,
   },
-  kpiLeft: {
-    flex: 1,
-  },
-  kpiChart: {
-    marginLeft: spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   quickActionsRow: {
     flexDirection: 'row',

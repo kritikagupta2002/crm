@@ -217,45 +217,25 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
   const renderHeader = () => (
     <View style={styles.listHeaderWrap}>
-      <View style={styles.kpiGrid}>
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="TOTAL CLAIMED"
-            value={`₹${(stats.totalClaimed / 1000).toFixed(1)}k`}
-            caption={`${baseExpenses.length} Total Vouchers`}
-            icon={<Receipt size={18} color="#0D9488" />}
-            chart={<MiniBarChart values={[15, 30, 45, Math.min(60, Math.round(stats.totalClaimed / 1000))]} color="#0D9488" height={26} barWidth={5} />}
-          />
+      <View style={styles.metricsStrip}>
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: '#0d9488' }]}>{`₹${(stats.totalClaimed / 1000).toFixed(1)}k`}</Text>
+          <Text style={styles.metricLbl}>Claimed</Text>
         </View>
-
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="APPROVED"
-            value={`₹${(stats.totalApproved / 1000).toFixed(1)}k`}
-            caption={`${approvalPct}% Approval Rate`}
-            icon={<ShieldCheck size={18} color="#16A34A" />}
-            chart={<DonutChart percentage={approvalPct} color="#10B981" size={38} strokeWidth={5} />}
-          />
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: '#16a34a' }]}>{`₹${(stats.totalApproved / 1000).toFixed(1)}k`}</Text>
+          <Text style={styles.metricLbl}>Approved</Text>
         </View>
-
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="SETTLED"
-            value={`₹${(stats.totalSettled / 1000).toFixed(1)}k`}
-            caption="Disbursed To Account"
-            icon={<IndianRupee size={18} color="#2563EB" />}
-            chart={<MiniBarChart values={[10, 25, 40, Math.min(55, Math.round(stats.totalSettled / 1000))]} color="#2563EB" height={26} barWidth={5} />}
-          />
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: '#2563eb' }]}>{`₹${(stats.totalSettled / 1000).toFixed(1)}k`}</Text>
+          <Text style={styles.metricLbl}>Settled</Text>
         </View>
-
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="UNDER QUERY"
-            value={String(stats.underQuery)}
-            caption={stats.underQuery > 0 ? 'Clarifications Req' : 'Zero Queries'}
-            icon={<MessageSquare size={18} color={stats.underQuery > 0 ? "#D97706" : "#16A34A"} />}
-            trend={{ value: stats.underQuery > 0 ? 'Action Req' : 'Clear', isPositive: stats.underQuery === 0 }}
-          />
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: stats.underQuery > 0 ? '#d97706' : '#16a34a' }]}>{stats.underQuery}</Text>
+          <Text style={styles.metricLbl}>Queries</Text>
         </View>
       </View>
 
@@ -483,15 +463,37 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     marginTop: spacing.xs,
   },
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
-  kpiCol: {
-    width: '50%',
-    padding: spacing.xs,
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   launchpadSection: {
     marginBottom: spacing.md,

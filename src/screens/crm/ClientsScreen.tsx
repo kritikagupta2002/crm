@@ -147,35 +147,26 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         />
       }
     >
-      <View style={styles.kpiGrid}>
-        <StatCard
-          label="Total Clients"
-          value={totalClients}
-          subtext="Won commercial accounts"
-          icon={<Building2 size={20} color={colors.info} />}
-          tone="info"
-        />
-        <StatCard
-          label="Active"
-          value={activeCount}
-          subtext="Onboarding complete"
-          icon={<CheckCircle2 size={20} color={colors.success} />}
-          tone="good"
-        />
-        <StatCard
-          label="Onboarding"
-          value={onboardingCount}
-          subtext="Pending KYC & docs"
-          icon={<UserPlus size={20} color={colors.warning} />}
-          tone="attention"
-        />
-        <StatCard
-          label="Total Business"
-          value={formatINR(totalBusinessSum)}
-          subtext="Before GST"
-          icon={<IndianRupee size={20} color={colors.success} />}
-          tone="good"
-        />
+      <View style={styles.metricsStrip}>
+        <View style={styles.metricItem}>
+          <Text style={styles.metricVal}>{totalClients}</Text>
+          <Text style={styles.metricLbl}>Total</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.success }]}>{activeCount}</Text>
+          <Text style={styles.metricLbl}>Active</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.warning }]}>{onboardingCount}</Text>
+          <Text style={styles.metricLbl}>Onboarding</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.primary }]}>{formatINR(totalBusinessSum)}</Text>
+          <Text style={styles.metricLbl}>Pipeline</Text>
+        </View>
       </View>
 
       <Input
@@ -287,11 +278,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   searchBar: {
     marginBottom: spacing.xs,
@@ -308,9 +325,9 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 12,
     borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border.default,
   },
   chipActive: {
     backgroundColor: colors.primary,
@@ -336,6 +353,11 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: spacing.sm,
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    padding: 12,
   },
   cardHeader: {
     flexDirection: 'row',

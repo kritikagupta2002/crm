@@ -205,9 +205,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         <AppHeader
           title="MIS Analytics & BI"
           subtitle="Zero-Fake-Numbers Live Intelligence"
-          scenicBanner
-          badge="Executive MIS & BI"
-          badgeIcon={<BarChart3 size={12} color="#0d9488" />}
           showBack
           onBack={() => navigation.goBack()}
           rightAction={

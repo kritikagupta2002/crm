@@ -74,9 +74,6 @@ export const PayrollScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
         <AppHeader
           title="Payroll & Compensation"
           subtitle="Statutory computation, PF, ESI, PT, and salary disbursals"
-          scenicBanner
-          badge="Payroll & Statutory"
-          badgeIcon={<BadgeIndianRupee size={12} color="#0d9488" />}
           showBack
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import {
   BadgeIndianRupee,
   CheckCircle2,
@@ -11,8 +11,7 @@ import {
   ArrowRight,
   ChevronRight,
 } from 'lucide-react-native';
-import { Card, StatCard, StatusBadge, EmptyState } from '../../../components/common';
-import { DonutChart, MiniBarChart } from '../../../components/common/NativeCharts';
+import { Card, StatusBadge, EmptyState } from '../../../components/common';
 import { colors } from '../../../theme';
 import { PayrollRun } from '../../../types';
 import { styles } from './payrollStyles';
@@ -44,59 +43,49 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
 }) => {
   return (
     <View style={styles.tabContent}>
-      <View style={styles.kpiGrid}>
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="TOTAL MONTHLY GROSS"
-            value={
-              totalMonthlyGross > 0
-                ? `₹${totalMonthlyGross.toLocaleString('en-IN')}`
-                : '₹0'
-            }
-            caption="Gross compensation"
-            icon={<BadgeIndianRupee size={18} color="#0D9488" />}
-            chart={<MiniBarChart values={[45, 60, 75, 90]} color="#0D9488" height={26} barWidth={5} />}
-          />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.metricsStrip}>
+        <View style={styles.metricCard}>
+          <View style={styles.metricIconWrap}>
+            <BadgeIndianRupee size={14} color="#0D9488" />
+          </View>
+          <Text style={styles.metricValue}>
+            {totalMonthlyGross > 0 ? `₹${(totalMonthlyGross / 100000).toFixed(1)}L` : '₹0'}
+          </Text>
+          <Text style={styles.metricLabel}>MONTHLY GROSS</Text>
+          <Text style={styles.metricSub}>Gross compensation</Text>
         </View>
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="NET DISBURSED"
-            value={
-              totalNetTakeHome > 0
-                ? `₹${totalNetTakeHome.toLocaleString('en-IN')}`
-                : '₹0'
-            }
-            caption="Take-home remittance"
-            icon={<CheckCircle2 size={18} color="#16A34A" />}
-            chart={<DonutChart percentage={totalMonthlyGross > 0 ? Math.round((totalNetTakeHome / totalMonthlyGross) * 100) : 85} color="#10B981" size={38} strokeWidth={5} />}
-          />
-        </View>
-      </View>
 
-      <View style={styles.kpiGrid}>
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="TOTAL DEDUCTIONS"
-            value={
-              totalMonthlyDeductions > 0
-                ? `₹${totalMonthlyDeductions.toLocaleString('en-IN')}`
-                : '₹0'
-            }
-            caption="PF, ESI, PT & TDS"
-            icon={<Clock size={18} color="#7C3AED" />}
-            chart={<MiniBarChart values={[10, 15, 12, 18]} color="#7C3AED" height={26} barWidth={5} />}
-          />
+        <View style={styles.metricCard}>
+          <View style={styles.metricIconWrap}>
+            <CheckCircle2 size={14} color="#16A34A" />
+          </View>
+          <Text style={styles.metricValue}>
+            {totalNetTakeHome > 0 ? `₹${(totalNetTakeHome / 100000).toFixed(1)}L` : '₹0'}
+          </Text>
+          <Text style={styles.metricLabel}>NET DISBURSED</Text>
+          <Text style={styles.metricSub}>Take-home pay</Text>
         </View>
-        <View style={styles.kpiCol}>
-          <StatCard
-            title="ON PAYROLL"
-            value={String(activeStaffCount)}
-            caption="Active personnel"
-            icon={<Users size={18} color="#D97706" />}
-            trend={{ value: 'Compliant', isPositive: true }}
-          />
+
+        <View style={styles.metricCard}>
+          <View style={styles.metricIconWrap}>
+            <Clock size={14} color="#7C3AED" />
+          </View>
+          <Text style={styles.metricValue}>
+            {totalMonthlyDeductions > 0 ? `₹${(totalMonthlyDeductions / 100000).toFixed(1)}L` : '₹0'}
+          </Text>
+          <Text style={styles.metricLabel}>DEDUCTIONS</Text>
+          <Text style={styles.metricSub}>PF, ESI, PT & TDS</Text>
         </View>
-      </View>
+
+        <View style={styles.metricCard}>
+          <View style={styles.metricIconWrap}>
+            <Users size={14} color="#D97706" />
+          </View>
+          <Text style={styles.metricValue}>{activeStaffCount}</Text>
+          <Text style={styles.metricLabel}>ON PAYROLL</Text>
+          <Text style={styles.metricSub}>Compliant staff</Text>
+        </View>
+      </ScrollView>
 
       <Text style={styles.sectionHeader}>PAYROLL WORKFLOWS</Text>
       <View style={styles.actionGrid}>

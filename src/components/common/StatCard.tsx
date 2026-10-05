@@ -46,7 +46,7 @@ const StatCardInner: React.FC<StatCardProps> = ({
   return (
     <View style={[styles.container, style]}>
       <View style={styles.header}>
-        <Text style={styles.title} numberOfLines={1}>
+        <Text style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>
           {displayTitle}
         </Text>
         {icon ? (
@@ -58,11 +58,21 @@ const StatCardInner: React.FC<StatCardProps> = ({
 
       <View style={styles.valueRow}>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.value, { color: computedColor }]} numberOfLines={1}>
+          <Text
+            style={[styles.value, { color: computedColor }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.75}
+          >
             {value}
           </Text>
           {displaySub ? (
-            <Text style={styles.subtitle} numberOfLines={1}>
+            <Text
+              style={styles.subtitle}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
               {displaySub}
             </Text>
           ) : null}
@@ -90,7 +100,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border.default,
     ...shadows.xs,
     flex: 1,
-    minWidth: 125,
+    minWidth: 100,
     marginBottom: spacing.xs + 2,
   },
   header: {

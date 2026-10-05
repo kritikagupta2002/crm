@@ -12,8 +12,7 @@ import {
   UserCheck,
   TrendingUp,
 } from 'lucide-react-native';
-import { ScreenContainer, AppHeader, Card, StatCard, Button } from '../../components/common';
-import { DonutChart, MiniBarChart } from '../../components/common/NativeCharts';
+import { ScreenContainer, AppHeader, Card, Button } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
 import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
@@ -121,48 +120,25 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
           </View>
         </View>
 
-        <View style={styles.kpiSection}>
-          <Text style={styles.sectionHeader}>PROCUREMENT KPI RADAR</Text>
-          <View style={styles.kpiGrid}>
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="EMPANELLED VENDORS"
-                value={String(metrics.totalVendors)}
-                caption="Verified Contractors"
-                icon={<Building2 size={18} color="#0D9488" />}
-                chart={<MiniBarChart values={[8, 12, 16, Math.max(20, metrics.totalVendors)]} color="#0D9488" height={26} barWidth={5} />}
-              />
-            </View>
-
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="PENDING APPLICATIONS"
-                value={String(metrics.pendingApps)}
-                caption={metrics.pendingApps > 0 ? 'KYC In Review' : 'All Clear'}
-                icon={<FileCheck2 size={18} color={metrics.pendingApps > 0 ? "#D97706" : "#16A34A"} />}
-                chart={<DonutChart percentage={metrics.pendingApps > 0 ? 65 : 100} color={metrics.pendingApps > 0 ? "#F59E0B" : "#10B981"} size={38} strokeWidth={5} />}
-              />
-            </View>
-
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="ACTIVE TENDERS"
-                value={String(metrics.openTendersCount)}
-                caption={`${metrics.totalSealedBids} Bids Submitted`}
-                icon={<Layers size={18} color="#2563EB" />}
-                chart={<MiniBarChart values={[3, 5, 2, Math.max(4, metrics.openTendersCount)]} color="#2563EB" height={26} barWidth={5} />}
-              />
-            </View>
-
-            <View style={styles.kpiCol}>
-              <StatCard
-                title="SEALED BIDS HELD"
-                value={String(metrics.totalSealedBids)}
-                caption="Dual-Key Encrypted"
-                icon={<Lock size={18} color="#9333EA" />}
-                trend={{ value: 'Encrypted', isPositive: true }}
-              />
-            </View>
+        <View style={styles.metricsStrip}>
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: '#0d9488' }]}>{metrics.totalVendors}</Text>
+            <Text style={styles.metricLbl}>Empanelled</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: metrics.pendingApps > 0 ? '#d97706' : '#16a34a' }]}>{metrics.pendingApps}</Text>
+            <Text style={styles.metricLbl}>KYC Apps</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: '#2563eb' }]}>{metrics.openTendersCount}</Text>
+            <Text style={styles.metricLbl}>Tenders</Text>
+          </View>
+          <View style={styles.metricDivider} />
+          <View style={styles.metricItem}>
+            <Text style={[styles.metricVal, { color: '#9333ea' }]}>{metrics.totalSealedBids}</Text>
+            <Text style={styles.metricLbl}>Sealed Bids</Text>
           </View>
         </View>
 
@@ -443,17 +419,37 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     marginTop: spacing.xs,
   },
-  kpiSection: {
-    marginBottom: spacing.md,
-  },
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
-  kpiCol: {
-    width: '50%',
-    padding: spacing.xs,
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   launchpadSection: {
     marginBottom: spacing.md,

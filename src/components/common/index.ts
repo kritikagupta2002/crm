@@ -12,3 +12,5 @@ export * from './SegmentedControl';
 export * from './InvoiceQrCode';
 export * from './PayslipQrCode';
 export * from './NativeCharts';
+export * from './SectionHeader';
+export * from './ListRow';

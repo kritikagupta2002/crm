@@ -214,78 +214,49 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
           </Text>
 
           {isHrOrAdmin ? (
-            <View style={styles.kpiGrid}>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="PRESENT TODAY"
-                  value={String(metrics.presentCount)}
-                  caption={`${metrics.presentPct}% of ${metrics.totalStaff} Staff`}
-                  icon={<UserCheck size={18} color={colors.semantic.success} />}
-                  chart={<DonutChart percentage={Number(metrics.presentPct)} color="#10B981" size={40} strokeWidth={5} />}
-                />
+            <View style={styles.metricsStrip}>
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: colors.semantic.success }]}>{metrics.presentCount}</Text>
+                <Text style={styles.metricLbl}>Present</Text>
               </View>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="ABSENT / LEAVE"
-                  value={String(metrics.absentCount + metrics.leaveCount)}
-                  caption={`${metrics.leaveCount} Approved Leaves`}
-                  icon={<UserX size={18} color={colors.semantic.danger} />}
-                  chart={<MiniBarChart values={[metrics.absentCount, metrics.leaveCount, metrics.lateCount]} color="#EF4444" height={26} barWidth={5} />}
-                />
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: colors.semantic.danger }]}>{metrics.absentCount + metrics.leaveCount}</Text>
+                <Text style={styles.metricLbl}>Absent/Leave</Text>
               </View>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="FIELD DEPLOYED"
-                  value={String(metrics.fieldCount)}
-                  caption="Bhilwara & Mines"
-                  icon={<Fingerprint size={18} color="#0D9488" />}
-                  trend={{ value: 'On Site', isPositive: true }}
-                />
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: '#0d9488' }]}>{metrics.fieldCount}</Text>
+                <Text style={styles.metricLbl}>On Field</Text>
               </View>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="CORRECTIONS"
-                  value={String(metrics.pendingCorrections)}
-                  caption={metrics.pendingCorrections > 0 ? 'Action Required' : 'All Clear'}
-                  icon={<FileEdit size={18} color={colors.primary} />}
-                  trend={{ value: metrics.pendingCorrections > 0 ? 'Pending' : 'Zero', isPositive: metrics.pendingCorrections === 0 }}
-                />
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: metrics.pendingCorrections > 0 ? colors.semantic.warning : '#0f172a' }]}>
+                  {metrics.pendingCorrections}
+                </Text>
+                <Text style={styles.metricLbl}>Corrections</Text>
               </View>
             </View>
           ) : (
-            <View style={styles.kpiGrid}>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="PUNCH TODAY"
-                  value={myTodayRecord?.punchIn || 'Pending'}
-                  caption={myTodayRecord?.punchOut && myTodayRecord.punchOut !== '-' ? `Out: ${myTodayRecord.punchOut}` : 'Shift Active'}
-                  icon={<Clock size={18} color={colors.primary} />}
-                />
+            <View style={styles.metricsStrip}>
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: colors.primary }]}>{myTodayRecord?.punchIn || 'None'}</Text>
+                <Text style={styles.metricLbl}>Today In</Text>
               </View>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="PRESENT DAYS"
-                  value={`${myPresentDays} Days`}
-                  caption="This Pay Cycle"
-                  icon={<CalendarDays size={18} color={colors.semantic.success} />}
-                  chart={<DonutChart percentage={Math.round((myPresentDays / 26) * 100)} color="#10B981" size={40} strokeWidth={5} />}
-                />
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: colors.semantic.success }]}>{myPresentDays}d</Text>
+                <Text style={styles.metricLbl}>Present</Text>
               </View>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="LATE ARRIVALS"
-                  value={String(myLateCount)}
-                  caption="Grace Window"
-                  icon={<ClockAlert size={18} color={colors.semantic.warning} />}
-                />
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: myLateCount > 0 ? colors.semantic.warning : '#0f172a' }]}>{myLateCount}</Text>
+                <Text style={styles.metricLbl}>Late</Text>
               </View>
-              <View style={styles.kpiCol}>
-                <StatCard
-                  title="REGULARIZATION"
-                  value={String(myPendingCorrections)}
-                  caption={myPendingCorrections > 0 ? 'Under Review' : 'Nil Pending'}
-                  icon={<FileEdit size={18} color="#8B5CF6" />}
-                />
+              <View style={styles.metricDivider} />
+              <View style={styles.metricItem}>
+                <Text style={[styles.metricVal, { color: myPendingCorrections > 0 ? '#8b5cf6' : '#0f172a' }]}>{myPendingCorrections}</Text>
+                <Text style={styles.metricLbl}>Regularize</Text>
               </View>
             </View>
           )}
@@ -643,14 +614,37 @@ const styles = StyleSheet.create({
   kpiSection: {
     marginBottom: spacing.md,
   },
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
-  kpiCol: {
-    width: '50%',
-    padding: spacing.xs,
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   launchpadSection: {
     marginBottom: spacing.md,

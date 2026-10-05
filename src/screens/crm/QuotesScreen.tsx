@@ -245,35 +245,30 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
         />
       }
     >
-      <View style={styles.kpiGrid}>
-        <StatCard
-          label="Awaiting Reply"
-          value={openQuotesList.length}
-          subtext={`${formatINR(awaitingSum)} incl. GST`}
-          icon={<Clock size={20} color={colors.info} />}
-          tone="info"
-        />
-        <StatCard
-          label="Accepted"
-          value={acceptedQuotes.length}
-          subtext={`${formatINR(acceptedSum)} incl. GST`}
-          icon={<CheckCircle2 size={20} color={colors.success} />}
-          tone="good"
-        />
-        <StatCard
-          label="Acceptance Rate"
-          value={`${acceptanceRate}%`}
-          subtext={`${acceptedQuotes.length} of ${decidedCount} decided`}
-          icon={<Percent size={20} color={colors.warning} />}
-          tone="attention"
-        />
-        <StatCard
-          label="Expired"
-          value={expiredQuotes.length}
-          subtext="Past validity period"
-          icon={<AlertCircle size={20} color={colors.danger} />}
-          tone="urgent"
-        />
+      <View style={styles.metricsStrip}>
+        <View style={styles.metricItem}>
+          <Text style={styles.metricVal}>{openQuotesList.length}</Text>
+          <Text style={styles.metricLbl}>Awaiting</Text>
+          <Text style={styles.metricSub}>{formatINR(awaitingSum)}</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.success }]}>{acceptedQuotes.length}</Text>
+          <Text style={styles.metricLbl}>Accepted</Text>
+          <Text style={styles.metricSub}>{formatINR(acceptedSum)}</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.warning }]}>{acceptanceRate}%</Text>
+          <Text style={styles.metricLbl}>Win Rate</Text>
+          <Text style={styles.metricSub}>{acceptedQuotes.length}/{decidedCount}</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: expiredQuotes.length > 0 ? colors.danger : colors.textMuted }]}>{expiredQuotes.length}</Text>
+          <Text style={styles.metricLbl}>Expired</Text>
+          <Text style={styles.metricSub}>Past valid</Text>
+        </View>
       </View>
 
       <Input
@@ -607,11 +602,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricSub: {
+    fontSize: 9,
+    color: '#94a3b8',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
   },
   searchBar: {
     marginBottom: spacing.xs,
@@ -629,9 +655,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border.default,
     gap: 6,
   },
   tabChipActive: {
@@ -669,6 +695,11 @@ const styles = StyleSheet.create({
   },
   quoteCard: {
     marginBottom: spacing.sm,
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    padding: 12,
   },
   cardTop: {
     flexDirection: 'row',

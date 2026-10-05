@@ -126,191 +126,156 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       scrollable
       header={
         <AppHeader
-          title="Operational Workspaces"
-          subtitle={`Access granted for role: ${role.toUpperCase()}`}
-          scenicBanner
-          badge="Enterprise Directory"
-          badgeIcon={<Layers size={11} color="#ffffff" strokeWidth={2.4} />}
+          title="Operational Modules"
+          subtitle={`${permittedWorkspaces.length} modules available for ${role.toUpperCase()}`}
+          badge="Enterprise Launcher"
           onNotificationPress={() => navigation.navigate('Notifications')}
         />
       }
     >
-      <View style={styles.rbacNotice}>
-        <View style={styles.rbacIconGlow}>
-          <ShieldCheck size={18} color="#0d9488" strokeWidth={2.4} />
-        </View>
-        <View style={styles.rbacTextCol}>
-          <Text style={styles.rbacTitle}>Role-Based Access Verified</Text>
-          <Text style={styles.rbacSubtitle}>
-            Showing {permittedWorkspaces.length} of 8 authorized workspaces for {role.toUpperCase()}.
-          </Text>
-        </View>
+      {/* Category Filter Pills (Horizontally Scrollable for all screen widths) */}
+      <View style={styles.pillsWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryPillsRow}
+        >
+          {(
+            [
+              { id: 'all', label: `All (${permittedWorkspaces.length})` },
+              { id: 'commercial', label: 'Commercial' },
+              { id: 'field', label: 'Field Ops' },
+              { id: 'corporate', label: 'Corporate' },
+            ] as const
+          ).map((cat) => {
+            const isActive = categoryFilter === cat.id;
+            return (
+              <TouchableOpacity
+                key={cat.id}
+                activeOpacity={0.7}
+                onPress={() => setCategoryFilter(cat.id)}
+                style={[styles.catPill, isActive && styles.catPillActive]}
+              >
+                <Text style={[styles.catPillText, isActive && styles.catPillTextActive]}>
+                  {cat.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
-      <View style={styles.categoryPillsRow}>
-        <TouchableOpacity
-          activeOpacity={0.75}
-          onPress={() => setCategoryFilter('all')}
-          style={[styles.catPill, categoryFilter === 'all' && styles.catPillActive]}
-        >
-          <Text style={[styles.catPillText, categoryFilter === 'all' && styles.catPillTextActive]}>
-            All Modules ({permittedWorkspaces.length})
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.75}
-          onPress={() => setCategoryFilter('commercial')}
-          style={[styles.catPill, categoryFilter === 'commercial' && styles.catPillActive]}
-        >
-          <Text style={[styles.catPillText, categoryFilter === 'commercial' && styles.catPillTextActive]}>
-            Commercial
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.75}
-          onPress={() => setCategoryFilter('field')}
-          style={[styles.catPill, categoryFilter === 'field' && styles.catPillActive]}
-        >
-          <Text style={[styles.catPillText, categoryFilter === 'field' && styles.catPillTextActive]}>
-            Field Exploration
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.75}
-          onPress={() => setCategoryFilter('corporate')}
-          style={[styles.catPill, categoryFilter === 'corporate' && styles.catPillActive]}
-        >
-          <Text style={[styles.catPillText, categoryFilter === 'corporate' && styles.catPillTextActive]}>
-            Corporate
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* Modules Launcher Group */}
+      <View style={styles.launcherCard}>
+        {filteredWorkspaces.map((ws, index) => {
+          const isLast = index === filteredWorkspaces.length - 1;
+          const countBadge = getRecordCountBadge(ws.id);
 
-      <View style={styles.grid}>
-        {filteredWorkspaces.map((ws) => (
-          <TouchableOpacity
-            key={ws.id}
-            activeOpacity={0.75}
-            onPress={() => handleWorkspacePress(ws.id)}
-            style={styles.cardWrapper}
-          >
-            <View style={styles.workspaceCard}>
-              <View style={[styles.iconContainer, { backgroundColor: ws.color + '14' }]}>
+          return (
+            <TouchableOpacity
+              key={ws.id}
+              activeOpacity={0.7}
+              onPress={() => handleWorkspacePress(ws.id)}
+              style={[styles.launcherRow, !isLast && styles.rowBorder]}
+            >
+              <View style={[styles.iconBox, { backgroundColor: ws.color + '12' }]}>
                 {getWorkspaceIcon(ws.iconName, ws.color)}
               </View>
 
-              <View style={styles.cardBody}>
+              <View style={styles.infoCol}>
                 <View style={styles.titleRow}>
-                  <Text style={styles.title}>{ws.title}</Text>
-                  <View style={[styles.countBadge, { backgroundColor: ws.color + '14' }]}>
-                    <Text style={[styles.countBadgeText, { color: ws.color }]}>
-                      {getRecordCountBadge(ws.id)}
-                    </Text>
-                  </View>
+                  <Text
+                    style={styles.titleText}
+                    numberOfLines={1}
+                    adjustsFontSizeToFit
+                    minimumFontScale={0.88}
+                  >
+                    {ws.title}
+                  </Text>
+                  {countBadge ? (
+                    <View style={[styles.countPill, { backgroundColor: ws.color + '12' }]}>
+                      <Text style={[styles.countText, { color: ws.color }]}>
+                        {countBadge}
+                      </Text>
+                    </View>
+                  ) : null}
                 </View>
-                <Text style={styles.subtitle} numberOfLines={2}>
+                <Text style={styles.descText} numberOfLines={1}>
                   {ws.subtitle}
                 </Text>
               </View>
 
-              <View style={styles.chevronWrapper}>
-                <ChevronRight size={18} color="#94a3b8" strokeWidth={2.4} />
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))}
+              <ChevronRight size={16} color={colors.textTertiary} strokeWidth={2} />
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  rbacNotice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    padding: spacing.md,
-    borderRadius: 18,
+  pillsWrapper: {
     marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: '#99f6e4',
-    ...shadows.sm,
-  },
-  rbacIconGlow: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0fdfa',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-  },
-  rbacTextCol: {
-    flex: 1,
-  },
-  rbacTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#0f766e',
-    letterSpacing: -0.1,
-  },
-  rbacSubtitle: {
-    fontSize: 11,
-    color: '#64748b',
-    marginTop: 1,
+    marginTop: spacing.xs,
   },
   categoryPillsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
     gap: spacing.xs + 2,
-    marginBottom: spacing.md,
+    paddingRight: spacing.sm,
   },
   catPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.full,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.sm,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: colors.border.default,
   },
   catPillActive: {
-    backgroundColor: '#0d9488',
-    borderColor: '#0d9488',
+    backgroundColor: colors.primaryDark,
+    borderColor: colors.primaryDark,
   },
   catPillText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#64748b',
+    color: colors.textSecondary,
   },
   catPillTextActive: {
     color: '#ffffff',
     fontWeight: '700',
   },
-  grid: {
-    gap: spacing.xs,
-  },
-  cardWrapper: {
-    marginBottom: spacing.xs + 2,
-  },
-  workspaceCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+
+  /* Launcher Group Card */
+  launcherCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 18,
-    padding: spacing.md + 2,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border.default,
-    ...shadows.sm,
+    marginBottom: spacing.huge,
+    ...shadows.xs,
   },
-  iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 16,
+  launcherRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md - 1,
+    paddingHorizontal: spacing.md,
+    minHeight: 56,
+  },
+  rowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+  },
+  iconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
+    marginRight: spacing.md - 2,
   },
-  cardBody: {
+  infoCol: {
     flex: 1,
     paddingRight: spacing.xs,
   },
@@ -320,34 +285,24 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 2,
   },
-  title: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#0f172a',
-    letterSpacing: -0.2,
+  titleText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    letterSpacing: -0.1,
   },
-  countBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radius.full,
+  countPill: {
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: radius.sm,
   },
-  countBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 0.3,
+  countText: {
+    fontSize: 9.5,
+    fontWeight: '700',
   },
-  subtitle: {
-    fontSize: 11,
-    color: '#64748b',
-    lineHeight: 16,
-  },
-  chevronWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.surfaceSubtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: spacing.xs,
+  descText: {
+    fontSize: 11.5,
+    color: colors.textMuted,
+    lineHeight: 15,
   },
 });

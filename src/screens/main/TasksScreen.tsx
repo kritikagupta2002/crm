@@ -16,8 +16,6 @@ const keyExtractor = (item: Task & { projectTitle: string; projectCode: string }
 export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
   const { projects, updateProjectTask } = useCrm();
   const [filterIndex, setFilterIndex] = useState(0);
-  const filterOptions = ['All Tasks', 'Pending', 'Completed'];
-
   const allTasks = useMemo(() => {
     const list: (Task & { projectTitle: string; projectCode: string })[] = [];
     projects.forEach((p) => {
@@ -36,7 +34,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
     return { completedCount, pendingCount, overdueCount, completionPercentage };
   }, [allTasks]);
 
-  const { completedCount, pendingCount, overdueCount, completionPercentage } = stats;
+  const { completedCount, pendingCount, overdueCount } = stats;
 
   const filteredTasks = useMemo(() => {
     return allTasks.filter((t) => {
@@ -59,6 +57,12 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
     }
   };
 
+  const filterOptions = useMemo(() => [
+    `All (${allTasks.length})`,
+    `Pending (${pendingCount})`,
+    `Completed (${completedCount})`,
+  ], [allTasks.length, pendingCount, completedCount]);
+
   const toggleTaskDone = useCallback(async (task: Task) => {
     try {
       const nextStatus = task.status === 'Completed' ? 'Todo' : 'Completed';
@@ -74,59 +78,27 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
       header={
         <AppHeader
           title="Field & Project Tasks"
-          subtitle={`${allTasks.length} assignments across active blocks`}
-          scenicBanner
-          badge="Task Execution Gate"
-          badgeIcon={<CheckSquare size={11} color="#ffffff" strokeWidth={2.4} />}
+          subtitle={`${pendingCount} pending • ${overdueCount > 0 ? `${overdueCount} overdue` : 'On track'}`}
+          badge="Task Tracker"
           onNotificationPress={() => navigation.navigate('Notifications')}
         />
       }
     >
-      <View style={styles.kpiCard}>
-        <View style={styles.kpiTopRow}>
-          <View style={styles.kpiStat}>
-            <Text style={styles.kpiLabel}>TOTAL TASKS</Text>
-            <Text style={styles.kpiValue}>{allTasks.length}</Text>
-          </View>
-          <View style={styles.kpiDivider} />
-          <View style={styles.kpiStat}>
-            <Text style={styles.kpiLabel}>PENDING</Text>
-            <Text style={[styles.kpiValue, { color: '#0284c7' }]}>{pendingCount}</Text>
-          </View>
-          <View style={styles.kpiDivider} />
-          <View style={styles.kpiStat}>
-            <Text style={styles.kpiLabel}>COMPLETED</Text>
-            <Text style={[styles.kpiValue, { color: '#059669' }]}>{completedCount}</Text>
-          </View>
-          <View style={styles.kpiDivider} />
-          <View style={styles.kpiStat}>
-            <Text style={styles.kpiLabel}>OVERDUE</Text>
-            <Text style={[styles.kpiValue, { color: '#dc2626' }]}>{overdueCount}</Text>
-          </View>
-        </View>
-
-        <View style={styles.progressContainer}>
-          <View style={styles.progressLabelRow}>
-            <Text style={styles.progressText}>Overall Execution Progress</Text>
-            <Text style={styles.progressPctText}>{completionPercentage}%</Text>
-          </View>
-          <View style={styles.progressBarTrack}>
-            <View style={[styles.progressBarFill, { width: `${completionPercentage}%` }]} />
-          </View>
-        </View>
+      {/* Segmented Filter Control */}
+      <View style={styles.filterContainer}>
+        <SegmentedControl
+          options={filterOptions}
+          selectedIndex={filterIndex}
+          onSelect={setFilterIndex}
+          style={styles.segmentedControl}
+        />
       </View>
-
-      <SegmentedControl
-        options={filterOptions}
-        selectedIndex={filterIndex}
-        onSelect={setFilterIndex}
-      />
 
       <FlatList
         data={filteredTasks}
         keyExtractor={(item) => item.id || `${item.projectId}-${item.key}`}
         showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
+        style={styles.taskList}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <EmptyState
@@ -141,74 +113,86 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         }
         renderItem={({ item }) => {
           const isDone = item.status === 'Completed';
+          const isOverdue = item.overdue && !isDone;
           const pStyle = getPriorityStyle(item.priority);
+
           return (
             <TouchableOpacity
-              activeOpacity={0.8}
+              activeOpacity={0.7}
               onPress={() =>
                 navigation.navigate('ProjectDetail', {
                   projectId: item.projectId,
                   initialTab: 'tasks',
                 })
               }
-              style={[styles.taskCard, isDone && styles.taskCardDone]}
+              style={[styles.taskItem, isDone && styles.taskItemDone]}
             >
-              <View style={styles.taskHeader}>
-                <View style={styles.badgeRow}>
-                  <View
-                    style={[
-                      styles.priorityPill,
-                      { backgroundColor: pStyle.bg, borderColor: pStyle.border },
-                    ]}
-                  >
-                    <Text style={[styles.priorityText, { color: pStyle.text }]}>
-                      {item.priority}
-                    </Text>
-                  </View>
-                  <View style={styles.projectCodeBadge}>
-                    <Text style={styles.projectCodeText}>{item.projectCode}</Text>
-                  </View>
-                </View>
-
+              <View style={styles.taskMainRow}>
+                {/* Touch-friendly Checkbox */}
                 <TouchableOpacity
-                  activeOpacity={0.7}
+                  activeOpacity={0.65}
                   onPress={() => toggleTaskDone(item)}
-                  style={styles.checkTouchTarget}
+                  style={styles.checkboxTouchTarget}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
                   {isDone ? (
-                    <CheckCircle2 size={22} color="#059669" strokeWidth={2.4} />
+                    <CheckCircle2 size={20} color={colors.success} strokeWidth={2.4} />
                   ) : (
-                    <Circle size={22} color="#94a3b8" strokeWidth={1.8} />
+                    <Circle size={20} color={colors.borderDark} strokeWidth={1.8} />
                   )}
                 </TouchableOpacity>
-              </View>
 
-              <Text style={[styles.taskTitle, isDone && styles.taskTitleDone]}>
-                {item.title}
-              </Text>
-              <Text style={styles.projectTitle} numberOfLines={1}>
-                {item.projectTitle}
-              </Text>
+                {/* Content */}
+                <View style={styles.taskContentCol}>
+                  <View style={styles.taskTopBadges}>
+                    <Text style={styles.projectCodeText}>{item.projectCode}</Text>
+                    <View
+                      style={[
+                        styles.priorityPill,
+                        { backgroundColor: pStyle.bg, borderColor: pStyle.border },
+                      ]}
+                    >
+                      <Text style={[styles.priorityText, { color: pStyle.text }]}>
+                        {item.priority}
+                      </Text>
+                    </View>
+                  </View>
 
-              <View style={styles.taskFooter}>
-                <View style={styles.assigneeRow}>
-                  <UserCheck size={12} color="#64748b" style={{ marginRight: 4 }} />
-                  <Text style={styles.assignee}>
-                    {item.assigneeName || item.assignee || 'Field Team'}
-                  </Text>
-                </View>
-
-                <View style={styles.dueDateRow}>
-                  <Clock size={12} color={item.overdue && !isDone ? '#dc2626' : '#64748b'} />
                   <Text
-                    style={[
-                      styles.dueDate,
-                      item.overdue && !isDone && styles.dueDateOverdue,
-                    ]}
+                    style={[styles.taskTitle, isDone && styles.taskTitleDone]}
+                    numberOfLines={2}
                   >
-                    Due {item.dueDate || item.due}
-                    {item.overdue && !isDone ? ' (OVERDUE)' : ''}
+                    {item.title}
                   </Text>
+
+                  <Text style={styles.projectTitle} numberOfLines={1}>
+                    {item.projectTitle}
+                  </Text>
+
+                  <View style={styles.taskMetaRow}>
+                    <View style={styles.metaItem}>
+                      <UserCheck size={11} color={colors.textMuted} style={{ marginRight: 3 }} />
+                      <Text style={styles.metaText} numberOfLines={1}>
+                        {item.assigneeName || item.assignee || 'Field Team'}
+                      </Text>
+                    </View>
+
+                    <View style={styles.metaItem}>
+                      <Clock
+                        size={11}
+                        color={isOverdue ? colors.danger : colors.textMuted}
+                        style={{ marginRight: 3 }}
+                      />
+                      <Text
+                        style={[
+                          styles.metaText,
+                          isOverdue && styles.overdueText,
+                        ]}
+                      >
+                        {isOverdue ? 'Overdue' : 'Due'} {item.dueDate || item.due}
+                      </Text>
+                    </View>
+                  </View>
                 </View>
               </View>
             </TouchableOpacity>
@@ -220,173 +204,109 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  kpiCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    ...shadows.sm,
+  filterContainer: {
+    paddingTop: spacing.xs,
+    marginBottom: spacing.xs,
   },
-  kpiTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingBottom: spacing.sm,
+  segmentedControl: {
+    marginBottom: spacing.xs,
   },
-  kpiStat: {
-    alignItems: 'center',
+  taskList: {
     flex: 1,
   },
-  kpiLabel: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#64748b',
-    letterSpacing: 0.5,
-  },
-  kpiValue: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginTop: 2,
-  },
-  kpiDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: colors.border.default,
-  },
-  progressContainer: {
-    marginTop: spacing.xs,
-    paddingTop: spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
-  },
-  progressLabelRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  progressText: {
-    fontSize: 11,
-    color: '#64748b',
-    fontWeight: '500',
-  },
-  progressPctText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: '#0d9488',
-  },
-  progressBarTrack: {
-    height: 6,
-    backgroundColor: '#e2e8f0',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#0d9488',
-    borderRadius: 3,
-  },
   listContent: {
-    paddingBottom: spacing.huge + 24,
+    paddingBottom: spacing.huge + 32,
+    gap: spacing.sm,
   },
-  taskCard: {
+  taskItem: {
     backgroundColor: '#ffffff',
-    borderRadius: 18,
+    borderRadius: radius.md,
     padding: spacing.md,
-    marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border.default,
-    ...shadows.sm,
+    ...shadows.xs,
   },
-  taskCardDone: {
-    opacity: 0.65,
+  taskItemDone: {
+    opacity: 0.6,
     backgroundColor: colors.surfaceSubtle,
+    borderColor: colors.borderLight,
   },
-  taskHeader: {
+  taskMainRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
+    alignItems: 'flex-start',
   },
-  badgeRow: {
+  checkboxTouchTarget: {
+    paddingRight: spacing.sm + 2,
+    paddingTop: 2,
+    minWidth: 36,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+  taskContentCol: {
+    flex: 1,
+  },
+  taskTopBadges: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    marginBottom: 4,
+  },
+  projectCodeText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: colors.primaryDark,
+    backgroundColor: colors.primaryBg,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: radius.sm,
   },
   priorityPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radius.full,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: radius.sm,
     borderWidth: 1,
   },
   priorityText: {
-    fontSize: 9,
-    fontWeight: '800',
+    fontSize: 8.5,
+    fontWeight: '700',
     textTransform: 'uppercase',
-  },
-  projectCodeBadge: {
-    backgroundColor: '#ecfdf5',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: '#a7f3d0',
-  },
-  projectCodeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#0f766e',
-  },
-  checkTouchTarget: {
-    padding: 2,
   },
   taskTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#0f172a',
-    marginBottom: 2,
+    fontWeight: '700',
+    color: colors.textPrimary,
     lineHeight: 18,
+    marginBottom: 2,
   },
   taskTitleDone: {
-    color: '#64748b',
+    color: colors.textMuted,
     textDecorationLine: 'line-through',
   },
   projectTitle: {
     fontSize: 11,
-    color: '#64748b',
-    marginBottom: spacing.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.xs + 3,
   },
-  taskFooter: {
+  taskMetaRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 8,
+    justifyContent: 'space-between',
+    paddingTop: spacing.xs + 2,
     borderTopWidth: 1,
     borderTopColor: colors.borderLight,
   },
-  assigneeRow: {
+  metaItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
-  assignee: {
-    fontSize: 11,
-    color: '#475569',
+  metaText: {
+    fontSize: 10.5,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
-  dueDateRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  dueDate: {
-    fontSize: 11,
-    color: '#64748b',
-    fontWeight: '500',
-  },
-  dueDateOverdue: {
-    color: '#dc2626',
-    fontWeight: '800',
+  overdueText: {
+    color: colors.danger,
+    fontWeight: '700',
   },
 });

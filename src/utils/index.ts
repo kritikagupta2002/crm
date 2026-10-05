@@ -2,6 +2,7 @@ export * from './currency';
 export * from './date';
 export * from './validation';
 export * from './payments';
+export * from './responsive';
 export {
   type HolidayItem,
   type SkippedDateItem,

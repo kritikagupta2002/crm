@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Bell, CheckCheck, Info, CheckCircle, AlertTriangle, XCircle, ShieldAlert, Check } from 'lucide-react-native';
-import { ScreenContainer, AppHeader, Card, EmptyState, SegmentedControl } from '../../components/common';
+import { Bell, CheckCheck, Info, CheckCircle, AlertTriangle, XCircle } from 'lucide-react-native';
+import { ScreenContainer, AppHeader, EmptyState, SegmentedControl } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
 import { useNotifications } from '../../context/NotificationContext';
 import { AppNotification } from '../../types';
@@ -13,40 +13,55 @@ interface NotificationsScreenProps {
 export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ navigation }) => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [filterIndex, setFilterIndex] = useState(0);
-  const filterOptions = ['All Alerts', 'Unread', 'Critical'];
 
-  const filteredNotifs = notifications.filter((item) => {
-    if (filterIndex === 1) return !item.read;
-    if (filterIndex === 2) return item.type === 'danger' || item.type === 'warning';
-    return true;
-  });
+  const criticalCount = useMemo(
+    () => notifications.filter((n) => n.type === 'danger' || n.type === 'warning').length,
+    [notifications]
+  );
+
+  const filterOptions = useMemo(
+    () => [
+      `All (${notifications.length})`,
+      `Unread (${unreadCount})`,
+      `Critical (${criticalCount})`,
+    ],
+    [notifications.length, unreadCount, criticalCount]
+  );
+
+  const filteredNotifs = useMemo(() => {
+    return notifications.filter((item) => {
+      if (filterIndex === 1) return !item.read;
+      if (filterIndex === 2) return item.type === 'danger' || item.type === 'warning';
+      return true;
+    });
+  }, [notifications, filterIndex]);
 
   const getIconData = (type: AppNotification['type']) => {
     switch (type) {
       case 'success':
         return {
-          icon: <CheckCircle size={18} color="#059669" strokeWidth={2.2} />,
-          bg: '#ecfdf5',
-          border: '#a7f3d0',
+          icon: <CheckCircle size={16} color={colors.success} strokeWidth={2.2} />,
+          bg: colors.successBg,
+          border: colors.successLight,
         };
       case 'warning':
         return {
-          icon: <AlertTriangle size={18} color="#d97706" strokeWidth={2.2} />,
-          bg: '#fffbeb',
-          border: '#fde68a',
+          icon: <AlertTriangle size={16} color={colors.warning} strokeWidth={2.2} />,
+          bg: colors.warningBg,
+          border: colors.warningLight,
         };
       case 'danger':
         return {
-          icon: <XCircle size={18} color="#dc2626" strokeWidth={2.2} />,
-          bg: '#fef2f2',
-          border: '#fecaca',
+          icon: <XCircle size={16} color={colors.danger} strokeWidth={2.2} />,
+          bg: colors.dangerBg,
+          border: colors.dangerLight,
         };
       case 'info':
       default:
         return {
-          icon: <Info size={18} color="#0284c7" strokeWidth={2.2} />,
-          bg: '#f0f9ff',
-          border: '#bae6fd',
+          icon: <Info size={16} color={colors.info} strokeWidth={2.2} />,
+          bg: colors.infoBg,
+          border: colors.infoLight,
         };
     }
   };
@@ -56,20 +71,20 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       scrollable={false}
       header={
         <AppHeader
-          title="System Notifications"
+          title="Notifications"
           subtitle={`${unreadCount} unread operational alerts`}
           showBack
-          scenicBanner
-          badge="Security & Alerts"
+          badge="Alert Center"
           onBack={() => navigation.goBack()}
           rightAction={
             unreadCount > 0 ? (
               <TouchableOpacity
-                activeOpacity={0.75}
+                activeOpacity={0.7}
                 onPress={markAllAsRead}
                 style={styles.markAllBtn}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <CheckCheck size={14} color="#ffffff" strokeWidth={2.2} />
+                <CheckCheck size={14} color={colors.primaryDark} strokeWidth={2.2} />
                 <Text style={styles.markAllText}>Mark Read</Text>
               </TouchableOpacity>
             ) : null
@@ -77,11 +92,14 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
         />
       }
     >
-      <SegmentedControl
-        options={filterOptions}
-        selectedIndex={filterIndex}
-        onSelect={setFilterIndex}
-      />
+      <View style={styles.filterWrap}>
+        <SegmentedControl
+          options={filterOptions}
+          selectedIndex={filterIndex}
+          onSelect={setFilterIndex}
+          style={styles.segmented}
+        />
+      </View>
 
       {filteredNotifs.length === 0 ? (
         <EmptyState
@@ -91,7 +109,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
               ? 'You have read all current notifications.'
               : 'You are completely caught up with all operational alerts.'
           }
-          icon={<Bell size={36} color="#64748b" />}
+          icon={<Bell size={36} color={colors.textMuted} />}
         />
       ) : (
         <FlatList
@@ -105,27 +123,29 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={() => markAsRead(item.id)}
+                style={[
+                  styles.notifItem,
+                  !item.read ? styles.notifUnread : styles.notifRead,
+                ]}
               >
-                <View
-                  style={[
-                    styles.notifCard,
-                    item.read ? styles.readCard : styles.unreadCard,
-                  ]}
-                >
-                  <View style={[styles.iconCol, { backgroundColor: bg, borderColor: border }]}>
-                    {icon}
-                  </View>
-                  <View style={styles.contentCol}>
-                    <View style={styles.titleRow}>
-                      <Text style={[styles.title, !item.read && styles.unreadTitle]} numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text style={styles.time}>{item.timestamp}</Text>
-                    </View>
-                    <Text style={styles.message}>{item.message}</Text>
-                  </View>
-                  {!item.read ? <View style={styles.unreadDot} /> : null}
+                <View style={[styles.iconBox, { backgroundColor: bg, borderColor: border }]}>
+                  {icon}
                 </View>
+
+                <View style={styles.contentCol}>
+                  <View style={styles.titleRow}>
+                    <Text
+                      style={[styles.itemTitle, !item.read && styles.itemTitleUnread]}
+                      numberOfLines={1}
+                    >
+                      {item.title}
+                    </Text>
+                    <Text style={styles.timestampText}>{item.timestamp}</Text>
+                  </View>
+                  <Text style={styles.messageText}>{item.message}</Text>
+                </View>
+
+                {!item.read ? <View style={styles.unreadDot} /> : null}
               </TouchableOpacity>
             );
           }}
@@ -136,53 +156,60 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
 };
 
 const styles = StyleSheet.create({
+  filterWrap: {
+    paddingTop: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  segmented: {
+    marginBottom: spacing.xs,
+  },
   listContent: {
-    paddingBottom: spacing.huge + 20,
+    paddingBottom: spacing.huge + 32,
+    gap: spacing.xs + 3,
   },
   markAllBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: 'rgba(13, 148, 136, 0.85)',
-    borderRadius: radius.full,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    backgroundColor: colors.primaryBg,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#ffffff',
+    borderColor: '#99f6e4',
   },
   markAllText: {
-    fontSize: 10,
-    color: '#ffffff',
-    fontWeight: '800',
+    fontSize: 11,
+    color: colors.primaryDark,
+    fontWeight: '700',
   },
-  notifCard: {
+  notifItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     backgroundColor: '#ffffff',
-    borderRadius: 18,
-    padding: spacing.md,
-    marginBottom: spacing.xs + 2,
+    borderRadius: radius.md,
+    padding: spacing.md - 2,
     borderWidth: 1,
     borderColor: colors.border.default,
-    ...shadows.sm,
-    position: 'relative',
+    ...shadows.xs,
   },
-  unreadCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: '#0d9488',
+  notifUnread: {
+    borderLeftWidth: 3.5,
+    borderLeftColor: colors.primaryDark,
     backgroundColor: '#ffffff',
   },
-  readCard: {
-    backgroundColor: '#ffffff',
-    opacity: 0.72,
+  notifRead: {
+    opacity: 0.7,
+    backgroundColor: colors.surfaceSubtle,
+    borderColor: colors.borderLight,
   },
-  iconCol: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+  iconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.md,
+    marginRight: spacing.sm + 2,
     borderWidth: 1,
   },
   contentCol: {
@@ -193,33 +220,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 3,
+    marginBottom: 2,
   },
-  title: {
-    fontSize: typography.fontSizes.sm,
-    color: '#0f172a',
+  itemTitle: {
+    fontSize: 13,
+    color: colors.textPrimary,
     fontWeight: '600',
     flex: 1,
   },
-  unreadTitle: {
-    fontWeight: '800',
+  itemTitleUnread: {
+    fontWeight: '700',
   },
-  time: {
+  timestampText: {
     fontSize: 10,
-    color: '#94a3b8',
+    color: colors.textTertiary,
     marginLeft: spacing.xs,
     fontWeight: '500',
   },
-  message: {
-    fontSize: 12,
-    color: '#475569',
-    lineHeight: 18,
+  messageText: {
+    fontSize: 11.5,
+    color: colors.textSecondary,
+    lineHeight: 16,
   },
   unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#0d9488',
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primaryDark,
     marginTop: 4,
+    marginLeft: 4,
   },
 });

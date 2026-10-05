@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ScrollView,
   Linking,
   Alert,
 } from 'react-native';
@@ -171,66 +172,59 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
         />
       }
     >
-      <View style={styles.kpiGrid}>
-        <StatCard
-          label="Awaiting Approval"
-          value={pendingLeads.length}
-          subtext="Accepted, not yet won"
-          icon={<Hourglass size={20} color={colors.warning} />}
-          tone="attention"
-        />
-        <StatCard
-          label="PO Received"
-          value={countStep('poReceived')}
-          subtext={`of ${pendingLeads.length} leads`}
-          icon={<FileSignature size={20} color={colors.info} />}
-          tone="info"
-        />
-        <StatCard
-          label="Advance Paid"
-          value={countStep('advanceReceived')}
-          subtext={`of ${pendingLeads.length} leads`}
-          icon={<CircleDollarSign size={20} color={colors.info} />}
-          tone="info"
-        />
-        <StatCard
-          label="Ready to Close"
-          value={readyLeads.length}
-          subtext="All 4 gates passed"
-          icon={<BadgeCheck size={20} color={colors.success} />}
-          tone="good"
-        />
+      <View style={styles.metricsStrip}>
+        <View style={styles.metricItem}>
+          <Text style={styles.metricVal}>{pendingLeads.length}</Text>
+          <Text style={styles.metricLbl}>Awaiting</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={styles.metricVal}>{countStep('poReceived')}</Text>
+          <Text style={styles.metricLbl}>PO Recv.</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={styles.metricVal}>{countStep('advanceReceived')}</Text>
+          <Text style={styles.metricLbl}>Advance Paid</Text>
+        </View>
+        <View style={styles.metricDivider} />
+        <View style={styles.metricItem}>
+          <Text style={[styles.metricVal, { color: colors.success }]}>{readyLeads.length}</Text>
+          <Text style={styles.metricLbl}>Ready to Win</Text>
+        </View>
       </View>
 
-      <View style={styles.filterTabsRow}>
-        {FILTERS.map((f) => {
-          const isSel = activeFilter === f.id;
-          const count =
-            f.id === 'all'
-              ? pendingLeads.length
-              : f.id === 'po'
-              ? pendingLeads.filter((l) => !l.approval?.poReceived).length
-              : f.id === 'advance'
-              ? pendingLeads.filter((l) => l.approval?.poReceived && !l.approval?.advanceReceived).length
-              : readyLeads.length;
+      <View style={styles.filterTabsWrap}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterTabsContent}>
+          {FILTERS.map((f) => {
+            const isSel = activeFilter === f.id;
+            const count =
+              f.id === 'all'
+                ? pendingLeads.length
+                : f.id === 'po'
+                ? pendingLeads.filter((l) => !l.approval?.poReceived).length
+                : f.id === 'advance'
+                ? pendingLeads.filter((l) => l.approval?.poReceived && !l.approval?.advanceReceived).length
+                : readyLeads.length;
 
-          return (
-            <TouchableOpacity
-              key={f.id}
-              style={[styles.filterTab, isSel && styles.filterTabActive]}
-              onPress={() => setActiveFilter(f.id)}
-            >
-              <Text style={[styles.filterTabText, isSel && styles.filterTabTextActive]}>
-                {f.label}
-              </Text>
-              <View style={[styles.tabBadge, isSel && styles.tabBadgeActive]}>
-                <Text style={[styles.tabBadgeText, isSel && styles.tabBadgeTextActive]}>
-                  {count}
+            return (
+              <TouchableOpacity
+                key={f.id}
+                style={[styles.filterTab, isSel && styles.filterTabActive]}
+                onPress={() => setActiveFilter(f.id)}
+              >
+                <Text style={[styles.filterTabText, isSel && styles.filterTabTextActive]}>
+                  {f.label}
                 </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+                <View style={[styles.tabBadge, isSel && styles.tabBadgeActive]}>
+                  <Text style={[styles.tabBadgeText, isSel && styles.tabBadgeTextActive]}>
+                    {count}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
       {visibleLeads.length === 0 ? (
@@ -379,16 +373,43 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
 };
 
 const styles = StyleSheet.create({
-  kpiGrid: {
+  metricsStrip: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+  },
+  metricItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  metricVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
+  },
+  metricLbl: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#64748b',
+    marginTop: 1,
+  },
+  metricDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: colors.border.default,
+  },
+  filterTabsWrap: {
     marginBottom: spacing.xs,
   },
-  filterTabsRow: {
-    flexDirection: 'row',
+  filterTabsContent: {
     gap: 6,
-    marginBottom: spacing.xs,
     paddingVertical: 2,
   },
   filterTab: {
@@ -397,9 +418,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.border.default,
     gap: 4,
   },
   filterTabActive: {
@@ -437,6 +458,11 @@ const styles = StyleSheet.create({
   },
   leadCard: {
     marginBottom: spacing.sm,
+    backgroundColor: '#ffffff',
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    padding: 12,
   },
   cardHeader: {
     flexDirection: 'row',

@@ -7,6 +7,7 @@ import {
   ViewStyle,
   RefreshControl,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView, Edge } from 'react-native-safe-area-context';
 import { colors, spacing } from '../../theme';
@@ -32,6 +33,10 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
   header,
   edges,
 }) => {
+  const { width: screenWidth } = useWindowDimensions();
+  const isCompact = screenWidth < 360;
+  const isTablet = screenWidth >= 640;
+  const responsivePadding = isCompact ? 12 : spacing.lg;
   const resolvedEdges: readonly Edge[] = edges ?? (header ? ['bottom'] : ['top', 'bottom']);
 
   return (
@@ -45,7 +50,12 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
           {scrollable ? (
             <ScrollView
               style={styles.scroll}
-              contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
+              contentContainerStyle={[
+                styles.scrollContent,
+                { paddingHorizontal: responsivePadding },
+                isTablet && styles.tabletContent,
+                contentContainerStyle,
+              ]}
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               refreshControl={
@@ -62,7 +72,16 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
               {children}
             </ScrollView>
           ) : (
-            <View style={[styles.staticContent, contentContainerStyle]}>{children}</View>
+            <View
+              style={[
+                styles.staticContent,
+                { paddingHorizontal: responsivePadding },
+                isTablet && styles.tabletContent,
+                contentContainerStyle,
+              ]}
+            >
+              {children}
+            </View>
           )}
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -98,5 +117,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
+  },
+  tabletContent: {
+    maxWidth: 680,
+    alignSelf: 'center',
+    width: '100%',
   },
 });
