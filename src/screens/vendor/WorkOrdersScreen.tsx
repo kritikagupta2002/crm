@@ -1,50 +1,34 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import {
-  Briefcase,
   Search,
   ChevronRight,
-  IndianRupee,
-  Clock,
-  Layers,
-  Building2,
-  FolderKanban,
-  CheckCircle2,
-  AlertCircle,
-  FileText,
 } from 'lucide-react-native';
-import { ScreenContainer, AppHeader, Card, StatusBadge, Button, EmptyState } from '../../components/common';
+import { ScreenContainer, AppHeader, Card, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
-import { useAuth } from '../../context/AuthContext';
 import { WorkOrder, WorkOrderStage } from '../../types';
 
 interface WorkOrdersScreenProps {
   navigation: any;
 }
 
+const STAGES: ('All' | WorkOrderStage)[] = [
+  'All',
+  'Issued',
+  'Started',
+  'Delivered',
+  'Billed',
+  'Verified',
+  'Paid',
+];
+
 export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }) => {
   const { workOrders } = useCrm();
-  const { role } = useAuth();
 
   const [search, setSearch] = useState('');
   const [selectedStage, setSelectedStage] = useState<string>('All');
-
-  const STAGES: ('All' | WorkOrderStage)[] = [
-    'All',
-    'Issued',
-    'Started',
-    'Delivered',
-    'Billed',
-    'Verified',
-    'Paid',
-  ];
-
-  const formatCurrency = (amt: number) => {
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
 
   const filteredOrders = useMemo(() => {
     return workOrders.filter((wo) => {
@@ -152,7 +136,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </View>
           </View>
 
-          {/* Progress bar representing financial completion */}
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${paidPct}%` }]} />
           </View>

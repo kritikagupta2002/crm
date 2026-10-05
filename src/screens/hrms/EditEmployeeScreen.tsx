@@ -12,6 +12,7 @@ import {
 import { useHrms, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, Button, Input } from '../../components';
+import { isValidIndianMobile, isValidEmail } from '../../utils';
 import {
   User,
   Briefcase,
@@ -130,12 +131,12 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
     }
 
     const phone = formData.phone.trim();
-    if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
+    if (!phone || !isValidIndianMobile(phone)) {
       errs.phone = 'Valid 10-digit Indian mobile is required.';
     }
 
     const email = formData.workEmail.trim();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email || !isValidEmail(email)) {
       errs.workEmail = 'Valid work email is required.';
     } else {
       const dup = employees.find(
@@ -237,7 +238,6 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
       />
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        {/* Basic Details */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <User size={18} color={colors.primary} />
@@ -276,14 +276,12 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
           />
         </Card>
 
-        {/* Job Details */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <Briefcase size={18} color={colors.primary} />
             <Text style={styles.sectionTitle}>Organization & Job</Text>
           </View>
 
-          {/* Department Select */}
           <Text style={styles.label}>Department</Text>
           <View style={styles.chipRow}>
             {departments.map(d => (
@@ -299,7 +297,6 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
             ))}
           </View>
 
-          {/* Designation Select */}
           <Text style={[styles.label, { marginTop: spacing.md }]}>Designation</Text>
           <View style={styles.chipRow}>
             {designations.map(d => (
@@ -315,7 +312,6 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
             ))}
           </View>
 
-          {/* Status Select */}
           <Text style={[styles.label, { marginTop: spacing.md }]}>Employment Status</Text>
           <View style={styles.chipRow}>
             {['Active', 'On Leave', 'Notice Period', 'Probation', 'Terminated', 'Resigned'].map(s => (
@@ -350,7 +346,6 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
           />
         </Card>
 
-        {/* Bank & Salary */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <CreditCard size={18} color={colors.primary} />
@@ -389,7 +384,6 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
           />
         </Card>
 
-        {/* Emergency Contact */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <ShieldCheck size={18} color={colors.primary} />
@@ -417,7 +411,6 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
           />
         </Card>
 
-        {/* Save Button */}
         <Button
           title={isSubmitting ? 'Saving Changes...' : 'Save Employee Profile'}
           variant="primary"

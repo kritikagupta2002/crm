@@ -40,7 +40,7 @@ export const PayslipsScreen: React.FC<{ route?: any; navigation: any }> = ({
   route,
   navigation,
 }) => {
-  const { payslips, employees } = useHrms();
+  const { payslips } = useHrms();
   const { session, hasRole } = useAuth();
 
   const isHrOrAdmin = hasRole(['Admin', 'HR', 'Accountant']);
@@ -49,7 +49,6 @@ export const PayslipsScreen: React.FC<{ route?: any; navigation: any }> = ({
 
   const payslipIdParam = route?.params?.payslipId;
 
-  // Role-based visibility: regular staff can ONLY see their own payslips
   const accessiblePayslips = useMemo(() => {
     if (isHrOrAdmin) {
       return payslips;
@@ -63,17 +62,14 @@ export const PayslipsScreen: React.FC<{ route?: any; navigation: any }> = ({
     );
   }, [payslips, isHrOrAdmin, activeEmpId, session]);
 
-  // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMonthFilter, setSelectedMonthFilter] = useState('All');
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('All');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('All');
 
-  // Preview modal
   const [selectedSlip, setSelectedSlip] = useState<Payslip | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // If navigated with payslipIdParam, auto-open that payslip
   useEffect(() => {
     if (payslipIdParam) {
       const target = accessiblePayslips.find((p) => p.id === payslipIdParam);
@@ -183,7 +179,6 @@ Digitally Certified under IT Act 2000.`;
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Search & Filter Header */}
         <View style={styles.searchBar}>
           <Search size={16} color={colors.text.tertiary} />
           <TextInput
@@ -204,7 +199,6 @@ Digitally Certified under IT Act 2000.`;
           ) : null}
         </View>
 
-        {/* Filter Chips */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -304,7 +298,6 @@ Digitally Certified under IT Act 2000.`;
                 <StatusBadge status={slip.paymentStatus || slip.status || 'Paid'} size="sm" />
               </View>
 
-              {/* Show Employee info if HR / Admin */}
               {isHrOrAdmin ? (
                 <View style={styles.empInfoBox}>
                   <Text style={styles.empName}>{slip.employeeName}</Text>
@@ -314,7 +307,6 @@ Digitally Certified under IT Act 2000.`;
                 </View>
               ) : null}
 
-              {/* Financial Snapshot */}
               <View style={styles.finGrid}>
                 <View style={styles.finCol}>
                   <Text style={styles.finLabel}>GROSS SALARY</Text>
@@ -359,9 +351,6 @@ Digitally Certified under IT Act 2000.`;
         )}
       </ScrollView>
 
-      {/* ========================================================= */}
-      {/* OFFICIAL SALARY STATEMENT PREVIEW MODAL */}
-      {/* ========================================================= */}
       <Modal
         visible={isPreviewOpen && !!selectedSlip}
         animationType="slide"
@@ -370,7 +359,6 @@ Digitally Certified under IT Act 2000.`;
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            {/* Modal Top Bar */}
             <View style={styles.modalTopBar}>
               <View>
                 <Text style={styles.modalSheetTitle}>Official Salary Statement</Text>
@@ -388,9 +376,7 @@ Digitally Certified under IT Act 2000.`;
 
             {selectedSlip && (
               <ScrollView contentContainerStyle={styles.statementScroll}>
-                {/* Formal Printable Document Card */}
                 <View style={styles.statementPaper}>
-                  {/* Corporate Branding Header */}
                   <View style={styles.paperHeader}>
                     <View style={styles.brandingRow}>
                       <View style={styles.corpLogoBox}>
@@ -419,7 +405,6 @@ Digitally Certified under IT Act 2000.`;
                     </View>
                   </View>
 
-                  {/* Employee Demographics Grid */}
                   <View style={styles.demographicsGrid}>
                     <View style={styles.demoItem}>
                       <Text style={styles.demoLabel}>EMPLOYEE NAME</Text>
@@ -475,9 +460,7 @@ Digitally Certified under IT Act 2000.`;
                     </View>
                   </View>
 
-                  {/* Earnings vs Deductions Breakdown */}
                   <View style={styles.breakdownTable}>
-                    {/* Headers */}
                     <View style={styles.tableHeader}>
                       <Text style={[styles.thText, { flex: 1 }]}>EARNINGS</Text>
                       <Text style={styles.thAmt}>AMOUNT</Text>
@@ -485,7 +468,6 @@ Digitally Certified under IT Act 2000.`;
                       <Text style={styles.thAmt}>AMOUNT</Text>
                     </View>
 
-                    {/* Basic & PF */}
                     <View style={styles.tr}>
                       <Text style={styles.tdLabel}>Basic Salary</Text>
                       <Text style={styles.tdVal}>
@@ -497,7 +479,6 @@ Digitally Certified under IT Act 2000.`;
                       </Text>
                     </View>
 
-                    {/* HRA & PT */}
                     <View style={styles.tr}>
                       <Text style={styles.tdLabel}>House Rent (HRA)</Text>
                       <Text style={styles.tdVal}>
@@ -509,7 +490,6 @@ Digitally Certified under IT Act 2000.`;
                       </Text>
                     </View>
 
-                    {/* Special & ESI */}
                     <View style={styles.tr}>
                       <Text style={styles.tdLabel}>Special Allowance</Text>
                       <Text style={styles.tdVal}>
@@ -521,7 +501,6 @@ Digitally Certified under IT Act 2000.`;
                       </Text>
                     </View>
 
-                    {/* Conveyance & TDS */}
                     <View style={styles.tr}>
                       <Text style={styles.tdLabel}>Conveyance Allowance</Text>
                       <Text style={styles.tdVal}>
@@ -533,7 +512,6 @@ Digitally Certified under IT Act 2000.`;
                       </Text>
                     </View>
 
-                    {/* Site Allowance */}
                     {selectedSlip.siteAllowance ? (
                       <View style={styles.tr}>
                         <Text style={styles.tdLabel}>Site / Field Allowance</Text>
@@ -545,7 +523,6 @@ Digitally Certified under IT Act 2000.`;
                       </View>
                     ) : null}
 
-                    {/* Bonus */}
                     {selectedSlip.bonus ? (
                       <View style={styles.tr}>
                         <Text style={styles.tdLabel}>Performance Bonus</Text>
@@ -555,7 +532,6 @@ Digitally Certified under IT Act 2000.`;
                       </View>
                     ) : null}
 
-                    {/* Totals Subrow */}
                     <View style={styles.trTotal}>
                       <Text style={styles.totalHead}>Gross Earnings</Text>
                       <Text style={styles.totalAmt}>
@@ -568,7 +544,6 @@ Digitally Certified under IT Act 2000.`;
                     </View>
                   </View>
 
-                  {/* Net Take Home High-Contrast Gold/Dark Banner */}
                   <View style={styles.netTakeHomeBanner}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.netBannerTitle}>NET SALARY TRANSFERRED</Text>
@@ -589,7 +564,6 @@ Digitally Certified under IT Act 2000.`;
                     </View>
                   </View>
 
-                  {/* Digital Certification Vector QR Code */}
                   <View style={styles.qrSectionWrap}>
                     <PayslipQrCode
                       value={JSON.stringify({
@@ -605,7 +579,6 @@ Digitally Certified under IT Act 2000.`;
                     />
                   </View>
 
-                  {/* Signoff Footer */}
                   <View style={styles.signoffFooter}>
                     <View>
                       <Text style={styles.signoffName}>Chhavi Bansal</Text>
@@ -620,7 +593,6 @@ Digitally Certified under IT Act 2000.`;
               </ScrollView>
             )}
 
-            {/* Modal Bottom Actions */}
             <View style={styles.modalBottomActions}>
               <Button
                 title="Close"

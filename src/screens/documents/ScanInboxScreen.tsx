@@ -43,8 +43,6 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
   const { session } = useAuth();
   const currentUserName = (session as any)?.name || (session as any)?.contactPerson || 'Active User';
 
-
-  // State for filing form
   const [activeScan, setActiveScan] = useState<ScanItem | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [leaseNo, setLeaseNo] = useState('');
@@ -55,13 +53,10 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
   const [letterKind, setLetterKind] = useState<string>(DOC_KINDS[0]);
   const [isFiling, setIsFiling] = useState(false);
 
-  // Success banner
   const [justFiledDoc, setJustFiledDoc] = useState<{ id: string; title: string } | null>(null);
 
-  // Preview modal
   const [previewScan, setPreviewScan] = useState<ScanItem | null>(null);
 
-  // Recently filed documents (past 7 days)
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
   const recentFiled = govtDocuments
     .filter((d) => d.record.filedAt >= weekAgo)
@@ -85,7 +80,6 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
     setActiveScan(scan);
     setJustFiledDoc(null);
 
-    // Auto default fields
     setSelectedProjectId(projects[0]?.id || '');
     setLetterTitle('');
     setLetterRef(`DMG/RAJ/${new Date().getFullYear()}/${Math.floor(1000 + Math.random() * 9000)}/L-1`);
@@ -220,7 +214,6 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         }
       />
 
-      {/* NAS Folder Location Ribbon */}
       <View style={styles.folderRibbon}>
         <HardDrive size={14} color={colors.text.secondary} />
         <Text style={styles.folderRibbonText} numberOfLines={1}>
@@ -228,7 +221,6 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         </Text>
       </View>
 
-      {/* Just Filed Success Banner */}
       {justFiledDoc && (
         <View style={styles.filedSuccessBanner}>
           <CheckCircle2 size={18} color={colors.semantic.success} />
@@ -245,7 +237,6 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         </View>
       )}
 
-      {/* Scans FlatList */}
       <FlatList
         data={scanInbox}
         keyExtractor={(item) => item.id}
@@ -296,7 +287,6 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         }
       />
 
-      {/* Filing Modal */}
       <Modal
         visible={Boolean(activeScan)}
         transparent
@@ -422,7 +412,6 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         </View>
       </Modal>
 
-      {/* Inspect Raw Scan Modal */}
       <Modal
         visible={Boolean(previewScan)}
         transparent

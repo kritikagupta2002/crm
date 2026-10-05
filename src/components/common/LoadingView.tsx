@@ -9,7 +9,7 @@ interface LoadingViewProps {
 export const LoadingView: React.FC<LoadingViewProps> = ({ message = 'Loading...' }) => {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={colors.primary} />
+      <ActivityIndicator size="large" color={colors.primaryDark} />
       <Text style={styles.message}>{message}</Text>
     </View>
   );

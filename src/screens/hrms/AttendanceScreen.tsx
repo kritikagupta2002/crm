@@ -63,20 +63,16 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
   const todayRecord =
     attendance.find((a) => a.employeeId === activeEmpId && a.date === todayStr) || todayAttendance;
 
-  // Selected work location for punch
   const [selectedLocation, setSelectedLocation] = useState(WORK_LOCATIONS[0]);
   const [isPunching, setIsPunching] = useState(false);
 
-  // Tab state
   const tabs = isHrOrAdmin
     ? ['Today’s Muster', 'My Punch Log', 'Corrections Queue']
     : ['My Attendance Log', 'My Regularizations'];
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-  // Review modal / action state
   const [reviewingId, setReviewingId] = useState<string | null>(null);
 
-  // Today's records for HR
   const todayMusterRecords = attendance.filter((a) => a.date === todayStr);
   const myRecords = attendance.filter((a) => a.employeeId === activeEmpId);
   const myCorrections = corrections.filter((c) => c.employeeId === activeEmpId);
@@ -220,7 +216,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           </View>
         )}
 
-        {/* HR Review Actions: Guard against Self-Review! */}
         {isHrOrAdmin && isPending && (
           <View style={styles.actionRow}>
             {isOwnCorrection ? (
@@ -275,7 +270,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Today's Punch Card */}
         <Card style={styles.punchHeroCard}>
           <View style={styles.heroTopRow}>
             <View>
@@ -301,7 +295,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             />
           </View>
 
-          {/* Times Display */}
           <View style={styles.heroTimesGrid}>
             <View style={styles.heroTimeCol}>
               <Text style={styles.heroTimeLabel}>PUNCH IN</Text>
@@ -319,7 +312,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             </View>
           </View>
 
-          {/* Location Selector */}
           {!isCheckedOut && (
             <View style={styles.locationSelector}>
               <Text style={styles.selectorLabel}>Punch Site / Deployment:</Text>
@@ -345,7 +337,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             </View>
           )}
 
-          {/* Big Action Punch Button */}
           <View style={styles.heroActionWrap}>
             {isCheckedOut ? (
               <View style={styles.shiftDoneBanner}>
@@ -378,7 +369,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           </View>
         </Card>
 
-        {/* Quick Navigation Links */}
         <View style={styles.quickLinksRow}>
           {isHrOrAdmin && (
             <TouchableOpacity
@@ -405,7 +395,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           </TouchableOpacity>
         </View>
 
-        {/* Tab Selector */}
         <View style={styles.tabsWrap}>
           <SegmentedControl
             options={tabs}
@@ -414,7 +403,6 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           />
         </View>
 
-        {/* List Content */}
         {activeTab === 'Today’s Muster' && (
           <View style={styles.listSection}>
             {todayMusterRecords.length === 0 ? (

@@ -69,9 +69,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
   const [activeFilter, setActiveFilter] = useState<FilterId>('all');
   const [loadingStepKey, setLoadingStepKey] = useState<string | null>(null);
 
-  // Role permissions check
-  // sales: admin, operations_manager, project_manager, tender_manager
-  // payments: admin, accountant
   const canSales = ['admin', 'operations_manager', 'project_manager', 'tender_manager'].includes(role || '');
   const canPayments = ['admin', 'accountant'].includes(role || '');
 
@@ -81,7 +78,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
     return null;
   };
 
-  // Pending leads: quoteStatus === 'Accepted' && stage !== 'Won' && stage !== 'Lost'
   const pendingLeads = leads
     .filter((l) => l.quoteStatus === 'Accepted' && l.stage !== 'Won' && l.stage !== 'Lost')
     .sort((a, b) => {
@@ -102,7 +98,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
     0
   );
 
-  // Apply filters
   const visibleLeads = pendingLeads.filter((l) => {
     const a = l.approval || {};
     if (activeFilter === 'po') return !a.poReceived;
@@ -176,7 +171,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
         />
       }
     >
-      {/* 4 Stat Cards */}
       <View style={styles.kpiGrid}>
         <StatCard
           label="Awaiting Approval"
@@ -208,7 +202,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
         />
       </View>
 
-      {/* Filter Tabs */}
       <View style={styles.filterTabsRow}>
         {FILTERS.map((f) => {
           const isSel = activeFilter === f.id;
@@ -240,7 +233,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
         })}
       </View>
 
-      {/* List */}
       {visibleLeads.length === 0 ? (
         <EmptyState
           title="No Leads in This Approval Gate"
@@ -279,7 +271,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
                   </View>
                 </View>
 
-                {/* Contact Quick Dialer */}
                 <View style={styles.contactBar}>
                   <Text style={styles.contactText}>
                     {item.contactPerson} ({item.phone})
@@ -304,7 +295,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
                   </View>
                 </View>
 
-                {/* Payment Notice */}
                 <View style={styles.paymentNotice}>
                   <CircleDollarSign size={16} color={colors.info} />
                   <Text style={styles.paymentNoticeText}>
@@ -312,7 +302,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
                   </Text>
                 </View>
 
-                {/* 4 Approval Checklist Steps */}
                 <View style={styles.checklist}>
                   {APPROVAL_STEPS.map((step) => {
                     const isChecked = Boolean((item.approval as any)?.[step.key]);
@@ -356,7 +345,6 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
                   })}
                 </View>
 
-                {/* Footer Action */}
                 <View style={styles.cardFooter}>
                   <Text style={styles.progressText}>
                     Gate Progress: {stepsDone}/4 steps verified

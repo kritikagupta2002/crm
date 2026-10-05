@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { useHrms, useAuth } from '../../context';
+import { useFinance, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatusBadge, Button, Input, EmptyState } from '../../components';
 import { FinanceVoucher } from '../../types';
@@ -60,7 +60,7 @@ const VOUCHER_TYPES = [
 ] as const;
 
 export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { vouchers, createVoucher } = useHrms();
+  const { vouchers, createVoucher } = useFinance();
   const { hasRole } = useAuth();
 
   const [search, setSearch] = useState('');
@@ -68,7 +68,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedVoucher, setSelectedVoucher] = useState<FinanceVoucher | null>(null);
 
-  // New voucher form fields
   const [voucherType, setVoucherType] = useState<
     'Journal Voucher' | 'Payment Voucher' | 'Receipt Voucher' | 'Sales Journal' | 'Purchase Journal' | 'Bank Voucher'
   >('Journal Voucher');
@@ -80,7 +79,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   const [narration, setNarration] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Custom account inputs
   const [isCustomDebit, setIsCustomDebit] = useState(false);
   const [customDebit, setCustomDebit] = useState('');
   const [isCustomCredit, setIsCustomCredit] = useState(false);
@@ -88,13 +86,11 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
   const canManage = hasRole(['Admin', 'Accountant']);
 
-  // Parity computation
   const drNum = parseFloat(debitAmount) || 0;
   const crNum = parseFloat(creditAmount) || 0;
   const isBalanced = drNum > 0 && crNum > 0 && Math.abs(drNum - crNum) < 0.001;
   const difference = Math.abs(drNum - crNum);
 
-  // Global Ledger Audit Totals
   const totalDebits = useMemo(
     () => vouchers.reduce((sum, v) => sum + (v.debitAmount || v.amount), 0),
     [vouchers]
@@ -207,7 +203,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             </View>
           </View>
 
-          {/* Double-Entry Ledger Box */}
           <View style={styles.ledgerBox}>
             <View style={styles.ledgerRow}>
               <View style={[styles.drCrTagWrap, styles.drBg]}>
@@ -234,13 +229,11 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             </View>
           </View>
 
-          {/* Narration */}
           <Text style={styles.narrationText} numberOfLines={2}>
             <Text style={{ fontWeight: '700', color: colors.text.primary }}>Narration: </Text>
             {item.narration}
           </Text>
 
-          {/* Metadata Footer */}
           <View style={styles.cardFooter}>
             {item.referenceId ? (
               <View style={styles.refBadge}>
@@ -291,7 +284,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         }
       />
 
-      {/* Audit Balance Verification Card */}
       <View style={styles.auditCard}>
         <View style={styles.auditHeader}>
           <View style={styles.auditIconWrap}>
@@ -338,7 +330,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         </View>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <Input
           placeholder="Search by voucher #, account, narration, ref..."
@@ -348,7 +339,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         />
       </View>
 
-      {/* Filter Type Chips */}
       <View style={styles.filterScroll}>
         <FlatList
           horizontal
@@ -374,7 +364,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         />
       </View>
 
-      {/* Vouchers List */}
       <FlatList
         data={filteredVouchers}
         keyExtractor={item => item.id}
@@ -393,7 +382,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         }
       />
 
-      {/* Post Double-Entry Journal Entry Modal */}
       <Modal visible={showAddModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -413,7 +401,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 520 }}>
-              {/* Classification */}
               <Text style={styles.fieldLabel}>Voucher Classification</Text>
               <View style={styles.typeChipsGrid}>
                 {[
@@ -441,7 +428,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 ))}
               </View>
 
-              {/* Supporting Reference */}
               <Input
                 label="Supporting Document Reference"
                 placeholder="e.g. INV-2026-001 / BILL-89 / BOARD-APPROVAL"
@@ -449,11 +435,9 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 onChangeText={setReference}
               />
 
-              {/* Double-Entry Ledger Rows Box */}
               <View style={styles.deFormBox}>
                 <Text style={styles.deFormTitle}>DOUBLE-ENTRY ALLOCATION</Text>
 
-                {/* Debit Head */}
                 <Text style={styles.fieldLabel}>Debit Account (Dr.)</Text>
                 {!isCustomDebit ? (
                   <View style={styles.accountSelectorBox}>
@@ -495,7 +479,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   value={debitAmount}
                   onChangeText={val => {
                     setDebitAmount(val);
-                    // Helpful synchronization convenience
                     if (!creditAmount || creditAmount === debitAmount) {
                       setCreditAmount(val);
                     }
@@ -505,7 +488,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
                 <View style={styles.formSeparator} />
 
-                {/* Credit Head */}
                 <Text style={styles.fieldLabel}>Credit Account (Cr.)</Text>
                 {!isCustomCredit ? (
                   <View style={styles.accountSelectorBox}>
@@ -549,7 +531,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   leftIcon={<IndianRupee size={15} color={colors.text.secondary} />}
                 />
 
-                {/* Double-Entry Parity Live Status Banner */}
                 <View
                   style={[
                     styles.parityLiveBanner,
@@ -579,7 +560,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 </View>
               </View>
 
-              {/* Narration */}
               <Input
                 label="Accounting Narration / Remarks *"
                 placeholder="Being field exploration expenses incurred at Korba block..."
@@ -614,7 +594,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         </View>
       </Modal>
 
-      {/* Voucher Detail Modal */}
       {selectedVoucher && (
         <Modal visible={!!selectedVoucher} transparent animationType="fade">
           <View style={styles.modalOverlay}>
@@ -649,7 +628,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   </View>
                 </View>
 
-                {/* Double Entry Table */}
                 <View style={styles.detailLedgerTable}>
                   <View style={styles.detailLedgerHeader}>
                     <Text style={[styles.detailTableColHead, { flex: 2 }]}>LEDGER ACCOUNT</Text>
@@ -657,7 +635,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                     <Text style={[styles.detailTableColHead, { width: 80, textAlign: 'right' }]}>CREDIT (₹)</Text>
                   </View>
 
-                  {/* Debit Line */}
                   <View style={styles.detailLedgerLine}>
                     <View style={{ flex: 2 }}>
                       <Text style={styles.detailAccName}>
@@ -673,7 +650,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                     </Text>
                   </View>
 
-                  {/* Credit Line */}
                   <View style={styles.detailLedgerLine}>
                     <View style={{ flex: 2, paddingLeft: 12 }}>
                       <Text style={styles.detailAccName}>
@@ -689,7 +665,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                     </Text>
                   </View>
 
-                  {/* Total Parity Row */}
                   <View style={styles.detailLedgerTotalRow}>
                     <Text style={[styles.detailTotalLabel, { flex: 2 }]}>TOTAL (BALANCED)</Text>
                     <Text style={[styles.detailTotalAmount, { width: 80, textAlign: 'right' }]}>
@@ -701,7 +676,6 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   </View>
                 </View>
 
-                {/* Narration */}
                 <View style={styles.detailNarrationBox}>
                   <Text style={styles.detailNarrationLabel}>NARRATION & PURPOSE</Text>
                   <Text style={styles.detailNarrationText}>{selectedVoucher.narration}</Text>
@@ -1208,7 +1182,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     marginTop: spacing.md,
   },
-  // Detail Modal Styles
   detailModalContent: {
     backgroundColor: colors.background.secondary,
     borderRadius: borderRadius.xl,

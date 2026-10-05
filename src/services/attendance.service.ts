@@ -1,6 +1,6 @@
 import { mobileStorage } from '../storage';
 import { AttendanceRecord, AttendanceCorrection, AttendanceStatus } from '../types';
-import { calculateDurationFromTimes, parseTimeToMinutes, getEmployeeProjectById } from '../constants/attendance';
+import { calculateDurationFromTimes } from '../constants/attendance';
 
 export class AttendanceService {
   async getTodayRecord(employeeId: string): Promise<AttendanceRecord | null> {
@@ -33,7 +33,6 @@ export class AttendanceService {
 
     let existing = records.find((r) => r.employeeId === employeeId && r.date === todayStr);
 
-    // Duplicate punch guard: if already punched in and active (not punched out)
     if (existing && existing.punchIn && existing.punchIn !== '-' && existing.punchOut === '-') {
       throw new Error(`Already checked in today at ${existing.punchIn}. You can check out when your shift finishes.`);
     }
@@ -112,16 +111,11 @@ export class AttendanceService {
     existing.punchOut = nowTimeStr;
     existing.checkOut = nowTimeStr;
 
-    // Calculate actual work duration from check-in to check-out
     const calc = calculateDurationFromTimes(existing.punchIn, nowTimeStr);
     existing.durationHours = calc.durationHours;
     existing.workingHours = calc.workingHours;
     existing.overtime = calc.overtime;
 
-    // Source-supported duration threshold:
-    // 8+ hours -> Full Day / Present (or Field Duty)
-    // 4 to <8 hours -> Half-Day
-    // <4 hours -> Absent
     const isField =
       existing.workLocation.toLowerCase().includes('field') ||
       existing.workLocation.toLowerCase().includes('bhilwara') ||
@@ -200,7 +194,6 @@ export class AttendanceService {
     corr.hrRemarks = reviewComment;
     await mobileStorage.setCorrections(corrections);
 
-    // If approved, update or create attendance record for that date
     if (status === 'Approved') {
       const records = await mobileStorage.getAttendance();
       let att = records.find((r) => r.employeeId === corr.employeeId && r.date === corr.date);

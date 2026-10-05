@@ -30,6 +30,7 @@ import {
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -66,10 +67,8 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
 
   const tender = tenders.find((t) => t.id === tenderId);
 
-  // Active Tab: 'spec' | 'bids' | 'clarifications' | 'documents'
   const [activeTab, setActiveTab] = useState<'spec' | 'bids' | 'clarifications' | 'documents'>('spec');
 
-  // Submit Bid Modal State
   const [showBidModal, setShowBidModal] = useState<boolean>(false);
   const [selectedBidVendorId, setSelectedBidVendorId] = useState<string>(
     (session as any)?.vendorId || (vendors[0]?.id ?? 'VN-01')
@@ -80,7 +79,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
   const [bidDeclaration, setBidDeclaration] = useState<boolean>(false);
   const [isSubmittingBid, setIsSubmittingBid] = useState<boolean>(false);
 
-  // Clarification Modals
   const [showAskModal, setShowAskModal] = useState<boolean>(false);
   const [askQuestionText, setAskQuestionText] = useState<string>('');
   const [showAnswerModal, setShowAnswerModal] = useState<boolean>(false);
@@ -112,12 +110,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
   const liveBids = tender.sealedBids.filter((b) => b.status !== 'Withdrawn');
   const sealedCount = liveBids.filter((b) => b.isSealed).length;
   const isSaved = savedTenders.includes(tender.id);
-
-  const formatCurrency = (amt: number) => {
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
 
   const handleBidSubmit = async () => {
     const amt = Number(bidAmount);
@@ -193,7 +185,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         />
       }
     >
-      {/* Header Info Card */}
       <Card style={styles.headerCard}>
         <View style={styles.headerTop}>
           <Text style={styles.tenderIdBadge}>{tender.id}</Text>
@@ -223,7 +214,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
           </View>
         </View>
 
-        {/* Action Row */}
         <View style={styles.headerActionRow}>
           {phase === 'Open' && (
             <Button
@@ -256,7 +246,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </View>
       </Card>
 
-      {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tabBtn, activeTab === 'spec' && styles.tabBtnActive]}
@@ -295,7 +284,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </TouchableOpacity>
       </View>
 
-      {/* Tab Content: Specifications */}
       {activeTab === 'spec' && (
         <View style={styles.tabSection}>
           <Card style={styles.contentCard}>
@@ -334,7 +322,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </View>
       )}
 
-      {/* Tab Content: Sealed Bids (Security Chamber) */}
       {activeTab === 'bids' && (
         <View style={styles.tabSection}>
           {sealedCount > 0 && phase !== 'Allotted' && (
@@ -401,7 +388,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </View>
       )}
 
-      {/* Tab Content: Clarifications (Q&A Thread) */}
       {activeTab === 'clarifications' && (
         <View style={styles.tabSection}>
           <View style={styles.clarificationHeaderRow}>
@@ -463,7 +449,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </View>
       )}
 
-      {/* Tab Content: Notice Documents */}
       {activeTab === 'documents' && (
         <View style={styles.tabSection}>
           <Card style={styles.contentCard}>
@@ -489,7 +474,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </View>
       )}
 
-      {/* Submit Bid Modal */}
       {showBidModal && (
         <Modal visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -581,7 +565,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </Modal>
       )}
 
-      {/* Ask Clarification Modal */}
       {showAskModal && (
         <Modal visible transparent animationType="fade">
           <View style={styles.modalBackdropCenter}>
@@ -617,7 +600,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
         </Modal>
       )}
 
-      {/* Answer Clarification Modal */}
       {showAnswerModal && (
         <Modal visible transparent animationType="fade">
           <View style={styles.modalBackdropCenter}>

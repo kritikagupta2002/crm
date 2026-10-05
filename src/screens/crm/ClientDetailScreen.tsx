@@ -62,7 +62,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
 
   const [portalModalVisible, setPortalModalVisible] = useState(false);
 
-  // Match either from leads (Won) or from clients
   const matchedLead = leads.find(
     (l) => l.id === clientId || l.company.toLowerCase() === (clientName || '').toLowerCase()
   );
@@ -86,7 +85,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
   const isAllOnboarded = onboardingStepsDone === ONBOARDING_STEPS.length;
   const status = isAllOnboarded ? 'Active' : 'Onboarding';
 
-  // Linked ERM Projects
   const linkedProjects = projects.filter(
     (p) =>
       p.clientId === clientId ||
@@ -120,7 +118,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
         />
       }
     >
-      {/* 1. Header Card */}
       <Card>
         <View style={styles.headerRow}>
           <View style={styles.titleCol}>
@@ -132,7 +129,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
           <StatusBadge status={status} size="sm" />
         </View>
 
-        {/* Contact Info & Direct Links */}
         <View style={styles.contactCard}>
           <Text style={styles.contactPersonName}>{contactPerson}</Text>
 
@@ -163,7 +159,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
             </View>
           </View>
 
-          {/* Portal Action Buttons */}
           <View style={styles.portalActions}>
             <TouchableOpacity
               style={styles.portalBtn}
@@ -183,7 +178,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
           </View>
         </View>
 
-        {/* Fact Grid */}
         <View style={styles.factGrid}>
           <View style={styles.factItem}>
             <Text style={styles.factLabel}>Business Value</Text>
@@ -206,7 +200,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
         </View>
       </Card>
 
-      {/* 2. Onboarding Workflow Progress */}
       <Card>
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Client Onboarding &amp; Setup</Text>
@@ -215,7 +208,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
           </Text>
         </View>
 
-        {/* Progress Bar */}
         <View style={styles.progressBarWrap}>
           <View style={styles.progressTrack}>
             <View
@@ -262,7 +254,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
         )}
       </Card>
 
-      {/* 3. Linked Enquiry & Quotations */}
       <Card>
         <Text style={styles.sectionTitle}>Enquiry &amp; Commercial Contract</Text>
         <View style={styles.enquiryCard}>
@@ -287,7 +278,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
         </View>
       </Card>
 
-      {/* 4. Active ERM Geological Projects */}
       <Card>
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>
@@ -322,7 +312,6 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
         ))}
       </Card>
 
-      {/* Client Portal Preview Modal */}
       <Modal
         visible={portalModalVisible}
         animationType="slide"
@@ -650,7 +639,6 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
 
-  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

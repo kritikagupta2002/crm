@@ -328,7 +328,6 @@ export interface ReimbursementClaim {
 
 export type { FinanceInvoice, VendorBill, FinanceVoucher } from './finance';
 
-
 export interface SalaryStructure {
   id: string;
   employeeId: string;
@@ -418,7 +417,6 @@ export interface PayrollRun {
   status: 'Draft' | 'Processing' | 'Completed' | string;
   processedBy: string;
 }
-
 
 export interface Department {
   id: string;
@@ -583,9 +581,6 @@ export interface AppNotification {
   link?: string;
 }
 
-// ==========================================
-// HRMS CORPORATE / POLICY DOCUMENTS
-// ==========================================
 export type HrDocumentCategory =
   | 'Company Documents'
   | 'Identity'
@@ -609,9 +604,6 @@ export interface HrDocument {
   mimeType?: string;
 }
 
-// ==========================================
-// EMPLOYEE KYC & CREDENTIAL DOCUMENTS
-// ==========================================
 export type EmployeeDocumentType =
   | 'Aadhaar Card'
   | 'PAN Card'
@@ -644,9 +636,6 @@ export interface EmployeeDocumentRecord {
   mimeType?: string;
 }
 
-// ==========================================
-// ATTACHMENT METADATA
-// ==========================================
 export interface StoredAttachment {
   id: string;
   fileName: string;
@@ -656,4 +645,3 @@ export interface StoredAttachment {
   fileUri: string;
   createdAt: number;
 }
-

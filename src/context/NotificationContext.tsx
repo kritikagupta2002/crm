@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { AppNotification } from '../types';
 import { mobileStorage } from '../storage';
 
@@ -15,18 +15,18 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
     const list = await mobileStorage.getNotifications();
     setNotifications(list);
-  };
+  }, []);
 
   useEffect(() => {
     loadNotifications();
-  }, []);
+  }, [loadNotifications]);
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
 
-  const markAsRead = async (id: string) => {
+  const markAsRead = useCallback(async (id: string) => {
     const list = await mobileStorage.getNotifications();
     const item = list.find((n) => n.id === id);
     if (item) {
@@ -34,16 +34,16 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       await mobileStorage.setNotifications(list);
       setNotifications([...list]);
     }
-  };
+  }, []);
 
-  const markAllAsRead = async () => {
+  const markAllAsRead = useCallback(async () => {
     const list = await mobileStorage.getNotifications();
     list.forEach((n) => (n.read = true));
     await mobileStorage.setNotifications(list);
     setNotifications([...list]);
-  };
+  }, []);
 
-  const addNotification = async (title: string, message: string, type: AppNotification['type'] = 'info') => {
+  const addNotification = useCallback(async (title: string, message: string, type: AppNotification['type'] = 'info') => {
     const list = await mobileStorage.getNotifications();
     const newNotif: AppNotification = {
       id: 'notif-' + Date.now(),
@@ -56,18 +56,24 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     list.unshift(newNotif);
     await mobileStorage.setNotifications(list);
     setNotifications([...list]);
-  };
+  }, []);
+
+  const value = useMemo<NotificationContextType>(() => ({
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    addNotification,
+  }), [
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    addNotification,
+  ]);
 
   return (
-    <NotificationContext.Provider
-      value={{
-        notifications,
-        unreadCount,
-        markAsRead,
-        markAllAsRead,
-        addNotification,
-      }}
-    >
+    <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
   );

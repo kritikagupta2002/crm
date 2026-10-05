@@ -1,10 +1,7 @@
 import { mobileStorage } from '../storage';
-import { Shift, ShiftAssignment, RosterEntry, Employee } from '../types';
+import { Shift, ShiftAssignment, RosterEntry } from '../types';
 
 export class ShiftService {
-  // ============================================================
-  // SHIFT MASTER
-  // ============================================================
 
   async getShifts(): Promise<Shift[]> {
     const [shifts, assignments] = await Promise.all([
@@ -12,7 +9,6 @@ export class ShiftService {
       mobileStorage.getShiftAssignments(),
     ]);
 
-    // Live staff count calculated dynamically from canonical shift assignments
     return shifts.map((shift) => {
       const liveAssigned = assignments.filter(
         (a) => a.shiftId === shift.id && a.status === 'Active'
@@ -58,7 +54,6 @@ export class ShiftService {
 
     const shifts = await mobileStorage.getShifts();
 
-    // Duplicate check
     const duplicateCode = shifts.find(
       (s) => s.code.toLowerCase() === trimmedCode.toLowerCase()
     );
@@ -139,7 +134,6 @@ export class ShiftService {
     shifts[index] = updatedShift;
     await mobileStorage.setShifts(shifts);
 
-    // If shift name changed, cascade update to shift assignments and roster
     if (data.name && data.name !== existing.name) {
       const assignments = await mobileStorage.getShiftAssignments();
       let assignmentsModified = false;
@@ -210,10 +204,6 @@ export class ShiftService {
     await mobileStorage.setShifts(filtered);
   }
 
-  // ============================================================
-  // EMPLOYEE SHIFT ASSIGNMENTS
-  // ============================================================
-
   async getAssignments(): Promise<ShiftAssignment[]> {
     return mobileStorage.getShiftAssignments();
   }
@@ -247,7 +237,6 @@ export class ShiftService {
     const employeeName = emp ? emp.name : data.employeeName;
     const department = emp?.employment?.department || data.department;
 
-    // Check if employee already has an assignment
     const existingIndex = existingAssignments.findIndex(
       (a) => a.employeeId === data.employeeId
     );
@@ -256,7 +245,6 @@ export class ShiftService {
     let newAssignmentsList: ShiftAssignment[];
 
     if (existingIndex !== -1) {
-      // Update existing assignment
       updatedAssignment = {
         ...existingAssignments[existingIndex],
         shiftId: shift.id,
@@ -270,7 +258,6 @@ export class ShiftService {
       newAssignmentsList = [...existingAssignments];
       newAssignmentsList[existingIndex] = updatedAssignment;
     } else {
-      // Create new assignment record
       updatedAssignment = {
         id: `sa-${Date.now()}`,
         employeeId: data.employeeId,
@@ -287,7 +274,6 @@ export class ShiftService {
 
     await mobileStorage.setShiftAssignments(newAssignmentsList);
 
-    // Sync future roster entries for this employee to match new shift
     await this.syncEmployeeRosterWithAssignment(updatedAssignment);
 
     return updatedAssignment;
@@ -300,7 +286,6 @@ export class ShiftService {
     const todayStr = '2026-10-03';
 
     const updated = roster.map((entry) => {
-      // Update scheduled or today entries
       if (
         entry.employeeId === assignment.employeeId &&
         entry.date >= todayStr &&
@@ -339,16 +324,11 @@ export class ShiftService {
     await mobileStorage.setRoster(updated);
   }
 
-  // ============================================================
-  // MONTHLY ROSTER
-  // ============================================================
-
   async getRoster(month?: string): Promise<RosterEntry[]> {
     const allRoster = await mobileStorage.getRoster();
     if (!month) {
       return allRoster;
     }
-    // month format: 'YYYY-MM' (e.g. '2026-10')
     return allRoster.filter((r) => r.date.startsWith(month));
   }
 

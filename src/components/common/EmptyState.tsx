@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { PackageOpen } from 'lucide-react-native';
-import { colors, spacing, typography } from '../../theme';
+import { colors, spacing, typography, radius } from '../../theme';
 import { Button } from './Button';
 
 interface EmptyStateProps {
@@ -28,8 +28,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.iconWrapper}>
-        {icon ? icon : <PackageOpen size={48} color={colors.textMuted} />}
+      <View style={styles.iconCircle}>
+        {icon ? icon : <PackageOpen size={28} color={colors.textMuted} />}
       </View>
       <Text style={styles.title}>{title}</Text>
       {displayDesc ? <Text style={styles.description}>{displayDesc}</Text> : null}
@@ -50,26 +50,34 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.xxl,
+    paddingVertical: spacing.xl,
     paddingHorizontal: spacing.lg,
   },
-  iconWrapper: {
-    marginBottom: spacing.md,
-    opacity: 0.8,
+  iconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceSubtle,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.sm + 2,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
   title: {
-    fontSize: typography.fontSizes.md,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 15,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
     textAlign: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: 4,
   },
   description: {
-    fontSize: typography.fontSizes.sm,
+    fontSize: 12.5,
     color: colors.textMuted,
     textAlign: 'center',
-    lineHeight: 20,
+    lineHeight: 18,
     marginBottom: spacing.md,
+    maxWidth: 260,
   },
   actionButton: {
     marginTop: spacing.xs,

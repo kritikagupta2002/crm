@@ -20,6 +20,7 @@ import {
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button, SegmentedControl } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -40,12 +41,6 @@ export const VendorDetailScreen: React.FC<VendorDetailScreenProps> = ({ route, n
 
   const isFinanceOfficer = (role as any) === 'accountant' || (role as any) === 'director' || (role as any) === 'admin';
   const isAuthorizedManager = (role as any) === 'director' || (role as any) === 'tender_manager' || (role as any) === 'admin';
-
-  const formatCurrency = (amt: number) => {
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
 
   const vendorWorkOrders = useMemo(() => {
     if (!vendor) return [];
@@ -117,7 +112,6 @@ export const VendorDetailScreen: React.FC<VendorDetailScreenProps> = ({ route, n
         />
       }
     >
-      {/* Vendor Profile Header Card */}
       <Card style={styles.profileCard}>
         <View style={styles.topRow}>
           <View style={styles.codeContainer}>
@@ -149,7 +143,6 @@ export const VendorDetailScreen: React.FC<VendorDetailScreenProps> = ({ route, n
           )}
         </View>
 
-        {/* Communication Quick Actions */}
         <View style={styles.commRow}>
           <TouchableOpacity style={styles.commBtn} onPress={handleCall}>
             <Phone size={16} color={colors.primary} />
@@ -165,7 +158,6 @@ export const VendorDetailScreen: React.FC<VendorDetailScreenProps> = ({ route, n
         </View>
       </Card>
 
-      {/* Tabs */}
       <View style={styles.tabContainer}>
         <TouchableOpacity
           style={[styles.tabBtn, activeTab === 'profile' && styles.tabBtnActive]}
@@ -197,7 +189,6 @@ export const VendorDetailScreen: React.FC<VendorDetailScreenProps> = ({ route, n
 
       {activeTab === 'profile' && (
         <>
-          {/* Financial Exposure Card */}
           <Card style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>Financial Exposure & Orders</Text>
             <View style={styles.statGrid}>
@@ -224,7 +215,6 @@ export const VendorDetailScreen: React.FC<VendorDetailScreenProps> = ({ route, n
             </View>
           </Card>
 
-          {/* Contact Details Card */}
           <Card style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>Key Contact & Operations</Text>
             <View style={styles.infoRow}>

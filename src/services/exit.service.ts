@@ -82,8 +82,7 @@ export class ExitService {
     exit.status = 'Settled & Relieved';
     exit.relievingLetterIssued = true;
 
-    // Update employee status to 'Resigned'
-    try {
+        try {
       const employees = await mobileStorage.getEmployees();
       const emp = employees.find((e) => e.employeeId === exit.employeeId);
       if (emp) {

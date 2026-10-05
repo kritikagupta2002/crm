@@ -81,31 +81,25 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
 
   const doc = govtDocuments.find((d) => d.id === docId);
 
-  // Modals & local state
   const [showEditLinks, setShowEditLinks] = useState(false);
   const [leaseNo, setLeaseNo] = useState(doc?.record.links?.leaseNo || '');
   const [vendorId, setVendorId] = useState(doc?.record.links?.vendorId || '');
 
-  // Verification step state
   const [rescanReason, setRescanReason] = useState<string>(RESCAN_REASONS[0]);
   const [rescanNote, setRescanNote] = useState<string>('');
   const [isRescanFormOpen, setIsRescanFormOpen] = useState(false);
 
-  // Authorize step state
   const [authClient, setAuthClient] = useState<boolean>(doc?.kind !== 'Circular');
   const [authVendor, setAuthVendor] = useState<boolean>(false);
   const [authOriginal, setAuthOriginal] = useState<boolean>(doc ? originalNeeded(doc.kind) : false);
 
-  // Dispatch step state
   const [dispatchMode, setDispatchMode] = useState<string>(DISPATCH_MODES[0]);
   const [docketNumber, setDocketNumber] = useState('');
   const [dispatchDate, setDispatchDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Receive step state
   const [receivedBy, setReceivedBy] = useState(doc?.lead.contactPerson || '');
   const [receivedDate, setReceivedDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Preview file modal
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   if (!doc) {
@@ -121,10 +115,8 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
     );
   }
 
-  // 4-Eyes Principle Block Check
   const blockedReason = verifyBlock(doc, currentUserName);
 
-  // Handlers
   const handleVerify = async () => {
     if (blockedReason) {
       Alert.alert(
@@ -279,9 +271,7 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
         onBack={() => navigation.goBack()}
       />
 
-
       <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
-        {/* Document Header Card */}
         <Card style={styles.headerCard}>
           <View style={styles.titleRow}>
             <StatusBadge
@@ -295,7 +285,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
           <Text style={styles.authorityText}>Issuing Authority: {doc.letter.authority || 'Government Body'}</Text>
         </Card>
 
-        {/* 5-Stage Stepper Track */}
         <Card style={styles.stepperCard}>
           <Text style={styles.stepperTitle}>Lifecycle & Custody Flow</Text>
           <View style={styles.stepperRow}>
@@ -335,7 +324,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
           </View>
         </Card>
 
-        {/* NAS Scanned File Card */}
         <Card style={styles.fileCard}>
           <View style={styles.fileIconWrap}>
             <FileScan size={22} color={colors.primary} />
@@ -356,10 +344,8 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
           </TouchableOpacity>
         </Card>
 
-        {/* Interactive Action Workspace for Current Stage */}
         <Card style={styles.actionCard}>
           {doc.rescan ? (
-            /* RESCAN STATE */
             <View style={styles.actionSection}>
               <View style={styles.actionHeadRow}>
                 <RotateCcw size={18} color={colors.semantic.danger} />
@@ -406,7 +392,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
               />
             </View>
           ) : doc.stage === 'To verify' ? (
-            /* VERIFICATION STEP (4-Eyes Principle) */
             <View style={styles.actionSection}>
               <View style={styles.actionHeadRow}>
                 <ShieldCheck size={18} color={colors.primary} />
@@ -416,7 +401,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
                 Cross-check the digitized scan against the physical original paper letter in custody. Ensure all pages, signatures, and stamps are legible.
               </Text>
 
-              {/* 4-EYES PRINCIPLE SAFEGUARD ENFORCEMENT */}
               {blockedReason ? (
                 <View style={styles.fourEyesBlockBox}>
                   <ShieldAlert size={24} color={colors.semantic.danger} />
@@ -495,7 +479,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
               )}
             </View>
           ) : doc.stage === 'To authorize' ? (
-            /* AUTHORIZATION & ACCESS GRANTS */
             <View style={styles.actionSection}>
               <View style={styles.actionHeadRow}>
                 <FolderLock size={18} color={colors.primary} />
@@ -579,7 +562,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
               <Button title="Save Access Permissions" variant="primary" onPress={handleSaveAccess} />
             </View>
           ) : doc.stage === 'To share' ? (
-            /* CLIENT SHARING STEP */
             <View style={styles.actionSection}>
               <View style={styles.actionHeadRow}>
                 <Share2 size={18} color={colors.semantic.info} />
@@ -606,7 +588,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
               </View>
             </View>
           ) : doc.stage === 'To dispatch' ? (
-            /* PHYSICAL DISPATCH STEP */
             <View style={styles.actionSection}>
               <View style={styles.actionHeadRow}>
                 <Truck size={18} color={colors.semantic.info} />
@@ -652,7 +633,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
               />
             </View>
           ) : doc.record.dispatch?.status === 'Dispatched' ? (
-            /* RECIPIENT ACKNOWLEDGEMENT STEP */
             <View style={styles.actionSection}>
               <View style={styles.actionHeadRow}>
                 <PackageCheck size={18} color={colors.semantic.success} />
@@ -682,7 +662,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
               />
             </View>
           ) : (
-            /* COMPLETED STATE */
             <View style={styles.completedNotice}>
               <CheckCircle2 size={24} color={colors.semantic.success} />
               <View style={styles.completedTextWrap}>
@@ -695,7 +674,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
           )}
         </Card>
 
-        {/* Linked Metadata Section */}
         <Card style={styles.metaCard}>
           <View style={styles.metaHeadRow}>
             <Text style={styles.metaSectionTitle}>Linked Metadata</Text>
@@ -738,7 +716,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
           </View>
         </Card>
 
-        {/* Access & Original Summary */}
         <Card style={styles.metaCard}>
           <Text style={styles.metaSectionTitle}>Access & Original Summary</Text>
           <View style={styles.metaTable}>
@@ -780,7 +757,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
           )}
         </Card>
 
-        {/* Audit Trail Timeline */}
         <Card style={styles.auditCard}>
           <Text style={styles.metaSectionTitle}>Chronological Audit Trail</Text>
           <View style={styles.timelineList}>
@@ -802,7 +778,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
         </Card>
       </ScrollView>
 
-      {/* Edit Links Modal */}
       <Modal visible={showEditLinks} transparent animationType="slide" onRequestClose={() => setShowEditLinks(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -849,7 +824,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
         </View>
       </Modal>
 
-      {/* Inspect / Preview Modal */}
       <Modal visible={showPreviewModal} transparent animationType="fade" onRequestClose={() => setShowPreviewModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { maxHeight: '90%' }]}>

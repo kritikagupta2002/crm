@@ -10,7 +10,7 @@ import {
   Switch,
   ScrollView,
 } from 'react-native';
-import { useHrms, useAuth } from '../../context';
+import { useFinance, useAuth, useCrm } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import {
   AppHeader,
@@ -21,7 +21,6 @@ import {
   EmptyState,
 } from '../../components';
 import { VendorBill, Vendor, WorkOrder } from '../../types';
-import { mobileStorage } from '../../storage';
 import {
   FileSpreadsheet,
   Search,
@@ -36,7 +35,8 @@ import {
 } from 'lucide-react-native';
 
 export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { vendorBills, recordVendorBill, updateVendorBillStatus } = useHrms();
+  const { vendorBills, recordVendorBill, updateVendorBillStatus } = useFinance();
+  const { vendors } = useCrm();
   const { hasRole } = useAuth();
 
   const [search, setSearch] = useState('');
@@ -45,7 +45,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedBill, setSelectedBill] = useState<VendorBill | null>(null);
 
-  // Pay disbursement modal state
   const [showPayModal, setShowPayModal] = useState(false);
   const [billToPay, setBillToPay] = useState<VendorBill | null>(null);
   const [paymentMode, setPaymentMode] = useState<'NEFT/RTGS' | 'UPI' | 'Cheque'>('NEFT/RTGS');
@@ -53,11 +52,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [utrRef, setUtrRef] = useState('');
   const [isPaying, setIsPaying] = useState(false);
 
-  // Real vendor workspace data
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>([]);
-
-  // New vendor bill form state
   const [selectedVendorId, setSelectedVendorId] = useState('');
   const [billNo, setBillNo] = useState('');
   const [category, setCategory] = useState('Drilling & Coring');
@@ -72,9 +66,8 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
   const canManage = hasRole(['Admin', 'Accountant', 'admin', 'accountant']);
 
   useEffect(() => {
-    mobileStorage.getVendors().then((res) => {
-      setVendors(res);
-      const active = res.find((v) => v.empanelledStatus === 'Active' || (v as any).status === 'Active');
+    if (vendors && vendors.length > 0 && !selectedVendorId) {
+      const active = vendors.find((v) => v.empanelledStatus === 'Active' || (v as any).status === 'Active');
       if (active) {
         setSelectedVendorId(active.id);
         if (active.category) setCategory(active.category);
@@ -82,9 +75,8 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
           setTdsCategory(active.tds.section as '194C' | '194J');
         }
       }
-    });
-    mobileStorage.getWorkOrders().then((wo) => setWorkOrders(wo));
-  }, []);
+    }
+  }, [vendors, selectedVendorId]);
 
   const activeVendors = useMemo(() => {
     return vendors.filter((v) => v.empanelledStatus === 'Active' || (v as any).status === 'Active');
@@ -114,38 +106,38 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
     'Consumables',
   ];
 
-  // Live calculations for new bill
   const numBase = parseFloat(baseAmount) || 0;
   const numGst = Math.round((numBase * taxRate) / 100);
   const tdsPct = tdsCategory === '194J' ? 0.10 : 0.02;
   const numTds = Math.round(numBase * tdsPct);
   const numNetPayable = numBase + numGst - numTds;
 
-  // Search & Filter
   const statusOptions = ['All', 'Pending Approval', 'Approved', 'Paid', 'Overdue'];
 
-  const filteredBills = vendorBills.filter((b) => {
-    const bNum = (b.billNo || b.billNumber || '').toLowerCase();
-    const vName = (b.vendorName || '').toLowerCase();
-    const cat = (b.category || '').toLowerCase();
+  const filteredBills = useMemo(() => {
+    return vendorBills.filter((b) => {
+      const bNum = (b.billNo || b.billNumber || '').toLowerCase();
+      const vName = (b.vendorName || '').toLowerCase();
+      const cat = (b.category || '').toLowerCase();
 
-    const matchesSearch =
-      bNum.includes(search.toLowerCase()) ||
-      vName.includes(search.toLowerCase()) ||
-      cat.includes(search.toLowerCase());
+      const matchesSearch =
+        bNum.includes(search.toLowerCase()) ||
+        vName.includes(search.toLowerCase()) ||
+        cat.includes(search.toLowerCase());
 
-    const matchesStatus =
-      selectedStatus === 'All' ||
-      b.status.toLowerCase() === selectedStatus.toLowerCase() ||
-      (selectedStatus === 'Pending Approval' && b.status === 'Unpaid');
+      const matchesStatus =
+        selectedStatus === 'All' ||
+        b.status.toLowerCase() === selectedStatus.toLowerCase() ||
+        (selectedStatus === 'Pending Approval' && b.status === 'Unpaid');
 
-    const matchesItc =
-      selectedItc === 'All' ||
-      (selectedItc === 'Eligible' && b.itcEligible) ||
-      (selectedItc === 'Ineligible' && !b.itcEligible);
+      const matchesItc =
+        selectedItc === 'All' ||
+        (selectedItc === 'Eligible' && b.itcEligible) ||
+        (selectedItc === 'Ineligible' && !b.itcEligible);
 
-    return matchesSearch && matchesStatus && matchesItc;
-  });
+      return matchesSearch && matchesStatus && matchesItc;
+    });
+  }, [vendorBills, search, selectedStatus, selectedItc]);
 
   const handleCreateBill = async () => {
     if (!billNo.trim()) {
@@ -153,7 +145,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
       return;
     }
 
-    // Validation 1: Bill Number Uniqueness
     const duplicate = vendorBills.some(
       (b) =>
         (b.billNo && b.billNo.toLowerCase() === billNo.trim().toLowerCase()) ||
@@ -178,7 +169,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
       return;
     }
 
-    // Validation 2: Vendor must be active
     if (vendor.empanelledStatus !== 'Active' && (vendor as any).status !== 'Active') {
       Alert.alert(
         'Inactive Vendor',
@@ -187,7 +177,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
       return;
     }
 
-    // Validation 3: Base Amount > 0
     if (numBase <= 0) {
       Alert.alert('Validation Error', 'Base taxable amount must be strictly greater than ₹0.');
       return;
@@ -395,7 +384,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
         />
       </View>
 
-      {/* Filter Chips */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -448,7 +436,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
         }
       />
 
-      {/* RECORD VENDOR BILL MODAL */}
       <Modal visible={showAddModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -465,7 +452,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
             </View>
 
             <ScrollView contentContainerStyle={styles.formContent} showsVerticalScrollIndicator={false}>
-              {/* 1. Active Vendor Selector */}
               <Text style={styles.formSectionTitle}>1. ACTIVE VENDOR (VENDOR WORKSPACE DATA)</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vendorChipsScroll}>
                 {activeVendors.map((v) => {
@@ -487,7 +473,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
                 })}
               </ScrollView>
 
-              {/* 2. Bill Identifiers */}
               <Text style={styles.formSectionTitle}>2. BILL DETAILS & SCOPE</Text>
               <Input
                 label="Bill / Invoice Number (Unique)"
@@ -528,7 +513,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
                 onChangeText={setBaseAmount}
               />
 
-              {/* 3. Statutory TDS & ITC */}
               <Text style={styles.formSectionTitle}>3. STATUTORY TDS & GST ITC</Text>
               <View style={styles.tdsToggleRow}>
                 <Text style={styles.fieldLabel}>TDS Withholding Section:</Text>
@@ -566,7 +550,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
                 />
               </View>
 
-              {/* Live Computation */}
               <View style={styles.computationBox}>
                 <View style={styles.compRow}>
                   <Text style={styles.compLabel}>Base Taxable Amount:</Text>
@@ -609,7 +592,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
         </View>
       </Modal>
 
-      {/* DISBURSEMENT / PAYMENT MODAL */}
       {showPayModal && billToPay && (
         <Modal visible={showPayModal} transparent animationType="slide">
           <View style={styles.modalOverlay}>
@@ -690,7 +672,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
         </Modal>
       )}
 
-      {/* BILL DETAILS MODAL */}
       {selectedBill && (
         <Modal visible={!!selectedBill} transparent animationType="fade">
           <View style={styles.modalOverlay}>
@@ -768,7 +749,6 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
                   )}
                 </View>
 
-                {/* Actions */}
                 <View style={styles.docActionButtons}>
                   {canManage && (selectedBill.status === 'Pending Approval' || selectedBill.status === 'Unpaid') && (
                     <Button

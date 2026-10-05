@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import { colors, radius, spacing, typography } from '../../theme';
+import { colors, radius, spacing, typography, shadows } from '../../theme';
 
 interface SegmentedControlProps {
   options: string[];
@@ -22,11 +22,14 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
         return (
           <TouchableOpacity
             key={opt}
-            activeOpacity={0.8}
+            activeOpacity={0.75}
             onPress={() => onSelect(idx)}
             style={[styles.segment, isSelected ? styles.selectedSegment : null]}
           >
-            <Text style={[styles.label, isSelected ? styles.selectedLabel : null]}>
+            <Text
+              style={[styles.label, isSelected ? styles.selectedLabel : null]}
+              numberOfLines={1}
+            >
               {opt}
             </Text>
           </TouchableOpacity>
@@ -39,33 +42,36 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.md,
+    backgroundColor: colors.surfaceSubtle,
+    borderRadius: radius.lg,
     padding: 3,
     marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
   segment: {
     flex: 1,
-    paddingVertical: spacing.sm - 2,
+    paddingVertical: 7,
+    paddingHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radius.sm,
+    borderRadius: radius.md,
+    minHeight: 34,
   },
   selectedSegment: {
     backgroundColor: colors.surface,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    ...shadows.xs,
   },
   label: {
-    fontSize: typography.fontSizes.sm,
+    fontSize: 12,
     fontWeight: typography.fontWeights.medium,
     color: colors.textSecondary,
+    textAlign: 'center',
   },
   selectedLabel: {
-    color: colors.primary,
+    color: colors.primaryDark,
     fontWeight: typography.fontWeights.bold,
   },
 });

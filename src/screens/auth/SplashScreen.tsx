@@ -4,7 +4,7 @@ import {
   Text,
   StyleSheet,
   Animated,
-  Dimensions,
+  useWindowDimensions,
   Easing,
   StatusBar,
 } from 'react-native';
@@ -15,22 +15,20 @@ interface SplashScreenProps {
   onFinish: () => void;
 }
 
-const { width } = Dimensions.get('window');
-
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
+  const { width } = useWindowDimensions();
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.85)).current;
+  const scaleAnim = useRef(new Animated.Value(0.88)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const [loadingText, setLoadingText] = useState('Initializing Geospatial Core...');
 
   useEffect(() => {
-    // 1. Entrance animation (fade and scale up)
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 800,
+        duration: 700,
         useNativeDriver: true,
       }),
       Animated.spring(scaleAnim, {
@@ -41,11 +39,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       }),
     ]).start();
 
-    // 2. Pulse animation on the logo ring
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.08,
+          toValue: 1.06,
           duration: 900,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true,
@@ -59,7 +56,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       ])
     ).start();
 
-    // 3. Progress bar animation (0% to 100% over 2000ms)
     Animated.timing(progressAnim, {
       toValue: 1,
       duration: 2000,
@@ -67,7 +63,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       useNativeDriver: false,
     }).start();
 
-    // 4. Staggered loading status text
     const t1 = setTimeout(() => {
       setLoadingText('Loading Role-Based Workspaces...');
     }, 700);
@@ -80,11 +75,10 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       setLoadingText('Ready');
     }, 1900);
 
-    // 5. Completion callback after 2200ms
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 280,
         useNativeDriver: true,
       }).start(() => {
         onFinish();
@@ -101,14 +95,13 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, width * 0.65],
+    outputRange: [0, Math.min(width * 0.6, 240)],
   });
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0a0f1d" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
 
-      {/* Ambient background glow decoration */}
       <View style={styles.glowTop} />
       <View style={styles.glowBottom} />
 
@@ -121,32 +114,28 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           },
         ]}
       >
-        {/* Animated Brand Emblem */}
         <Animated.View style={[styles.emblemWrapper, { transform: [{ scale: pulseAnim }] }]}>
           <View style={styles.emblemOuter}>
             <View style={styles.emblemInner}>
-              <Compass size={44} color={colors.primary} />
+              <Compass size={40} color={colors.primaryDark} strokeWidth={2.2} />
             </View>
           </View>
         </Animated.View>
 
-        {/* Brand Titles */}
         <Text style={styles.title}>BANSAL GEO</Text>
         <Text style={styles.subtitle}>MINING & GEOLOGICAL EXPLORATION</Text>
 
         <View style={styles.taglineBadge}>
-          <Layers size={13} color={colors.primary} style={{ marginRight: 6 }} />
+          <Layers size={12} color={colors.primaryDark} style={{ marginRight: 5 }} />
           <Text style={styles.taglineText}>CRM • ERM • HRMS • FINANCE</Text>
         </View>
 
-        {/* Enterprise Platform Badge */}
         <View style={styles.enterprisePill}>
-          <ShieldCheck size={12} color={colors.text.secondary} style={{ marginRight: 4 }} />
+          <ShieldCheck size={12} color={colors.textSecondary} style={{ marginRight: 4 }} />
           <Text style={styles.enterpriseText}>Enterprise Field Platform • v1.0</Text>
         </View>
       </Animated.View>
 
-      {/* Bottom Loading Progress Indicator */}
       <Animated.View style={[styles.footer, { opacity: fadeAnim }]}>
         <View style={styles.progressBarTrack}>
           <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
@@ -161,91 +150,86 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0f1d',
+    backgroundColor: '#f8fafc',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
   glowTop: {
     position: 'absolute',
-    top: -100,
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    top: -80,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: 'rgba(13, 148, 136, 0.05)',
   },
   glowBottom: {
     position: 'absolute',
-    bottom: -80,
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: 'rgba(2, 132, 199, 0.06)',
+    bottom: -60,
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: 'rgba(2, 132, 199, 0.04)',
   },
   content: {
     alignItems: 'center',
-    paddingHorizontal: spacing.xl,
+    paddingHorizontal: spacing.lg,
   },
   emblemWrapper: {
-    marginBottom: spacing.xl,
+    marginBottom: spacing.lg,
   },
   emblemOuter: {
-    width: 104,
-    height: 104,
-    borderRadius: 52,
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    backgroundColor: 'rgba(13, 148, 136, 0.08)',
     borderWidth: 1.5,
-    borderColor: 'rgba(16, 185, 129, 0.35)',
+    borderColor: 'rgba(13, 148, 136, 0.22)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    elevation: 8,
   },
   emblemInner: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: '#111e33',
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.5)',
+    borderColor: 'rgba(13, 148, 136, 0.25)',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '900',
-    color: '#ffffff',
-    letterSpacing: 4,
-    marginBottom: 6,
+    color: '#0f172a',
+    letterSpacing: 3,
+    marginBottom: 4,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 11,
+    fontSize: 10.5,
     fontWeight: '700',
-    color: colors.primary,
-    letterSpacing: 2,
+    color: colors.primaryDark,
+    letterSpacing: 1.5,
     marginBottom: spacing.md,
     textAlign: 'center',
   },
   taglineBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    backgroundColor: 'rgba(13, 148, 136, 0.08)',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
+    paddingVertical: 4,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.25)',
-    marginBottom: spacing.sm,
+    borderColor: 'rgba(13, 148, 136, 0.2)',
+    marginBottom: spacing.xs + 2,
   },
   taglineText: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontWeight: '700',
-    color: colors.primary,
-    letterSpacing: 1.5,
+    color: colors.primaryDark,
+    letterSpacing: 1,
   },
   enterprisePill: {
     flexDirection: 'row',
@@ -254,37 +238,37 @@ const styles = StyleSheet.create({
   },
   enterpriseText: {
     fontSize: 11,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
     fontWeight: '500',
   },
   footer: {
     position: 'absolute',
-    bottom: 48,
+    bottom: 40,
     alignItems: 'center',
     width: '100%',
   },
   progressBarTrack: {
-    width: width * 0.65,
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    width: 220,
+    height: 3,
+    backgroundColor: 'rgba(13, 148, 136, 0.12)',
     borderRadius: 2,
     overflow: 'hidden',
     marginBottom: spacing.sm,
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
     borderRadius: 2,
   },
   statusText: {
-    fontSize: 12,
-    color: colors.text.secondary,
+    fontSize: 11.5,
+    color: colors.textSecondary,
     fontWeight: '500',
     marginBottom: 4,
   },
   copyright: {
-    fontSize: 10,
-    color: colors.text.tertiary,
+    fontSize: 9.5,
+    color: colors.textTertiary,
     fontWeight: '400',
   },
 });

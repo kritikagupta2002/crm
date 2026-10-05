@@ -62,12 +62,10 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
   const isPrivileged = isHr || isAccountant;
   const activeEmpId = session?.accountType === 'team' ? (session as any).employeeId : 'BGS-2021-001';
 
-  // Navigation / Tab state
   const [activeTab, setActiveTab] = useState<'claims' | 'review' | 'settlement'>('claims');
   const [search, setSearch] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  // New Claim Modal State
   const [showAddModal, setShowAddModal] = useState(false);
   const [category, setCategory] = useState<ReimbursementCategory>('Vehicle Mileage');
   const [kmDriven, setKmDriven] = useState('120');
@@ -83,7 +81,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Review Modal State
   const [reviewTarget, setReviewTarget] = useState<ReimbursementClaim | null>(null);
   const [reviewMode, setReviewMode] = useState<'approve' | 'partial' | 'reject'>('approve');
   const [partialApprovedAmt, setPartialApprovedAmt] = useState('');
@@ -91,7 +88,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
   const [reviewError, setReviewError] = useState('');
   const [isReviewing, setIsReviewing] = useState(false);
 
-  // Settlement Modal State
   const [settleTarget, setSettleTarget] = useState<ReimbursementClaim | null>(null);
   const [utrRef, setUtrRef] = useState('');
   const [paymentMode, setPaymentMode] = useState<'Bank Transfer' | 'UPI' | 'Cheque'>('Bank Transfer');
@@ -99,8 +95,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
   const [settleError, setSettleError] = useState('');
   const [isSettling, setIsSettling] = useState(false);
 
-  // Strict Data Isolation:
-  // Regular employees only see their own claims.
   const baseClaims = useMemo(() => {
     if (isPrivileged) {
       return reimbursements;
@@ -128,7 +122,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
     });
   }, [baseClaims, search, activeTab]);
 
-  // Transparent Claim Amount Calculation
   const totalCalculated = useMemo(() => {
     if (category === 'Vehicle Mileage') {
       const km = parseFloat(kmDriven) || 0;
@@ -254,7 +247,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
           return;
         }
 
-        // OVER-APPROVAL BLOCK
         if (val > claimed) {
           setReviewError(
             `Over-approval Blocked: Approved amount (₹${val.toLocaleString('en-IN')}) cannot exceed claimed amount (₹${claimed.toLocaleString('en-IN')}).`
@@ -362,7 +354,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
           <Text style={styles.claimDate}>Incurred Date: {item.date}</Text>
         </View>
 
-        {/* Transparent Calculation Display */}
         {item.kilometersDriven && (
           <View style={styles.calcPill}>
             <Car size={13} color={colors.primary} />
@@ -393,7 +384,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
           {item.remarks}
         </Text>
 
-        {/* Amount Grid */}
         <View style={styles.amountBox}>
           <View style={styles.amtCol}>
             <Text style={styles.amtLabel}>CLAIMED</Text>
@@ -415,7 +405,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
           </View>
         </View>
 
-        {/* Settlement Reference */}
         {item.settlementReference && (
           <View style={styles.settleNotice}>
             <CheckCircle2 size={12} color={colors.semantic.success} />
@@ -425,7 +414,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
           </View>
         )}
 
-        {/* Review Action Buttons (For HR) */}
         {isHr && item.status === 'Pending' && (
           <View style={styles.cardActions}>
             <Button
@@ -452,7 +440,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
           </View>
         )}
 
-        {/* Settlement Action Button (For Accountant) */}
         {isAccountant && (item.status === 'Approved' || item.status === 'Partially Approved') && (
           <View style={{ marginTop: spacing.sm }}>
             <Button
@@ -488,7 +475,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         }
       />
 
-      {/* Segmented Workspace Tabs for HR/Accountants */}
       {isPrivileged && (
         <View style={styles.tabBar}>
           <TouchableOpacity
@@ -524,7 +510,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         </View>
       )}
 
-      {/* Search Input */}
       <View style={styles.searchContainer}>
         <Input
           placeholder={
@@ -538,7 +523,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         />
       </View>
 
-      {/* Claims List */}
       <FlatList
         data={filteredClaims}
         keyExtractor={(item) => item.id}
@@ -564,7 +548,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         }
       />
 
-      {/* Reimbursement Builder Modal */}
       <Modal visible={showAddModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <ScrollView contentContainerStyle={styles.modalScroll} keyboardShouldPersistTaps="handled">
@@ -583,7 +566,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
                 </View>
               ) : null}
 
-              {/* Category Picker */}
               <Text style={styles.inputLabel}>Allowance Category *</Text>
               <View style={styles.catChips}>
                 {[
@@ -604,12 +586,10 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
                 ))}
               </View>
 
-              {/* Vehicle Mileage Dynamic Calculator */}
               {category === 'Vehicle Mileage' && (
                 <View style={styles.calcBox}>
                   <Text style={styles.calcTitle}>Vehicle Mileage Calculator</Text>
 
-                  {/* Preset Rates */}
                   <View style={styles.ratePresets}>
                     {VEHICLE_RATES.map((r) => (
                       <TouchableOpacity
@@ -660,7 +640,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
                 </View>
               )}
 
-              {/* Field Deployment DA or Hardship Calculator */}
               {(category === 'Field Deployment Daily Allowance (DA)' ||
                 category === 'Travel Daily Allowance' ||
                 category === 'Remote Site Hardship' ||
@@ -722,7 +701,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
                 </View>
               )}
 
-              {/* Mobile & Internet */}
               {category === 'Mobile & Internet' && (
                 <View style={styles.calcBox}>
                   <Input
@@ -738,7 +716,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
                 </View>
               )}
 
-              {/* Date & Project */}
               <View style={styles.calcRow}>
                 <Input
                   label="Claim Date (YYYY-MM-DD) *"
@@ -748,7 +725,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
                 />
               </View>
 
-              {/* Client Billable Toggle */}
               <View style={styles.billableToggleRow}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.billableToggleTitle}>Client-Billable Tag</Text>
@@ -763,7 +739,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
                 />
               </View>
 
-              {/* Total Calculation Display */}
               <View style={styles.totalPreview}>
                 <Text style={styles.totalPreviewLabel}>Calculated Sanction Amount:</Text>
                 <Text style={styles.totalPreviewValue}>
@@ -800,7 +775,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         </View>
       </Modal>
 
-      {/* Review Modal for HR */}
       <Modal visible={!!reviewTarget} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -876,7 +850,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         </View>
       </Modal>
 
-      {/* Settlement Modal for Accountant */}
       <Modal visible={!!settleTarget} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -904,7 +877,6 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
               </Text>
             </View>
 
-            {/* Payment Mode Selector */}
             <Text style={styles.inputLabel}>Payment Mode *</Text>
             <View style={styles.catChips}>
               {(['Bank Transfer', 'UPI', 'Cheque'] as const).map((m) => (

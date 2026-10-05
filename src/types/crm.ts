@@ -689,4 +689,3 @@ export interface ScanItem {
   seeded?: boolean;
   file?: any;
 }
-

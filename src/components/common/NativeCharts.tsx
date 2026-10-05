@@ -1,7 +1,84 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Svg, { Rect, Line, Text as SvgText, G } from 'react-native-svg';
+import Svg, { Rect, Line, Text as SvgText, G, Circle } from 'react-native-svg';
 import { colors, spacing, typography, borderRadius } from '../../theme';
+
+export interface DonutChartProps {
+  percentage: number;
+  color?: string;
+  size?: number;
+  strokeWidth?: number;
+}
+
+export const DonutChart: React.FC<DonutChartProps> = ({
+  percentage,
+  color = '#0d9488',
+  size = 42,
+  strokeWidth = 5,
+}) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (Math.min(100, Math.max(0, percentage)) / 100) * circumference;
+
+  return (
+    <Svg width={size} height={size}>
+      <Circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="#E2E8F0"
+        strokeWidth={strokeWidth}
+        fill="none"
+      />
+      <Circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeDasharray={`${circumference} ${circumference}`}
+        strokeDashoffset={strokeDashoffset}
+        strokeLinecap="round"
+        fill="none"
+        transform={`rotate(-90 ${size / 2} ${size / 2})`}
+      />
+    </Svg>
+  );
+};
+
+export interface MiniBarChartProps {
+  values: number[];
+  color?: string;
+  height?: number;
+  barWidth?: number;
+}
+
+export const MiniBarChart: React.FC<MiniBarChartProps> = ({
+  values,
+  color = '#0d9488',
+  height = 28,
+  barWidth = 6,
+}) => {
+  const max = Math.max(...values, 1);
+  return (
+    <Svg width={values.length * (barWidth + 4)} height={height}>
+      {values.map((v, i) => {
+        const barH = Math.max(3, (v / max) * height);
+        return (
+          <Rect
+            key={i}
+            x={i * (barWidth + 4)}
+            y={height - barH}
+            width={barWidth}
+            height={barH}
+            rx={2}
+            fill={color}
+          />
+        );
+      })}
+    </Svg>
+  );
+};
 
 interface BarDataPoint {
   label: string;
@@ -23,8 +100,8 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
   data,
   primaryLabel = 'Primary',
   secondaryLabel,
-  primaryColor = '#2A8089',
-  secondaryColor = '#C8943A',
+  primaryColor = '#0d9488',
+  secondaryColor = '#0284c7',
   height = 180,
   formatValue = (v) => String(v),
 }) => {
@@ -46,7 +123,6 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
 
   return (
     <View style={styles.chartWrapper}>
-      {/* Legend */}
       <View style={styles.legendRow}>
         <View style={styles.legendItem}>
           <View style={[styles.legendDot, { backgroundColor: primaryColor }]} />
@@ -60,19 +136,16 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
         )}
       </View>
 
-      {/* SVG Canvas */}
       <Svg width="100%" height={chartHeight + 30} viewBox={`0 0 ${data.length * 55 + 20} ${chartHeight + 30}`}>
-        {/* Horizontal grid lines */}
         {[0, 0.25, 0.5, 0.75, 1].map((pct, i) => {
           const y = chartHeight * (1 - pct) + 10;
           return (
             <G key={`grid-${i}`}>
-              <Line x1="10" y1={y} x2={data.length * 55 + 10} y2={y} stroke="#EDF1F3" strokeWidth="1" strokeDasharray="3,3" />
+              <Line x1="10" y1={y} x2={data.length * 55 + 10} y2={y} stroke={colors.border.default} strokeWidth="1" strokeDasharray="3,3" />
             </G>
           );
         })}
 
-        {/* Bars */}
         {data.map((d, index) => {
           const xCenter = 30 + index * 55;
           const h1 = (d.value / maxValue) * chartHeight;
@@ -90,7 +163,7 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
                 <SvgText
                   x={xCenter}
                   y={chartHeight + 24}
-                  fill="#7C8B96"
+                  fill={colors.textMuted}
                   fontSize="10"
                   textAnchor="middle"
                 >
@@ -106,7 +179,7 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
               <SvgText
                 x={xCenter}
                 y={chartHeight + 24}
-                fill="#7C8B96"
+                fill={colors.textMuted}
                 fontSize="10"
                 textAnchor="middle"
               >
@@ -135,7 +208,7 @@ interface NativeDistributionListProps {
 
 export const NativeDistributionList: React.FC<NativeDistributionListProps> = ({
   rows,
-  defaultColor = '#2A8089',
+  defaultColor = '#0d9488',
 }) => {
   if (!rows || rows.length === 0) {
     return <Text style={styles.emptyText}>No distribution data</Text>;
@@ -192,17 +265,17 @@ const styles = StyleSheet.create({
   legendText: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.medium,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
   },
   emptyContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8FAFB',
+    backgroundColor: colors.surfaceSubtle,
     borderRadius: borderRadius.md,
   },
   emptyText: {
     fontSize: typography.fontSizes.sm,
-    color: colors.text.tertiary,
+    color: colors.textMuted,
     fontStyle: 'italic',
   },
   distList: {
@@ -220,7 +293,7 @@ const styles = StyleSheet.create({
   distLabel: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.medium,
-    color: colors.text.primary,
+    color: colors.textPrimary,
     flex: 1,
   },
   distValueGroup: {
@@ -231,16 +304,16 @@ const styles = StyleSheet.create({
   distCount: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
-    color: colors.text.primary,
+    color: colors.textPrimary,
   },
   distPct: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.normal,
-    color: colors.text.secondary,
+    color: colors.textSecondary,
   },
   distTrack: {
     height: 7,
-    backgroundColor: '#EDF1F3',
+    backgroundColor: colors.border.default,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -251,6 +324,6 @@ const styles = StyleSheet.create({
   distNote: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.normal,
-    color: colors.text.tertiary,
+    color: colors.textMuted,
   },
 });

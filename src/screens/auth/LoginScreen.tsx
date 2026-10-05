@@ -7,13 +7,18 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
+  Image,
 } from 'react-native';
-import { ShieldCheck, UserCheck, Briefcase, Building, KeyRound, Phone } from 'lucide-react-native';
+import { Briefcase, Building, KeyRound, Phone, ArrowRight, Crown } from 'lucide-react-native';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
 import { Input, Button, SegmentedControl } from '../../components/common';
 import { useAuth } from '../../context/AuthContext';
 import { TeamRole } from '../../types';
 import { TEAM_PERSONAS } from '../../constants';
+
+const heroBannerImg = require('../../../assets/hero-banner.jpg');
+const rajeshAvatar = require('../../../assets/dr-rajesh-bansal.jpg');
 
 interface LoginScreenProps {
   navigation: any;
@@ -25,18 +30,15 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [accountTypeIndex, setAccountTypeIndex] = useState<number>(0);
   const accountTypes = ['Team Staff', 'Client Portal', 'Vendor Portal'];
 
-  // Team state
   const [selectedRole, setSelectedRole] = useState<TeamRole>('admin');
   const [teamEmail, setTeamEmail] = useState<string>(TEAM_PERSONAS.admin.email);
   const [teamPassword, setTeamPassword] = useState<string>('••••••••');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Client state
   const [enquiryId, setEnquiryId] = useState<string>('ENQ-2026-088');
   const [clientMobile, setClientMobile] = useState<string>('9820112233');
 
-  // Vendor state
   const [vendorId, setVendorId] = useState<string>('VND-2026-014');
   const [vendorMobile, setVendorMobile] = useState<string>('9811223344');
 
@@ -100,189 +102,202 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Brand Header */}
-        <View style={styles.brandHeader}>
-          <View style={styles.logoBadge}>
-            <ShieldCheck size={36} color={colors.primary} />
-          </View>
-          <Text style={styles.brandTitle}>BANSAL GEO</Text>
-          <Text style={styles.brandSubtitle}>
-            CRM • ERM • HRMS & Finance Mobile Platform
-          </Text>
-        </View>
-
-        {/* Account Type Switcher */}
-        <SegmentedControl
-          options={accountTypes}
-          selectedIndex={accountTypeIndex}
-          onSelect={(idx) => {
-            setAccountTypeIndex(idx);
-            setErrorMessage('');
-          }}
-          style={styles.segmentedControl}
-        />
-
-        {errorMessage ? (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorBannerText}>{errorMessage}</Text>
-          </View>
-        ) : null}
-
-        {/* 1. TEAM LOGIN */}
-        {accountTypeIndex === 0 ? (
-          <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Team Member Sign In</Text>
-            <Text style={styles.formSubtitle}>
-              Select your organizational role to enter your authorized workspace
-            </Text>
-
-            {/* Quick Role Personas */}
-            <Text style={styles.rolePickerLabel}>Sign In As Role:</Text>
-            <View style={styles.roleChips}>
-              {(['admin', 'hr', 'accountant', 'lead', 'employee'] as TeamRole[]).map((r) => {
-                const isSelected = selectedRole === r;
-                const p = TEAM_PERSONAS[r];
-                return (
-                  <TouchableOpacity
-                    key={r}
-                    activeOpacity={0.8}
-                    onPress={() => handleRoleSelect(r)}
-                    style={[styles.roleChip, isSelected ? styles.roleChipSelected : null]}
-                  >
-                    <Text style={[styles.roleChipText, isSelected ? styles.roleChipTextSelected : null]}>
-                      {r.toUpperCase()}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            <View style={styles.activePersonaInfo}>
-              <Text style={styles.personaName}>{TEAM_PERSONAS[selectedRole].name}</Text>
-              <Text style={styles.personaTitle}>
-                {TEAM_PERSONAS[selectedRole].designation} • {TEAM_PERSONAS[selectedRole].department}
-              </Text>
-            </View>
-
-            <Input
-              label="Work Email"
-              value={teamEmail}
-              onChangeText={setTeamEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              leftIcon={<Briefcase size={18} color={colors.textMuted} />}
-            />
-
-            <Input
-              label="Password"
-              value={teamPassword}
-              onChangeText={setTeamPassword}
-              secureTextEntry
-              leftIcon={<KeyRound size={18} color={colors.textMuted} />}
-            />
-
-            <Button
-              title={`Sign In as ${selectedRole.toUpperCase()}`}
-              onPress={handleTeamSubmit}
-              loading={isSubmitting}
-              size="lg"
-              style={styles.submitBtn}
-            />
-          </View>
-        ) : null}
-
-        {/* 2. CLIENT LOGIN */}
-        {accountTypeIndex === 1 ? (
-          <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Client Portal Access</Text>
-            <Text style={styles.formSubtitle}>
-              Inspect project milestones, approve quotations, and download signed exploration deliverables
-            </Text>
-
-            <Input
-              label="Enquiry ID"
-              placeholder="e.g. ENQ-2026-088"
-              value={enquiryId}
-              onChangeText={setEnquiryId}
-              autoCapitalize="characters"
-              leftIcon={<Building size={18} color={colors.textMuted} />}
-            />
-
-            <Input
-              label="Registered Mobile Number"
-              placeholder="e.g. 9820112233"
-              value={clientMobile}
-              onChangeText={setClientMobile}
-              keyboardType="phone-pad"
-              leftIcon={<Phone size={18} color={colors.textMuted} />}
-            />
-
-            <Button
-              title="Open My Client Portal"
-              onPress={handleClientSubmit}
-              loading={isSubmitting}
-              size="lg"
-              style={styles.submitBtn}
-            />
-          </View>
-        ) : null}
-
-        {/* 3. VENDOR LOGIN */}
-        {accountTypeIndex === 2 ? (
-          <View style={styles.formCard}>
-            <Text style={styles.formTitle}>Vendor & Contractor Portal</Text>
-            <Text style={styles.formSubtitle}>
-              Review tenders, submit sealed bids, inspect awarded work orders, and upload milestone bills
-            </Text>
-
-            <Input
-              label="Vendor ID"
-              placeholder="e.g. VND-2026-014"
-              value={vendorId}
-              onChangeText={setVendorId}
-              autoCapitalize="characters"
-              leftIcon={<Building size={18} color={colors.textMuted} />}
-            />
-
-            <Input
-              label="Registered Mobile Number"
-              placeholder="e.g. 9811223344"
-              value={vendorMobile}
-              onChangeText={setVendorMobile}
-              keyboardType="phone-pad"
-              leftIcon={<Phone size={18} color={colors.textMuted} />}
-            />
-
-            <Button
-              title="Open Vendor Portal"
-              onPress={handleVendorSubmit}
-              loading={isSubmitting}
-              size="lg"
-              style={styles.submitBtn}
-            />
-
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('VendorRegister')}
-              style={{ marginTop: spacing.md, alignItems: 'center' }}
-            >
-              <Text style={{ fontSize: typography.fontSizes.xs, color: colors.primary, fontWeight: typography.fontWeights.semibold }}>
-                New Contractor? Register Firm / Track Application &rarr;
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-
-        {/* Public Exploration Lead Link */}
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('PublicEnquiry')}
-          style={styles.publicEnquiryLink}
+        <ImageBackground
+          source={heroBannerImg}
+          style={styles.heroBanner}
+          resizeMode="cover"
         >
-          <Text style={styles.publicEnquiryText}>
-            Prospect? <Text style={styles.linkBold}>Submit a New Exploration Lead Enquiry &rarr;</Text>
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.heroOverlay} />
+          <View style={styles.heroContent}>
+            <View style={styles.heroBadgeRow}>
+              <Crown size={12} color="#F59E0B" />
+              <Text style={styles.heroBadgeText}>EST. 1989 • EXPLORATION & MINING</Text>
+            </View>
+            <Text style={styles.heroTitle}>BANSAL GEO</Text>
+            <Text style={styles.heroSubtitle}>Enterprise Command & Governance Platform</Text>
+          </View>
+        </ImageBackground>
+
+        <View style={styles.formContainer}>
+          <SegmentedControl
+            options={accountTypes}
+            selectedIndex={accountTypeIndex}
+            onSelect={(idx) => {
+              setAccountTypeIndex(idx);
+              setErrorMessage('');
+            }}
+            style={styles.segmentedControl}
+          />
+
+          {errorMessage ? (
+            <View style={styles.errorBanner}>
+              <Text style={styles.errorBannerText}>{errorMessage}</Text>
+            </View>
+          ) : null}
+
+          {accountTypeIndex === 0 ? (
+            <View style={styles.formCard}>
+              <Text style={styles.formTitle}>Team Member Sign In</Text>
+              <Text style={styles.formSubtitle}>
+                Select authorized operational persona to sign into workspace
+              </Text>
+
+              <Text style={styles.rolePickerLabel}>OPERATIONAL ROLES:</Text>
+              <View style={styles.roleChips}>
+                {(['admin', 'hr', 'accountant', 'lead', 'employee'] as TeamRole[]).map((r) => {
+                  const isSelected = selectedRole === r;
+                  return (
+                    <TouchableOpacity
+                      key={r}
+                      activeOpacity={0.75}
+                      onPress={() => handleRoleSelect(r)}
+                      style={[styles.roleChip, isSelected ? styles.roleChipSelected : null]}
+                    >
+                      <Text style={[styles.roleChipText, isSelected ? styles.roleChipTextSelected : null]}>
+                        {r.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <View style={styles.activePersonaInfo}>
+                <Image
+                  source={selectedRole === 'admin' ? rajeshAvatar : { uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150' }}
+                  style={styles.personaAvatar}
+                />
+                <View style={styles.personaTextWrapper}>
+                  <View style={styles.personaTitleRow}>
+                    <Text style={styles.personaName} numberOfLines={1}>{TEAM_PERSONAS[selectedRole].name}</Text>
+                    <View style={styles.rolePill}>
+                      <Text style={styles.rolePillText}>{selectedRole.toUpperCase()}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.personaTitle} numberOfLines={1}>
+                    {TEAM_PERSONAS[selectedRole].designation} • {TEAM_PERSONAS[selectedRole].department}
+                  </Text>
+                </View>
+              </View>
+
+              <Input
+                label="Work Email"
+                value={teamEmail}
+                onChangeText={setTeamEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                leftIcon={<Briefcase size={17} color="#64748B" />}
+              />
+
+              <Input
+                label="Password"
+                value={teamPassword}
+                onChangeText={setTeamPassword}
+                secureTextEntry
+                leftIcon={<KeyRound size={17} color="#64748B" />}
+              />
+
+              <Button
+                title={`Enter as ${selectedRole.toUpperCase()}`}
+                onPress={handleTeamSubmit}
+                loading={isSubmitting}
+                size="lg"
+                style={styles.submitBtn}
+              />
+            </View>
+          ) : null}
+
+          {accountTypeIndex === 1 ? (
+            <View style={styles.formCard}>
+              <Text style={styles.formTitle}>Client Portal Access</Text>
+              <Text style={styles.formSubtitle}>
+                Inspect project milestones, approve quotations, and download signed deliverables
+              </Text>
+
+              <Input
+                label="Enquiry ID"
+                placeholder="e.g. ENQ-2026-088"
+                value={enquiryId}
+                onChangeText={setEnquiryId}
+                autoCapitalize="characters"
+                leftIcon={<Building size={17} color="#64748B" />}
+              />
+
+              <Input
+                label="Registered Mobile Number"
+                placeholder="e.g. 9820112233"
+                value={clientMobile}
+                onChangeText={setClientMobile}
+                keyboardType="phone-pad"
+                leftIcon={<Phone size={17} color="#64748B" />}
+              />
+
+              <Button
+                title="Open My Client Portal"
+                onPress={handleClientSubmit}
+                loading={isSubmitting}
+                size="lg"
+                style={styles.submitBtn}
+              />
+            </View>
+          ) : null}
+
+          {accountTypeIndex === 2 ? (
+            <View style={styles.formCard}>
+              <Text style={styles.formTitle}>Vendor & Contractor Gate</Text>
+              <Text style={styles.formSubtitle}>
+                Review tenders, submit sealed bids, inspect work orders, and upload milestone bills
+              </Text>
+
+              <Input
+                label="Vendor ID"
+                placeholder="e.g. VND-2026-014"
+                value={vendorId}
+                onChangeText={setVendorId}
+                autoCapitalize="characters"
+                leftIcon={<Building size={17} color="#64748B" />}
+              />
+
+              <Input
+                label="Registered Mobile Number"
+                placeholder="e.g. 9811223344"
+                value={vendorMobile}
+                onChangeText={setVendorMobile}
+                keyboardType="phone-pad"
+                leftIcon={<Phone size={17} color="#64748B" />}
+              />
+
+              <Button
+                title="Open Vendor Portal"
+                onPress={handleVendorSubmit}
+                loading={isSubmitting}
+                size="lg"
+                style={styles.submitBtn}
+              />
+
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => navigation.navigate('VendorRegister')}
+                style={styles.registerLink}
+              >
+                <Text style={styles.registerLinkText}>
+                  New Contractor? Register Firm / Track Application &rarr;
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('PublicEnquiry')}
+            style={styles.publicEnquiryCard}
+          >
+            <View style={styles.publicEnquiryContent}>
+              <Text style={styles.publicEnquiryTitle}>Need a Geological Survey?</Text>
+              <Text style={styles.publicEnquiryDesc}>Submit a new exploration enquiry online</Text>
+            </View>
+            <ArrowRight size={17} color="#0D9488" strokeWidth={2.2} />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -291,84 +306,105 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background.primary,
+    backgroundColor: '#F8FAFC',
   },
   scrollContent: {
-    padding: spacing.lg,
-    paddingTop: spacing.huge,
     paddingBottom: spacing.huge,
   },
-  brandHeader: {
-    alignItems: 'center',
-    marginBottom: spacing.xl,
+  heroBanner: {
+    height: 154,
+    justifyContent: 'flex-end',
+    position: 'relative',
   },
-  logoBadge: {
-    width: 68,
-    height: 68,
-    borderRadius: radius.xl,
-    backgroundColor: colors.primaryBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.primaryLight,
-    marginBottom: spacing.sm,
-    ...shadows.sm,
+  heroOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(15, 23, 42, 0.62)',
   },
-  brandTitle: {
-    fontSize: typography.fontSizes.xxl,
+  heroContent: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.md + 2,
+  },
+  heroBadgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2.5,
+    borderRadius: radius.full,
+    alignSelf: 'flex-start',
+    marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  heroBadgeText: {
+    fontSize: 9.5,
+    fontWeight: typography.fontWeights.bold,
+    color: '#F8FAFC',
+    letterSpacing: 0.6,
+  },
+  heroTitle: {
+    fontSize: 22,
     fontWeight: typography.fontWeights.heavy,
-    color: colors.primary,
-    letterSpacing: 1.5,
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
-  brandSubtitle: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
-    textAlign: 'center',
+  heroSubtitle: {
+    fontSize: 11,
+    color: '#E2E8F0',
+    marginTop: 1,
+  },
+  formContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
   },
   segmentedControl: {
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   errorBanner: {
-    backgroundColor: colors.dangerBg,
+    backgroundColor: '#FEE2E2',
     borderWidth: 1,
-    borderColor: colors.dangerLight,
+    borderColor: '#FECACA',
     borderRadius: radius.md,
     padding: spacing.md,
     marginBottom: spacing.md,
   },
   errorBannerText: {
-    color: colors.dangerText,
-    fontSize: typography.fontSizes.sm,
+    color: '#B91C1C',
+    fontSize: 12.5,
     fontWeight: typography.fontWeights.medium,
   },
   formCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.xl,
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.lg,
     padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.border.default,
-    ...shadows.md,
-    marginBottom: spacing.lg,
+    borderColor: '#E2E8F0',
+    ...shadows.xs,
+    marginBottom: spacing.md,
   },
   formTitle: {
-    fontSize: typography.fontSizes.lg,
+    fontSize: 15,
     fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   formSubtitle: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textMuted,
-    lineHeight: 18,
-    marginBottom: spacing.lg,
+    fontSize: 11.5,
+    color: colors.textSecondary,
+    lineHeight: 16,
+    marginBottom: spacing.md,
   },
   rolePickerLabel: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.textSecondary,
+    fontSize: 9.5,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.textTertiary,
     marginBottom: spacing.xs,
-    textTransform: 'uppercase',
+    letterSpacing: 0.4,
   },
   roleChips: {
     flexDirection: 'row',
@@ -377,56 +413,109 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   roleChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 4.5,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.borderDark,
-    backgroundColor: colors.surfaceMuted,
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
   },
   roleChipSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: '#0D9488',
+    borderColor: '#0D9488',
+    ...shadows.xs,
   },
   roleChipText: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 10.5,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textSecondary,
   },
   roleChipTextSelected: {
-    color: colors.textInverse,
+    color: '#FFFFFF',
   },
   activePersonaInfo: {
-    backgroundColor: colors.primaryBg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDFA',
     borderRadius: radius.md,
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
     marginBottom: spacing.md,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    borderWidth: 1,
+    borderColor: '#CCFBF1',
+    gap: spacing.sm,
+  },
+  personaAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#0D9488',
+  },
+  personaTextWrapper: {
+    flex: 1,
+  },
+  personaTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   personaName: {
-    fontSize: typography.fontSizes.sm,
+    fontSize: 13,
     fontWeight: typography.fontWeights.bold,
-    color: colors.primaryDark,
+    color: '#0F172A',
+  },
+  rolePill: {
+    backgroundColor: '#CCFBF1',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: radius.full,
+  },
+  rolePillText: {
+    fontSize: 8.5,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0D9488',
   },
   personaTitle: {
-    fontSize: typography.fontSizes.xxs,
-    color: colors.textSecondary,
+    fontSize: 10.5,
+    color: '#475569',
     marginTop: 1,
   },
   submitBtn: {
-    marginTop: spacing.sm,
+    marginTop: spacing.xs,
   },
-  publicEnquiryLink: {
+  registerLink: {
+    marginTop: spacing.md,
     alignItems: 'center',
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.xs,
   },
-  publicEnquiryText: {
-    fontSize: typography.fontSizes.sm,
-    color: colors.textSecondary,
-  },
-  linkBold: {
-    color: colors.primary,
+  registerLinkText: {
+    fontSize: 11.5,
+    color: '#0D9488',
     fontWeight: typography.fontWeights.bold,
+  },
+  publicEnquiryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FFFFFF',
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    ...shadows.xs,
+  },
+  publicEnquiryContent: {
+    flex: 1,
+    paddingRight: spacing.sm,
+  },
+  publicEnquiryTitle: {
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.textPrimary,
+  },
+  publicEnquiryDesc: {
+    fontSize: 11,
+    color: colors.textSecondary,
+    marginTop: 2,
   },
 });

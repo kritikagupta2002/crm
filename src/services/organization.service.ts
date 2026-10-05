@@ -11,15 +11,11 @@ export interface HierarchyNode {
 }
 
 export class OrganizationService {
-  // ============================================================
-  // DEPARTMENTS
-  // ============================================================
 
   async getDepartments(): Promise<Department[]> {
     const departments = await mobileStorage.getDepartments();
     const employees = await mobileStorage.getEmployees();
 
-    // Dynamically compute real live staff count from Employee Master (Zero Fake Numbers)
     return departments.map((dept) => {
       const liveCount = employees.filter(
         (e) =>
@@ -55,7 +51,6 @@ export class OrganizationService {
 
     const departments = await mobileStorage.getDepartments();
 
-    // Uniqueness checks
     const duplicateName = departments.find(
       (d) => d.name.toLowerCase() === trimmedName.toLowerCase()
     );
@@ -122,7 +117,6 @@ export class OrganizationService {
     const dept = departments.find((d) => d.id === id);
     if (!dept) throw new Error('Department not found.');
 
-    // Check if staff are assigned
     const employees = await mobileStorage.getEmployees();
     const assignedStaff = employees.filter(
       (e) => e.employment?.department?.toLowerCase() === dept.name.toLowerCase()
@@ -136,10 +130,6 @@ export class OrganizationService {
     const filtered = departments.filter((d) => d.id !== id);
     await mobileStorage.setDepartments(filtered);
   }
-
-  // ============================================================
-  // DESIGNATIONS
-  // ============================================================
 
   async getDesignations(): Promise<Designation[]> {
     const designations = await mobileStorage.getDesignations();
@@ -176,7 +166,6 @@ export class OrganizationService {
     const trimmedTitle = data.title.trim();
     const trimmedCode = data.code.trim().toUpperCase();
 
-    // Validation 1: Title (3 to 60 characters)
     if (!trimmedTitle || trimmedTitle.length < 3) {
       throw new Error('Designation Title must be at least 3 characters.');
     }
@@ -184,7 +173,6 @@ export class OrganizationService {
       throw new Error('Designation Title cannot exceed 60 characters.');
     }
 
-    // Validation 2: Code (2 to 12 uppercase alphanumeric characters)
     if (!trimmedCode || trimmedCode.length < 2) {
       throw new Error('Designation Code must be at least 2 characters.');
     }
@@ -195,12 +183,10 @@ export class OrganizationService {
       throw new Error('Designation Code must only contain uppercase letters, numbers, and hyphens (e.g. SR-GEO).');
     }
 
-    // Validation 3: Department Required
     const deptName = data.departmentName || data.department || 'Geology & Mineral Exploration';
 
     const designations = await mobileStorage.getDesignations();
 
-    // Uniqueness checks
     const duplicateTitle = designations.find(
       (d) => d.title.toLowerCase() === trimmedTitle.toLowerCase()
     );
@@ -278,10 +264,7 @@ export class OrganizationService {
     return updated;
   }
 
-  // ============================================================
-  // CRITICAL SAFETY GUARD: DELETION RESTRICTION
   // CanDeleteDesignation(designation) = AssignedStaffCount === 0
-  // ============================================================
   async deleteDesignation(id: string): Promise<void> {
     const designations = await mobileStorage.getDesignations();
     const target = designations.find((d) => d.id === id);
@@ -289,7 +272,6 @@ export class OrganizationService {
 
     const employees = await mobileStorage.getEmployees();
 
-    // Check 1: Live assigned staff query
     const activeAssigned = employees.filter(
       (e) =>
         (e.employment?.designation?.toLowerCase() === target.title.toLowerCase() ||
@@ -309,25 +291,20 @@ export class OrganizationService {
     await mobileStorage.setDesignations(filtered);
   }
 
-  // ============================================================
-  // HIERARCHY TREE BUILDER
-  // ============================================================
   async getOrganizationHierarchy(): Promise<HierarchyNode[]> {
     const departments = await this.getDepartments();
     const designations = await this.getDesignations();
     const employees = await mobileStorage.getEmployees();
 
     return departments.map((dept) => {
-      // Find all designations under this department
-      const deptDesigs = designations.filter(
+            const deptDesigs = designations.filter(
         (d) =>
           d.departmentId === dept.id ||
           d.departmentName?.toLowerCase() === dept.name.toLowerCase() ||
           d.department?.toLowerCase() === dept.name.toLowerCase()
       );
 
-      // Map employees to each designation
-      const mappedDesigs = deptDesigs.map((desig) => {
+            const mappedDesigs = deptDesigs.map((desig) => {
         const staff = employees.filter(
           (e) =>
             (e.employment?.designation?.toLowerCase() === desig.title.toLowerCase() ||

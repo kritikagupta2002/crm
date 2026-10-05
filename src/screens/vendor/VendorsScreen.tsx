@@ -1,23 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import {
-  Building2,
   Search,
-  Star,
   ChevronRight,
-  Phone,
-  Mail,
   MapPin,
   Briefcase,
   Plus,
-  ShieldCheck,
-  CheckCircle2,
-  FileText,
 } from 'lucide-react-native';
-import { ScreenContainer, AppHeader, Card, StatusBadge, Button, EmptyState } from '../../components/common';
+import { ScreenContainer, AppHeader, Card, StatusBadge, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
-import { useAuth } from '../../context/AuthContext';
 import { Vendor } from '../../types';
 import { WORK_CATEGORIES } from '../../constants/vendor';
 
@@ -27,18 +20,11 @@ interface VendorsScreenProps {
 
 export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
   const { vendors, workOrders } = useCrm();
-  const { role, can } = useAuth();
 
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   const categories = useMemo(() => ['All', ...WORK_CATEGORIES], []);
-
-  const formatCurrency = (amt: number) => {
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
 
   const filteredVendors = useMemo(() => {
     return vendors.filter((v) => {

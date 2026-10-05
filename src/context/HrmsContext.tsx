@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from 'react';
 import {
   AttendanceRecord,
   AttendanceCorrection,
@@ -7,13 +7,6 @@ import {
   ExpenseClaim,
   ExpenseQuery,
   ReimbursementClaim,
-  FinanceInvoice,
-  VendorBill,
-  FinanceVoucher,
-  TdsRecord,
-  GstReturn,
-  GstTransaction,
-  FinanceOverviewMetrics,
   SalaryStructure,
   Payslip,
   PayrollRun,
@@ -33,7 +26,6 @@ import {
   leaveService,
   expenseService,
   reimbursementService,
-  financeService,
   employeeService,
   payrollService,
   organizationService,
@@ -58,12 +50,6 @@ interface HrmsContextType {
   expenses: ExpenseClaim[];
   queries: ExpenseQuery[];
   reimbursements: ReimbursementClaim[];
-  invoices: FinanceInvoice[];
-  vendorBills: VendorBill[];
-  vouchers: FinanceVoucher[];
-  taxRecords: TdsRecord[];
-  gstReturns: GstReturn[];
-  gstTransactions: GstTransaction[];
   salaryStructures: SalaryStructure[];
   payslips: Payslip[];
   payrollRuns: PayrollRun[];
@@ -76,6 +62,16 @@ interface HrmsContextType {
   exits: EmployeeExitRequest[];
   isLoading: boolean;
   refreshHrms: () => Promise<void>;
+  refreshAttendance?: () => Promise<void>;
+  refreshLeaves?: () => Promise<void>;
+  refreshExpenses?: () => Promise<void>;
+  refreshReimbursements?: () => Promise<void>;
+  refreshEmployees?: () => Promise<void>;
+  refreshOrganization?: () => Promise<void>;
+  refreshAppraisals?: () => Promise<void>;
+  refreshExits?: () => Promise<void>;
+  refreshPayroll?: () => Promise<void>;
+  refreshShifts?: () => Promise<void>;
   punchIn: (location?: string, coords?: { latitude: number; longitude: number }, punchSource?: string) => Promise<AttendanceRecord>;
   punchOut: () => Promise<AttendanceRecord>;
   submitCorrection: (
@@ -117,13 +113,6 @@ interface HrmsContextType {
   raiseReimbursementQuery: (claimId: string, message: string) => Promise<ReimbursementClaim>;
   respondReimbursementQuery: (claimId: string, response: string) => Promise<ReimbursementClaim>;
   settleReimbursement: (id: string, utrRefOrData: any) => Promise<ReimbursementClaim>;
-  createInvoice: (data: any) => Promise<FinanceInvoice>;
-  updateInvoiceStatus: (id: string, status: any, paidAmount?: number, paymentMode?: string) => Promise<FinanceInvoice>;
-  recordVendorBill: (data: any) => Promise<VendorBill>;
-  updateVendorBillStatus: (id: string, status: any, paymentDetails?: any) => Promise<VendorBill>;
-  createVoucher: (data: any) => Promise<FinanceVoucher>;
-  updateTaxStatus: (id: string, status: 'Deposited' | 'Pending Deposit', challanDetails?: any) => Promise<TdsRecord>;
-  getOverviewMetrics: () => Promise<FinanceOverviewMetrics>;
   createEmployee: (data: any) => Promise<Employee>;
   updateEmployee: (id: string, data: any) => Promise<Employee>;
   deleteEmployee: (id: string) => Promise<void>;
@@ -170,6 +159,7 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const { session } = useAuth();
   const activeEmployeeId = session?.accountType === 'team' ? (session as any).employeeId : 'BGS-2021-001';
   const activeEmployeeName = session?.accountType === 'team' ? (session as any).name : 'Active User';
+  const activeDepartment = session?.accountType === 'team' ? (session as any).department || 'Geology & Mineral Exploration' : 'Geology & Mineral Exploration';
 
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
@@ -180,12 +170,6 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [expenses, setExpenses] = useState<ExpenseClaim[]>([]);
   const [queries, setQueries] = useState<ExpenseQuery[]>([]);
   const [reimbursements, setReimbursements] = useState<ReimbursementClaim[]>([]);
-  const [invoices, setInvoices] = useState<FinanceInvoice[]>([]);
-  const [vendorBills, setVendorBills] = useState<VendorBill[]>([]);
-  const [vouchers, setVouchers] = useState<FinanceVoucher[]>([]);
-  const [taxRecords, setTaxRecords] = useState<TdsRecord[]>([]);
-  const [gstReturns, setGstReturns] = useState<GstReturn[]>([]);
-  const [gstTransactions, setGstTransactions] = useState<GstTransaction[]>([]);
   const [salaryStructures, setSalaryStructures] = useState<SalaryStructure[]>([]);
   const [payslips, setPayslips] = useState<Payslip[]>([]);
   const [payrollRuns, setPayrollRuns] = useState<PayrollRun[]>([]);
@@ -200,6 +184,126 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [employeeDocuments, setEmployeeDocuments] = useState<EmployeeDocumentRecord[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  const refreshAttendance = useCallback(async () => {
+    try {
+      const [att, today, corr] = await Promise.all([
+        attendanceService.getAllRecords(),
+        attendanceService.getTodayRecord(activeEmployeeId),
+        mobileStorage.getCorrections(),
+      ]);
+      setAttendance(att);
+      setTodayAttendance(today);
+      setCorrections(corr);
+    } catch (e) {
+      console.error('Error refreshing attendance:', e);
+    }
+  }, [activeEmployeeId]);
+
+  const refreshLeaves = useCallback(async () => {
+    try {
+      const [bal, l] = await Promise.all([
+        leaveService.getBalances(activeEmployeeId),
+        leaveService.getAllRequests(),
+      ]);
+      setLeaveBalances(bal);
+      setLeaves(l);
+    } catch (e) {
+      console.error('Error refreshing leaves:', e);
+    }
+  }, [activeEmployeeId]);
+
+  const refreshExpenses = useCallback(async () => {
+    try {
+      const [exp, qry] = await Promise.all([
+        expenseService.getAllExpenses(),
+        mobileStorage.getQueries(),
+      ]);
+      setExpenses(exp);
+      setQueries(qry);
+    } catch (e) {
+      console.error('Error refreshing expenses:', e);
+    }
+  }, []);
+
+  const refreshReimbursements = useCallback(async () => {
+    try {
+      const reimb = await reimbursementService.getAllClaims();
+      setReimbursements(reimb);
+    } catch (e) {
+      console.error('Error refreshing reimbursements:', e);
+    }
+  }, []);
+
+  const refreshEmployees = useCallback(async () => {
+    try {
+      const emp = await employeeService.getEmployees();
+      setEmployees(emp);
+    } catch (e) {
+      console.error('Error refreshing employees:', e);
+    }
+  }, []);
+
+  const refreshOrganization = useCallback(async () => {
+    try {
+      const [dept, desig] = await Promise.all([
+        organizationService.getDepartments(),
+        organizationService.getDesignations(),
+      ]);
+      setDepartments(dept);
+      setDesignations(desig);
+    } catch (e) {
+      console.error('Error refreshing organization:', e);
+    }
+  }, []);
+
+  const refreshAppraisals = useCallback(async () => {
+    try {
+      const appr = await performanceService.getAppraisals();
+      setAppraisals(appr);
+    } catch (e) {
+      console.error('Error refreshing appraisals:', e);
+    }
+  }, []);
+
+  const refreshExits = useCallback(async () => {
+    try {
+      const ext = await exitService.getExits();
+      setExits(ext);
+    } catch (e) {
+      console.error('Error refreshing exits:', e);
+    }
+  }, []);
+
+  const refreshPayroll = useCallback(async () => {
+    try {
+      const [sal, ps, pr] = await Promise.all([
+        payrollService.getSalaryStructures(),
+        payrollService.getPayslips(),
+        payrollService.getPayrollRuns(),
+      ]);
+      setSalaryStructures(sal);
+      setPayslips(ps);
+      setPayrollRuns(pr);
+    } catch (e) {
+      console.error('Error refreshing payroll:', e);
+    }
+  }, []);
+
+  const refreshShifts = useCallback(async () => {
+    try {
+      const [shf, asgn, rst] = await Promise.all([
+        shiftService.getShifts(),
+        shiftService.getAssignments(),
+        shiftService.getRoster(),
+      ]);
+      setShifts(shf);
+      setShiftAssignments(asgn);
+      setRoster(rst);
+    } catch (e) {
+      console.error('Error refreshing shifts:', e);
+    }
+  }, []);
+
   const loadData = useCallback(async () => {
     try {
       const [
@@ -212,12 +316,6 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         exp,
         qry,
         reimb,
-        inv,
-        vb,
-        vch,
-        txR,
-        gstR,
-        gstT,
         sal,
         ps,
         pr,
@@ -240,12 +338,6 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         expenseService.getAllExpenses(),
         mobileStorage.getQueries(),
         reimbursementService.getAllClaims(),
-        financeService.getInvoices(),
-        financeService.getVendorBills(),
-        financeService.getVouchers(),
-        financeService.getTaxRecords(),
-        financeService.getGstReturns(),
-        financeService.getGstTransactions(),
         payrollService.getSalaryStructures(),
         payrollService.getPayslips(),
         payrollService.getPayrollRuns(),
@@ -269,12 +361,6 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setExpenses(exp);
       setQueries(qry);
       setReimbursements(reimb);
-      setInvoices(inv);
-      setVendorBills(vb);
-      setVouchers(vch);
-      setTaxRecords(txR);
-      setGstReturns(gstR);
-      setGstTransactions(gstT);
       setSalaryStructures(sal);
       setPayslips(ps);
       setPayrollRuns(pr);
@@ -298,12 +384,12 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loadData();
   }, [loadData]);
 
-  const punchIn = async (
+  const punchIn = useCallback(async (
     location: string = 'Jaipur Corporate HQ',
     coords?: { latitude: number; longitude: number },
     punchSource?: string
   ) => {
-    const dept = (session as any)?.department || 'Geology & Mineral Exploration';
+    const dept = activeDepartment;
     const record = await attendanceService.punchIn(
       activeEmployeeId,
       activeEmployeeName,
@@ -312,17 +398,17 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       punchSource,
       coords
     );
-    await loadData();
+    await refreshAttendance();
     return record;
-  };
+  }, [activeEmployeeId, activeEmployeeName, activeDepartment, refreshAttendance]);
 
-  const punchOut = async () => {
+  const punchOut = useCallback(async () => {
     const record = await attendanceService.punchOut(activeEmployeeId);
-    await loadData();
+    await refreshAttendance();
     return record;
-  };
+  }, [activeEmployeeId, refreshAttendance]);
 
-  const submitCorrection = async (
+  const submitCorrection = useCallback(async (
     date: string,
     reqIn: string,
     reqOut: string,
@@ -330,7 +416,7 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     currIn?: string,
     currOut?: string
   ) => {
-    const dept = (session as any)?.department || 'Geology & Mineral Exploration';
+    const dept = activeDepartment;
     const corr = await attendanceService.submitCorrection(
       activeEmployeeId,
       activeEmployeeName,
@@ -342,20 +428,20 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       reqOut,
       reason
     );
-    await loadData();
+    await refreshAttendance();
     return corr;
-  };
+  }, [activeEmployeeId, activeEmployeeName, activeDepartment, refreshAttendance]);
 
-  const reviewCorrection = async (id: string, status: 'Approved' | 'Rejected', comment: string) => {
+  const reviewCorrection = useCallback(async (id: string, status: 'Approved' | 'Rejected', comment: string) => {
     await attendanceService.reviewCorrection(id, status, activeEmployeeName, comment);
-    await loadData();
-  };
+    await refreshAttendance();
+  }, [activeEmployeeName, refreshAttendance]);
 
-  const approveCorrection = async (id: string, hrRemarks?: string) => {
+  const approveCorrection = useCallback(async (id: string, hrRemarks?: string) => {
     await reviewCorrection(id, 'Approved', hrRemarks || 'Approved by HR');
-  };
+  }, [reviewCorrection]);
 
-  const applyLeave = async (
+  const applyLeave = useCallback(async (
     leaveType: string,
     startDate: string,
     endDate: string,
@@ -365,18 +451,18 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const req = await leaveService.applyLeave({
       employeeId: activeEmployeeId,
       employeeName: activeEmployeeName,
-      department: (session as any)?.department || 'Geology & Mineral Exploration',
+      department: activeDepartment,
       leaveType,
       startDate,
       endDate,
       reason,
       contactDuringLeave,
     });
-    await loadData();
+    await refreshLeaves();
     return req;
-  };
+  }, [activeEmployeeId, activeEmployeeName, activeDepartment, refreshLeaves]);
 
-  const reviewLeave = async (
+  const reviewLeave = useCallback(async (
     id: string,
     decision: 'Approved' | 'Partially Approved' | 'Rejected',
     comment: string,
@@ -390,11 +476,15 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       customApprovedDays,
       activeEmployeeId
     );
-    await loadData();
+    if (decision === 'Approved' || decision === 'Partially Approved') {
+      await Promise.all([refreshLeaves(), refreshAttendance()]);
+    } else {
+      await refreshLeaves();
+    }
     return res;
-  };
+  }, [activeEmployeeId, activeEmployeeName, refreshLeaves, refreshAttendance]);
 
-  const approveLeave = async (id: string, comment?: string) => {
+  const approveLeave = useCallback(async (id: string, comment?: string) => {
     await leaveService.reviewLeave(
       id,
       'Approved',
@@ -403,10 +493,10 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       undefined,
       activeEmployeeId
     );
-    await loadData();
-  };
+    await Promise.all([refreshLeaves(), refreshAttendance()]);
+  }, [activeEmployeeId, activeEmployeeName, refreshLeaves, refreshAttendance]);
 
-  const rejectLeave = async (id: string, reason: string) => {
+  const rejectLeave = useCallback(async (id: string, reason: string) => {
     await leaveService.reviewLeave(
       id,
       'Rejected',
@@ -415,431 +505,490 @@ export const HrmsProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       undefined,
       activeEmployeeId
     );
-    await loadData();
-  };
+    await refreshLeaves();
+  }, [activeEmployeeId, activeEmployeeName, refreshLeaves]);
 
-  const cancelLeave = async (id: string) => {
+  const cancelLeave = useCallback(async (id: string) => {
     const res = await leaveService.cancelLeave(id);
-    await loadData();
+    await refreshLeaves();
     return res;
-  };
+  }, [refreshLeaves]);
 
-  const submitExpense = async (data: any) => {
+  const submitExpense = useCallback(async (data: any) => {
     const exp = await expenseService.submitExpense({
       employeeId: activeEmployeeId,
       employeeName: activeEmployeeName,
-      department: (session as any)?.department || 'Geology & Mineral Exploration',
+      department: activeDepartment,
       ...data,
     });
-    await loadData();
+    await refreshExpenses();
     return exp;
-  };
+  }, [activeEmployeeId, activeEmployeeName, activeDepartment, refreshExpenses]);
 
-  const updateExpenseStatus = async (id: string, status: any, remarks: string, approvedAmount?: number) => {
+  const updateExpenseStatus = useCallback(async (id: string, status: any, remarks: string, approvedAmount?: number) => {
     const exp = await expenseService.updateExpenseStatus(id, status, remarks, approvedAmount);
-    await loadData();
+    await refreshExpenses();
     return exp;
-  };
+  }, [refreshExpenses]);
 
-  const reviewExpense = async (id: string, reviewData: any) => {
+  const reviewExpense = useCallback(async (id: string, reviewData: any) => {
     const exp = await expenseService.reviewExpense(id, {
       reviewerName: activeEmployeeName,
       ...reviewData,
     });
-    await loadData();
+    await refreshExpenses();
     return exp;
-  };
+  }, [activeEmployeeName, refreshExpenses]);
 
-  const raiseExpenseQuery = async (expenseId: string, message: string, raisedBy?: string) => {
+  const raiseExpenseQuery = useCallback(async (expenseId: string, message: string, raisedBy?: string) => {
     const q = await expenseService.raiseQuery(expenseId, activeEmployeeId, message, raisedBy || activeEmployeeName);
-    await loadData();
+    await refreshExpenses();
     return q;
-  };
+  }, [activeEmployeeId, activeEmployeeName, refreshExpenses]);
 
-  const resolveExpenseQuery = async (queryId: string, response: string) => {
+  const resolveExpenseQuery = useCallback(async (queryId: string, response: string) => {
     await expenseService.resolveQuery(queryId, response);
-    await loadData();
-  };
+    await refreshExpenses();
+  }, [refreshExpenses]);
 
-  const respondExpenseQuery = async (queryIdOrExpenseId: string, response: string) => {
+  const respondExpenseQuery = useCallback(async (queryIdOrExpenseId: string, response: string) => {
     await expenseService.respondQuery(queryIdOrExpenseId, response, activeEmployeeName);
-    await loadData();
-  };
+    await refreshExpenses();
+  }, [activeEmployeeName, refreshExpenses]);
 
-  const settleExpense = async (id: string, utrRefOrData: any, date?: string) => {
+  const settleExpense = useCallback(async (id: string, utrRefOrData: any, date?: string) => {
     const settlementPayload =
       typeof utrRefOrData === 'string'
         ? { settlementReference: utrRefOrData, settlementDate: date, settledBy: activeEmployeeName }
         : { settledBy: activeEmployeeName, ...utrRefOrData };
     const exp = await expenseService.settleExpense(id, settlementPayload);
-    await loadData();
+    await refreshExpenses();
     return exp;
-  };
+  }, [activeEmployeeName, refreshExpenses]);
 
-  const submitReimbursement = async (data: any) => {
+  const submitReimbursement = useCallback(async (data: any) => {
     const r = await reimbursementService.submitClaim({
       employeeId: activeEmployeeId,
       employeeName: activeEmployeeName,
-      department: (session as any)?.department || 'Geology & Mineral Exploration',
+      department: activeDepartment,
       ...data,
     });
-    await loadData();
+    await refreshReimbursements();
     return r;
-  };
+  }, [activeEmployeeId, activeEmployeeName, activeDepartment, refreshReimbursements]);
 
-  const updateReimbursementStatus = async (id: string, status: any, approvedAmount?: number) => {
+  const updateReimbursementStatus = useCallback(async (id: string, status: any, approvedAmount?: number) => {
     const r = await reimbursementService.updateClaimStatus(id, status, approvedAmount);
-    await loadData();
+    await refreshReimbursements();
     return r;
-  };
+  }, [refreshReimbursements]);
 
-  const reviewReimbursement = async (id: string, reviewData: any) => {
+  const reviewReimbursement = useCallback(async (id: string, reviewData: any) => {
     const r = await reimbursementService.reviewClaim(id, {
       reviewerName: activeEmployeeName,
       ...reviewData,
     });
-    await loadData();
+    await refreshReimbursements();
     return r;
-  };
+  }, [activeEmployeeName, refreshReimbursements]);
 
-  const raiseReimbursementQuery = async (claimId: string, message: string) => {
+  const raiseReimbursementQuery = useCallback(async (claimId: string, message: string) => {
     const r = await reimbursementService.raiseQuery(claimId, message, activeEmployeeName);
-    await loadData();
+    await refreshReimbursements();
     return r;
-  };
+  }, [activeEmployeeName, refreshReimbursements]);
 
-  const respondReimbursementQuery = async (claimId: string, response: string) => {
+  const respondReimbursementQuery = useCallback(async (claimId: string, response: string) => {
     const r = await reimbursementService.respondQuery(claimId, response, activeEmployeeName);
-    await loadData();
+    await refreshReimbursements();
     return r;
-  };
+  }, [activeEmployeeName, refreshReimbursements]);
 
-  const settleReimbursement = async (id: string, utrRefOrData: any) => {
+  const settleReimbursement = useCallback(async (id: string, utrRefOrData: any) => {
     const settlementPayload =
       typeof utrRefOrData === 'string'
         ? { settlementReference: utrRefOrData, settledBy: activeEmployeeName }
         : { settledBy: activeEmployeeName, ...utrRefOrData };
     const r = await reimbursementService.settleClaim(id, settlementPayload);
-    await loadData();
+    await refreshReimbursements();
     return r;
-  };
+  }, [activeEmployeeName, refreshReimbursements]);
 
-  const createInvoice = async (data: any) => {
-    const inv = await financeService.createInvoice(data);
-    await loadData();
-    return inv;
-  };
-
-  const updateInvoiceStatus = async (id: string, status: any, paidAmount?: number, paymentMode?: string) => {
-    const inv = await financeService.updateInvoiceStatus(id, status, paidAmount, paymentMode);
-    await loadData();
-    return inv;
-  };
-
-  const recordVendorBill = async (data: any) => {
-    const b = await financeService.recordVendorBill(data);
-    await loadData();
-    return b;
-  };
-
-  const updateVendorBillStatus = async (id: string, status: any, paymentDetails?: any) => {
-    const b = await financeService.updateVendorBillStatus(id, status, paymentDetails);
-    await loadData();
-    return b;
-  };
-
-  const createVoucher = async (data: any) => {
-    const v = await financeService.createVoucher(data);
-    await loadData();
-    return v;
-  };
-
-  const updateTaxStatus = async (id: string, status: 'Deposited' | 'Pending Deposit', challanDetails?: any) => {
-    const t = await financeService.updateTaxStatus(id, status, challanDetails);
-    await loadData();
-    return t;
-  };
-
-  const getOverviewMetrics = async () => {
-    return financeService.getOverviewMetrics();
-  };
-
-  const createEmployee = async (data: any) => {
+  const createEmployee = useCallback(async (data: any) => {
     const emp = await employeeService.createEmployee(data);
-    await loadData();
+    await Promise.all([refreshEmployees(), refreshLeaves(), refreshPayroll()]);
     return emp;
-  };
+  }, [refreshEmployees, refreshLeaves, refreshPayroll]);
 
-  const updateEmployee = async (id: string, data: any) => {
+  const updateEmployee = useCallback(async (id: string, data: any) => {
     const emp = await employeeService.updateEmployee(id, data);
-    await loadData();
+    await refreshEmployees();
     return emp;
-  };
+  }, [refreshEmployees]);
 
-  const deleteEmployee = async (id: string) => {
+  const deleteEmployee = useCallback(async (id: string) => {
     await employeeService.deleteEmployee(id);
-    await loadData();
-  };
+    await refreshEmployees();
+  }, [refreshEmployees]);
 
-  const createDepartment = async (data: any) => {
+  const createDepartment = useCallback(async (data: any) => {
     const dept = await organizationService.createDepartment(data);
-    await loadData();
+    await refreshOrganization();
     return dept;
-  };
+  }, [refreshOrganization]);
 
-  const updateDepartment = async (id: string, data: any) => {
+  const updateDepartment = useCallback(async (id: string, data: any) => {
     const dept = await organizationService.updateDepartment(id, data);
-    await loadData();
+    await refreshOrganization();
     return dept;
-  };
+  }, [refreshOrganization]);
 
-  const deleteDepartment = async (id: string) => {
+  const deleteDepartment = useCallback(async (id: string) => {
     await organizationService.deleteDepartment(id);
-    await loadData();
-  };
+    await refreshOrganization();
+  }, [refreshOrganization]);
 
-  const createDesignation = async (data: any) => {
+  const createDesignation = useCallback(async (data: any) => {
     const des = await organizationService.createDesignation(data);
-    await loadData();
+    await refreshOrganization();
     return des;
-  };
+  }, [refreshOrganization]);
 
-  const updateDesignation = async (id: string, data: any) => {
+  const updateDesignation = useCallback(async (id: string, data: any) => {
     const des = await organizationService.updateDesignation(id, data);
-    await loadData();
+    await refreshOrganization();
     return des;
-  };
+  }, [refreshOrganization]);
 
-  const saveDesignation = async (data: any) => {
+  const saveDesignation = useCallback(async (data: any) => {
     if (data.id) {
       return updateDesignation(data.id, data);
     }
     return createDesignation(data);
-  };
+  }, [updateDesignation, createDesignation]);
 
-  const deleteDesignation = async (id: string) => {
+  const deleteDesignation = useCallback(async (id: string) => {
     await organizationService.deleteDesignation(id);
-    await loadData();
-  };
+    await refreshOrganization();
+  }, [refreshOrganization]);
 
-  const getOrganizationHierarchy = async () => {
+  const getOrganizationHierarchy = useCallback(async () => {
     return organizationService.getOrganizationHierarchy();
-  };
+  }, []);
 
-  const createAppraisal = async (data: any) => {
+  const createAppraisal = useCallback(async (data: any) => {
     const appr = await performanceService.createAppraisal(data);
-    await loadData();
+    await refreshAppraisals();
     return appr;
-  };
+  }, [refreshAppraisals]);
 
-  const initiateExit = async (data: any) => {
+  const initiateExit = useCallback(async (data: any) => {
     const ext = await exitService.initiateExit(data);
-    await loadData();
+    await refreshExits();
     return ext;
-  };
+  }, [refreshExits]);
 
-  const updateClearance = async (
+  const updateClearance = useCallback(async (
     exitId: string,
     department: string,
     status: 'Pending' | 'Approved' | 'Rejected',
     notes: string
   ) => {
     const ext = await exitService.updateClearance(exitId, department, status, notes);
-    await loadData();
+    await refreshExits();
     return ext;
-  };
+  }, [refreshExits]);
 
-  const finalizeFnF = async (exitId: string, bankReference?: string) => {
+  const finalizeFnF = useCallback(async (exitId: string, bankReference?: string) => {
     const ext = await exitService.finalizeFnF(exitId, bankReference);
-    await loadData();
+    await Promise.all([refreshExits(), refreshEmployees()]);
     return ext;
-  };
+  }, [refreshExits, refreshEmployees]);
 
-  const runMonthlyPayroll = async (month: string, year: number) => {
+  const runMonthlyPayroll = useCallback(async (month: string, year: number) => {
     const ps = await payrollService.runMonthlyPayroll(month, year);
-    await loadData();
+    await refreshPayroll();
     return ps;
-  };
+  }, [refreshPayroll]);
 
-  const processPayroll = async (monthKey: string, monthLabel?: string) => {
+  const processPayroll = useCallback(async (monthKey: string, monthLabel?: string) => {
     const res = await payrollService.processPayroll(monthKey, monthLabel, activeEmployeeName);
-    await loadData();
+    await refreshPayroll();
     return res;
-  };
+  }, [activeEmployeeName, refreshPayroll]);
 
-  const updateSalaryStructure = async (id: string, data: Partial<SalaryStructure>) => {
+  const updateSalaryStructure = useCallback(async (id: string, data: Partial<SalaryStructure>) => {
     const res = await payrollService.updateSalaryStructure(id, data);
-    await loadData();
+    await refreshPayroll();
     return res;
-  };
+  }, [refreshPayroll]);
 
-  const createShift = async (data: any) => {
+  const createShift = useCallback(async (data: any) => {
     const s = await shiftService.createShift(data);
-    await loadData();
+    await refreshShifts();
     return s;
-  };
+  }, [refreshShifts]);
 
-  const updateShift = async (id: string, data: any) => {
+  const updateShift = useCallback(async (id: string, data: any) => {
     const s = await shiftService.updateShift(id, data);
-    await loadData();
+    await refreshShifts();
     return s;
-  };
+  }, [refreshShifts]);
 
-  const deleteShift = async (id: string) => {
+  const deleteShift = useCallback(async (id: string) => {
     await shiftService.deleteShift(id);
-    await loadData();
-  };
+    await refreshShifts();
+  }, [refreshShifts]);
 
-  const toggleShiftStatus = async (id: string) => {
+  const toggleShiftStatus = useCallback(async (id: string) => {
     const s = await shiftService.toggleShiftStatus(id);
-    await loadData();
+    await refreshShifts();
     return s;
-  };
+  }, [refreshShifts]);
 
-  const assignShift = async (data: any) => {
+  const assignShift = useCallback(async (data: any) => {
     const a = await shiftService.assignShift(data);
-    await loadData();
+    await refreshShifts();
     return a;
-  };
+  }, [refreshShifts]);
 
-  const saveRosterEntry = async (entry: any) => {
+  const saveRosterEntry = useCallback(async (entry: any) => {
     const r = await shiftService.saveRosterEntry(entry);
-    await loadData();
+    await refreshShifts();
     return r;
-  };
+  }, [refreshShifts]);
+
+  const uploadHrDocument = useCallback(async (input: UploadHrDocInput) => {
+    const doc = await hrmsDocumentService.uploadHrDocument(input);
+    setHrDocuments((prev) => [doc, ...prev]);
+    return doc;
+  }, []);
+
+  const deleteHrDocument = useCallback(async (id: string) => {
+    const ok = await hrmsDocumentService.deleteHrDocument(id);
+    if (ok) {
+      setHrDocuments((prev) => prev.filter((d) => d.id !== id));
+    }
+    return ok;
+  }, []);
+
+  const uploadEmployeeDocument = useCallback(async (input: UploadEmployeeDocInput) => {
+    const doc = await hrmsDocumentService.uploadEmployeeDocument(input);
+    const current = await hrmsDocumentService.getEmployeeDocuments();
+    setEmployeeDocuments(current);
+    return doc;
+  }, []);
+
+  const replaceEmployeeDocument = useCallback(async (existingDocId: string, input: Partial<UploadEmployeeDocInput>) => {
+    const doc = await hrmsDocumentService.replaceEmployeeDocument(existingDocId, input);
+    const current = await hrmsDocumentService.getEmployeeDocuments();
+    setEmployeeDocuments(current);
+    return doc;
+  }, []);
+
+  const verifyEmployeeDocument = useCallback(async (docId: string) => {
+    const doc = await hrmsDocumentService.verifyEmployeeDocument(docId);
+    setEmployeeDocuments((prev) => prev.map((d) => (d.id === docId ? doc : d)));
+    return doc;
+  }, []);
+
+  const deleteEmployeeDocument = useCallback(async (id: string) => {
+    const ok = await hrmsDocumentService.deleteEmployeeDocument(id);
+    if (ok) {
+      setEmployeeDocuments((prev) => prev.filter((d) => d.id !== id));
+    }
+    return ok;
+  }, []);
+
+  const refreshDocuments = useCallback(async () => {
+    const [hDocs, eDocs] = await Promise.all([
+      hrmsDocumentService.getHrDocuments(),
+      hrmsDocumentService.getEmployeeDocuments(),
+    ]);
+    setHrDocuments(hDocs);
+    setEmployeeDocuments(eDocs);
+  }, []);
+
+  const value = useMemo<HrmsContextType>(() => ({
+    employees,
+    attendance,
+    todayAttendance,
+    corrections,
+    leaveBalances,
+    leaves,
+    expenses,
+    queries,
+    reimbursements,
+    salaryStructures,
+    payslips,
+    payrollRuns,
+    departments,
+    designations,
+    shifts,
+    shiftAssignments,
+    roster,
+    appraisals,
+    exits,
+    isLoading,
+    refreshHrms: loadData,
+    refreshAttendance,
+    refreshLeaves,
+    refreshExpenses,
+    refreshReimbursements,
+    refreshEmployees,
+    refreshOrganization,
+    refreshAppraisals,
+    refreshExits,
+    refreshPayroll,
+    refreshShifts,
+    punchIn,
+    punchOut,
+    submitCorrection,
+    reviewCorrection,
+    approveCorrection,
+    applyLeave,
+    reviewLeave,
+    approveLeave,
+    rejectLeave,
+    cancelLeave,
+    submitExpense,
+    updateExpenseStatus,
+    reviewExpense,
+    raiseExpenseQuery,
+    resolveExpenseQuery,
+    respondExpenseQuery,
+    settleExpense,
+    submitReimbursement,
+    updateReimbursementStatus,
+    reviewReimbursement,
+    raiseReimbursementQuery,
+    respondReimbursementQuery,
+    settleReimbursement,
+    createEmployee,
+    updateEmployee,
+    deleteEmployee,
+    createDepartment,
+    updateDepartment,
+    deleteDepartment,
+    createDesignation,
+    updateDesignation,
+    saveDesignation,
+    deleteDesignation,
+    getOrganizationHierarchy,
+    createAppraisal,
+    initiateExit,
+    updateClearance,
+    finalizeFnF,
+    runMonthlyPayroll,
+    processPayroll,
+    updateSalaryStructure,
+    createShift,
+    updateShift,
+    deleteShift,
+    toggleShiftStatus,
+    assignShift,
+    saveRosterEntry,
+    hrDocuments,
+    employeeDocuments,
+    uploadHrDocument,
+    deleteHrDocument,
+    uploadEmployeeDocument,
+    replaceEmployeeDocument,
+    verifyEmployeeDocument,
+    deleteEmployeeDocument,
+    refreshDocuments,
+  }), [
+    employees,
+    attendance,
+    todayAttendance,
+    corrections,
+    leaveBalances,
+    leaves,
+    expenses,
+    queries,
+    reimbursements,
+    salaryStructures,
+    payslips,
+    payrollRuns,
+    departments,
+    designations,
+    shifts,
+    shiftAssignments,
+    roster,
+    appraisals,
+    exits,
+    isLoading,
+    loadData,
+    refreshAttendance,
+    refreshLeaves,
+    refreshExpenses,
+    refreshReimbursements,
+    refreshEmployees,
+    refreshOrganization,
+    refreshAppraisals,
+    refreshExits,
+    refreshPayroll,
+    refreshShifts,
+    punchIn,
+    punchOut,
+    submitCorrection,
+    reviewCorrection,
+    approveCorrection,
+    applyLeave,
+    reviewLeave,
+    approveLeave,
+    rejectLeave,
+    cancelLeave,
+    submitExpense,
+    updateExpenseStatus,
+    reviewExpense,
+    raiseExpenseQuery,
+    resolveExpenseQuery,
+    respondExpenseQuery,
+    settleExpense,
+    submitReimbursement,
+    updateReimbursementStatus,
+    reviewReimbursement,
+    raiseReimbursementQuery,
+    respondReimbursementQuery,
+    settleReimbursement,
+    createEmployee,
+    updateEmployee,
+    deleteEmployee,
+    createDepartment,
+    updateDepartment,
+    deleteDepartment,
+    createDesignation,
+    updateDesignation,
+    saveDesignation,
+    deleteDesignation,
+    getOrganizationHierarchy,
+    createAppraisal,
+    initiateExit,
+    updateClearance,
+    finalizeFnF,
+    runMonthlyPayroll,
+    processPayroll,
+    updateSalaryStructure,
+    createShift,
+    updateShift,
+    deleteShift,
+    toggleShiftStatus,
+    assignShift,
+    saveRosterEntry,
+    hrDocuments,
+    employeeDocuments,
+    uploadHrDocument,
+    deleteHrDocument,
+    uploadEmployeeDocument,
+    replaceEmployeeDocument,
+    verifyEmployeeDocument,
+    deleteEmployeeDocument,
+    refreshDocuments,
+  ]);
 
   return (
-    <HrmsContext.Provider
-      value={{
-        employees,
-        attendance,
-        todayAttendance,
-        corrections,
-        leaveBalances,
-        leaves,
-        expenses,
-        queries,
-        reimbursements,
-        invoices,
-        vendorBills,
-        vouchers,
-        taxRecords,
-        gstReturns,
-        gstTransactions,
-        salaryStructures,
-        payslips,
-        payrollRuns,
-        departments,
-        designations,
-        shifts,
-        shiftAssignments,
-        roster,
-        appraisals,
-        exits,
-        isLoading,
-        refreshHrms: loadData,
-        punchIn,
-        punchOut,
-        submitCorrection,
-        reviewCorrection,
-        approveCorrection,
-        applyLeave,
-        reviewLeave,
-        approveLeave,
-        rejectLeave,
-        cancelLeave,
-        submitExpense,
-        updateExpenseStatus,
-        reviewExpense,
-        raiseExpenseQuery,
-        resolveExpenseQuery,
-        respondExpenseQuery,
-        settleExpense,
-        submitReimbursement,
-        updateReimbursementStatus,
-        reviewReimbursement,
-        raiseReimbursementQuery,
-        respondReimbursementQuery,
-        settleReimbursement,
-        createInvoice,
-        updateInvoiceStatus,
-        recordVendorBill,
-        updateVendorBillStatus,
-        createVoucher,
-        updateTaxStatus,
-        getOverviewMetrics,
-        createEmployee,
-        updateEmployee,
-        deleteEmployee,
-        createDepartment,
-        updateDepartment,
-        deleteDepartment,
-        createDesignation,
-        updateDesignation,
-        saveDesignation,
-        deleteDesignation,
-        getOrganizationHierarchy,
-        createAppraisal,
-        initiateExit,
-        updateClearance,
-        finalizeFnF,
-        runMonthlyPayroll,
-        processPayroll,
-        updateSalaryStructure,
-        createShift,
-        updateShift,
-        deleteShift,
-        toggleShiftStatus,
-        assignShift,
-        saveRosterEntry,
-        hrDocuments,
-        employeeDocuments,
-        uploadHrDocument: async (input: UploadHrDocInput) => {
-          const doc = await hrmsDocumentService.uploadHrDocument(input);
-          setHrDocuments((prev) => [doc, ...prev]);
-          return doc;
-        },
-        deleteHrDocument: async (id: string) => {
-          const ok = await hrmsDocumentService.deleteHrDocument(id);
-          if (ok) {
-            setHrDocuments((prev) => prev.filter((d) => d.id !== id));
-          }
-          return ok;
-        },
-        uploadEmployeeDocument: async (input: UploadEmployeeDocInput) => {
-          const doc = await hrmsDocumentService.uploadEmployeeDocument(input);
-          const current = await hrmsDocumentService.getEmployeeDocuments();
-          setEmployeeDocuments(current);
-          return doc;
-        },
-        replaceEmployeeDocument: async (existingDocId: string, input: Partial<UploadEmployeeDocInput>) => {
-          const doc = await hrmsDocumentService.replaceEmployeeDocument(existingDocId, input);
-          const current = await hrmsDocumentService.getEmployeeDocuments();
-          setEmployeeDocuments(current);
-          return doc;
-        },
-        verifyEmployeeDocument: async (docId: string) => {
-          const doc = await hrmsDocumentService.verifyEmployeeDocument(docId);
-          setEmployeeDocuments((prev) => prev.map((d) => (d.id === docId ? doc : d)));
-          return doc;
-        },
-        deleteEmployeeDocument: async (id: string) => {
-          const ok = await hrmsDocumentService.deleteEmployeeDocument(id);
-          if (ok) {
-            setEmployeeDocuments((prev) => prev.filter((d) => d.id !== id));
-          }
-          return ok;
-        },
-        refreshDocuments: async () => {
-          const [hDocs, eDocs] = await Promise.all([
-            hrmsDocumentService.getHrDocuments(),
-            hrmsDocumentService.getEmployeeDocuments(),
-          ]);
-          setHrDocuments(hDocs);
-          setEmployeeDocuments(eDocs);
-        },
-      }}
-    >
+    <HrmsContext.Provider value={value}>
       {children}
     </HrmsContext.Provider>
   );

@@ -1,11 +1,9 @@
 import { mobileStorage } from '../storage';
-import { LeaveRequest, LeaveBalance, AttendanceRecord, AppNotification } from '../types';
+import { LeaveRequest, LeaveBalance, AppNotification } from '../types';
 import { LEAVE_POLICIES, LEAVE_TYPE_CONFIGS } from '../constants';
 import { countWorkingDays, getWorkingDates } from '../utils/workingDays';
+import { isValidIndianMobile } from '../utils';
 
-/**
- * Shared helper to check if a proposed date range conflicts with an existing leave request.
- */
 export function checkDateConflict(
   existingRequests: LeaveRequest[],
   employeeId: string,
@@ -39,23 +37,16 @@ export interface ApplyLeaveInput {
 }
 
 export class LeaveService {
-  /**
-   * Calculate working days excluding Saturdays, Sundays, and 2026 National Holidays
-   */
   calculateWorkingDays(startDate: string, endDate: string): number {
     return countWorkingDays(startDate, endDate);
   }
 
-  /**
-   * Dynamically compute quota ledger for an employee based on initial allocations and real requests
-   */
   async getBalances(employeeId: string, employeeName?: string): Promise<LeaveBalance[]> {
     const requests = await mobileStorage.getLeaves();
     const quotas = LEAVE_TYPE_CONFIGS;
 
     const empRequests = requests.filter((r) => r.employeeId === employeeId);
     const balances: LeaveBalance[] = quotas.map((q) => {
-      // Approved used days: from Approved or Partially Approved requests
       const used = empRequests
         .filter(
           (r) =>
@@ -64,7 +55,6 @@ export class LeaveService {
         )
         .reduce((sum, r) => sum + (Number(r.approvedDays ?? r.days) || 0), 0);
 
-      // Pending committed days: from Pending requests
       const pending = empRequests
         .filter(
           (r) =>
@@ -95,9 +85,6 @@ export class LeaveService {
     return balances;
   }
 
-  /**
-   * Retrieve all employee balances across the organization
-   */
   async getAllBalances(): Promise<Record<string, LeaveBalance[]>> {
     const employees = await mobileStorage.getEmployees();
     const result: Record<string, LeaveBalance[]> = {};
@@ -107,9 +94,6 @@ export class LeaveService {
     return result;
   }
 
-  /**
-   * Retrieve all leave applications, optionally filtered for a single employee
-   */
   async getAllRequests(employeeId?: string): Promise<LeaveRequest[]> {
     const leaves = await mobileStorage.getLeaves();
     if (employeeId) {
@@ -118,13 +102,9 @@ export class LeaveService {
     return leaves;
   }
 
-  /**
-   * Submit a new leave application with complete business policy and quota validation
-   */
   async applyLeave(data: ApplyLeaveInput): Promise<LeaveRequest> {
     const { employeeId, employeeName, department, leaveType, startDate, endDate, reason, contactDuringLeave } = data;
 
-    // 1. Date chronology validation
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (isNaN(start.getTime()) || isNaN(end.getTime())) {
@@ -134,18 +114,15 @@ export class LeaveService {
       throw new Error('End date cannot be earlier than start date.');
     }
 
-    // 2. Working days calculation (excluding weekends and public holidays)
     const calculatedDays = countWorkingDays(startDate, endDate);
     if (calculatedDays <= 0) {
       throw new Error('Selected date range contains 0 working days. Weekends and national holidays do not consume leave balance.');
     }
 
-    // 3. Maximum single request limit (30 days unless Maternity / Paternity)
     if (!leaveType.includes('Maternity') && calculatedDays > 30) {
       throw new Error('Single leave application cannot exceed 30 working days. Please submit in separate phases.');
     }
 
-    // 4. Policy limits for Casual Leave (CL <= 3 consecutive working days)
     if (
       (leaveType.includes('Casual') || leaveType === 'CL') &&
       calculatedDays > LEAVE_POLICIES.maxConsecutiveCasualLeave
@@ -155,7 +132,6 @@ export class LeaveService {
       );
     }
 
-    // 5. Quota balance limit check (considering both used and pending commitments)
     const balances = await this.getBalances(employeeId, employeeName);
     const currentBalance = balances.find(
       (b) => b.leaveType === leaveType || leaveType.startsWith(b.leaveType.split('(')[0].trim())
@@ -169,7 +145,6 @@ export class LeaveService {
       }
     }
 
-    // 6. Overlapping request check
     const existingRequests = await mobileStorage.getLeaves();
     const overlapping = checkDateConflict(existingRequests, employeeId, startDate, endDate);
     if (overlapping) {
@@ -178,7 +153,6 @@ export class LeaveService {
       );
     }
 
-    // 7. Reason & phone validation
     if (!reason || reason.trim().length < 10) {
       throw new Error('Please provide a substantive justification (minimum 10 characters).');
     }
@@ -187,7 +161,7 @@ export class LeaveService {
     }
     if (
       contactDuringLeave &&
-      !/^(\+91[-\s]?)?[6-9]\d{9}$/.test(contactDuringLeave.trim())
+      !isValidIndianMobile(contactDuringLeave, true)
     ) {
       throw new Error('Please provide a valid 10-digit Indian emergency contact phone number.');
     }
@@ -215,10 +189,8 @@ export class LeaveService {
     existingRequests.unshift(newReq);
     await mobileStorage.setLeaves(existingRequests);
 
-    // Refresh employee balance state
     await this.getBalances(employeeId, employeeName);
 
-    // Notify HR
     await this.dispatchNotification(
       'New Leave Request Submitted',
       `${employeeName} submitted a new request for ${calculatedDays} working day(s) of ${leaveType}.`,
@@ -228,9 +200,6 @@ export class LeaveService {
     return newReq;
   }
 
-  /**
-   * Adjudicate a leave request: Full Approval, Partial Approval, or Rejection
-   */
   async reviewLeave(
     id: string,
     decision: 'Approved' | 'Partially Approved' | 'Rejected',
@@ -243,12 +212,10 @@ export class LeaveService {
     const req = list.find((r) => r.id === id);
     if (!req) throw new Error('Leave request not found.');
 
-    // 4-Eyes Principle self-review guard
     if (approverEmployeeId && approverEmployeeId === req.employeeId) {
       throw new Error('4-Eyes Principle Violation: You cannot adjudicate your own leave application.');
     }
 
-    // Rejection rule: Mandatory rejection reason
     if (decision === 'Rejected' && (!approverComment || !approverComment.trim())) {
       throw new Error('A formal rejection reason is mandatory when declining an employee leave request.');
     }
@@ -295,17 +262,14 @@ export class LeaveService {
 
     await mobileStorage.setLeaves(list);
 
-    // Recalculate balance for this employee
     await this.getBalances(req.employeeId, req.employeeName);
 
-    // Sync Attendance records
     if (finalStatus === 'Approved' || finalStatus === 'Partially Approved') {
       await this.syncAttendanceForLeave(req, 'apply');
     } else {
       await this.syncAttendanceForLeave(req, 'remove');
     }
 
-    // Notification to employee
     const statusMsg =
       finalStatus === 'Partially Approved'
         ? `partially approved (${finalApprovedDays} of ${requested} days approved, ${finalRejectedDays} days rejected)`
@@ -320,9 +284,6 @@ export class LeaveService {
     return true;
   }
 
-  /**
-   * Cancel or withdraw a pending/approved leave application
-   */
   async cancelLeave(id: string): Promise<boolean> {
     const list = await mobileStorage.getLeaves();
     const req = list.find((r) => r.id === id);
@@ -332,10 +293,8 @@ export class LeaveService {
     req.status = 'Cancelled';
     await mobileStorage.setLeaves(list);
 
-    // Recompute balance (approved days refund is automatically handled because used sums Approved/PartiallyApproved)
     await this.getBalances(req.employeeId, req.employeeName);
 
-    // Revert attendance if it was previously approved
     if (prevStatus === 'Approved' || prevStatus === 'Partially Approved') {
       await this.syncAttendanceForLeave(req, 'remove');
     }
@@ -349,9 +308,6 @@ export class LeaveService {
     return true;
   }
 
-  /**
-   * Synchronize attendance records when leave is approved, rejected, or cancelled
-   */
   async syncAttendanceForLeave(req: LeaveRequest, action: 'apply' | 'remove'): Promise<void> {
     try {
       const workingDates = getWorkingDates(req.startDate, req.endDate);
@@ -398,7 +354,6 @@ export class LeaveService {
           }
         });
       } else {
-        // Revert leave records
         approvedDates.forEach((dateStr) => {
           const idx = attendanceList.findIndex(
             (a) =>
@@ -428,9 +383,6 @@ export class LeaveService {
     }
   }
 
-  /**
-   * Helper to dispatch system notifications
-   */
   private async dispatchNotification(
     title: string,
     message: string,
@@ -453,12 +405,10 @@ export class LeaveService {
     }
   }
 
-  // Backward compatibility alias for approveLeave
   async approveLeave(id: string, approverName: string = 'Authorized Approver', comment: string = 'Approved'): Promise<void> {
     await this.reviewLeave(id, 'Approved', approverName, comment);
   }
 
-  // Backward compatibility alias for rejectLeave
   async rejectLeave(id: string, rejectionReason: string, approverName: string = 'Authorized Approver'): Promise<void> {
     await this.reviewLeave(id, 'Rejected', approverName, rejectionReason);
   }

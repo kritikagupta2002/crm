@@ -28,6 +28,7 @@ import {
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { isValidPan, isValidGstin } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import {
   WORK_CATEGORIES,
@@ -35,8 +36,6 @@ import {
   LEGAL_STATUS,
   PREFERENCE_CATEGORIES,
   STATES,
-  validateApplication,
-  VENDOR_DOCS,
 } from '../../constants/vendor';
 
 interface VendorRegisterScreenProps {
@@ -51,13 +50,11 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [successAppId, setSuccessAppId] = useState<string | null>(null);
 
-  // Tracking tab state
   const [trackId, setTrackId] = useState('');
   const [trackMobile, setTrackMobile] = useState('');
   const [trackedApp, setTrackedApp] = useState<any | null>(null);
   const [trackError, setTrackError] = useState('');
 
-  // Step 1: Firm Info
   const [firmName, setFirmName] = useState('');
   const [companyType, setCompanyType] = useState('Private Limited');
   const [regNo, setRegNo] = useState('');
@@ -67,37 +64,31 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
   const [preferenceCategory, setPreferenceCategory] = useState('Micro & Small Enterprise (MSE)');
   const [preferenceNo, setPreferenceNo] = useState('');
 
-  // Step 2: Contact Person
   const [contactTitle, setContactTitle] = useState('Mr.');
   const [contactName, setContactName] = useState('');
   const [contactDesignation, setContactDesignation] = useState('Managing Director');
   const [contactMobile, setContactMobile] = useState('');
   const [contactEmail, setContactEmail] = useState('');
 
-  // Step 3: Address
   const [addressLine, setAddressLine] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('Rajasthan');
   const [pincode, setPincode] = useState('');
 
-  // Step 4: Work Categories
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['Diamond Core Drilling (Surface / Underground)']);
   const [experienceYears, setExperienceYears] = useState('5');
   const [turnover, setTurnover] = useState('25000000');
 
-  // Step 5: Tax & Statutory Compliance
   const [pan, setPan] = useState('');
   const [gstRegistered, setGstRegistered] = useState(true);
   const [gstin, setGstin] = useState('');
 
-  // Step 6: Bank Account
   const [bankName, setBankName] = useState('State Bank of India');
   const [branch, setBranch] = useState('Commercial Branch, Jaipur');
   const [accountNo, setAccountNo] = useState('');
   const [confirmAccountNo, setConfirmAccountNo] = useState('');
   const [ifsc, setIfsc] = useState('');
 
-  // Step 7: Documents Attached
   const [attachedDocs, setAttachedDocs] = useState<Array<{ id: string; kind: string; name: string; size: number }>>([
     { id: 'doc-1', kind: 'PAN Card Copy', name: 'PAN_Card_Attested.pdf', size: 1200000 },
     { id: 'doc-2', kind: 'GST Registration Certificate', name: 'GST_Certificate_Form_REG06.pdf', size: 1400000 },
@@ -151,13 +142,13 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
       setStep(5);
     } else if (step === 5) {
       const cleanPan = pan.trim().toUpperCase();
-      if (!cleanPan || !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(cleanPan)) {
+      if (!cleanPan || !isValidPan(cleanPan)) {
         setErrors(['Enter a valid 10-character alphanumeric PAN (e.g. ABCDE1234F).']);
         return;
       }
       if (gstRegistered) {
         const cleanGst = gstin.trim().toUpperCase();
-        if (!cleanGst || !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(cleanGst)) {
+        if (!cleanGst || !isValidGstin(cleanGst)) {
           setErrors(['Enter a valid 15-character GSTIN (e.g. 08ABCDE1234F1Z5).']);
           return;
         }
@@ -327,7 +318,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
         />
       }
     >
-      {/* Mode Switcher */}
       <View style={styles.modeContainer}>
         <TouchableOpacity
           style={[styles.modeBtn, mode === 'register' && styles.modeBtnActive]}
@@ -434,9 +424,7 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
           )}
         </View>
       ) : (
-        /* Multi-Step Wizard */
         <View style={styles.wizardSection}>
-          {/* Stepper Header */}
           <View style={styles.stepperWrap}>
             {[1, 2, 3, 4, 5, 6, 7].map((s) => (
               <View key={s} style={styles.stepIndicatorCol}>
@@ -482,7 +470,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </View>
           )}
 
-          {/* STEP 1: Firm Info */}
           {step === 1 && (
             <Card style={styles.card}>
               <Text style={styles.stepHeading}>Step 1: Legal Entity & Enterprise</Text>
@@ -543,7 +530,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </Card>
           )}
 
-          {/* STEP 2: Contact Info */}
           {step === 2 && (
             <Card style={styles.card}>
               <Text style={styles.stepHeading}>Step 2: Key Personnel & Communications</Text>
@@ -590,7 +576,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </Card>
           )}
 
-          {/* STEP 3: Address */}
           {step === 3 && (
             <Card style={styles.card}>
               <Text style={styles.stepHeading}>Step 3: Registered Office Address</Text>
@@ -635,7 +620,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </Card>
           )}
 
-          {/* STEP 4: Work Categories */}
           {step === 4 && (
             <Card style={styles.card}>
               <Text style={styles.stepHeading}>Step 4: Specialized Work Capabilities</Text>
@@ -663,7 +647,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </Card>
           )}
 
-          {/* STEP 5: Tax & Statutory Compliance */}
           {step === 5 && (
             <Card style={styles.card}>
               <Text style={styles.stepHeading}>Step 5: Statutory Tax Identification</Text>
@@ -704,7 +687,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </Card>
           )}
 
-          {/* STEP 6: Bank Account */}
           {step === 6 && (
             <Card style={styles.card}>
               <Text style={styles.stepHeading}>Step 6: Bank Settlement Details</Text>
@@ -762,7 +744,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </Card>
           )}
 
-          {/* STEP 7: Review & Documents */}
           {step === 7 && (
             <Card style={styles.card}>
               <Text style={styles.stepHeading}>Step 7: Verification & Declaration</Text>
@@ -795,7 +776,6 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
             </Card>
           )}
 
-          {/* Stepper Navigation Buttons */}
           <View style={styles.navRow}>
             {step > 1 && (
               <Button

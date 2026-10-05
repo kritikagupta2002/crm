@@ -47,7 +47,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
   const [selectedProject, setSelectedProject] = useState('all');
   const [expandedEmpId, setExpandedEmpId] = useState<string | null>(null);
 
-  // Month stepping
   const months = ['August 2026', 'September 2026', 'October 2026'];
   const handleMonthStep = (dir: number) => {
     const idx = months.indexOf(currentMonth);
@@ -59,7 +58,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
     }
   };
 
-  // Strict Single-Employee Data Isolation: Employee only sees themselves!
   const visibleEmployees = useMemo(() => {
     if (isEmployee) {
       const self = employees.filter((e) => e.employeeId === activeEmpId);
@@ -68,7 +66,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
     return employees;
   }, [isEmployee, activeEmpId, employees]);
 
-  // Filtered employees for HR
   const filteredEmployees = useMemo(() => {
     return visibleEmployees.filter((emp) => {
       if (isHrOrAdmin) {
@@ -88,25 +85,19 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
 
   const days = Array.from({ length: 30 }, (_, i) => i + 1);
 
-  // Helper to determine cell status for day
   const getDayStatus = (empIndex: number, day: number) => {
-    // Sundays (6, 13, 20, 27)
     if (day % 7 === 6) {
       return { code: 'WO', label: 'Weekly Off', bg: '#F1F5F9', text: '#64748B' };
     }
-    // Specific leave pattern from web source
     if (empIndex === 1 && (day === 18 || day === 19)) {
       return { code: 'LV', label: 'Approved Leave', bg: '#F3E8FF', text: '#7E22CE' };
     }
-    // Absent
     if (empIndex === 2 && day === 18) {
       return { code: 'A', label: 'Absent', bg: '#FFE4E6', text: '#BE123C' };
     }
-    // Late arrival
     if (empIndex === 0 && day === 18) {
       return { code: 'L', label: 'Late', bg: '#FEF3C7', text: '#B45309' };
     }
-    // Future days
     if (day > 18 && currentMonth.includes('September')) {
       return { code: '-', label: 'Unrecorded', bg: '#F8FAFC', text: '#CBD5E1' };
     }
@@ -142,7 +133,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
       />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Employee Personal Summary Stats (Shown only in Employee View) */}
         {isEmployee && (
           <View style={styles.summaryGrid}>
             <Card style={[styles.summaryCard, { borderLeftColor: '#10B981' }]}>
@@ -187,7 +177,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
           </View>
         )}
 
-        {/* Month Navigator & Legend Bar */}
         <Card style={styles.navigatorCard}>
           <View style={styles.monthNavRow}>
             <TouchableOpacity
@@ -210,7 +199,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
             </TouchableOpacity>
           </View>
 
-          {/* Legend */}
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
               <View style={[styles.legendBox, { backgroundColor: '#DCFCE7' }]}>
@@ -249,7 +237,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
           </View>
         </Card>
 
-        {/* Search & Department Filters (for HR / Admin) */}
         {isHrOrAdmin && (
           <Card style={styles.filterCard}>
             <View style={styles.searchRow}>
@@ -268,7 +255,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
               )}
             </View>
 
-            {/* Department Pills */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillRow}>
               {['all', ...STANDARD_DEPARTMENTS].map((dept) => (
                 <TouchableOpacity
@@ -285,7 +271,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
           </Card>
         )}
 
-        {/* Staff Monthly Cards / Matrix */}
         <View style={styles.musterSection}>
           <Text style={styles.sectionHeader}>
             {isEmployee ? 'DAILY SHIFT BREAKDOWN (DAY 1 - 30)' : `STAFF MUSTER (${filteredEmployees.length} EMPLOYEES)`}
@@ -304,7 +289,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
 
               return (
                 <Card key={emp.id} style={styles.empMusterCard}>
-                  {/* Employee Header */}
                   <TouchableOpacity
                     style={styles.empHeaderRow}
                     activeOpacity={0.8}
@@ -321,7 +305,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
                       </Text>
                     </View>
 
-                    {/* Summary Totals Badges */}
                     <View style={styles.totalsRow}>
                       <View style={[styles.totalPill, { backgroundColor: '#DCFCE7' }]}>
                         <Text style={[styles.totalPillText, { color: '#15803D' }]}>P: 21</Text>
@@ -335,7 +318,6 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
                     </View>
                   </TouchableOpacity>
 
-                  {/* 30-Day Matrix ScrollView */}
                   <View style={styles.matrixContainer}>
                     <Text style={styles.matrixLabel}>30-Day Presence Strip:</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dayStrip}>

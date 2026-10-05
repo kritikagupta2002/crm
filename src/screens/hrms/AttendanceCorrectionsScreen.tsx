@@ -35,44 +35,36 @@ import {
 } from '../../constants/attendance';
 
 export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { corrections, reviewCorrection, employees } = useHrms();
+  const { corrections, reviewCorrection } = useHrms();
   const { session, hasRole } = useAuth();
 
   const isHrOrAdmin = hasRole(['Admin', 'HR']);
   const activeEmpId = (session as any)?.employeeId || (isHrOrAdmin ? 'BGS-2021-001' : 'BGS-2023-044');
 
-  // Filter states
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedDept, setSelectedDept] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Review modal state
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedReq, setSelectedReq] = useState<AttendanceCorrection | null>(null);
   const [reviewAction, setReviewAction] = useState<'Approved' | 'Rejected'>('Approved');
   const [reviewComment, setReviewComment] = useState('');
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  // Filter logic
   const filteredRequests = useMemo(() => {
     return corrections.filter((req) => {
-      // Employee self-service isolation
       if (!isHrOrAdmin && req.employeeId !== activeEmpId) return false;
 
-      // Status filter
       if (selectedStatus !== 'all' && req.status !== selectedStatus) return false;
 
-      // Dept filter
       if (isHrOrAdmin && selectedDept !== 'all' && req.department !== selectedDept) return false;
 
-      // Project filter
       if (isHrOrAdmin && selectedProject !== 'all') {
         const proj = getEmployeeProjectById(req.employeeId);
         if (proj !== selectedProject) return false;
       }
 
-      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchName = req.employeeName.toLowerCase().includes(q);
@@ -131,14 +123,12 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           <StatusBadge status={item.status} size="sm" />
         </View>
 
-        {/* Project & Department */}
         <View style={styles.projectTag}>
           <Text style={styles.projectText}>
             {proj} • {item.department || 'Operations'}
           </Text>
         </View>
 
-        {/* Incident Date & Punches */}
         <View style={styles.detailsBox}>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Target Date:</Text>
@@ -160,11 +150,9 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           </View>
         </View>
 
-        {/* Justification Reason */}
         <Text style={styles.reasonLabel}>Reason & Justification:</Text>
         <Text style={styles.reasonText}>{item.reason}</Text>
 
-        {/* Reviewer remarks if processed */}
         {item.reviewedBy && (
           <View style={styles.reviewedBox}>
             <Text style={styles.reviewedText}>
@@ -174,7 +162,6 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           </View>
         )}
 
-        {/* Action Buttons for HR */}
         {isHrOrAdmin && isPending && (
           <View style={styles.actionFooter}>
             {isOwnCorrection ? (
@@ -233,7 +220,6 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
       />
 
       <View style={styles.content}>
-        {/* Search Bar */}
         <View style={styles.searchRow}>
           <View style={styles.searchBox}>
             <Search size={16} color={colors.text.tertiary} />
@@ -252,7 +238,6 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           </View>
         </View>
 
-        {/* Status Filter Tabs */}
         <View style={styles.statusTabs}>
           {['all', 'Pending', 'Approved', 'Rejected'].map((st) => (
             <TouchableOpacity
@@ -272,7 +257,6 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           ))}
         </View>
 
-        {/* Requests List */}
         <FlatList
           data={filteredRequests}
           keyExtractor={(item) => item.id}
@@ -291,7 +275,6 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
         />
       </View>
 
-      {/* Review Modal */}
       <Modal
         visible={reviewModalOpen}
         transparent

@@ -1,36 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, Alert } from 'react-native';
 import { CheckCircle, XCircle, AlertTriangle, ShieldCheck } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, Button, StatusBadge, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius } from '../../theme';
+import { formatExactCurrency as formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
-import { useAuth } from '../../context/AuthContext';
 import { Quote } from '../../types';
 
 interface QuoteApprovalsScreenProps {
   navigation: any;
 }
 
+const keyExtractor = (item: Quote) => item.id;
+
 export const QuoteApprovalsScreen: React.FC<QuoteApprovalsScreenProps> = ({ navigation }) => {
   const { quotes, approveQuote } = useCrm();
-  const { role } = useAuth();
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
-  const pendingQuotes = quotes.filter((q) => q.status === 'Pending Approval');
+  const pendingQuotes = useMemo(
+    () => quotes.filter((q) => q.status === 'Pending Approval'),
+    [quotes]
+  );
 
-  const handleApprove = async (id: string) => {
-    setActionLoadingId(id);
-    try {
-      await approveQuote(id, 'Authorized by Director for client delivery.');
-      Alert.alert('Approved', 'Quotation authorized. Ready for client submission.');
-    } catch (e: any) {
-      Alert.alert('Error', e.message);
-    } finally {
-      setActionLoadingId(null);
-    }
-  };
-
-  const formatCurrency = (amt: number) => `₹${amt.toLocaleString('en-IN')}`;
+  const handleApprove = useCallback(
+    async (id: string) => {
+      setActionLoadingId(id);
+      try {
+        await approveQuote(id, 'Authorized by Director for client delivery.');
+        Alert.alert('Approved', 'Quotation authorized. Ready for client submission.');
+      } catch (e: any) {
+        Alert.alert('Error', e.message);
+      } finally {
+        setActionLoadingId(null);
+      }
+    },
+    [approveQuote]
+  );
 
   return (
     <ScreenContainer
@@ -60,7 +65,7 @@ export const QuoteApprovalsScreen: React.FC<QuoteApprovalsScreenProps> = ({ navi
       ) : (
         <FlatList
           data={pendingQuotes}
-          keyExtractor={(item) => item.id}
+          keyExtractor={keyExtractor}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => (
@@ -73,7 +78,6 @@ export const QuoteApprovalsScreen: React.FC<QuoteApprovalsScreenProps> = ({ navi
               <Text style={styles.clientName}>{item.clientName}</Text>
               <Text style={styles.projectTitle}>{item.projectTitle}</Text>
 
-              {/* Line items mini table */}
               <View style={styles.itemsTable}>
                 {item.lineItems.map((li) => (
                   <View key={li.id} style={styles.itemRow}>

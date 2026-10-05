@@ -79,7 +79,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
   const isHrOrAdmin = hasRole(['Admin', 'HR']);
   const isEmployee = !isHrOrAdmin;
 
-  // Canonical active user employee ID
   const activeEmpId =
     session?.accountType === 'team'
       ? (session as any).employeeId || 'BGS-2023-044'
@@ -87,17 +86,14 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
   const activeEmpName = (session as any)?.name || 'Team Member';
   const activeEmpDept = (session as any)?.department || 'Geology & Mineral Exploration';
 
-  // Filters State
   const [selectedDept, setSelectedDept] = useState<string>('All Departments');
   const [selectedStatus, setSelectedStatus] = useState<string>('All Statuses');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [targetEmpId, setTargetEmpId] = useState<string>(initialEmpId || '');
 
-  // Modals
   const [isUploadModalOpen, setIsUploadModalOpen] = useState<boolean>(false);
   const [selectedDoc, setSelectedDoc] = useState<EmployeeDocumentRecord | null>(null);
 
-  // Upload Form State
   const [uploadEmpId, setUploadEmpId] = useState<string>(
     isEmployee ? activeEmpId : (initialEmpId || '')
   );
@@ -111,13 +107,11 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
   } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // Dropdown Picker Modals
   const [deptPickerVisible, setDeptPickerVisible] = useState<boolean>(false);
   const [statusPickerVisible, setStatusPickerVisible] = useState<boolean>(false);
   const [empPickerVisible, setEmpPickerVisible] = useState<boolean>(false);
   const [typePickerVisible, setTypePickerVisible] = useState<boolean>(false);
 
-  // Self-service Isolation: Employee strictly restricted to own records
   const kpiRecords = useMemo(() => {
     if (isEmployee) {
       return employeeDocuments.filter(
@@ -132,7 +126,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
     return employeeDocuments;
   }, [employeeDocuments, isEmployee, activeEmpId, activeEmpName, targetEmpId]);
 
-  // Secondary Filter Pipeline
   const filteredRecords = useMemo(() => {
     return kpiRecords.filter((rec) => {
       const matchesDept =
@@ -150,7 +143,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
     });
   }, [kpiRecords, isEmployee, selectedDept, selectedStatus, searchQuery]);
 
-  // KPI Calculations
   const verifiedCount = useMemo(
     () => kpiRecords.filter((r) => r.status === 'Verified').length,
     [kpiRecords]
@@ -310,7 +302,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
       />
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        {/* KPI Stats Grid */}
         <View style={styles.kpiGrid}>
           <View style={styles.kpiCol}>
             <StatCard
@@ -346,7 +337,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
           </View>
         </View>
 
-        {/* Filter & Search Bar */}
         <Card style={styles.filterCard}>
           <View style={styles.searchRow}>
             <Search size={16} color={colors.text.tertiary} style={styles.searchIcon} />
@@ -401,7 +391,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
           </View>
         </Card>
 
-        {/* Employee Documents List */}
         {filteredRecords.length === 0 ? (
           <EmptyState
             icon={<FileText size={48} color={colors.text.tertiary} />}
@@ -524,7 +513,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         )}
       </ScrollView>
 
-      {/* Upload Modal */}
       <Modal visible={isUploadModalOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -655,7 +643,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </View>
       </Modal>
 
-      {/* Document Detail Preview Modal */}
       <Modal visible={!!selectedDoc} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.previewCard}>
@@ -757,7 +744,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </View>
       </Modal>
 
-      {/* Department Picker Modal */}
       <Modal visible={deptPickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
@@ -792,7 +778,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      {/* Status Picker Modal */}
       <Modal visible={statusPickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
@@ -827,7 +812,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      {/* Document Type Picker Modal */}
       <Modal visible={typePickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
@@ -864,7 +848,6 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      {/* Employee Picker Modal (for HR/Admin) */}
       <Modal visible={empPickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}

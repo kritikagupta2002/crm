@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
   Share,
   Switch,
 } from 'react-native';
-import { useHrms, useAuth } from '../../context';
+import { useFinance, useAuth, useCrm } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import {
   AppHeader,
@@ -23,7 +23,6 @@ import {
   InvoiceQrCode,
 } from '../../components';
 import { FinanceInvoice, Client, InvoiceItem } from '../../types';
-import { mobileStorage } from '../../storage';
 import { generateInvoiceUpiLink, COMPANY_BANK_DETAILS } from '../../utils/payments';
 import {
   Receipt,
@@ -41,8 +40,12 @@ import {
   Trash2,
 } from 'lucide-react-native';
 
+const statusOptions = ['All', 'Paid', 'Pending', 'Partially Paid', 'Overdue', 'Draft'];
+const invoiceKeyExtractor = (item: FinanceInvoice) => item.id;
+
 export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { invoices, createInvoice, updateInvoiceStatus } = useHrms();
+  const { invoices, createInvoice, updateInvoiceStatus } = useFinance();
+  const { clients } = useCrm();
   const { hasRole } = useAuth();
 
   const [search, setSearch] = useState('');
@@ -50,10 +53,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<FinanceInvoice | null>(null);
 
-  // Available Active Clients for Creation
-  const [clients, setClients] = useState<Client[]>([]);
-
-  // New Invoice Form State
   const [selectedClientId, setSelectedClientId] = useState('');
   const [projectTitle, setProjectTitle] = useState('');
   const [baseAmount, setBaseAmount] = useState('');
@@ -74,19 +73,17 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
   const canManage = hasRole(['Admin', 'Accountant', 'admin', 'accountant']);
 
-  // Load clients from CRM state for active client validation
   useEffect(() => {
-    mobileStorage.getClients().then((res) => {
-      setClients(res);
-      const firstActive = res.find((c) => c.contractStatus === 'Active' || (c as any).status === 'Active');
+    if (clients && clients.length > 0 && !selectedClientId) {
+      const firstActive = clients.find((c) => c.contractStatus === 'Active' || (c as any).status === 'Active');
       if (firstActive) {
         setSelectedClientId(firstActive.id);
         if (firstActive.state && firstActive.state.toLowerCase() !== 'rajasthan') {
           setIsInterState(true);
         }
       }
-    });
-  }, []);
+    }
+  }, [clients, selectedClientId]);
 
   const activeClients = useMemo(() => {
     return clients.filter((c) => c.contractStatus === 'Active' || (c as any).status === 'Active');
@@ -104,7 +101,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     }
   };
 
-  // Line item manipulation
   const handleItemChange = (index: number, field: keyof InvoiceItem, val: string | number) => {
     const next = [...lineItems];
     const current = { ...next[index], [field]: val };
@@ -141,7 +137,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     setBaseAmount(String(totalBase));
   };
 
-  // Calculations for Creation Modal
   const computedBase =
     lineItems.length > 0
       ? lineItems.reduce((sum, it) => sum + (it.amount || 0), 0)
@@ -150,25 +145,23 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   const computedGst = Math.round((computedBase * taxRate) / 100);
   const computedTotal = computedBase + computedGst;
 
-  // Search & Filter
-  const statusOptions = ['All', 'Paid', 'Pending', 'Partially Paid', 'Overdue', 'Draft'];
+  const filteredInvoices = useMemo(() => {
+    const s = search.toLowerCase();
+    const st = selectedStatus.toLowerCase();
+    return invoices.filter((inv) => {
+      const invNo = (inv.invoiceNo || inv.invoiceNumber || '').toLowerCase();
+      const clName = (inv.clientName || '').toLowerCase();
+      const prj = (inv.projectTitle || '').toLowerCase();
+      const matchesSearch = !s || invNo.includes(s) || clName.includes(s) || prj.includes(s);
 
-  const filteredInvoices = invoices.filter((inv) => {
-    const invNo = (inv.invoiceNo || inv.invoiceNumber || '').toLowerCase();
-    const clName = (inv.clientName || '').toLowerCase();
-    const prj = (inv.projectTitle || '').toLowerCase();
-    const matchesSearch =
-      invNo.includes(search.toLowerCase()) ||
-      clName.includes(search.toLowerCase()) ||
-      prj.includes(search.toLowerCase());
+      const matchesStatus =
+        selectedStatus === 'All' ||
+        inv.status.toLowerCase() === st ||
+        (selectedStatus === 'Pending' && inv.status === 'Unpaid');
 
-    const matchesStatus =
-      selectedStatus === 'All' ||
-      inv.status.toLowerCase() === selectedStatus.toLowerCase() ||
-      (selectedStatus === 'Pending' && inv.status === 'Unpaid');
-
-    return matchesSearch && matchesStatus;
-  });
+      return matchesSearch && matchesStatus;
+    });
+  }, [invoices, search, selectedStatus]);
 
   const handleCreateInvoice = async () => {
     if (!selectedClientId) {
@@ -231,34 +224,37 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     }
   };
 
-  const handleMarkPaid = async (inv: FinanceInvoice) => {
-    Alert.alert(
-      'Confirm Receipt',
-      `Mark Invoice ${inv.invoiceNo} as Paid? This will record ₹${inv.totalAmount.toLocaleString(
-        'en-IN'
-      )} as received and post a Bank Receipt Voucher.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Confirm Paid',
-          style: 'default',
-          onPress: async () => {
-            try {
-              await updateInvoiceStatus(inv.id, 'Paid');
-              if (selectedInvoice && selectedInvoice.id === inv.id) {
-                setSelectedInvoice({ ...selectedInvoice, status: 'Paid', paidAmount: selectedInvoice.totalAmount });
+  const handleMarkPaid = useCallback(
+    async (inv: FinanceInvoice) => {
+      Alert.alert(
+        'Confirm Receipt',
+        `Mark Invoice ${inv.invoiceNo} as Paid? This will record ₹${inv.totalAmount.toLocaleString(
+          'en-IN'
+        )} as received and post a Bank Receipt Voucher.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Confirm Paid',
+            style: 'default',
+            onPress: async () => {
+              try {
+                await updateInvoiceStatus(inv.id, 'Paid');
+                if (selectedInvoice && selectedInvoice.id === inv.id) {
+                  setSelectedInvoice({ ...selectedInvoice, status: 'Paid', paidAmount: selectedInvoice.totalAmount });
+                }
+                Alert.alert('Status Updated', `Invoice ${inv.invoiceNo} marked as Paid.`);
+              } catch (e: any) {
+                Alert.alert('Error', e.message || 'Failed to update invoice status.');
               }
-              Alert.alert('Status Updated', `Invoice ${inv.invoiceNo} marked as Paid.`);
-            } catch (e: any) {
-              Alert.alert('Error', e.message || 'Failed to update invoice status.');
-            }
+            },
           },
-        },
-      ]
-    );
-  };
+        ]
+      );
+    },
+    [updateInvoiceStatus, selectedInvoice]
+  );
 
-  const handleShareDocument = async (inv: FinanceInvoice) => {
+  const handleShareDocument = useCallback(async (inv: FinanceInvoice) => {
     try {
       const summary =
         `TAX INVOICE: ${inv.invoiceNo}\n` +
@@ -285,7 +281,7 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     } catch (e: any) {
       console.error('Share error:', e);
     }
-  };
+  }, []);
 
   const renderInvoiceCard = ({ item }: { item: FinanceInvoice }) => {
     const isInterStateSupply = item.igst > 0;
@@ -389,7 +385,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         />
       </View>
 
-      {/* Status Filter Chips */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -412,7 +407,7 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
       <FlatList
         data={filteredInvoices}
-        keyExtractor={(item) => item.id}
+        keyExtractor={invoiceKeyExtractor}
         renderItem={renderInvoiceCard}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
@@ -428,7 +423,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         }
       />
 
-      {/* CREATE INVOICE MODAL */}
       <Modal visible={showAddModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -445,7 +439,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             </View>
 
             <ScrollView contentContainerStyle={styles.formContent} showsVerticalScrollIndicator={false}>
-              {/* 1. Active Client Selector */}
               <Text style={styles.formSectionTitle}>1. ACTIVE CLIENT (CRM DATA)</Text>
               <View style={styles.clientPickerContainer}>
                 {activeClients.length === 0 ? (
@@ -479,7 +472,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 )}
               </View>
 
-              {/* 2. Project & Terms */}
               <Text style={styles.formSectionTitle}>2. PROJECT & TAX NATURE</Text>
               <Input
                 label="Project Exploration Scope"
@@ -502,7 +494,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 />
               </View>
 
-              {/* 3. Line Items */}
               <View style={styles.lineItemHeaderRow}>
                 <Text style={styles.formSectionTitle}>3. LINE ITEMS (SERVICES)</Text>
                 <TouchableOpacity onPress={handleAddLineItem} style={styles.addItemBtn}>
@@ -551,7 +542,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 </View>
               ))}
 
-              {/* Live Computation Box */}
               <View style={styles.computationBox}>
                 <View style={styles.compRow}>
                   <Text style={styles.compLabel}>Taxable Base:</Text>
@@ -588,7 +578,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         </View>
       </Modal>
 
-      {/* INVOICE DETAILS & NATIVE QR CODE PREVIEW MODAL */}
       {selectedInvoice && (
         <Modal visible={!!selectedInvoice} transparent animationType="fade">
           <View style={styles.modalOverlay}>
@@ -604,14 +593,12 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               </View>
 
               <ScrollView contentContainerStyle={styles.detailDocContent} showsVerticalScrollIndicator={false}>
-                {/* Bansal Geo Corporate Header */}
                 <View style={styles.docCompanyHeader}>
                   <Text style={styles.docCompanyName}>BANSAL GEO SERVICES PVT LTD</Text>
                   <Text style={styles.docCompanySub}>Jaipur Corporate HQ, C-Scheme, Jaipur, Rajasthan</Text>
                   <Text style={styles.docCompanyGstin}>GSTIN: {COMPANY_BANK_DETAILS.gstin} | PAN: {COMPANY_BANK_DETAILS.pan}</Text>
                 </View>
 
-                {/* Bill To Card */}
                 <View style={styles.docBillTo}>
                   <Text style={styles.billToLabel}>BILLED TO:</Text>
                   <Text style={styles.billToName}>{selectedInvoice.clientName}</Text>
@@ -628,7 +615,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   </View>
                 </View>
 
-                {/* Items Breakdown */}
                 <View style={styles.tableBox}>
                   <View style={styles.tableHeader}>
                     <Text style={[styles.tableHCell, { flex: 2 }]}>Service Item</Text>
@@ -663,7 +649,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   )}
                 </View>
 
-                {/* Tax Breakdown */}
                 <View style={styles.docTotalsBox}>
                   <View style={styles.docTotRow}>
                     <Text style={styles.docTotLabel}>Pre-Tax Subtotal:</Text>
@@ -694,7 +679,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   </View>
                 </View>
 
-                {/* MOBILE-NATIVE UPI REMITTANCE QR CODE */}
                 <View style={styles.qrSectionCard}>
                   <Text style={styles.qrSectionTitle}>INSTANT UPI REMITTANCE QR</Text>
                   <Text style={styles.qrSectionSub}>
@@ -717,7 +701,6 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   </Text>
                 </View>
 
-                {/* Actions */}
                 <View style={styles.docActionButtons}>
                   <Button
                     title="Share / Print"

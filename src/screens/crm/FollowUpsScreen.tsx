@@ -44,7 +44,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
   const [newTime, setNewTime] = useState('11:00');
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // New follow-up state
   const [newLeadId, setNewLeadId] = useState(leads[0]?.id || '');
   const [newType, setNewType] = useState<'Call' | 'Meeting' | 'Site Visit' | 'Presentation' | 'Review'>('Call');
   const [newFuDate, setNewFuDate] = useState(new Date().toISOString().split('T')[0]);
@@ -65,7 +64,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
     { id: 'later', label: 'Later', color: colors.textSecondary, test: (d: string) => d > weekEnd },
   ];
 
-  // Dynamic counts
   const counts = useMemo(() => {
     const overdue = followUps.filter((f) => f.status === 'Pending' && f.date < todayISO).length;
     const today = followUps.filter((f) => f.status === 'Pending' && f.date === todayISO).length;
@@ -74,7 +72,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
     return { overdue, today, next7Days, completed };
   }, [followUps, todayISO, weekEnd]);
 
-  // Filtered follow-ups
   const filteredFollowUps = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return followUps
@@ -165,7 +162,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         />
       }
     >
-      {/* 1. Stat Cards Grid */}
       <View style={styles.statGrid}>
         <StatCard
           title="Overdue"
@@ -200,7 +196,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         />
       </View>
 
-      {/* 2. Search & Type Filters */}
       <Input
         placeholder="Search client, note or enquiry ID..."
         value={searchQuery}
@@ -224,7 +219,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         })}
       </ScrollView>
 
-      {/* 3. Grouped Sections */}
       {GROUPS.map((grp) => {
         const items = filteredFollowUps.filter((f) => f.status === 'Pending' && grp.test(f.date));
         if (items.length === 0) return null;
@@ -262,7 +256,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
                     <Text style={styles.assignedText}>{matchedLead?.assignedTo || 'Vikram Patel'}</Text>
                   </View>
 
-                  {/* Actions */}
                   <View style={styles.fuActionsRow}>
                     {matchedLead?.phone ? (
                       <TouchableOpacity
@@ -303,7 +296,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         );
       })}
 
-      {/* Completed Section */}
       {filteredFollowUps.filter((f) => f.status === 'Completed').length > 0 && (
         <View style={styles.groupSection}>
           <View style={styles.groupHeaderRow}>
@@ -334,7 +326,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         </View>
       )}
 
-      {/* MARK DONE MODAL */}
       <Modal visible={Boolean(completingItem)} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
@@ -377,7 +368,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         </View>
       </Modal>
 
-      {/* RESCHEDULE MODAL */}
       <Modal visible={Boolean(reschedulingItem)} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
@@ -420,7 +410,6 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         </View>
       </Modal>
 
-      {/* ADD NEW FOLLOW-UP MODAL */}
       <Modal visible={showAddModal} transparent animationType="slide">
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>

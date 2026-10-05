@@ -1,5 +1,5 @@
 import { mobileStorage } from '../storage';
-import { ExpenseClaim, ExpenseQuery, ExpenseCategory, ExpenseStatus, ExpenseAuditEntry } from '../types';
+import { ExpenseClaim, ExpenseQuery, ExpenseCategory, ExpenseStatus } from '../types';
 
 export class ExpenseService {
   async getAllExpenses(employeeId?: string): Promise<ExpenseClaim[]> {
@@ -32,7 +32,6 @@ export class ExpenseService {
     receiptUrl?: string;
     receiptDataUrl?: string;
   }): Promise<ExpenseClaim> {
-    // 1. Service-Layer Validation
     if (!data.employeeId || typeof data.employeeId !== 'string' || !data.employeeId.trim()) {
       throw new Error('Employee ID is required to file an expense claim.');
     }
@@ -65,7 +64,6 @@ export class ExpenseService {
 
     const list = await mobileStorage.getExpenses();
 
-    // 2. Duplicate Detection
     const isDuplicate = list.some(
       (e) =>
         e.employeeId === data.employeeId &&
@@ -82,7 +80,6 @@ export class ExpenseService {
       );
     }
 
-    // 3. Assemble complete canonical data structure
     const expNum = `EXP-BGS-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`;
     const newExp: ExpenseClaim = {
       id: `exp-${Date.now()}`,
@@ -300,7 +297,6 @@ export class ExpenseService {
 
     await mobileStorage.setExpenses(expenses);
 
-    // Save to queries store
     const queries = await mobileStorage.getQueries();
     const newQuery: ExpenseQuery = {
       id: queryId,
@@ -344,7 +340,6 @@ export class ExpenseService {
     const now = new Date().toISOString();
     const responder = respondedBy || exp.employeeName;
 
-    // Update query record
     if (query) {
       query.responseMessage = responseMessage.trim();
       query.status = 'Resolved';
@@ -352,7 +347,6 @@ export class ExpenseService {
       await mobileStorage.setQueries(queries);
     }
 
-    // Update expense record directly without creating duplicate
     exp.status = 'Pending';
     exp.queryStatus = 'Employee Responded';
     exp.queryResponse = responseMessage.trim();
@@ -394,24 +388,20 @@ export class ExpenseService {
     const exp = list.find((e) => e.id === id || e.expenseNumber === id);
     if (!exp) throw new Error(`Expense claim with ID ${id} not found.`);
 
-    // Rule 1: Approval Check
     if (exp.status !== 'Approved' && exp.status !== 'Partially Approved') {
       throw new Error(
         `Settlement Blocked: Claim must be Approved or Partially Approved by HR first. Current status: ${exp.status}`
       );
     }
 
-    // Rule 2: Active Query Block
     if (exp.queryStatus === 'Query Raised') {
       throw new Error('Settlement Blocked: Cannot settle claim while an active query is outstanding.');
     }
 
-    // Rule 3: Already Settled (Idempotency)
     if (exp.settlementStatus === 'Settled') {
       throw new Error(`Claim ${exp.expenseNumber || exp.id} has already been settled and disbursed.`);
     }
 
-    // Rule 4: Payable amount is strictly approvedAmount
     const payableAmount = Number(exp.approvedAmount || exp.hrApprovedAmount || 0);
     if (payableAmount <= 0) {
       throw new Error('Cannot settle a claim with ₹0 approved payable amount.');
@@ -446,7 +436,6 @@ export class ExpenseService {
         ? settlementData.settledBy
         : 'Finance & Accounts';
 
-    // Cross-module side effect: post Payment Voucher to Finance ledger (with idempotency)
     const vouchers = await mobileStorage.getVouchers();
     const refDoc = exp.expenseNumber || exp.id;
     const existingVoucher = vouchers.find((v) => v.referenceId === refDoc || v.referenceType === 'expense' && v.referenceId === exp.id);
@@ -468,7 +457,6 @@ export class ExpenseService {
       await mobileStorage.setVouchers(vouchers);
     }
 
-    // Mark claim settled
     exp.status = 'Settled';
     exp.settlementStatus = 'Settled';
     exp.settledAmount = payableAmount;

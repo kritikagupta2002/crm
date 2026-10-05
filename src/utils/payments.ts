@@ -1,6 +1,3 @@
-/**
- * Bansal Geo Services Commercial & Banking Configuration
- */
 export const COMPANY_BANK_DETAILS = {
   companyName: 'Bansal Geo Services Pvt Ltd',
   upiId: 'bansalgeo@hdfcbank',
@@ -13,11 +10,6 @@ export const COMPANY_BANK_DETAILS = {
   pan: 'AAACB1182K',
 };
 
-/**
- * Generates an official NPCI-compliant UPI payment link for client invoice settlement.
- * Scanning this with any Indian UPI app (BHIM, Google Pay, PhonePe, Paytm, Cred)
- * auto-populates the payee, Bansal Geo merchant account, exact bill amount, and invoice reference.
- */
 export function generateInvoiceUpiLink(
   invoiceNumber: string,
   amount: number,

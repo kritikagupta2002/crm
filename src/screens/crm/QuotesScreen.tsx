@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -59,7 +59,7 @@ const formatINR = (n: number) => {
 const fullINR = (n: number) => `₹${Math.round(n || 0).toLocaleString('en-IN')}`;
 
 export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route }) => {
-  const { leads, quotes, acceptQuotation, rejectQuotation } = useCrm();
+  const { leads, acceptQuotation, rejectQuotation } = useCrm();
   const { role } = useAuth();
 
   const [activeTab, setActiveTab] = useState<TabType>('All');
@@ -69,7 +69,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
   const [rejectReason, setRejectReason] = useState('Price too high');
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Compute unified quote items from leads with fallback to quotes
   const unifiedQuotes = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     const items: Array<{ lead: Lead; quote: any }> = [];
@@ -124,29 +123,44 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
     return items.sort((a, b) => (b.quote.sentOn || '').localeCompare(a.quote.sentOn || ''));
   }, [leads]);
 
-  // KPIs
-  const openQuotesList = unifiedQuotes.filter(
-    (r) => r.quote.status === 'Sent' || r.quote.status === 'Revised' || r.quote.status === 'Changes requested'
-  );
-  const acceptedQuotes = unifiedQuotes.filter((r) => r.quote.status === 'Accepted');
-  const rejectedQuotes = unifiedQuotes.filter((r) => r.quote.status === 'Rejected');
-  const expiredQuotes = unifiedQuotes.filter((r) => r.quote.displayStatus === 'Expired');
-  const decidedCount = acceptedQuotes.length + rejectedQuotes.length;
-  const acceptanceRate = decidedCount > 0 ? Math.round((acceptedQuotes.length / decidedCount) * 100) : 0;
-  const awaitingSum = openQuotesList.reduce((s, r) => s + r.quote.total, 0);
-  const acceptedSum = acceptedQuotes.reduce((s, r) => s + r.quote.total, 0);
+  const metrics = useMemo(() => {
+    const openList = unifiedQuotes.filter(
+      (r) => r.quote.status === 'Sent' || r.quote.status === 'Revised' || r.quote.status === 'Changes requested'
+    );
+    const accepted = unifiedQuotes.filter((r) => r.quote.status === 'Accepted');
+    const rejected = unifiedQuotes.filter((r) => r.quote.status === 'Rejected');
+    const expired = unifiedQuotes.filter((r) => r.quote.displayStatus === 'Expired');
+    const decided = accepted.length + rejected.length;
+    const rate = decided > 0 ? Math.round((accepted.length / decided) * 100) : 0;
+    const awaiting = openList.reduce((s, r) => s + r.quote.total, 0);
+    const accSum = accepted.reduce((s, r) => s + r.quote.total, 0);
 
-  // Filtered
-  const q = search.trim().toLowerCase();
-  const visibleQuotes = unifiedQuotes.filter((r) => {
-    const matchesTab = activeTab === 'All' || r.quote.displayStatus === activeTab;
-    const matchesSearch =
-      !q ||
-      r.quote.number.toLowerCase().includes(q) ||
-      r.lead.company.toLowerCase().includes(q) ||
-      (r.lead.serviceDetail || '').toLowerCase().includes(q);
-    return matchesTab && matchesSearch;
-  });
+    return {
+      openQuotesList: openList,
+      acceptedQuotes: accepted,
+      rejectedQuotes: rejected,
+      expiredQuotes: expired,
+      decidedCount: decided,
+      acceptanceRate: rate,
+      awaitingSum: awaiting,
+      acceptedSum: accSum,
+    };
+  }, [unifiedQuotes]);
+
+  const { openQuotesList, acceptedQuotes, rejectedQuotes, expiredQuotes, decidedCount, acceptanceRate, awaitingSum, acceptedSum } = metrics;
+
+  const visibleQuotes = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return unifiedQuotes.filter((r) => {
+      const matchesTab = activeTab === 'All' || r.quote.displayStatus === activeTab;
+      const matchesSearch =
+        !q ||
+        r.quote.number.toLowerCase().includes(q) ||
+        r.lead.company.toLowerCase().includes(q) ||
+        (r.lead.serviceDetail || '').toLowerCase().includes(q);
+      return matchesTab && matchesSearch;
+    });
+  }, [unifiedQuotes, activeTab, search]);
 
   const handleShareWhatsApp = (lead: Lead, quote: any) => {
     if (!lead.phone) {
@@ -171,7 +185,7 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
       });
   };
 
-  const handleAcceptQuote = async (leadId: string) => {
+  const handleAcceptQuote = useCallback(async (leadId: string) => {
     setActionLoading(true);
     try {
       await acceptQuotation(leadId);
@@ -194,9 +208,9 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
     } finally {
       setActionLoading(false);
     }
-  };
+  }, [acceptQuotation, navigation]);
 
-  const handleConfirmReject = async () => {
+  const handleConfirmReject = useCallback(async () => {
     if (!rejectingLeadId) return;
     setActionLoading(true);
     try {
@@ -209,7 +223,7 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
     } finally {
       setActionLoading(false);
     }
-  };
+  }, [rejectingLeadId, rejectReason, rejectQuotation]);
 
   return (
     <ScreenContainer
@@ -231,7 +245,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
         />
       }
     >
-      {/* 4 KPI Stat Cards */}
       <View style={styles.kpiGrid}>
         <StatCard
           label="Awaiting Reply"
@@ -263,7 +276,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
         />
       </View>
 
-      {/* Search Input */}
       <Input
         placeholder="Search quotation no., client or service..."
         value={search}
@@ -272,7 +284,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
         containerStyle={styles.searchBar}
       />
 
-      {/* Filter Tabs */}
       <View style={styles.tabsWrap}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsContent}>
           {TABS.map((t) => {
@@ -301,7 +312,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
         </ScrollView>
       </View>
 
-      {/* Quotations List */}
       {visibleQuotes.length === 0 ? (
         <EmptyState
           title="No Quotations Found"
@@ -365,7 +375,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
         />
       )}
 
-      {/* Itemized Quote Detail Modal */}
       {selectedQuoteLead && (
         <Modal
           visible={Boolean(selectedQuoteLead)}
@@ -391,7 +400,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
               </View>
 
               <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-                {/* Status & Change Request Banner */}
                 <View style={styles.modalStatusRow}>
                   <StatusBadge status={selectedQuoteLead.quote.displayStatus} />
                   <Text style={styles.modalMetaText}>
@@ -412,7 +420,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
                   </View>
                 )}
 
-                {/* Line Items Table */}
                 <Text style={styles.sheetSectionTitle}>Itemized Scope & Technical Rates</Text>
                 <View style={styles.tableCard}>
                   <View style={styles.tableHeader}>
@@ -440,7 +447,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
                   ))}
                 </View>
 
-                {/* Financial Summary */}
                 <View style={styles.breakdownCard}>
                   <View style={styles.sumRow}>
                     <Text style={styles.sumLabel}>Gross Subtotal:</Text>
@@ -470,7 +476,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
                   </View>
                 </View>
 
-                {/* Terms */}
                 <View style={styles.termsBox}>
                   <Text style={styles.termsTitle}>Commercial Terms</Text>
                   <Text style={styles.termsText}>
@@ -480,7 +485,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
                 </View>
               </ScrollView>
 
-              {/* Actions Footer */}
               <View style={styles.modalFooter}>
                 <TouchableOpacity
                   style={styles.waBtn}
@@ -543,7 +547,6 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
         </Modal>
       )}
 
-      {/* Rejection / Lost Reason Modal */}
       {rejectingLeadId && (
         <Modal
           visible={Boolean(rejectingLeadId)}
@@ -751,7 +754,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.semibold,
   },
 
-  // Modal Sheet
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -1000,7 +1002,6 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
-  // Dialog
   dialogCard: {
     backgroundColor: colors.surface,
     margin: spacing.lg,

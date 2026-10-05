@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Modal, StyleSheet } from 'react-native';
 import { colors, radius, spacing, typography, shadows } from '../../theme';
 import { Button } from './Button';
 
@@ -68,26 +68,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backdrop,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.lg,
+    padding: spacing.md,
   },
   modalCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.xl,
-    padding: spacing.xl,
+    padding: spacing.lg,
     width: '100%',
-    maxWidth: 360,
-    ...shadows.lg,
+    maxWidth: 340,
+    borderWidth: 1,
+    borderColor: colors.border.default,
+    ...shadows.md,
   },
   title: {
-    fontSize: typography.fontSizes.lg,
+    fontSize: 16,
     fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
     marginBottom: spacing.xs,
+    letterSpacing: -0.2,
   },
   message: {
     fontSize: typography.fontSizes.sm,
     color: colors.textSecondary,
-    lineHeight: 20,
+    lineHeight: 19,
     marginBottom: spacing.lg,
   },
   buttonRow: {

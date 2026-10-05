@@ -28,6 +28,7 @@ import {
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import { Tender } from '../../types';
@@ -45,7 +46,7 @@ interface TendersScreenProps {
 }
 
 export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
-  const { tenders, publishTender, projects } = useCrm();
+  const { tenders, publishTender } = useCrm();
   const { role, session } = useAuth();
 
   const isAuthorizedToPublish = (role as any) === 'admin' || (role as any) === 'director' || (role as any) === 'tender_manager';
@@ -54,7 +55,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState<'All' | 'Open' | 'Evaluation' | 'Allotted'>('All');
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
 
-  // Create Tender Form State
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState(TENDER_CATEGORIES[0]);
   const [newEstimate, setNewEstimate] = useState('2500000');
@@ -65,12 +65,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<string[]>([]);
-
-  const formatCurrency = (amt: number) => {
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
 
   const filteredTenders = useMemo(() => {
     return tenders.filter((t) => {
@@ -251,7 +245,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
         />
       }
     >
-      {/* Search & Tabs */}
       <View style={styles.topControl}>
         <View style={styles.searchBar}>
           <Search size={18} color={colors.textMuted} style={{ marginRight: spacing.xs }} />
@@ -307,7 +300,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
         }
       />
 
-      {/* Publish Tender Modal */}
       {showCreateModal && (
         <Modal visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>

@@ -26,12 +26,14 @@ import {
 } from '../../services';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import {
+  ScreenContainer,
   AppHeader,
   Card,
   StatCard,
   NativeBarChart,
   NativeDistributionList,
 } from '../../components';
+import { DonutChart, MiniBarChart } from '../../components/common/NativeCharts';
 import {
   BarChart3,
   TrendingUp,
@@ -56,7 +58,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
   const [loading, setLoading] = useState<boolean>(true);
   const [exporting, setExporting] = useState<boolean>(false);
 
-  // Aggregated state
   const [execData, setExecData] = useState<MisExecutiveMetrics | null>(null);
   const [boardFin, setBoardFin] = useState<MisBoardFinancials | null>(null);
   const [fieldOps, setFieldOps] = useState<MisFieldOperations | null>(null);
@@ -133,7 +134,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     loadAllMetrics();
   }, [selectedDept, selectedPeriod]);
 
-  // Export handlers
   const handleExportCsv = async () => {
     try {
       setExporting(true);
@@ -199,31 +199,36 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
   };
 
   return (
-    <View style={styles.container}>
-      <AppHeader
-        title="MIS Analytics & BI"
-        subtitle="Zero-Fake-Numbers Live Intelligence"
-        showBack
-        onBack={() => navigation.goBack()}
-        rightAction={
-          <TouchableOpacity
-            style={styles.exportButton}
-            onPress={handleExportCsv}
-            disabled={exporting || loading}
-          >
-            {exporting ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <>
-                <Download size={15} color="#FFFFFF" />
-                <Text style={styles.exportText}>CSV</Text>
-              </>
-            )}
-          </TouchableOpacity>
-        }
-      />
-
-      {/* Period Filter Ribbon */}
+    <ScreenContainer
+      scrollable={false}
+      header={
+        <AppHeader
+          title="MIS Analytics & BI"
+          subtitle="Zero-Fake-Numbers Live Intelligence"
+          scenicBanner
+          badge="Executive MIS & BI"
+          badgeIcon={<BarChart3 size={12} color="#0d9488" />}
+          showBack
+          onBack={() => navigation.goBack()}
+          rightAction={
+            <TouchableOpacity
+              style={styles.exportButton}
+              onPress={handleExportCsv}
+              disabled={exporting || loading}
+            >
+              {exporting ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <Download size={14} color="#FFFFFF" />
+                  <Text style={styles.exportText}>CSV</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          }
+        />
+      }
+    >
       <View style={styles.periodBar}>
         {(['all', 'month', 'quarter', 'year'] as const).map((p) => {
           const labels = { all: 'All Time', month: 'This Month', quarter: 'Quarter', year: 'Year' };
@@ -242,7 +247,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         })}
       </View>
 
-      {/* Navigation Tabs Bar */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -299,10 +303,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
-          {/* TAB 1: EXECUTIVE & BOARD OVERVIEW */}
           {activeTab === 'exec' && execData && boardFin && (
             <>
-              {/* 4 Core Executive KPI Cards */}
               <View style={styles.statGrid}>
                 <TouchableOpacity
                   style={styles.statCol}
@@ -313,7 +315,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="REVENUE PIPELINE"
                     value={`₹${(execData.totalPipeline / 100000).toFixed(1)} L`}
                     caption={`${execData.totalLeads} Total Enquiries`}
-                    icon={<TrendingUp size={18} color={colors.primary} />}
+                    icon={<TrendingUp size={18} color="#0D9488" />}
+                    chart={<MiniBarChart values={[30, 45, 60, 85]} color="#0D9488" height={26} barWidth={5} />}
                   />
                 </TouchableOpacity>
 
@@ -326,7 +329,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="ACTIVE PROJECTS"
                     value={execData.activeProjects}
                     caption={`${execData.completedProjects} Closed / Delivered`}
-                    icon={<Compass size={18} color="#3B82F6" />}
+                    icon={<Compass size={18} color="#2563EB" />}
+                    chart={<MiniBarChart values={[4, 6, 8, Math.max(10, execData.activeProjects)]} color="#2563EB" height={26} barWidth={5} />}
                   />
                 </TouchableOpacity>
               </View>
@@ -341,7 +345,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="WIN CONVERSION"
                     value={`${execData.conversionRate}%`}
                     caption={`${execData.wonLeads} Leads Converted`}
-                    icon={<Briefcase size={18} color="#10B981" />}
+                    icon={<Briefcase size={18} color="#16A34A" />}
+                    chart={<DonutChart percentage={Number(execData.conversionRate)} color="#10B981" size={38} strokeWidth={5} />}
                   />
                 </TouchableOpacity>
 
@@ -354,12 +359,12 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="DIRECTOR APPROVALS"
                     value={execData.pendingApprovals}
                     caption="Pending Clearance"
-                    icon={<ShieldCheck size={18} color="#F59E0B" />}
+                    icon={<ShieldCheck size={18} color="#D97706" />}
+                    trend={{ value: execData.pendingApprovals > 0 ? 'Action Req' : 'Clear', isPositive: execData.pendingApprovals === 0 }}
                   />
                 </TouchableOpacity>
               </View>
 
-              {/* Monthly Revenue & Enquiry Trend Chart */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <BarChart3 size={18} color={colors.primary} />
@@ -382,7 +387,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 />
               </Card>
 
-              {/* Board-Level Financial Performance */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <DollarSign size={18} color="#10B981" />
@@ -421,7 +425,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 </View>
               </Card>
 
-              {/* Geological Project Service Mix */}
               <Card style={styles.card}>
                 <Text style={styles.sectionTitle}>Project Distribution by Service Line</Text>
                 <Text style={styles.sectionSubtitle}>Share of mineral exploration vs survey contracts</Text>
@@ -430,7 +433,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             </>
           )}
 
-          {/* TAB 2: OPERATIONS & ERM */}
           {activeTab === 'projects' && fieldOps && (
             <>
               <View style={styles.statGrid}>
@@ -495,7 +497,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             </>
           )}
 
-          {/* TAB 3: FINANCE & TAX */}
           {activeTab === 'finance' && finSummary && (
             <>
               <View style={styles.statGrid}>
@@ -559,7 +560,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 </View>
               </Card>
 
-              {/* Statutory Tax Estimates */}
               <Card style={styles.card}>
                 <Text style={styles.sectionTitle}>Statutory Tax Compliance Estimates</Text>
                 <View style={styles.taxRow}>
@@ -578,10 +578,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             </>
           )}
 
-          {/* TAB 4: WORKFORCE & BIOMETRICS (ZERO FAKE NUMBERS ENGINE) */}
           {activeTab === 'workforce' && workforce && attendance && (
             <>
-              {/* Department Picker Ribbon */}
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.deptScroll}>
                 {departments.map((d) => (
                   <TouchableOpacity
@@ -596,7 +594,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 ))}
               </ScrollView>
 
-              {/* Zero-Fake-Numbers 4-Box Muster Engine */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <Users size={18} color={colors.primary} />
@@ -645,13 +642,11 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 </View>
               </Card>
 
-              {/* Department Distribution */}
               <Card style={styles.card}>
                 <Text style={styles.sectionTitle}>Department Staff Distribution</Text>
                 <NativeDistributionList rows={workforce.departmentDistribution} defaultColor="#2A8089" />
               </Card>
 
-              {/* Designation Distribution */}
               <Card style={styles.card}>
                 <Text style={styles.sectionTitle}>Designation Roles Hierarchy</Text>
                 <NativeDistributionList rows={workforce.designationDistribution} defaultColor="#C8943A" />
@@ -659,10 +654,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             </>
           )}
 
-          {/* TAB 5: HR CONTROLS (LEAVES, EXPENSES, REIMBURSEMENTS) */}
           {activeTab === 'controls' && leaves && expenses && reimbursements && (
             <>
-              {/* Leaves Summary */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <Clock size={18} color="#F59E0B" />
@@ -685,7 +678,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 <NativeDistributionList rows={leaves.typeDistribution} defaultColor="#F59E0B" />
               </Card>
 
-              {/* Field Expenses Audit */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <DollarSign size={18} color="#10B981" />
@@ -718,7 +710,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 <NativeDistributionList rows={expenses.categoryDistribution.map(c => ({ label: c.label, count: c.amount, percentage: c.percentage }))} defaultColor="#10B981" />
               </Card>
 
-              {/* Travel Reimbursements */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <Compass size={18} color="#3B82F6" />
@@ -744,10 +735,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             </>
           )}
 
-          {/* TAB 6: DOCUMENT VAULT STATUS (CRM EDMS VS HR KYC ISOLATION) */}
           {activeTab === 'vault' && documents && (
             <>
-              {/* Architecture Safeguard Card */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <ShieldCheck size={18} color={colors.primary} />
@@ -756,7 +745,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 <Text style={styles.isoNoteText}>{documents.isolationNote}</Text>
               </Card>
 
-              {/* CRM EDMS Vault */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <Briefcase size={18} color="#3B82F6" />
@@ -784,7 +772,6 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 </View>
               </Card>
 
-              {/* HR Corporate & Employee KYC Vault */}
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <FileText size={18} color="#10B981" />
@@ -823,7 +810,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           )}
         </ScrollView>
       )}
-    </View>
+    </ScreenContainer>
   );
 };
 

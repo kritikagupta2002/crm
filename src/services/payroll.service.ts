@@ -1,5 +1,5 @@
 import { mobileStorage } from '../storage';
-import { SalaryStructure, Payslip, PayrollRun, Employee, AttendanceRecord, LeaveRequest } from '../types';
+import { SalaryStructure, Payslip, PayrollRun } from '../types';
 
 export function numberToWordsINR(amount: number): string {
   if (!amount || amount === 0) return 'Zero Rupees Only';
@@ -53,10 +53,6 @@ export function numberToWordsINR(amount: number): string {
 }
 
 export class PayrollService {
-  /**
-   * Get all salary structures. Dynamically ensures every active employee has a structure,
-   * matching web source payroll.service.js behavior.
-   */
   async getSalaryStructures(): Promise<SalaryStructure[]> {
     const list = await mobileStorage.getSalaryStructures();
     const employees = await mobileStorage.getEmployees();
@@ -135,7 +131,6 @@ export class PayrollService {
     const specialAllowance = Number(data.specialAllowance !== undefined ? data.specialAllowance : current.specialAllowance);
     const siteAllowance = Number(data.siteAllowance !== undefined ? data.siteAllowance : (current.siteAllowance || 0));
 
-    // Validation
     if (basic < 0 || hra < 0 || conveyance < 0 || specialAllowance < 0 || siteAllowance < 0) {
       throw new Error('Salary component values cannot be negative.');
     }
@@ -203,10 +198,6 @@ export class PayrollService {
     return list.find((p) => p.id === id || p.payslipNumber === id || p.payslipNo === id) || null;
   }
 
-  /**
-   * Executes the monthly payroll run integrating canonical attendance and approved leave data
-   * to compute payable days, statutory deductions, and finalized payslips.
-   */
   async processPayroll(
     monthKey: string, // e.g. "2026-09"
     monthLabel?: string, // e.g. "September 2026"
@@ -226,7 +217,6 @@ export class PayrollService {
     ];
     const resolvedLabel = monthLabel || `${monthNames[monthNum - 1]} ${year}`;
 
-    // Calendar working days in this month
     const totalWorkingDays = new Date(year, monthNum, 0).getDate();
 
     const employees = await mobileStorage.getEmployees();
@@ -238,7 +228,6 @@ export class PayrollService {
 
     const structures = await this.getSalaryStructures();
     const attendanceRecords = await mobileStorage.getAttendance();
-    const leaveRequests = await mobileStorage.getLeaves();
 
     const existingPayslips = await mobileStorage.getPayslips();
     const runs = await mobileStorage.getPayrollRuns();
@@ -255,17 +244,8 @@ export class PayrollService {
         throw new Error(`Salary structure missing for active employee: ${emp.name} (${emp.employeeId}).`);
       }
 
-      // Attendance records for this employee in this month
       const empAttendance = attendanceRecords.filter(
         (a) => a.employeeId === emp.employeeId && a.date && a.date.startsWith(monthKey)
-      );
-
-      // Approved leaves overlapping this month
-      const empApprovedLeaves = leaveRequests.filter(
-        (l) =>
-          l.employeeId === emp.employeeId &&
-          (l.status === 'Approved' || l.status === 'Partially Approved') &&
-          ((l.startDate && l.startDate.startsWith(monthKey)) || (l.endDate && l.endDate.startsWith(monthKey)))
       );
 
       // Compute loss of pay (LOP)
@@ -306,7 +286,6 @@ export class PayrollService {
       // Source rule: Professional Tax
       const pt = grossEarnings > 0 ? (struct.pt || struct.professionalTax || 200) : 0;
 
-      // Source rule: TDS monthly withholding
       const tds = Math.round((struct.tds || 0) * proration);
 
       const otherDeductions = 0;
@@ -389,12 +368,10 @@ export class PayrollService {
       processedBy,
     };
 
-    // Update payroll runs list (replace if already exists for this month, otherwise prepend)
     const filteredRuns = runs.filter((r) => r.monthKey !== monthKey);
     const updatedRuns = [newRun, ...filteredRuns];
     await mobileStorage.setPayrollRuns(updatedRuns);
 
-    // Update payslips list (replace existing for this month, keep others)
     const otherPayslips = existingPayslips.filter((p) => p.monthKey !== monthKey && !p.id.startsWith(`ps-${monthKey}`));
     const updatedPayslips = [...generatedPayslips, ...otherPayslips];
     await mobileStorage.setPayslips(updatedPayslips);
@@ -402,7 +379,6 @@ export class PayrollService {
     return { run: newRun, payslips: generatedPayslips };
   }
 
-  // Alias for backward compatibility
   async runMonthlyPayroll(month: string, year: number): Promise<Payslip[]> {
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June',

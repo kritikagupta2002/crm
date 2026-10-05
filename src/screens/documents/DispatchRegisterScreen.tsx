@@ -48,26 +48,21 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
   const { session } = useAuth();
   const currentUserName = (session as any)?.name || (session as any)?.contactPerson || 'Active User';
 
-
   const initialTab = route?.params?.tab || 'To dispatch';
   const [selectedTab, setSelectedTab] = useState<string>(initialTab);
   const [search, setSearch] = useState('');
 
-  // Modals for actions
   const [activeDispatchDoc, setActiveDispatchDoc] = useState<GovtDocument | null>(null);
   const [activeReceiveDoc, setActiveReceiveDoc] = useState<GovtDocument | null>(null);
   const [showAddCustomModal, setShowAddCustomModal] = useState(false);
 
-  // Dispatch action form state
   const [courierMode, setCourierMode] = useState<string>(DISPATCH_MODES[0]);
   const [waybillDocket, setWaybillDocket] = useState('');
   const [dispatchDate, setDispatchDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Receive action form state
   const [receivedByName, setReceivedByName] = useState('');
   const [receivedDate, setReceivedDate] = useState(new Date().toISOString().split('T')[0]);
 
-  // Custom dispatch form state
   const [customTitle, setCustomTitle] = useState('');
   const [customRecipient, setCustomRecipient] = useState('');
   const [customOrg, setCustomOrg] = useState('');
@@ -75,7 +70,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
   const [customCourier, setCustomCourier] = useState('DTDC Express');
   const [customDocket, setCustomDocket] = useState('');
 
-  // Physical originals from govtDocuments that have dispatch status
   const originals = useMemo(() => {
     return govtDocuments.filter(
       (d) =>
@@ -84,12 +78,10 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
     );
   }, [govtDocuments]);
 
-  // Metrics
   const toDispatchCount = originals.filter((d) => d.record.dispatch?.status === 'To dispatch').length;
   const inTransitCount = originals.filter((d) => d.record.dispatch?.status === 'Dispatched').length;
   const receivedCount = originals.filter((d) => d.record.dispatch?.status === 'Received').length;
 
-  // Filtered documents
   const filteredOriginals = useMemo(() => {
     return originals.filter((d) => {
       const status = d.record.dispatch?.status;
@@ -229,7 +221,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
             </View>
           </View>
 
-          {/* Transit Details */}
           {disp?.on && (
             <View style={styles.metaGrid}>
               <View style={styles.metaItem}>
@@ -253,7 +244,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
           )}
         </TouchableOpacity>
 
-        {/* Quick Action Footer */}
         {isToDispatch && (
           <View style={styles.cardActionFooter}>
             <TouchableOpacity
@@ -307,7 +297,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         }
       />
 
-      {/* KPI Cards */}
       <View style={styles.kpiRow}>
         <TouchableOpacity
           style={[styles.kpiCard, selectedTab === 'To dispatch' && styles.kpiCardActive]}
@@ -337,7 +326,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         </TouchableOpacity>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchBar}>
         <Search size={16} color={colors.text.tertiary} style={{ marginRight: spacing.xs }} />
         <Input
@@ -353,7 +341,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         )}
       </View>
 
-      {/* Tab Filter Pills */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -389,7 +376,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         })}
       </ScrollView>
 
-      {/* Originals FlatList */}
       <FlatList
         data={filteredOriginals}
         keyExtractor={(item) => item.id}
@@ -410,7 +396,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         }
       />
 
-      {/* Record Dispatch Modal */}
       <Modal
         visible={Boolean(activeDispatchDoc)}
         transparent
@@ -479,7 +464,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         </View>
       </Modal>
 
-      {/* Confirm Receipt Modal */}
       <Modal
         visible={Boolean(activeReceiveDoc)}
         transparent
@@ -529,7 +513,6 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         </View>
       </Modal>
 
-      {/* Manual Custom Dispatch Modal */}
       <Modal
         visible={showAddCustomModal}
         transparent

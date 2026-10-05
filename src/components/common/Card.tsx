@@ -30,7 +30,7 @@ export const Card: React.FC<CardProps> = ({
   if (onPress) {
     return (
       <TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={0.7}
         onPress={onPress}
         style={[styles.card, getVariantStyle(), style]}
       >
@@ -45,20 +45,22 @@ export const Card: React.FC<CardProps> = ({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.md,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
     marginBottom: spacing.md,
   },
   elevated: {
-    ...shadows.sm,
     borderWidth: 1,
     borderColor: colors.border.default,
+    ...shadows.sm,
   },
   outlined: {
-    borderWidth: 1.5,
-    borderColor: colors.borderDark,
+    borderWidth: 1,
+    borderColor: colors.borderMedium,
   },
   flat: {
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: colors.surfaceSubtle,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
 });

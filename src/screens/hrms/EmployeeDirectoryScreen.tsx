@@ -42,9 +42,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
   const [selectedRole, setSelectedRole] = useState('All');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Role Access Rules:
-  // Employee Directory is accessible to: HR, Admin, Manager.
-  // Regular employees should see restricted notice with button to view their own profile.
   const canAccessDirectory = hasRole(['Admin', 'HR', 'Manager', 'Executive']);
   const canManageStaff = hasRole(['Admin', 'HR']);
 
@@ -56,7 +53,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
     setRefreshing(false);
   };
 
-  // Department filter list from Org Master
   const deptList = useMemo(() => {
     const list = departments.map(d => d.name);
     return ['All', ...list];
@@ -65,7 +61,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
   const statusOptions = ['All', 'Active', 'On Leave', 'Notice Period', 'Probation'];
   const roleOptions = ['All', 'admin', 'hr', 'manager', 'employee'];
 
-  // Filtered employees list
   const filteredEmployees = useMemo(() => {
     return employees.filter(emp => {
       const q = search.trim().toLowerCase();
@@ -93,7 +88,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
     });
   }, [employees, search, selectedDept, selectedStatus, selectedRole]);
 
-  // Key KPI metrics
   const totalCount = employees.length;
   const activeCount = employees.filter(e => e.employment?.status === 'Active').length;
   const onLeaveCount = employees.filter(e => e.employment?.status === 'On Leave').length;
@@ -146,7 +140,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
     );
   };
 
-  // If unauthorized employee:
   if (!canAccessDirectory) {
     return (
       <View style={styles.container}>
@@ -183,7 +176,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
     const desigTitle = item.employment?.designation || 'Specialist';
     const status = item.employment?.status || 'Active';
 
-    // Initials for avatar
     const initials = item.name
       .split(' ')
       .map(n => n[0])
@@ -197,7 +189,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
         onPress={() => navigation.navigate('EmployeeDetail', { employeeId: item.id })}
       >
         <View style={styles.cardHeader}>
-          {/* Avatar and Primary Info */}
           <View style={styles.avatarRow}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{initials}</Text>
@@ -224,7 +215,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
           <StatusBadge status={status} size="small" />
         </View>
 
-        {/* Designation & Department */}
         <View style={styles.jobInfo}>
           <View style={styles.jobRow}>
             <Briefcase size={13} color={colors.primary} />
@@ -242,7 +232,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
           ) : null}
         </View>
 
-        {/* Contact Strip & Actions */}
         <View style={styles.cardFooter}>
           <View style={styles.contactActions}>
             {item.phone ? (
@@ -311,7 +300,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
         }
       />
 
-      {/* KPI Stats Bar */}
       <View style={styles.statsBar}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{totalCount}</Text>
@@ -334,7 +322,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
         </View>
       </View>
 
-      {/* Search Input */}
       <View style={styles.searchContainer}>
         <Input
           placeholder="Search by name, ID, designation, email..."
@@ -344,9 +331,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
         />
       </View>
 
-      {/* Filter Horizontal Chips */}
       <View style={styles.filterSection}>
-        {/* Department Chips */}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -365,7 +350,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
           )}
         />
 
-        {/* Status Chips */}
         <FlatList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -385,7 +369,6 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
         />
       </View>
 
-      {/* Employee List */}
       <FlatList
         data={filteredEmployees}
         keyExtractor={item => item.id}

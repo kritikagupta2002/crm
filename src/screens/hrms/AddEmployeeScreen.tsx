@@ -12,6 +12,7 @@ import {
 import { useHrms, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, Button, Input } from '../../components';
+import { isValidIndianMobile, isValidEmail, isValidPan } from '../../utils';
 import {
   User,
   Briefcase,
@@ -40,7 +41,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Auto-generate next BGS employee ID
   const defaultEmpId = useMemo(() => {
     const existingIds = employees.map(e => e.employeeId);
     let nextNum = employees.length + 1;
@@ -52,9 +52,7 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
     return candidate;
   }, [employees]);
 
-  // Form State
   const [formData, setFormData] = useState({
-    // Step 1: Basic
     fullName: '',
     gender: 'Male' as 'Male' | 'Female' | 'Other',
     dob: '1995-06-15',
@@ -67,7 +65,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
     state: 'Rajasthan',
     pincode: '302017',
 
-    // Step 2: Job & Org
     employeeId: defaultEmpId,
     department: departments[0]?.name || 'Geology & Mineral Exploration',
     designation: designations[0]?.title || 'Field Geologist',
@@ -79,14 +76,12 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
     project: 'Bhilwara Lead-Zinc Core Drilling',
     role: 'employee',
 
-    // Step 3: Bank & Payroll
     accountHolderName: '',
     bankName: 'HDFC Bank',
     accountNumber: '',
     ifscCode: 'HDFC0001234',
     baseSalary: '55000',
 
-    // Step 4: Statutory & Emergency
     panNumber: 'ABCDE1234F',
     uanNumber: '100987654321',
     emergencyName: 'Family Contact',
@@ -94,7 +89,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
     emergencyPhone: '',
   });
 
-  // Calculate live age from DOB
   const calculatedAge = useMemo(() => {
     if (!formData.dob) return null;
     const parts = formData.dob.split('-');
@@ -143,17 +137,16 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
       const phone = formData.phone.trim();
       if (!phone) {
         errs.phone = 'Mobile Phone is required.';
-      } else if (!/^[6-9]\d{9}$/.test(phone)) {
+      } else if (!isValidIndianMobile(phone)) {
         errs.phone = 'Must be a valid 10-digit Indian mobile starting with 6, 7, 8, or 9.';
       }
 
       const workEmail = formData.workEmail.trim();
       if (!workEmail) {
         errs.workEmail = 'Work Email is required.';
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(workEmail)) {
+      } else if (!isValidEmail(workEmail)) {
         errs.workEmail = 'Enter a valid email address (e.g. name@bansalgeo.com).';
       } else {
-        // Email Uniqueness Check
         const dupEmail = employees.find(
           e => e.email?.toLowerCase() === workEmail.toLowerCase()
         );
@@ -168,7 +161,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
         }
       }
 
-      // Age validation: 18 to 65 years
       if (!formData.dob) {
         errs.dob = 'Date of birth is required.';
       } else if (calculatedAge === null || calculatedAge < 18) {
@@ -185,7 +177,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
       } else if (empId.length > 15) {
         errs.employeeId = 'Employee ID cannot exceed 15 characters.';
       } else {
-        // Employee ID Uniqueness Check
         const dupEmpId = employees.find(
           e => e.employeeId.toUpperCase() === empId
         );
@@ -224,7 +215,7 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
       }
     } else if (step === 4) {
       const pan = formData.panNumber.trim().toUpperCase();
-      if (pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(pan)) {
+      if (pan && !isValidPan(pan)) {
         errs.panNumber = 'PAN Format: Must be 10 alphanumeric chars (e.g. ABCDE1234F).';
       }
 
@@ -234,7 +225,7 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
       }
 
       const emergPhone = formData.emergencyPhone.trim();
-      if (emergPhone && !/^[6-9]\d{9}$/.test(emergPhone)) {
+      if (emergPhone && !isValidIndianMobile(emergPhone)) {
         errs.emergencyPhone = 'Emergency phone must be a valid 10-digit Indian mobile.';
       }
     }
@@ -256,7 +247,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
   };
 
   const handleSubmit = async () => {
-    // Validate all steps before submitting
     for (let s = 1; s <= 4; s++) {
       if (!validateStep(s)) {
         setCurrentStep(s);
@@ -356,7 +346,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
         onBack={() => navigation.goBack()}
       />
 
-      {/* Progress Steps Header */}
       <View style={styles.stepIndicatorContainer}>
         {STEPS.map((s, idx) => {
           const isDone = s.id < currentStep;
@@ -398,9 +387,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
       </View>
 
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        {/* ============================================================ */}
-        {/* STEP 1: IDENTITY & BASIC CONTACT DETAILS */}
-        {/* ============================================================ */}
         {currentStep === 1 && (
           <Card style={styles.formCard}>
             <View style={styles.cardTitleRow}>
@@ -416,7 +402,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
               error={errors.fullName}
             />
 
-            {/* Gender Selection */}
             <Text style={styles.fieldLabel}>Gender *</Text>
             <View style={styles.pillRow}>
               {(['Male', 'Female', 'Other'] as const).map(g => (
@@ -432,7 +417,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
               ))}
             </View>
 
-            {/* Date of Birth & Calculated Age */}
             <Input
               label="Date of Birth (YYYY-MM-DD) *"
               placeholder="1995-06-15"
@@ -516,9 +500,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
           </Card>
         )}
 
-        {/* ============================================================ */}
-        {/* STEP 2: JOB & ORGANIZATION DETAILS */}
-        {/* ============================================================ */}
         {currentStep === 2 && (
           <Card style={styles.formCard}>
             <View style={styles.cardTitleRow}>
@@ -535,7 +516,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
               error={errors.employeeId}
             />
 
-            {/* Department Selection from Org Master */}
             <Text style={styles.fieldLabel}>Department (Org Master) *</Text>
             <View style={styles.chipGrid}>
               {departments.map(dept => (
@@ -560,7 +540,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
               ))}
             </View>
 
-            {/* Designation Selection from Org Master */}
             <Text style={[styles.fieldLabel, { marginTop: spacing.md }]}>
               Designation (Org Master) *
             </Text>
@@ -631,7 +610,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
               onChangeText={val => handleChange('project', val)}
             />
 
-            {/* System Access Role */}
             <Text style={styles.fieldLabel}>System Access Role</Text>
             <View style={styles.pillRow}>
               {['employee', 'manager', 'hr', 'admin'].map(r => (
@@ -649,9 +627,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
           </Card>
         )}
 
-        {/* ============================================================ */}
-        {/* STEP 3: BANK & PAYROLL DETAILS */}
-        {/* ============================================================ */}
         {currentStep === 3 && (
           <Card style={styles.formCard}>
             <View style={styles.cardTitleRow}>
@@ -706,9 +681,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
           </Card>
         )}
 
-        {/* ============================================================ */}
-        {/* STEP 4: STATUTORY KYC & EMERGENCY CONTACTS */}
-        {/* ============================================================ */}
         {currentStep === 4 && (
           <Card style={styles.formCard}>
             <View style={styles.cardTitleRow}>
@@ -766,7 +738,6 @@ export const AddEmployeeScreen: React.FC<{ navigation: any }> = ({ navigation })
           </Card>
         )}
 
-        {/* Prev / Next & Submit Controls */}
         <View style={styles.actionButtonsRow}>
           {currentStep > 1 && (
             <TouchableOpacity style={styles.backBtn} onPress={handleBack}>

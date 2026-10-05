@@ -51,7 +51,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [docToDelete, setDocToDelete] = useState<HrDocument | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  // Upload Form State
   const [docTitle, setDocTitle] = useState<string>('');
   const [docCategory, setDocCategory] = useState<string>('Company Documents');
   const [docDesc, setDocDesc] = useState<string>('');
@@ -63,7 +62,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
   } | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
 
-  // Role filtering: regular employees only see documents with accessRole === 'all'
   const accessibleDocs = useMemo(() => {
     return hrDocuments.filter((d) => {
       if (isHrOrAdmin) return true;
@@ -186,7 +184,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
       />
 
       <View style={styles.body}>
-        {/* Search Bar */}
         <View style={styles.searchContainer}>
           <Search size={18} color={colors.text.tertiary} style={styles.searchIcon} />
           <TextInput
@@ -203,7 +200,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
           )}
         </View>
 
-        {/* Category Filter Pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -226,7 +222,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
           })}
         </ScrollView>
 
-        {/* Document Cards List */}
         <ScrollView
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -324,7 +319,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
         </ScrollView>
       </View>
 
-      {/* Upload Corporate Document Modal */}
       <Modal visible={isUploadOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -443,7 +437,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
         </View>
       </Modal>
 
-      {/* Document Preview Modal */}
       <Modal visible={!!previewDoc} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.previewCard}>
@@ -520,7 +513,6 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
         </View>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <ConfirmationModal
         visible={!!docToDelete}
         title="Delete Corporate Document"

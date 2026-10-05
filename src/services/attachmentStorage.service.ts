@@ -8,9 +8,6 @@ import { StoredAttachment } from '../types';
 const ATTACHMENT_DIR = `${FileSystem.documentDirectory}hrms_attachments/`;
 
 class AttachmentStorageService {
-  /**
-   * Ensures the hrms_attachments directory exists on native disk.
-   */
   async ensureDirExists(): Promise<void> {
     try {
       const dirInfo = await FileSystem.getInfoAsync(ATTACHMENT_DIR);
@@ -22,9 +19,6 @@ class AttachmentStorageService {
     }
   }
 
-  /**
-   * Format bytes into a readable string (e.g. "2.4 MB" or "850 KB")
-   */
   formatFileSize(bytes: number): string {
     if (!bytes || bytes === 0) return '0 KB';
     if (bytes >= 1024 * 1024) {
@@ -33,10 +27,6 @@ class AttachmentStorageService {
     return `${Math.round(bytes / 1024)} KB`;
   }
 
-  /**
-   * Compresses image using expo-image-manipulator (max 1600px, 0.85 quality),
-   * strictly mirroring web attachmentStorage.compressImageFile.
-   */
   async compressImage(uri: string, maxDimension: number = 1600, quality: number = 0.85): Promise<string> {
     try {
       const manipResult = await ImageManipulator.manipulateAsync(
@@ -51,9 +41,6 @@ class AttachmentStorageService {
     }
   }
 
-  /**
-   * Saves a picked file or camera image to the persistent hrms_attachments directory.
-   */
   async saveAttachment(
     sourceUri: string,
     originalFileName: string,
@@ -96,10 +83,6 @@ class AttachmentStorageService {
     }
   }
 
-  /**
-   * Native file picker using expo-document-picker.
-   * Allowed types: PDF, PNG, JPG, JPEG (and Office documents).
-   */
   async pickDocument(allowedTypes: string[] = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg']): Promise<{
     uri: string;
     name: string;
@@ -128,9 +111,6 @@ class AttachmentStorageService {
     }
   }
 
-  /**
-   * Pick an image from photo library using expo-image-picker.
-   */
   async pickImageFromLibrary(): Promise<{
     uri: string;
     name: string;
@@ -161,9 +141,6 @@ class AttachmentStorageService {
     }
   }
 
-  /**
-   * Capture a new scan/photo using the device camera.
-   */
   async takePhoto(): Promise<{
     uri: string;
     name: string;
@@ -198,9 +175,6 @@ class AttachmentStorageService {
     }
   }
 
-  /**
-   * Opens or shares the attachment using native operating system sharing / view intent.
-   */
   async openOrShareAttachment(fileUri: string, fileName?: string): Promise<boolean> {
     try {
       const isAvailable = await Sharing.isAvailableAsync();
@@ -209,7 +183,6 @@ class AttachmentStorageService {
         return false;
       }
 
-      // Check if file exists locally
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
       if (!fileInfo.exists) {
         return false;
@@ -226,9 +199,6 @@ class AttachmentStorageService {
     }
   }
 
-  /**
-   * Deletes a local attachment file from disk.
-   */
   async deleteAttachment(fileUri?: string): Promise<void> {
     if (!fileUri) return;
     try {

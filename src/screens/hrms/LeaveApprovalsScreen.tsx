@@ -42,12 +42,10 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
   const activeEmpId = session?.accountType === 'team' ? (session as any).employeeId : 'BGS-2021-001';
   const activeEmpName = session?.accountType === 'team' ? (session as any).name : 'HR Manager';
 
-  // Filters & Search
   const [selectedStatus, setSelectedStatus] = useState<string>('Pending');
   const [selectedType, setSelectedType] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Adjudication Modal State
   const [selectedReq, setSelectedReq] = useState<LeaveRequest | null>(null);
   const [reviewMode, setReviewMode] = useState<'Full' | 'Partial' | 'Reject'>('Full');
   const [approvedDaysInput, setApprovedDaysInput] = useState<number>(1);
@@ -55,7 +53,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  // Filtered requests
   const filteredRequests = useMemo(() => {
     return leaves.filter((r) => {
       if (selectedStatus !== 'All' && r.status !== selectedStatus) {
@@ -78,9 +75,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
     });
   }, [leaves, selectedStatus, selectedType, searchQuery]);
 
-  // Open Review Dialog
   const handleOpenReview = (req: LeaveRequest, initialMode: 'Full' | 'Partial' | 'Reject') => {
-    // 4-Eyes Principle self-review guard check
     if (req.employeeId === activeEmpId) {
       Alert.alert(
         '4-Eyes Principle Guard',
@@ -103,17 +98,14 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
     setIsModalOpen(true);
   };
 
-  // Confirm Adjudication Decision
   const handleConfirmDecision = async () => {
     if (!selectedReq) return;
 
-    // 4-Eyes Principle Guard check
     if (selectedReq.employeeId === activeEmpId) {
       Alert.alert('Policy Violation', 'You cannot adjudicate your own leave application.');
       return;
     }
 
-    // Mandatory rejection reason rule
     if (reviewMode === 'Reject' && (!approverComment || !approverComment.trim())) {
       Alert.alert('Reason Required', 'A formal rejection reason is mandatory when declining leave.');
       return;
@@ -171,7 +163,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
     }
   };
 
-  // Quota & Balance impact calculation for the modal
   const balanceImpact = useMemo(() => {
     if (!selectedReq) return null;
     const currentBal = leaveBalances.find((b) => b.leaveType === selectedReq.leaveType);
@@ -222,7 +213,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
 
     return (
       <Card style={styles.card}>
-        {/* Top Header: Applicant & Status */}
         <View style={styles.cardHeader}>
           <View style={styles.applicantInfo}>
             <View style={styles.avatarMini}>
@@ -239,7 +229,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           <StatusBadge status={item.status as any} size="small" />
         </View>
 
-        {/* 4-Eyes Principle Notice */}
         {isOwnRequest && (
           <View style={styles.selfReviewNotice}>
             <AlertTriangle size={13} color={colors.semantic.warning} />
@@ -249,7 +238,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           </View>
         )}
 
-        {/* Leave Type & Dates */}
         <View style={styles.metaRow}>
           <View style={styles.leaveTypePill}>
             <Text style={styles.leaveTypePillText}>{item.leaveType}</Text>
@@ -268,7 +256,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           </Text>
         </View>
 
-        {/* Partial breakdown badge if relevant */}
         {item.status === 'Partially Approved' && (
           <View style={styles.partialBadgeBox}>
             <Text style={styles.partialBadgeText}>
@@ -277,13 +264,11 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           </View>
         )}
 
-        {/* Reason snippet */}
         <Text style={styles.reasonText}>
           <Text style={{ fontWeight: '700' }}>Reason: </Text>
           "{item.reason}"
         </Text>
 
-        {/* Contact during leave */}
         {item.contactDuringLeave && (
           <View style={styles.contactRow}>
             <Phone size={12} color={colors.text.tertiary} />
@@ -291,7 +276,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           </View>
         )}
 
-        {/* Existing review remarks if already adjudicated */}
         {item.status === 'Rejected' && item.rejectionReason && (
           <View style={styles.adjudicatedRejectionBox}>
             <Text style={styles.adjudicatedRejectionText}>
@@ -308,7 +292,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           </View>
         )}
 
-        {/* Cross-module muster sync reminder for pending requests */}
         {item.status === 'Pending' && (
           <View style={styles.syncNotice}>
             <CheckCircle2 size={12} color={colors.semantic.success} />
@@ -318,7 +301,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           </View>
         )}
 
-        {/* Adjudication Actions for Pending Requests */}
         {item.status === 'Pending' && (
           <View style={styles.actionsRow}>
             <Button
@@ -360,9 +342,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         onBack={() => navigation.goBack()}
       />
 
-      {/* Filter Section */}
       <View style={styles.filterSection}>
-        {/* Search */}
         <View style={styles.searchBar}>
           <Search size={15} color={colors.text.tertiary} />
           <TextInput
@@ -379,7 +359,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           )}
         </View>
 
-        {/* Status segmented filters */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.statusChipsRow}>
           {[
             { key: 'Pending', label: 'Pending Queue' },
@@ -401,7 +380,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         </ScrollView>
       </View>
 
-      {/* Queue Listing */}
       <FlatList
         data={filteredRequests}
         keyExtractor={(item) => item.id}
@@ -420,9 +398,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         }
       />
 
-      {/* ============================================================ */}
-      {/* ADJUDICATION MODAL                                           */}
-      {/* ============================================================ */}
       <Modal visible={isModalOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.adjudicateModalBox}>
@@ -440,7 +415,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
 
             {selectedReq && (
               <ScrollView contentContainerStyle={styles.modalBodyScroll} showsVerticalScrollIndicator={false}>
-                {/* Summary Banner */}
                 <View style={styles.summaryBanner}>
                   <Text style={styles.summaryLine}>
                     <Text style={{ fontWeight: '700' }}>Applicant: </Text>
@@ -463,7 +437,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                   </Text>
                 </View>
 
-                {/* Decision Tabs */}
                 <Text style={styles.inputLabel}>Adjudication Decision</Text>
                 <View style={styles.decisionTabsRow}>
                   <TouchableOpacity
@@ -521,7 +494,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                   </TouchableOpacity>
                 </View>
 
-                {/* Partial Days Stepper */}
                 {reviewMode === 'Partial' && (
                   <View style={styles.partialStepperBox}>
                     <View style={styles.partialStepperHeader}>
@@ -586,7 +558,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                   </View>
                 )}
 
-                {/* Quota & Balance Impact Calculation */}
                 {balanceImpact && (
                   <View style={styles.quotaImpactBox}>
                     <Text style={styles.quotaImpactTitle}>Quota Ledger Impact</Text>
@@ -628,7 +599,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                   </View>
                 )}
 
-                {/* Approver Remarks / Rejection Reason Input */}
                 <Input
                   label={
                     reviewMode === 'Reject'
@@ -652,7 +622,6 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                   </Text>
                 )}
 
-                {/* Action Buttons */}
                 <View style={styles.modalActionButtons}>
                   <Button
                     title="Cancel"

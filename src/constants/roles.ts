@@ -68,7 +68,6 @@ export const ALL_WORKSPACES: WorkspaceConfig[] = [
   },
 ];
 
-// Preserves the exact role-to-workspace mapping from prompt
 export const WORKSPACE_ACCESS: Record<TeamRole, WorkspaceId[]> = {
   admin: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'finance', 'mis'],
   hr: ['hrms', 'expenses', 'mis'],
@@ -76,7 +75,6 @@ export const WORKSPACE_ACCESS: Record<TeamRole, WorkspaceId[]> = {
   lead: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses'],
   employee: ['crm', 'vendor', 'hrms', 'expenses'],
 };
-
 
 export const TEAM_PERSONAS: Record<TeamRole, UserSession> = {
   admin: {

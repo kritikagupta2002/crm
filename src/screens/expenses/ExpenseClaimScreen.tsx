@@ -56,7 +56,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
   const [pickerModalOpen, setPickerModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form error messages for inline feedback
   const [errors, setErrors] = useState<{
     amount?: string;
     date?: string;
@@ -169,7 +168,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
             </View>
           )}
 
-          {/* Expense Category */}
           <Text style={styles.label}>Expense Category *</Text>
           <View style={styles.categoryChips}>
             {categories.map((c) => (
@@ -185,7 +183,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
             ))}
           </View>
 
-          {/* Monetary Amount Claimed */}
           <View style={styles.inputGroup}>
             <Input
               label="Monetary Amount Claimed (INR ₹) *"
@@ -201,7 +198,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
             />
           </View>
 
-          {/* Incurred Date */}
           <View style={styles.inputGroup}>
             <Input
               label="Incurred Date (YYYY-MM-DD) *"
@@ -217,7 +213,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
             <Text style={styles.helperText}>Must be today or a past date. Future dates are blocked.</Text>
           </View>
 
-          {/* Project Block */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Associated Project / Exploration Site *</Text>
             <View style={styles.projectChips}>
@@ -240,7 +235,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
             {errors.project && <Text style={styles.inlineError}>{errors.project}</Text>}
           </View>
 
-          {/* Business Purpose / Justification */}
           <View style={styles.inputGroup}>
             <Input
               label="Business Purpose / Justification (Min 10 chars) *"
@@ -259,7 +253,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
             </Text>
           </View>
 
-          {/* Receipt Attachment */}
           <Text style={styles.label}>Tax Invoice / Bill / Receipt Voucher</Text>
           {attachedReceipt ? (
             <View style={styles.attachedContainer}>
@@ -302,7 +295,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
             </TouchableOpacity>
           )}
 
-          {/* Submit Action */}
           <Button
             title="Submit Expense Claim"
             variant="primary"
@@ -313,7 +305,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
         </Card>
       </ScrollView>
 
-      {/* File Picker Simulation Modal */}
       <Modal visible={pickerModalOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.pickerModal}>
@@ -369,7 +360,6 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
         </View>
       </Modal>
 
-      {/* Attachment Preview Modal */}
       <Modal visible={previewModalOpen} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.previewModal}>

@@ -10,29 +10,19 @@ import {
   TextInput,
 } from 'react-native';
 import {
-  Briefcase,
   CheckCircle2,
-  Circle,
   FileText,
-  Clock,
-  ArrowRight,
   ShieldCheck,
-  AlertCircle,
-  IndianRupee,
-  Layers,
-  Upload,
-  Landmark,
   X,
   RotateCcw,
   Check,
-  FileCheck,
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button } from '../../components/common';
-import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { colors, spacing, typography, radius } from '../../theme';
+import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import { WorkOrderStage } from '../../types';
-import { TDS_SECTIONS } from '../../constants/vendor';
 
 interface WorkOrderDetailScreenProps {
   route: { params: { woId: string } };
@@ -53,30 +43,25 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
 
   const isAccountant = (role as any) === 'accountant' || (role as any) === 'director' || (role as any) === 'admin';
   const isDirector = (role as any) === 'director' || (role as any) === 'admin';
-  const isManager = (role as any) === 'tender_manager' || (role as any) === 'operations_manager' || (role as any) === 'project_manager' || isDirector;
 
   const wo = workOrders.find((w) => w.id === woId || w.woNumber === woId);
 
-  // Delivery Modal State
   const [showDeliveryModal, setShowDeliveryModal] = useState<boolean>(false);
   const [deliveryNotes, setDeliveryNotes] = useState<string>('');
-  const [deliveryFiles, setDeliveryFiles] = useState<Array<{ name: string; size: number }>>([
+  const [deliveryFiles] = useState<Array<{ name: string; size: number }>>([
     { name: 'Drilling_Core_Lithology_Log.pdf', size: 2400000 },
     { name: 'Field_Survey_Sheets_Attested.pdf', size: 1800000 },
   ]);
 
-  // Billing Modal State
   const [showBillModal, setShowBillModal] = useState<boolean>(false);
   const [billNo, setBillNo] = useState<string>('');
   const [billAmount, setBillAmount] = useState<string>('');
   const [billNotes, setBillNotes] = useState<string>('');
 
-  // Reconciliation Check Modal State
   const [showCheckModal, setShowCheckModal] = useState<boolean>(false);
   const [checkDecision, setCheckDecision] = useState<'approved' | 'returned'>('approved');
   const [checkRemarks, setCheckRemarks] = useState<string>('');
 
-  // Payment Modal State
   const [showPayModal, setShowPayModal] = useState<boolean>(false);
   const [utrRef, setUtrRef] = useState<string>('');
   const [selectedTdsSection, setSelectedTdsSection] = useState<string>('194C');
@@ -106,13 +91,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
   const paidVal = wo.paidAmount || (wo.payment ? wo.payment.gross : 0);
   const unbilledCeiling = Math.max(0, contractVal - billedVal);
 
-  const formatCurrency = (amt: number) => {
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
-
-  // 1. Advance to Started
   const handleStartWork = async () => {
     Alert.alert(
       'Confirm Contractor Mobilization',
@@ -137,7 +115,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
     );
   };
 
-  // 2. Submit Delivery
   const handleExecuteDelivery = async () => {
     if (!deliveryNotes.trim()) {
       Alert.alert('Completion Notes Required', 'Please provide a summary of completed field deliverables.');
@@ -160,7 +137,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
     }
   };
 
-  // 3. Submit Bill
   const handleExecuteBill = async () => {
     const amt = Number(billAmount);
     if (!billNo.trim() || !amt || amt <= 0) {
@@ -195,7 +171,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
     }
   };
 
-  // 4. Check Bill (Reconciliation)
   const handleExecuteCheck = async () => {
     if (checkDecision === 'returned' && !checkRemarks.trim()) {
       Alert.alert('Reason Required', 'Please enter specific discrepancy reasons for returning the bill to the vendor.');
@@ -222,7 +197,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
     }
   };
 
-  // 5. Release Payment
   const handleExecutePayment = async () => {
     if (!utrRef.trim()) {
       Alert.alert('UTR Required', 'Please enter the bank electronic transfer UTR reference.');
@@ -259,7 +233,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         />
       }
     >
-      {/* Header Summary Card */}
       <Card style={styles.headerCard}>
         <View style={styles.headerTop}>
           <Text style={styles.woBadge}>{wo.woNumber || wo.id}</Text>
@@ -286,7 +259,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </View>
       </Card>
 
-      {/* 6-State Milestone Lifecycle Stepper */}
       <Card style={styles.stepperCard}>
         <Text style={styles.sectionTitle}>Milestone Lifecycle Progress</Text>
         <View style={styles.stepperRow}>
@@ -331,7 +303,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </View>
       </Card>
 
-      {/* Primary Action Card Based on Current Stage */}
       <Card style={styles.actionPromptCard}>
         <View style={styles.promptHeader}>
           <ShieldCheck size={20} color={colors.primary} />
@@ -434,7 +405,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         )}
       </Card>
 
-      {/* Delivery Records Section */}
       {wo.delivery && (
         <Card style={styles.infoCard}>
           <Text style={styles.cardHeading}>Field Delivery Proofs</Text>
@@ -465,7 +435,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </Card>
       )}
 
-      {/* Active Bill & Returned Bills Section */}
       {(wo.bill || (wo.returned && wo.returned.length > 0)) && (
         <Card style={styles.infoCard}>
           <Text style={styles.cardHeading}>Billing & Reconciliation History</Text>
@@ -502,7 +471,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </Card>
       )}
 
-      {/* Audit Log / History */}
       {wo.history && wo.history.length > 0 && (
         <Card style={styles.infoCard}>
           <Text style={styles.cardHeading}>Subcontract Audit Trail</Text>
@@ -521,7 +489,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </Card>
       )}
 
-      {/* MODAL 1: Delivery Modal */}
       {showDeliveryModal && (
         <Modal visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -572,7 +539,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </Modal>
       )}
 
-      {/* MODAL 2: Billing Modal */}
       {showBillModal && (
         <Modal visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -639,7 +605,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </Modal>
       )}
 
-      {/* MODAL 3: Reconciliation Check Modal */}
       {showCheckModal && (
         <Modal visible transparent animationType="fade">
           <View style={styles.centerBackdrop}>
@@ -713,7 +678,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
         </Modal>
       )}
 
-      {/* MODAL 4: Payment Disbursement Modal */}
       {showPayModal && (
         <Modal visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -726,7 +690,6 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
               </View>
 
               <ScrollView contentContainerStyle={styles.sheetContent}>
-                {/* TDS Calculations */}
                 <View style={styles.tdsSummaryBox}>
                   <View style={styles.tdsRow}>
                     <Text style={styles.tdsLabel}>Gross Bill Amount</Text>

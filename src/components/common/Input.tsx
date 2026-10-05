@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -28,8 +28,12 @@ export const Input: React.FC<InputProps> = ({
   leftIcon,
   rightIcon,
   style,
+  onFocus,
+  onBlur,
   ...props
 }) => {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label ? (
@@ -41,14 +45,23 @@ export const Input: React.FC<InputProps> = ({
       <View
         style={[
           styles.inputWrapper,
+          isFocused ? styles.inputFocused : null,
           error ? styles.inputError : null,
           props.editable === false ? styles.inputDisabled : null,
         ]}
       >
         {leftIcon ? <View style={styles.leftIcon}>{leftIcon}</View> : null}
         <TextInput
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={colors.textTertiary}
           style={[styles.input, style]}
+          onFocus={(e) => {
+            setIsFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setIsFocused(false);
+            onBlur?.(e);
+          }}
           {...props}
         />
         {rightIcon ? <View style={styles.rightIcon}>{rightIcon}</View> : null}
@@ -64,34 +77,39 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   label: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
+    fontSize: 12.5,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.textPrimary,
-    marginBottom: spacing.xs,
+    marginBottom: 5,
+    letterSpacing: 0.1,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
-    borderRadius: radius.md,
+    borderWidth: 1.2,
+    borderColor: colors.border.default,
+    borderRadius: radius.md + 2,
     paddingHorizontal: spacing.md,
     minHeight: 46,
   },
+  inputFocused: {
+    borderColor: colors.primaryDark,
+    backgroundColor: colors.surface,
+  },
   inputError: {
     borderColor: colors.danger,
-    backgroundColor: colors.dangerBg + '20',
+    backgroundColor: colors.dangerBg,
   },
   inputDisabled: {
-    backgroundColor: colors.surfaceMuted,
-    borderColor: colors.border.default,
+    backgroundColor: colors.surfaceSubtle,
+    borderColor: colors.borderLight,
   },
   input: {
     flex: 1,
     fontSize: typography.fontSizes.base,
     color: colors.textPrimary,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs + 3,
   },
   leftIcon: {
     marginRight: spacing.sm,
@@ -102,11 +120,12 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: typography.fontSizes.xs,
     color: colors.danger,
-    marginTop: spacing.xs - 2,
+    marginTop: 3,
+    fontWeight: typography.fontWeights.medium,
   },
   helperText: {
     fontSize: typography.fontSizes.xs,
     color: colors.textMuted,
-    marginTop: spacing.xs - 2,
+    marginTop: 3,
   },
 });

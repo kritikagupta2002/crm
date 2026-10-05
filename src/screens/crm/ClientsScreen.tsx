@@ -51,7 +51,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
   const [selectedState, setSelectedState] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState<'All' | 'Active' | 'Onboarding'>('All');
 
-  // Derive master client records from Won leads and client storage
   const masterClients = useMemo(() => {
     const list: any[] = [];
     const wonLeads = leads.filter((l) => l.stage === 'Won');
@@ -77,7 +76,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
       });
     });
 
-    // Also include any standalone clients that might not have a lead
     clients.forEach((c) => {
       if (!list.some((it) => it.name.toLowerCase() === c.name.toLowerCase())) {
         list.push({
@@ -109,13 +107,11 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
     return ['All', ...Array.from(s)];
   }, [masterClients]);
 
-  // KPIs
   const totalClients = masterClients.length;
   const activeCount = masterClients.filter((c) => c.status === 'Active').length;
   const onboardingCount = totalClients - activeCount;
   const totalBusinessSum = masterClients.reduce((sum, c) => sum + (c.businessValue || 0), 0);
 
-  // Filtered
   const q = search.trim().toLowerCase();
   const visibleClients = masterClients.filter((c) => {
     const matchesSearch =
@@ -151,7 +147,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         />
       }
     >
-      {/* 4 Stat Cards */}
       <View style={styles.kpiGrid}>
         <StatCard
           label="Total Clients"
@@ -183,7 +178,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         />
       </View>
 
-      {/* Search Input */}
       <Input
         placeholder="Search client, contact person, location..."
         value={search}
@@ -192,10 +186,8 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         containerStyle={styles.searchBar}
       />
 
-      {/* Filter Chips (Status & Location) */}
       <View style={styles.filtersRow}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsScroll}>
-          {/* Status Chips */}
           {(['All', 'Active', 'Onboarding'] as const).map((st) => (
             <TouchableOpacity
               key={st}
@@ -210,7 +202,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
 
           <View style={styles.chipDivider} />
 
-          {/* State Chips */}
           {states.slice(0, 5).map((st) => (
             <TouchableOpacity
               key={st}
@@ -225,7 +216,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         </ScrollView>
       </View>
 
-      {/* Client List */}
       {visibleClients.length === 0 ? (
         <EmptyState
           title="No Clients Found"

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -32,17 +32,39 @@ import {
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button, Input, SegmentedControl } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrency, normalisePhone, isValidIndianMobile, isValidEmail } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
-import { useAuth } from '../../context/AuthContext';
 import { Lead, LeadStage } from '../../types';
 
 interface LeadsScreenProps {
   navigation: any;
 }
 
+const ALL_STAGES = ['All', 'New Enquiry', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
+const SERVICES = [
+  'All',
+  'Mineral Exploration & Resources',
+  'Mineral Economics & Valuation',
+  'Environment, Community & Permitting',
+  'Mine Planning & Prefeasibility Study',
+  'Hydrogeology & Groundwater',
+  'Remote Sensing, GIS & Aerial Mapping',
+  'Geotechnical Services',
+];
+
+const leadKeyExtractor = (item: Lead) => item.id;
+
+const openDialer = (ph: string) => {
+  Linking.openURL(`tel:+91${normalisePhone(ph)}`);
+};
+
+const openWhatsApp = (ph: string, name: string) => {
+  const text = encodeURIComponent(`Hello ${name}, this is Bansal Geosurveys regarding your exploration enquiry.`);
+  Linking.openURL(`whatsapp://send?phone=91${normalisePhone(ph)}&text=${text}`);
+};
+
 export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
   const { leads, addLead, updateLeadStage } = useCrm();
-  const { can, role } = useAuth();
 
   const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
   const [selectedStageTab, setSelectedStageTab] = useState<string>('All');
@@ -53,7 +75,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
   const [losingLeadId, setLosingLeadId] = useState<string | null>(null);
   const [lostReason, setLostReason] = useState<string>('');
 
-  // Add Lead Form State
   const [clientType, setClientType] = useState<'Company' | 'Individual'>('Company');
   const [company, setCompany] = useState('');
   const [contactName, setContactName] = useState('');
@@ -70,36 +91,15 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  const ALL_STAGES = ['All', 'New Enquiry', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
-  const SERVICES = [
-    'All',
-    'Mineral Exploration & Resources',
-    'Mineral Economics & Valuation',
-    'Environment, Community & Permitting',
-    'Mine Planning & Prefeasibility Study',
-    'Hydrogeology & Groundwater',
-    'Remote Sensing, GIS & Aerial Mapping',
-    'Geotechnical Services',
-  ];
-
-  const formatCurrency = (amt: number) => {
-    if (!amt) return '₹0';
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
-
-  const normalisePhone = (val: string) => val.replace(/[\s-]/g, '').replace(/^(\+91|0)/, '');
-
   const validateForm = () => {
     const errors: Record<string, string> = {};
     if (!company.trim()) errors.company = 'Company name is required';
     if (!contactName.trim()) errors.contactName = 'Contact person is required';
     const normPhone = normalisePhone(phone);
-    if (!/^[6-9]\d{9}$/.test(normPhone)) {
+    if (!isValidIndianMobile(normPhone)) {
       errors.phone = 'Enter a valid 10-digit Indian mobile number';
     }
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    if (email.trim() && !isValidEmail(email.trim())) {
       errors.email = 'Enter a valid email address';
     }
     if (estimatedValue && Number(estimatedValue) <= 0) {
@@ -155,7 +155,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
     setFormErrors({});
   };
 
-  const handleMarkLost = async () => {
+  const handleMarkLost = useCallback(async () => {
     if (!losingLeadId) return;
     if (!lostReason.trim()) {
       Alert.alert('Reason Required', 'Please provide a reason why this lead was lost.');
@@ -169,20 +169,17 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
     } catch (e: any) {
       Alert.alert('Error', e.message || 'Failed to update lead.');
     }
-  };
+  }, [losingLeadId, lostReason, updateLeadStage]);
 
   const filteredLeads = useMemo(() => {
     return leads.filter((l) => {
-      // Stage match
       const stageMatch =
         selectedStageTab === 'All' ||
         l.stage === selectedStageTab ||
         (selectedStageTab === 'New Enquiry' && l.stage === 'New');
 
-      // Service match
       const serviceMatch = selectedService === 'All' || l.service === selectedService;
 
-      // Search match
       const q = searchQuery.toLowerCase().trim();
       const searchMatch =
         !q ||
@@ -196,14 +193,14 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
     });
   }, [leads, selectedStageTab, selectedService, searchQuery]);
 
-  const openDialer = (ph: string) => {
-    Linking.openURL(`tel:+91${normalisePhone(ph)}`);
-  };
-
-  const openWhatsApp = (ph: string, name: string) => {
-    const text = encodeURIComponent(`Hello ${name}, this is Bansal Geosurveys regarding your exploration enquiry.`);
-    Linking.openURL(`whatsapp://send?phone=91${normalisePhone(ph)}&text=${text}`);
-  };
+  const stageCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: leads.length };
+    for (const l of leads) {
+      const s = l.stage === 'New' ? 'New Enquiry' : l.stage;
+      counts[s] = (counts[s] || 0) + 1;
+    }
+    return counts;
+  }, [leads]);
 
   return (
     <ScreenContainer
@@ -237,7 +234,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         />
       }
     >
-      {/* 1. Search & Filter Bar */}
       <View style={styles.searchBarRow}>
         <Input
           placeholder="Search company, contact, phone, ID..."
@@ -254,14 +250,10 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* 2. Stage Filter Tabs Horizontal Bar */}
       <View style={styles.stageTabsContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.stageTabsContent}>
           {ALL_STAGES.map((s) => {
-            const count =
-              s === 'All'
-                ? leads.length
-                : leads.filter((l) => l.stage === s || (s === 'New Enquiry' && l.stage === 'New')).length;
+            const count = stageCounts[s] || 0;
             const isSelected = selectedStageTab === s;
 
             return (
@@ -280,11 +272,10 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </ScrollView>
       </View>
 
-      {/* 3. LIST VIEW OR KANBAN BOARD VIEW */}
       {viewMode === 'list' ? (
         <FlatList
           data={filteredLeads}
-          keyExtractor={(item) => item.id}
+          keyExtractor={leadKeyExtractor}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
@@ -299,7 +290,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
               style={styles.leadCard}
               onPress={() => navigation.navigate('LeadDetail', { leadId: item.id })}
             >
-              {/* Header: Company & Stage */}
               <View style={styles.cardHeader}>
                 <View style={styles.companyCol}>
                   <Text style={styles.companyName} numberOfLines={1}>{item.company}</Text>
@@ -308,11 +298,9 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
                 <StatusBadge status={item.stage} size="sm" />
               </View>
 
-              {/* Title & Service */}
               <Text style={styles.leadTitle} numberOfLines={2}>{item.title}</Text>
               <Text style={styles.serviceText}>{item.serviceDetail || item.service || 'Exploration Survey'}</Text>
 
-              {/* Contact with Call & WhatsApp Actions */}
               <View style={styles.contactBar}>
                 <View style={styles.contactCol}>
                   <Text style={styles.contactPerson}>{item.contactPerson || item.contactName}</Text>
@@ -334,7 +322,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
                 </View>
               </View>
 
-              {/* Footer: Value & Conversion / Details */}
               <View style={styles.cardFooter}>
                 <View>
                   <Text style={styles.valLabel}>EST. VALUE</Text>
@@ -376,7 +363,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
           )}
         />
       ) : (
-        /* KANBAN BOARD VIEW */
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.boardScroll}>
           {ALL_STAGES.filter((s) => s !== 'All').map((stageName) => {
             const stageLeads = leads.filter(
@@ -415,7 +401,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </ScrollView>
       )}
 
-      {/* 4. FILTER MODAL */}
       <Modal visible={showFilterModal} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.filterModalCard}>
@@ -447,7 +432,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* 5. ADD NEW LEAD MODAL */}
       <Modal visible={showAddModal} animationType="slide">
         <ScreenContainer
           scrollable
@@ -461,7 +445,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
           }
         >
           <View style={styles.formContainer}>
-            {/* Client Type */}
             <Text style={styles.formLabel}>Client Type</Text>
             <View style={styles.typeRow}>
               {(['Company', 'Individual'] as const).map((t) => (
@@ -554,7 +537,6 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </ScreenContainer>
       </Modal>
 
-      {/* 6. LOST REASON MODAL */}
       <Modal visible={Boolean(losingLeadId)} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.lostModalCard}>

@@ -12,11 +12,6 @@ interface PayslipQrCodeProps {
   showVerificationBadge?: boolean;
 }
 
-/**
- * Mobile-native SVG vector QR code component for Payslips.
- * Reuses the existing `qrcode` library, converting the QR module matrix
- * into crisp scalable native SVG vector paths without WebView.
- */
 export const PayslipQrCode: React.FC<PayslipQrCodeProps> = ({
   value,
   size = 72,

@@ -29,6 +29,7 @@ import {
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button, Input, SegmentedControl } from '../../components/common';
 import { colors, spacing, typography, radius } from '../../theme';
+import { formatCurrency, normalisePhone } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import { LeadStage, FollowUp } from '../../types';
@@ -46,14 +47,12 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
   const [activeTab, setActiveTab] = useState<'overview' | 'quotes' | 'followups' | 'queries'>('overview');
   const tabs = ['Overview', 'Quotation', 'Follow-ups', 'Queries'];
 
-  // Follow-up form
   const [showAddFollowUp, setShowAddFollowUp] = useState(false);
   const [fuType, setFuType] = useState<'Call' | 'Meeting' | 'Site Visit' | 'Presentation' | 'Review'>('Call');
   const [fuDate, setFuDate] = useState(new Date().toISOString().split('T')[0]);
   const [fuTime, setFuTime] = useState('11:00');
   const [fuNote, setFuNote] = useState('');
 
-  // Lost modal
   const [showLostModal, setShowLostModal] = useState(false);
   const [lostReason, setLostReason] = useState('');
 
@@ -82,15 +81,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
 
   const leadFollowUps = followUps.filter((f) => f.leadId === lead.id);
   const leadQuote = quotes.find((q) => q.leadId === lead.id || q.clientName === lead.company);
-
-  const formatCurrency = (amt: number) => {
-    if (!amt) return '₹0';
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(2)} L`;
-    return `₹${amt.toLocaleString('en-IN')}`;
-  };
-
-  const normalisePhone = (val: string) => val.replace(/[\s-]/g, '').replace(/^(\+91|0)/, '');
 
   const openDialer = (ph: string) => {
     Linking.openURL(`tel:+91${normalisePhone(ph)}`);
@@ -168,7 +158,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         />
       }
     >
-      {/* 1. Header Card with Stage Badge */}
       <Card style={styles.topCard}>
         <View style={styles.cardHeader}>
           <Text style={styles.leadTitle}>{lead.title}</Text>
@@ -195,7 +184,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </View>
       </Card>
 
-      {/* 2. Conversion Banner (if Qualified or Proposal Sent or Won) */}
       {(lead.stage === 'Qualified' || lead.stage === 'Proposal Sent' || lead.stage === 'Won') && (
         <Card style={styles.convertCard}>
           <View style={styles.convertRow}>
@@ -217,7 +205,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </Card>
       )}
 
-      {/* 3. Navigation Tabs */}
       <View style={styles.tabBar}>
         {tabs.map((t, idx) => {
           const key = (['overview', 'quotes', 'followups', 'queries'] as const)[idx];
@@ -234,10 +221,8 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         })}
       </View>
 
-      {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
         <>
-          {/* Contact Card */}
           <Card>
             <Text style={styles.sectionTitle}>Client Point of Contact</Text>
             <View style={styles.contactDetailsRow}>
@@ -262,7 +247,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
             </View>
           </Card>
 
-          {/* Stage Progression Stepper */}
           <Card>
             <Text style={styles.sectionTitle}>Pipeline Stage Progression</Text>
             <View style={styles.stageChipsRow}>
@@ -283,7 +267,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
             </View>
           </Card>
 
-          {/* Scope Notes */}
           <Card>
             <Text style={styles.sectionTitle}>Exploration Requirements & Description</Text>
             <Text style={styles.descText}>{lead.description || lead.notes || 'No description entered.'}</Text>
@@ -291,7 +274,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </>
       )}
 
-      {/* TAB 2: QUOTATION */}
       {activeTab === 'quotes' && (
         <Card>
           <View style={styles.sectionHeaderRow}>
@@ -351,7 +333,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </Card>
       )}
 
-      {/* TAB 3: FOLLOW-UPS & ACTIVITY */}
       {activeTab === 'followups' && (
         <Card>
           <View style={styles.sectionHeaderRow}>
@@ -392,7 +373,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </Card>
       )}
 
-      {/* TAB 4: QUERIES & CUSTODY */}
       {activeTab === 'queries' && (
         <Card>
           <Text style={styles.sectionTitle}>Client Portal Inquiries</Text>
@@ -400,7 +380,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </Card>
       )}
 
-      {/* SCHEDULE FOLLOW-UP MODAL */}
       <Modal visible={showAddFollowUp} transparent animationType="slide">
         <View style={styles.modalBackdrop}>
           <View style={styles.fuModalCard}>
@@ -454,7 +433,6 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </View>
       </Modal>
 
-      {/* LOST REASON MODAL */}
       <Modal visible={showLostModal} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.fuModalCard}>

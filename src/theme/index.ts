@@ -4,7 +4,7 @@ export const radius = {
   md: 8,
   lg: 12,
   xl: 16,
-  xxl: 24,
+  xxl: 20,
   full: 9999,
 };
 
@@ -25,15 +25,15 @@ export const spacing = {
 export const typography = {
   fontSizes: {
     xxs: 10,
-    xs: 12,
-    sm: 13,
+    xs: 11,
+    sm: 12,
     base: 14,
     md: 15,
     lg: 16,
     xl: 18,
-    xxl: 22,
-    xxxl: 26,
-    huge: 32,
+    xxl: 20,
+    xxxl: 24,
+    huge: 28,
   },
   fontWeights: {
     normal: '400' as const,
@@ -43,167 +43,186 @@ export const typography = {
     heavy: '800' as const,
   },
   h1: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800' as const,
+    letterSpacing: -0.4,
+    lineHeight: 30,
   },
   h2: {
-    fontSize: 22,
-    fontWeight: '800' as const,
+    fontSize: 20,
+    fontWeight: '700' as const,
+    letterSpacing: -0.3,
+    lineHeight: 26,
   },
   h3: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700' as const,
+    letterSpacing: -0.2,
+    lineHeight: 22,
   },
   h4: {
     fontSize: 15,
-    fontWeight: '700' as const,
+    fontWeight: '600' as const,
+    lineHeight: 20,
   },
   body: {
     fontSize: 14,
     fontWeight: '400' as const,
+    lineHeight: 20,
   },
   bodyLarge: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '400' as const,
+    lineHeight: 22,
   },
   bodyMedium: {
     fontSize: 14,
     fontWeight: '400' as const,
+    lineHeight: 20,
   },
   bodySmall: {
     fontSize: 12,
     fontWeight: '400' as const,
+    lineHeight: 16,
   },
   caption: {
     fontSize: 11,
-    fontWeight: '400' as const,
+    fontWeight: '500' as const,
+    lineHeight: 14,
   },
   titleLarge: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700' as const,
+    letterSpacing: -0.2,
   },
   titleMedium: {
-    fontSize: 16,
-    fontWeight: '700' as const,
+    fontSize: 15,
+    fontWeight: '600' as const,
   },
   titleSmall: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600' as const,
   },
   labelLarge: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600' as const,
+    letterSpacing: 0.2,
   },
   labelMedium: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600' as const,
+    letterSpacing: 0.3,
   },
 };
 
 export const shadows = {
-  sm: {
-    shadowColor: '#000',
+  xs: {
+    shadowColor: '#0f172a',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
   },
+  sm: {
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 1.5 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1.5,
+  },
   md: {
-    shadowColor: '#000',
+    shadowColor: '#0f172a',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2.5,
   },
   lg: {
-    shadowColor: '#000',
+    shadowColor: '#0f172a',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
     elevation: 4,
   },
 };
 
 export const colors = {
-  // Primitives
   white: '#ffffff',
   black: '#000000',
 
-  // Brand colors (plain primitive strings)
-  primary: '#10b981', // Emerald
-  primaryLight: '#34d399',
-  primaryDark: '#059669',
-  primaryBg: '#064e3b',
+  primary: '#0d9488', // Teal 600
+  primaryLight: '#14b8a6', // Teal 500
+  primaryDark: '#0f766e', // Teal 700
+  primaryBg: '#f0fdfa', // Teal 50
+  primaryMuted: '#ccfbf1', // Teal 100
 
-  accent: '#0d9488',
-  accentLight: '#14b8a6',
-  accentBg: '#f0fdfa',
+  accent: '#0284c7', // Sky 600
+  accentLight: '#38bdf8', // Sky 400
+  accentDark: '#0369a1', // Sky 700
+  accentBg: '#f0f9ff', // Sky 50
 
-  // Semantic flat
-  success: '#10b981',
-  successLight: '#34d399',
-  successBg: '#064e3b',
-  successText: '#34d399',
+  success: '#059669', // Emerald 600
+  successLight: '#a7f3d0', // Emerald 200
+  successBg: '#ecfdf5', // Emerald 50
+  successText: '#047857', // Emerald 700
 
-  warning: '#f59e0b',
-  warningLight: '#fbbf24',
-  warningBg: '#78350f',
-  warningText: '#fbbf24',
+  warning: '#d97706', // Amber 600
+  warningLight: '#fde68a', // Amber 200
+  warningBg: '#fffbeb', // Amber 50
+  warningText: '#b45309', // Amber 700
 
-  danger: '#ef4444',
-  dangerLight: '#f87171',
-  dangerBg: '#7f1d1d',
-  dangerText: '#f87171',
+  danger: '#dc2626', // Red 600
+  dangerLight: '#fecaca', // Red 200
+  dangerBg: '#fef2f2', // Red 50
+  dangerText: '#b91c1c', // Red 700
 
-  info: '#0284c7',
-  infoLight: '#38bdf8',
-  infoBg: '#0c4a6e',
-  infoText: '#38bdf8',
+  info: '#0284c7', // Sky 600
+  infoLight: '#bae6fd', // Sky 200
+  infoBg: '#f0f9ff', // Sky 50
+  infoText: '#0369a1', // Sky 700
 
-  // Surfaces & backgrounds flat
-  surface: '#1e293b',
-  surfaceCard: '#1e293b',
-  surfaceElevated: '#1e293b',
-  surfaceMuted: '#334155',
+  surface: '#ffffff',
+  surfaceCard: '#ffffff',
+  surfaceElevated: '#ffffff',
+  surfaceMuted: '#f8fafc',
+  surfaceSubtle: '#f1f5f9',
 
-  // Borders flat
-  borderLight: '#334155',
-  borderMedium: '#475569',
-  borderDark: '#1e293b',
+  borderLight: '#f1f5f9',
+  borderMedium: '#e2e8f0',
+  borderDark: '#cbd5e1',
 
-  // Text flat
-  textPrimary: '#f8fafc',
-  textSecondary: '#94a3b8',
-  textMuted: '#64748b',
+  textPrimary: '#0f172a', // Slate 900
+  textSecondary: '#475569', // Slate 600
+  textMuted: '#64748b', // Slate 500
+  textTertiary: '#94a3b8', // Slate 400
   textInverse: '#ffffff',
-  backdrop: 'rgba(15, 23, 42, 0.7)',
+  backdrop: 'rgba(15, 23, 42, 0.45)',
 
-  // Pure nested objects
   background: {
-    primary: '#0f172a',
-    secondary: '#1e293b',
-    tertiary: '#334155',
-    card: '#1e293b',
-    light: '#f8fafc',
+    primary: '#f8fafc', // Slate 50 clean light background
+    secondary: '#ffffff',
+    tertiary: '#f1f5f9',
+    card: '#ffffff',
+    light: '#ffffff',
   },
   border: {
-    default: '#334155',
-    subtle: '#1e293b',
-    highlight: '#10b981',
-    light: '#334155',
-    medium: '#475569',
+    default: '#e2e8f0', // Clean subtle border
+    subtle: '#f1f5f9',
+    highlight: '#0d9488',
+    light: '#f8fafc',
+    medium: '#e2e8f0',
   },
   text: {
-    primary: '#f8fafc',
-    secondary: '#94a3b8',
+    primary: '#0f172a',
+    secondary: '#475569',
     tertiary: '#64748b',
-    inverse: '#0f172a',
+    inverse: '#ffffff',
   },
   semantic: {
-    success: '#10b981',
-    warning: '#f59e0b',
-    danger: '#ef4444',
-    error: '#ef4444',
-    info: '#3b82f6',
+    success: '#059669',
+    warning: '#d97706',
+    danger: '#dc2626',
+    error: '#dc2626',
+    info: '#0284c7',
   },
 };

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
-import { useHrms, useAuth } from '../../context';
-import { colors, spacing, typography, borderRadius } from '../../theme';
-import { AppHeader, Card, StatCard, StatusBadge, EmptyState } from '../../components';
+import { useFinance, useAuth } from '../../context';
+import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { ScreenContainer, AppHeader, Card, StatCard, StatusBadge, EmptyState } from '../../components/common';
+import { DonutChart, MiniBarChart } from '../../components/common/NativeCharts';
 import {
   IndianRupee,
   FileSpreadsheet,
@@ -19,6 +20,8 @@ import {
   ArrowDownLeft,
   CheckCircle2,
   Lock,
+  BarChart3,
+  Building2,
 } from 'lucide-react-native';
 import { FinanceOverviewMetrics } from '../../types';
 
@@ -30,14 +33,13 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
     vouchers,
     taxRecords,
     getOverviewMetrics,
-    refreshHrms,
+    refreshFinance,
     isLoading,
-  } = useHrms();
+  } = useFinance();
 
   const [metrics, setMetrics] = useState<FinanceOverviewMetrics | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Role Security Guard: ONLY Accountant and Admin have access
   const isAuthorized = hasRole(['Admin', 'Accountant', 'admin', 'accountant']);
 
   const loadMetrics = async () => {
@@ -57,15 +59,14 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await refreshHrms();
+    await refreshFinance();
     await loadMetrics();
     setRefreshing(false);
   };
 
-  // If user is unauthorized (e.g. employee or HR), block access
   if (!isAuthorized) {
     return (
-      <View style={styles.container}>
+      <ScreenContainer>
         <AppHeader
           title="Finance & Accounting"
           subtitle="Commercial Ledger & Statutory Compliance"
@@ -88,11 +89,10 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
             <Text style={styles.backButtonText}>Return to Workspaces</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScreenContainer>
     );
   }
 
-  // Derive metrics strictly from real stored data (NO fake numbers)
   const totalInvoiced = metrics?.totalInvoicesAmount || 0;
   const receivables = metrics?.outstandingReceivables || 0;
   const overdueInvoicesCount = metrics?.overdueReceivablesCount || 0;
@@ -103,7 +103,8 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
   const inputTaxCredit = metrics?.inputTaxCredit || 0;
   const tdsPayable = metrics?.tdsPayable || 0;
 
-  // Pending Actions
+  const collectionPct = totalInvoiced > 0 ? Math.round(((totalInvoiced - receivables) / totalInvoiced) * 100) : 100;
+
   const pendingBillsCount = vendorBills.filter((b) => b.status === 'Pending Approval').length;
   const pendingTdsCount = taxRecords.filter((t) => t.status === 'Pending Deposit').length;
   const unpaidInvoicesCount = invoices.filter((i) => i.status !== 'Paid').length;
@@ -112,105 +113,191 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
     {
       title: 'Client Tax Invoices (AR)',
       desc: `${invoices.length} invoices issued • GST & TDS withholding`,
-      icon: <Receipt size={22} color={colors.primary} />,
+      icon: <Receipt size={22} color="#0D9488" />,
+      bg: '#F0FDFA',
       route: 'Invoices',
       badge: receivables > 0 ? `₹${(receivables / 100000).toFixed(1)}L Due` : 'All Settled',
-      badgeTone: receivables > 0 ? 'warning' : 'success',
     },
     {
       title: 'Inward Vendor Bills (AP)',
       desc: `${vendorBills.length} contractor bills • ITC & Sec 194C/194J`,
-      icon: <FileSpreadsheet size={22} color="#F59E0B" />,
+      icon: <FileSpreadsheet size={22} color="#D97706" />,
+      bg: '#FFFBEB',
       route: 'VendorBills',
-      badge: pendingBillsCount > 0 ? `${pendingBillsCount} Pending Approval` : undefined,
-      badgeTone: 'attention',
+      badge: pendingBillsCount > 0 ? `${pendingBillsCount} Pending` : undefined,
     },
     {
       title: 'Double-Entry Vouchers',
       desc: `${vouchers.length} balanced journal, payment & receipt vouchers`,
-      icon: <Scale size={22} color="#3B82F6" />,
+      icon: <Scale size={22} color="#2563EB" />,
+      bg: '#EFF6FF',
       route: 'Vouchers',
       badge: 'Balanced',
-      badgeTone: 'success',
     },
     {
       title: 'Statutory TDS Register',
       desc: 'Sections 194C, 194J, 194I & 192 challan deposits',
-      icon: <FileText size={22} color="#8B5CF6" />,
+      icon: <FileText size={22} color="#9333EA" />,
+      bg: '#FAF5FF',
       route: 'TdsRegister',
       badge: tdsPayable > 0 ? `₹${(tdsPayable / 1000).toFixed(1)}k Due` : 'Deposited',
-      badgeTone: tdsPayable > 0 ? 'warning' : 'success',
     },
     {
       title: 'GST Overview & Compliance',
       desc: 'Output GST minus ITC claimed = Net GST Liability',
-      icon: <ShieldCheck size={22} color="#0D9488" />,
+      icon: <ShieldCheck size={22} color="#16A34A" />,
+      bg: '#F0FDF4',
       route: 'GstOverview',
       badge: `₹${(netGstPayable / 100000).toFixed(1)}L Net`,
-      badgeTone: 'neutral',
     },
   ];
 
-  // Recent vouchers (latest 5)
-  const recentVouchers = vouchers.slice(0, 5);
-
   return (
-    <View style={styles.container}>
-      <AppHeader
-        title="Finance & Accounting"
-        subtitle="Double-entry books, statutory GST & commercial ledger"
-        showBack
-        onBack={() => navigation.goBack()}
-      />
+    <ScreenContainer
+      scrollable
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      header={
+        <AppHeader
+          title="Finance & Accounting"
+          subtitle="Commercial Ledger & Statutory Compliance"
+          scenicBanner
+          badge="Finance & Treasury"
+          badgeIcon={<IndianRupee size={12} color="#0d9488" />}
+          showBack
+          onBack={() => navigation.goBack()}
+          onNotificationPress={() => navigation.navigate('Notifications')}
+        />
+      }
+      contentContainerStyle={styles.content}
+    >
+        <View style={styles.kpiSection}>
+          <Text style={styles.sectionHeader}>FINANCIAL LEDGER SNAPSHOT</Text>
 
-      <ScrollView
-        contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
-      >
-        {/* Core Financial Stat Cards (Real Stored Data Only) */}
-        <View style={styles.kpiRow}>
-          <View style={styles.kpiCol}>
-            <StatCard
-              title="GROSS INVOICED"
-              value={`₹${(totalInvoiced / 100000).toFixed(2)} L`}
-              caption={`${invoices.length} invoices issued`}
-              icon={<TrendingUp size={18} color={colors.primary} />}
-            />
-          </View>
-          <View style={styles.kpiCol}>
-            <StatCard
-              title="OUTSTANDING AR"
-              value={`₹${(receivables / 100000).toFixed(2)} L`}
-              caption={overdueInvoicesCount > 0 ? `${overdueInvoicesCount} overdue bills` : 'On track'}
-              icon={<IndianRupee size={18} color={receivables > 0 ? colors.semantic.warning : colors.semantic.success} />}
-            />
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="GROSS INVOICED"
+                value={`₹${(totalInvoiced / 100000).toFixed(1)}L`}
+                caption={`${invoices.length} invoices issued`}
+                icon={<TrendingUp size={18} color="#0D9488" />}
+                chart={<MiniBarChart values={[30, 45, 60, Math.min(80, Math.round(totalInvoiced / 100000))]} color="#0D9488" height={26} barWidth={5} />}
+              />
+            </View>
+
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="OUTSTANDING AR"
+                value={`₹${(receivables / 100000).toFixed(1)}L`}
+                caption={overdueInvoicesCount > 0 ? `${overdueInvoicesCount} overdue bills` : 'Healthy collection'}
+                icon={<IndianRupee size={18} color={receivables > 0 ? "#D97706" : "#16A34A"} />}
+                chart={<DonutChart percentage={collectionPct} color={receivables > 0 ? "#F59E0B" : "#10B981"} size={38} strokeWidth={5} />}
+              />
+            </View>
+
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="VENDOR BILLS (AP)"
+                value={`₹${(totalPayables / 100000).toFixed(1)}L`}
+                caption={`${vendorBills.length} contractor bills`}
+                icon={<TrendingDown size={18} color="#D97706" />}
+                chart={<MiniBarChart values={[20, 35, 50, Math.min(70, Math.round(totalPayables / 100000))]} color="#D97706" height={26} barWidth={5} />}
+              />
+            </View>
+
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="NET CASH FLOW"
+                value={`${netCashFlow >= 0 ? '+' : ''}₹${(netCashFlow / 100000).toFixed(1)}L`}
+                caption={netCashFlow >= 0 ? 'Operating Surplus' : 'Operating Deficit'}
+                icon={<TrendingUp size={18} color={netCashFlow >= 0 ? "#16A34A" : "#EF4444"} />}
+                trend={{ value: netCashFlow >= 0 ? 'Surplus' : 'Deficit', isPositive: netCashFlow >= 0 }}
+              />
+            </View>
           </View>
         </View>
 
-        <View style={styles.kpiRow}>
-          <View style={styles.kpiCol}>
-            <StatCard
-              title="VENDOR BILLS (AP)"
-              value={`₹${(totalPayables / 100000).toFixed(2)} L`}
-              caption={`${vendorBills.length} contractor bills`}
-              icon={<TrendingDown size={18} color="#F59E0B" />}
-            />
-          </View>
-          <View style={styles.kpiCol}>
-            <StatCard
-              title="NET CASH FLOW"
-              value={`${netCashFlow >= 0 ? '+' : ''}₹${(netCashFlow / 100000).toFixed(2)} L`}
-              caption={netCashFlow >= 0 ? 'Operating Surplus' : 'Operating Deficit'}
-              icon={<TrendingUp size={18} color={netCashFlow >= 0 ? colors.semantic.success : colors.semantic.danger} />}
-            />
+        <View style={styles.launchpadSection}>
+          <Text style={styles.sectionHeader}>QUICK FINANCE ACTIONS</Text>
+          <View style={styles.actionGrid}>
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('Invoices')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDFA' }]}>
+                <Receipt size={22} color="#0D9488" />
+              </View>
+              <Text style={styles.actionTileTitle}>Invoices</Text>
+              <Text style={styles.actionTileSub}>AR Billing</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('VendorBills')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#FFFBEB' }]}>
+                <FileSpreadsheet size={22} color="#D97706" />
+              </View>
+              <Text style={styles.actionTileTitle}>Vendor Bills</Text>
+              <Text style={styles.actionTileSub}>AP Expenses</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('Vouchers')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#EFF6FF' }]}>
+                <Scale size={22} color="#2563EB" />
+              </View>
+              <Text style={styles.actionTileTitle}>Vouchers</Text>
+              <Text style={styles.actionTileSub}>Double Entry</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('GstOverview')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDF4' }]}>
+                <ShieldCheck size={22} color="#16A34A" />
+              </View>
+              <Text style={styles.actionTileTitle}>GST Portal</Text>
+              <Text style={styles.actionTileSub}>ITC & Net Tax</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('TdsRegister')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#FAF5FF' }]}>
+                <FileText size={22} color="#9333EA" />
+              </View>
+              <Text style={styles.actionTileTitle}>TDS Register</Text>
+              <Text style={styles.actionTileSub}>Challans & 194C</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('MisReports')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#FDF2F8' }]}>
+                <BarChart3 size={22} color="#DB2777" />
+              </View>
+              <Text style={styles.actionTileTitle}>Financial MIS</Text>
+              <Text style={styles.actionTileSub}>Board Analytics</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Statutory Tax Summary Banner */}
         <Card style={styles.taxSummaryCard} onPress={() => navigation.navigate('GstOverview')}>
           <View style={styles.taxCardHeader}>
             <View style={styles.taxCardTitleWrap}>
-              <ShieldCheck size={20} color={colors.primary} />
+              <ShieldCheck size={20} color="#0D9488" />
               <Text style={styles.taxCardTitle}>Statutory GST & TDS Summary</Text>
             </View>
             <ChevronRight size={18} color={colors.text.secondary} />
@@ -225,7 +312,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
             <View style={styles.taxDivider} />
             <View style={styles.taxMetric}>
               <Text style={styles.taxMetricLabel}>Input Credit (ITC)</Text>
-              <Text style={[styles.taxMetricValue, { color: colors.semantic.success }]}>
+              <Text style={[styles.taxMetricValue, { color: '#16A34A' }]}>
                 ₹{(inputTaxCredit / 100000).toFixed(2)}L
               </Text>
               <Text style={styles.taxMetricSub}>From bills & claims</Text>
@@ -233,7 +320,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
             <View style={styles.taxDivider} />
             <View style={styles.taxMetric}>
               <Text style={styles.taxMetricLabel}>Net GST Payable</Text>
-              <Text style={[styles.taxMetricValue, { color: colors.primary }]}>
+              <Text style={[styles.taxMetricValue, { color: '#0D9488' }]}>
                 ₹{(netGstPayable / 100000).toFixed(2)}L
               </Text>
               <Text style={styles.taxMetricSub}>GSTR-3B Liability</Text>
@@ -241,7 +328,6 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
           </View>
         </Card>
 
-        {/* Actionable Alerts (Pending Approvals & Filings) */}
         {(pendingBillsCount > 0 || pendingTdsCount > 0 || overdueInvoicesCount > 0) && (
           <View style={styles.alertsContainer}>
             <Text style={styles.sectionHeader}>PENDING COMMERCIAL ACTIONS</Text>
@@ -252,11 +338,11 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
                 onPress={() => navigation.navigate('VendorBills')}
                 activeOpacity={0.7}
               >
-                <AlertCircle size={16} color="#F59E0B" />
+                <AlertCircle size={16} color="#D97706" />
                 <Text style={styles.alertText}>
                   <Text style={{ fontWeight: '700' }}>{pendingBillsCount} Vendor Bill(s)</Text> awaiting finance verification & approval.
                 </Text>
-                <ChevronRight size={16} color="#F59E0B" />
+                <ChevronRight size={16} color="#D97706" />
               </TouchableOpacity>
             )}
 
@@ -266,11 +352,11 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
                 onPress={() => navigation.navigate('TdsRegister')}
                 activeOpacity={0.7}
               >
-                <Clock size={16} color="#8B5CF6" />
+                <Clock size={16} color="#9333EA" />
                 <Text style={styles.alertText}>
                   <Text style={{ fontWeight: '700' }}>{pendingTdsCount} TDS Deduction(s)</Text> pending statutory challan deposit (₹{(tdsPayable / 1000).toFixed(1)}k).
                 </Text>
-                <ChevronRight size={16} color="#8B5CF6" />
+                <ChevronRight size={16} color="#9333EA" />
               </TouchableOpacity>
             )}
 
@@ -280,17 +366,16 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
                 onPress={() => navigation.navigate('Invoices')}
                 activeOpacity={0.7}
               >
-                <AlertCircle size={16} color={colors.semantic.danger} />
+                <AlertCircle size={16} color="#EF4444" />
                 <Text style={styles.alertText}>
                   <Text style={{ fontWeight: '700' }}>{overdueInvoicesCount} Client Invoice(s)</Text> overdue for collection.
                 </Text>
-                <ChevronRight size={16} color={colors.semantic.danger} />
+                <ChevronRight size={16} color="#EF4444" />
               </TouchableOpacity>
             )}
           </View>
         )}
 
-        {/* Commercial Workspaces Navigation Hub */}
         <View style={styles.menuContainer}>
           <Text style={styles.sectionHeader}>FINANCE & ACCOUNTING WORKSPACES</Text>
 
@@ -300,146 +385,108 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
               style={styles.menuCard}
               onPress={() => navigation.navigate(item.route)}
             >
-              <View style={styles.iconCircle}>{item.icon}</View>
-              <View style={styles.itemContent}>
-                <View style={styles.itemTitleRow}>
-                  <Text style={styles.itemTitle}>{item.title}</Text>
-                  {item.badge && (
-                    <View
-                      style={[
-                        styles.badge,
-                        item.badgeTone === 'warning' && styles.badgeWarning,
-                        item.badgeTone === 'success' && styles.badgeSuccess,
-                        item.badgeTone === 'attention' && styles.badgeAttention,
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.badgeText,
-                          item.badgeTone === 'warning' && styles.badgeTextWarning,
-                          item.badgeTone === 'success' && styles.badgeTextSuccess,
-                          item.badgeTone === 'attention' && styles.badgeTextAttention,
-                        ]}
-                      >
-                        {item.badge}
-                      </Text>
+              <View style={[styles.menuIconWrap, { backgroundColor: item.bg }]}>
+                {item.icon}
+              </View>
+              <View style={styles.menuContent}>
+                <View style={styles.menuTitleRow}>
+                  <Text style={styles.menuTitle}>{item.title}</Text>
+                  {item.badge ? (
+                    <View style={styles.moduleBadge}>
+                      <Text style={styles.moduleBadgeText}>{item.badge}</Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
-                <Text style={styles.itemDesc}>{item.desc}</Text>
+                <Text style={styles.menuDesc}>{item.desc}</Text>
               </View>
               <ChevronRight size={18} color={colors.text.tertiary} />
             </Card>
           ))}
         </View>
-
-        {/* Recent Ledger Vouchers */}
-        <View style={styles.vouchersSection}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionHeader}>RECENT AUDITED VOUCHERS</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Vouchers')}>
-              <Text style={styles.viewAllText}>View All ({vouchers.length})</Text>
-            </TouchableOpacity>
-          </View>
-
-          {recentVouchers.length === 0 ? (
-            <EmptyState
-              title="No Vouchers Found"
-              message="No double-entry vouchers have been recorded yet."
-              icon={<Scale size={32} color={colors.text.tertiary} />}
-            />
-          ) : (
-            recentVouchers.map((v) => (
-              <Card key={v.id} style={styles.voucherItem} onPress={() => navigation.navigate('Vouchers')}>
-                <View style={styles.voucherTop}>
-                  <View style={styles.vNumWrap}>
-                    <Text style={styles.voucherNo}>{v.voucherNumber}</Text>
-                    <Text style={styles.voucherType}>{v.type}</Text>
-                  </View>
-                  <Text style={styles.voucherAmount}>₹{(v.amount || 0).toLocaleString('en-IN')}</Text>
-                </View>
-                <Text style={styles.voucherNarration} numberOfLines={1}>
-                  {v.narration}
-                </Text>
-                <View style={styles.voucherFooter}>
-                  <Text style={styles.voucherDrCr}>
-                    <Text style={{ color: colors.semantic.success, fontWeight: '700' }}>Dr:</Text> {v.debitAccount.split(' - ')[0]} • <Text style={{ color: colors.primary, fontWeight: '700' }}>Cr:</Text> {v.creditAccount.split(' - ')[0]}
-                  </Text>
-                  <Text style={styles.voucherDate}>{v.date}</Text>
-                </View>
-              </Card>
-            ))
-          )}
-        </View>
-      </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
   content: {
-    padding: spacing.lg,
-    gap: spacing.md,
+    padding: spacing.md,
+    paddingBottom: spacing.xxxl,
   },
-  unauthorizedContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: spacing.xl,
+  sectionHeader: {
+    fontSize: 11,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.secondary,
+    letterSpacing: 0.8,
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
   },
-  lockIconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#FEE2E2',
-    justifyContent: 'center',
-    alignItems: 'center',
+  kpiSection: {
     marginBottom: spacing.md,
   },
-  unauthorizedTitle: {
-    ...typography.titleLarge,
-    color: colors.text.primary,
-    marginBottom: spacing.xs,
-  },
-  unauthorizedMessage: {
-    ...typography.bodyMedium,
-    color: colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: spacing.xl,
-    lineHeight: 22,
-  },
-  backButton: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderRadius: borderRadius.md,
-  },
-  backButtonText: {
-    ...typography.labelLarge,
-    color: '#ffffff',
-    fontWeight: '700',
-  },
-  kpiRow: {
+  kpiGrid: {
     flexDirection: 'row',
-    gap: spacing.md,
+    flexWrap: 'wrap',
+    marginHorizontal: -spacing.xs,
   },
   kpiCol: {
-    flex: 1,
+    width: '50%',
+    padding: spacing.xs,
+  },
+  launchpadSection: {
+    marginBottom: spacing.md,
+  },
+  actionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  actionTile: {
+    width: '31%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.lg,
+    padding: spacing.sm,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    ...shadows.sm,
+  },
+  actionSquircle: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
+  },
+  actionTileTitle: {
+    fontSize: 12,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.primary,
+    textAlign: 'center',
+  },
+  actionTileSub: {
+    fontSize: 10,
+    color: colors.text.tertiary,
+    marginTop: 1,
+    textAlign: 'center',
   },
   taxSummaryCard: {
     padding: spacing.md,
-    backgroundColor: '#F0FDFA',
-    borderColor: '#99F6E4',
+    borderRadius: radius.xl,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: spacing.md,
+    ...shadows.sm,
   },
   taxCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.md,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
   taxCardTitleWrap: {
     flexDirection: 'row',
@@ -447,14 +494,14 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   taxCardTitle: {
-    ...typography.titleSmall,
-    fontWeight: '700',
-    color: colors.primary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.primary,
   },
   taxMetricsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   taxMetric: {
     flex: 1,
@@ -463,177 +510,133 @@ const styles = StyleSheet.create({
   taxDivider: {
     width: 1,
     height: 36,
-    backgroundColor: '#CCFBF1',
+    backgroundColor: '#E2E8F0',
   },
   taxMetricLabel: {
-    ...typography.caption,
-    color: colors.text.secondary,
-    fontWeight: '600',
-    marginBottom: 2,
+    fontSize: 10,
+    fontWeight: typography.fontWeights.semibold,
+    color: colors.text.tertiary,
+    textTransform: 'uppercase',
   },
   taxMetricValue: {
-    ...typography.titleSmall,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.base,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
+    marginTop: 2,
   },
   taxMetricSub: {
     fontSize: 10,
     color: colors.text.tertiary,
-    marginTop: 2,
+    marginTop: 1,
   },
   alertsContainer: {
-    gap: spacing.xs,
+    marginBottom: spacing.md,
   },
   alertRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    padding: spacing.sm + 2,
     backgroundColor: '#FFFBEB',
-    padding: spacing.sm,
-    borderRadius: borderRadius.md,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: '#FDE68A',
+    marginBottom: spacing.xs,
+    gap: spacing.xs,
   },
   alertText: {
-    ...typography.bodySmall,
-    color: '#92400E',
     flex: 1,
+    fontSize: typography.fontSizes.xs,
+    color: '#92400E',
   },
   menuContainer: {
     gap: spacing.sm,
-  },
-  sectionHeader: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.text.tertiary,
-    letterSpacing: 0.8,
-  },
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xs,
-  },
-  viewAllText: {
-    ...typography.caption,
-    color: colors.primary,
-    fontWeight: '700',
   },
   menuCard: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     gap: spacing.md,
+    ...shadows.sm,
   },
-  iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: borderRadius.md,
-    backgroundColor: colors.background.tertiary,
-    justifyContent: 'center',
+  menuIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  itemContent: {
+  menuContent: {
     flex: 1,
-    gap: 2,
   },
-  itemTitleRow: {
+  menuTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 2,
   },
-  itemTitle: {
-    ...typography.bodyLarge,
-    fontWeight: '600',
+  menuTitle: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
   },
-  itemDesc: {
-    ...typography.bodySmall,
+  moduleBadge: {
+    backgroundColor: '#F0FDFA',
+    paddingHorizontal: spacing.xs + 2,
+    paddingVertical: 2,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: '#CCFBF1',
+  },
+  moduleBadgeText: {
+    fontSize: 10,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0D9488',
+  },
+  menuDesc: {
+    fontSize: typography.fontSizes.xs,
     color: colors.text.secondary,
   },
-  badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    backgroundColor: '#E2E8F0',
+  unauthorizedContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.xl,
   },
-  badgeWarning: {
-    backgroundColor: '#FEF3C7',
+  lockIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.md,
   },
-  badgeSuccess: {
-    backgroundColor: '#DCFCE7',
-  },
-  badgeAttention: {
-    backgroundColor: '#EDE9FE',
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#475569',
-  },
-  badgeTextWarning: {
-    color: '#B45309',
-  },
-  badgeTextSuccess: {
-    color: '#15803D',
-  },
-  badgeTextAttention: {
-    color: '#6D28D9',
-  },
-  vouchersSection: {
-    gap: spacing.xs,
-  },
-  voucherItem: {
-    padding: spacing.md,
-    gap: 4,
+  unauthorizedTitle: {
+    fontSize: typography.fontSizes.lg,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.primary,
     marginBottom: spacing.xs,
   },
-  voucherTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  vNumWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  voucherNo: {
-    ...typography.labelMedium,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  voucherType: {
-    fontSize: 10,
-    fontWeight: '700',
-    backgroundColor: colors.background.tertiary,
+  unauthorizedMessage: {
+    fontSize: typography.fontSizes.sm,
     color: colors.text.secondary,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+    lineHeight: 20,
   },
-  voucherAmount: {
-    ...typography.labelLarge,
-    fontWeight: '700',
-    color: colors.text.primary,
+  backButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderRadius: radius.full,
   },
-  voucherNarration: {
-    ...typography.bodySmall,
-    color: colors.text.secondary,
-  },
-  voucherFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  voucherDrCr: {
-    fontSize: 11,
-    color: colors.text.tertiary,
-  },
-  voucherDate: {
-    fontSize: 11,
-    color: colors.text.tertiary,
+  backButtonText: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
+    color: '#FFFFFF',
   },
 });

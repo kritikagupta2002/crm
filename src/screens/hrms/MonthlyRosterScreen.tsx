@@ -58,19 +58,16 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
       ? (session as any).employeeId || 'BGS-2021-001'
       : 'BGS-2021-001';
 
-  // Month & Year state
   const [currentYear, setCurrentYear] = useState<number>(2026);
   const [currentMonth, setCurrentMonth] = useState<number>(10); // 10 = October
   const [selectedDate, setSelectedDate] = useState<string>('2026-10-03');
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Filters & Search
   const [search, setSearch] = useState<string>('');
   const [selectedDeptFilter, setSelectedDeptFilter] = useState<string>('All');
   const [selectedShiftFilter, setSelectedShiftFilter] = useState<string>('All');
   const [viewMode, setViewMode] = useState<'calendar' | 'employees'>('calendar');
 
-  // Modal State for Roster Entry (Add / Edit)
   const [showRosterModal, setShowRosterModal] = useState<boolean>(false);
   const [modalEmpId, setModalEmpId] = useState<string>('');
   const [modalShiftId, setModalShiftId] = useState<string>('');
@@ -83,21 +80,18 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     'July', 'August', 'September', 'October', 'November', 'December',
   ];
 
-  // Month string format: 'YYYY-MM'
   const monthKey = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
 
   const daysInMonth = useMemo(() => {
     return new Date(currentYear, currentMonth, 0).getDate();
   }, [currentYear, currentMonth]);
 
-  // Pull to refresh
   const onRefresh = async () => {
     setRefreshing(true);
     await refreshHrms();
     setRefreshing(false);
   };
 
-  // Month navigation
   const handlePrevMonth = () => {
     if (currentMonth === 1) {
       setCurrentMonth(12);
@@ -116,12 +110,10 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     }
   };
 
-  // Roster entries for the selected month
   const monthRoster = useMemo(() => {
     return roster.filter((r) => r.date.startsWith(monthKey));
   }, [roster, monthKey]);
 
-  // Roster entries for the selected date
   const selectedDateRoster = useMemo(() => {
     return monthRoster.filter((r) => {
       if (r.date !== selectedDate) return false;
@@ -147,7 +139,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     search,
   ]);
 
-  // Check if an employee is on approved leave for a given date
   const isEmployeeOnLeave = (empId: string, dateStr: string): boolean => {
     return leaves.some((l) => {
       if (l.employeeId !== empId && !l.employeeId.includes(empId.replace('BGS-', ''))) {
@@ -161,7 +152,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     });
   };
 
-  // Available departments
   const departmentsList = useMemo(() => {
     const set = new Set<string>();
     monthRoster.forEach((r) => {
@@ -170,7 +160,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     return ['All', ...Array.from(set)];
   }, [monthRoster]);
 
-  // Open modal to assign/override shift on selected date
   const handleOpenRosterModal = (entry?: RosterEntry) => {
     if (entry) {
       setModalEmpId(entry.employeeId);
@@ -188,7 +177,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     setShowRosterModal(true);
   };
 
-  // Save Roster Entry
   const handleSaveRoster = async () => {
     if (!modalEmpId || !modalShiftId || !modalDate) {
       Alert.alert('Validation Error', 'Employee, Shift, and Date are required.');
@@ -203,7 +191,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
       return;
     }
 
-    // Leave boundary safety check
     let resolvedStatus = modalStatus;
     if (isEmployeeOnLeave(emp.employeeId, modalDate)) {
       resolvedStatus = 'On Leave';
@@ -228,7 +215,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     }
   };
 
-  // Grouped employee view: summarized month schedule for each staff member
   const employeeSummaries = useMemo(() => {
     const list = isHRAdmin
       ? employees
@@ -276,7 +262,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
         }
       />
 
-      {/* Month Navigator Header */}
       <View style={styles.monthNavigator}>
         <TouchableOpacity style={styles.navArrowBtn} onPress={handlePrevMonth}>
           <ChevronLeft size={20} color={colors.text.primary} />
@@ -294,7 +279,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
         </TouchableOpacity>
       </View>
 
-      {/* Mode Toggle (HR / Admin only) */}
       {isHRAdmin && (
         <View style={styles.viewToggleBar}>
           <TouchableOpacity
@@ -319,7 +303,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
         </View>
       )}
 
-      {/* Search & Department Filters */}
       <View style={styles.searchBarWrap}>
         <View style={styles.searchInputBox}>
           <Search size={16} color={colors.text.tertiary} />
@@ -371,7 +354,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
           contentContainerStyle={styles.calendarContainer}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* Horizontal Day Selector */}
           <Text style={styles.sectionHeading}>
             Days of {monthNames[currentMonth - 1]} ({daysInMonth} Days)
           </Text>
@@ -410,7 +392,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
             })}
           </ScrollView>
 
-          {/* Date Schedule Breakdown Header */}
           <View style={styles.breakdownHeader}>
             <View>
               <Text style={styles.breakdownDateTitle}>
@@ -432,7 +413,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
             )}
           </View>
 
-          {/* Roster Cards for Selected Date */}
           {selectedDateRoster.length === 0 ? (
             <EmptyState
               title="No Staff Scheduled"
@@ -495,7 +475,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
           )}
         </ScrollView>
       ) : (
-        /* Employee Summary View */
         <FlatList
           data={employeeSummaries}
           keyExtractor={(item) => item.emp.id}
@@ -520,7 +499,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
                 </Text>
               </View>
 
-              {/* Month KPI Metrics */}
               <View style={styles.monthMetricGrid}>
                 <View style={styles.monthMetricItem}>
                   <Text style={[styles.monthMetricVal, { color: colors.primary }]}>
@@ -548,7 +526,6 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
         />
       )}
 
-      {/* ADD / EDIT ROSTER ENTRY MODAL */}
       <Modal
         visible={showRosterModal}
         animationType="slide"
@@ -1001,7 +978,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Modal Styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

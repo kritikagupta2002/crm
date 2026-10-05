@@ -127,9 +127,6 @@ export interface MisDocumentMetrics {
 }
 
 export class MisService {
-  /**
-   * 1. CRM Executive Overview Metrics
-   */
   async getExecutiveMetrics(period: 'month' | 'quarter' | 'year' | 'all' = 'all'): Promise<MisExecutiveMetrics> {
     const leads = await mobileStorage.getLeads();
     const quotes = await mobileStorage.getQuotes();
@@ -147,10 +144,8 @@ export class MisService {
     const completedProjects = projects.filter((p) => p.currentStage === 7).length;
     const pendingApprovals = quotes.filter((q) => q.status === 'Pending Approval').length;
 
-    // Monthly Trend (Past 6 months derivation)
     const monthNames = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
     const monthlyRevenueTrend = monthNames.map((month, idx) => {
-      // Aggregate real leads matching or proportional to distribution
       const monthLeads = leads.filter((_, i) => i % 6 === idx);
       const enquiries = monthLeads.length;
       const won = monthLeads.filter((l) => l.stage === 'Won').length;
@@ -159,7 +154,6 @@ export class MisService {
       return { month, enquiries, won, enquiriesValue, wonValue };
     });
 
-    // Service Mix Distribution
     const serviceCounts: Record<string, number> = {};
     projects.forEach((p) => {
       const s = p.service || 'Geological Exploration';
@@ -186,9 +180,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 2. CRM Board-Level Analytics (Gross Billings, Subcontractor Costs, EBITDA, Cash Flow Projection)
-   */
   async getBoardLevelFinancials(): Promise<MisBoardFinancials> {
     const invoices = await mobileStorage.getInvoices();
     const vendorBills = await mobileStorage.getVendorBills();
@@ -209,7 +200,6 @@ export class MisService {
     const grossMargin = grossBillings - (subcontractorCosts + operatingOverheads);
     const ebitdaMargin = grossBillings > 0 ? ((grossMargin / grossBillings) * 100).toFixed(1) : '0.0';
 
-    // Projected Cash Flow (Derived from unpaid/partially paid receivables and payables)
     const pendingReceivables = invoices
       .filter((i) => i.status !== 'Paid')
       .reduce((sum, i) => sum + i.totalAmount, 0);
@@ -234,27 +224,20 @@ export class MisService {
     };
   }
 
-  /**
-   * 3. Field Operations Analytics
-   */
   async getFieldOperationsAnalytics(): Promise<MisFieldOperations> {
     const projects = await mobileStorage.getProjects();
     const workOrders = await mobileStorage.getWorkOrders();
 
-    // Cumulative exploration meters derived from drilling work orders
     const totalDrillingMeters = workOrders
       .filter((w) => (w.scopeOfWork || w.scope || w.work || '').toLowerCase().includes('drill'))
       .reduce((sum, w) => sum + (w.contractValue > 0 ? 450 : 0), 0) || 2850;
 
-    // Cumulative topographical acreage surveyed
     const topographicalAcreage = 14800; // Hectares surveyed across mining lease blocks
 
-    // Deliverables completion rate
     const totalDeliverables = projects.length * 5;
     const completedDeliverables = projects.filter((p) => p.currentStage >= 4).length * 5;
     const deliverablesCompletionRate = totalDeliverables > 0 ? ((completedDeliverables / totalDeliverables) * 100).toFixed(1) : '0.0';
 
-    // 7-Stage Exploration Lifecycle Distribution
     const stageNames: Record<number, string> = {
       1: 'Allocation',
       2: 'Planning',
@@ -286,9 +269,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 4. Workforce Reports (Canonical Single Master Source)
-   */
   async getWorkforceReports(deptFilter: string = 'All'): Promise<MisWorkforceMetrics> {
     const allEmployees = await mobileStorage.getEmployees();
     const employees = deptFilter === 'All' ? allEmployees : allEmployees.filter((e) => e.employment?.department === deptFilter);
@@ -296,7 +276,6 @@ export class MisService {
     const totalStaff = employees.length;
     const activeStaff = employees.filter((e) => e.employment?.status === 'Active').length;
 
-    // Department Distribution
     const deptCounts: Record<string, number> = {};
     employees.forEach((e) => {
       const d = e.employment?.department || 'Unassigned';
@@ -309,8 +288,7 @@ export class MisService {
       percentage: totalStaff > 0 ? Math.round((count / totalStaff) * 100) : 0,
     }));
 
-    // Designation Distribution
-    const desigCounts: Record<string, number> = {};
+        const desigCounts: Record<string, number> = {};
     employees.forEach((e) => {
       const d = e.employment?.designation || 'Staff';
       desigCounts[d] = (desigCounts[d] || 0) + 1;
@@ -330,9 +308,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 5. Zero-Fake Attendance Metrics Engine
-   */
   async getZeroFakeAttendanceMetrics(deptFilter: string = 'All'): Promise<MisAttendanceMetrics> {
     const allEmployees = await mobileStorage.getEmployees();
     const employees = deptFilter === 'All' ? allEmployees : allEmployees.filter((e) => e.employment?.department === deptFilter);
@@ -343,7 +318,6 @@ export class MisService {
     const activeEmployees = employees.filter((e) => e.employment?.status === 'Active');
     const totalStaff = activeEmployees.length;
 
-    // Filter attendance for employees in scope
     const empIds = new Set(activeEmployees.map((e) => e.employeeId));
     const todayRecords = attendance.filter((a) => a.date === todayStr && empIds.has(a.employeeId));
 
@@ -372,9 +346,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 6. Leave Reports
-   */
   async getLeaveReports(deptFilter: string = 'All'): Promise<MisLeaveMetrics> {
     const leaves = await mobileStorage.getLeaves();
     const employees = await mobileStorage.getEmployees();
@@ -411,9 +382,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 7. Expense Reports
-   */
   async getExpenseReports(): Promise<MisExpenseMetrics> {
     const expenses = await mobileStorage.getExpenses();
 
@@ -449,9 +417,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 8. Reimbursement Reports
-   */
   async getReimbursementReports(): Promise<MisReimbursementMetrics> {
     const reimbursements = await mobileStorage.getReimbursements();
 
@@ -487,9 +452,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 9. Finance & Tax Accounting Summary
-   */
   async getFinanceSummary(): Promise<MisFinanceSummary> {
     const invoices = await mobileStorage.getInvoices();
     const vendorBills = await mobileStorage.getVendorBills();
@@ -521,9 +483,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 10. Payroll & Statutory Compensation Metrics
-   */
   async getPayrollMetrics(): Promise<MisPayrollMetrics> {
     const salaryStructures = await mobileStorage.getSalaryStructures();
     const payrollRuns = await mobileStorage.getPayrollRuns();
@@ -551,9 +510,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 11. Vendor Workspace Metrics
-   */
   async getVendorMetrics(): Promise<MisVendorMetrics> {
     const vendors = await mobileStorage.getVendors();
     const tenders = await mobileStorage.getTenders();
@@ -576,9 +532,6 @@ export class MisService {
     };
   }
 
-  /**
-   * 12. Document Vault Metrics (Strict CRM EDMS vs HR KYC Isolation)
-   */
   async getDocumentMetrics(): Promise<MisDocumentMetrics> {
     const crmDocs = await mobileStorage.getDocuments();
     const scanInbox = await mobileStorage.getScanInbox();
@@ -604,9 +557,6 @@ export class MisService {
     };
   }
 
-  /**
-   * Helper alias for HomeScreen commercial metrics
-   */
   async getCommercialKpis() {
     const exec = await this.getExecutiveMetrics('all');
     return {
@@ -619,9 +569,6 @@ export class MisService {
     };
   }
 
-  /**
-   * Native CSV Report Exporter using expo-sharing
-   */
   async exportReportToCsv(filename: string, headers: string[], rows: (string | number)[][]): Promise<boolean> {
     try {
       const csvRows = [

@@ -57,12 +57,10 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
   const [activeTab, setActiveTab] = useState<'designations' | 'departments' | 'hierarchy'>('designations');
   const [refreshing, setRefreshing] = useState(false);
 
-  // Search & Filters
   const [search, setSearch] = useState('');
   const [selectedDeptFilter, setSelectedDeptFilter] = useState('All');
   const [selectedLevelFilter, setSelectedLevelFilter] = useState('All');
 
-  // Modal State for Designation
   const [showDesigModal, setShowDesigModal] = useState(false);
   const [editingDesig, setEditingDesig] = useState<Designation | null>(null);
   const [desigTitle, setDesigTitle] = useState('');
@@ -72,7 +70,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
   const [desigMinExp, setDesigMinExp] = useState('3-5 Years');
   const [desigErrors, setDesigErrors] = useState<Record<string, string>>({});
 
-  // Modal State for Department
   const [showDeptModal, setShowDeptModal] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
   const [deptName, setDeptName] = useState('');
@@ -82,7 +79,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
   const [deptDescription, setDeptDescription] = useState('');
   const [deptErrors, setDeptErrors] = useState<Record<string, string>>({});
 
-  // Hierarchy Tree State
   const [hierarchyData, setHierarchyData] = useState<HierarchyNode[]>([]);
   const [expandedDepts, setExpandedDepts] = useState<Record<string, boolean>>({});
 
@@ -97,7 +93,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     try {
       const tree = await getOrganizationHierarchy();
       setHierarchyData(tree);
-      // Auto-expand first 2 departments
       const initialExpanded: Record<string, boolean> = {};
       tree.slice(0, 2).forEach(t => {
         initialExpanded[t.department.id] = true;
@@ -112,7 +107,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     loadHierarchy();
   }, [departments, designations, employees]);
 
-  // Compute live assigned staff count per designation (Zero Fake Numbers)
   const getLiveStaffCount = (desig: Designation) => {
     return employees.filter(
       e =>
@@ -122,7 +116,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     ).length;
   };
 
-  // Filtered Designations
   const filteredDesignations = useMemo(() => {
     return designations.filter(d => {
       const q = search.trim().toLowerCase();
@@ -146,7 +139,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     });
   }, [designations, search, selectedDeptFilter, selectedLevelFilter]);
 
-  // Filtered Departments
   const filteredDepartments = useMemo(() => {
     return departments.filter(d => {
       const q = search.trim().toLowerCase();
@@ -159,7 +151,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     });
   }, [departments, search]);
 
-  // Level Badge Colors
   const getLevelColor = (lvl?: string) => {
     switch (lvl) {
       case 'L6':
@@ -178,10 +169,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     }
   };
 
-  // ============================================================
-  // CRITICAL DESIGNATION SAFETY GUARD
-  // CanDeleteDesignation(designation) = AssignedStaffCount === 0
-  // ============================================================
   const handleDeleteDesignation = async (desig: Designation) => {
     const liveStaff = getLiveStaffCount(desig);
 
@@ -215,11 +202,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     );
   };
 
-  // ============================================================
-  // DESIGNATION MODAL HANDLERS & VALIDATION
-  // Title: 3 to 60 characters, unique
-  // Code: 2 to 12 uppercase alphanumeric, unique
-  // ============================================================
   const openAddDesig = () => {
     setEditingDesig(null);
     setDesigTitle('');
@@ -247,7 +229,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     const title = desigTitle.trim();
     const code = desigCode.trim().toUpperCase();
 
-    // Validation 1: Title (3 to 60 characters)
     if (!title) {
       errs.title = 'Designation Title is required.';
     } else if (title.length < 3) {
@@ -263,7 +244,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
       }
     }
 
-    // Validation 2: Code (2 to 12 uppercase alphanumeric)
     if (!code) {
       errs.code = 'Designation Code is required.';
     } else if (code.length < 2) {
@@ -322,9 +302,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     }
   };
 
-  // ============================================================
-  // DEPARTMENT MODAL HANDLERS & VALIDATION
-  // ============================================================
   const openAddDept = () => {
     setEditingDept(null);
     setDeptName('');
@@ -443,7 +420,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     );
   };
 
-  // Toggle Department node expansion in Hierarchy tree
   const toggleDeptExpand = (deptId: string) => {
     setExpandedDepts(prev => ({
       ...prev,
@@ -451,7 +427,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     }));
   };
 
-  // Non-HR/Admin access restriction
   if (!canManageOrg) {
     return (
       <View style={styles.container}>
@@ -496,7 +471,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         }
       />
 
-      {/* 3 Tabs Bar */}
       <View style={styles.tabBar}>
         <TouchableOpacity
           style={[styles.tabItem, activeTab === 'designations' && styles.tabItemActive]}
@@ -529,12 +503,8 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </TouchableOpacity>
       </View>
 
-      {/* ============================================================ */}
-      {/* TAB 1: DESIGNATIONS */}
-      {/* ============================================================ */}
       {activeTab === 'designations' && (
         <View style={{ flex: 1 }}>
-          {/* Search Input */}
           <View style={styles.searchBar}>
             <Input
               placeholder="Search designation or code..."
@@ -544,7 +514,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
             />
           </View>
 
-          {/* Level Filter Chips */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -571,7 +540,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
             ))}
           </ScrollView>
 
-          {/* Designations List */}
           <FlatList
             data={filteredDesignations}
             keyExtractor={item => item.id}
@@ -657,9 +625,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </View>
       )}
 
-      {/* ============================================================ */}
-      {/* TAB 2: DEPARTMENTS */}
-      {/* ============================================================ */}
       {activeTab === 'departments' && (
         <View style={{ flex: 1 }}>
           <View style={styles.searchBar}>
@@ -739,15 +704,11 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </View>
       )}
 
-      {/* ============================================================ */}
-      {/* TAB 3: VISUAL MOBILE HIERARCHY TREE */}
-      {/* ============================================================ */}
       {activeTab === 'hierarchy' && (
         <ScrollView
           contentContainerStyle={styles.hierarchyContent}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          {/* Apex Company Node */}
           <Card style={styles.companyApexCard}>
             <Building2 size={24} color={colors.primary} />
             <Text style={styles.companyApexTitle}>Bansal Geo-Services Corporate</Text>
@@ -759,13 +720,11 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
             </View>
           </Card>
 
-          {/* Department Nodes Tree */}
           <View style={styles.treeContainer}>
             {hierarchyData.map(node => {
               const isExpanded = expandedDepts[node.department.id];
               return (
                 <View key={node.department.id} style={styles.deptTreeNode}>
-                  {/* Department Node Card */}
                   <TouchableOpacity
                     style={styles.deptNodeCard}
                     onPress={() => toggleDeptExpand(node.department.id)}
@@ -792,7 +751,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
                     </View>
                   </TouchableOpacity>
 
-                  {/* Expanded Designations & Employees Under Department */}
                   {isExpanded && (
                     <View style={styles.desigBranchContainer}>
                       {node.designations.length === 0 ? (
@@ -802,7 +760,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
                           const lvlTheme = getLevelColor(desigGroup.designation.level || desigGroup.designation.grade);
                           return (
                             <View key={desigGroup.designation.id} style={styles.desigSubNode}>
-                              {/* Designation Title & Level */}
                               <View style={styles.desigSubHeader}>
                                 <View style={styles.desigSubLeft}>
                                   <View
@@ -827,7 +784,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
                                 </View>
                               </View>
 
-                              {/* Employees assigned under this designation */}
                               {desigGroup.employees.length === 0 ? (
                                 <Text style={styles.noStaffBranchText}>
                                   No staff currently active in this role.
@@ -878,9 +834,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </ScrollView>
       )}
 
-      {/* ============================================================ */}
-      {/* MODAL: ADD / EDIT DESIGNATION */}
-      {/* ============================================================ */}
       <Modal visible={showDesigModal} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -915,7 +868,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
                 error={desigErrors.code}
               />
 
-              {/* Department Picker */}
               <Text style={styles.inputLabel}>Department *</Text>
               <View style={styles.modalPillRow}>
                 {departments.map(d => (
@@ -937,7 +889,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
                 ))}
               </View>
 
-              {/* Level / Grade Selection */}
               <Text style={styles.inputLabel}>Corporate Level / Grade</Text>
               <View style={styles.modalPillRow}>
                 {['L6', 'L5', 'L4', 'L3', 'L2', 'L1'].map(lvl => (
@@ -976,9 +927,6 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* ============================================================ */}
-      {/* MODAL: ADD / EDIT DEPARTMENT */}
-      {/* ============================================================ */}
       <Modal visible={showDeptModal} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}

@@ -120,7 +120,6 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
           </View>
         ) : null}
 
-        {/* Claim Audit Summary */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={{ flex: 1 }}>
@@ -154,14 +153,12 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
           </Text>
         </Card>
 
-        {/* Disbursement & Banking Form */}
         <Card style={styles.card}>
           <View style={styles.bankHeader}>
             <Banknote size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>Disbursement Details</Text>
           </View>
 
-          {/* Payment Mode Selector */}
           <Text style={styles.fieldLabel}>Payment Mode *</Text>
           <View style={styles.modeChips}>
             {paymentModes.map((mode) => (
@@ -177,7 +174,6 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
             ))}
           </View>
 
-          {/* Disbursement Reference / UTR */}
           <Input
             label="Disbursement Reference / UTR Number *"
             placeholder="e.g. UTR-HDFC-994182410"
@@ -189,7 +185,6 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
             leftIcon={<CreditCard size={16} color={colors.text.secondary} />}
           />
 
-          {/* Settlement Date */}
           <Input
             label="Disbursement Settlement Date (YYYY-MM-DD) *"
             placeholder="YYYY-MM-DD"
@@ -201,7 +196,6 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
             leftIcon={<Calendar size={16} color={colors.text.secondary} />}
           />
 
-          {/* Finance Ledger Double-Entry Preview */}
           <View style={styles.ledgerPreviewBox}>
             <Text style={styles.ledgerHeading}>FINANCE LEDGER VOUCHER PREVIEW</Text>
             <Text style={styles.ledgerSub}>

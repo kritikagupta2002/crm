@@ -36,13 +36,6 @@ export interface ValidationResult {
 }
 
 class HrmsDocumentService {
-  /**
-   * Validates document upload according to exact source constraints:
-   * - Required fields (Title / Employee & Document Type)
-   * - Allowed extensions (.pdf, .png, .jpg, .jpeg)
-   * - Maximum file size 10MB (10485760 bytes)
-   * - Expiry date for statutory certificates (DGMS / UAV Drone pilot)
-   */
   validateUpload(params: {
     isEmployeeKyc: boolean;
     title?: string;
@@ -77,7 +70,6 @@ class HrmsDocumentService {
     }
 
     if (file) {
-      // 10 MB maximum size limit
       const MAX_SIZE_BYTES = 10 * 1024 * 1024;
       if (file.size > MAX_SIZE_BYTES) {
         return {
@@ -86,7 +78,6 @@ class HrmsDocumentService {
         };
       }
 
-      // Allowed extensions
       const allowedExts = isEmployeeKyc
         ? ['.pdf', '.png', '.jpg', '.jpeg']
         : ['.pdf', '.png', '.jpg', '.jpeg', '.doc', '.docx'];
@@ -102,10 +93,6 @@ class HrmsDocumentService {
 
     return { valid: true };
   }
-
-  // ==========================================
-  // HR CORPORATE / POLICY DOCUMENTS
-  // ==========================================
 
   async getHrDocuments(): Promise<HrDocument[]> {
     return await mobileStorage.getHrDocuments();
@@ -166,10 +153,6 @@ class HrmsDocumentService {
     return true;
   }
 
-  // ==========================================
-  // EMPLOYEE KYC & CREDENTIAL VAULT
-  // ==========================================
-
   async getEmployeeDocuments(employeeId?: string): Promise<EmployeeDocumentRecord[]> {
     const list = await mobileStorage.getEmployeeDocuments();
     if (employeeId) {
@@ -194,7 +177,6 @@ class HrmsDocumentService {
 
     const currentDocs = await mobileStorage.getEmployeeDocuments();
 
-    // Check for existing document of same type for this employee (Part 9 & Part 10)
     const existing = currentDocs.find(
       (d) =>
         d.employeeId === input.employeeId &&
@@ -249,7 +231,6 @@ class HrmsDocumentService {
 
     let savedAttachment: StoredAttachment | null = null;
     if (input.attachment) {
-      // Remove old file
       if (existing.attachmentUri) {
         await attachmentStorage.deleteAttachment(existing.attachmentUri);
       }

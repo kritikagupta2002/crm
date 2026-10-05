@@ -1,6 +1,7 @@
 import { mobileStorage } from '../storage';
-import { Employee, Department, Designation, SalaryStructure, AttendanceRecord } from '../types';
+import { Employee } from '../types';
 import { DEFAULT_LEAVE_TYPES } from '../constants';
+import { isValidIndianMobile } from '../utils';
 
 export class EmployeeService {
   async getEmployees(): Promise<Employee[]> {
@@ -65,13 +66,11 @@ export class EmployeeService {
   }): Promise<Employee> {
     const employees = await mobileStorage.getEmployees();
 
-    // 1. Validation: Name required
     const trimmedName = data.name?.trim();
     if (!trimmedName || trimmedName.length < 3) {
       throw new Error('Full Name is required and must be at least 3 characters.');
     }
 
-    // 2. Validation: Unique Employee ID
     const cleanEmpId = data.employeeId?.trim().toUpperCase();
     if (!cleanEmpId || cleanEmpId.length < 3) {
       throw new Error('Employee ID is required and must be at least 3 characters.');
@@ -83,7 +82,6 @@ export class EmployeeService {
       throw new Error(`Employee ID "${cleanEmpId}" already exists. Please assign a unique employee ID.`);
     }
 
-    // 3. Validation: Unique Work Email
     const cleanEmail = data.contact.workEmail?.trim().toLowerCase();
     if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       throw new Error('Valid corporate work email address is required.');
@@ -95,14 +93,12 @@ export class EmployeeService {
       throw new Error(`Email address "${cleanEmail}" is already registered with ${duplicateEmail.name}.`);
     }
 
-    // 4. Validation: Mobile Phone (10 digits starting with 6-9)
     const cleanPhone = data.contact.phone?.trim();
-    if (!cleanPhone || !/^[6-9]\d{9}$/.test(cleanPhone)) {
+    if (!cleanPhone || !isValidIndianMobile(cleanPhone)) {
       throw new Error('Mobile Phone must be a valid 10-digit Indian number starting with 6, 7, 8, or 9.');
     }
 
-    // 5. Validation: Statutory Age (18 to 65 years)
-    if (data.personal?.dob) {
+        if (data.personal?.dob) {
       const birthDate = new Date(data.personal.dob);
       if (!isNaN(birthDate.getTime())) {
         const today = new Date();
@@ -120,8 +116,7 @@ export class EmployeeService {
       }
     }
 
-    // 6. Validation: Department & Designation required
-    if (!data.employment.department?.trim()) {
+        if (!data.employment.department?.trim()) {
       throw new Error('Department assignment is required from Organization Master.');
     }
     if (!data.employment.designation?.trim()) {
@@ -207,9 +202,6 @@ export class EmployeeService {
     employees.unshift(newEmp);
     await mobileStorage.setEmployees(employees);
 
-    // ============================================================
-    // CRITICAL SIDE EFFECT 1: Initialize Personal Leave Balances
-    // ============================================================
     try {
       const balances = await mobileStorage.getLeaveBalances();
       if (!balances[cleanEmpId]) {
@@ -224,9 +216,6 @@ export class EmployeeService {
       console.error('Error initializing leave balances for new employee:', e);
     }
 
-    // ============================================================
-    // CRITICAL SIDE EFFECT 2: Initialize Today's Attendance Slot
-    // ============================================================
     try {
       const today = new Date().toISOString().split('T')[0];
       const attendanceList = await mobileStorage.getAttendance();
@@ -251,9 +240,6 @@ export class EmployeeService {
       console.error('Error initializing attendance for new employee:', e);
     }
 
-    // ============================================================
-    // CRITICAL SIDE EFFECT 3: Initialize Baseline Salary Structure
-    // ============================================================
     try {
       const salaries = await mobileStorage.getSalaryStructures();
       const existingSal = salaries.some((s) => s.employeeId === cleanEmpId);
@@ -286,9 +272,6 @@ export class EmployeeService {
       console.error('Error initializing salary structure for new employee:', e);
     }
 
-    // ============================================================
-    // CRITICAL SIDE EFFECT 4: Increment Department Staff Count
-    // ============================================================
     try {
       const depts = await mobileStorage.getDepartments();
       const targetDept = depts.find(
@@ -303,10 +286,7 @@ export class EmployeeService {
       console.error('Error updating department staff count:', e);
     }
 
-    // ============================================================
-    // CRITICAL SIDE EFFECT 5: Increment Designation Staff Count
-    // ============================================================
-    try {
+        try {
       const desigs = await mobileStorage.getDesignations();
       const targetDesig = desigs.find(
         (d) => d.title.toLowerCase() === newEmp.employment.designation.toLowerCase()
@@ -332,7 +312,6 @@ export class EmployeeService {
 
     const current = employees[index];
 
-    // Check unique employeeId if changed
     if (updates.employeeId && updates.employeeId !== current.employeeId) {
       const cleanEmpId = updates.employeeId.trim().toUpperCase();
       const duplicateId = employees.find(
@@ -343,7 +322,6 @@ export class EmployeeService {
       }
     }
 
-    // Check unique email if changed
     const newEmail = updates.email || updates.contact?.workEmail;
     if (newEmail && newEmail.toLowerCase() !== current.email.toLowerCase()) {
       const cleanEmail = newEmail.trim().toLowerCase();
@@ -396,7 +374,6 @@ export class EmployeeService {
     const updated = employees.filter((e) => e.id !== id && e.employeeId !== id);
     await mobileStorage.setEmployees(updated);
 
-    // Adjust department staff count
     try {
       const depts = await mobileStorage.getDepartments();
       const dept = depts.find((d) => d.name === target.employment?.department);
@@ -409,8 +386,7 @@ export class EmployeeService {
       console.error('Error decrementing dept count:', e);
     }
 
-    // Adjust designation staff count
-    try {
+        try {
       const desigs = await mobileStorage.getDesignations();
       const desig = desigs.find((d) => d.title === target.employment?.designation);
       if (desig && desig.assignedStaffCount > 0) {

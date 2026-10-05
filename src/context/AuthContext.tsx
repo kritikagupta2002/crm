@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { ActiveSession, UserSession, ClientSession, VendorSession, TeamRole, WorkspaceId, AccountType } from '../types';
 import { mobileStorage } from '../storage';
 import { TEAM_PERSONAS, CLIENT_PERSONAS, VENDOR_PERSONAS, WORKSPACE_ACCESS } from '../constants';
@@ -14,12 +14,26 @@ interface AuthContextType {
   loginVendor: (vendorId: string, mobile: string) => Promise<boolean>;
   switchTeamRole: (role: TeamRole) => Promise<void>;
   logout: () => Promise<void>;
+  resetAppData: () => Promise<void>;
   hasWorkspace: (workspace: WorkspaceId) => boolean;
   hasRole: (roles: string[] | string) => boolean;
   can: (action: 'view' | 'manage' | 'approve', module: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const ROLE_NAME_MAP: Record<string, TeamRole> = {
+  Admin: 'admin',
+  admin: 'admin',
+  HR: 'hr',
+  hr: 'hr',
+  Accountant: 'accountant',
+  accountant: 'accountant',
+  'Team Lead': 'lead',
+  lead: 'lead',
+  Employee: 'employee',
+  employee: 'employee',
+};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<ActiveSession>(null);
@@ -33,7 +47,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (savedSession && (savedSession as any).isExplicitLogin) {
           setSession(savedSession);
         } else {
-          // No auto-login: show LoginScreen after Splash
           setSession(null);
           await mobileStorage.setActiveSession(null);
         }
@@ -46,16 +59,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     bootstrap();
   }, []);
 
-  const loginTeam = async (targetRole: TeamRole) => {
+  const loginTeam = useCallback(async (targetRole: TeamRole) => {
     const persona = TEAM_PERSONAS[targetRole];
     if (persona) {
       const activeUser = { ...persona, isExplicitLogin: true };
       setSession(activeUser);
       await mobileStorage.setActiveSession(activeUser);
     }
-  };
+  }, []);
 
-  const loginClient = async (enquiryId: string, mobile: string): Promise<boolean> => {
+  const loginClient = useCallback(async (enquiryId: string, mobile: string): Promise<boolean> => {
     const trimmedEnq = enquiryId.trim();
     const trimmedMob = mobile.trim();
     const found = CLIENT_PERSONAS.find(
@@ -67,7 +80,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await mobileStorage.setActiveSession(activeClient);
       return true;
     }
-    // Fallback client session if not found in demo list
     const clientSession: ClientSession = {
       id: 'cli-' + Date.now(),
       enquiryId: trimmedEnq || 'ENQ-DEMO-001',
@@ -81,9 +93,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSession(activeClient);
     await mobileStorage.setActiveSession(activeClient);
     return true;
-  };
+  }, []);
 
-  const loginVendor = async (vendorId: string, mobile: string): Promise<boolean> => {
+  const loginVendor = useCallback(async (vendorId: string, mobile: string): Promise<boolean> => {
     const trimmedId = vendorId.trim();
     const trimmedMob = mobile.trim();
     const found = VENDOR_PERSONAS.find(
@@ -108,33 +120,38 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setSession(activeVendor);
     await mobileStorage.setActiveSession(activeVendor);
     return true;
-  };
+  }, []);
 
-  const switchTeamRole = async (targetRole: TeamRole) => {
+  const switchTeamRole = useCallback(async (targetRole: TeamRole) => {
     const persona = TEAM_PERSONAS[targetRole];
     if (persona) {
       const activeUser = { ...persona, isExplicitLogin: true };
       setSession(activeUser);
       await mobileStorage.setActiveSession(activeUser);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setSession(null);
     await mobileStorage.setActiveSession(null);
-  };
+  }, []);
+
+  const resetAppData = useCallback(async () => {
+    await mobileStorage.resetAllToDefaults();
+    setSession(null);
+  }, []);
 
   const accountType: AccountType = session?.accountType || 'team';
   const role: TeamRole = session?.accountType === 'team' ? (session as UserSession).role : 'employee';
 
-  const hasWorkspace = (workspace: WorkspaceId): boolean => {
+  const hasWorkspace = useCallback((workspace: WorkspaceId): boolean => {
     if (!session) return false;
     if (session.accountType !== 'team') return false;
     const allowed = WORKSPACE_ACCESS[role] || [];
     return allowed.includes(workspace);
-  };
+  }, [session, role]);
 
-  const can = (action: 'view' | 'manage' | 'approve', module: string): boolean => {
+  const can = useCallback((action: 'view' | 'manage' | 'approve', module: string): boolean => {
     if (!session) return false;
     if (session.accountType !== 'team') return false;
     if (role === 'admin') return true;
@@ -154,46 +171,48 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (role === 'lead') {
       return ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'projects', 'tasks', 'tenders'].includes(module);
     }
-    // employee
     return ['crm', 'vendor', 'hrms', 'expenses', 'finance', 'attendance', 'leave', 'payslips'].includes(module);
-  };
+  }, [session, role]);
 
-  const hasRole = (roles: string[] | string): boolean => {
+  const hasRole = useCallback((roles: string[] | string): boolean => {
     if (!session || session.accountType !== 'team') return false;
     const roleList = Array.isArray(roles) ? roles : [roles];
-    const roleNameMap: Record<string, TeamRole> = {
-      Admin: 'admin',
-      admin: 'admin',
-      HR: 'hr',
-      hr: 'hr',
-      Accountant: 'accountant',
-      accountant: 'accountant',
-      'Team Lead': 'lead',
-      lead: 'lead',
-      Employee: 'employee',
-      employee: 'employee',
-    };
-    return roleList.some(r => roleNameMap[r] === role);
-  };
+    return roleList.some(r => ROLE_NAME_MAP[r] === role);
+  }, [session, role]);
+
+  const value = useMemo<AuthContextType>(() => ({
+    session,
+    accountType,
+    role,
+    userRole: role,
+    isLoading,
+    loginTeam,
+    loginClient,
+    loginVendor,
+    switchTeamRole,
+    logout,
+    resetAppData,
+    hasWorkspace,
+    hasRole,
+    can,
+  }), [
+    session,
+    accountType,
+    role,
+    isLoading,
+    loginTeam,
+    loginClient,
+    loginVendor,
+    switchTeamRole,
+    logout,
+    resetAppData,
+    hasWorkspace,
+    hasRole,
+    can,
+  ]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        session,
-        accountType,
-        role,
-        userRole: role,
-        isLoading,
-        loginTeam,
-        loginClient,
-        loginVendor,
-        switchTeamRole,
-        logout,
-        hasWorkspace,
-        hasRole,
-        can,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

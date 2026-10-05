@@ -1,5 +1,5 @@
 import { mobileStorage } from '../storage';
-import { ReimbursementClaim, ReimbursementCategory, ExpenseAuditEntry } from '../types';
+import { ReimbursementClaim, ReimbursementCategory } from '../types';
 
 export class ReimbursementService {
   async getAllClaims(employeeId?: string): Promise<ReimbursementClaim[]> {
@@ -38,7 +38,6 @@ export class ReimbursementService {
     receiptUrl?: string;
     receiptDataUrl?: string;
   }): Promise<ReimbursementClaim> {
-    // 1. Service-Layer Validation
     if (!data.employeeId || typeof data.employeeId !== 'string' || !data.employeeId.trim()) {
       throw new Error('Employee ID is required to file a reimbursement claim.');
     }
@@ -49,7 +48,6 @@ export class ReimbursementService {
 
     let finalAmount = 0;
 
-    // Mileage calculation logic: Kilometers Driven x Applicable Rate Per KM
     if (data.category === 'Vehicle Mileage') {
       const km = Number(data.kilometersDriven);
       const rate = Number(data.ratePerKm);
@@ -76,7 +74,6 @@ export class ReimbursementService {
       }
       finalAmount = days * rate;
     } else {
-      // Mobile & Internet or other allowance
       const rawAmt = data.claimAmount !== undefined ? data.claimAmount : data.amount;
       finalAmount = Number(rawAmt);
     }
@@ -97,7 +94,6 @@ export class ReimbursementService {
 
     const list = await mobileStorage.getReimbursements();
 
-    // 2. Duplicate Detection
     const isDuplicate = list.some(
       (r) =>
         r.employeeId === data.employeeId &&
@@ -351,7 +347,6 @@ export class ReimbursementService {
     const now = new Date().toISOString();
     const responder = respondedBy || item.employeeName;
 
-    // Reset status to Pending for re-review without duplicate claim
     item.status = 'Pending';
     item.queryStatus = 'Employee Responded';
     item.queryResponse = responseMessage.trim();
@@ -390,24 +385,20 @@ export class ReimbursementService {
     const item = list.find((r) => r.id === id || r.claimId === id);
     if (!item) throw new Error(`Reimbursement claim with ID ${id} not found.`);
 
-    // Rule 1: Approval Check
     if (item.status !== 'Approved' && item.status !== 'Partially Approved') {
       throw new Error(
         `Settlement Blocked: Claim must be Approved or Partially Approved first. Current status: ${item.status}`
       );
     }
 
-    // Rule 2: Active Query Check
     if (item.queryStatus === 'Query Raised') {
       throw new Error('Settlement Blocked: Cannot settle claim while an active query is outstanding.');
     }
 
-    // Rule 3: Already Settled (Idempotency)
     if (item.settlementStatus === 'Settled') {
       throw new Error(`Claim ${item.claimId || item.id} has already been settled and disbursed.`);
     }
 
-    // Rule 4: Payable amount is strictly approvedAmount
     const payableAmount = Number(item.approvedAmount || item.hrApprovedAmount || 0);
     if (payableAmount <= 0) {
       throw new Error('Cannot settle a claim with ₹0 approved payable amount.');
@@ -442,7 +433,6 @@ export class ReimbursementService {
         ? settlementData.settledBy
         : 'Finance & Accounts';
 
-    // Cross-module side effect: post Payment Voucher to Finance ledger (with idempotency)
     const vouchers = await mobileStorage.getVouchers();
     const refDoc = item.claimId || item.id;
     const existingVoucher = vouchers.find(
@@ -466,7 +456,6 @@ export class ReimbursementService {
       await mobileStorage.setVouchers(vouchers);
     }
 
-    // Mark claim settled
     item.status = 'Settled';
     item.settlementStatus = 'Settled';
     item.settledAmount = payableAmount;

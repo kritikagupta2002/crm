@@ -24,6 +24,7 @@ import {
   Button,
 } from '../../components/common';
 import { colors, spacing, typography, radius } from '../../theme';
+import { formatExactCurrency as formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { QUOTATION_RULES } from '../../constants';
 
@@ -77,7 +78,6 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
   const [validDays, setValidDays] = useState('30');
   const [loading, setLoading] = useState(false);
 
-  // If lead changes, refresh default items if new
   useEffect(() => {
     if (selectedLead && !paramLeadId) {
       setLineItems([
@@ -129,7 +129,6 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
     setLineItems(lineItems.filter((_, idx) => idx !== index));
   };
 
-  // Calculations
   const parsedItems = lineItems.map((i) => ({
     description: i.description,
     qty: Number(i.qty) || 0,
@@ -198,8 +197,6 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
     }
   };
 
-  const formatCurrency = (amt: number) => `₹${amt.toLocaleString('en-IN')}`;
-
   return (
     <ScreenContainer
       scrollable
@@ -212,7 +209,6 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
         />
       }
     >
-      {/* 1. Enquiry Selection */}
       <Card>
         <Text style={styles.cardTitle}>Enquiry & Client Scope</Text>
         <Text style={styles.inputLabel}>Select Open Enquiry *</Text>
@@ -258,7 +254,6 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
         )}
       </Card>
 
-      {/* 2. Technical Line Items */}
       <Card>
         <View style={styles.lineHeader}>
           <Text style={styles.cardTitle}>Technical Line Items</Text>
@@ -315,7 +310,6 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
         })}
       </Card>
 
-      {/* 3. Commercial Terms & Calculations */}
       <Card>
         <Text style={styles.cardTitle}>Commercial Parameters & Breakdown</Text>
 
@@ -368,7 +362,6 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
           </View>
         </View>
 
-        {/* Director Threshold Banner */}
         {requiresDirectorApproval ? (
           <View style={styles.approvalNotice}>
             <ShieldAlert size={20} color={colors.warningText} />

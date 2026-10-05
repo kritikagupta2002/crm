@@ -5,20 +5,15 @@ import { RootStackParamList } from './types';
 import { useAuth } from '../context';
 import { colors } from '../theme';
 
-// Navigators
 import { MainTabNavigator } from './MainTabNavigator';
 
-// Auth & Public Screens
 import { LoginScreen, SplashScreen } from '../screens/auth';
 import { PublicEnquiryScreen } from '../screens/public';
 
-// Portals
 import { ClientPortalScreen, VendorPortalScreen } from '../screens/portals';
 
-// Main Shell Screens
 import { NotificationsScreen } from '../screens/main';
 
-// CRM Screens
 import {
   CrmDashboardScreen,
   LeadsScreen,
@@ -33,10 +28,8 @@ import {
   ClientDetailScreen,
 } from '../screens/crm';
 
-// ERM Screens
 import { ErmDashboardScreen, ProjectsScreen, ProjectDetailScreen } from '../screens/erm';
 
-// Vendor Screens
 import {
   VendorWorkspaceHomeScreen,
   VendorRegisterScreen,
@@ -50,7 +43,6 @@ import {
   VendorDetailScreen,
 } from '../screens/vendor';
 
-// Document Screens
 import {
   DocumentWorkspaceHomeScreen,
   DocumentsScreen,
@@ -60,8 +52,6 @@ import {
   DispatchRegisterScreen,
 } from '../screens/documents';
 
-
-// HRMS & Attendance Screens
 import {
   HrmsOverviewScreen,
   AttendanceScreen,
@@ -83,7 +73,6 @@ import {
   HrDocumentsWorkspaceScreen,
 } from '../screens/hrms';
 
-// Expense Screens
 import {
   ExpensesScreen,
   ExpenseClaimScreen,
@@ -93,7 +82,6 @@ import {
   ReimbursementScreen,
 } from '../screens/expenses';
 
-// Finance Screens
 import {
   FinanceDashboardScreen,
   InvoicesScreen,
@@ -104,10 +92,8 @@ import {
   GstOverviewScreen,
 } from '../screens/finance';
 
-// Payroll Screens
 import { PayrollScreen, PayslipsScreen } from '../screens/payroll';
 
-// Reports Screens
 import { MisReportsScreen } from '../screens/reports';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -123,19 +109,16 @@ export const RootNavigator: React.FC = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       {!session ? (
-        // Public & Unauthenticated Stack
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="PublicEnquiry" component={PublicEnquiryScreen} />
           <Stack.Screen name="VendorRegister" component={VendorRegisterScreen} />
         </>
       ) : session.accountType === 'client' ? (
-        // Client Portal Stack
         <>
           <Stack.Screen name="ClientPortal" component={ClientPortalScreen} />
         </>
       ) : session.accountType === 'vendor' ? (
-        // Vendor Portal Stack
         <>
           <Stack.Screen name="VendorPortal" component={VendorPortalScreen} />
           <Stack.Screen name="TenderDetail" component={TenderDetailScreen} />
@@ -143,12 +126,10 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="VendorRegister" component={VendorRegisterScreen} />
         </>
       ) : (
-        // Authenticated Team Staff Stack
         <>
           <Stack.Screen name="MainTabs" component={MainTabNavigator} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
 
-          {/* CRM Module */}
           <Stack.Screen name="CrmDashboard" component={CrmDashboardScreen} />
           <Stack.Screen name="Leads" component={LeadsScreen} />
           <Stack.Screen name="LeadDetail" component={LeadDetailScreen} />
@@ -161,12 +142,10 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="Clients" component={ClientsScreen} />
           <Stack.Screen name="ClientDetail" component={ClientDetailScreen} />
 
-          {/* ERM Module */}
           <Stack.Screen name="ErmDashboard" component={ErmDashboardScreen} />
           <Stack.Screen name="Projects" component={ProjectsScreen} />
           <Stack.Screen name="ProjectDetail" component={ProjectDetailScreen} />
 
-          {/* Vendor Module */}
           <Stack.Screen name="VendorWorkspaceHome" component={VendorWorkspaceHomeScreen} />
           <Stack.Screen name="VendorRegister" component={VendorRegisterScreen} />
           <Stack.Screen name="VendorApplications" component={VendorApplicationsScreen} />
@@ -178,7 +157,6 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="Vendors" component={VendorsScreen} />
           <Stack.Screen name="VendorDetail" component={VendorDetailScreen} />
 
-          {/* Document Management Module */}
           <Stack.Screen name="DocumentWorkspaceHome" component={DocumentWorkspaceHomeScreen} />
           <Stack.Screen name="Documents" component={DocumentsScreen} />
           <Stack.Screen name="DocumentDetail" component={DocumentDetailScreen} />
@@ -186,8 +164,6 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="ScanInbox" component={ScanInboxScreen} />
           <Stack.Screen name="DispatchRegister" component={DispatchRegisterScreen} />
 
-
-          {/* HRMS & Attendance Module */}
           <Stack.Screen name="HrmsOverview" component={HrmsOverviewScreen} />
           <Stack.Screen name="Attendance" component={AttendanceScreen} />
           <Stack.Screen name="DailyAttendance" component={DailyAttendanceScreen} />
@@ -207,7 +183,6 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="EmployeeDocuments" component={EmployeeDocumentsScreen} />
           <Stack.Screen name="HrDocumentsWorkspace" component={HrDocumentsWorkspaceScreen} />
 
-          {/* Expense & Reimbursement Module */}
           <Stack.Screen name="Expenses" component={ExpensesScreen} />
           <Stack.Screen name="ExpenseClaim" component={ExpenseClaimScreen} />
           <Stack.Screen name="ExpenseReview" component={ExpenseReviewScreen} />
@@ -215,7 +190,6 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="ExpenseSettlement" component={ExpenseSettlementScreen} />
           <Stack.Screen name="Reimbursement" component={ReimbursementScreen} />
 
-          {/* Finance & Commercial Module */}
           <Stack.Screen name="FinanceDashboard" component={FinanceDashboardScreen} />
           <Stack.Screen name="Invoices" component={InvoicesScreen} />
           <Stack.Screen name="VendorBills" component={VendorBillsScreen} />
@@ -224,11 +198,9 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="TdsRegister" component={TdsRegisterScreen} />
           <Stack.Screen name="GstOverview" component={GstOverviewScreen} />
 
-          {/* Payroll Module */}
           <Stack.Screen name="Payroll" component={PayrollScreen} />
           <Stack.Screen name="Payslips" component={PayslipsScreen} />
 
-          {/* MIS Reports Module */}
           <Stack.Screen name="MisReports" component={MisReportsScreen} />
         </>
       )}

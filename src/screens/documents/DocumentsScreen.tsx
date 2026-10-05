@@ -40,7 +40,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
   const { session } = useAuth();
   const currentUserName = (session as any)?.name || (session as any)?.contactPerson || 'Active User';
 
-
   const initialStep = route?.params?.step || 'All';
   const initialView = route?.params?.view || 'Government documents';
 
@@ -51,23 +50,18 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
   const [selectedAccess, setSelectedAccess] = useState<string>('Any access');
   const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
 
-  // Filtered Government Documents
   const filteredGovtDocs = useMemo(() => {
     return govtDocuments.filter((doc) => {
-      // Stage filter
       if (selectedStage !== 'All' && doc.stage !== selectedStage) {
         return false;
       }
-      // Kind filter
       if (selectedKind !== 'All kinds' && doc.kind !== selectedKind) {
         return false;
       }
-      // Access filter
       if (selectedAccess === 'Client can see' && !doc.record.access?.client) return false;
       if (selectedAccess === 'Vendor can see' && !doc.record.access?.vendor) return false;
       if (selectedAccess === 'Office only' && (doc.record.access?.client || doc.record.access?.vendor)) return false;
 
-      // Search query
       if (search.trim()) {
         const q = search.toLowerCase();
         const matches = [
@@ -87,7 +81,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
     });
   }, [govtDocuments, selectedStage, selectedKind, selectedAccess, search]);
 
-  // Filtered Other Documents
   const filteredOtherDocs = useMemo(() => {
     return documents.filter((doc) => {
       if (search.trim()) {
@@ -140,7 +133,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
             <Text style={styles.metaDate}>{item.letter.date}</Text>
           </View>
 
-          {/* Custody & 4-Eyes Guard Note */}
           <View style={styles.custodyRow}>
             <Text style={styles.custodyText}>
               Filed by <Text style={{ fontWeight: '600' }}>{item.record.filedBy}</Text>
@@ -159,7 +151,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
             )}
           </View>
 
-          {/* Access & Dispatch Footer */}
           <View style={styles.cardFooter}>
             <View style={styles.accessBadge}>
               <Lock size={11} color={colors.text.tertiary} />
@@ -225,7 +216,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         }
       />
 
-      {/* View Switch: Government EDMS vs Other Documents */}
       <View style={styles.viewTabs}>
         <TouchableOpacity
           style={[styles.viewTab, activeView === 'Government documents' && styles.viewTabActive]}
@@ -245,7 +235,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Search Input */}
       <View style={styles.searchBar}>
         <Search size={16} color={colors.text.tertiary} style={{ marginRight: spacing.xs }} />
         <Input
@@ -265,7 +254,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         )}
       </View>
 
-      {/* Pipeline Stage Tabs for Government Documents */}
       {activeView === 'Government documents' && (
         <ScrollView
           horizontal
@@ -299,7 +287,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         </ScrollView>
       )}
 
-      {/* Document List */}
       {activeView === 'Government documents' ? (
         <FlatList
           data={filteredGovtDocs}
@@ -334,7 +321,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         />
       )}
 
-      {/* Filter Bottom Sheet Modal */}
       <Modal
         visible={showFilterModal}
         transparent
@@ -351,7 +337,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
             </View>
 
             <ScrollView style={styles.modalScroll}>
-              {/* Document Kind Filter */}
               <Text style={styles.filterSectionTitle}>Document Kind</Text>
               <View style={styles.filterOptionsGrid}>
                 {['All kinds', ...DOC_KINDS].map((k) => (
@@ -367,7 +352,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
                 ))}
               </View>
 
-              {/* Access Grants Filter */}
               <Text style={styles.filterSectionTitle}>Portal Access</Text>
               <View style={styles.filterOptionsGrid}>
                 {['Any access', 'Client can see', 'Vendor can see', 'Office only'].map((acc) => (

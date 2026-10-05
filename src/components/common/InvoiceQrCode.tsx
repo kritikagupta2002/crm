@@ -11,11 +11,6 @@ interface InvoiceQrCodeProps {
   quietZone?: number;
 }
 
-/**
- * Mobile-native SVG vector QR code component.
- * Reuses the existing `qrcode` library from web source,
- * converting the QR module matrix into crisp scalable native SVG vector paths.
- */
 export const InvoiceQrCode: React.FC<InvoiceQrCodeProps> = ({
   value,
   size = 180,

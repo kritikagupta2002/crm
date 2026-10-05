@@ -34,7 +34,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
   const isAlreadyUnsealed = tender.status === 'Under Evaluation' || tender.status === 'Awarded';
   const bothKeysEngaged = dirKeyConfirmed && tmKeyConfirmed;
 
-  // Sort bids by amount to find L1, L2, L3
   const liveBids = tender.sealedBids.filter((b) => b.status !== 'Withdrawn');
   const rankedBids = [...liveBids].sort((a, b) => a.bidAmount - b.bidAmount);
   const l1Bid = rankedBids[0];
@@ -96,7 +95,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Tender Context */}
         <Card style={styles.card}>
           <View style={styles.headerRow}>
             <View style={styles.tagWrap}>
@@ -112,7 +110,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
           </View>
         </Card>
 
-        {/* Dual-Key Authentication Chamber */}
         {!isAlreadyUnsealed && (
           <Card style={styles.ceremonyChamber}>
             <View style={styles.ceremonyHeader}>
@@ -126,7 +123,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
             </View>
 
             <View style={styles.keyCards}>
-              {/* Key 1: Director */}
               <TouchableOpacity
                 style={[styles.keySlot, dirKeyConfirmed && styles.keySlotActive]}
                 onPress={() => setDirKeyConfirmed(!dirKeyConfirmed)}
@@ -147,7 +143,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
                 )}
               </TouchableOpacity>
 
-              {/* Key 2: Tender Manager */}
               <TouchableOpacity
                 style={[styles.keySlot, tmKeyConfirmed && styles.keySlotActive]}
                 onPress={() => setTmKeyConfirmed(!tmKeyConfirmed)}
@@ -180,7 +175,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
           </Card>
         )}
 
-        {/* Comparative L1 Matrix (Available once unsealed) */}
         {isAlreadyUnsealed && (
           <Card style={styles.matrixCard}>
             <View style={styles.matrixHeader}>
@@ -231,7 +225,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
               })}
             </View>
 
-            {/* Award L1 Action Button */}
             {tender.status === 'Under Evaluation' && l1Bid && (
               <View style={styles.allotSection}>
                 <View style={styles.allotInfo}>
@@ -261,7 +254,6 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
         )}
       </ScrollView>
 
-      {/* Confirmation Modal for Allotment */}
       <ConfirmationModal
         visible={showAllotModal}
         title="Confirm Tender Award (L1)"

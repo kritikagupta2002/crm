@@ -11,8 +11,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { useHrms, useAuth } from '../../context';
-import { colors, spacing, typography, borderRadius } from '../../theme';
-import { AppHeader, Card, StatusBadge, Button, Input, EmptyState } from '../../components';
+import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { ScreenContainer, AppHeader, Card, StatCard, StatusBadge, Button, Input, EmptyState } from '../../components/common';
+import { DonutChart, MiniBarChart } from '../../components/common/NativeCharts';
 import { ExpenseClaim, ExpenseStatus } from '../../types';
 import {
   Receipt,
@@ -29,6 +30,7 @@ import {
   Clock,
   Briefcase,
   AlertTriangle,
+  TrendingUp,
 } from 'lucide-react-native';
 
 export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
@@ -55,9 +57,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   const isPrivileged = isHr || isAccountant;
   const activeEmpId = session?.accountType === 'team' ? (session as any).employeeId : 'BGS-2021-001';
 
-  // Strict Data Isolation:
-  // Regular employees ONLY see their own claims.
-  // Privileged roles (HR/Admin/Accountant) see all company claims.
   const baseExpenses = useMemo(() => {
     if (isPrivileged) {
       return expenses;
@@ -65,7 +64,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     return expenses.filter((e) => e.employeeId === activeEmpId);
   }, [expenses, isPrivileged, activeEmpId]);
 
-  // Relevant queries for current user
   const relevantQueries = useMemo(() => {
     if (isPrivileged) {
       return queries.filter((q) => q.status === 'Open');
@@ -75,7 +73,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
   const openQueryCount = relevantQueries.length;
 
-  // KPI Calculations
   const stats = useMemo(() => {
     const totalClaimed = baseExpenses.reduce((acc, curr) => acc + (Number(curr.requestedAmount || curr.amount) || 0), 0);
     const totalApproved = baseExpenses.reduce((acc, curr) => acc + (Number(curr.approvedAmount) || 0), 0);
@@ -83,6 +80,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     const underQuery = baseExpenses.filter((e) => e.status === 'Queried').length;
     return { totalClaimed, totalApproved, totalSettled, underQuery };
   }, [baseExpenses]);
+
+  const approvalPct = stats.totalClaimed > 0 ? Math.round((stats.totalApproved / stats.totalClaimed) * 100) : 100;
 
   const filteredExpenses = useMemo(() => {
     return baseExpenses.filter((e) => {
@@ -110,23 +109,20 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   }, [refreshHrms]);
 
   const renderExpenseCard = ({ item }: { item: ExpenseClaim }) => {
-    const isOwner = item.employeeId === activeEmpId;
     const canReview = isHr && (item.status === 'Pending' || item.status === 'Queried');
     const canSettle = isAccountant && (item.status === 'Approved' || item.status === 'Partially Approved');
     const isQueried = item.status === 'Queried';
 
     return (
       <Card style={styles.card}>
-        {/* Header: Project Tag & Status */}
         <View style={styles.cardHeader}>
           <View style={styles.tagWrap}>
             <Text style={styles.claimNumber}>{item.expenseNumber || item.id}</Text>
-            <StatusBadge status={item.status} size="small" />
+            <StatusBadge status={item.status} size="sm" />
           </View>
           <Text style={styles.dateText}>{item.date}</Text>
         </View>
 
-        {/* Employee & Department info for privileged reviewers */}
         {isPrivileged && (
           <View style={styles.empRow}>
             <Text style={styles.empName}>{item.employeeName}</Text>
@@ -139,88 +135,65 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           <Text style={styles.projectText}>{item.project}</Text>
         </View>
 
-        <Text style={styles.category}>{item.category}</Text>
-        <Text style={styles.description} numberOfLines={2}>
+        <Text style={styles.descText} numberOfLines={2}>
           {item.description}
         </Text>
 
-        {/* Amount Grid */}
-        <View style={styles.amountGrid}>
-          <View style={styles.amtCol}>
-            <Text style={styles.amtLabel}>CLAIMED</Text>
-            <Text style={styles.amtValue}>
+        <View style={styles.amountContainer}>
+          <View style={styles.amountCol}>
+            <Text style={styles.amountLabel}>CLAIMED</Text>
+            <Text style={styles.amountVal}>
               ₹{Number(item.requestedAmount || item.amount || 0).toLocaleString('en-IN')}
             </Text>
           </View>
-          <View style={styles.amtCol}>
-            <Text style={styles.amtLabel}>APPROVED</Text>
-            <Text style={[styles.amtValue, { color: colors.semantic.success }]}>
-              ₹{Number(item.approvedAmount || 0).toLocaleString('en-IN')}
-            </Text>
-          </View>
-          <View style={styles.amtCol}>
-            <Text style={styles.amtLabel}>SETTLED</Text>
-            <Text style={[styles.amtValue, { color: colors.primary }]}>
-              ₹{Number(item.settledAmount || 0).toLocaleString('en-IN')}
-            </Text>
-          </View>
+
+          {item.approvedAmount !== undefined && item.status !== 'Pending' && (
+            <View style={styles.amountCol}>
+              <Text style={styles.amountLabel}>APPROVED</Text>
+              <Text style={[styles.amountVal, { color: '#16A34A' }]}>
+                ₹{Number(item.approvedAmount).toLocaleString('en-IN')}
+              </Text>
+            </View>
+          )}
+
+          {item.settledAmount !== undefined && (item.status === 'Settled' || item.settledAmount > 0) && (
+            <View style={styles.amountCol}>
+              <Text style={styles.amountLabel}>SETTLED</Text>
+              <Text style={[styles.amountVal, { color: '#0D9488' }]}>
+                ₹{Number(item.settledAmount).toLocaleString('en-IN')}
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* Receipt Attachment Indicator */}
-        {item.receiptFileName && (
+        {isQueried && (
           <TouchableOpacity
-            style={styles.receiptChip}
-            onPress={() => setPreviewReceipt(item)}
-            activeOpacity={0.7}
+            style={styles.queriedBanner}
+            onPress={() => navigation.navigate('ExpenseQueries', { expenseId: item.id })}
           >
-            <Paperclip size={13} color={colors.primary} />
-            <Text style={styles.receiptChipText} numberOfLines={1}>
-              {item.receiptFileName}
+            <AlertTriangle size={14} color="#D97706" />
+            <Text style={styles.queriedBannerText} numberOfLines={1}>
+              Audit query raised. Click to view & respond.
             </Text>
-            <Eye size={13} color={colors.primary} style={{ marginLeft: 4 }} />
           </TouchableOpacity>
         )}
 
-        {/* Queried Notice Banner */}
-        {isQueried && (
-          <View style={styles.queryBanner}>
-            <AlertTriangle size={14} color={colors.semantic.warning} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.queryBannerTitle}>Clarification Requested</Text>
-              <Text style={styles.queryBannerText} numberOfLines={2}>
-                {item.queryMessage || 'Auditor has requested clarification before proceeding.'}
-              </Text>
-            </View>
-          </View>
-        )}
-
-        {/* Settlement Reference Banner */}
-        {item.settlementReference && (
-          <View style={styles.settleBanner}>
-            <CheckCircle2 size={13} color={colors.semantic.success} />
-            <Text style={styles.settleText}>
-              Disbursed via {item.paymentMode || 'Direct Transfer'} (UTR: {item.settlementReference})
-            </Text>
-          </View>
-        )}
-
-        {/* Action Buttons */}
-        <View style={styles.cardActions}>
-          {isQueried && (
+        <View style={styles.cardActionsRow}>
+          {(item as any).hasReceipt || item.receiptFileName ? (
             <TouchableOpacity
-              style={styles.queryActionBtn}
-              onPress={() => navigation.navigate('ExpenseQueries', { expenseId: item.id })}
+              style={styles.receiptBtn}
+              onPress={() => setPreviewReceipt(item)}
             >
-              <MessageSquare size={14} color={colors.semantic.warning} />
-              <Text style={styles.queryActionText}>
-                {isOwner ? 'Respond to Query' : 'View Clarification'}
-              </Text>
+              <Paperclip size={13} color="#0D9488" />
+              <Text style={styles.receiptBtnText}>Proof</Text>
             </TouchableOpacity>
+          ) : (
+            <Text style={styles.noReceiptText}>No receipt</Text>
           )}
 
           {canReview && (
             <Button
-              title="Audit & Review"
+              title="Audit / Approve"
               variant="outline"
               size="small"
               onPress={() => navigation.navigate('ExpenseReview', { expenseId: item.id })}
@@ -230,7 +203,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
           {canSettle && (
             <Button
-              title="Disburse & Settle"
+              title="Disburse / Settle"
               variant="primary"
               size="small"
               onPress={() => navigation.navigate('ExpenseSettlement', { expenseId: item.id })}
@@ -242,69 +215,105 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     );
   };
 
-  return (
-    <View style={styles.container}>
-      <AppHeader
-        title={isPrivileged ? 'Expense Workspace' : 'My Expenses'}
-        subtitle={
-          isPrivileged
-            ? 'Organization expense audit & disbursement'
-            : 'Field travel, lodging & exploration vouchers'
-        }
-        showBack
-        onBack={() => navigation.goBack()}
-        rightAction={
-          <View style={styles.headerActions}>
-            <TouchableOpacity
-              style={styles.queryHeaderBtn}
-              onPress={() => navigation.navigate('ExpenseQueries')}
-            >
-              <MessageSquare size={18} color={colors.semantic.warning} />
-              {openQueryCount > 0 && (
-                <View style={styles.queryBadge}>
-                  <Text style={styles.queryBadgeText}>{openQueryCount}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
+  const renderHeader = () => (
+    <View style={styles.listHeaderWrap}>
+      <View style={styles.kpiGrid}>
+        <View style={styles.kpiCol}>
+          <StatCard
+            title="TOTAL CLAIMED"
+            value={`₹${(stats.totalClaimed / 1000).toFixed(1)}k`}
+            caption={`${baseExpenses.length} Total Vouchers`}
+            icon={<Receipt size={18} color="#0D9488" />}
+            chart={<MiniBarChart values={[15, 30, 45, Math.min(60, Math.round(stats.totalClaimed / 1000))]} color="#0D9488" height={26} barWidth={5} />}
+          />
+        </View>
 
-            <TouchableOpacity
-              style={styles.addClaimHeaderBtn}
-              onPress={() => navigation.navigate('ExpenseClaim')}
-            >
-              <Plus size={16} color={colors.primary} />
-              <Text style={styles.addClaimText}>Claim</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      />
+        <View style={styles.kpiCol}>
+          <StatCard
+            title="APPROVED"
+            value={`₹${(stats.totalApproved / 1000).toFixed(1)}k`}
+            caption={`${approvalPct}% Approval Rate`}
+            icon={<ShieldCheck size={18} color="#16A34A" />}
+            chart={<DonutChart percentage={approvalPct} color="#10B981" size={38} strokeWidth={5} />}
+          />
+        </View>
 
-      {/* KPI Stats Bar */}
-      <View style={styles.kpiContainer}>
-        <View style={styles.kpiCard}>
-          <Text style={styles.kpiLabel}>CLAIMED</Text>
-          <Text style={styles.kpiValue}>₹{stats.totalClaimed.toLocaleString('en-IN')}</Text>
+        <View style={styles.kpiCol}>
+          <StatCard
+            title="SETTLED"
+            value={`₹${(stats.totalSettled / 1000).toFixed(1)}k`}
+            caption="Disbursed To Account"
+            icon={<IndianRupee size={18} color="#2563EB" />}
+            chart={<MiniBarChart values={[10, 25, 40, Math.min(55, Math.round(stats.totalSettled / 1000))]} color="#2563EB" height={26} barWidth={5} />}
+          />
         </View>
-        <View style={styles.kpiCard}>
-          <Text style={[styles.kpiLabel, { color: colors.semantic.success }]}>APPROVED</Text>
-          <Text style={[styles.kpiValue, { color: colors.semantic.success }]}>
-            ₹{stats.totalApproved.toLocaleString('en-IN')}
-          </Text>
-        </View>
-        <View style={styles.kpiCard}>
-          <Text style={[styles.kpiLabel, { color: colors.primary }]}>SETTLED</Text>
-          <Text style={[styles.kpiValue, { color: colors.primary }]}>
-            ₹{stats.totalSettled.toLocaleString('en-IN')}
-          </Text>
-        </View>
-        <View style={styles.kpiCard}>
-          <Text style={[styles.kpiLabel, { color: colors.semantic.warning }]}>QUERIES</Text>
-          <Text style={[styles.kpiValue, { color: colors.semantic.warning }]}>
-            {stats.underQuery}
-          </Text>
+
+        <View style={styles.kpiCol}>
+          <StatCard
+            title="UNDER QUERY"
+            value={String(stats.underQuery)}
+            caption={stats.underQuery > 0 ? 'Clarifications Req' : 'Zero Queries'}
+            icon={<MessageSquare size={18} color={stats.underQuery > 0 ? "#D97706" : "#16A34A"} />}
+            trend={{ value: stats.underQuery > 0 ? 'Action Req' : 'Clear', isPositive: stats.underQuery === 0 }}
+          />
         </View>
       </View>
 
-      {/* Search Input */}
+      <View style={styles.launchpadSection}>
+        <Text style={styles.sectionHeader}>QUICK CLAIM ACTIONS</Text>
+        <View style={styles.actionGrid}>
+          <TouchableOpacity
+            style={styles.actionTile}
+            onPress={() => navigation.navigate('ExpenseClaim')}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.actionSquircle, { backgroundColor: '#F0FDFA' }]}>
+              <Plus size={22} color="#0D9488" />
+            </View>
+            <Text style={styles.actionTileTitle}>New Claim</Text>
+            <Text style={styles.actionTileSub}>Submit Voucher</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.actionTile}
+            onPress={() => navigation.navigate('ExpenseQueries')}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.actionSquircle, { backgroundColor: '#FFFBEB' }]}>
+              <MessageSquare size={22} color="#D97706" />
+            </View>
+            <Text style={styles.actionTileTitle}>Queries ({openQueryCount})</Text>
+            <Text style={styles.actionTileSub}>Clarifications</Text>
+          </TouchableOpacity>
+
+          {isPrivileged && (
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('ExpenseReview')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#EFF6FF' }]}>
+                <ShieldCheck size={22} color="#2563EB" />
+              </View>
+              <Text style={styles.actionTileTitle}>Audit Queue</Text>
+              <Text style={styles.actionTileSub}>HR Review</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.actionTile}
+            onPress={() => navigation.navigate('Reimbursement')}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.actionSquircle, { backgroundColor: '#FAF5FF' }]}>
+              <FileText size={22} color="#9333EA" />
+            </View>
+            <Text style={styles.actionTileTitle}>Policy SOP</Text>
+            <Text style={styles.actionTileSub}>Per-Diem Limits</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <View style={styles.searchContainer}>
         <Input
           placeholder={isPrivileged ? 'Search staff, project, category, claim ID...' : 'Search my claims, project, category...'}
@@ -314,7 +323,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         />
       </View>
 
-      {/* Status Filter Chips */}
       <View style={styles.filterScroll}>
         <FlatList
           horizontal
@@ -339,13 +347,41 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           )}
         />
       </View>
+    </View>
+  );
 
-      {/* Expense Claims List */}
+  return (
+    <ScreenContainer edges={['bottom']}>
+      <AppHeader
+        title={isPrivileged ? 'Expense Workspace' : 'My Expenses'}
+        subtitle={
+          isPrivileged
+            ? 'Organization expense audit & disbursement'
+            : 'Field travel, lodging & exploration vouchers'
+        }
+        scenicBanner
+        badge="Expenses & Claims"
+        badgeIcon={<Receipt size={12} color="#0d9488" />}
+        showBack
+        onBack={() => navigation.goBack()}
+        onNotificationPress={() => navigation.navigate('Notifications')}
+        rightAction={
+          <TouchableOpacity
+            style={styles.addClaimHeaderBtn}
+            onPress={() => navigation.navigate('ExpenseClaim')}
+          >
+            <Plus size={16} color="#FFFFFF" />
+            <Text style={styles.addClaimText}>Claim</Text>
+          </TouchableOpacity>
+        }
+      />
+
       <FlatList
         data={filteredExpenses}
         keyExtractor={(item) => item.id}
         renderItem={renderExpenseCard}
         contentContainerStyle={styles.list}
+        ListHeaderComponent={renderHeader}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
         }
@@ -353,30 +389,27 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           <EmptyState
             title={selectedStatus === 'All' ? 'No Expense Claims' : `No ${selectedStatus} Claims`}
             message={
-              search
-                ? 'No claims match your search keywords.'
-                : isPrivileged
-                ? 'No staff expense vouchers currently lodged.'
-                : 'You have not submitted any expense claims yet. Tap Claim above to file one.'
+              selectedStatus === 'All'
+                ? 'Submit your first travel, fuel, or field food reimbursement voucher.'
+                : `There are currently zero vouchers in "${selectedStatus}" status.`
             }
-            icon={<Receipt size={44} color={colors.text.tertiary} />}
+            actionLabel="Create Expense Claim"
+            onAction={() => navigation.navigate('ExpenseClaim')}
           />
         }
       />
 
-      {/* Receipt Preview Modal */}
-      <Modal visible={!!previewReceipt} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.receiptModal}>
-            <View style={styles.receiptModalHeader}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.receiptModalTitle}>Receipt Attachment</Text>
-                <Text style={styles.receiptModalSub}>{previewReceipt?.expenseNumber || previewReceipt?.id}</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setPreviewReceipt(null)}
-                style={styles.closeBtn}
-              >
+      <Modal
+        visible={!!previewReceipt}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setPreviewReceipt(null)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Receipt Verification</Text>
+              <TouchableOpacity onPress={() => setPreviewReceipt(null)}>
                 <X size={20} color={colors.text.primary} />
               </TouchableOpacity>
             </View>
@@ -392,7 +425,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               </View>
               <View style={styles.receiptMetaRow}>
                 <Text style={styles.receiptMetaLabel}>Claim Amount:</Text>
-                <Text style={[styles.receiptMetaVal, { fontWeight: '700', color: colors.primary }]}>
+                <Text style={[styles.receiptMetaVal, { fontWeight: '700', color: '#0D9488' }]}>
                   ₹{Number(previewReceipt?.requestedAmount || previewReceipt?.amount || 0).toLocaleString('en-IN')}
                 </Text>
               </View>
@@ -403,7 +436,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             </View>
 
             <View style={styles.receiptPreviewBox}>
-              <Receipt size={48} color={colors.primary} />
+              <Receipt size={48} color="#0D9488" />
               <Text style={styles.previewBoxTitle}>Verified Proof of Purchase</Text>
               <Text style={styles.previewBoxSub}>
                 Digital voucher copy verified against corporate GST policy.
@@ -419,122 +452,128 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           </View>
         </View>
       </Modal>
-    </View>
+    </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  queryHeaderBtn: {
-    padding: spacing.xs,
-    position: 'relative',
-  },
-  queryBadge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: colors.semantic.warning,
-    width: 15,
-    height: 15,
-    borderRadius: 7.5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  queryBadgeText: {
-    color: '#FFFFFF',
-    fontSize: 9,
-    fontWeight: '800',
-  },
   addClaimHeaderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 5,
-    borderRadius: borderRadius.sm,
-    backgroundColor: `${colors.primary}15`,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    backgroundColor: '#0D9488',
   },
   addClaimText: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.primary,
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.bold,
+    color: '#FFFFFF',
   },
-  kpiContainer: {
-    flexDirection: 'row',
+  listHeaderWrap: {
     paddingHorizontal: spacing.md,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.sm,
-    gap: spacing.xs,
+    paddingTop: spacing.md,
   },
-  kpiCard: {
+  sectionHeader: {
+    fontSize: 11,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.secondary,
+    letterSpacing: 0.8,
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  kpiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -spacing.xs,
+    marginBottom: spacing.md,
+  },
+  kpiCol: {
+    width: '50%',
+    padding: spacing.xs,
+  },
+  launchpadSection: {
+    marginBottom: spacing.md,
+  },
+  actionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  actionTile: {
     flex: 1,
-    backgroundColor: colors.surface,
-    paddingVertical: spacing.xs + 2,
-    paddingHorizontal: spacing.xs,
-    borderRadius: borderRadius.sm,
+    minWidth: '45%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.lg,
+    padding: spacing.sm,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.border.light,
+    borderColor: '#E2E8F0',
+    ...shadows.sm,
   },
-  kpiLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.text.secondary,
-    letterSpacing: 0.5,
+  actionSquircle: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.xs,
   },
-  kpiValue: {
-    ...typography.caption,
-    fontWeight: '800',
+  actionTileTitle: {
+    fontSize: 12,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginTop: 2,
+    textAlign: 'center',
+  },
+  actionTileSub: {
+    fontSize: 10,
+    color: colors.text.tertiary,
+    marginTop: 1,
+    textAlign: 'center',
   },
   searchContainer: {
-    paddingHorizontal: spacing.md,
     marginBottom: spacing.xs,
   },
   filterScroll: {
     marginBottom: spacing.sm,
   },
   filterList: {
-    paddingHorizontal: spacing.md,
     gap: spacing.xs,
+    paddingVertical: 2,
   },
   filterChip: {
     paddingHorizontal: spacing.md,
     paddingVertical: 6,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.surface,
+    borderRadius: radius.full,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: colors.border.light,
+    borderColor: '#E2E8F0',
   },
   filterChipActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: '#0D9488',
+    borderColor: '#0D9488',
   },
   filterChipText: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.secondary,
-    fontWeight: '500',
   },
   filterChipTextActive: {
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   list: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.xxl,
-    gap: spacing.sm,
+    paddingBottom: spacing.xxxl,
   },
   card: {
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
     padding: spacing.md,
+    borderRadius: radius.xl,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    ...shadows.sm,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -548,12 +587,12 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   claimNumber: {
-    ...typography.caption,
-    fontWeight: '800',
-    color: colors.primary,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.primary,
   },
   dateText: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.xs,
     color: colors.text.tertiary,
   },
   empRow: {
@@ -563,17 +602,17 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   empName: {
-    ...typography.body,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
   },
   deptBadge: {
     fontSize: 10,
     color: colors.text.secondary,
-    backgroundColor: colors.background.secondary,
+    backgroundColor: '#F1F5F9',
     paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingVertical: 1,
+    borderRadius: radius.xs,
   },
   projectRow: {
     flexDirection: 'row',
@@ -582,191 +621,152 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   projectText: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.xs,
     color: colors.text.secondary,
-    fontWeight: '600',
+    fontWeight: typography.fontWeights.medium,
   },
-  category: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: 4,
-  },
-  description: {
-    ...typography.caption,
-    color: colors.text.secondary,
+  descText: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.text.primary,
     marginBottom: spacing.sm,
-    lineHeight: 18,
   },
-  amountGrid: {
+  amountContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.sm,
+    backgroundColor: '#F8FAFC',
+    borderRadius: radius.md,
     padding: spacing.sm,
-    marginBottom: spacing.xs,
+    gap: spacing.md,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
-  amtCol: {
+  amountCol: {
     flex: 1,
-    alignItems: 'center',
   },
-  amtLabel: {
+  amountLabel: {
     fontSize: 9,
-    fontWeight: '700',
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.tertiary,
     letterSpacing: 0.5,
   },
-  amtValue: {
-    ...typography.body,
-    fontWeight: '800',
+  amountVal: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
     marginTop: 2,
   },
-  receiptChip: {
+  queriedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: `${colors.primary}12`,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    marginTop: spacing.xs,
-    gap: 4,
-  },
-  receiptChipText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.primary,
-    maxWidth: 220,
-  },
-  queryBanner: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: spacing.xs,
-    backgroundColor: `${colors.semantic.warning}15`,
-    borderColor: `${colors.semantic.warning}30`,
-    borderWidth: 1,
+    gap: 6,
+    backgroundColor: '#FFFBEB',
     padding: spacing.xs + 2,
-    borderRadius: borderRadius.sm,
-    marginTop: spacing.xs,
+    borderRadius: radius.sm,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
   },
-  queryBannerTitle: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.semantic.warning,
+  queriedBannerText: {
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.semibold,
+    color: '#92400E',
+    flex: 1,
   },
-  queryBannerText: {
-    fontSize: 11,
-    color: colors.text.secondary,
-    marginTop: 1,
-  },
-  settleBanner: {
+  cardActionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    backgroundColor: `${colors.semantic.success}15`,
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+    paddingTop: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  receiptBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F0FDFA',
     paddingHorizontal: spacing.sm,
     paddingVertical: 5,
-    borderRadius: borderRadius.sm,
-    marginTop: spacing.xs,
-  },
-  settleText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.semantic.success,
-  },
-  cardActions: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginTop: spacing.sm,
-    alignItems: 'center',
-  },
-  queryActionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    backgroundColor: `${colors.semantic.warning}20`,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-    borderRadius: borderRadius.sm,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: `${colors.semantic.warning}40`,
+    borderColor: '#CCFBF1',
   },
-  queryActionText: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.semantic.warning,
+  receiptBtnText: {
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0D9488',
   },
-  modalOverlay: {
+  noReceiptText: {
+    fontSize: typography.fontSizes.xs,
+    color: colors.text.tertiary,
+    fontStyle: 'italic',
+  },
+  modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: spacing.md,
   },
-  receiptModal: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
+  modalCard: {
     width: '100%',
-    maxWidth: 400,
-    padding: spacing.md,
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    ...shadows.lg,
   },
-  receiptModalHeader: {
+  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.light,
-    paddingBottom: spacing.sm,
+    alignItems: 'center',
+    marginBottom: spacing.md,
   },
-  receiptModalTitle: {
-    ...typography.h3,
+  modalTitle: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
   },
-  receiptModalSub: {
-    ...typography.caption,
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  closeBtn: {
-    padding: 4,
-  },
   receiptDetails: {
-    paddingVertical: spacing.sm,
-    gap: 6,
+    backgroundColor: '#F8FAFC',
+    borderRadius: radius.md,
+    padding: spacing.md,
+    gap: spacing.xs,
+    marginBottom: spacing.md,
   },
   receiptMetaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   receiptMetaLabel: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.xs,
     color: colors.text.secondary,
   },
   receiptMetaVal: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.medium,
     color: colors.text.primary,
-    fontWeight: '600',
   },
   receiptPreviewBox: {
-    backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.md,
-    padding: spacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#F0FDFA',
+    borderRadius: radius.md,
+    padding: spacing.xl,
     borderWidth: 1,
-    borderColor: colors.border.light,
-    marginVertical: spacing.xs,
+    borderColor: '#CCFBF1',
+    borderStyle: 'dashed',
   },
   previewBoxTitle: {
-    ...typography.body,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginTop: spacing.xs,
+    marginTop: spacing.sm,
   },
   previewBoxSub: {
-    ...typography.caption,
-    color: colors.text.tertiary,
+    fontSize: typography.fontSizes.xs,
+    color: colors.text.secondary,
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: 4,
   },
 });

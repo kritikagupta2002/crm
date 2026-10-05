@@ -50,13 +50,12 @@ const ONBOARDING_STEPS = [
 ] as const;
 
 export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ navigation }) => {
-  const { leads, updateOnboardingStep, clients } = useCrm();
+  const { leads, updateOnboardingStep } = useCrm();
   const { role } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'progress' | 'completed' | 'new_kyc'>('progress');
   const [loadingStepKey, setLoadingStepKey] = useState<string | null>(null);
 
-  // New Client KYC Form State
   const [companyName, setCompanyName] = useState('');
   const [gstin, setGstin] = useState('');
   const [pan, setPan] = useState('');
@@ -70,7 +69,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
 
   const canOnboard = ['admin', 'operations_manager', 'project_manager', 'lead_engineer'].includes(role || '');
 
-  // Won leads
   const wonLeads = leads.filter((l) => l.stage === 'Won');
 
   const isDone = (l: Lead) =>
@@ -119,7 +117,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
       .then((supported) => {
         if (supported) {
           Linking.openURL(url);
-          // Auto mark portal step as done
           if (!lead.onboarding?.portal) {
             updateOnboardingStep(lead.id, 'portal', true);
           }
@@ -181,7 +178,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
         />
       }
     >
-      {/* 4 Stat Cards */}
       <View style={styles.kpiGrid}>
         <StatCard
           label="In Progress"
@@ -213,7 +209,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
         />
       </View>
 
-      {/* Tabs */}
       <View style={styles.tabsRow}>
         <TouchableOpacity
           style={[styles.tabBtn, activeTab === 'progress' && styles.tabBtnActive]}
@@ -243,7 +238,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
         </TouchableOpacity>
       </View>
 
-      {/* Active Tab Content */}
       {activeTab === 'new_kyc' ? (
         <View style={styles.formContainer}>
           <Card>
@@ -401,7 +395,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
                   />
                 </View>
 
-                {/* Progress Bar */}
                 <View style={styles.progressBarWrap}>
                   <View style={styles.progressTrack}>
                     <View
@@ -419,7 +412,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
                   </Text>
                 </View>
 
-                {/* 5 Onboarding Steps */}
                 <View style={styles.checklist}>
                   {ONBOARDING_STEPS.map((step) => {
                     const isChecked = Boolean((item.onboarding as any)?.[step.key]);
@@ -450,7 +442,6 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
                   })}
                 </View>
 
-                {/* Footer Action */}
                 <View style={styles.cardFooter}>
                   {completed ? (
                     <View style={styles.activeBadge}>
@@ -630,7 +621,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 
-  // Form
   formContainer: {
     paddingBottom: spacing.huge,
   },

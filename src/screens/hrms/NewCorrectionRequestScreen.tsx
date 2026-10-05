@@ -19,13 +19,12 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
   navigation,
   route,
 }) => {
-  const { submitCorrection, attendance } = useHrms();
+  const { submitCorrection } = useHrms();
   const { session } = useAuth();
 
   const activeEmpId = (session as any)?.employeeId || 'BGS-2023-044';
   const activeEmpName = (session as any)?.name || 'Team Member';
 
-  // Calculate default target date (yesterday by default)
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const pad = (n: number) => String(n).padStart(2, '0');
@@ -39,7 +38,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Set date preset helpers
   const setPresetDate = (daysAgo: number) => {
     const d = new Date();
     d.setDate(d.getDate() - daysAgo);
@@ -103,7 +101,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card style={styles.formCard}>
-          {/* Staff Info Banner */}
           <View style={styles.applicantBanner}>
             <View style={styles.applicantIcon}>
               <FileEdit size={18} color={colors.primary} />
@@ -114,7 +111,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
             </View>
           </View>
 
-          {/* Date of Incident */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
               Date of Incident <Text style={styles.reqStar}>*</Text>
@@ -129,7 +125,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
                 placeholderTextColor={colors.text.tertiary}
               />
             </View>
-            {/* Quick Presets */}
             <View style={styles.presetRow}>
               <TouchableOpacity style={styles.presetBtn} onPress={() => setPresetDate(0)}>
                 <Text style={styles.presetBtnText}>Today</Text>
@@ -146,7 +141,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
             </View>
           </View>
 
-          {/* Current Punch Times */}
           <View style={styles.sectionDivider} />
           <Text style={styles.sectionSubtitle}>CURRENT LOGGED PUNCH (IF ANY)</Text>
 
@@ -179,7 +173,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
             </View>
           </View>
 
-          {/* Requested Punch Times */}
           <View style={styles.sectionDivider} />
           <Text style={[styles.sectionSubtitle, { color: colors.primary }]}>
             REQUESTED CORRECTED PUNCH *
@@ -218,7 +211,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
             </View>
           </View>
 
-          {/* Reason & Detailed Justification */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
               Detailed Reason & Justification <Text style={styles.reqStar}>*</Text>
@@ -237,7 +229,6 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
             </Text>
           </View>
 
-          {/* Submit Action Button */}
           <View style={styles.actionWrap}>
             <Button
               title={isSubmitting ? 'Submitting Regularization...' : 'Submit Regularization'}

@@ -29,6 +29,7 @@ import {
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Input, Button } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrencyLakhs as formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import { ERM_STAGES, APPROVALS, COORDINATORS, TEAM_LEADS } from '../../constants';
@@ -52,7 +53,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
   const [viewMode, setViewMode] = useState<'list' | 'timeline'>(route?.params?.view || 'list');
   const [createModalVisible, setCreateModalVisible] = useState(Boolean(route?.params?.openCreate));
 
-  // New Project Form State
   const [newTitle, setNewTitle] = useState('');
   const [newClient, setNewClient] = useState(clients[0]?.name || 'Hindustan Zinc Ltd');
   const [newService, setNewService] = useState('Mineral Exploration & Resources');
@@ -67,25 +67,20 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
     ? ERM_STAGES.findIndex((st) => st.key === selectedStageKey)
     : -1;
 
-  // Counts for KPIs
   const countByStatus = (status: string) => projects.filter((p) => p.status === status).length;
   const recentLettersCount = projects.reduce((total, p) => {
     const letters = (p.letters || []).filter((l) => l.date >= thirtyDaysAgoISO);
     return total + letters.length;
   }, 0);
 
-  // Filtered Projects
   const filteredProjects = useMemo(() => {
     const q = search.trim().toLowerCase();
     return projects.filter((p) => {
-      // Status filter
       if (activeTab !== 'All' && p.status !== activeTab) return false;
-      // Stage filter
       if (stageIndex >= 0) {
         const pStageIdx = p.stageIndex !== undefined ? p.stageIndex : (p.currentStage || 1) - 1;
         if (pStageIdx !== stageIndex) return false;
       }
-      // Search query
       if (q) {
         const text = `${p.title} ${p.name || ''} ${p.projectCode} ${p.clientName} ${p.authority || ''} ${p.site || p.location}`.toLowerCase();
         if (!text.includes(q)) return false;
@@ -117,13 +112,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const formatCurrency = (amt: number) => {
-    if (!amt) return '₹0';
-    if (amt >= 10000000) return `₹${(amt / 10000000).toFixed(2)} Cr`;
-    if (amt >= 100000) return `₹${(amt / 100000).toFixed(1)} Lakhs`;
-    return `₹${amt.toLocaleString('en-IN')}`;
   };
 
   const getStatusTone = (status?: string) => {
@@ -164,7 +152,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         />
       }
     >
-      {/* 4 KPIs Grid */}
       <View style={styles.kpiContainer}>
         <View style={styles.kpiRow}>
           <TouchableOpacity
@@ -225,7 +212,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         </View>
       </View>
 
-      {/* Toolbar: Search, Stage Filter Chip, View Switch */}
       <View style={styles.toolbar}>
         <View style={styles.searchBar}>
           <Search size={16} color={colors.textMuted} />
@@ -273,7 +259,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         </View>
       </View>
 
-      {/* Status Filter Tabs */}
       <View style={styles.tabsWrap}>
         <FlatList
           horizontal
@@ -303,7 +288,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         />
       </View>
 
-      {/* Project List or Timeline */}
       {filteredProjects.length === 0 ? (
         <View style={styles.emptyContainer}>
           <FolderKanban size={48} color={colors.textMuted} />
@@ -313,7 +297,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
           </Text>
         </View>
       ) : viewMode === 'timeline' ? (
-        /* Timeline View */
         <FlatList
           data={filteredProjects}
           keyExtractor={(item) => item.id}
@@ -331,7 +314,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
               <Text style={styles.projectTitle}>{item.title}</Text>
               <Text style={styles.clientText}>{item.clientName}</Text>
 
-              {/* 7-Stage Horizontal Pipeline Visual */}
               <View style={styles.timelineStepsRow}>
                 {ERM_STAGES.map((st, idx) => {
                   const stageNum = idx + 1;
@@ -382,7 +364,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
           )}
         />
       ) : (
-        /* Card List View */
         <FlatList
           data={filteredProjects}
           keyExtractor={(item) => item.id}
@@ -400,7 +381,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
                 style={styles.card}
                 onPress={() => navigation.navigate('ProjectDetail', { projectId: item.id })}
               >
-                {/* Header: Project Code, Stage Pill, Status */}
                 <View style={styles.cardTopRow}>
                   <View style={styles.codeWrap}>
                     <Text style={styles.codeText}>{item.projectCode}</Text>
@@ -413,7 +393,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
                   <StatusBadge status={item.status || item.stageName} size="sm" />
                 </View>
 
-                {/* Project Title & Client */}
                 <Text style={styles.projectTitle}>{item.title}</Text>
                 <View style={styles.clientSiteRow}>
                   <Text style={styles.clientName}>{item.clientName}</Text>
@@ -424,7 +403,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
                   </Text>
                 </View>
 
-                {/* "Now at" indicator */}
                 <View style={styles.nowAtCard}>
                   <Clock size={12} color={colors.primary} />
                   <Text style={styles.nowAtLabel}>Current Step:</Text>
@@ -433,7 +411,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
                   </Text>
                 </View>
 
-                {/* Progress Bar */}
                 <View style={styles.progressContainer}>
                   <View style={styles.progressHeaderRow}>
                     <Text style={styles.progressLabel}>
@@ -454,7 +431,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
                   </View>
                 </View>
 
-                {/* Footer: Budget, Staff, Tasks/Visits */}
                 <View style={styles.cardFooter}>
                   <View style={styles.budgetCol}>
                     <Text style={styles.budgetLabel}>Budget</Text>
@@ -483,7 +459,6 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         />
       )}
 
-      {/* New Project Modal */}
       <Modal
         visible={createModalVisible}
         transparent

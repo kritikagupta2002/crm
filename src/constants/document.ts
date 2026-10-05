@@ -170,11 +170,6 @@ export function docStage(record: any, letter: any): 'To verify' | 'To authorize'
   return 'Done';
 }
 
-/**
- * 4-EYES PRINCIPLE:
- * The person who filed or uploaded the scan CANNOT verify it.
- * A second pair of eyes is mandatory.
- */
 export const verifyBlock = (doc: any, userName?: string): string | null => {
   if (!userName) return null;
   const filedBy = doc.record?.filedBy || doc.uploadedBy || doc.uploaderName;
@@ -192,7 +187,6 @@ export const vendorCanSee = (doc: any, vendorId: string) =>
   Boolean(doc.record?.access?.vendor) &&
   doc.record?.links?.vendorId === vendorId;
 
-// Seeded Scans for Scan Inbox
 export const SEEDED_SCANS = [
   {
     id: 'SCN-1',
@@ -226,7 +220,6 @@ export const SEEDED_SCANS = [
   },
 ];
 
-// Seeded Letters per Project from web CRM
 export const SEEDED_LETTERS: Record<string, any[]> = {
   'prj-001': [
     {
@@ -332,10 +325,8 @@ export const SEEDED_LETTERS: Record<string, any[]> = {
 const ADMIN = 'Kritika Gupta';
 
 export const SEEDED_DOC_RECORDS: Record<string, any> = {
-  // To verify
   'GL-S01': { filedBy: 'A. Singh', filedAt: at('2026-09-23', '11:20') },
   'GL-S02': { filedBy: 'N. Rathore', filedAt: at('2026-09-22', '12:05') },
-  // Sent back for a rescan
   'GL-S03': {
     filedBy: 'A. Singh',
     filedAt: at('2026-09-19', '10:40'),
@@ -348,7 +339,6 @@ export const SEEDED_DOC_RECORDS: Record<string, any> = {
       note: 'Page 3 is cut off at the bottom; the last rows of the pillar table are missing.',
     },
   },
-  // To authorize
   'GL-S04': {
     filedBy: 'N. Rathore',
     filedAt: at('2026-09-21', '16:30'),
@@ -360,7 +350,6 @@ export const SEEDED_DOC_RECORDS: Record<string, any> = {
     links: { leaseNo: 'ML 17/2004' },
     verify: { status: 'Verified', by: 'A. Singh', at: at('2026-09-19', '12:40') },
   },
-  // To share
   'GL-S06': {
     filedBy: 'N. Rathore',
     filedAt: at('2026-09-17', '15:45'),
@@ -376,7 +365,6 @@ export const SEEDED_DOC_RECORDS: Record<string, any> = {
     access: { client: true, vendor: true, by: ADMIN, at: at('2026-09-12', '11:40') },
     dispatch: { status: 'To dispatch' },
   },
-  // Originals dispatched & received
   'GL-S08': {
     filedBy: 'A. Singh',
     filedAt: at('2026-09-05', '11:15'),
@@ -452,4 +440,3 @@ export function govtDocuments(projects: any[], saved: Record<string, any> = {}, 
     })
     .sort((a, b) => b.letter.date.localeCompare(a.letter.date) || (b.record.filedAt || '').localeCompare(a.record.filedAt || ''));
 }
-

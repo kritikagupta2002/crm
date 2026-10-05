@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image } from 'react-native';
+import Svg, { Rect } from 'react-native-svg';
 import {
   FolderKanban,
   AlertTriangle,
@@ -13,16 +14,45 @@ import {
   Clock,
   CheckCircle2,
   Sparkles,
+  MapPin,
+  Coins,
+  ClipboardCheck,
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { formatCurrency } from '../../utils';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import { ERM_STAGES, TEAM_LEADS } from '../../constants';
 
+const drillingRigImg = require('../../../assets/drilling-rig.jpg');
+
 interface ErmDashboardScreenProps {
   navigation: any;
 }
+
+const MiniBarsChart: React.FC<{ color?: string; heights?: number[] }> = ({
+  color = '#38bdf8',
+  heights = [10, 16, 22, 28],
+}) => {
+  const width = 38;
+  const height = 30;
+  const barWidth = 5;
+  const gap = 3;
+
+  return (
+    <Svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      {heights.map((h, i) => {
+        const x = 3 + i * (barWidth + gap);
+        const y = height - h;
+        const opacity = 0.35 + (i / (heights.length - 1)) * 0.65;
+        return (
+          <Rect key={i} x={x} y={y} width={barWidth} height={h} rx={2} fill={color} opacity={opacity} />
+        );
+      })}
+    </Svg>
+  );
+};
 
 export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigation }) => {
   const { projects } = useCrm();
@@ -34,7 +64,6 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
   const activeProjects = projects.filter((p) => (p.currentStage || 1) < 7);
   const completedProjects = projects.filter((p) => (p.currentStage || 1) >= 7);
 
-  // Open tasks across active projects
   const openTasks = activeProjects.flatMap((p) =>
     (p.tasks || [])
       .filter((t) => t.status !== 'Completed')
@@ -53,7 +82,6 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
     (p) => p.currentStage === 5 || p.status === 'Awaiting approval'
   );
 
-  // Attention Queue: Overdue tasks & hand-overs waiting for action
   const waitingHandOvers = activeProjects
     .filter((p) => [1, 2, 3, 7].includes(p.currentStage))
     .map((p) => {
@@ -81,7 +109,6 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
 
   const attentionList = [...lateTaskAlerts, ...waitingHandOvers].slice(0, 6);
 
-  // Team Leads Workload
   const teamLeadsStats = TEAM_LEADS.map((tl) => {
     const mine = activeProjects.filter((p) => p.team?.teamLead === tl.name);
     const tasks = mine.flatMap((p) => (p.tasks || []).filter((t) => t.status !== 'Completed'));
@@ -104,94 +131,156 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
           title="ERM Workspace"
           subtitle={`${activeProjects.length} active field blocks • Geological Project Delivery`}
           showBack
+          scenicBanner
+          badge="Field Exploration ERM"
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
         />
       }
     >
-      {/* 4 Executive KPIs */}
       <View style={styles.kpiGrid}>
         <TouchableOpacity
-          style={[styles.kpiCard, { borderColor: colors.info }]}
+          style={styles.kpiCard}
           onPress={() => navigation.navigate('Projects')}
-          activeOpacity={0.7}
+          activeOpacity={0.75}
         >
-          <View style={[styles.kpiIconWrap, { backgroundColor: colors.info + '18' }]}>
-            <FolderKanban size={20} color={colors.info} />
+          <View style={styles.kpiLeft}>
+            <View style={[styles.kpiIconWrap, { backgroundColor: '#f0f9ff' }]}>
+              <FolderKanban size={17} color="#0284c7" strokeWidth={2.2} />
+            </View>
+            <Text style={styles.kpiLabel}>ACTIVE PROJECTS</Text>
+            <Text style={[styles.kpiVal, { color: '#0284c7' }]}>{activeProjects.length}</Text>
+            <Text style={styles.kpiSub}>{completedProjects.length} completed</Text>
           </View>
-          <Text style={styles.kpiVal}>{activeProjects.length}</Text>
-          <Text style={styles.kpiLabel}>Active Projects</Text>
-          <Text style={styles.kpiSub}>{completedProjects.length} completed</Text>
+          <View style={styles.kpiChart}>
+            <MiniBarsChart color="#38bdf8" heights={[10, 16, 22, 28]} />
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.kpiCard,
-            { borderColor: overdueTasks.length > 0 ? colors.danger : colors.success },
-          ]}
+          style={styles.kpiCard}
           onPress={() => navigation.navigate('MainTabs', { screen: 'TasksTab' })}
-          activeOpacity={0.7}
+          activeOpacity={0.75}
         >
-          <View
-            style={[
-              styles.kpiIconWrap,
-              {
-                backgroundColor:
-                  (overdueTasks.length > 0 ? colors.danger : colors.success) + '18',
-              },
-            ]}
-          >
-            <AlertTriangle
-              size={20}
-              color={overdueTasks.length > 0 ? colors.danger : colors.success}
+          <View style={styles.kpiLeft}>
+            <View
+              style={[
+                styles.kpiIconWrap,
+                { backgroundColor: overdueTasks.length > 0 ? '#fef2f2' : '#ecfdf5' },
+              ]}
+            >
+              <AlertTriangle
+                size={17}
+                color={overdueTasks.length > 0 ? '#dc2626' : '#059669'}
+                strokeWidth={2.2}
+              />
+            </View>
+            <Text style={styles.kpiLabel}>OVERDUE TASKS</Text>
+            <Text
+              style={[
+                styles.kpiVal,
+                { color: overdueTasks.length > 0 ? '#dc2626' : '#059669' },
+              ]}
+            >
+              {overdueTasks.length}
+            </Text>
+            <Text style={styles.kpiSub}>
+              {overdueTasks.length > 0 ? 'Past deadline' : 'All on schedule'}
+            </Text>
+          </View>
+          <View style={styles.kpiChart}>
+            <MiniBarsChart
+              color={overdueTasks.length > 0 ? '#f87171' : '#10b981'}
+              heights={[14, 20, 24, 26]}
             />
           </View>
-          <Text
-            style={[
-              styles.kpiVal,
-              { color: overdueTasks.length > 0 ? colors.danger : colors.success },
-            ]}
-          >
-            {overdueTasks.length}
-          </Text>
-          <Text style={styles.kpiLabel}>Overdue Tasks</Text>
-          <Text style={styles.kpiSub}>
-            {overdueTasks.length > 0 ? 'Past deadline' : 'All on schedule'}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.kpiCard, { borderColor: colors.warning }]}
-          onPress={() => navigation.navigate('MainTabs', { screen: 'TasksTab' })}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.kpiIconWrap, { backgroundColor: colors.warning + '18' }]}>
-            <CalendarClock size={20} color={colors.warning} />
-          </View>
-          <Text style={styles.kpiVal}>{dueThisWeekTasks.length}</Text>
-          <Text style={styles.kpiLabel}>Due This Week</Text>
-          <Text style={styles.kpiSub}>Next 7 days work</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.kpiCard, { borderColor: colors.accent }]}
-          onPress={() => navigation.navigate('Projects', { stageKey: 'approval' })}
-          activeOpacity={0.7}
-        >
-          <View style={[styles.kpiIconWrap, { backgroundColor: colors.accent + '18' }]}>
-            <Landmark size={20} color={colors.accent} />
-          </View>
-          <Text style={styles.kpiVal}>{withAuthorityProjects.length}</Text>
-          <Text style={styles.kpiLabel}>With Authority</Text>
-          <Text style={styles.kpiSub}>Govt approvals</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Quick Action Navigation Buttons */}
+      <View style={styles.kpiGrid}>
+        <TouchableOpacity
+          style={styles.kpiCard}
+          onPress={() => navigation.navigate('MainTabs', { screen: 'TasksTab' })}
+          activeOpacity={0.75}
+        >
+          <View style={styles.kpiLeft}>
+            <View style={[styles.kpiIconWrap, { backgroundColor: '#fffbeb' }]}>
+              <CalendarClock size={17} color="#d97706" strokeWidth={2.2} />
+            </View>
+            <Text style={styles.kpiLabel}>DUE THIS WEEK</Text>
+            <Text style={[styles.kpiVal, { color: '#d97706' }]}>{dueThisWeekTasks.length}</Text>
+            <Text style={styles.kpiSub}>Next 7 days work</Text>
+          </View>
+          <View style={styles.kpiChart}>
+            <MiniBarsChart color="#f59e0b" heights={[10, 18, 22, 28]} />
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.kpiCard}
+          onPress={() => navigation.navigate('Projects', { stageKey: 'approval' })}
+          activeOpacity={0.75}
+        >
+          <View style={styles.kpiLeft}>
+            <View style={[styles.kpiIconWrap, { backgroundColor: '#f0fdf4' }]}>
+              <Landmark size={17} color="#16a34a" strokeWidth={2.2} />
+            </View>
+            <Text style={styles.kpiLabel}>WITH AUTHORITY</Text>
+            <Text style={[styles.kpiVal, { color: '#16a34a' }]}>{withAuthorityProjects.length}</Text>
+            <Text style={styles.kpiSub}>Govt approvals</Text>
+          </View>
+          <View style={styles.kpiChart}>
+            <MiniBarsChart color="#4ade80" heights={[12, 16, 24, 26]} />
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      {activeProjects.length > 0 && (
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => navigation.navigate('ProjectDetail', { projectId: activeProjects[0].id })}
+          style={styles.featuredProjectCard}
+        >
+          <Image source={drillingRigImg} style={styles.featuredProjImg} />
+          <View style={styles.featuredProjDetails}>
+            <View style={styles.projBadgesRow}>
+              <View style={styles.projCodePill}>
+                <Text style={styles.projCodeText}>
+                  {activeProjects[0].projectCode || 'PRJ-GEO-2026-001'}
+                </Text>
+              </View>
+              <View style={styles.projStagePill}>
+                <View style={styles.projStageDot} />
+                <Text style={styles.projStageText}>
+                  {activeProjects[0].stageName || 'Stage 3: Task Execution'}
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.projTitle} numberOfLines={2}>
+              {activeProjects[0].title}
+            </Text>
+            <View style={styles.projLocRow}>
+              <MapPin size={11} color="#64748b" style={{ marginRight: 2 }} />
+              <Text style={styles.projLocText} numberOfLines={1}>
+                {activeProjects[0].clientName} • {activeProjects[0].location}
+              </Text>
+            </View>
+            <View style={styles.projStatsRow}>
+              <Text style={styles.projBudgetVal}>
+                Budget: {formatCurrency(activeProjects[0].baselineBudget || 4200000)}
+              </Text>
+              <Text style={styles.projTaskCount}>
+                {activeProjects[0].tasks?.length || 6} Tasks
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
+
       <View style={styles.quickActionsRow}>
         <Button
           title="All Projects & Approvals"
-          icon={<FolderKanban size={16} color={colors.white} />}
+          icon={<FolderKanban size={16} color="#ffffff" />}
           onPress={() => navigation.navigate('Projects')}
           size="sm"
           style={styles.actionBtn}
@@ -208,7 +297,6 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
         )}
       </View>
 
-      {/* 7-Stage Interactive Pipeline */}
       <Card style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleRow}>
@@ -260,7 +348,6 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
         </View>
       </Card>
 
-      {/* Needs Attention Queue */}
       <Card style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleRow}>
@@ -325,7 +412,6 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
         )}
       </Card>
 
-      {/* Team Leads Workload Summary */}
       <Card style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <View style={styles.sectionTitleRow}>
@@ -421,6 +507,14 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xxs,
     color: colors.textMuted,
     marginTop: 1,
+  },
+  kpiLeft: {
+    flex: 1,
+  },
+  kpiChart: {
+    marginLeft: spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   quickActionsRow: {
     flexDirection: 'row',
@@ -646,5 +740,95 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xxs - 2,
     color: colors.textMuted,
     textTransform: 'uppercase',
+  },
+  featuredProjectCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    overflow: 'hidden',
+    marginBottom: spacing.md,
+    ...shadows.sm,
+  },
+  featuredProjImg: {
+    width: '100%',
+    height: 120,
+    resizeMode: 'cover',
+  },
+  featuredProjDetails: {
+    padding: spacing.md,
+  },
+  projBadgesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  projCodePill: {
+    backgroundColor: '#F0FDFA',
+    paddingHorizontal: spacing.xs + 2,
+    paddingVertical: 2,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: '#CCFBF1',
+  },
+  projCodeText: {
+    fontSize: 10,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0D9488',
+  },
+  projStagePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: spacing.xs + 2,
+    paddingVertical: 2,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  projStageDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#0D9488',
+  },
+  projStageText: {
+    fontSize: 10,
+    fontWeight: typography.fontWeights.semibold,
+    color: '#475569',
+  },
+  projTitle: {
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0F172A',
+    marginBottom: 4,
+  },
+  projLocRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.xs,
+  },
+  projLocText: {
+    fontSize: typography.fontSizes.xs,
+    color: '#64748B',
+  },
+  projStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  projBudgetVal: {
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0D9488',
+  },
+  projTaskCount: {
+    fontSize: typography.fontSizes.xs,
+    color: '#64748B',
   },
 });

@@ -38,17 +38,14 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
   const isHrOrAdmin = hasRole(['Admin', 'HR']);
   const expense = expenses.find((e) => e.id === expenseId || e.expenseNumber === expenseId);
 
-  // Partial approval modal state
   const [showPartialModal, setShowPartialModal] = useState(false);
   const [partialAmount, setPartialAmount] = useState('');
   const [partialError, setPartialError] = useState('');
 
-  // Query modal state
   const [showQueryModal, setShowQueryModal] = useState(false);
   const [queryMessage, setQueryMessage] = useState('');
   const [queryError, setQueryError] = useState('');
 
-  // Receipt preview modal
   const [showReceiptModal, setShowReceiptModal] = useState(false);
 
   const [auditRemarks, setAuditRemarks] = useState('');
@@ -103,7 +100,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
       return;
     }
 
-    // STRICT OVER-APPROVAL BLOCK
     if (val > requested) {
       setPartialError(
         `Over-approval Blocked: Approved amount (₹${val.toLocaleString('en-IN')}) cannot exceed requested amount (₹${requested.toLocaleString('en-IN')}).`
@@ -211,7 +207,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Claim Summary Card */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={{ flex: 1 }}>
@@ -240,7 +235,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
             <Text style={styles.descText}>{expense.description}</Text>
           </View>
 
-          {/* Amount Breakdown */}
           <View style={styles.amountGrid}>
             <View style={styles.amtCol}>
               <Text style={styles.amtLabel}>REQUESTED</Text>
@@ -260,7 +254,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
             </View>
           </View>
 
-          {/* Receipt View Button */}
           {expense.receiptFileName ? (
             <TouchableOpacity
               style={styles.receiptButton}
@@ -279,7 +272,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
           )}
         </Card>
 
-        {/* Audit Remarks Input */}
         <Card style={styles.card}>
           <Text style={styles.sectionTitle}>HR Auditor Remarks</Text>
           <Input
@@ -290,7 +282,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
             numberOfLines={3}
           />
 
-          {/* Decision Actions */}
           <View style={styles.actionGrid}>
             <Button
               title="Full Approval"
@@ -324,7 +315,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
           </View>
         </Card>
 
-        {/* Audit History Timeline */}
         {Array.isArray(expense.auditHistory) && expense.auditHistory.length > 0 && (
           <Card style={styles.card}>
             <View style={styles.historyHead}>
@@ -348,7 +338,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         )}
       </ScrollView>
 
-      {/* Partial Approval Modal */}
       <Modal visible={showPartialModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -403,7 +392,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         </View>
       </Modal>
 
-      {/* Raise Query Modal */}
       <Modal visible={showQueryModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -449,7 +437,6 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         </View>
       </Modal>
 
-      {/* Receipt Viewer Modal */}
       <Modal visible={showReceiptModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>

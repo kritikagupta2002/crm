@@ -41,8 +41,6 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
   const [responseError, setResponseError] = useState('');
   const [isReplying, setIsReplying] = useState(false);
 
-  // Strict Data Isolation:
-  // Regular employees only see queries attached to their own claims
   const accessibleQueries = useMemo(() => {
     let list = queries;
     if (!isHrOrAdmin) {
@@ -99,7 +97,6 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
 
     return (
       <Card style={styles.card}>
-        {/* Card Header: Claim reference and query status */}
         <View style={styles.cardHeader}>
           <View style={styles.headerRefWrap}>
             <MessageSquare size={16} color={colors.primary} />
@@ -124,9 +121,7 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
           </View>
         )}
 
-        {/* Chronological Query Thread */}
         <View style={styles.threadContainer}>
-          {/* 1. Auditor's Query */}
           <View style={styles.queryBubble}>
             <View style={styles.bubbleHeader}>
               <ShieldCheck size={13} color={colors.semantic.warning} />
@@ -140,7 +135,6 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
             <Text style={styles.queryText}>{item.queryMessage}</Text>
           </View>
 
-          {/* 2. Employee's Reply (if submitted) */}
           {item.responseMessage ? (
             <View style={styles.replyBubble}>
               <View style={styles.bubbleHeader}>
@@ -161,7 +155,6 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
               </View>
             </View>
           ) : (
-            // Reply CTA (Available to the claimant or HR)
             <View style={styles.replyActionBox}>
               <Button
                 title={isOwner ? 'Submit Clarification Reply' : 'Enter Employee Clarification'}
@@ -208,7 +201,6 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
         }
       />
 
-      {/* Response Modal */}
       <Modal visible={!!selectedQuery} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>

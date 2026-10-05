@@ -6,8 +6,9 @@ import {
   ActivityIndicator,
   ViewStyle,
   TextStyle,
+  View,
 } from 'react-native';
-import { colors, radius, spacing, typography } from '../../theme';
+import { colors, radius, spacing, typography, shadows } from '../../theme';
 
 interface ButtonProps {
   title: string;
@@ -36,8 +37,10 @@ export const Button: React.FC<ButtonProps> = ({
   leftIcon,
   rightIcon,
 }) => {
-  const effectiveIcon = leftIcon || icon;
-  const normalizedSize = size === 'small' ? 'sm' : size === 'large' ? 'lg' : size === 'medium' ? 'md' : size;
+  const effectiveLeftIcon = leftIcon || icon;
+  const normalizedSize =
+    size === 'small' ? 'sm' : size === 'large' ? 'lg' : size === 'medium' ? 'md' : size;
+
   const getContainerStyle = () => {
     switch (variant) {
       case 'secondary':
@@ -84,7 +87,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.75}
       onPress={onPress}
       disabled={disabled || loading}
       style={[
@@ -101,20 +104,21 @@ export const Button: React.FC<ButtonProps> = ({
           color={variant === 'outline' || variant === 'ghost' ? colors.primary : colors.textInverse}
         />
       ) : (
-        <>
-          {effectiveIcon ? <>{effectiveIcon}</> : null}
+        <View style={styles.innerContent}>
+          {effectiveLeftIcon ? <View style={styles.leftIconWrapper}>{effectiveLeftIcon}</View> : null}
           <Text
             style={[
               styles.baseText,
               getTextStyle(),
               normalizedSize === 'sm' && styles.baseTextSm,
-              effectiveIcon ? { marginLeft: spacing.xs } : null,
+              normalizedSize === 'lg' && styles.baseTextLg,
               textStyle,
             ]}
           >
             {title}
           </Text>
-        </>
+          {rightIcon ? <View style={styles.rightIconWrapper}>{rightIcon}</View> : null}
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -122,61 +126,84 @@ export const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   base: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md + 2,
+  },
+  innerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radius.md,
+  },
+  leftIconWrapper: {
+    marginRight: spacing.xs + 3,
+  },
+  rightIconWrapper: {
+    marginLeft: spacing.xs + 3,
   },
   sizeSm: {
-    paddingVertical: spacing.xs + 2,
+    paddingVertical: spacing.xs + 3,
     paddingHorizontal: spacing.md,
+    minHeight: 36,
   },
   sizeMd: {
-    paddingVertical: spacing.md - 2,
+    paddingVertical: spacing.sm + 2,
     paddingHorizontal: spacing.lg,
+    minHeight: 46,
   },
   sizeLg: {
-    paddingVertical: spacing.md + 2,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
+    minHeight: 52,
   },
   primary: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.primaryDark,
+    ...shadows.xs,
   },
   secondary: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.surfaceSubtle,
+    borderWidth: 1,
+    borderColor: colors.border.default,
   },
   danger: {
     backgroundColor: colors.danger,
+    ...shadows.xs,
   },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderColor: colors.primaryDark,
   },
   ghost: {
     backgroundColor: 'transparent',
   },
   disabled: {
-    opacity: 0.5,
+    opacity: 0.45,
   },
   baseText: {
     fontSize: typography.fontSizes.base,
     fontWeight: typography.fontWeights.semibold,
+    letterSpacing: -0.1,
   },
   baseTextSm: {
     fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.semibold,
+  },
+  baseTextLg: {
+    fontSize: typography.fontSizes.md,
+    fontWeight: typography.fontWeights.bold,
   },
   textPrimary: {
     color: colors.textInverse,
   },
   textSecondary: {
-    color: colors.textInverse,
+    color: colors.textPrimary,
   },
   textDanger: {
     color: colors.textInverse,
   },
   textOutline: {
-    color: colors.primary,
+    color: colors.primaryDark,
   },
   textGhost: {
     color: colors.textSecondary,

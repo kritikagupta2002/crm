@@ -46,14 +46,12 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
   const [activeTab, setActiveTab] = useState<'All' | 'New' | 'Changes requested' | 'Approved' | 'Rejected'>('New');
   const [selectedApp, setSelectedApp] = useState<VendorApplication | null>(null);
 
-  // Decision Modal State
   const [actionType, setActionType] = useState<'approve' | 'changes' | 'reject' | null>(null);
   const [decisionNote, setDecisionNote] = useState('');
   const [rejectReason, setRejectReason] = useState(REJECT_REASONS[0]);
   const [selectedTdsRate, setSelectedTdsRate] = useState<number>(0.02);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Auto-open if parameter passed
   React.useEffect(() => {
     if (route?.params?.openId) {
       const match = vendorApplications.find((a) => a.id === route.params?.openId);
@@ -174,7 +172,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
             </Text>
           </View>
 
-          {/* Compliance summary indicator */}
           <View style={styles.complianceSummaryRow}>
             <View style={[styles.compliancePill, allPassed ? styles.pillGreen : styles.pillAmber]}>
               {allPassed ? (
@@ -205,7 +202,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         />
       }
     >
-      {/* Tabs */}
       <View style={styles.tabsWrap}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsList}>
           {tabs.map((t) => {
@@ -243,7 +239,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         }
       />
 
-      {/* Details Modal */}
       {selectedApp && (
         <Modal visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -259,7 +254,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
               </View>
 
               <ScrollView contentContainerStyle={styles.sheetContent}>
-                {/* Automated Compliance Checks Engine */}
                 <Card style={styles.checksCard}>
                   <Text style={styles.checksTitle}>Automated Statutory Verification</Text>
                   {checksForSelected.map((chk, i) => (
@@ -276,7 +270,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   ))}
                 </Card>
 
-                {/* Firm & Contact Particulars */}
                 <Card style={styles.infoCard}>
                   <Text style={styles.subHeading}>Enterprise Particulars</Text>
                   <View style={styles.detailRow}>
@@ -315,7 +308,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   </View>
                 </Card>
 
-                {/* Tax & Banking Particulars */}
                 <Card style={styles.infoCard}>
                   <Text style={styles.subHeading}>Tax & Bank Credentials</Text>
                   <View style={styles.detailRow}>
@@ -342,7 +334,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   </View>
                 </Card>
 
-                {/* Documents */}
                 <Card style={styles.infoCard}>
                   <Text style={styles.subHeading}>Submitted Documents ({selectedApp.documents?.length || 0})</Text>
                   {selectedApp.documents?.map((d) => (
@@ -355,7 +346,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   ))}
                 </Card>
 
-                {/* Actions Sheet if status is New or Changes requested */}
                 {(selectedApp.status === 'New' || selectedApp.status === 'Changes requested') && isAuthorized && (
                   <View style={styles.actionSheetRow}>
                     <Button
@@ -384,7 +374,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         </Modal>
       )}
 
-      {/* Decision Sub-Modal */}
       {actionType && (
         <Modal visible transparent animationType="fade">
           <View style={styles.decisionBackdrop}>

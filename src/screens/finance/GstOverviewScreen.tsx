@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { useHrms, useAuth } from '../../context';
+import { useFinance, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatusBadge, Button, Input, EmptyState } from '../../components';
 import { GstTransaction, GstReturn } from '../../types';
@@ -33,7 +33,7 @@ import {
 const SUPPLY_TYPES = ['All', 'Outward (B2B Taxable)', 'Inward (Contractor B2B)'] as const;
 
 export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { gstTransactions, gstReturns } = useHrms();
+  const { gstTransactions, gstReturns } = useFinance();
   const { hasRole } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'ledger' | 'returns'>('ledger');
@@ -42,7 +42,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [selectedTransaction, setSelectedTransaction] = useState<GstTransaction | null>(null);
   const [selectedReturn, setSelectedReturn] = useState<GstReturn | null>(null);
 
-  // Core Reconciliation Calculations
   const outputTxns = useMemo(
     () => gstTransactions.filter(g => g.supplyType.includes('Outward')),
     [gstTransactions]
@@ -65,7 +64,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
   );
   const netGstLiability = Math.max(0, totalOutputGst - totalInputItc);
 
-  // Tax Component Breakdown Matrix
   const outputCgst = useMemo(() => outputTxns.reduce((sum, g) => sum + g.cgst, 0), [outputTxns]);
   const outputSgst = useMemo(() => outputTxns.reduce((sum, g) => sum + g.sgst, 0), [outputTxns]);
   const outputIgst = useMemo(() => outputTxns.reduce((sum, g) => sum + g.igst, 0), [outputTxns]);
@@ -74,7 +72,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
   const inputSgst = useMemo(() => inputTxns.reduce((sum, g) => sum + g.sgst, 0), [inputTxns]);
   const inputIgst = useMemo(() => inputTxns.reduce((sum, g) => sum + g.igst, 0), [inputTxns]);
 
-  // Filtered Transactions
   const filteredTransactions = useMemo(() => {
     return gstTransactions.filter(g => {
       const q = search.toLowerCase();
@@ -120,7 +117,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
             <Text style={styles.dateText}>{item.invoiceDate}</Text>
           </View>
 
-          {/* Counterparty */}
           <View style={styles.partyBox}>
             <Text style={styles.partyName} numberOfLines={1}>
               {item.counterPartyName}
@@ -128,7 +124,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
             <Text style={styles.gstinText}>GSTIN: {item.counterPartyGstin}</Text>
           </View>
 
-          {/* Tax Components Grid */}
           <View style={styles.taxGrid}>
             <View style={styles.taxCol}>
               <Text style={styles.taxLabel}>TAXABLE VAL</Text>
@@ -157,7 +152,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
             </View>
           </View>
 
-          {/* Footer with ITC badge */}
           <View style={styles.cardFooter}>
             <Text style={styles.supplySub}>{item.supplyType}</Text>
             <View
@@ -239,7 +233,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Statutory Formula Banner */}
         <View style={styles.formulaBanner}>
           <View style={styles.formulaHeader}>
             <ShieldCheck size={20} color={colors.primary} />
@@ -250,7 +243,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
           </Text>
         </View>
 
-        {/* Core KPI Cards */}
         <View style={styles.kpiContainer}>
           <View style={styles.kpiRow}>
             <View style={[styles.kpiBox, { borderLeftColor: colors.primary }]}>
@@ -285,7 +277,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
           </View>
         </View>
 
-        {/* Tax Component Matrix Breakdown */}
         <View style={styles.matrixCard}>
           <Text style={styles.matrixTitle}>TAX COMPONENT BREAKDOWN (CGST / SGST / IGST)</Text>
           <View style={styles.matrixTable}>
@@ -297,7 +288,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               <Text style={[styles.matrixColHead, { flex: 1.2, textAlign: 'right' }]}>TOTAL (₹)</Text>
             </View>
 
-            {/* Outward Row */}
             <View style={styles.matrixRow}>
               <Text style={[styles.matrixFlowLabel, { flex: 2, color: colors.text.primary }]}>
                 Outward (Output)
@@ -316,7 +306,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               </Text>
             </View>
 
-            {/* Inward Row */}
             <View style={styles.matrixRow}>
               <Text style={[styles.matrixFlowLabel, { flex: 2, color: colors.semantic.success }]}>
                 Inward (ITC)
@@ -335,7 +324,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               </Text>
             </View>
 
-            {/* Net Liability Row */}
             <View style={[styles.matrixRow, styles.matrixNetRow]}>
               <Text style={[styles.matrixNetHead, { flex: 2 }]}>Net Liability</Text>
               <Text style={[styles.matrixNetCell, { flex: 1 }]}>
@@ -354,7 +342,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
           </View>
         </View>
 
-        {/* Tab Selector */}
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={[styles.tabBtn, activeTab === 'ledger' && styles.tabBtnActive]}
@@ -376,7 +363,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
 
         {activeTab === 'ledger' ? (
           <View style={styles.sectionWrap}>
-            {/* Search Input */}
             <View style={styles.searchContainer}>
               <Input
                 placeholder="Search doc #, counterparty, GSTIN..."
@@ -386,7 +372,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               />
             </View>
 
-            {/* Supply Filter Chips */}
             <View style={styles.filterScroll}>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterList}>
                 {SUPPLY_TYPES.map(st => (
@@ -408,7 +393,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               </ScrollView>
             </View>
 
-            {/* Transactions List */}
             {filteredTransactions.length > 0 ? (
               <View style={styles.txnsList}>
                 {filteredTransactions.map(item => (
@@ -439,7 +423,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
         )}
       </ScrollView>
 
-      {/* Transaction Detail Modal */}
       {selectedTransaction && (
         <Modal visible={!!selectedTransaction} transparent animationType="fade">
           <View style={styles.modalOverlay}>
@@ -455,7 +438,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               </View>
 
               <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 420 }}>
-                {/* Counterparty Box */}
                 <View style={styles.detailCardBox}>
                   <Text style={styles.detailCardHead}>COUNTERPARTY INFORMATION</Text>
                   <Text style={styles.detailPartyName}>{selectedTransaction.counterPartyName}</Text>
@@ -463,7 +445,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
                   <Text style={styles.detailDate}>Document Date: {selectedTransaction.invoiceDate}</Text>
                 </View>
 
-                {/* Tax Breakdown */}
                 <View style={styles.detailCalcBox}>
                   <Text style={styles.detailCardHead}>TAX ALLOCATION MATRIX</Text>
                   <View style={styles.detailRow}>
@@ -504,7 +485,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
                   </View>
                 </View>
 
-                {/* ITC Info */}
                 <View style={styles.detailItcBox}>
                   <Text style={styles.detailCardHead}>INPUT TAX CREDIT COMPLIANCE</Text>
                   <View style={styles.detailRow}>
@@ -545,7 +525,6 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
         </Modal>
       )}
 
-      {/* Return Acknowledgement Detail Modal */}
       {selectedReturn && (
         <Modal visible={!!selectedReturn} transparent animationType="slide">
           <View style={styles.modalOverlay}>

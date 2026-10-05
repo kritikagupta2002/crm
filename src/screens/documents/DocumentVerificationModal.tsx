@@ -30,8 +30,6 @@ export const DocumentVerificationModal: React.FC<DocumentVerificationModalProps>
   const currentUserId = session?.accountType === 'team' ? (session as any).employeeId : 'UNKNOWN';
   const currentUserName = session?.accountType === 'team' ? (session as any).name : 'Active User';
 
-  // Four-Eyes Principle Invariant:
-  // Uploader MUST NOT be able to verify their own document.
   const isSelfUpload = document.uploadedBy === currentUserId;
 
   const handleVerify = async () => {

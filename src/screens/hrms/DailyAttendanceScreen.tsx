@@ -35,16 +35,14 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
   navigation,
   route,
 }) => {
-  const { attendance, employees } = useHrms();
+  const { attendance } = useHrms();
   const { userRole, hasRole } = useAuth();
 
   const isHrOrAdmin = hasRole(['Admin', 'HR']);
 
-  // Selected date state (defaults to passed date or today)
   const todayIso = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState<string>(route?.params?.date || todayIso);
 
-  // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDept, setSelectedDept] = useState('all');
   const [selectedProject, setSelectedProject] = useState('all');
@@ -52,7 +50,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
   const [selectedSource, setSelectedSource] = useState('all');
   const [showFilterSheet, setShowFilterSheet] = useState(false);
 
-  // Navigate dates
   const handleDateStep = (days: number) => {
     const current = new Date(selectedDate);
     current.setDate(current.getDate() + days);
@@ -125,7 +122,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           <StatusBadge status={item.status} size="sm" />
         </View>
 
-        {/* Project Pill */}
         <View style={styles.projectPill}>
           <View style={styles.projectDot} />
           <Text style={styles.projectText} numberOfLines={1}>
@@ -133,7 +129,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           </Text>
         </View>
 
-        {/* Punch In / Out / Duration Grid */}
         <View style={styles.timesContainer}>
           <View style={styles.timeBlock}>
             <Text style={styles.timeLabel}>CHECK IN</Text>
@@ -153,7 +148,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           </View>
         </View>
 
-        {/* Footer with Punch Source & Late mark */}
         <View style={styles.cardFooter}>
           <View style={styles.sourceTag}>
             <Fingerprint size={12} color="#2563EB" />
@@ -186,7 +180,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
       />
 
       <View style={styles.content}>
-        {/* Date Stepper Bar */}
         <Card style={styles.dateBar}>
           <TouchableOpacity
             style={styles.dateStepBtn}
@@ -208,7 +201,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           </TouchableOpacity>
         </Card>
 
-        {/* Search Bar */}
         <View style={styles.searchRow}>
           <View style={styles.searchBox}>
             <Search size={16} color={colors.text.tertiary} />
@@ -234,7 +226,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           </TouchableOpacity>
         </View>
 
-        {/* Collapsible Filter Bar */}
         {showFilterSheet && (
           <Card style={styles.filterSheet}>
             <View style={styles.filterSheetHeader}>
@@ -247,7 +238,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
               )}
             </View>
 
-            {/* Status Filter */}
             <Text style={styles.filterGroupTitle}>Status:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillRow}>
               {['all', 'Present', 'Field Duty', 'Late', 'Absent', 'On Leave'].map((st) => (
@@ -263,7 +253,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
               ))}
             </ScrollView>
 
-            {/* Department Filter */}
             <Text style={styles.filterGroupTitle}>Department:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillRow}>
               {['all', ...STANDARD_DEPARTMENTS].map((dept) => (
@@ -279,7 +268,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
               ))}
             </ScrollView>
 
-            {/* Project Filter */}
             <Text style={styles.filterGroupTitle}>Project / Site:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.pillRow}>
               {['all', ...STANDARD_PROJECTS].map((proj) => (
@@ -297,7 +285,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           </Card>
         )}
 
-        {/* Count Bar */}
         <View style={styles.countRow}>
           <Text style={styles.countText}>
             Showing <Text style={{ fontWeight: '700' }}>{filteredRecords.length}</Text> of{' '}
@@ -310,7 +297,6 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           )}
         </View>
 
-        {/* Records FlatList */}
         <FlatList
           data={filteredRecords}
           keyExtractor={(item) => item.id}

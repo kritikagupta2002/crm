@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import { useHrms, useAuth } from '../../context';
+import { useFinance, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatusBadge, Button, Input, EmptyState } from '../../components';
 import { TdsRecord } from '../../types';
@@ -34,7 +34,7 @@ const SECTIONS = ['All', '194C', '194J', '194I', '192'] as const;
 const STATUSES = ['All', 'Pending Deposit', 'Deposited'] as const;
 
 export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { taxRecords, updateTaxStatus } = useHrms();
+  const { taxRecords, updateTaxStatus } = useFinance();
   const { hasRole } = useAuth();
 
   const [search, setSearch] = useState('');
@@ -42,7 +42,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [selectedSection, setSelectedSection] = useState<string>('All');
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
 
-  // Modal States
   const [selectedRecord, setSelectedRecord] = useState<TdsRecord | null>(null);
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [certificateRecord, setCertificateRecord] = useState<TdsRecord | null>(null);
@@ -54,7 +53,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
 
   const canManage = hasRole(['Admin', 'Accountant']);
 
-  // Summary Metrics
   const totalTdsWithheld = useMemo(
     () => taxRecords.reduce((sum, r) => sum + r.tdsAmount, 0),
     [taxRecords]
@@ -74,7 +72,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
     [taxRecords]
   );
 
-  // Filtered Records
   const filteredRecords = useMemo(() => {
     return taxRecords.filter(r => {
       const q = search.toLowerCase();
@@ -150,7 +147,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
             <StatusBadge status={item.status} size="sm" />
           </View>
 
-          {/* Party Details */}
           <View style={styles.partyBox}>
             <Text style={styles.deducteeName} numberOfLines={1}>
               {item.deducteeName}
@@ -158,7 +154,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
             <Text style={styles.panText}>PAN: {item.panNumber}</Text>
           </View>
 
-          {/* Numbers Grid */}
           <View style={styles.numbersGrid}>
             <View style={styles.numCol}>
               <Text style={styles.numLabel}>GROSS BASE</Text>
@@ -176,7 +171,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
             </View>
           </View>
 
-          {/* Period & Action */}
           <View style={styles.cardFooter}>
             <Text style={styles.periodText}>
               Period: {item.quarter} (FY {item.financialYear})
@@ -230,7 +224,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         }
       />
 
-      {/* KPI Stat Cards Grid */}
       <View style={styles.statsContainer}>
         <View style={styles.statRow}>
           <View style={[styles.statBox, { borderLeftColor: '#8B5CF6' }]}>
@@ -263,7 +256,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         </View>
       </View>
 
-      {/* Search Input */}
       <View style={styles.searchContainer}>
         <Input
           placeholder="Search by challan #, deductee, PAN, section..."
@@ -273,7 +265,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         />
       </View>
 
-      {/* Filter Section Chips */}
       <View style={styles.filterSection}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterList}>
           <Text style={styles.filterLabel}>Section:</Text>
@@ -320,7 +311,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         </ScrollView>
       </View>
 
-      {/* TDS Records List */}
       <FlatList
         data={filteredRecords}
         keyExtractor={item => item.id}
@@ -339,7 +329,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         }
       />
 
-      {/* Record Detail Modal */}
       {selectedRecord && (
         <Modal visible={!!selectedRecord} transparent animationType="fade">
           <View style={styles.modalOverlay}>
@@ -391,7 +380,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
                   )}
                 </View>
 
-                {/* Computation Matrix */}
                 <View style={styles.detailCalcBox}>
                   <Text style={styles.detailCalcHead}>STATUTORY DEDUCTION BREAKDOWN</Text>
                   <View style={styles.detailRow}>
@@ -412,7 +400,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
                   </View>
                 </View>
 
-                {/* Statutory Reference */}
                 <View style={styles.sectionInfoBox}>
                   <Text style={styles.sectionInfoTitle}>
                     Section {selectedRecord.section} Provision:
@@ -465,7 +452,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         </Modal>
       )}
 
-      {/* Deposit Challan Modal */}
       {depositRecord && (
         <Modal visible={showDepositModal} transparent animationType="slide">
           <View style={styles.modalOverlay}>
@@ -534,7 +520,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         </Modal>
       )}
 
-      {/* Form 16A Certificate Preview Modal */}
       {certificateRecord && (
         <Modal visible={showCertificateModal} transparent animationType="slide">
           <View style={styles.modalOverlay}>
@@ -552,7 +537,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
               </View>
 
               <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 420 }}>
-                {/* Deductor Coordinates */}
                 <View style={styles.certCompanyBox}>
                   <Text style={styles.certCompanyTitle}>BANSAL GEO SERVICES PVT LTD</Text>
                   <Text style={styles.certCompanyAddr}>
@@ -564,7 +548,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
                   </View>
                 </View>
 
-                {/* Deductee Coordinates */}
                 <View style={styles.certDeducteeBox}>
                   <Text style={styles.certSectionHead}>DEDUCTEE / BENEFICIARY DETAILS</Text>
                   <Text style={styles.certDeducteeName}>{certificateRecord.deducteeName}</Text>
@@ -574,7 +557,6 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
                   </Text>
                 </View>
 
-                {/* Summary Table */}
                 <View style={styles.certTable}>
                   <View style={styles.certTableRow}>
                     <Text style={styles.certTableHead}>Particulars</Text>
@@ -1034,7 +1016,6 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     fontFamily: 'monospace',
   },
-  // Form 16A Styles
   certHeaderTitle: {
     ...typography.h3,
     color: colors.text.primary,

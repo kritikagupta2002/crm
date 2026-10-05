@@ -1,15 +1,3 @@
-/**
- * workingDays.ts
- * Single source of truth for leave duration and working day calculations in Bansal Geo Mobile.
- *
- * Rules:
- *  - Exclude Saturday (day 6) and Sunday (day 0)
- *  - Exclude Indian national public holidays for 2026
- *  - Exclude additional company holidays
- *  - Pure string / local-date parsing to prevent timezone shift errors
- *
- * Direct parity with crm/src/hrms/modules/leave/utils/workingDays.js
- */
 
 export interface HolidayItem {
   date: string;
@@ -35,9 +23,6 @@ export const NATIONAL_HOLIDAYS_2026: HolidayItem[] = [
 
 export const NATIONAL_HOLIDAY_DATES_2026: string[] = NATIONAL_HOLIDAYS_2026.map(h => h.date);
 
-/**
- * Parse a 'YYYY-MM-DD' string safely into a Date object in local time
- */
 export function parseLocalDate(dateStr: string): Date {
   const parts = dateStr.split('-').map(Number);
   const year = parts[0];
@@ -46,9 +31,6 @@ export function parseLocalDate(dateStr: string): Date {
   return new Date(year, month - 1, day, 12, 0, 0); // Noon local time avoids DST/timezone shifts
 }
 
-/**
- * Format a Date object to 'YYYY-MM-DD'
- */
 export function formatToDateStr(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -56,12 +38,6 @@ export function formatToDateStr(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-/**
- * Returns true if the date is a working day:
- *  - Not Saturday or Sunday
- *  - Not a national holiday
- *  - Not in the company-specific holiday list
- */
 export function isWorkingDay(dateStr: string, companyHolidays: string[] = []): boolean {
   const date = parseLocalDate(dateStr);
   const day = date.getDay();
@@ -71,9 +47,6 @@ export function isWorkingDay(dateStr: string, companyHolidays: string[] = []): b
   return true;
 }
 
-/**
- * Returns the holiday or weekend reason for a non-working date
- */
 export function getNonWorkingReason(dateStr: string, companyHolidays: string[] = []): string | null {
   const date = parseLocalDate(dateStr);
   const day = date.getDay();
@@ -85,10 +58,6 @@ export function getNonWorkingReason(dateStr: string, companyHolidays: string[] =
   return null;
 }
 
-/**
- * Count the number of working days between startDate and endDate (inclusive).
- * Returns -1 if end < start.
- */
 export function countWorkingDays(
   startDateStr: string,
   endDateStr: string,
@@ -112,10 +81,6 @@ export function countWorkingDays(
   return count;
 }
 
-/**
- * Get all individual working dates (YYYY-MM-DD) within a range.
- * Useful for attendance synchronization.
- */
 export function getWorkingDates(
   startDateStr: string,
   endDateStr: string,
@@ -143,10 +108,6 @@ export interface SkippedDateItem {
   reason: string;
 }
 
-/**
- * Get the list of all non-working dates within a range (weekends + holidays).
- * Used for displaying skipped days in the UI.
- */
 export function getNonWorkingDates(
   startDateStr: string,
   endDateStr: string,
@@ -170,13 +131,4 @@ export function getNonWorkingDates(
   return skipped;
 }
 
-/**
- * Format a date string YYYY-MM-DD to a human-friendly display (e.g., 14 Oct 2026).
- */
-export function formatDate(dateStr: string): string {
-  if (!dateStr) return '';
-  const d = parseLocalDate(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-}
+export { formatDate } from './date';

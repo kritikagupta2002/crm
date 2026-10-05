@@ -1,13 +1,3 @@
-/*
- * Vendor, Tender, and Subcontract constants & business logic utilities
- * Directly adapted from CRM web source:
- * - src/utils/tenders.js
- * - src/utils/vendorChecks.js
- * - src/utils/workOrders.js
- * - src/data/tenders.js
- * - src/data/vendorApplications.js
- * - src/data/vendors.js
- */
 
 export const WORK_CATEGORIES = [
   'Core drilling',
@@ -118,13 +108,16 @@ export const STATE_CODES: Record<string, string> = {
 };
 
 export const STATES = Object.keys(STATE_CODES);
+import {
+  PAN_REGEX as PAN_RE,
+  GSTIN_REGEX as GSTIN_RE,
+  IFSC_REGEX as IFSC_RE,
+  INDIAN_MOBILE_REGEX as MOBILE_RE,
+  PIN_REGEX as PIN_RE,
+  EMAIL_REGEX as EMAIL_RE,
+} from '../utils/validation';
 
-export const PAN_RE = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
-export const GSTIN_RE = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
-export const IFSC_RE = /^[A-Z]{4}0[A-Z0-9]{6}$/;
-export const MOBILE_RE = /^[6-9][0-9]{9}$/;
-export const PIN_RE = /^[1-9][0-9]{5}$/;
-export const EMAIL_RE = /^\S+@\S+\.\S+$/;
+export { PAN_RE, GSTIN_RE, IFSC_RE, MOBILE_RE, PIN_RE, EMAIL_RE };
 
 export const clean = (v: any) => String(v ?? '').replace(/\s+/g, '').toUpperCase();
 export const digitsOf = (v: any) => String(v ?? '').replace(/\D/g, '');
@@ -143,40 +136,11 @@ export function tenderPhase(tender: any, now = Date.now()): 'Open' | 'Evaluation
   return now < closes ? 'Open' : 'Evaluation';
 }
 
-export function daysFrom(iso: string, now = Date.now()): string {
-  try {
-    const day = (t: string | number) => new Date(new Date(t).toDateString()).getTime();
-    const diff = Math.round((day(iso) - day(now)) / 86_400_000);
-    if (diff === 0) return 'today';
-    if (diff === 1) return 'tomorrow';
-    if (diff === -1) return 'yesterday';
-    return diff > 0 ? `in ${diff} days` : `${-diff} days ago`;
-  } catch {
-    return iso;
-  }
-}
-
-export const formatDateTime = (iso?: string | null): string => {
-  if (!iso) return '—';
-  try {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return String(iso);
-    return `${d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
-  } catch {
-    return String(iso);
-  }
-};
-
-export const formatDateOnly = (iso?: string | null): string => {
-  if (!iso) return '—';
-  try {
-    const d = new Date(iso);
-    if (isNaN(d.getTime())) return String(iso);
-    return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  } catch {
-    return String(iso);
-  }
-};
+export {
+  formatDateTime,
+  formatDateOnly,
+  formatRelativeDays as daysFrom,
+} from '../utils/date';
 
 export const requiredDocs = (app: any) =>
   VENDOR_DOCS.filter((d) => d.required === true || (d.required === 'gst' && app.tax?.gstRegistered)).map((d) => d.kind);
@@ -279,7 +243,6 @@ export function applicationChecks(app: any, vendors: any[] = [], applications: a
     note: missing.length ? `Missing: ${missing.join(', ')}` : `${app.documents?.length || 0} papers uploaded, required present`,
   });
 
-  // Clashes / duplicates
   const clashes: string[] = [];
   vendors.forEach((v) => {
     if (clean(v.pan) === pan) clashes.push(`PAN already registered with ${v.id || v.vendorCode} (${v.name})`);

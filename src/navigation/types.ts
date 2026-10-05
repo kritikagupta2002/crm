@@ -1,5 +1,4 @@
 export type RootStackParamList = {
-  // Auth & Portals
   Login: undefined;
   PublicEnquiry: undefined;
   ClientPortal: undefined;
@@ -7,7 +6,6 @@ export type RootStackParamList = {
   MainTabs: undefined;
   Notifications: undefined;
 
-  // CRM
   CrmDashboard: undefined;
   Leads: undefined;
   LeadDetail: { leadId: string };
@@ -21,12 +19,10 @@ export type RootStackParamList = {
   Clients: undefined;
   ClientDetail: { clientId: string };
 
-  // ERM
   ErmDashboard: undefined;
   Projects: { stageKey?: string; view?: 'list' | 'timeline' } | undefined;
   ProjectDetail: { projectId: string; initialTab?: string };
 
-  // Vendor
   VendorWorkspaceHome: undefined;
   VendorRegister: undefined;
   VendorApplications: { openId?: string } | undefined;
@@ -38,7 +34,6 @@ export type RootStackParamList = {
   Vendors: undefined;
   VendorDetail: { vendorId: string };
 
-  // Documents
   DocumentWorkspaceHome: undefined;
   Documents: { step?: string; view?: 'Government documents' | 'Other documents'; openId?: string } | undefined;
   DocumentDetail: { docId: string };
@@ -46,8 +41,6 @@ export type RootStackParamList = {
   ScanInbox: undefined;
   DispatchRegister: { tab?: string; openId?: string } | undefined;
 
-
-  // HRMS & Attendance
   HrmsOverview: undefined;
   Attendance: undefined;
   DailyAttendance: { date?: string } | undefined;
@@ -68,7 +61,6 @@ export type RootStackParamList = {
   EmployeeDocuments: { employeeId?: string; filterType?: string } | undefined;
   HrDocumentsWorkspace: { initialTab?: 'policies' | 'kyc'; employeeId?: string } | undefined;
 
-  // Expenses
   Expenses: undefined;
   ExpenseClaim: undefined;
   ExpenseReview: { expenseId: string };
@@ -76,7 +68,6 @@ export type RootStackParamList = {
   ExpenseSettlement: { expenseId: string };
   Reimbursement: undefined;
 
-  // Finance
   FinanceDashboard: undefined;
   Invoices: undefined;
   VendorBills: undefined;
@@ -85,11 +76,9 @@ export type RootStackParamList = {
   TdsRegister: undefined;
   GstOverview: undefined;
 
-  // Payroll
   Payroll: undefined;
   Payslips: { payslipId?: string } | undefined;
 
-  // Reports
   MisReports: undefined;
 };
 

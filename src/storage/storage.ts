@@ -56,7 +56,6 @@ import {
   INITIAL_DOCUMENTS,
   INITIAL_DISPATCHES,
   INITIAL_EMPLOYEES,
-  INITIAL_ATTENDANCE,
   INITIAL_LEAVE_BALANCES,
   INITIAL_LEAVES,
   INITIAL_EXPENSES,
@@ -181,7 +180,6 @@ class MobileStorage {
         ]);
         await AsyncStorage.setItem('@bgspl_initialized', 'true');
       } else {
-        // Incremental check for existing installations
         const [hrCheck, empCheck] = await Promise.all([
           AsyncStorage.getItem(KEYS.HR_DOCUMENTS),
           AsyncStorage.getItem(KEYS.EMPLOYEE_DOCUMENTS),
@@ -198,7 +196,6 @@ class MobileStorage {
     }
   }
 
-  // Session
   async getActiveSession(): Promise<ActiveSession> {
     const raw = await AsyncStorage.getItem(KEYS.ACTIVE_SESSION);
     return raw ? JSON.parse(raw) : null;
@@ -211,7 +208,6 @@ class MobileStorage {
     }
   }
 
-  // Generic helper
   private async getJson<T>(key: string, fallback: T): Promise<T> {
     try {
       const raw = await AsyncStorage.getItem(key);
@@ -224,7 +220,6 @@ class MobileStorage {
     await AsyncStorage.setItem(key, JSON.stringify(val));
   }
 
-  // Entities
   getClients = () => this.getJson<Client[]>(KEYS.CLIENTS, INITIAL_CLIENTS);
   setClients = (val: Client[]) => this.setJson(KEYS.CLIENTS, val);
 

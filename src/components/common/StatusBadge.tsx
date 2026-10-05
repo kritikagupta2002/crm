@@ -5,12 +5,21 @@ import { colors, radius, typography, spacing } from '../../theme';
 interface StatusBadgeProps {
   status: string;
   size?: 'sm' | 'md' | 'small' | 'medium' | 'large';
+  variant?: 'solid' | 'outline' | 'subtle';
   style?: ViewStyle;
   customLabel?: string;
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', style, customLabel }) => {
-  const normalizedSize = size === 'small' ? 'sm' : size === 'large' ? 'md' : size === 'medium' ? 'md' : size;
+const StatusBadgeInner: React.FC<StatusBadgeProps> = ({
+  status,
+  size = 'md',
+  variant = 'subtle',
+  style,
+  customLabel,
+}) => {
+  const normalizedSize =
+    size === 'small' ? 'sm' : size === 'large' ? 'md' : size === 'medium' ? 'md' : size;
+
   const getColors = () => {
     const s = (customLabel || status).toLowerCase();
     if (
@@ -22,9 +31,16 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', s
       s.includes('settled') ||
       s.includes('completed') ||
       s.includes('paid') ||
-      s.includes('active')
+      s.includes('active') ||
+      s.includes('done') ||
+      s.includes('passed')
     ) {
-      return { bg: colors.successBg, text: colors.successText, border: colors.successLight };
+      return {
+        bg: colors.successBg,
+        text: colors.successText,
+        border: colors.successLight,
+        dot: colors.success,
+      };
     }
     if (
       s.includes('pending') ||
@@ -34,9 +50,16 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', s
       s.includes('progress') ||
       s.includes('sealed') ||
       s.includes('billed') ||
-      s.includes('half')
+      s.includes('half') ||
+      s.includes('hold') ||
+      s.includes('draft')
     ) {
-      return { bg: colors.warningBg, text: colors.warningText, border: colors.warningLight };
+      return {
+        bg: colors.warningBg,
+        text: colors.warningText,
+        border: colors.warningLight,
+        dot: colors.warning,
+      };
     }
     if (
       s.includes('rejected') ||
@@ -45,12 +68,22 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', s
       s.includes('suspended') ||
       s.includes('overdue') ||
       s.includes('expired') ||
-      s.includes('cancel')
+      s.includes('cancel') ||
+      s.includes('failed')
     ) {
-      return { bg: colors.dangerBg, text: colors.dangerText, border: colors.dangerLight };
+      return {
+        bg: colors.dangerBg,
+        text: colors.dangerText,
+        border: colors.dangerLight,
+        dot: colors.danger,
+      };
     }
-    // Info / default
-    return { bg: colors.infoBg, text: colors.infoText, border: colors.infoLight };
+    return {
+      bg: colors.infoBg,
+      text: colors.infoText,
+      border: colors.infoLight,
+      dot: colors.info,
+    };
   };
 
   const c = getColors();
@@ -64,6 +97,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', s
         style,
       ]}
     >
+      <View style={[styles.dot, { backgroundColor: c.dot }, normalizedSize === 'sm' && styles.dotSm]} />
       <Text
         style={[
           styles.text,
@@ -77,10 +111,14 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', s
   );
 };
 
+export const StatusBadge = React.memo(StatusBadgeInner);
+
 const styles = StyleSheet.create({
   badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingVertical: 2.5,
     borderRadius: radius.full,
     borderWidth: 1,
     alignSelf: 'flex-start',
@@ -89,12 +127,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs + 2,
     paddingVertical: 1,
   },
+  dot: {
+    width: 5.5,
+    height: 5.5,
+    borderRadius: 2.75,
+    marginRight: 4.5,
+  },
+  dotSm: {
+    width: 4.5,
+    height: 4.5,
+    borderRadius: 2.25,
+    marginRight: 3.5,
+  },
   text: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 11,
     fontWeight: typography.fontWeights.semibold,
     textTransform: 'capitalize',
+    letterSpacing: -0.1,
   },
   textSm: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 9.5,
+    fontWeight: typography.fontWeights.bold,
   },
 });

@@ -26,7 +26,6 @@ export const HrDocumentsWorkspaceScreen: React.FC<{ route?: any; navigation: any
         onNotificationPress={() => navigation.navigate('Notifications')}
       />
 
-      {/* Segmented Workspace Tabs */}
       <View style={styles.tabBarWrap}>
         <View style={styles.tabBar}>
           <TouchableOpacity
@@ -69,7 +68,6 @@ export const HrDocumentsWorkspaceScreen: React.FC<{ route?: any; navigation: any
         </View>
       </View>
 
-      {/* Workspace Content */}
       <View style={styles.contentWrap}>
         {activeTab === 'policies' ? (
           <HrDocumentsScreen navigation={navigation} />

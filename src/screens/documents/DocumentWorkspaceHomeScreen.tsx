@@ -8,8 +8,9 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useCrm, useAuth } from '../../context';
-import { colors, spacing, typography, borderRadius } from '../../theme';
-import { AppHeader, Card, StatusBadge, Button } from '../../components';
+import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { ScreenContainer, AppHeader, Card, StatCard, StatusBadge, Button } from '../../components/common';
+import { DonutChart, MiniBarChart } from '../../components/common/NativeCharts';
 import {
   FileText,
   FileScan,
@@ -27,8 +28,8 @@ import {
   Layers,
   ChevronRight,
   AlertTriangle,
+  TrendingUp,
 } from 'lucide-react-native';
-import { STAGE_TONE } from '../../constants';
 
 export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { govtDocuments, scanInbox, dispatches, refreshGovtDocuments, isLoading } = useCrm();
@@ -43,7 +44,6 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
     setRefreshing(false);
   };
 
-  // Metrics derived from actual document datasets
   const totalGovt = govtDocuments.length;
   const waitingDocs = govtDocuments.filter((d) => d.stage !== 'Done');
   const rescans = govtDocuments.filter((d) => d.rescan);
@@ -54,94 +54,163 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
   const doneDocs = govtDocuments.filter((d) => d.stage === 'Done');
 
   const pendingDispatches = dispatches.filter((d) => d.status === 'In Transit' || d.status === 'Dispatched');
-  const completedDispatches = dispatches.filter((d) => d.status === 'Delivered' || d.status === 'Received');
+  const verifiedPct = totalGovt > 0 ? Math.round(((totalGovt - toVerify.length) / totalGovt) * 100) : 100;
 
   return (
-    <View style={styles.container}>
-      <AppHeader
-        title="Document Management"
-        subtitle="EDMS • Verification & Chain of Custody"
-        showBack
-        onBack={() => navigation.goBack()}
-      />
-
-
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing || isLoading} onRefresh={onRefresh} colors={[colors.primary]} />}
-      >
-        {/* Compliance Banner */}
+    <ScreenContainer
+      scrollable
+      refreshing={refreshing || isLoading}
+      onRefresh={onRefresh}
+      header={
+        <AppHeader
+          title="Document Management"
+          subtitle="EDMS • Verification & Chain of Custody"
+          scenicBanner
+          badge="EDMS & Chain of Custody"
+          badgeIcon={<FileText size={12} color="#0d9488" />}
+          showBack
+          onBack={() => navigation.goBack()}
+          onNotificationPress={() => navigation.navigate('Notifications')}
+        />
+      }
+      contentContainerStyle={styles.content}
+    >
         <View style={styles.complianceCard}>
           <View style={styles.complianceIconWrap}>
-            <ShieldCheck size={22} color={colors.primary} />
+            <ShieldCheck size={22} color="#0D9488" />
           </View>
           <View style={styles.complianceBody}>
-            <Text style={styles.complianceTitle}>Enterprise 4-Eyes Verification</Text>
+            <Text style={styles.complianceTitle}>Enterprise 4-Eyes Verification Guard</Text>
             <Text style={styles.complianceDesc}>
-              Document filers are strictly prohibited from verifying their own scans. Every government letter requires secondary review.
+              Document filers are strictly restricted from verifying their own scans. Every incoming government letter requires independent secondary sign-off.
             </Text>
           </View>
         </View>
 
-        {/* Quick KPI Grid */}
-        <View style={styles.kpiGrid}>
-          <TouchableOpacity
-            style={[styles.kpiCard, { borderLeftColor: colors.primary }]}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('Documents')}
-          >
-            <View style={styles.kpiHeader}>
-              <Text style={styles.kpiValue}>{totalGovt}</Text>
-              <FileText size={18} color={colors.primary} />
+        <View style={styles.kpiSection}>
+          <Text style={styles.sectionHeader}>EDMS REPOSITORY SNAPSHOT</Text>
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="TOTAL RECORDS"
+                value={String(totalGovt)}
+                caption={`${waitingDocs.length} in processing`}
+                icon={<FileText size={18} color="#0D9488" />}
+                chart={<MiniBarChart values={[10, 18, 25, Math.max(30, totalGovt)]} color="#0D9488" height={26} barWidth={5} />}
+              />
             </View>
-            <Text style={styles.kpiLabel}>Total Records</Text>
-            <Text style={styles.kpiSub}>{waitingDocs.length} in pipeline</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.kpiCard, { borderLeftColor: colors.semantic.warning }]}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('ScanInbox')}
-          >
-            <View style={styles.kpiHeader}>
-              <Text style={styles.kpiValue}>{scanInbox.length}</Text>
-              <FileScan size={18} color={colors.semantic.warning} />
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="SCAN INBOX"
+                value={String(scanInbox.length)}
+                caption="NAS Folder Queue"
+                icon={<FileScan size={18} color={scanInbox.length > 0 ? "#D97706" : "#16A34A"} />}
+                chart={<MiniBarChart values={[4, 2, 7, Math.max(3, scanInbox.length)]} color="#D97706" height={26} barWidth={5} />}
+              />
             </View>
-            <Text style={styles.kpiLabel}>Scan Inbox</Text>
-            <Text style={styles.kpiSub}>NAS folder queue</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.kpiCard, { borderLeftColor: colors.semantic.danger }]}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('Documents', { step: 'To verify' })}
-          >
-            <View style={styles.kpiHeader}>
-              <Text style={styles.kpiValue}>{toVerify.length}</Text>
-              <ShieldAlert size={18} color={colors.semantic.danger} />
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="TO VERIFY"
+                value={String(toVerify.length)}
+                caption={rescans.length > 0 ? `${rescans.length} Rescans Req` : '4-Eyes Review'}
+                icon={<ShieldAlert size={18} color={toVerify.length > 0 ? "#EF4444" : "#16A34A"} />}
+                chart={<DonutChart percentage={verifiedPct} color={toVerify.length > 0 ? "#EF4444" : "#10B981"} size={38} strokeWidth={5} />}
+              />
             </View>
-            <Text style={styles.kpiLabel}>To Verify</Text>
-            <Text style={styles.kpiSub}>{rescans.length} rescan requested</Text>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.kpiCard, { borderLeftColor: colors.semantic.info }]}
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate('DispatchRegister')}
-          >
-            <View style={styles.kpiHeader}>
-              <Text style={styles.kpiValue}>{toDispatch.length + pendingDispatches.length}</Text>
-              <Truck size={18} color={colors.semantic.info} />
+            <View style={styles.kpiCol}>
+              <StatCard
+                title="DISPATCHES"
+                value={String(toDispatch.length + pendingDispatches.length)}
+                caption="Physical Originals"
+                icon={<Truck size={18} color="#2563EB" />}
+                trend={{ value: 'In Transit', isPositive: true }}
+              />
             </View>
-            <Text style={styles.kpiLabel}>Dispatches</Text>
-            <Text style={styles.kpiSub}>Physical originals</Text>
-          </TouchableOpacity>
+          </View>
         </View>
 
-        {/* 5-Stage EDMS Lifecycle Track */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Document Pipeline</Text>
+        <View style={styles.launchpadSection}>
+          <Text style={styles.sectionHeader}>QUICK DOCUMENT ACTIONS</Text>
+          <View style={styles.actionGrid}>
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('Documents')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDFA' }]}>
+                <FileText size={22} color="#0D9488" />
+              </View>
+              <Text style={styles.actionTileTitle}>All Documents</Text>
+              <Text style={styles.actionTileSub}>Govt Letters</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('ScanInbox')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#FFFBEB' }]}>
+                <FileScan size={22} color="#D97706" />
+              </View>
+              <Text style={styles.actionTileTitle}>Scan Inbox</Text>
+              <Text style={styles.actionTileSub}>Ingestion</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('Documents', { step: 'To verify' })}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#FEE2E2' }]}>
+                <ShieldCheck size={22} color="#DC2626" />
+              </View>
+              <Text style={styles.actionTileTitle}>To Verify</Text>
+              <Text style={styles.actionTileSub}>4-Eyes Guard</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('DispatchRegister')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#EFF6FF' }]}>
+                <Truck size={22} color="#2563EB" />
+              </View>
+              <Text style={styles.actionTileTitle}>Dispatches</Text>
+              <Text style={styles.actionTileSub}>Speed Post</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('Documents', { step: 'To authorize' })}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#FAF5FF' }]}>
+                <FolderLock size={22} color="#9333EA" />
+              </View>
+              <Text style={styles.actionTileTitle}>Access Auth</Text>
+              <Text style={styles.actionTileSub}>Permissions</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('MisReports')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#FDF2F8' }]}>
+                <TrendingUp size={22} color="#DB2777" />
+              </View>
+              <Text style={styles.actionTileTitle}>EDMS BI</Text>
+              <Text style={styles.actionTileSub}>Analytics</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.sectionHeaderWrap}>
+          <Text style={styles.sectionHeader}>EDMS CUSTODY PIPELINE</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Documents')}>
             <Text style={styles.seeAllText}>View All ({totalGovt})</Text>
           </TouchableOpacity>
@@ -153,12 +222,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('ScanInbox')}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: `${colors.semantic.warning}15` }]}>
-              <Inbox size={18} color={colors.semantic.warning} />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#FFFBEB' }]}>
+              <Inbox size={18} color="#D97706" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>1. Scan Inbox (To file)</Text>
-              <Text style={styles.stepDesc}>Raw scans in NAS folder waiting to be linked</Text>
+              <Text style={styles.stepTitle}>1. Scan Ingestion (To File)</Text>
+              <Text style={styles.stepDesc}>Raw scans in NAS folder awaiting project linkage</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{scanInbox.length}</Text>
@@ -173,12 +242,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('Documents', { step: 'To verify' })}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: `${colors.semantic.danger}15` }]}>
-              <ShieldCheck size={18} color={colors.semantic.danger} />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#FEE2E2' }]}>
+              <ShieldCheck size={18} color="#DC2626" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>2. Physical Verification</Text>
-              <Text style={styles.stepDesc}>4-Eyes compliance check against paper</Text>
+              <Text style={styles.stepTitle}>2. 4-Eyes Physical Verification</Text>
+              <Text style={styles.stepDesc}>Secondary checker signs off scan authenticity</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toVerify.length}</Text>
@@ -193,12 +262,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('Documents', { step: 'To authorize' })}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: `${colors.primary}15` }]}>
-              <FolderLock size={18} color={colors.primary} />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#F0FDFA' }]}>
+              <FolderLock size={18} color="#0D9488" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>3. Authorization & Access</Text>
-              <Text style={styles.stepDesc}>Client & vendor portal access controls</Text>
+              <Text style={styles.stepTitle}>3. Authorization & Classification</Text>
+              <Text style={styles.stepDesc}>Client & contractor portal visibility flags</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toAuthorize.length}</Text>
@@ -213,12 +282,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('Documents', { step: 'To share' })}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: `${colors.semantic.info}15` }]}>
-              <Share2 size={18} color={colors.semantic.info} />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#EFF6FF' }]}>
+              <Share2 size={18} color="#2563EB" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>4. Client Sharing</Text>
-              <Text style={styles.stepDesc}>Portal notification and WhatsApp broadcast</Text>
+              <Text style={styles.stepTitle}>4. Client & Stakeholder Sharing</Text>
+              <Text style={styles.stepDesc}>WhatsApp broadcast & registered email push</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toShare.length}</Text>
@@ -233,12 +302,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('DispatchRegister')}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: `${colors.semantic.success}15` }]}>
-              <Truck size={18} color={colors.semantic.success} />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#F0FDF4' }]}>
+              <Truck size={18} color="#16A34A" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>5. Original Dispatch</Text>
-              <Text style={styles.stepDesc}>Speed Post, courier waybill & acknowledgement</Text>
+              <Text style={styles.stepTitle}>5. Physical Original Dispatch</Text>
+              <Text style={styles.stepDesc}>Speed Post consignment & receipt tracking</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toDispatch.length}</Text>
@@ -247,18 +316,19 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
           </TouchableOpacity>
         </Card>
 
-        {/* Priority Attention Queue */}
         {(rescans.length > 0 || toVerify.length > 0) && (
           <View style={styles.attentionSection}>
             <View style={styles.attentionHeader}>
-              <AlertTriangle size={18} color={colors.semantic.warning} />
-              <Text style={styles.attentionTitle}>Attention Queue</Text>
+              <AlertTriangle size={16} color="#D97706" />
+              <Text style={styles.attentionTitle}>CUSTODY ATTENTION QUEUE</Text>
             </View>
 
             {rescans.map((d) => (
               <Card key={`rescan-${d.id}`} style={styles.urgentCard}>
                 <View style={styles.urgentHead}>
-                  <Text style={styles.urgentTag}>Rescan Required</Text>
+                  <View style={styles.urgentTag}>
+                    <Text style={styles.urgentTagText}>Rescan Required</Text>
+                  </View>
                   <Text style={styles.urgentDate}>{d.letter.date}</Text>
                 </View>
                 <Text style={styles.urgentTitle}>{d.letter.title}</Text>
@@ -270,7 +340,7 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
                   onPress={() => navigation.navigate('DocumentDetail', { docId: d.id })}
                 >
                   <Text style={styles.actionBtnText}>Resolve Rescan</Text>
-                  <ChevronRight size={14} color={colors.primary} />
+                  <ChevronRight size={14} color="#0D9488" />
                 </TouchableOpacity>
               </Card>
             ))}
@@ -289,8 +359,8 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
                   </Text>
                   {isSelfFiler && (
                     <View style={styles.selfFiledNotice}>
-                      <ShieldAlert size={12} color={colors.semantic.danger} />
-                      <Text style={styles.selfFiledText}>4-Eyes Guard: You filed this scan</Text>
+                      <ShieldAlert size={12} color="#EF4444" />
+                      <Text style={styles.selfFiledText}>4-Eyes Rule: You filed this scan (Secondary verifier needed)</Text>
                     </View>
                   )}
                   <TouchableOpacity
@@ -298,154 +368,147 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
                     onPress={() => navigation.navigate('DocumentDetail', { docId: d.id })}
                   >
                     <Text style={styles.actionBtnText}>Inspect Document</Text>
-                    <ChevronRight size={14} color={colors.primary} />
+                    <ChevronRight size={14} color="#0D9488" />
                   </TouchableOpacity>
                 </Card>
               );
             })}
           </View>
         )}
-
-        {/* Quick Launch Buttons */}
-        <View style={styles.quickLaunchSection}>
-          <Button
-            title="Browse Document Register"
-            variant="primary"
-            onPress={() => navigation.navigate('Documents')}
-            icon={<FileText size={18} color={colors.text.inverse} />}
-          />
-          <View style={{ height: spacing.sm }} />
-          <Button
-            title={`Scan Ingestion Inbox (${scanInbox.length})`}
-            variant="outline"
-            onPress={() => navigation.navigate('ScanInbox')}
-            icon={<FileScan size={18} color={colors.primary} />}
-          />
-          <View style={{ height: spacing.sm }} />
-          <Button
-            title="Dispatch & Waybill Tracking"
-            variant="secondary"
-            onPress={() => navigation.navigate('DispatchRegister')}
-            icon={<Truck size={18} color={colors.text.primary} />}
-          />
-        </View>
-      </ScrollView>
-    </View>
+    </ScreenContainer>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background.primary,
-  },
-  scroll: {
-    flex: 1,
-  },
   content: {
     padding: spacing.md,
-    gap: spacing.md,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxxl,
   },
   complianceCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: `${colors.primary}12`,
-    borderWidth: 1,
-    borderColor: `${colors.primary}30`,
-    borderRadius: borderRadius.md,
     padding: spacing.md,
+    backgroundColor: '#F0FDFA',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: '#CCFBF1',
+    marginBottom: spacing.md,
     gap: spacing.sm,
+    ...shadows.sm,
   },
   complianceIconWrap: {
     width: 40,
     height: 40,
-    borderRadius: borderRadius.full,
-    backgroundColor: `${colors.primary}20`,
+    borderRadius: radius.md,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#CCFBF1',
   },
   complianceBody: {
     flex: 1,
   },
   complianceTitle: {
-    ...typography.bodySmall,
-    fontWeight: '700',
-    color: colors.primary,
-    marginBottom: 2,
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0F172A',
   },
   complianceDesc: {
-    ...typography.caption,
-    color: colors.text.secondary,
+    fontSize: typography.fontSizes.xs,
+    color: '#475569',
+    marginTop: 2,
     lineHeight: 16,
+  },
+  sectionHeader: {
+    fontSize: 11,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.text.secondary,
+    letterSpacing: 0.8,
+  },
+  sectionHeaderWrap: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+    marginTop: spacing.xs,
+  },
+  seeAllText: {
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0D9488',
+  },
+  kpiSection: {
+    marginBottom: spacing.md,
   },
   kpiGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: spacing.sm,
+    marginHorizontal: -spacing.xs,
+    marginTop: spacing.sm,
   },
-  kpiCard: {
-    flex: 1,
-    minWidth: '46%',
-    backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+  kpiCol: {
+    width: '50%',
+    padding: spacing.xs,
   },
-  kpiHeader: {
+  launchpadSection: {
+    marginBottom: spacing.md,
+  },
+  actionGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  actionTile: {
+    width: '31%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.lg,
+    padding: spacing.sm,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    ...shadows.sm,
+  },
+  actionSquircle: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: spacing.xs,
   },
-  kpiValue: {
-    ...typography.h2,
+  actionTileTitle: {
+    fontSize: 12,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
+    textAlign: 'center',
   },
-  kpiLabel: {
-    ...typography.bodySmall,
-    fontWeight: '600',
-    color: colors.text.primary,
-  },
-  kpiSub: {
-    ...typography.caption,
+  actionTileSub: {
+    fontSize: 10,
     color: colors.text.tertiary,
-    marginTop: 2,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: spacing.xs,
-  },
-  sectionTitle: {
-    ...typography.h4,
-    color: colors.text.primary,
-  },
-  seeAllText: {
-    ...typography.caption,
-    fontWeight: '600',
-    color: colors.primary,
+    marginTop: 1,
+    textAlign: 'center',
   },
   pipelineCard: {
-    padding: 0,
-    overflow: 'hidden',
+    padding: spacing.sm,
+    borderRadius: radius.xl,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: spacing.md,
+    ...shadows.sm,
   },
   pipelineRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
+    padding: spacing.sm,
     gap: spacing.sm,
   },
   stepIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: borderRadius.md,
+    width: 38,
+    height: 38,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -453,84 +516,99 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepTitle: {
-    ...typography.bodySmall,
-    fontWeight: '700',
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
   },
   stepDesc: {
-    ...typography.caption,
-    color: colors.text.tertiary,
+    fontSize: typography.fontSizes.xs,
+    color: colors.text.secondary,
     marginTop: 1,
   },
   badgeWrap: {
-    backgroundColor: colors.background.tertiary,
-    borderRadius: borderRadius.full,
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: 8,
     paddingVertical: 2,
-    marginRight: spacing.xs,
+    borderRadius: radius.full,
+    backgroundColor: '#F1F5F9',
   },
-
   badgeText: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.text.secondary,
+    fontSize: 11,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0F172A',
   },
   pipeDivider: {
     height: 1,
-    backgroundColor: colors.border.subtle,
-    marginLeft: 56,
+    backgroundColor: '#F1F5F9',
+    marginHorizontal: spacing.sm,
   },
   attentionSection: {
+    marginBottom: spacing.md,
     gap: spacing.sm,
   },
   attentionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    marginTop: spacing.xs,
+    gap: 6,
+    marginBottom: 2,
   },
   attentionTitle: {
-    ...typography.h4,
-    color: colors.text.primary,
+    fontSize: 11,
+    fontWeight: typography.fontWeights.bold,
+    color: '#D97706',
+    letterSpacing: 0.8,
   },
   urgentCard: {
-    borderColor: `${colors.semantic.danger}40`,
+    padding: spacing.md,
+    backgroundColor: '#FFFBEB',
+    borderRadius: radius.lg,
     borderWidth: 1,
-    backgroundColor: `${colors.semantic.danger}06`,
+    borderColor: '#FDE68A',
+    borderLeftWidth: 4,
+    borderLeftColor: '#D97706',
   },
   urgentHead: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: 4,
   },
   urgentTag: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.semantic.danger,
-    textTransform: 'uppercase',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: radius.full,
+  },
+  urgentTagText: {
+    fontSize: 10,
+    fontWeight: typography.fontWeights.bold,
+    color: '#B45309',
   },
   urgentDate: {
-    ...typography.caption,
+    fontSize: 10,
     color: colors.text.tertiary,
   },
   urgentTitle: {
-    ...typography.body,
-    fontWeight: '600',
+    fontSize: typography.fontSizes.sm,
+    fontWeight: typography.fontWeights.bold,
     color: colors.text.primary,
-    marginBottom: spacing.xs,
+    marginBottom: 2,
   },
   urgentReason: {
-    ...typography.caption,
-    color: colors.semantic.danger,
+    fontSize: typography.fontSizes.xs,
+    color: '#B45309',
     marginBottom: spacing.sm,
   },
   verifyItemCard: {
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    padding: spacing.md,
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderLeftWidth: 4,
+    borderLeftColor: '#EF4444',
   },
   verifySub: {
-    ...typography.caption,
+    fontSize: typography.fontSizes.xs,
     color: colors.text.secondary,
     marginBottom: spacing.xs,
   },
@@ -538,32 +616,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: `${colors.semantic.danger}12`,
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
-    borderRadius: borderRadius.sm,
-    alignSelf: 'flex-start',
-    marginBottom: spacing.sm,
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.md,
+    marginBottom: spacing.xs,
   },
   selfFiledText: {
-    ...typography.caption,
-    color: colors.semantic.danger,
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: typography.fontWeights.semibold,
+    color: '#B91C1C',
   },
   actionBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
     alignSelf: 'flex-start',
-    paddingVertical: 4,
+    gap: 4,
+    marginTop: 2,
   },
   actionBtnText: {
-    ...typography.caption,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  quickLaunchSection: {
-    marginTop: spacing.sm,
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.bold,
+    color: '#0D9488',
   },
 });

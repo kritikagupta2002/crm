@@ -9,12 +9,8 @@ import {
   FinanceOverviewMetrics,
   InvoiceItem,
 } from '../types';
-import { TAX_RATES } from '../constants';
 
 export class FinanceService {
-  // ==========================================
-  // INVOICE MODULE (ACCOUNTS RECEIVABLE)
-  // ==========================================
 
   async getInvoices(): Promise<FinanceInvoice[]> {
     return mobileStorage.getInvoices();
@@ -42,12 +38,10 @@ export class FinanceService {
   }): Promise<FinanceInvoice> {
     const base = Number(data.preTaxAmount !== undefined ? data.preTaxAmount : data.baseAmount);
 
-    // Validation 1: Base Amount > 0
     if (!base || base <= 0) {
       throw new Error('Invoice base taxable amount must be strictly greater than ₹0.');
     }
 
-    // Validation 2: Client must exist and be active
     const clients = await mobileStorage.getClients();
     const client = clients.find(
       (c) =>
@@ -65,8 +59,6 @@ export class FinanceService {
       }
     }
 
-
-    // GST Calculation: CGST 9% + SGST 9% OR IGST 18% (or based on slab)
     const slab = data.taxRate !== undefined ? data.taxRate : 18;
     const isInterState =
       data.isInterState !== undefined
@@ -86,7 +78,6 @@ export class FinanceService {
     const taxAmount = cgst + sgst + igst;
     const totalAmount = base + taxAmount;
 
-    // Expected TDS withholding from client
     const tdsRate = data.expectedTdsRate !== undefined ? data.expectedTdsRate : 0.02;
     const tdsAmount = Math.round(base * tdsRate);
 
@@ -136,7 +127,6 @@ export class FinanceService {
     invoices.unshift(newInv);
     await mobileStorage.setInvoices(invoices);
 
-    // Cross-Module Side Effect: Auto-post Sales Journal Voucher (with double-entry parity)
     const vouchers = await mobileStorage.getVouchers();
     const existingVoucher = vouchers.find(
       (v) => v.reference === newInv.invoiceNo || (v.referenceType === 'invoice' && v.referenceId === newInv.id)
@@ -187,7 +177,6 @@ export class FinanceService {
     inv.paidAmount = nextPaid;
     await mobileStorage.setInvoices(invoices);
 
-    // If marked Paid, post double-entry Bank Receipt Voucher with idempotency
     if (status === 'Paid') {
       const vouchers = await mobileStorage.getVouchers();
       const existingReceipt = vouchers.find(
@@ -222,10 +211,6 @@ export class FinanceService {
     return inv;
   }
 
-  // ==========================================
-  // VENDOR BILL MODULE (ACCOUNTS PAYABLE)
-  // ==========================================
-
   async getVendorBills(): Promise<VendorBill[]> {
     return mobileStorage.getVendorBills();
   }
@@ -253,7 +238,6 @@ export class FinanceService {
       throw new Error('Vendor bill number is required.');
     }
 
-    // Validation 1: Bill Number Uniqueness
     const bills = await mobileStorage.getVendorBills();
     const existingBill = bills.find(
       (b) =>
@@ -266,7 +250,6 @@ export class FinanceService {
       );
     }
 
-    // Validation 2: Vendor must exist and be active
     const vendors = await mobileStorage.getVendors();
     const vendor = vendors.find(
       (v) =>
@@ -285,7 +268,6 @@ export class FinanceService {
       }
     }
 
-    // Validation 3: Base Amount > 0
     const base = Number(data.baseAmount);
     if (!base || base <= 0) {
       throw new Error('Vendor bill base taxable amount must be strictly greater than ₹0.');
@@ -295,7 +277,6 @@ export class FinanceService {
     const gstAmount = Math.round((base * taxRate) / 100);
     const totalAmount = base + gstAmount;
 
-    // TDS Category & Rate Preservation
     // Section 194C: Contractor payments (1% or 2%)
     // Section 194J: Professional geological & assay testing fees (10% or 2%)
     const vendorTdsSection =
@@ -323,7 +304,6 @@ export class FinanceService {
 
     const tdsRate = data.tdsRate !== undefined ? data.tdsRate : defaultTdsRate;
     const tdsAmount = Math.round(base * tdsRate);
-
 
     const bDate = data.billDate || data.date || new Date().toISOString().split('T')[0];
     const category = data.category || vendor?.category || 'Drilling & Coring';
@@ -359,7 +339,6 @@ export class FinanceService {
     bills.unshift(newBill);
     await mobileStorage.setVendorBills(bills);
 
-    // Cross-Module Side Effect 1: Auto-post Purchase Journal Voucher (with double-entry parity)
     const vouchers = await mobileStorage.getVouchers();
     const existingVoucher = vouchers.find(
       (v) => v.reference === newBill.billNo || (v.referenceType === 'bill' && v.referenceId === newBill.id)
@@ -386,7 +365,6 @@ export class FinanceService {
       await mobileStorage.setVouchers(vouchers);
     }
 
-    // Cross-Module Side Effect 2: Flow into TDS Register
     const taxRecords = await mobileStorage.getTaxRecords();
     const challanNum = `CHL-TDS-${new Date().getFullYear()}-${String(taxRecords.length + 1).padStart(3, '0')}`;
     taxRecords.unshift({
@@ -424,7 +402,6 @@ export class FinanceService {
     bill.status = status;
     await mobileStorage.setVendorBills(bills);
 
-    // If marked Paid, post Payment Voucher for net disbursement (Total - TDS) with idempotency
     if (status === 'Paid') {
       const vouchers = await mobileStorage.getVouchers();
       const existingPayment = vouchers.find(
@@ -464,10 +441,6 @@ export class FinanceService {
     return bill;
   }
 
-  // ==========================================
-  // DOUBLE-ENTRY VOUCHERS MODULE
-  // ==========================================
-
   async getVouchers(): Promise<FinanceVoucher[]> {
     return mobileStorage.getVouchers();
   }
@@ -501,7 +474,6 @@ export class FinanceService {
       throw new Error('Debit Account and Credit Account cannot be the same ledger head.');
     }
 
-    // CRITICAL DOUBLE-ENTRY PARITY VALIDATION
     if (dr !== cr) {
       throw new Error(
         `Double-entry parity violation: Debit amount (₹${dr.toLocaleString('en-IN')}) does not equal Credit amount (₹${cr.toLocaleString('en-IN')}). Difference: ₹${Math.abs(
@@ -541,10 +513,6 @@ export class FinanceService {
     await mobileStorage.setVouchers(vouchers);
     return newVoucher;
   }
-
-  // ==========================================
-  // TDS REGISTER MODULE
-  // ==========================================
 
   async getTaxRecords(): Promise<TdsRecord[]> {
     return mobileStorage.getTaxRecords();
@@ -614,10 +582,6 @@ export class FinanceService {
     return rec;
   }
 
-  // ==========================================
-  // GST OVERVIEW & RETURNS MODULE
-  // ==========================================
-
   async getGstReturns(): Promise<GstReturn[]> {
     return mobileStorage.getGstReturns();
   }
@@ -628,7 +592,6 @@ export class FinanceService {
 
     const txns: GstTransaction[] = [];
 
-    // Outward Supplies from Invoices
     for (const inv of invoices) {
       txns.push({
         id: `gst-out-${inv.id}`,
@@ -646,7 +609,6 @@ export class FinanceService {
       });
     }
 
-    // Inward Supplies from Vendor Bills
     for (const b of bills) {
       const isEligible = b.itcEligible !== false;
       txns.push({
@@ -668,17 +630,12 @@ export class FinanceService {
     return txns;
   }
 
-  // ==========================================
-  // METRICS & RECONCILIATION SUMMARY
-  // ==========================================
-
   async getOverviewMetrics(): Promise<FinanceOverviewMetrics> {
     const invoices = await mobileStorage.getInvoices();
     const bills = await mobileStorage.getVendorBills();
     const vouchers = await mobileStorage.getVouchers();
     const taxRecords = await mobileStorage.getTaxRecords();
 
-    // Invoices metrics
     const totalInvoicesAmount = invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
     const totalInvoicesCount = invoices.length;
 
@@ -689,11 +646,9 @@ export class FinanceService {
     const outstandingReceivables = Math.max(0, totalInvoicesAmount - totalCollected);
     const overdueReceivablesCount = invoices.filter((inv) => inv.status === 'Overdue').length;
 
-    // Vendor Bills metrics
     const vendorBillsAmount = bills.reduce((sum, b) => sum + (b.totalAmount || 0), 0);
     const vendorBillsCount = bills.length;
 
-    // Cash flow metrics from vouchers and receipts
     const totalPayments = vouchers
       .filter((v) => v.type === 'Payment Voucher')
       .reduce((sum, v) => sum + (v.amount || 0), 0);
@@ -704,7 +659,6 @@ export class FinanceService {
 
     const netCashFlow = totalReceipts - totalPayments;
 
-    // GST metrics: Output GST - Input Tax Credit
     const outputGst = invoices.reduce(
       (sum, inv) => sum + ((inv.cgst || 0) + (inv.sgst || 0) + (inv.igst || 0)),
       0
@@ -716,7 +670,6 @@ export class FinanceService {
 
     const netGstPayable = Math.max(0, outputGst - inputTaxCredit);
 
-    // TDS metrics
     const totalTdsWithheld = taxRecords.reduce((sum, t) => sum + (t.tdsAmount || 0), 0);
     const totalTdsDeposited = taxRecords
       .filter((t) => t.status === 'Deposited')
@@ -744,7 +697,6 @@ export class FinanceService {
     };
   }
 
-  // Backwards compatible tax summary
   async getTaxSummary() {
     const metrics = await this.getOverviewMetrics();
     return {

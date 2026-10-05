@@ -1,28 +1,33 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { useHrms } from '../../context';
+import { useFinance, useHrms } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatCard } from '../../components';
 import { ShieldCheck, IndianRupee, FileCheck2, Scale, Percent } from 'lucide-react-native';
 
 export const TaxComplianceScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const { invoices, vendorBills, payslips } = useHrms();
+  const { invoices, vendorBills } = useFinance();
+  const { payslips } = useHrms();
 
-  // Outward GST on Client Invoices
-  const totalGstOutward = invoices.reduce((acc, inv) => acc + (inv.cgst + inv.sgst + inv.igst), 0);
-
-  // Inward GST Eligible for ITC
-  const totalItc = vendorBills
-    .filter(b => b.itcEligible)
-    .reduce((acc, b) => acc + b.gstAmount, 0);
-
-  const netGstPayable = Math.max(0, totalGstOutward - totalItc);
-
-  // TDS under Section 194C from Vendor bills
-  const totalTds194C = vendorBills.reduce((acc, b) => acc + b.tdsAmount, 0);
+  const { totalGstOutward, totalItc, netGstPayable, totalTds194C } = useMemo(() => {
+    const outward = invoices.reduce((acc, inv) => acc + (inv.cgst + inv.sgst + inv.igst), 0);
+    const itc = vendorBills
+      .filter((b) => b.itcEligible)
+      .reduce((acc, b) => acc + b.gstAmount, 0);
+    const net = Math.max(0, outward - itc);
+    const tds194C = vendorBills.reduce((acc, b) => acc + b.tdsAmount, 0);
+    return {
+      totalGstOutward: outward,
+      totalItc: itc,
+      netGstPayable: net,
+      totalTds194C: tds194C,
+    };
+  }, [invoices, vendorBills]);
 
   // TDS on Salaries under Section 192 from Payslips
-  const totalTdsSalary = payslips.reduce((acc, p) => acc + p.tdsDeduction, 0);
+  const totalTdsSalary = useMemo(() => {
+    return payslips.reduce((acc, p) => acc + p.tdsDeduction, 0);
+  }, [payslips]);
 
   return (
     <View style={styles.container}>
@@ -34,7 +39,6 @@ export const TaxComplianceScreen: React.FC<{ navigation: any }> = ({ navigation 
       />
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* GST Reconciliation Card */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.titleWrap}>
@@ -75,7 +79,6 @@ export const TaxComplianceScreen: React.FC<{ navigation: any }> = ({ navigation 
           </TouchableOpacity>
         </Card>
 
-        {/* Tax Deducted at Source (TDS) Summary */}
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.titleWrap}>
