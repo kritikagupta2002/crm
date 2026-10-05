@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { leaveService } from '@/modules/leave/services/leave.service';
+import { EmployeeLeaveMisChart } from '../components/EmployeeLeaveMisChart';
 
 export const LeaveDashboardPage = () => {
     const navigate = useNavigate();
@@ -125,6 +126,9 @@ export const LeaveDashboardPage = () => {
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Utilization & analytics</p>
           </button>)}
       </div>
+
+      {/* Employee-Specific Leave MIS Analysis & Chart */}
+      <EmployeeLeaveMisChart showSelector={!isEmp} />
 
       {/* Recent Applications & Approvals */}
       <Card className="p-3.5 sm:p-4">

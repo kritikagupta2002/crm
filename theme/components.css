@@ -1,16 +1,6 @@
-﻿/*
- * ============================================================
- *  COMPONENTS — CRM Theme
- *  Cards, buttons, pills, tables, forms, progress, checklist.
- *  Requires tokens.css.
- * ============================================================
- */
+﻿/* CRM Theme Components */
 
-/* ════════════════════════════════════════════════════════════
-   TONE SYSTEM
-   Apply one of these classes to a parent element to colour
-   every child component that uses --tone / --tone-bg.
-   ════════════════════════════════════════════════════════════ */
+/* TONE SYSTEM */
 .tone-info      { --tone: var(--blue);  --tone-bg: var(--blue-bg);  }
 .tone-attention { --tone: var(--amber); --tone-bg: var(--amber-bg); }
 .tone-urgent    { --tone: var(--red);   --tone-bg: var(--red-bg);   }
@@ -18,9 +8,7 @@
 .tone-neutral   { --tone: var(--ink-3); --tone-bg: #eef1f3;         }
 
 
-/* ════════════════════════════════════════════════════════════
-   CARD
-   ════════════════════════════════════════════════════════════ */
+/* CARD */
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -67,9 +55,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   STAT CARDS  (KPI widgets)
-   ════════════════════════════════════════════════════════════ */
+/* STAT CARDS  (KPI widgets) */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -123,9 +109,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   BUTTONS
-   ════════════════════════════════════════════════════════════ */
+/* BUTTONS */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -246,9 +230,7 @@
 .icon-button.small:hover { background: var(--bg); }
 
 
-/* ════════════════════════════════════════════════════════════
-   PILLS / BADGES
-   ════════════════════════════════════════════════════════════ */
+/* PILLS  BADGES */
 /* Generic pill */
 .pill {
   display: inline-flex;
@@ -299,9 +281,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   SEGMENTED CONTROL
-   ════════════════════════════════════════════════════════════ */
+/* SEGMENTED CONTROL */
 .segmented {
   display: inline-flex;
   padding: 3px;
@@ -329,9 +309,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   PAGE HEADER
-   ════════════════════════════════════════════════════════════ */
+/* PAGE HEADER */
 .page-header {
   position: relative;
   display: flex;
@@ -366,9 +344,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   DATA TABLE
-   ════════════════════════════════════════════════════════════ */
+/* DATA TABLE */
 .table-wrap {
   position: relative;
   overflow-x: auto;
@@ -451,18 +427,14 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   FILTER TABS  (border-bottom tab row on cards)
-   ════════════════════════════════════════════════════════════ */
+/* FILTER TABS  (border-bottom tab row on cards) */
 .filter-tabs {
   padding: 0;
   border-bottom: 1px solid var(--line);
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   AVATAR
-   ════════════════════════════════════════════════════════════ */
+/* AVATAR */
 .avatar {
   width: 30px;
   height: 30px;
@@ -482,9 +454,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   PROGRESS BAR + CHECKLIST
-   ════════════════════════════════════════════════════════════ */
+/* PROGRESS BAR + CHECKLIST */
 .progress {
   height: 6px;
   border-radius: 999px;
@@ -546,9 +516,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   COMING SOON / EMPTY STATE
-   ════════════════════════════════════════════════════════════ */
+/* COMING SOON  EMPTY STATE */
 .coming-soon {
   padding: 56px 24px;
   display: flex;
@@ -577,9 +545,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   DUPLICATE / CHANGE-REQUEST WARNING BOX
-   ════════════════════════════════════════════════════════════ */
+/* DUPLICATE  CHANGE-REQUEST WARNING BOX */
 .duplicate-warning {
   display: flex;
   gap: 10px;
@@ -616,9 +582,7 @@
 .change-request p { margin: 0; color: var(--ink); }
 
 
-/* ════════════════════════════════════════════════════════════
-   RESET / DANGER BOX
-   ════════════════════════════════════════════════════════════ */
+/* RESET  DANGER BOX */
 .reset-box {
   display: flex;
   align-items: center;
@@ -635,9 +599,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   SAVED NOTE CONFIRMATION
-   ════════════════════════════════════════════════════════════ */
+/* SAVED NOTE CONFIRMATION */
 .saved-note {
   display: inline-flex;
   align-items: center;

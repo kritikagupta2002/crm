@@ -8,7 +8,11 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/hrms/*"]
+      "@/*": ["src/hrms/*"],
+      "@app/*": ["src/app/*"],
+      "@core/*": ["src/core/*"],
+      "@modules/*": ["src/modules/*"],
+      "@shared/*": ["src/shared/*"]
     }
   },
   "include": ["src/**/*"]

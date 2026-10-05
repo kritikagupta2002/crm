@@ -24,6 +24,7 @@ const EditEmployeePage = lazy(() => import('@/modules/employees/pages/EditEmploy
 const PerformanceRecordsPage = lazy(() => import('@/modules/employees/pages/PerformanceRecordsPage').then((m) => ({ default: m.PerformanceRecordsPage })));
 const EmployeeExitPage = lazy(() => import('@/modules/employees/pages/EmployeeExitPage').then((m) => ({ default: m.EmployeeExitPage })));
 const TeamPage = lazy(() => import('@/modules/employees/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
+const OrgChartPage = lazy(() => import('@/modules/organization/pages/OrgChartPage').then((m) => ({ default: m.OrgChartPage })));
 const DepartmentsPage = lazy(() => import('@/modules/organization/pages/DepartmentsPage').then((m) => ({ default: m.DepartmentsPage })));
 const DesignationsPage = lazy(() => import('@/modules/organization/pages/DesignationsPage').then((m) => ({ default: m.DesignationsPage })));
 const AttendanceDashboardPage = lazy(() => import('@/modules/attendance/pages/AttendanceDashboardPage').then((m) => ({ default: m.AttendanceDashboardPage })));
@@ -98,6 +99,7 @@ export const hrmsRoutes = (
     <Route path="hr/expenses/new" element={<NewExpensePage />} />
     <Route path="hr/reimbursement" element={<ReimbursementListPage />} />
     <Route path="hr/reimbursement/history" element={<ReimbursementHistoryPage />} />
+    <Route path="hr/organization" element={<OrgChartPage />} />
     <Route path="hr/notifications" element={<NotificationsPage />} />
     <Route path="hr/settings" element={<SettingsLayout />}>
       <Route index element={<SettingsIndex />} />
@@ -121,7 +123,6 @@ export const hrmsRoutes = (
       <Route path="hr/performance" element={<PerformanceRecordsPage />} />
       <Route path="hr/exit" element={<EmployeeExitPage />} />
       <Route path="hr/team" element={<TeamPage />} />
-      <Route path="hr/organization" element={<Navigate to="/hr/organization/departments" replace />} />
       <Route path="hr/organization/departments" element={<DepartmentsPage />} />
       <Route path="hr/organization/designations" element={<DesignationsPage />} />
       <Route path="hr/attendance/daily" element={<DailyAttendancePage />} />

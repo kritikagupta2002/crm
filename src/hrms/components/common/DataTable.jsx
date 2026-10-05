@@ -118,11 +118,21 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
       {(searchable || filterComponent || actionsComponent) && (<div className={`${compact ? 'p-2 sm:p-2.5' : 'p-2.5 sm:p-3.5'} border-b border-[#E2E8F0] dark:border-[#253344] flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 bg-white dark:bg-[#161F2E]`}>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0 w-full xl:w-auto flex-wrap">
             {searchable && (<div className="relative w-full sm:w-64 md:w-72 lg:w-80 shrink-0">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#627079] pointer-events-none"/>
-                <input type="text" value={searchTerm} onChange={(e) => {
+                <Search
+                  className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#627079] pointer-events-none"
+                  style={{ left: '13px', top: '50%', transform: 'translateY(-50%)' }}
+                />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => {
                     setSearchTerm(e.target.value);
                     setCurrentPage(1);
-                }} placeholder={searchPlaceholder} className={`w-full text-xs font-inter pl-9 pr-8 border border-[#E2E8F0] dark:border-[#253344] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#627079] dark:placeholder:text-slate-500 text-[#0F172A] dark:text-slate-200 bg-[#F8FAFC] dark:bg-[#111821] transition-all duration-200 ${compact ? 'h-[34px] py-1.5' : 'h-[38px] py-2'} shadow-2xs`}/>
+                  }}
+                  placeholder={searchPlaceholder}
+                  style={{ paddingLeft: '36px', paddingRight: '30px' }}
+                  className={`w-full text-xs font-inter border border-[#E2E8F0] dark:border-[#253344] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#627079] dark:placeholder:text-slate-500 text-[#0F172A] dark:text-slate-200 bg-[#F8FAFC] dark:bg-[#111821] transition-all duration-200 ${compact ? 'h-[34px] py-1.5' : 'h-[38px] py-2'} shadow-2xs`}
+                />
                 {searchTerm && (<button type="button" onClick={() => {
                         setSearchTerm('');
                         setCurrentPage(1);
@@ -130,7 +140,7 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
                     <X className="w-3 h-3"/>
                   </button>)}
               </div>)}
-            {sortedData.length > 0 && (<span className="hidden sm:inline-flex items-center text-[10.5px] font-inter font-medium text-[#627079] dark:text-slate-400 bg-[#F8FAFC] dark:bg-[#111821] px-2.5 py-1 rounded-full border border-[#E2E8F0] dark:border-[#253344] shadow-2xs">
+            {sortedData.length > 0 && (<span className={`hidden sm:inline-flex items-center text-[10.5px] font-inter font-medium text-[#627079] dark:text-slate-400 bg-[#F8FAFC] dark:bg-[#111821] px-2.5 rounded-full border border-[#E2E8F0] dark:border-[#253344] shadow-2xs ${compact ? 'h-[34px]' : 'h-[38px]'}`}>
                 {sortedData.length} {sortedData.length === 1 ? 'record' : 'records'}
               </span>)}
             {filterComponent && (<div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">

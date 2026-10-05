@@ -6,17 +6,23 @@ import { DataTable } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Button } from '@/components/common/Button';
 import { Select } from '@/components/common/Select';
+import { DatePicker } from '@/components/common/DatePicker';
 import { useToast } from '@/contexts/ToastContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { storage } from '@/core/storage/storage';
+import { DAYS_OF_WEEK, getDayOfWeekFromIso } from '../utils/attendanceFilters';
 export const AttendanceDashboardPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
     const [records, setRecords] = useState([]);
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
+    const [filterMode, setFilterMode] = useState('all'); // 'all' | 'date' | 'day' | 'month'
+    const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+    const [selectedDay, setSelectedDay] = useState('Monday');
+    const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().slice(0, 7));
     const navigate = useNavigate();
     const toast = useToast();
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
@@ -34,6 +40,12 @@ export const AttendanceDashboardPage = () => {
         loadData();
     }, [currentRole, user?.employeeId]);
     const filteredRecords = records.filter((r) => {
+        if (filterMode === 'date' && selectedDate && r.date !== selectedDate) return false;
+        if (filterMode === 'day' && selectedDay) {
+            const dayOfWeek = getDayOfWeekFromIso(r.date);
+            if (dayOfWeek.toLowerCase() !== selectedDay.toLowerCase()) return false;
+        }
+        if (filterMode === 'month' && selectedMonth && (!r.date || !r.date.startsWith(selectedMonth))) return false;
         if (selectedDept !== 'all' && r.department !== selectedDept)
             return false;
         if (selectedStatus !== 'all' && r.status !== selectedStatus)
@@ -276,9 +288,98 @@ export const AttendanceDashboardPage = () => {
       </div>
 
       {/* Attendance Table with Filter Bar */}
-      <DataTable compact={true} columns={columns} data={filteredRecords} keyField="id" searchPlaceholder={isEmp ? 'Search my attendance records...' : 'Search employee, ID, location...'} searchFields={isEmp ? ['date', 'punchSource', 'status'] : ['employeeName', 'employeeId', 'department']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
-            {!isEmp && (<div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
-                <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[
+      <DataTable
+        compact={true}
+        columns={columns}
+        data={filteredRecords}
+        keyField="id"
+        emptyTitle="No attendance records found for the selected period."
+        searchPlaceholder={isEmp ? 'Search my attendance records...' : 'Search employee, ID, location...'}
+        searchFields={isEmp ? ['date', 'punchSource', 'status'] : ['employeeName', 'employeeId', 'department']}
+        filterComponent={
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            {/* Filter Mode Selector: All | Date | Day | Month */}
+            <div className="inline-flex rounded-xl p-0.5 bg-slate-100 dark:bg-slate-800 text-[11px] font-semibold h-[34px] items-center">
+              <button
+                type="button"
+                onClick={() => setFilterMode('all')}
+                className={`h-[28px] px-2.5 flex items-center justify-center rounded-lg transition-colors ${
+                  filterMode === 'all'
+                    ? 'bg-white dark:bg-[#1A2430] text-teal-700 dark:text-teal-400 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterMode('date')}
+                className={`h-[28px] px-2.5 flex items-center justify-center rounded-lg transition-colors ${
+                  filterMode === 'date'
+                    ? 'bg-white dark:bg-[#1A2430] text-teal-700 dark:text-teal-400 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Date
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterMode('day')}
+                className={`h-[28px] px-2.5 flex items-center justify-center rounded-lg transition-colors ${
+                  filterMode === 'day'
+                    ? 'bg-white dark:bg-[#1A2430] text-teal-700 dark:text-teal-400 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Day
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterMode('month')}
+                className={`h-[28px] px-2.5 flex items-center justify-center rounded-lg transition-colors ${
+                  filterMode === 'month'
+                    ? 'bg-white dark:bg-[#1A2430] text-teal-700 dark:text-teal-400 shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400'
+                }`}
+              >
+                Month
+              </button>
+            </div>
+
+            {/* Dynamic Pickers based on Mode */}
+            {filterMode === 'date' && (
+              <div className="w-36">
+                <DatePicker size="sm" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+              </div>
+            )}
+
+            {filterMode === 'day' && (
+              <div className="w-32">
+                <Select
+                  size="sm"
+                  value={selectedDay}
+                  onChange={(e) => setSelectedDay(e.target.value)}
+                  options={DAYS_OF_WEEK.map((d) => ({ label: d, value: d }))}
+                />
+              </div>
+            )}
+
+            {filterMode === 'month' && (
+              <input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="h-[34px] px-2.5 py-1 text-xs rounded-lg border border-slate-200 dark:border-[#253344] bg-white dark:bg-[#1A2430] text-slate-800 dark:text-slate-200"
+              />
+            )}
+
+            {!isEmp && (
+              <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
+                <Select
+                  size="sm"
+                  value={selectedDept}
+                  onChange={(e) => setSelectedDept(e.target.value)}
+                  options={[
                     { label: 'All Departments', value: 'all' },
                     { label: 'Geology & Exploration', value: 'Geology & Mineral Exploration' },
                     { label: 'Mining & Mine Planning', value: 'Mining & Mine Planning' },
@@ -286,23 +387,44 @@ export const AttendanceDashboardPage = () => {
                     { label: 'Hydrogeology', value: 'Hydrogeology & Groundwater' },
                     { label: 'Finance & Economics', value: 'Finance & Mineral Economics' },
                     { label: 'HR & Admin', value: 'Human Resources & Admin' },
-                ]}/>
-              </div>)}
+                  ]}
+                />
+              </div>
+            )}
+
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[120px]">
-              <Select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} options={[
-                { label: 'All Statuses', value: 'all' },
-                { label: 'Present', value: 'Present' },
-                { label: 'Late', value: 'Late' },
-                { label: 'Absent', value: 'Absent' },
-                { label: 'On Leave', value: 'On Leave' },
-            ]}/>
+              <Select
+                size="sm"
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                options={[
+                  { label: 'All Statuses', value: 'all' },
+                  { label: 'Present', value: 'Present' },
+                  { label: 'Late', value: 'Late' },
+                  { label: 'Absent', value: 'Absent' },
+                  { label: 'On Leave', value: 'On Leave' },
+                ]}
+              />
             </div>
-            {((!isEmp && selectedDept !== 'all') || selectedStatus !== 'all') && (<Button variant="ghost" size="sm" onClick={() => {
-                    setSelectedDept('all');
-                    setSelectedStatus('all');
-                }} className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs shrink-0 font-semibold">
+
+            {((!isEmp && selectedDept !== 'all') ||
+              selectedStatus !== 'all' ||
+              filterMode !== 'all') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedDept('all');
+                  setSelectedStatus('all');
+                  setFilterMode('all');
+                }}
+                className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs shrink-0 font-semibold"
+              >
                 Reset
-              </Button>)}
-          </div>}/>
+              </Button>
+            )}
+          </div>
+        }
+      />
     </div>);
 };

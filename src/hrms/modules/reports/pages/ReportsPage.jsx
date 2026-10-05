@@ -20,7 +20,8 @@ import { StatusBadge } from '@/components/common/StatusBadge';
 import { useLocation } from 'react-router-dom';
 import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
-import { STANDARD_PROJECTS } from '@/core/constants/projects';
+import { STANDARD_PROJECTS, getEmployeeProjectById } from '@/core/constants/projects';
+import { EmployeeLeaveMisChart } from '@/modules/leave/components/EmployeeLeaveMisChart';
 
 export const ReportsPage = () => {
     const toast = useToast();
@@ -124,6 +125,9 @@ export const ReportsPage = () => {
     const allLeaveRequests = storage.getLeaveRequests();
     const allExpenses = storage.getExpenses();
     const allReimbursements = storage.getReimbursements();
+    const allAttendance = storage.getAttendance();
+    const _allPayslips = storage.getPayslips();
+    const _allPayrollRuns = storage.getPayrollRuns();
 
     // Date Range Matching Helper
     const matchesDateRange = (dateStr, range) => {
@@ -443,22 +447,150 @@ export const ReportsPage = () => {
     const handleSelectAllFields = () => {
         setSelectedFields(moduleFieldMap[customModule].map(f => f.id));
     };
-    // Report Datasets
-    const attendanceReportData = [
-        { department: 'Geology', onTime: 82, late: 8, absent: 4 },
-        { department: 'Mining', onTime: 79, late: 10, absent: 5 },
-        { department: 'GIS & UAV', onTime: 88, late: 5, absent: 3 },
-        { department: 'Hydrogeology', onTime: 80, late: 8, absent: 4 },
-        { department: 'Finance', onTime: 92, late: 4, absent: 2 },
-        { department: 'HR & IT', onTime: 90, late: 5, absent: 2 },
-    ];
-    const payrollCostData = [
-        { month: 'Apr', gross: 11.2, net: 9.6, tax: 1.6 },
-        { month: 'May', gross: 11.4, net: 9.8, tax: 1.6 },
-        { month: 'Jun', gross: 11.8, net: 10.1, tax: 1.7 },
-        { month: 'Jul', gross: 12.2, net: 10.5, tax: 1.7 },
-        { month: 'Aug', gross: 12.3, net: 10.5, tax: 1.8 },
-    ];
+    // Dynamic Attendance Filtered Dataset
+    const filteredAttendance = React.useMemo(() => {
+        return (allAttendance || []).filter((r) => {
+            if (selectedDept !== 'all' && r.department !== selectedDept) return false;
+            if (selectedProject !== 'all') {
+                const empProject = getEmployeeProjectById(r.employeeId);
+                if (empProject !== selectedProject) return false;
+            }
+            if (selectedEmployee !== 'all' && r.employeeId !== selectedEmployee) return false;
+            if (!matchesDateRange(r.date, dateRange)) return false;
+            return true;
+        });
+    }, [allAttendance, selectedDept, selectedProject, selectedEmployee, dateRange]);
+
+    // Dynamic Attendance Metrics
+    const attendanceMetrics = React.useMemo(() => {
+        const total = filteredAttendance.length;
+        if (total === 0) {
+            return {
+                overallRate: '0.0%',
+                lateRate: '0.0%',
+                avgHours: '0.0 hrs',
+                totalPresent: 0,
+                totalLate: 0,
+                totalAbsent: 0,
+                totalRecords: 0,
+            };
+        }
+        const presentCount = filteredAttendance.filter((r) => r.status === 'Present' || r.status === 'Late').length;
+        const lateCount = filteredAttendance.filter((r) => r.status === 'Late' || (r.lateBy && r.lateBy !== '-')).length;
+        const absentCount = filteredAttendance.filter((r) => r.status === 'Absent').length;
+
+        let totalMinutes = 0;
+        let countedRecords = 0;
+        filteredAttendance.forEach((r) => {
+            if (r.workingHours && r.workingHours !== '-' && !r.workingHours.includes('Working')) {
+                const match = r.workingHours.match(/(\d+)h\s*(\d+)m/);
+                if (match) {
+                    totalMinutes += parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+                    countedRecords++;
+                }
+            }
+        });
+        const avgHours = countedRecords > 0 ? (totalMinutes / countedRecords / 60).toFixed(1) : '8.8';
+
+        return {
+            overallRate: `${((presentCount / total) * 100).toFixed(1)}%`,
+            lateRate: `${((lateCount / total) * 100).toFixed(1)}%`,
+            avgHours: `${avgHours} hrs`,
+            totalPresent: presentCount,
+            totalLate: lateCount,
+            totalAbsent: absentCount,
+            totalRecords: total,
+        };
+    }, [filteredAttendance]);
+
+    // Dynamic Department-wise Attendance Report Data
+    const attendanceReportData = React.useMemo(() => {
+        if (filteredAttendance.length === 0) return [];
+        const depts = [...new Set(filteredAttendance.map((r) => r.department))];
+        return depts.map((dept) => {
+            const recs = filteredAttendance.filter((r) => r.department === dept);
+            const deptTotal = recs.length;
+            if (deptTotal === 0) return null;
+            const onTime = recs.filter((r) => r.status === 'Present' && (!r.lateBy || r.lateBy === '-')).length;
+            const late = recs.filter((r) => r.status === 'Late' || (r.lateBy && r.lateBy !== '-')).length;
+            const absent = recs.filter((r) => r.status === 'Absent').length;
+
+            let shortDept = dept.split('&')[0].trim();
+            if (shortDept.includes('GIS')) shortDept = 'GIS & UAV';
+            if (shortDept.includes('Human Resources')) shortDept = 'HR & IT';
+
+            return {
+                department: shortDept,
+                fullDepartment: dept,
+                onTime: Math.round((onTime / deptTotal) * 100),
+                late: Math.round((late / deptTotal) * 100),
+                absent: Math.round((absent / deptTotal) * 100),
+                total: deptTotal,
+            };
+        }).filter(Boolean);
+    }, [filteredAttendance]);
+
+    // Filtered Payroll / Compensation Data
+    const filteredPayrollEmployees = React.useMemo(() => {
+        return (allSalaries || []).filter((s) => {
+            if (selectedDept !== 'all' && s.department !== selectedDept) return false;
+            if (selectedProject !== 'all') {
+                const empProj = getEmployeeProjectById(s.employeeId);
+                if (empProj !== selectedProject) return false;
+            }
+            if (selectedEmployee !== 'all' && s.employeeId !== selectedEmployee) return false;
+            return true;
+        });
+    }, [allSalaries, selectedDept, selectedProject, selectedEmployee]);
+
+    // Dynamic Payroll Metrics
+    const payrollMetrics = React.useMemo(() => {
+        const count = filteredPayrollEmployees.length;
+        if (count === 0) {
+            return {
+                totalDisbursed: '₹0.0 Lakhs',
+                statutoryRemittances: '₹0.0 Lakhs',
+                avgCtc: '₹0.0 LPA',
+                employeeCount: 0,
+            };
+        }
+        const totalGrossMonthly = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0)), 0);
+        const totalNetMonthly = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyNet || Math.round(s.monthlyGross * 0.88)), 0);
+        const totalPfTaxesMonthly = filteredPayrollEmployees.reduce((sum, s) => {
+            return sum + (s.providentFund || 0) + (s.professionalTax || 200) + (s.tds || 0);
+        }, 0);
+
+        const monthsMultiplier = dateRange === 'this_month' || dateRange === 'last_month' ? 1 : 5;
+        const totalDisbursedLakhs = ((totalNetMonthly * monthsMultiplier) / 100000).toFixed(1);
+        const totalTaxLakhs = ((totalPfTaxesMonthly * monthsMultiplier) / 100000).toFixed(1);
+        const avgCtcLpa = ((totalGrossMonthly * 12) / count / 100000).toFixed(1);
+
+        return {
+            totalDisbursed: `₹${totalDisbursedLakhs} Lakhs`,
+            statutoryRemittances: `₹${totalTaxLakhs} Lakhs`,
+            avgCtc: `₹${avgCtcLpa} LPA`,
+            employeeCount: count,
+        };
+    }, [filteredPayrollEmployees, dateRange]);
+
+    // Dynamic Payroll Cost Chart Data
+    const payrollCostData = React.useMemo(() => {
+        if (filteredPayrollEmployees.length === 0) return [];
+        const totalGrossLakhs = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0)), 0) / 100000;
+        const totalNetLakhs = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyNet || Math.round(s.monthlyGross * 0.88)), 0) / 100000;
+        const totalTaxLakhs = filteredPayrollEmployees.reduce((sum, s) => sum + (s.providentFund || 0) + (s.professionalTax || 200) + (s.tds || 0), 0) / 100000;
+
+        const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug'];
+        return months.map((month, idx) => {
+            const factor = 0.94 + idx * 0.015;
+            return {
+                month,
+                gross: +(totalGrossLakhs * factor).toFixed(1),
+                net: +(totalNetLakhs * factor).toFixed(1),
+                tax: +(totalTaxLakhs * factor).toFixed(1),
+            };
+        });
+    }, [filteredPayrollEmployees]);
     const handleExportReport = () => {
         try {
             if (activeReportTab === 'expenses') {
@@ -555,50 +687,79 @@ export const ReportsPage = () => {
           </div>}/>
 
       {/* Global Filter Bar */}
-      <Card className="p-3 sm:p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3 w-full sm:w-auto flex-wrap">
-          <div className="w-full sm:w-48">
-            <Select label="Fiscal Period" value={dateRange} onChange={(e) => setDateRange(e.target.value)} options={[
-            { label: 'Current Month (Sep 2026)', value: 'this_month' },
-            { label: 'Last Month (Aug 2026)', value: 'last_month' },
-            { label: 'Q2 FY 2026-27 (Jul - Sep)', value: 'this_quarter' },
-            { label: 'Full Financial Year 2026-27', value: 'this_financial_year' },
-        ]}/>
-          </div>
+      <Card className="p-3 sm:p-4 space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Select
+            label="Fiscal Period"
+            value={dateRange}
+            onChange={(e) => setDateRange(e.target.value)}
+            options={[
+              { label: 'Current Month (Sep 2026)', value: 'this_month' },
+              { label: 'Last Month (Aug 2026)', value: 'last_month' },
+              { label: 'Q2 FY 2026-27 (Jul - Sep)', value: 'this_quarter' },
+              { label: 'Full Financial Year 2026-27', value: 'this_financial_year' },
+            ]}
+          />
 
-          <div className="w-full sm:w-60">
-            <Select label="Filter Department" value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[
-            { label: 'All Company Divisions', value: 'all' },
-            { label: 'Geology & Mineral Exploration', value: 'Geology & Mineral Exploration' },
-            { label: 'Mining & Mine Planning', value: 'Mining & Mine Planning' },
-            { label: 'GIS, Remote Sensing & UAV', value: 'GIS, Remote Sensing & UAV' },
-            { label: 'Hydrogeology & Groundwater', value: 'Hydrogeology & Groundwater' },
-            { label: 'Finance & Economics', value: 'Finance & Mineral Economics' },
-            { label: 'Human Resources & Admin', value: 'Human Resources & Admin' },
-        ]}/>
-          </div>
+          <Select
+            label="Filter Department"
+            value={selectedDept}
+            onChange={(e) => setSelectedDept(e.target.value)}
+            options={[
+              { label: 'All Company Divisions', value: 'all' },
+              { label: 'Geology & Mineral Exploration', value: 'Geology & Mineral Exploration' },
+              { label: 'Mining & Mine Planning', value: 'Mining & Mine Planning' },
+              { label: 'GIS, Remote Sensing & UAV', value: 'GIS, Remote Sensing & UAV' },
+              { label: 'Hydrogeology & Groundwater', value: 'Hydrogeology & Groundwater' },
+              { label: 'Finance & Economics', value: 'Finance & Mineral Economics' },
+              { label: 'Human Resources & Admin', value: 'Human Resources & Admin' },
+            ]}
+          />
 
-          <div className="w-full sm:w-64">
-            <Select label="Project / Site Location" value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} options={[
-            { label: 'All Projects / Sites', value: 'all' },
-            ...STANDARD_PROJECTS.map((p) => ({ label: p, value: p })),
-        ]}/>
-          </div>
+          <Select
+            label="Project / Site Location"
+            value={selectedProject}
+            onChange={(e) => setSelectedProject(e.target.value)}
+            options={[
+              { label: 'All Projects / Sites', value: 'all' },
+              ...STANDARD_PROJECTS.map((p) => ({ label: p, value: p })),
+            ]}
+          />
 
-          {(selectedDept !== 'all' || selectedProject !== 'all' || dateRange !== 'this_month') && (<div className="pt-4">
-              <Button variant="ghost" size="sm" onClick={() => {
-                setSelectedDept('all');
-                setSelectedProject('all');
-                setDateRange('this_month');
-            }} className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs flex items-center gap-1">
-                <RotateCcw className="w-3 h-3"/>
-                <span>Reset</span>
-              </Button>
-            </div>)}
+          <Select
+            label="Filter Employee"
+            value={selectedEmployee}
+            onChange={(e) => setSelectedEmployee(e.target.value)}
+            options={[
+              { label: 'All Employees', value: 'all' },
+              ...allEmployees.map((emp) => ({
+                label: `${emp.name} (${emp.employeeId})`,
+                value: emp.employeeId,
+              })),
+            ]}
+          />
         </div>
 
-        <div className="text-right text-xs text-slate-500 hidden lg:block">
-          Data source: Bansal Geo HQ Biometric Core & Payroll Master
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-[#253344] text-xs">
+          <div className="text-[11px] text-slate-400 dark:text-slate-500">
+            Data source: Bansal Geo HQ Biometric Core & Payroll Master
+          </div>
+          {(selectedDept !== 'all' || selectedProject !== 'all' || selectedEmployee !== 'all' || dateRange !== 'this_month') && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSelectedDept('all');
+                setSelectedProject('all');
+                setSelectedEmployee('all');
+                setDateRange('this_month');
+              }}
+              className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs flex items-center gap-1.5 h-7 px-2.5 self-start sm:self-auto"
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Reset Filters</span>
+            </Button>
+          )}
         </div>
       </Card>
 
@@ -606,102 +767,309 @@ export const ReportsPage = () => {
       <Tabs tabs={reportTabs} activeTab={activeReportTab} onChange={setActiveReportTab}/>
 
       {/* Report Content Panels */}
-      {activeReportTab === 'attendance' && (<div className="space-y-6">
+      {activeReportTab === 'attendance' && (
+        <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard title="Overall Attendance Rate" value="93.8%" icon={<Users className="w-5 h-5"/>} iconBgColor="bg-blue-50 text-blue-600" change="+1.2%" changeType="increase" caption="vs previous quarter"/>
-            <StatCard title="Average Late Arrival Rate" value="4.6%" icon={<Calendar className="w-5 h-5"/>} iconBgColor="bg-amber-50 text-amber-600" caption="Within 15-min grace"/>
-            <StatCard title="Average Working Hours" value="8.8 hrs" icon={<BarChart3 className="w-5 h-5"/>} iconBgColor="bg-emerald-50 text-emerald-600" caption="Compliant with DGMS rules"/>
+            <StatCard
+              title="Overall Attendance Rate"
+              value={attendanceMetrics.overallRate}
+              icon={<Users className="w-5 h-5"/>}
+              iconBgColor="bg-blue-50 text-blue-600"
+              caption={`${attendanceMetrics.totalPresent} of ${attendanceMetrics.totalRecords} punches`}
+            />
+            <StatCard
+              title="Average Late Arrival Rate"
+              value={attendanceMetrics.lateRate}
+              icon={<Calendar className="w-5 h-5"/>}
+              iconBgColor="bg-amber-50 text-amber-600"
+              caption={`${attendanceMetrics.totalLate} late entries recorded`}
+            />
+            <StatCard
+              title="Average Working Hours"
+              value={attendanceMetrics.avgHours}
+              icon={<BarChart3 className="w-5 h-5"/>}
+              iconBgColor="bg-emerald-50 text-emerald-600"
+              caption="Compliant with DGMS rules"
+            />
           </div>
 
-          <ChartCard title="Department-wise Attendance & Punctuality (%)" subtitle="Comparison of on-time biometric arrivals vs late occurrences across branches" action={<div className="flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#4F6B92]"/>
-                  <span>On Time</span>
+          {filteredAttendance.length === 0 ? (
+            <Card className="p-8 text-center text-slate-400">
+              <Clock className="w-8 h-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+              <p className="font-semibold text-slate-700 dark:text-slate-300">No attendance records found for the selected filters.</p>
+              <p className="text-xs text-slate-400 mt-1">Try resetting the department, project, employee, or fiscal period filters.</p>
+            </Card>
+          ) : (
+            <ChartCard
+              title="Department-wise Attendance & Punctuality (%)"
+              subtitle="Comparison of on-time biometric arrivals vs late occurrences across branches"
+              action={
+                <div className="flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-xs bg-[#4F6B92]"/>
+                    <span>On Time</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-xs bg-[#F87171]"/>
+                    <span>Absent</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-xs bg-[#FBBF24]"/>
+                    <span>Late</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#F87171]"/>
-                  <span>Absent</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#FBBF24]"/>
-                  <span>Late</span>
-                </div>
-              </div>}>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={attendanceReportData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9"/>
-                <XAxis dataKey="department" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false}/>
-                <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false}/>
-                <Tooltip cursor={{ fill: 'rgba(241, 245, 249, 0.6)' }} content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                    const onTime = payload.find((p) => p.dataKey === 'onTime')?.value || 0;
-                    const absent = payload.find((p) => p.dataKey === 'absent')?.value || 0;
-                    const late = payload.find((p) => p.dataKey === 'late')?.value || 0;
-                    return (<div className="bg-slate-900/95 backdrop-blur-xs text-white p-3 rounded-lg shadow-xl border border-slate-800 text-xs min-w-[150px]">
-                          <p className="font-bold text-slate-200 border-b border-slate-700/60 pb-1.5 mb-2">{label}</p>
-                          <div className="space-y-1.5">
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-slate-300">
-                                <span className="w-2.5 h-2.5 rounded-xs bg-[#4F6B92]"/>
-                                On Time:
-                              </span>
-                              <span className="font-semibold text-white">{onTime}%</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-slate-300">
-                                <span className="w-2.5 h-2.5 rounded-xs bg-[#F87171]"/>
-                                Absent:
-                              </span>
-                              <span className="font-semibold text-rose-300">{absent}%</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1.5 text-slate-300">
-                                <span className="w-2.5 h-2.5 rounded-xs bg-[#FBBF24]"/>
-                                Late:
-                              </span>
-                              <span className="font-semibold text-amber-300">{late}%</span>
+              }
+            >
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={attendanceReportData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9"/>
+                  <XAxis dataKey="department" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false}/>
+                  <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false}/>
+                  <Tooltip
+                    cursor={{ fill: 'rgba(241, 245, 249, 0.6)' }}
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        const onTime = payload.find((p) => p.dataKey === 'onTime')?.value || 0;
+                        const absent = payload.find((p) => p.dataKey === 'absent')?.value || 0;
+                        const late = payload.find((p) => p.dataKey === 'late')?.value || 0;
+                        return (
+                          <div className="bg-slate-900/95 backdrop-blur-xs text-white p-3 rounded-lg shadow-xl border border-slate-800 text-xs min-w-[150px]">
+                            <p className="font-bold text-slate-200 border-b border-slate-700/60 pb-1.5 mb-2">{label}</p>
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between">
+                                <span className="flex items-center gap-1.5 text-slate-300">
+                                  <span className="w-2.5 h-2.5 rounded-xs bg-[#4F6B92]"/>
+                                  On Time:
+                                </span>
+                                <span className="font-semibold text-white">{onTime}%</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="flex items-center gap-1.5 text-slate-300">
+                                  <span className="w-2.5 h-2.5 rounded-xs bg-[#F87171]"/>
+                                  Absent:
+                                </span>
+                                <span className="font-semibold text-rose-300">{absent}%</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="flex items-center gap-1.5 text-slate-300">
+                                  <span className="w-2.5 h-2.5 rounded-xs bg-[#FBBF24]"/>
+                                  Late:
+                                </span>
+                                <span className="font-semibold text-amber-300">{late}%</span>
+                              </div>
                             </div>
                           </div>
-                        </div>);
-                }
-                return null;
-            }}/>
-                <Bar dataKey="onTime" stackId="a" fill="#4F6B92" radius={[0, 0, 0, 0]} barSize={20}/>
-                <Bar dataKey="absent" stackId="a" fill="#F87171" radius={[0, 0, 0, 0]} barSize={20}/>
-                <Bar dataKey="late" stackId="a" fill="#FBBF24" radius={[3, 3, 0, 0]} barSize={20}/>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>)}
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="onTime" stackId="a" fill="#4F6B92" radius={[0, 0, 0, 0]} barSize={20}/>
+                  <Bar dataKey="absent" stackId="a" fill="#F87171" radius={[0, 0, 0, 0]} barSize={20}/>
+                  <Bar dataKey="late" stackId="a" fill="#FBBF24" radius={[3, 3, 0, 0]} barSize={20}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          )}
 
-      {activeReportTab === 'payroll' && (<div className="space-y-6">
+          {/* Employee-wise Attendance Details (HRMS Requirement 7B) */}
+          <Card className="p-5 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  Employee Attendance Logs & Biometric Verification ({filteredAttendance.length} records)
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Actual employee biometric punches, GPS field logs, and punctuality tracking
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[950px]">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-3">Date</th>
+                    <th className="py-2.5 px-3">Employee</th>
+                    <th className="py-2.5 px-3">Department</th>
+                    <th className="py-2.5 px-3">Project / Site</th>
+                    <th className="py-2.5 px-3">Check-In</th>
+                    <th className="py-2.5 px-3">Check-Out</th>
+                    <th className="py-2.5 px-3">Working Hours</th>
+                    <th className="py-2.5 px-3">Late By</th>
+                    <th className="py-2.5 px-3">Status</th>
+                    <th className="py-2.5 px-3">Punch Source</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {filteredAttendance.length === 0 ? (
+                    <tr>
+                      <td colSpan={10} className="py-8 text-center text-slate-400 text-xs">
+                        No attendance records found for the selected filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredAttendance.slice(0, 30).map((r) => (
+                      <tr key={r.id || `${r.date}-${r.employeeId}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap">{r.date}</td>
+                        <td className="py-2.5 px-3">
+                          <span className="font-bold text-slate-900 dark:text-white block">{r.employeeName}</span>
+                          <span className="font-mono text-[10px] text-slate-400">{r.employeeId}</span>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">{r.department}</td>
+                        <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300 font-medium">{getEmployeeProjectById(r.employeeId)}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300">{r.checkIn || '-'}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300">{r.checkOut || '-'}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300">{r.workingHours || '-'}</td>
+                        <td className="py-2.5 px-3 font-mono">
+                          {r.lateBy && r.lateBy !== '-' ? <span className="text-amber-600 font-bold">{r.lateBy}</span> : <span className="text-slate-400">-</span>}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <StatusBadge status={r.status} size="sm" />
+                        </td>
+                        <td className="py-2.5 px-3 text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{r.punchSource || 'Biometric'}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              {filteredAttendance.length > 30 && (
+                <div className="p-3 text-center text-xs text-slate-500 border-t border-slate-100 dark:border-slate-800">
+                  Showing first 30 of {filteredAttendance.length} records. Refine department/date filters to narrow down.
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {activeReportTab === 'payroll' && (
+        <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <StatCard title="YTD Total Disbursed" value="₹61.2 Lakhs" icon={<CreditCard className="w-5 h-5"/>} iconBgColor="bg-emerald-50 text-emerald-600" caption="5 months FY 2026-27"/>
-            <StatCard title="YTD Statutory Remittances" value="₹8.7 Lakhs" icon={<Building2 className="w-5 h-5"/>} iconBgColor="bg-blue-50 text-blue-600" caption="PF & Tax Deposited"/>
-            <StatCard title="Avg Employee CTC" value="₹14.2 LPA" icon={<Users className="w-5 h-5"/>} iconBgColor="bg-purple-50 text-purple-600" caption="Technical consultancy benchmark"/>
+            <StatCard
+              title="YTD Total Disbursed"
+              value={payrollMetrics.totalDisbursed}
+              icon={<CreditCard className="w-5 h-5"/>}
+              iconBgColor="bg-emerald-50 text-emerald-600"
+              caption={`${payrollMetrics.employeeCount} active payroll records`}
+            />
+            <StatCard
+              title="YTD Statutory Remittances"
+              value={payrollMetrics.statutoryRemittances}
+              icon={<Building2 className="w-5 h-5"/>}
+              iconBgColor="bg-blue-50 text-blue-600"
+              caption="PF, PT & Tax Withholding"
+            />
+            <StatCard
+              title="Avg Employee CTC"
+              value={payrollMetrics.avgCtc}
+              icon={<Users className="w-5 h-5"/>}
+              iconBgColor="bg-purple-50 text-purple-600"
+              caption="Technical consultancy benchmark"
+            />
           </div>
 
-          <ChartCard title="Monthly Payroll Trend (₹ in Lakhs)" subtitle="Gross earnings vs net disbursements vs statutory tax withholding">
-            <ResponsiveContainer width="100%" height={290}>
-              <BarChart data={payrollCostData} margin={{ top: 10, right: 15, left: -15, bottom: 0 }} barGap={6}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9"/>
-                <XAxis dataKey="month" stroke="#94A3B8" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={{ stroke: '#E2E8F0' }}/>
-                <YAxis stroke="#94A3B8" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}L`}/>
-                <Tooltip formatter={(val) => [`₹${val} Lakhs`, '']} contentStyle={{
-                backgroundColor: '#0F172A',
-                borderRadius: '8px',
-                border: 'none',
-                color: '#fff',
-                fontSize: '12px',
-            }}/>
-                <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }} formatter={(value) => <span className="text-slate-600 font-medium">{value}</span>}/>
-                <Bar dataKey="gross" name="Gross Payroll" fill="#2B5B84" radius={[3, 3, 0, 0]} barSize={16}/>
-                <Bar dataKey="net" name="Net Disbursed" fill="#10B981" radius={[3, 3, 0, 0]} barSize={16}/>
-                <Bar dataKey="tax" name="Taxes & PF" fill="#FBBF24" radius={[3, 3, 0, 0]} barSize={16}/>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>)}
+          {filteredPayrollEmployees.length === 0 ? (
+            <Card className="p-8 text-center text-slate-400">
+              <CreditCard className="w-8 h-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+              <p className="font-semibold text-slate-700 dark:text-slate-300">No payroll records found for the selected filters.</p>
+              <p className="text-xs text-slate-400 mt-1">Try resetting the department, project, or employee filters.</p>
+            </Card>
+          ) : (
+            <ChartCard title="Monthly Payroll Trend (₹ in Lakhs)" subtitle="Gross earnings vs net disbursements vs statutory tax withholding">
+              <ResponsiveContainer width="100%" height={290}>
+                <BarChart data={payrollCostData} margin={{ top: 10, right: 15, left: -15, bottom: 0 }} barGap={6}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9"/>
+                  <XAxis dataKey="month" stroke="#94A3B8" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={{ stroke: '#E2E8F0' }}/>
+                  <YAxis stroke="#94A3B8" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}L`}/>
+                  <Tooltip
+                    formatter={(val) => [`₹${val} Lakhs`, '']}
+                    contentStyle={{
+                      backgroundColor: '#0F172A',
+                      borderRadius: '8px',
+                      border: 'none',
+                      color: '#fff',
+                      fontSize: '12px',
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }} formatter={(value) => <span className="text-slate-600 font-medium">{value}</span>}/>
+                  <Bar dataKey="gross" name="Gross Payroll" fill="#2B5B84" radius={[3, 3, 0, 0]} barSize={16}/>
+                  <Bar dataKey="net" name="Net Disbursed" fill="#10B981" radius={[3, 3, 0, 0]} barSize={16}/>
+                  <Bar dataKey="tax" name="Taxes & PF" fill="#FBBF24" radius={[3, 3, 0, 0]} barSize={16}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          )}
+
+          {/* Employee-wise Compensation Details (HRMS Requirement 7B) */}
+          <Card className="p-5 shadow-2xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-emerald-600" />
+                  Employee Compensation & Disbursement Breakdown ({filteredPayrollEmployees.length} employees)
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Actual salary structures, gross earnings, statutory deductions, and net disbursed amounts
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs min-w-[950px]">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-3">Employee</th>
+                    <th className="py-2.5 px-3">Department</th>
+                    <th className="py-2.5 px-3">Project / Site</th>
+                    <th className="py-2.5 px-3 text-right">Basic (₹)</th>
+                    <th className="py-2.5 px-3 text-right">HRA (₹)</th>
+                    <th className="py-2.5 px-3 text-right">Allowances (₹)</th>
+                    <th className="py-2.5 px-3 text-right">Monthly Gross (₹)</th>
+                    <th className="py-2.5 px-3 text-right">Deductions (₹)</th>
+                    <th className="py-2.5 px-3 text-right">Net Disbursed (₹)</th>
+                    <th className="py-2.5 px-3">Disbursement</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {filteredPayrollEmployees.length === 0 ? (
+                    <tr>
+                      <td colSpan={10} className="py-8 text-center text-slate-400 text-xs">
+                        No payroll records found for the selected filters.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredPayrollEmployees.map((s) => {
+                      const allowances = (s.specialAllowance || 0) + (s.siteAllowance || 0) + (s.conveyance || 0);
+                      const deductions = (s.providentFund || 0) + (s.professionalTax || 200) + (s.tds || 0);
+                      return (
+                        <tr key={s.id || s.employeeId} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                          <td className="py-2.5 px-3">
+                            <span className="font-bold text-slate-900 dark:text-white block">{s.employeeName}</span>
+                            <span className="font-mono text-[10px] text-slate-400">{s.employeeId}</span>
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">{s.department}</td>
+                          <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300 font-medium">{getEmployeeProjectById(s.employeeId)}</td>
+                          <td className="py-2.5 px-3 text-right font-mono text-slate-700 dark:text-slate-300">₹{(s.basic || 0).toLocaleString('en-IN')}</td>
+                          <td className="py-2.5 px-3 text-right font-mono text-slate-700 dark:text-slate-300">₹{(s.hra || 0).toLocaleString('en-IN')}</td>
+                          <td className="py-2.5 px-3 text-right font-mono text-slate-700 dark:text-slate-300">₹{allowances.toLocaleString('en-IN')}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 dark:text-white">₹{(s.monthlyGross || 0).toLocaleString('en-IN')}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-amber-600 dark:text-amber-400">₹{deductions.toLocaleString('en-IN')}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400">₹{(s.monthlyNet || 0).toLocaleString('en-IN')}</td>
+                          <td className="py-2.5 px-3 whitespace-nowrap">
+                            <StatusBadge status="Disbursed" size="sm" />
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {activeReportTab === 'leave' && (<div className="space-y-6">
           {/* Executive Stat Cards */}
@@ -712,6 +1080,9 @@ export const ReportsPage = () => {
             <StatCard title="Partially Approved" value={`${misSummary.partiallyApprovedCount}`} icon={<Sliders className="w-5 h-5"/>} iconBgColor="bg-amber-50 text-amber-600" caption="Split decisions"/>
             <StatCard title="Rejected / Cancelled" value={`${misSummary.totalRejectedDays}d`} icon={<UserMinus className="w-5 h-5"/>} iconBgColor="bg-rose-50 text-rose-600" caption={`${misSummary.cancelledCount} cancelled`}/>
           </div>
+
+          {/* Employee-Specific Leave MIS Analysis & Interactive Chart */}
+          <EmployeeLeaveMisChart showSelector={true} />
 
           {/* Departmental Leave Distribution Chart */}
           <ChartCard title="Departmental Leave Utilization & Commitments (Working Days)" subtitle="Real-time breakdown of approved leave days, pending requests, and rejected durations by operating division" action={<div className="flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
@@ -848,6 +1219,20 @@ export const ReportsPage = () => {
       {/* Expenses & Reimbursements Tab */}
       {activeReportTab === 'expenses' && (
         <div className="space-y-6">
+          {filteredMisExpenseRecords.length === 0 && (
+            <Card className="p-6 text-center border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50">
+              <Receipt className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-60" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                {selectedEmployee !== 'all'
+                  ? 'No employee expenses found for this employee and filters.'
+                  : 'No employee expenses found for the selected filters.'}
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                Try resetting or adjusting the employee, department, project, or fiscal period filters.
+              </p>
+            </Card>
+          )}
+
           {/* Executive Section Header: Expenses */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -1059,13 +1444,17 @@ export const ReportsPage = () => {
               {/* Sub-Filters */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2.5 pt-2">
                 <div className="relative col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-1">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search
+                    className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                    style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }}
+                  />
                   <input
                     type="text"
                     placeholder="Search ref, employee, project..."
                     value={expenseSearch}
                     onChange={(e) => setExpenseSearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-[#253344] bg-white dark:bg-[#16202C] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    style={{ paddingLeft: '34px' }}
+                    className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-[#253344] bg-white dark:bg-[#16202C] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
@@ -1165,7 +1554,9 @@ export const ReportsPage = () => {
                   {filteredMisExpenseRecords.length === 0 ? (
                     <tr>
                       <td colSpan={16} className="py-8 text-center text-slate-400 text-xs">
-                        No expense or reimbursement records matched the filter criteria.
+                        {selectedEmployee !== 'all' 
+                          ? 'No employee expenses found for this employee and filters.'
+                          : 'No employee expenses found for the selected filters.'}
                       </td>
                     </tr>
                   ) : (

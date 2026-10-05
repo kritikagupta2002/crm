@@ -1,8 +1,10 @@
 /*
- * How the app's five roles map onto the HRMS, which knows two kinds of user: 'hr' (the whole workforce: employees,
+ * How the 6 CRM roles map onto the HRMS, which knows two kinds of user: 'hr' (the whole workforce: employees,
  * attendance, leave approvals, payroll, company documents) and 'employee' (self-service: own attendance, leave,
- * payslips, expenses, documents). Admin and HR are 'hr', everyone else is an employee in the HR pages. The Finance pages are opened by role through the CRM's own access table (ROLE_ACCESS).
+ * payslips, expenses, documents).
+ * Super Admin, Director, and Finance Master have full HR management access ('hr').
+ * Manager, Employee, and Accounts Executive have self-service access ('employee').
  */
-const HR_TEAM = ['Admin', 'HR']
+const HR_TEAM = ['Super Admin', 'Director', 'Finance Master']
 
 export const hrRoleOf = (role) => (HR_TEAM.includes(role) ? 'hr' : 'employee')

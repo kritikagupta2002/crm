@@ -3,6 +3,27 @@
  * Only for the HRMS pages: everything is under .hrms.
  */
 
+/* Base typography guarantee for HRMS */
+.hrms {
+  font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+  color: var(--ink);
+}
+
+.hrms h1,
+.hrms .page-title h1,
+.hrms .font-heading,
+.hrms .font-serif {
+  font-family: var(--font-serif, 'Fraunces', Georgia, serif);
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.hrms h2,
+.hrms .card-header h2,
+.hrms .chart-title {
+  font-family: var(--font-serif, 'Fraunces', Georgia, serif);
+}
+
 /* Page header: the CRM's, with a small badge beside the title when a page has one. */
 .hrms .page-header {
   margin-bottom: 16px;

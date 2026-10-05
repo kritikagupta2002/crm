@@ -26,7 +26,14 @@ const STORAGE_KEYS = {
     ACTIVE_ROLE: 'bgspl_active_role',
     EMPLOYEE_LEAVE_BALANCES: 'bgspl_emp_leave_balances',
     EMPLOYEE_DOCUMENTS: 'bgspl_employee_documents',
+    LOCATIONS: 'bgspl_locations',
 };
+
+export const INITIAL_LOCATIONS = [
+    { id: 'loc-jaipur', name: 'Jaipur', status: 'Active' },
+    { id: 'loc-bhilwara', name: 'Bhilwara', status: 'Active' },
+    { id: 'loc-udaipur', name: 'Udaipur', status: 'Active' },
+];
 function getItem(key, defaultValue) {
     try {
         const item = localStorage.getItem(key);
@@ -778,6 +785,33 @@ export const storage = {
         department: 'Human Resources & Admin',
         designation: 'Head - HR & Administration',
     }),
+    getLocations: () => {
+        const raw = getItem(STORAGE_KEYS.LOCATIONS, INITIAL_LOCATIONS);
+        if (!Array.isArray(raw)) return INITIAL_LOCATIONS;
+        return raw.map((item) => {
+            if (typeof item === 'string') {
+                return { id: `loc-${item.toLowerCase().replace(/\s+/g, '-')}`, name: item, status: 'Active' };
+            }
+            return item;
+        });
+    },
+    setLocations: (val) => setItem(STORAGE_KEYS.LOCATIONS, val),
+    addLocation: (data) => {
+        const name = (typeof data === 'string' ? data : data?.name || '').trim();
+        if (!name) throw new Error('Location name is required.');
+        const status = (typeof data === 'object' && data?.status) ? data.status : 'Active';
+        const current = storage.getLocations();
+        const isDuplicate = current.some((l) => (typeof l === 'string' ? l : l.name).toLowerCase() === name.toLowerCase());
+        if (isDuplicate) throw new Error('Location already exists.');
+        const newLoc = {
+            id: `loc-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+            name,
+            status,
+        };
+        const updated = [...current, newLoc];
+        storage.setLocations(updated);
+        return newLoc;
+    },
     setActiveUser: (val) => setItem(STORAGE_KEYS.ACTIVE_USER, val),
     // Only the HRMS's own saved data: the CRM keeps its demo data in the same browser.
     resetAll: () => {

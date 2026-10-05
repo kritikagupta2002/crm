@@ -89,10 +89,26 @@ body {
 }
 
 h1,
+.page-title h1,
+.heading-serif {
+  font-family: var(--font-serif);
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
 h2,
 h3 {
   margin: 0;
   font-weight: 600;
+}
+
+.font-serif {
+  font-family: var(--font-serif) !important;
+}
+
+.font-sans {
+  font-family: var(--font-sans) !important;
 }
 
 button,
@@ -140,9 +156,11 @@ a {
 .card-header h2 {
   flex: 1;
   min-width: 0;
+  font-family: var(--font-serif);
   font-size: 16px;
   font-weight: 600;
   color: var(--ink);
+  letter-spacing: -0.01em;
 }
 
 .card-header .card-actions {
@@ -200,6 +218,153 @@ a {
   background: var(--teal-900);
   border-color: var(--teal-900);
 }
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
+.btn-ghost:hover {
+  background: var(--bg);
+  border-color: var(--chrome-line);
+  color: var(--ink);
+}
+
+/* ---------- Form Controls: Inputs, Selects & Toolbars ---------- */
+.input,
+.select,
+input.input,
+select.select {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: normal;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input:hover,
+.select:hover {
+  border-color: var(--teal-400);
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--teal-600);
+  box-shadow: 0 0 0 3px var(--teal-50);
+}
+
+/* Custom styled select with crisp SVG chevron */
+.select,
+select.select,
+.page-actions select,
+.card-header select,
+.field select {
+  height: 38px;
+  padding: 0 32px 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234a5b68' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 14px 14px !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.select:hover,
+select.select:hover,
+.page-actions select:hover,
+.card-header select:hover,
+.field select:hover {
+  border-color: var(--teal-400);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231f6f78' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 14px 14px !important;
+}
+
+.select:focus,
+select.select:focus,
+.page-actions select:focus,
+.card-header select:focus,
+.field select:focus {
+  border-color: var(--teal-600);
+  box-shadow: 0 0 0 3px var(--teal-50);
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 14px 14px !important;
+}
+
+.select.select-sm,
+select.select-sm {
+  height: 32px;
+  font-size: 12.5px;
+  padding: 0 28px 0 10px;
+  background-position: right 8px center;
+  background-size: 12px 12px;
+}
+
+/* Toolbar search field */
+.toolbar-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.toolbar-search:hover {
+  border-color: var(--teal-400);
+}
+
+.toolbar-search:focus-within {
+  border-color: var(--teal-600);
+  box-shadow: 0 0 0 3px var(--teal-50);
+}
+
+.toolbar-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-family: var(--font-sans);
+  padding: 0;
+}
+
+.toolbar-search input::placeholder {
+  color: var(--ink-3);
+}
+
+/* Padding utilities */
+.p-2 { padding: 8px !important; }
+.p-3 { padding: 12px !important; }
+.p-4 { padding: 16px !important; }
+.p-5 { padding: 20px !important; }
+.p-6 { padding: 24px !important; }
 
 .tone-neutral {
   --tone: var(--ink-3);

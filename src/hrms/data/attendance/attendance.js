@@ -1,4 +1,4 @@
-import { INITIAL_EMPLOYEES } from '../employees/employees';
+import { INITIAL_EMPLOYEES } from '../employees/employees.js';
 
 /*
  * The biometric register for the last four weeks up to today, for everyone on the rolls, so the HR pages' "today"

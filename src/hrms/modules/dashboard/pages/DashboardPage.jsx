@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, UserCheck, CalendarOff, FileCheck2, Calendar, Sparkles, CreditCard, UserPlus, CalendarDays, Clock, FileText, Send, RotateCcw, ChevronDown, BarChart3, Filter, } from 'lucide-react';
+import { Users, UserCheck, CalendarOff, FileCheck2, Calendar, Sparkles, CreditCard, UserPlus, CalendarDays, Clock, FileText, Send, RotateCcw, ChevronDown, BarChart3, Filter, Plus, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar, } from 'recharts';
 import { Button } from '@/components/common/Button';
@@ -68,6 +68,33 @@ const AdminDashboard = () => {
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedLocation, setSelectedLocation] = useState('all');
     const [selectedPeriod, setSelectedPeriod] = useState('today');
+    const [locations, setLocations] = useState(() => storage.getLocations());
+    const [isAddLocationModalOpen, setIsAddLocationModalOpen] = useState(false);
+    const [newLocationName, setNewLocationName] = useState('');
+    const [newLocationStatus, setNewLocationStatus] = useState('Active');
+    const [locationError, setLocationError] = useState('');
+
+    const handleAddLocationSubmit = (e) => {
+        e?.preventDefault();
+        const trimmed = newLocationName.trim();
+        if (!trimmed) {
+            setLocationError('Location name is required.');
+            return;
+        }
+        try {
+            const newLoc = storage.addLocation({ name: trimmed, status: newLocationStatus });
+            const updated = storage.getLocations();
+            setLocations(updated);
+            setSelectedLocation(newLoc.name.toLowerCase());
+            setIsAddLocationModalOpen(false);
+            setNewLocationName('');
+            setNewLocationStatus('Active');
+            setLocationError('');
+            toast.success('Location added successfully.');
+        } catch (err) {
+            setLocationError(err.message || 'Failed to add location.');
+        }
+    };
     // Interactive Chart Range Selectors
     const [attendanceRange, setAttendanceRange] = useState('7days');
     const [leaveRange, setLeaveRange] = useState('this_month');
@@ -477,14 +504,46 @@ const AdminDashboard = () => {
               </div>
 
               {/* Location Filter */}
-              <div className="relative">
-                <select value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs">
-                  <option value="all">📍 All Locations</option>
-                  <option value="jaipur">Jaipur HQ</option>
-                  <option value="bhilwara">Bhilwara Field Camp</option>
-                  <option value="udaipur">Udaipur Exploration Site</option>
-                </select>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
+              <div className="relative flex items-center gap-1.5">
+                <div className="relative flex-1 min-w-[130px]">
+                  <select
+                    value={selectedLocation}
+                    onChange={(e) => {
+                      if (e.target.value === '__add_new__') {
+                        setLocationError('');
+                        setNewLocationName('');
+                        setNewLocationStatus('Active');
+                        setIsAddLocationModalOpen(true);
+                      } else {
+                        setSelectedLocation(e.target.value);
+                      }
+                    }}
+                    className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs"
+                  >
+                    <option value="all">📍 All Locations</option>
+                    {locations.filter((l) => l.status !== 'Inactive').map((l) => (
+                      <option key={l.id || l.name} value={l.name.toLowerCase()}>
+                        {l.name}
+                      </option>
+                    ))}
+                    <option value="__add_new__" className="text-teal-600 font-bold">+ Add Location...</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLocationError('');
+                    setNewLocationName('');
+                    setNewLocationStatus('Active');
+                    setIsAddLocationModalOpen(true);
+                  }}
+                  className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-800 flex items-center gap-1 transition-colors shrink-0 shadow-2xs cursor-pointer"
+                  title="Add new site location master"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">+ Add Location</span>
+                </button>
               </div>
 
               {/* Date Period Filter */}
@@ -1173,6 +1232,58 @@ const AdminDashboard = () => {
             </Button>
             <Button variant="primary" size="sm" type="submit" leftIcon={<Send className="w-3.5 h-3.5"/>}>
               Submit Application
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Dynamic Add Location Master Modal */}
+      <Modal isOpen={isAddLocationModalOpen} onClose={() => setIsAddLocationModalOpen(false)} title="Add New Location Master" maxWidth="sm">
+        <form onSubmit={handleAddLocationSubmit} className="space-y-4">
+          {locationError && (
+            <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{locationError}</span>
+            </div>
+          )}
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+              Location Name <span className="text-rose-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="e.g. Kota Exploration Camp"
+              value={newLocationName}
+              onChange={(e) => {
+                setNewLocationName(e.target.value);
+                if (locationError) setLocationError('');
+              }}
+              className="w-full text-xs rounded-xl border border-slate-300 dark:border-[#253344] px-3 py-2 bg-white dark:bg-[#111821] text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+              autoFocus
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">
+              Status
+            </label>
+            <select
+              value={newLocationStatus}
+              onChange={(e) => setNewLocationStatus(e.target.value)}
+              className="w-full text-xs rounded-xl border border-slate-300 dark:border-[#253344] px-3 py-2 bg-white dark:bg-[#111821] text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <Button variant="secondary" size="sm" type="button" onClick={() => setIsAddLocationModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" size="sm" type="submit" leftIcon={<Plus className="w-3.5 h-3.5"/>}>
+              Add Location
             </Button>
           </div>
         </form>

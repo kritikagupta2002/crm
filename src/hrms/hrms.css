@@ -589,8 +589,26 @@
 .hrms .left-0{
   left: 0px;
 }
+.hrms .left-1{
+  left: 0.25rem;
+}
+.hrms .left-1\.5{
+  left: 0.375rem;
+}
+.hrms .left-2{
+  left: 0.5rem;
+}
+.hrms .left-2\.5{
+  left: 0.625rem;
+}
 .hrms .left-3{
   left: 0.75rem;
+}
+.hrms .left-3\.5{
+  left: 0.875rem;
+}
+.hrms .left-4{
+  left: 1rem;
 }
 .hrms .left-full{
   left: 100%;
@@ -2796,8 +2814,17 @@
 .hrms .pl-3\.5{
   padding-left: 0.875rem;
 }
+.hrms .pl-4{
+  padding-left: 1rem;
+}
 .hrms .pl-5{
   padding-left: 1.25rem;
+}
+.hrms .pl-7{
+  padding-left: 1.75rem;
+}
+.hrms .pl-8{
+  padding-left: 2rem;
 }
 .hrms .pl-9{
   padding-left: 2.25rem;

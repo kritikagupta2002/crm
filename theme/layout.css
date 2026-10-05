@@ -1,14 +1,6 @@
-﻿/*
- * ============================================================
- *  LAYOUT — CRM Theme
- *  App shell, sidebar, topbar, main content area.
- *  Requires tokens.css.
- * ============================================================
- */
+﻿/* CRM Theme Layout */
 
-/* ════════════════════════════════════════════════════════════
-   APP SHELL  (sidebar + main column grid)
-   ════════════════════════════════════════════════════════════ */
+/* APP SHELL  (sidebar + main column grid) */
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
@@ -17,9 +9,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   SIDEBAR
-   ════════════════════════════════════════════════════════════ */
+/* SIDEBAR */
 .sidebar {
   position: sticky;
   top: 0;
@@ -168,9 +158,7 @@
 }
 
 
-/* ════════════════════════════════════════════════════════════
-   TOPBAR
-   ════════════════════════════════════════════════════════════ */
+/* TOPBAR */
 .topbar {
   position: sticky;
   top: 0;
@@ -253,9 +241,7 @@
 .user-meta span   { font-size: 11.5px; color: var(--ink-3); }
 
 
-/* ════════════════════════════════════════════════════════════
-   MAIN CONTENT + FOOTER
-   ════════════════════════════════════════════════════════════ */
+/* MAIN CONTENT + FOOTER */
 .app-main {
   display: flex;
   flex-direction: column;
@@ -291,9 +277,7 @@
 .sidebar-backdrop { display: none; }
 
 
-/* ════════════════════════════════════════════════════════════
-   POPOVERS / DROPDOWNS
-   ════════════════════════════════════════════════════════════ */
+/* POPOVERS  DROPDOWNS */
 .search-results,
 .popover {
   position: absolute;
@@ -355,9 +339,7 @@ a.menu-row,
 .user-menu { width: 260px; }
 
 
-/* ════════════════════════════════════════════════════════════
-   RESPONSIVE BREAKPOINTS
-   ════════════════════════════════════════════════════════════ */
+/* RESPONSIVE BREAKPOINTS */
 
 /* Desktop: sidebar collapses to icon rail */
 @media (min-width: 1024px) {

@@ -1,7 +1,7 @@
 import { Avatar } from '@/components/common/Avatar';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, } from 'lucide-react';
+import { Boxes, Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
+import { useCrm } from '../../../../context/crm';
 export const EmployeeDashboard = () => {
     const { user, switchRole } = useAuth();
     const { setRole } = useRole();
@@ -45,6 +46,28 @@ export const EmployeeDashboard = () => {
         const empId = user?.employeeId || 'BGS-006';
         return emps.find((e) => e.employeeId === empId || (user?.name && e.name.toLowerCase() === user.name.toLowerCase()));
     }, [user?.employeeId, user?.name]);
+
+    // Synchronized inventory assignments from CrmProvider (single source of truth)
+    const { inventoryAssignments = [] } = useCrm();
+
+    // Assigned inventory items strictly for this employee only
+    const myAssignedInventory = useMemo(() => {
+        const empId = empProfile?.employeeId || user?.employeeId;
+        const empInternalId = empProfile?.id || user?.id;
+        const empName = empProfile?.name || user?.name;
+
+        return inventoryAssignments.filter((asg) => {
+            if (asg.status !== 'Assigned') return false; // Only active assignments
+
+            const matchId = empId && (asg.employeeId === empId || asg.employeeId === empInternalId);
+            const matchName = empName && (
+                asg.employeeName?.trim().toLowerCase() === empName.trim().toLowerCase() ||
+                asg.employeeId?.trim().toLowerCase() === empName.trim().toLowerCase()
+            );
+
+            return Boolean(matchId || matchName);
+        });
+    }, [inventoryAssignments, empProfile, user]);
     // Current shift assignment dynamically resolved
     const empShift = useMemo(() => {
         const assignments = storage.getShiftAssignments ? storage.getShiftAssignments() : [];
@@ -753,6 +776,98 @@ export const EmployeeDashboard = () => {
           </div>
         </Card>
       </div>
+
+      {/* ── 5. Assigned Inventory / Equipment ─────────────────────── */}
+      <Card className="p-4 sm:p-5 mt-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+              <Boxes className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Assigned Inventory</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/40">
+                  {myAssignedInventory.length} {myAssignedInventory.length === 1 ? 'item' : 'items'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                Tools, survey instruments and equipment currently issued to you
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {myAssignedInventory.length === 0 ? (
+          <div className="py-8 text-center" id="assigned-inventory-empty">
+            <div className="w-12 h-12 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-2">
+              <Boxes className="w-6 h-6" />
+            </div>
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No inventory currently assigned.</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">You currently have no tools, machinery or field equipment checked out.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3" id="assigned-inventory-list">
+            {myAssignedInventory.map((item) => (
+              <div
+                key={item.id || item.assignmentId}
+                className="p-3.5 rounded-xl bg-white dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800 transition-all flex flex-col justify-between shadow-xs"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                      {item.assetId || item.inventoryItemId}
+                    </span>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
+                      {item.status || 'Assigned'}
+                    </span>
+                  </div>
+
+                  <h3 className="text-xs font-bold text-slate-900 dark:text-white mt-2 line-clamp-1">
+                    {item.itemName}
+                  </h3>
+                  <span className="inline-block text-[10px] font-medium text-indigo-600 dark:text-indigo-400 mt-0.5">
+                    {item.category}
+                  </span>
+
+                  <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-1 text-[11px]">
+                    <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                      <span className="text-slate-400">Quantity:</span>
+                      <span className="font-bold tabular-nums">
+                        {item.quantity} {item.unit || 'Nos'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                      <span className="text-slate-400">Assigned Date:</span>
+                      <span className="font-medium">{item.assignedDate || '—'}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                      <span className="text-slate-400">Return Date:</span>
+                      <span className="font-medium text-amber-600 dark:text-amber-400">
+                        {item.expectedReturnDate || item.returnDate || 'Open / Indefinite'}
+                      </span>
+                    </div>
+                    {item.projectName && (
+                      <div className="flex justify-between items-center text-slate-600 dark:text-slate-300 pt-0.5">
+                        <span className="text-slate-400">Project:</span>
+                        <span className="font-medium text-slate-700 dark:text-slate-200 truncate max-w-[140px]" title={item.projectName}>
+                          {item.projectName}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {item.remarks && (
+                  <p className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400 italic line-clamp-2">
+                    "{item.remarks}"
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
 
     </div>);
 };
