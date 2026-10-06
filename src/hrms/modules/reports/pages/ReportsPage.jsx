@@ -3,7 +3,7 @@ import {
     BarChart3, Download, Calendar, Building2, Users, CreditCard,
     FileCheck2, TrendingUp, Award, UserMinus, CheckCircle2, Sliders,
     Layers, Sparkles, FileSpreadsheet, Check, RotateCcw, Receipt,
-    Clock, XCircle, Search, Wallet
+    Clock, XCircle, Search, Wallet, Fingerprint
 } from 'lucide-react';
 import {
     ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
@@ -131,9 +131,11 @@ export const ReportsPage = () => {
 
     // Date Range Matching Helper
     const matchesDateRange = (dateStr, range) => {
-        if (!dateStr) return true;
-        if (range === 'this_month') return dateStr >= '2026-09-01' && dateStr <= '2026-09-30';
-        if (range === 'last_month') return dateStr >= '2026-08-01' && dateStr <= '2026-08-31';
+        if (!dateStr || range === 'all') return true;
+        if (range === 'this_month') return dateStr >= '2026-09-01';
+        if (range === 'oct_2026') return dateStr >= '2026-10-01' && dateStr <= '2026-10-31';
+        if (range === 'sep_2026' || range === 'last_month') return dateStr >= '2026-09-01' && dateStr <= '2026-09-30';
+        if (range === 'aug_2026') return dateStr >= '2026-08-01' && dateStr <= '2026-08-31';
         if (range === 'this_quarter') return dateStr >= '2026-07-01' && dateStr <= '2026-09-30';
         if (range === 'this_financial_year') return dateStr >= '2026-04-01' && dateStr <= '2027-03-31';
         return true;
@@ -447,9 +449,9 @@ export const ReportsPage = () => {
     const handleSelectAllFields = () => {
         setSelectedFields(moduleFieldMap[customModule].map(f => f.id));
     };
-    // Dynamic Attendance Filtered Dataset
+    // Dynamic Attendance Filtered Dataset (Newest date first)
     const filteredAttendance = React.useMemo(() => {
-        return (allAttendance || []).filter((r) => {
+        const list = (allAttendance || []).filter((r) => {
             if (selectedDept !== 'all' && r.department !== selectedDept) return false;
             if (selectedProject !== 'all') {
                 const empProject = getEmployeeProjectById(r.employeeId);
@@ -459,6 +461,7 @@ export const ReportsPage = () => {
             if (!matchesDateRange(r.date, dateRange)) return false;
             return true;
         });
+        return list.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
     }, [allAttendance, selectedDept, selectedProject, selectedEmployee, dateRange]);
 
     // Dynamic Attendance Metrics
@@ -591,8 +594,172 @@ export const ReportsPage = () => {
             };
         });
     }, [filteredPayrollEmployees]);
+
+    // 1. Attendance Punctuality Pie Data
+    const attendancePunctualityPieData = React.useMemo(() => {
+        const total = filteredAttendance.length;
+        if (total === 0) return [];
+        const onTime = filteredAttendance.filter((r) => r.status === 'Present' && (!r.lateBy || r.lateBy === '-')).length;
+        const late = filteredAttendance.filter((r) => r.status === 'Late' || (r.lateBy && r.lateBy !== '-')).length;
+        const absent = filteredAttendance.filter((r) => r.status === 'Absent').length;
+        const onLeave = filteredAttendance.filter((r) => r.status === 'On Leave').length;
+
+        return [
+            { name: 'On Time Arrivals', value: onTime, color: '#10B981', pct: total ? ((onTime / total) * 100).toFixed(1) : '0.0' },
+            { name: 'Late Arrivals', value: late, color: '#F59E0B', pct: total ? ((late / total) * 100).toFixed(1) : '0.0' },
+            { name: 'Absences', value: absent, color: '#F43F5E', pct: total ? ((absent / total) * 100).toFixed(1) : '0.0' },
+            ...(onLeave > 0 ? [{ name: 'Approved Leave', value: onLeave, color: '#8B5CF6', pct: total ? ((onLeave / total) * 100).toFixed(1) : '0.0' }] : []),
+        ].filter(d => d.value > 0);
+    }, [filteredAttendance]);
+
+    // 2. Attendance Department Share Pie Data
+    const attendanceDeptPieData = React.useMemo(() => {
+        if (filteredAttendance.length === 0) return [];
+        const map = {};
+        const colors = ['#2563EB', '#0D9488', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4', '#10B981', '#64748B'];
+        filteredAttendance.forEach((r) => {
+            const dept = r.department ? r.department.split('&')[0].trim() : 'General';
+            map[dept] = (map[dept] || 0) + 1;
+        });
+        const total = filteredAttendance.length;
+        return Object.entries(map).map(([name, value], idx) => ({
+            name,
+            value,
+            color: colors[idx % colors.length],
+            pct: total ? ((value / total) * 100).toFixed(1) : '0.0',
+        }));
+    }, [filteredAttendance]);
+
+    // 3. Payroll Statutory & Net Breakdown Pie Data
+    const payrollDistributionPieData = React.useMemo(() => {
+        if (filteredPayrollEmployees.length === 0) return [];
+        const totalGross = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0)), 0);
+        const totalNet = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyNet || Math.round(s.monthlyGross * 0.88)), 0);
+        const totalPf = filteredPayrollEmployees.reduce((sum, s) => sum + (s.providentFund || s.pf || 3600), 0);
+        const totalTax = filteredPayrollEmployees.reduce((sum, s) => sum + (s.tds || 0) + (s.professionalTax || 200), 0);
+        const otherAllowances = Math.max(0, totalGross - totalNet - totalPf - totalTax);
+
+        return [
+            { name: 'Net Take-Home Salary', value: Math.round(totalNet / 1000), amount: totalNet, color: '#10B981' },
+            { name: 'Provident Fund (PF)', value: Math.round(totalPf / 1000), amount: totalPf, color: '#3B82F6' },
+            { name: 'TDS & Taxes', value: Math.round((totalTax || 12000) / 1000), amount: totalTax || 12000, color: '#F59E0B' },
+            ...(otherAllowances > 0 ? [{ name: 'Allowances / Other', value: Math.round(otherAllowances / 1000), amount: otherAllowances, color: '#8B5CF6' }] : []),
+        ];
+    }, [filteredPayrollEmployees]);
+
+    // 4. Payroll Department Share Pie Data
+    const payrollDeptPieData = React.useMemo(() => {
+        if (filteredPayrollEmployees.length === 0) return [];
+        const map = {};
+        const colors = ['#2563EB', '#0D9488', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4'];
+        filteredPayrollEmployees.forEach((s) => {
+            const dept = s.department ? s.department.split('&')[0].trim() : 'General';
+            const gross = s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0);
+            map[dept] = (map[dept] || 0) + gross;
+        });
+        const total = Object.values(map).reduce((a, b) => a + b, 0);
+        return Object.entries(map).map(([name, amount], idx) => ({
+            name,
+            value: Math.round(amount / 1000),
+            amount,
+            color: colors[idx % colors.length],
+            pct: total ? ((amount / total) * 100).toFixed(1) : '0.0',
+        }));
+    }, [filteredPayrollEmployees]);
+
+    // 5. Leave Status Distribution Pie Data
+    const leaveStatusPieData = React.useMemo(() => {
+        const approved = misLeaveRecords.reduce((sum, r) => sum + r.approvedDays, 0);
+        const rejected = misLeaveRecords.reduce((sum, r) => sum + r.rejectedDays, 0);
+        const pending = misLeaveRecords.filter((r) => r.status === 'Pending').reduce((sum, r) => sum + r.requestedDays, 0);
+        const total = approved + rejected + pending;
+
+        return [
+            { name: 'Approved Leave Days', value: approved, color: '#10B981', pct: total ? ((approved / total) * 100).toFixed(1) : '0.0' },
+            { name: 'Pending Review Days', value: pending, color: '#F59E0B', pct: total ? ((pending / total) * 100).toFixed(1) : '0.0' },
+            { name: 'Rejected Requests', value: rejected, color: '#EF4444', pct: total ? ((rejected / total) * 100).toFixed(1) : '0.0' },
+        ].filter(d => d.value > 0);
+    }, [misLeaveRecords]);
+
+    // 6. Leave Department Share Pie Data
+    const leaveDeptPieData = React.useMemo(() => {
+        const colors = ['#2563EB', '#0D9488', '#8B5CF6', '#F59E0B', '#EC4899'];
+        const total = misDeptData.reduce((acc, d) => acc + (d.approved + d.pending), 0);
+        return misDeptData
+            .map((d, idx) => ({
+                name: d.department,
+                value: d.approved + d.pending,
+                color: colors[idx % colors.length],
+                pct: total ? (((d.approved + d.pending) / total) * 100).toFixed(1) : '0.0',
+            }))
+            .filter((d) => d.value > 0);
+    }, [misDeptData]);
+
+    // 7. Expense Category Pie Data
+    const expenseCategoryPieData = React.useMemo(() => {
+        const colors = ['#2563EB', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#0EA5E9', '#64748B'];
+        const total = expenseCategoryChartData.reduce((sum, d) => sum + (d.approved || d.requested), 0);
+        return expenseCategoryChartData.map((d, idx) => ({
+            name: d.category,
+            value: d.approved || d.requested,
+            color: colors[idx % colors.length],
+            pct: total ? (((d.approved || d.requested) / total) * 100).toFixed(1) : '0.0',
+        })).filter(d => d.value > 0);
+    }, [expenseCategoryChartData]);
+
+    // 8. Expense Status Pie Data
+    const expenseStatusPieData = React.useMemo(() => {
+        const totalApproved = expenseMetrics.combined.totalApproved || 0;
+        const totalSettled = expenseMetrics.combined.totalSettled || 0;
+        const totalPending = expenseMetrics.combined.totalPending || 0;
+        const totalRejected = expenseMetrics.combined.totalRejected || 0;
+
+        return [
+            { name: 'Settled & Disbursed', value: totalSettled, color: '#0EA5E9' },
+            { name: 'Approved & Pending Payout', value: Math.max(0, totalApproved - totalSettled), color: '#10B981' },
+            { name: 'Pending Review', value: totalPending, color: '#F59E0B' },
+            { name: 'Rejected Variance', value: totalRejected, color: '#EF4444' },
+        ].filter(d => d.value > 0);
+    }, [expenseMetrics]);
+
+    // 9. Division Headcount Pie Data
+    const divisionHeadcountPieData = React.useMemo(() => [
+        { name: 'Geology & Exploration', value: 18, color: '#2563EB', kpi: 4.6 },
+        { name: 'Mining Operations', value: 14, color: '#0D9488', kpi: 4.8 },
+        { name: 'GIS & Drone UAV', value: 12, color: '#8B5CF6', kpi: 4.5 },
+        { name: 'Hydrogeology Core', value: 8, color: '#06B6D4', kpi: 4.1 },
+        { name: 'Finance & Strategy', value: 6, color: '#F59E0B', kpi: 4.7 },
+        { name: 'HR & IT Administration', value: 5, color: '#EC4899', kpi: 4.4 },
+    ], []);
     const handleExportReport = () => {
         try {
+            if (activeReportTab === 'attendance') {
+                const headers = ['Date', 'Employee Name', 'Employee ID', 'Department', 'Project / Site', 'Check-In', 'Check-Out', 'Working Hours', 'Late By', 'Status', 'Punch Source'].join(',');
+                const rows = filteredAttendance.map((r) => [
+                    `"${r.date || ''}"`,
+                    `"${r.employeeName || ''}"`,
+                    `"${r.employeeId || ''}"`,
+                    `"${r.department || ''}"`,
+                    `"${getEmployeeProjectById(r.employeeId)}"`,
+                    `"${r.checkIn || '-'}"`,
+                    `"${r.checkOut || '-'}"`,
+                    `"${r.workingHours || '-'}"`,
+                    `"${r.lateBy || '-'}"`,
+                    `"${r.status || ''}"`,
+                    `"${r.punchSource || 'Biometric'}"`
+                ].join(','));
+                const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', `BGSPL_Attendance_Logs_${new Date().toLocaleDateString('en-CA')}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                toast.success(`Executive Attendance MIS report exported (${filteredAttendance.length} records).`, 'Export Ready');
+                return;
+            }
+
             if (activeReportTab === 'expenses') {
                 const headers = ['Employee', 'Employee ID', 'Department', 'Project', 'Type', 'Category', 'Reference ID', 'Requested Amount (INR)', 'HR Approved (INR)', 'Rejected Variance (INR)', 'Settled Amount (INR)', 'HR Status', 'Finance Audit Status', 'Query Status', 'Settlement Status', 'Settlement Voucher Ref', 'Date Incurred', 'Submitted On', 'HR Reviewed On', 'HR Approver', 'Finance Reviewer', 'Settlement Date'].join(',');
                 const rows = filteredMisExpenseRecords.map(r => [
@@ -694,9 +861,12 @@ export const ReportsPage = () => {
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
             options={[
-              { label: 'Current Month (Sep 2026)', value: 'this_month' },
-              { label: 'Last Month (Aug 2026)', value: 'last_month' },
-              { label: 'Q2 FY 2026-27 (Jul - Sep)', value: 'this_quarter' },
+              { label: 'All Records (Full History)', value: 'all' },
+              { label: 'Current Period (Sep - Oct 2026)', value: 'this_month' },
+              { label: 'Current Month (October 2026)', value: 'oct_2026' },
+              { label: 'Previous Month (September 2026)', value: 'sep_2026' },
+              { label: 'August 2026', value: 'aug_2026' },
+              { label: 'Q3 FY 2026-27 (Oct - Dec)', value: 'this_quarter' },
               { label: 'Full Financial Year 2026-27', value: 'this_financial_year' },
             ]}
           />
@@ -800,76 +970,107 @@ export const ReportsPage = () => {
               <p className="text-xs text-slate-400 mt-1">Try resetting the department, project, employee, or fiscal period filters.</p>
             </Card>
           ) : (
-            <ChartCard
-              title="Department-wise Attendance & Punctuality (%)"
-              subtitle="Comparison of on-time biometric arrivals vs late occurrences across branches"
-              action={
-                <div className="flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-xs bg-[#4F6B92]"/>
-                    <span>On Time</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-xs bg-[#F87171]"/>
-                    <span>Absent</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-xs bg-[#FBBF24]"/>
-                    <span>Late</span>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Pie 1: Punctuality Breakdown */}
+              <ChartCard
+                title="Attendance Punctuality & Compliance Share"
+                subtitle="Biometric on-time punches vs late arrivals and excused leaves"
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[260px]">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie
+                        data={attendancePunctualityPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {attendancePunctualityPieData.map((entry, index) => (
+                          <Cell key={`punct-cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val, name, item) => [`${val} punches (${item.payload.pct}%)`, name]}
+                        contentStyle={{
+                          backgroundColor: '#0F172A',
+                          borderRadius: '8px',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="w-full sm:w-56 space-y-2.5 text-xs">
+                    {attendancePunctualityPieData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                          <span className="truncate max-w-[120px]">{d.name}</span>
+                        </span>
+                        <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                          {d.value} <span className="text-slate-400 font-normal text-[10px]">({d.pct}%)</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              }
-            >
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={attendanceReportData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9"/>
-                  <XAxis dataKey="department" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false}/>
-                  <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false}/>
-                  <Tooltip
-                    cursor={{ fill: 'rgba(241, 245, 249, 0.6)' }}
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        const onTime = payload.find((p) => p.dataKey === 'onTime')?.value || 0;
-                        const absent = payload.find((p) => p.dataKey === 'absent')?.value || 0;
-                        const late = payload.find((p) => p.dataKey === 'late')?.value || 0;
-                        return (
-                          <div className="bg-slate-900/95 backdrop-blur-xs text-white p-3 rounded-lg shadow-xl border border-slate-800 text-xs min-w-[150px]">
-                            <p className="font-bold text-slate-200 border-b border-slate-700/60 pb-1.5 mb-2">{label}</p>
-                            <div className="space-y-1.5">
-                              <div className="flex items-center justify-between">
-                                <span className="flex items-center gap-1.5 text-slate-300">
-                                  <span className="w-2.5 h-2.5 rounded-xs bg-[#4F6B92]"/>
-                                  On Time:
-                                </span>
-                                <span className="font-semibold text-white">{onTime}%</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="flex items-center gap-1.5 text-slate-300">
-                                  <span className="w-2.5 h-2.5 rounded-xs bg-[#F87171]"/>
-                                  Absent:
-                                </span>
-                                <span className="font-semibold text-rose-300">{absent}%</span>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className="flex items-center gap-1.5 text-slate-300">
-                                  <span className="w-2.5 h-2.5 rounded-xs bg-[#FBBF24]"/>
-                                  Late:
-                                </span>
-                                <span className="font-semibold text-amber-300">{late}%</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar dataKey="onTime" stackId="a" fill="#4F6B92" radius={[0, 0, 0, 0]} barSize={20}/>
-                  <Bar dataKey="absent" stackId="a" fill="#F87171" radius={[0, 0, 0, 0]} barSize={20}/>
-                  <Bar dataKey="late" stackId="a" fill="#FBBF24" radius={[3, 3, 0, 0]} barSize={20}/>
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
+              </ChartCard>
+
+              {/* Pie 2: Department-wise Attendance Share */}
+              <ChartCard
+                title="Division Workforce Attendance Share"
+                subtitle="Relative biometric punch volume across company divisions"
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[260px]">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie
+                        data={attendanceDeptPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {attendanceDeptPieData.map((entry, index) => (
+                          <Cell key={`dept-cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val, name, item) => [`${val} logs (${item.payload.pct}%)`, name]}
+                        contentStyle={{
+                          backgroundColor: '#0F172A',
+                          borderRadius: '8px',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="w-full sm:w-56 space-y-2 text-xs">
+                    {attendanceDeptPieData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                          <span className="truncate max-w-[120px]">{d.name}</span>
+                        </span>
+                        <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                          {d.value} <span className="text-slate-400 font-normal text-[10px]">({d.pct}%)</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
           )}
 
           {/* Employee-wise Attendance Details (HRMS Requirement 7B) */}
@@ -887,19 +1088,19 @@ export const ReportsPage = () => {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs min-w-[950px]">
+              <table className="w-full text-left text-xs min-w-[1050px]">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
-                    <th className="py-2.5 px-3">Date</th>
-                    <th className="py-2.5 px-3">Employee</th>
-                    <th className="py-2.5 px-3">Department</th>
-                    <th className="py-2.5 px-3">Project / Site</th>
-                    <th className="py-2.5 px-3">Check-In</th>
-                    <th className="py-2.5 px-3">Check-Out</th>
-                    <th className="py-2.5 px-3">Working Hours</th>
-                    <th className="py-2.5 px-3">Late By</th>
-                    <th className="py-2.5 px-3">Status</th>
-                    <th className="py-2.5 px-3">Punch Source</th>
+                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px] bg-slate-50/50 dark:bg-slate-800/20">
+                    <th className="py-3 px-3 w-[110px] whitespace-nowrap">Date</th>
+                    <th className="py-3 px-3 min-w-[180px] whitespace-nowrap">Employee</th>
+                    <th className="py-3 px-3 min-w-[180px] whitespace-nowrap">Department</th>
+                    <th className="py-3 px-3 min-w-[190px] whitespace-nowrap">Project / Site</th>
+                    <th className="py-3 px-3 w-[105px] whitespace-nowrap">Check-In</th>
+                    <th className="py-3 px-3 w-[105px] whitespace-nowrap">Check-Out</th>
+                    <th className="py-3 px-3 w-[115px] whitespace-nowrap">Working Hours</th>
+                    <th className="py-3 px-3 w-[90px] whitespace-nowrap">Late By</th>
+                    <th className="py-3 px-3 w-[95px] text-center whitespace-nowrap">Status</th>
+                    <th className="py-3 px-3 min-w-[170px] whitespace-nowrap">Punch Source</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -910,33 +1111,38 @@ export const ReportsPage = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredAttendance.slice(0, 30).map((r) => (
-                      <tr key={r.id || `${r.date}-${r.employeeId}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
-                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap">{r.date}</td>
-                        <td className="py-2.5 px-3">
-                          <span className="font-bold text-slate-900 dark:text-white block">{r.employeeName}</span>
-                          <span className="font-mono text-[10px] text-slate-400">{r.employeeId}</span>
+                    filteredAttendance.slice(0, 50).map((r, idx) => (
+                      <tr key={r.id || `${r.date}-${r.employeeId}-${idx}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600 dark:text-slate-300 whitespace-nowrap font-medium">{r.date}</td>
+                        <td className="py-2.5 px-3 whitespace-nowrap">
+                          <span className="font-bold text-slate-900 dark:text-white block whitespace-nowrap">{r.employeeName}</span>
+                          <span className="font-mono text-[10px] text-slate-400 block whitespace-nowrap">{r.employeeId}</span>
                         </td>
-                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">{r.department}</td>
-                        <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300 font-medium">{getEmployeeProjectById(r.employeeId)}</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300">{r.checkIn || '-'}</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300">{r.checkOut || '-'}</td>
-                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300">{r.workingHours || '-'}</td>
-                        <td className="py-2.5 px-3 font-mono">
-                          {r.lateBy && r.lateBy !== '-' ? <span className="text-amber-600 font-bold">{r.lateBy}</span> : <span className="text-slate-400">-</span>}
+                        <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{r.department}</td>
+                        <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">{getEmployeeProjectById(r.employeeId)}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-800 dark:text-slate-200 whitespace-nowrap font-semibold">{r.checkIn || '-'}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300 whitespace-nowrap">{r.checkOut || '-'}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-700 dark:text-slate-300 whitespace-nowrap font-medium">{r.workingHours || '-'}</td>
+                        <td className="py-2.5 px-3 font-mono whitespace-nowrap">
+                          {r.lateBy && r.lateBy !== '-' ? <span className="text-amber-600 dark:text-amber-400 font-bold whitespace-nowrap">{r.lateBy}</span> : <span className="text-slate-400">-</span>}
                         </td>
-                        <td className="py-2.5 px-3">
+                        <td className="py-2.5 px-3 whitespace-nowrap text-center">
                           <StatusBadge status={r.status} size="sm" />
                         </td>
-                        <td className="py-2.5 px-3 text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">{r.punchSource || 'Biometric'}</td>
+                        <td className="py-2.5 px-3 text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 font-medium">
+                            <Fingerprint className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                            <span>{r.punchSource || 'Biometric - Jaipur HQ'}</span>
+                          </span>
+                        </td>
                       </tr>
                     ))
                   )}
                 </tbody>
               </table>
-              {filteredAttendance.length > 30 && (
+              {filteredAttendance.length > 50 && (
                 <div className="p-3 text-center text-xs text-slate-500 border-t border-slate-100 dark:border-slate-800">
-                  Showing first 30 of {filteredAttendance.length} records. Refine department/date filters to narrow down.
+                  Showing first 50 of {filteredAttendance.length} records. Refine department/date filters to narrow down.
                 </div>
               )}
             </div>
@@ -977,29 +1183,107 @@ export const ReportsPage = () => {
               <p className="text-xs text-slate-400 mt-1">Try resetting the department, project, or employee filters.</p>
             </Card>
           ) : (
-            <ChartCard title="Monthly Payroll Trend (₹ in Lakhs)" subtitle="Gross earnings vs net disbursements vs statutory tax withholding">
-              <ResponsiveContainer width="100%" height={290}>
-                <BarChart data={payrollCostData} margin={{ top: 10, right: 15, left: -15, bottom: 0 }} barGap={6}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9"/>
-                  <XAxis dataKey="month" stroke="#94A3B8" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={{ stroke: '#E2E8F0' }}/>
-                  <YAxis stroke="#94A3B8" tick={{ fontSize: 11, fill: '#64748B' }} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${v}L`}/>
-                  <Tooltip
-                    formatter={(val) => [`₹${val} Lakhs`, '']}
-                    contentStyle={{
-                      backgroundColor: '#0F172A',
-                      borderRadius: '8px',
-                      border: 'none',
-                      color: '#fff',
-                      fontSize: '12px',
-                    }}
-                  />
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }} formatter={(value) => <span className="text-slate-600 font-medium">{value}</span>}/>
-                  <Bar dataKey="gross" name="Gross Payroll" fill="#2B5B84" radius={[3, 3, 0, 0]} barSize={16}/>
-                  <Bar dataKey="net" name="Net Disbursed" fill="#10B981" radius={[3, 3, 0, 0]} barSize={16}/>
-                  <Bar dataKey="tax" name="Taxes & PF" fill="#FBBF24" radius={[3, 3, 0, 0]} barSize={16}/>
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartCard>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Pie 1: Disbursement vs Taxes */}
+              <ChartCard
+                title="Payroll Disbursement & Statutory Distribution"
+                subtitle="Net salary disbursed vs PF retirement savings vs TDS withholdings"
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[260px]">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie
+                        data={payrollDistributionPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={3}
+                        dataKey="amount"
+                      >
+                        {payrollDistributionPieData.map((entry, index) => (
+                          <Cell key={`pay-dist-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val, name) => [`₹${Number(val).toLocaleString('en-IN')}`, name]}
+                        contentStyle={{
+                          backgroundColor: '#0F172A',
+                          borderRadius: '8px',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="w-full sm:w-56 space-y-2.5 text-xs">
+                    {payrollDistributionPieData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                          <span className="truncate max-w-[120px]">{d.name}</span>
+                        </span>
+                        <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                          ₹{(d.amount / 1000).toFixed(0)}k
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </ChartCard>
+
+              {/* Pie 2: Division Payroll Cost Share */}
+              <ChartCard
+                title="Division Payroll Expenditure Share"
+                subtitle="Monthly gross compensation allocation by operating division"
+              >
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[260px]">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie
+                        data={payrollDeptPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={90}
+                        paddingAngle={3}
+                        dataKey="amount"
+                      >
+                        {payrollDeptPieData.map((entry, index) => (
+                          <Cell key={`pay-dept-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val, name, item) => [`₹${Number(val).toLocaleString('en-IN')} (${item.payload.pct}%)`, name]}
+                        contentStyle={{
+                          backgroundColor: '#0F172A',
+                          borderRadius: '8px',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="w-full sm:w-56 space-y-2 text-xs">
+                    {payrollDeptPieData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                          <span className="truncate max-w-[120px]">{d.name}</span>
+                        </span>
+                        <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                          ₹{(d.amount / 1000).toFixed(0)}k <span className="text-slate-400 font-normal text-[10px]">({d.pct}%)</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </ChartCard>
+            </div>
           )}
 
           {/* Employee-wise Compensation Details (HRMS Requirement 7B) */}
@@ -1085,43 +1369,107 @@ export const ReportsPage = () => {
           <EmployeeLeaveMisChart showSelector={true} />
 
           {/* Departmental Leave Distribution Chart */}
-          <ChartCard title="Departmental Leave Utilization & Commitments (Working Days)" subtitle="Real-time breakdown of approved leave days, pending requests, and rejected durations by operating division" action={<div className="flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#10B981]"/>
-                  <span>Approved Days</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Pie 1: Leave Status Share */}
+            <ChartCard
+              title="Leave Commitment & Status Breakdown"
+              subtitle="Ratio of approved leave days vs pending manager reviews and rejected days"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[240px]">
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={leaveStatusPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={85}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {leaveStatusPieData.map((entry, index) => (
+                        <Cell key={`leave-status-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val, name, item) => [`${val} days (${item.payload.pct}%)`, name]}
+                      contentStyle={{
+                        backgroundColor: '#0F172A',
+                        borderRadius: '8px',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '12px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="w-full sm:w-56 space-y-2.5 text-xs">
+                  {leaveStatusPieData.map((d) => (
+                    <div key={d.name} className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                        <span className="truncate max-w-[120px]">{d.name}</span>
+                      </span>
+                      <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                        {d.value}d <span className="text-slate-400 font-normal text-[10px]">({d.pct}%)</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#F59E0B]"/>
-                  <span>Pending Days</span>
+              </div>
+            </ChartCard>
+
+            {/* Pie 2: Division Leave Utilization Share */}
+            <ChartCard
+              title="Division Leave Consumption Share"
+              subtitle="Working days committed across operating departments"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[240px]">
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={leaveDeptPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={85}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {leaveDeptPieData.map((entry, index) => (
+                        <Cell key={`leave-dept-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val, name, item) => [`${val} days (${item.payload.pct}%)`, name]}
+                      contentStyle={{
+                        backgroundColor: '#0F172A',
+                        borderRadius: '8px',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '12px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="w-full sm:w-56 space-y-2 text-xs">
+                  {leaveDeptPieData.map((d) => (
+                    <div key={d.name} className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                        <span className="truncate max-w-[120px]">{d.name}</span>
+                      </span>
+                      <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                        {d.value}d <span className="text-slate-400 font-normal text-[10px]">({d.pct}%)</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#EF4444]"/>
-                  <span>Rejected Days</span>
-                </div>
-              </div>}>
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={misDeptData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9"/>
-                <XAxis dataKey="department" stroke="#94A3B8" tick={{ fontSize: 10, fill: '#64748B' }} tickLine={false} axisLine={{ stroke: '#E2E8F0' }}/>
-                <YAxis stroke="#94A3B8" tick={{ fontSize: 10, fill: '#64748B' }} tickLine={false} axisLine={false}/>
-                <Tooltip content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                    const data = payload[0].payload;
-                    return (<div className="bg-slate-900 text-white p-2.5 rounded-lg shadow-xl text-xs space-y-1">
-                          <p className="font-bold border-b border-slate-700 pb-1">{data.department}</p>
-                          <p className="text-emerald-300">Approved: <strong>{data.approved}d</strong></p>
-                          <p className="text-amber-300">Pending: <strong>{data.pending}d</strong></p>
-                          <p className="text-rose-300">Rejected: <strong>{data.rejected}d</strong></p>
-                        </div>);
-                }
-                return null;
-            }}/>
-                <Bar dataKey="approved" fill="#10B981" radius={[2, 2, 0, 0]} barSize={18}/>
-                <Bar dataKey="pending" fill="#F59E0B" radius={[2, 2, 0, 0]} barSize={18}/>
-                <Bar dataKey="rejected" fill="#EF4444" radius={[2, 2, 0, 0]} barSize={18}/>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+              </div>
+            </ChartCard>
+          </div>
 
           {/* Master MIS Audit Ledger Table */}
           <Card className="p-5 shadow-2xs">
@@ -1348,73 +1696,113 @@ export const ReportsPage = () => {
           </div>
 
           {/* Expenditure Category Analytics Chart */}
-          <ChartCard
-            title="Expenditure & Claims by Category (₹ INR)"
-            subtitle="Comparison of requested claim amounts vs authorized approved values and disbursed settlements"
-            action={
-              <div className="flex items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#4F6B92]" />
-                  <span>Requested</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#10B981]" />
-                  <span>Approved</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-xs bg-[#0EA5E9]" />
-                  <span>Settled</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Pie 1: Claims Settlement Lifecycle Share */}
+            <ChartCard
+              title="Claims Lifecycle & Settlement Status"
+              subtitle="Distribution of fully settled disbursements vs approved & pending review amounts"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[250px]">
+                <ResponsiveContainer width="100%" height={230}>
+                  <PieChart>
+                    <Pie
+                      data={expenseStatusPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={85}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {expenseStatusPieData.map((entry, index) => (
+                        <Cell key={`exp-status-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val, name) => [`₹${Number(val).toLocaleString('en-IN')}`, name]}
+                      contentStyle={{
+                        backgroundColor: '#0F172A',
+                        borderRadius: '8px',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '12px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="w-full sm:w-56 space-y-2.5 text-xs">
+                  {expenseStatusPieData.map((d) => (
+                    <div key={d.name} className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                        <span className="truncate max-w-[120px]">{d.name}</span>
+                      </span>
+                      <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                        ₹{(d.value / 1000).toFixed(0)}k
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            }
-          >
-            {expenseCategoryChartData.length === 0 ? (
-              <div className="h-56 flex items-center justify-center text-slate-400 text-xs">
-                No expense data available for the current filter selection.
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={expenseCategoryChartData} margin={{ top: 10, right: 10, left: -10, bottom: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                  <XAxis
-                    dataKey="category"
-                    stroke="#94A3B8"
-                    tick={{ fontSize: 10, fill: '#64748B' }}
-                    tickLine={false}
-                    axisLine={{ stroke: '#E2E8F0' }}
-                  />
-                  <YAxis
-                    stroke="#94A3B8"
-                    tick={{ fontSize: 10, fill: '#64748B' }}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        const req = payload.find((p) => p.dataKey === 'requested')?.value || 0;
-                        const app = payload.find((p) => p.dataKey === 'approved')?.value || 0;
-                        const set = payload.find((p) => p.dataKey === 'settled')?.value || 0;
-                        return (
-                          <div className="bg-slate-900 text-white p-2.5 rounded-lg shadow-xl text-xs space-y-1">
-                            <p className="font-bold border-b border-slate-700 pb-1">{label}</p>
-                            <p className="text-slate-300">Requested: <strong>₹{req.toLocaleString('en-IN')}</strong></p>
-                            <p className="text-emerald-300">Approved: <strong>₹{app.toLocaleString('en-IN')}</strong></p>
-                            <p className="text-sky-300">Settled: <strong>₹{set.toLocaleString('en-IN')}</strong></p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar dataKey="requested" fill="#4F6B92" radius={[2, 2, 0, 0]} barSize={16} />
-                  <Bar dataKey="approved" fill="#10B981" radius={[2, 2, 0, 0]} barSize={16} />
-                  <Bar dataKey="settled" fill="#0EA5E9" radius={[2, 2, 0, 0]} barSize={16} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </ChartCard>
+            </ChartCard>
+
+            {/* Pie 2: Category Breakdown */}
+            <ChartCard
+              title="Expenditure & Claims by Category"
+              subtitle="Proportional spend distribution across geological, drone, travel & camp expenses"
+            >
+              {expenseCategoryPieData.length === 0 ? (
+                <div className="h-56 flex items-center justify-center text-slate-400 text-xs">
+                  No expense category data available for the current filter selection.
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[250px]">
+                  <ResponsiveContainer width="100%" height={230}>
+                    <PieChart>
+                      <Pie
+                        data={expenseCategoryPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={85}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {expenseCategoryPieData.map((entry, index) => (
+                          <Cell key={`exp-cat-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val, name, item) => [`₹${Number(val).toLocaleString('en-IN')} (${item.payload.pct}%)`, name]}
+                        contentStyle={{
+                          backgroundColor: '#0F172A',
+                          borderRadius: '8px',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '12px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="w-full sm:w-56 space-y-2 text-xs">
+                    {expenseCategoryPieData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                          <span className="truncate max-w-[120px]">{d.name}</span>
+                        </span>
+                        <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                          ₹{(d.value / 1000).toFixed(0)}k <span className="text-slate-400 font-normal text-[10px]">({d.pct}%)</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </ChartCard>
+          </div>
 
           {/* Master MIS Audit Ledger Table */}
           <Card className="p-5 shadow-2xs">
@@ -1645,46 +2033,156 @@ export const ReportsPage = () => {
         </div>
       )}
 
-      {activeReportTab === 'department' && (<Card className="p-6">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">Departmental Headcount & Compensation Distribution</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Resource allocations across active mining and consulting divisions</p>
-          <div className="overflow-x-auto custom-sidebar-scroll">
-            <table className="w-full text-left text-xs min-w-[580px]">
-              <thead>
-                <tr className="bg-slate-50 dark:bg-[#111821] border-b border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-300 font-bold uppercase text-[11px]">
-                  <th className="py-2.5 px-3 whitespace-nowrap">Department</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap">Head of Division</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap">Headcount</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap">Monthly Outflow (₹)</th>
-                  <th className="py-2.5 px-3 whitespace-nowrap">HQ / Field Ratio</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                  <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Geology & Mineral Exploration</td>
-                  <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Dr. Amit Kumar Bansal</td>
-                  <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">18 Staff</td>
-                  <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹3,40,000</td>
-                  <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">40% HQ / 60% Site</td>
-                </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                  <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Mining & Mine Planning</td>
-                  <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Rajesh Sharma</td>
-                  <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">14 Staff</td>
-                  <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹2,85,000</td>
-                  <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">30% HQ / 70% Site</td>
-                </tr>
-                <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                  <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">GIS, Remote Sensing & UAV</td>
-                  <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Vikramaditya Rathore</td>
-                  <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">12 Staff</td>
-                  <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹2,10,000</td>
-                  <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">70% HQ / 30% Flight</td>
-                </tr>
-              </tbody>
-            </table>
+      {activeReportTab === 'department' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ChartCard
+              title="Department Workforce Distribution"
+              subtitle="Headcount allocation across exploration, mining, and HQ operations"
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[250px]">
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie
+                      data={divisionHeadcountPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={85}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {divisionHeadcountPieData.map((entry, index) => (
+                        <Cell key={`dept-head-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val, name, item) => [`${val} staff (Avg KPI: ${item.payload.kpi}/5.0)`, name]}
+                      contentStyle={{
+                        backgroundColor: '#1E293B',
+                        borderRadius: '8px',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '11px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="w-full sm:w-56 space-y-2 text-xs">
+                  {divisionHeadcountPieData.map((d) => (
+                    <div key={d.name} className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                        <span className="truncate max-w-[120px]">{d.name}</span>
+                      </span>
+                      <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                        {d.value} <span className="text-teal-600 dark:text-teal-400 font-semibold text-[10px]">({d.kpi}★)</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </ChartCard>
+
+            <ChartCard
+              title="Department Compensation Outflow Share"
+              subtitle="Monthly payroll budget allocation by operating unit"
+            >
+              {payrollDeptPieData.length === 0 ? (
+                <div className="h-56 flex items-center justify-center text-slate-400 text-xs">
+                  No payroll department data available.
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[250px]">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie
+                        data={payrollDeptPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={85}
+                        paddingAngle={3}
+                        dataKey="value"
+                      >
+                        {payrollDeptPieData.map((entry, index) => (
+                          <Cell key={`dept-pay-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(val, name) => [`₹${val}k`, name]}
+                        contentStyle={{
+                          backgroundColor: '#1E293B',
+                          borderRadius: '8px',
+                          border: 'none',
+                          color: '#fff',
+                          fontSize: '11px',
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+
+                  <div className="w-full sm:w-56 space-y-2 text-xs">
+                    {payrollDeptPieData.map((d) => (
+                      <div key={d.name} className="flex items-center justify-between">
+                        <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                          <span className="truncate max-w-[120px]">{d.name}</span>
+                        </span>
+                        <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                          ₹{d.value}k <span className="text-slate-400 font-normal text-[10px]">({d.pct}%)</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </ChartCard>
           </div>
-        </Card>)}
+
+          <Card className="p-6">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-2">Departmental Headcount & Compensation Distribution</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">Resource allocations across active mining and consulting divisions</p>
+            <div className="overflow-x-auto custom-sidebar-scroll">
+              <table className="w-full text-left text-xs min-w-[580px]">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-[#111821] border-b border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-300 font-bold uppercase text-[11px]">
+                    <th className="py-2.5 px-3 whitespace-nowrap">Department</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Head of Division</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Headcount</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">Monthly Outflow (₹)</th>
+                    <th className="py-2.5 px-3 whitespace-nowrap">HQ / Field Ratio</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
+                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Geology & Mineral Exploration</td>
+                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Dr. Amit Kumar Bansal</td>
+                    <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">18 Staff</td>
+                    <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹3,40,000</td>
+                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">40% HQ / 60% Site</td>
+                  </tr>
+                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
+                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Mining & Mine Planning</td>
+                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Rajesh Sharma</td>
+                    <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">14 Staff</td>
+                    <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹2,85,000</td>
+                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">30% HQ / 70% Site</td>
+                  </tr>
+                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
+                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">GIS, Remote Sensing & UAV</td>
+                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Vikramaditya Rathore</td>
+                    <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">12 Staff</td>
+                    <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹2,10,000</td>
+                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">70% HQ / 30% Flight</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+      )}
 
       {activeReportTab === 'custom' && (<div className="space-y-6">
           {/* Custom Report Configuration Card */}
@@ -1822,31 +2320,50 @@ export const ReportsPage = () => {
 
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChartCard title="Division KPI vs Headcount Ratio" subtitle="Performance index correlation with team size">
-              <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={[
-                { division: 'Geology', kpi: 4.6, headcount: 18 },
-                { division: 'Mining', kpi: 4.8, headcount: 14 },
-                { division: 'GIS & UAV', kpi: 4.5, headcount: 12 },
-                { division: 'Hydrogeology', kpi: 4.1, headcount: 8 },
-                { division: 'Finance', kpi: 4.7, headcount: 6 },
-                { division: 'HR & IT', kpi: 4.4, headcount: 5 },
-            ]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0"/>
-                  <XAxis dataKey="division" tick={{ fontSize: 11, fill: '#64748B' }}/>
-                  <YAxis tick={{ fontSize: 11, fill: '#64748B' }}/>
-                  <Tooltip contentStyle={{
-                backgroundColor: '#1E293B',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '11px',
-            }}/>
-                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}/>
-                  <Bar dataKey="kpi" name="Average KPI (out of 5)" fill="#1F6F78" radius={[4, 4, 0, 0]} barSize={16}/>
-                  <Bar dataKey="headcount" name="Total Headcount" fill="#C8943A" radius={[4, 4, 0, 0]} barSize={16}/>
-                </BarChart>
-              </ResponsiveContainer>
+            <ChartCard title="Division Workforce Allocation & KPI Distribution" subtitle="Headcount proportion and performance index rating by operating division">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[250px]">
+                <ResponsiveContainer width="100%" height={240}>
+                  <PieChart>
+                    <Pie
+                      data={divisionHeadcountPieData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={85}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {divisionHeadcountPieData.map((entry, index) => (
+                        <Cell key={`div-head-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val, name, item) => [`${val} staff (Avg KPI: ${item.payload.kpi}/5.0)`, name]}
+                      contentStyle={{
+                        backgroundColor: '#1E293B',
+                        borderRadius: '8px',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '11px',
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+
+                <div className="w-full sm:w-56 space-y-2 text-xs">
+                  {divisionHeadcountPieData.map((d) => (
+                    <div key={d.name} className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                        <span className="truncate max-w-[120px]">{d.name}</span>
+                      </span>
+                      <div className="font-bold text-slate-900 dark:text-white tabular-nums">
+                        {d.value} <span className="text-teal-600 dark:text-teal-400 font-semibold text-[10px]">({d.kpi}★)</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </ChartCard>
 
             <ChartCard title="Workforce Separation & Attrition Drivers" subtitle="Root causes documented across exit interviews">

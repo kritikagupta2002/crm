@@ -151,17 +151,17 @@ export const DailyAttendancePage = () => {
     {
       key: 'checkIn',
       header: 'Check In',
-      className: 'font-mono text-xs font-semibold text-slate-800 dark:text-slate-200',
+      className: 'font-mono text-xs font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap',
     },
     {
       key: 'checkOut',
       header: 'Check Out',
-      className: 'font-mono text-xs text-slate-600 dark:text-slate-400',
+      className: 'font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap',
     },
     {
       key: 'workingHours',
       header: 'Duration',
-      className: 'font-semibold text-xs text-slate-800 dark:text-slate-200',
+      className: 'font-semibold text-xs text-slate-800 dark:text-slate-200 whitespace-nowrap',
     },
     {
       key: 'lateBy',
@@ -170,8 +170,8 @@ export const DailyAttendancePage = () => {
         <span
           className={
             r.lateBy !== '-'
-              ? 'text-amber-600 dark:text-amber-400 font-bold text-xs'
-              : 'text-slate-400 text-xs'
+              ? 'text-amber-600 dark:text-amber-400 font-bold text-xs whitespace-nowrap'
+              : 'text-slate-400 text-xs whitespace-nowrap'
           }
         >
           {r.lateBy}

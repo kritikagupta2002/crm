@@ -178,22 +178,50 @@ export const EmployeeLeaveMisChart = ({
     }));
   }, [selectedEmployee, employeeBalances]);
 
-  // Pie chart data for utilized leaves breakdown
-  const pieData = useMemo(() => {
+  // 1. Quota allocation by policy category (CL, SL, EL, CO, FDL)
+  const categoryAllocationPieData = useMemo(() => {
     if (!selectedEmployee) return [];
-    const usedItems = employeeBalances
-      .filter((b) => b.used > 0)
+    return employeeBalances
       .map((b) => ({
         name: b.leaveType.split('(')[0].trim(),
-        value: b.used,
+        value: Number(b.totalAllocated) || 0,
+        used: b.used,
+        available: b.available,
         color: b.color || '#3B82F6',
-      }));
-
-    if (usedItems.length === 0) {
-      return [{ name: 'Full Balance Intact', value: metrics.totalQuota || 1, color: '#10B981' }];
-    }
-    return usedItems;
+        pct: metrics.totalQuota > 0 ? Math.round(((Number(b.totalAllocated) || 0) / metrics.totalQuota) * 100) : 0,
+      }))
+      .filter((d) => d.value > 0);
   }, [selectedEmployee, employeeBalances, metrics.totalQuota]);
+
+  // 2. Status distribution: Available Balance vs Utilized vs In Review
+  const utilizationStatusPieData = useMemo(() => {
+    if (!selectedEmployee) return [];
+    const items = [
+      {
+        name: 'Available Balance',
+        value: metrics.totalRemaining,
+        color: '#10B981',
+        pct: metrics.totalQuota > 0 ? Math.round((metrics.totalRemaining / metrics.totalQuota) * 100) : 100,
+      },
+    ];
+    if (metrics.totalUtilized > 0) {
+      items.push({
+        name: 'Utilized Leaves',
+        value: metrics.totalUtilized,
+        color: '#3B82F6',
+        pct: Math.round((metrics.totalUtilized / metrics.totalQuota) * 100),
+      });
+    }
+    if (metrics.totalPending > 0) {
+      items.push({
+        name: 'In Review / Pending',
+        value: metrics.totalPending,
+        color: '#F59E0B',
+        pct: Math.round((metrics.totalPending / metrics.totalQuota) * 100),
+      });
+    }
+    return items.filter((d) => d.value > 0);
+  }, [selectedEmployee, metrics]);
 
   return (
     <div className="space-y-4">
@@ -355,75 +383,116 @@ export const EmployeeLeaveMisChart = ({
             {/* Left 2 Cols: Grouped Bar Chart (Quota vs Utilized vs Remaining) */}
             <div className="lg:col-span-2">
               <ChartCard
-                title={`${selectedEmployee.name} — Leave Quota vs Utilization`}
+                title={`${selectedEmployee.name} — Leave Quota & Utilization Share`}
                 subtitle="Allocated annual quota vs days consumed vs balance available by leave policy category"
-                action={
-                  <div className="flex items-center gap-3 text-xs font-medium text-slate-600 dark:text-slate-300">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-xs bg-[#3B82F6]" />
-                      <span>Quota</span>
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-[270px] items-center">
+                  {/* Donut 1: Quota Entitlement by Category */}
+                  <div className="flex flex-col items-center">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Policy Quota Entitlement
+                    </span>
+                    <div className="relative w-full h-[180px] flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height={180}>
+                        <PieChart>
+                          <Pie
+                            data={categoryAllocationPieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={75}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            {categoryAllocationPieData.map((entry, idx) => (
+                              <Cell key={`cat-cell-${idx}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(val, name, item) => [`${val} days (${item.payload.pct}%)`, name]}
+                            contentStyle={{
+                              backgroundColor: '#0F172A',
+                              borderRadius: '8px',
+                              border: 'none',
+                              color: '#fff',
+                              fontSize: '11px',
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-lg font-black text-slate-900 dark:text-white tabular-nums">
+                          {metrics.totalQuota}d
+                        </span>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                          Total Quota
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-xs bg-[#10B981]" />
-                      <span>Utilized</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-xs bg-[#F59E0B]" />
-                      <span>Remaining</span>
+                    <div className="flex flex-wrap justify-center gap-2 text-[10px] mt-1.5 max-w-[280px]">
+                      {categoryAllocationPieData.map((d) => (
+                        <span key={d.name} className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: d.color }} />
+                          {d.name}: <strong>{d.value}d</strong>
+                        </span>
+                      ))}
                     </div>
                   </div>
-                }
-              >
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barGap={6}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                    <XAxis
-                      dataKey="name"
-                      stroke="#94A3B8"
-                      tick={{ fontSize: 10, fill: '#64748B' }}
-                      tickLine={false}
-                      axisLine={{ stroke: '#E2E8F0' }}
-                    />
-                    <YAxis
-                      stroke="#94A3B8"
-                      tick={{ fontSize: 10, fill: '#64748B' }}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <Tooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload;
-                          return (
-                            <div className="bg-slate-900 text-white p-2.5 rounded-xl shadow-xl text-xs space-y-1">
-                              <p className="font-bold border-b border-slate-700 pb-1 text-slate-200">
-                                {data.category}
-                              </p>
-                              <p className="text-blue-300">
-                                Quota: <strong>{data.Quota} days</strong>
-                              </p>
-                              <p className="text-emerald-300">
-                                Utilized: <strong>{data.Utilized} days</strong>
-                              </p>
-                              <p className="text-amber-300">
-                                Remaining: <strong>{data.Remaining} days</strong>
-                              </p>
-                              {data.Pending > 0 && (
-                                <p className="text-purple-300">
-                                  Pending approval: <strong>{data.Pending} days</strong>
-                                </p>
-                              )}
-                            </div>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                    <Bar dataKey="Quota" fill="#3B82F6" radius={[3, 3, 0, 0]} barSize={14} />
-                    <Bar dataKey="Utilized" fill="#10B981" radius={[3, 3, 0, 0]} barSize={14} />
-                    <Bar dataKey="Remaining" fill="#F59E0B" radius={[3, 3, 0, 0]} barSize={14} />
-                  </BarChart>
-                </ResponsiveContainer>
+
+                  {/* Donut 2: Balance vs Utilization Ratio */}
+                  <div className="flex flex-col items-center">
+                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Balance vs Utilization Ratio
+                    </span>
+                    <div className="relative w-full h-[180px] flex items-center justify-center">
+                      <ResponsiveContainer width="100%" height={180}>
+                        <PieChart>
+                          <Pie
+                            data={utilizationStatusPieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={75}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            {utilizationStatusPieData.map((entry, idx) => (
+                              <Cell key={`status-cell-${idx}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(val, name, item) => [`${val} days (${item.payload.pct}%)`, name]}
+                            contentStyle={{
+                              backgroundColor: '#0F172A',
+                              borderRadius: '8px',
+                              border: 'none',
+                              color: '#fff',
+                              fontSize: '11px',
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                          {metrics.totalRemaining}d
+                        </span>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                          Available
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 text-[11px] mt-1.5">
+                      <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+                        <span className="w-2 h-2 rounded-full bg-[#10B981]" />
+                        {metrics.totalRemaining}d Bal ({metrics.totalQuota > 0 ? Math.round((metrics.totalRemaining / metrics.totalQuota) * 100) : 100}%)
+                      </span>
+                      <span className="flex items-center gap-1 text-blue-600 font-semibold">
+                        <span className="w-2 h-2 rounded-full bg-[#3B82F6]" />
+                        {metrics.totalUtilized}d Used ({metrics.utilizationRate})
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </ChartCard>
             </div>
 
@@ -438,7 +507,7 @@ export const EmployeeLeaveMisChart = ({
                     Individual entitlement vs approved consumption
                   </p>
 
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[220px] overflow-y-auto custom-sidebar-scroll pr-1">
                     {employeeBalances.map((b) => (
                       <div key={b.leaveType} className="py-2 flex items-center justify-between text-xs">
                         <div className="min-w-0 pr-2">

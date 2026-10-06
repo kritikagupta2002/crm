@@ -4,7 +4,6 @@ export const INITIAL_LEAVE_BALANCES = [
     { leaveType: 'Earned / Privilege Leave (EL)', totalAllocated: 18, used: 6, pending: 3, available: 12, color: '#F59E0B' },
     { leaveType: 'Compensatory Off (CO)', totalAllocated: 8, used: 1, pending: 0, available: 7, color: '#8B5CF6' },
     { leaveType: 'Field Duty Leave (FDL)', totalAllocated: 15, used: 8, pending: 0, available: 7, color: '#06B6D4' },
-    { leaveType: 'Maternity / Paternity Leave', totalAllocated: 180, used: 0, pending: 0, available: 180, color: '#EC4899' },
 ];
 export const INITIAL_LEAVE_TYPES = [
     { id: 'lt-1', name: 'Casual Leave (CL)', code: 'CL', annualQuota: 12, carryForwardMax: 0, encashable: false, minNoticeDays: 1, applicableTo: 'All Permanent Employees', description: 'Intended for short personal matters, family events and emergencies.' },

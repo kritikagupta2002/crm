@@ -305,10 +305,126 @@
   transition: all 0.15s ease;
 }
 
-.btn-icon-danger:hover {
+.btn-icon-danger:hover:not(:disabled) {
   background: #fef2f2;
   border-color: #ef4444;
   color: #dc2626;
+}
+
+.btn-icon-danger:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  background: transparent;
+}
+
+/* Inventory Table Styles */
+.inventory-page .inventory-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  background: var(--surface);
+}
+
+.inventory-page .inventory-table th {
+  white-space: nowrap !important;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-2);
+  padding: 12px 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+.inventory-page .inventory-table td {
+  padding: 12px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.inventory-page .inventory-table tr:hover td {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+/* Specific Column Width & Nowrap Rules */
+.inv-col-id {
+  width: 135px;
+  min-width: 130px;
+  white-space: nowrap !important;
+}
+
+.inv-asset-badge {
+  display: inline-block;
+  white-space: nowrap !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.inv-col-cat {
+  width: 135px;
+  min-width: 120px;
+  white-space: nowrap !important;
+}
+
+.inv-col-stock {
+  width: 145px;
+  min-width: 135px;
+  white-space: nowrap !important;
+}
+
+.inv-col-status {
+  width: 120px;
+  min-width: 110px;
+  white-space: nowrap !important;
+}
+
+.inv-col-location {
+  width: 165px;
+  min-width: 140px;
+  white-space: nowrap !important;
+}
+
+.inv-col-actions {
+  width: 145px;
+  min-width: 135px;
+  white-space: nowrap !important;
+  text-align: right;
+}
+
+.inv-col-emp {
+  min-width: 170px;
+  white-space: nowrap !important;
+}
+
+.inv-col-qty {
+  width: 105px;
+  min-width: 95px;
+  white-space: nowrap !important;
+}
+
+.inv-col-date {
+  width: 120px;
+  min-width: 110px;
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.inv-date-text {
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
 }
 
 /* Modals & Dialogs */

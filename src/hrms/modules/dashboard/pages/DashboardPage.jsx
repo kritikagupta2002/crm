@@ -164,13 +164,53 @@ const AdminDashboard = () => {
             return todayStr >= l.startDate && todayStr <= l.endDate;
         })
             .map((l) => l.employeeId));
-        // One day's register (the latest one recorded), each person counted once: the register holds many days.
-        const day = allAttendance.reduce((d, a) => (a.date <= todayStr && a.date > d ? a.date : d), '');
-        const dayRecords = allAttendance.filter((a) => a.date === day && empIds.has(a.employeeId));
-        const present = new Set(dayRecords.filter((a) => a.status === 'Present' || a.status === 'Late').map((a) => a.employeeId)).size;
-        const leave = filteredEmps.filter((e) => onLeaveEmpIds.has(e.employeeId)).length;
-        const absent = Math.max(0, total - present - leave);
-        const late = new Set(dayRecords.filter((a) => a.lateBy && a.lateBy !== '-').map((a) => a.employeeId)).size;
+
+        let present = 0;
+        let absent = 0;
+        let leave = 0;
+        let late = 0;
+
+        if (selectedPeriod === 'today') {
+            // One day's register (today or the latest one recorded)
+            const day = allAttendance.reduce((d, a) => (a.date <= todayStr && a.date > d ? a.date : d), todayStr);
+            const dayRecords = allAttendance.filter((a) => a.date === day && empIds.has(a.employeeId));
+            present = new Set(dayRecords.filter((a) => a.status === 'Present' || a.status === 'Late').map((a) => a.employeeId)).size;
+            leave = new Set([
+                ...filteredEmps.filter((e) => onLeaveEmpIds.has(e.employeeId)).map((e) => e.employeeId),
+                ...dayRecords.filter((a) => a.status === 'On Leave').map((a) => a.employeeId),
+            ]).size;
+            absent = Math.max(0, total - present - leave);
+            late = new Set(dayRecords.filter((a) => a.lateBy && a.lateBy !== '-').map((a) => a.employeeId)).size;
+        } else {
+            const now = new Date();
+            let startIso = todayStr;
+            if (selectedPeriod === 'week') {
+                const d = new Date(now);
+                const dayOfWeek = d.getDay() || 7;
+                d.setDate(d.getDate() - dayOfWeek + 1); // Monday
+                startIso = d.toLocaleDateString('en-CA');
+            } else if (selectedPeriod === 'month') {
+                startIso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+            } else if (selectedPeriod === 'quarter') {
+                const qMonth = Math.floor(now.getMonth() / 3) * 3 + 1;
+                startIso = `${now.getFullYear()}-${String(qMonth).padStart(2, '0')}-01`;
+            } else if (selectedPeriod === 'year') {
+                startIso = `${now.getFullYear()}-01-01`;
+            }
+            const periodRecords = allAttendance.filter((a) => a.date >= startIso && a.date <= todayStr && empIds.has(a.employeeId));
+            const recordedDates = [...new Set(periodRecords.map((a) => a.date))];
+            const numDays = recordedDates.length || 1;
+
+            const totalPresent = periodRecords.filter((a) => a.status === 'Present' || a.status === 'Late').length;
+            const totalLeave = periodRecords.filter((a) => a.status === 'On Leave').length;
+            const totalLate = periodRecords.filter((a) => a.lateBy && a.lateBy !== '-').length;
+
+            present = Math.round(totalPresent / numDays);
+            leave = Math.round(totalLeave / numDays);
+            absent = Math.max(0, total - present - leave);
+            late = Math.round(totalLate / numDays);
+        }
+
         const now = new Date();
         const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
         const newJoiners = filteredEmps.filter((e) => {
@@ -179,12 +219,14 @@ const AdminDashboard = () => {
             const jd = new Date(e.employment.joiningDate);
             return jd >= thirtyDaysAgo;
         }).length;
+
         const presentPercent = total > 0 ? ((present / total) * 100).toFixed(1) : '0';
         const absentPercent = total > 0 ? ((absent / total) * 100).toFixed(1) : '0';
         const leavePercent = total > 0 ? ((leave / total) * 100).toFixed(1) : '0';
         const latePercent = total > 0 ? ((late / total) * 100).toFixed(1) : '0';
+
         return { total, present, absent, leave, late, newJoiners, presentPercent, absentPercent, leavePercent, latePercent };
-    }, [allEmployees, allAttendance, allLeaveRequests, selectedDept, selectedLocation]);
+    }, [allEmployees, allAttendance, allLeaveRequests, selectedDept, selectedLocation, selectedPeriod]);
     // Attendance Trend Data derived from live attendance counts
     const currentAttendanceData = useMemo(() => {
         const today = new Date();
@@ -309,7 +351,9 @@ const AdminDashboard = () => {
     const handleClockToggle = async () => {
         try {
             const type = hasClockedIn ? 'checkOut' : 'checkIn';
-            await attendanceService.recordPunch(user?.employeeId || 'BGS-006', type, 'Field GPS & Biometric - Bhilwara Exploration Camp');
+            const empId = user?.employeeId || 'BGS-001';
+            await attendanceService.recordPunch(empId, type, 'Field GPS & Biometric - Bhilwara Exploration Camp');
+            setAllAttendance(storage.getAttendance());
             setHasClockedIn(!hasClockedIn);
             if (!hasClockedIn) {
                 toast.success('Punched in successfully at Bhilwara Exploration Project site.', 'Check-In Recorded');
@@ -504,46 +548,30 @@ const AdminDashboard = () => {
               </div>
 
               {/* Location Filter */}
-              <div className="relative flex items-center gap-1.5">
-                <div className="relative flex-1 min-w-[130px]">
-                  <select
-                    value={selectedLocation}
-                    onChange={(e) => {
-                      if (e.target.value === '__add_new__') {
-                        setLocationError('');
-                        setNewLocationName('');
-                        setNewLocationStatus('Active');
-                        setIsAddLocationModalOpen(true);
-                      } else {
-                        setSelectedLocation(e.target.value);
-                      }
-                    }}
-                    className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs"
-                  >
-                    <option value="all">📍 All Locations</option>
-                    {locations.filter((l) => l.status !== 'Inactive').map((l) => (
-                      <option key={l.id || l.name} value={l.name.toLowerCase()}>
-                        {l.name}
-                      </option>
-                    ))}
-                    <option value="__add_new__" className="text-teal-600 font-bold">+ Add Location...</option>
-                  </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLocationError('');
-                    setNewLocationName('');
-                    setNewLocationStatus('Active');
-                    setIsAddLocationModalOpen(true);
+              <div className="relative">
+                <select
+                  value={selectedLocation}
+                  onChange={(e) => {
+                    if (e.target.value === '__add_new__') {
+                      setLocationError('');
+                      setNewLocationName('');
+                      setNewLocationStatus('Active');
+                      setIsAddLocationModalOpen(true);
+                    } else {
+                      setSelectedLocation(e.target.value);
+                    }
                   }}
-                  className="px-2.5 py-1.5 rounded-xl text-xs font-semibold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/50 hover:bg-teal-100 dark:hover:bg-teal-900/60 border border-teal-200 dark:border-teal-800 flex items-center gap-1 transition-colors shrink-0 shadow-2xs cursor-pointer"
-                  title="Add new site location master"
+                  className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">+ Add Location</span>
-                </button>
+                  <option value="all">📍 All Locations</option>
+                  {locations.filter((l) => l.status !== 'Inactive').map((l) => (
+                    <option key={l.id || l.name} value={l.name.toLowerCase()}>
+                      {l.name}
+                    </option>
+                  ))}
+                  <option value="__add_new__" className="text-teal-600 font-bold">+ Add Location...</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
               </div>
 
               {/* Date Period Filter */}
@@ -598,7 +626,9 @@ const AdminDashboard = () => {
                   <UserCheck className="w-4.5 h-4.5 sm:w-5 sm:h-5"/>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Present Today</p>
+                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
+                    {selectedPeriod === 'today' ? 'Present Today' : 'Present (Avg)'}
+                  </p>
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.present}</h3>
                 </div>
               </div>
@@ -617,7 +647,9 @@ const AdminDashboard = () => {
                   <CalendarOff className="w-4.5 h-4.5 sm:w-5 sm:h-5"/>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Absent Today</p>
+                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
+                    {selectedPeriod === 'today' ? 'Absent Today' : 'Absent (Avg)'}
+                  </p>
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.absent}</h3>
                 </div>
               </div>
@@ -636,7 +668,9 @@ const AdminDashboard = () => {
                   <CalendarDays className="w-4.5 h-4.5 sm:w-5 sm:h-5"/>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">On Leave</p>
+                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
+                    {selectedPeriod === 'today' ? 'On Leave' : 'On Leave (Avg)'}
+                  </p>
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.leave}</h3>
                 </div>
               </div>
@@ -655,7 +689,9 @@ const AdminDashboard = () => {
                   <Clock className="w-4.5 h-4.5 sm:w-5 sm:h-5"/>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Late Arrivals</p>
+                  <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
+                    {selectedPeriod === 'today' ? 'Late Arrivals' : 'Late Arrivals (Avg)'}
+                  </p>
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.late}</h3>
                 </div>
               </div>

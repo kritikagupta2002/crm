@@ -2,32 +2,6 @@ import { storage } from '@/core/storage/storage';
 export const attendanceService = {
     getAttendance: async () => {
         const list = storage.getAttendance();
-        const employees = storage.getEmployees();
-        const today = new Date().toLocaleDateString('en-CA');
-        let updated = false;
-        for (const emp of employees) {
-            const exists = list.some((a) => a.employeeId === emp.employeeId);
-            if (!exists) {
-                list.push({
-                    id: `att-${emp.employeeId}`,
-                    employeeId: emp.employeeId,
-                    employeeName: emp.name,
-                    department: emp.employment.department,
-                    date: today,
-                    checkIn: '09:00 AM',
-                    checkOut: '06:00 PM',
-                    workingHours: '9h 00m',
-                    lateBy: '-',
-                    overtime: '-',
-                    status: 'Present',
-                    punchSource: 'Biometric - Jaipur HQ',
-                });
-                updated = true;
-            }
-        }
-        if (updated) {
-            storage.setAttendance(list);
-        }
         return new Promise(resolve => setTimeout(() => resolve(list), 80));
     },
     recordPunch: async (employeeId, punchType, location) => {
@@ -54,12 +28,24 @@ export const attendanceService = {
             };
             list.unshift(record);
         }
-        else {
             if (punchType === 'checkOut') {
                 record.checkOut = nowTime;
-                record.workingHours = '8h 30m';
+                try {
+                    const parseMins = (t) => {
+                        const parts = t.split(' ');
+                        const [h, m] = parts[0].split(':').map(Number);
+                        let mins = (h % 12) * 60 + m;
+                        if (parts[1] === 'PM') mins += 720;
+                        return mins;
+                    };
+                    const inMins = parseMins(record.checkIn || '09:00 AM');
+                    const outMins = parseMins(nowTime);
+                    const diff = Math.max(0, outMins - inMins);
+                    record.workingHours = `${Math.floor(diff / 60)}h ${String(diff % 60).padStart(2, '0')}m`;
+                } catch {
+                    record.workingHours = '8h 30m';
+                }
             }
-        }
         storage.setAttendance([...list]);
         return new Promise(resolve => setTimeout(() => resolve(record), 100));
     },

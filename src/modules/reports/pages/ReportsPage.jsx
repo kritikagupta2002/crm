@@ -104,11 +104,24 @@ function SalesReports({ switcher }) {
   ].filter((item) => item.value > 0)
 
   const monthly = getMonthlyTrend(leads).map((m) => ({ ...m, Enquiries: m.enquiries, Won: m.converted }))
+  const pipelineStatusData = [
+    { name: 'Won Deals', value: won.length, color: '#10B981' },
+    { name: 'Active Pipeline', value: Math.max(0, current.length - won.length - lost.length), color: '#2563EB' },
+    { name: 'Lost / Dropped', value: lost.length, color: '#EF4444' },
+  ].filter((item) => item.value > 0)
+
+  const SOURCE_COLORS = ['#2563EB', '#0D9488', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#64748B']
   const sources = LEAD_SOURCES.map((source) => {
     const rows = current.filter((l) => l.source === source)
     const w = rows.filter((l) => l.stage === 'Won').length
     return { label: source, count: rows.length, note: `${w} won · ${pct(w, rows.length)}%` }
   }).sort((a, b) => b.count - a.count)
+  const sourcePieData = sources.map((s, idx) => ({
+    name: s.label,
+    value: s.count,
+    note: s.note,
+    color: SOURCE_COLORS[idx % SOURCE_COLORS.length],
+  })).filter((s) => s.value > 0)
   const lostReasons = countBy(lost, (l) => l.lostReason)
 
   const team = TEAM.map((member) => {
@@ -167,30 +180,80 @@ function SalesReports({ switcher }) {
       <div className="dash-row report-row">
         <section className="card">
           <header className="card-header">
-            <BarChart3 className="card-icon" size={22} strokeWidth={1.8} />
-            <h2>Enquiries vs Won — last 6 months</h2>
+            <PieIcon className="card-icon" size={22} strokeWidth={1.8} />
+            <div>
+              <h2>Lead Pipeline &amp; Conversion Status</h2>
+              <p className="card-subtitle">Outcome breakdown of {current.length} total enquiries in period</p>
+            </div>
           </header>
-          <div className="report-chart">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthly} margin={{ top: 8, right: 12, left: -18, bottom: 0 }} barGap={4}>
-                <CartesianGrid stroke="#edf1f3" vertical={false} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: '#7c8b96', fontSize: 12 }} />
-                <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: '#7c8b96', fontSize: 12 }} />
-                <Tooltip cursor={{ fill: 'rgba(31,111,120,0.06)' }} contentStyle={{ borderRadius: 8, border: '1px solid #e1e8eb', fontSize: 12 }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="Enquiries" fill="#2a8089" radius={[4, 4, 0, 0]} animationDuration={700} />
-                <Bar dataKey="Won" fill="#c8943a" radius={[4, 4, 0, 0]} animationDuration={900} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="report-chart" style={{ height: 260 }}>
+            {pipelineStatusData.length === 0 ? (
+              <p className="empty-state" style={{ padding: '2rem', textAlign: 'center' }}>No enquiries found in this period.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pipelineStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={4}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  >
+                    {pipelineStatusData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: '1px solid #e1e8eb', fontSize: 12 }}
+                    formatter={(val, name) => [`${val} leads (${Math.round((val / (current.length || 1)) * 100)}%)`, name]}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 
         <section className="card">
           <header className="card-header">
-            <Inbox className="card-icon" size={22} strokeWidth={1.8} />
-            <h2>Enquiry Sources</h2>
+            <PieIcon className="card-icon" size={22} strokeWidth={1.8} />
+            <div>
+              <h2>Enquiry Origin &amp; Sources Distribution</h2>
+              <p className="card-subtitle">Lead acquisition channels share</p>
+            </div>
           </header>
-          <Bars rows={sources} color="var(--teal-600)" />
+          <div className="report-chart" style={{ height: 260 }}>
+            {sourcePieData.length === 0 ? (
+              <p className="empty-state" style={{ padding: '2rem', textAlign: 'center' }}>No lead sources recorded.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={sourcePieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={3}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  >
+                    {sourcePieData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: '1px solid #e1e8eb', fontSize: 12 }}
+                    formatter={(val, name, item) => [`${val} leads (${item.payload.note || ''})`, name]}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
         </section>
       </div>
 

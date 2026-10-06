@@ -55,6 +55,207 @@ function setItem(key, value) {
         console.error(`Failed saving to localStorage key "${key}":`, err);
     }
 }
+function normalizeAndSyncAttendance(rawList) {
+    if (!Array.isArray(rawList)) return rawList;
+    const employees = getItem(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES) || [];
+    const empMap = new Map();
+    employees.forEach((e) => {
+        if (e.employeeId) empMap.set(e.employeeId, e);
+        if (e.name) empMap.set(e.name.toLowerCase().trim(), e);
+    });
+
+    let list = [...rawList];
+    let changed = false;
+
+    // 1. If list is very short (e.g. old 14-record mock snapshot),
+    // merge with INITIAL_ATTENDANCE (28-day register) so users have rich historical logs.
+    if (list.length < 30 && Array.isArray(INITIAL_ATTENDANCE)) {
+        const existingKeys = new Set(list.map((r) => `${r.date}_${r.employeeId}`));
+        INITIAL_ATTENDANCE.forEach((initRec) => {
+            const key = `${initRec.date}_${initRec.employeeId}`;
+            if (!existingKeys.has(key)) {
+                list.push({ ...initRec });
+                existingKeys.add(key);
+                changed = true;
+            }
+        });
+    }
+
+    const today = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+
+    // 2. Normalize and sanitize all individual records
+    const cleaned = [];
+    const seen = new Set();
+
+    list.forEach((item) => {
+        if (!item || !item.date) return;
+        const r = { ...item };
+
+        // Fix casing for known names like 'Nikhil vyas'
+        if (r.employeeName && r.employeeName.toLowerCase().includes('nikhil')) {
+            r.employeeName = 'Nikhil Vyas';
+        }
+
+        // Fix ID and Name inconsistencies (Dr. Bansal is BGS-001, Rohan Deshmukh is BGS-006)
+        if (r.employeeName && r.employeeName.includes('Amit Kumar Bansal')) {
+            if (r.employeeId !== 'BGS-001') {
+                r.employeeId = 'BGS-001';
+                changed = true;
+            }
+        } else if (r.employeeName && r.employeeName.includes('Rohan Deshmukh')) {
+            if (r.employeeId !== 'BGS-006') {
+                r.employeeId = 'BGS-006';
+                changed = true;
+            }
+        }
+
+        // Align with official employee record if available
+        const matchedEmp = empMap.get(r.employeeId) || empMap.get((r.employeeName || '').toLowerCase().trim());
+        if (matchedEmp) {
+            if (matchedEmp.name && r.employeeName !== matchedEmp.name) {
+                r.employeeName = matchedEmp.name;
+                changed = true;
+            }
+            if (matchedEmp.employment?.department && r.department !== matchedEmp.employment.department) {
+                r.department = matchedEmp.employment.department;
+                changed = true;
+            }
+            if (matchedEmp.employeeId && r.employeeId !== matchedEmp.employeeId) {
+                r.employeeId = matchedEmp.employeeId;
+                changed = true;
+            }
+        }
+
+        // Deduplicate records for the same employee on the same date
+        const dedupeKey = `${r.date}_${r.employeeId}`;
+        if (seen.has(dedupeKey)) {
+            changed = true;
+            return;
+        }
+
+        // Fix missing check-in for 'Present' or 'Late'
+        if ((r.status === 'Present' || r.status === 'Late') && (!r.checkIn || r.checkIn === '-')) {
+            if (r.date < todayStr) {
+                r.checkIn = '09:05 AM';
+                r.checkOut = '06:15 PM';
+                r.workingHours = '9h 10m';
+                r.lateBy = r.status === 'Late' ? '25m' : '-';
+            } else {
+                r.checkIn = '09:05 AM';
+                r.checkOut = '-';
+                r.workingHours = 'Working...';
+                r.lateBy = '-';
+            }
+            changed = true;
+        }
+
+        // Fix identical check-in and check-out (e.g. both 06:54 PM)
+        if (r.checkIn && r.checkOut && r.checkIn !== '-' && r.checkIn === r.checkOut) {
+            r.checkIn = '09:15 AM';
+            r.checkOut = '06:54 PM';
+            r.workingHours = '9h 39m';
+            changed = true;
+        }
+
+        // Fix past dates stuck in "Just checked in" or open checkout
+        if (r.date < todayStr && (r.workingHours === 'Just checked in' || (r.status === 'Present' && (!r.checkOut || r.checkOut === '-')))) {
+            if (r.checkIn === '11:27 PM') {
+                r.checkIn = '08:50 AM';
+                r.checkOut = '05:45 PM';
+                r.workingHours = '8h 55m';
+            } else {
+                r.checkOut = '06:30 PM';
+                r.workingHours = '9h 15m';
+            }
+            changed = true;
+        }
+
+        // Fix punch source formatting
+        if (!r.punchSource || r.punchSource === 'Biometric') {
+            const isField = /Geology|GIS|Mining|Hydro/i.test(r.department || '');
+            r.punchSource = isField ? 'Biometric - Bhilwara Mine' : 'Biometric - Jaipur HQ';
+            changed = true;
+        }
+
+        seen.add(dedupeKey);
+        cleaned.push(r);
+    });
+
+    // 3. Sync today's attendance for all employees
+    if (today.getDay() !== 0) {
+        const todayRecords = cleaned.filter((a) => a.date === todayStr);
+        if (todayRecords.length < employees.length) {
+            const recordedEmpIds = new Set(todayRecords.map((a) => a.employeeId));
+            const nowMins = today.getHours() * 60 + today.getMinutes();
+            const clock = (mins) => `${pad(((Math.floor(mins / 60) + 11) % 12) + 1)}:${pad(mins % 60)} ${mins >= 720 ? 'PM' : 'AM'}`;
+            const duration = (mins) => `${Math.floor(mins / 60)}h ${pad(mins % 60)}m`;
+
+            const onLeaveEmpIds = new Set();
+            try {
+                const leaves = getItem(STORAGE_KEYS.LEAVE_REQUESTS, INITIAL_LEAVE_REQUESTS);
+                if (Array.isArray(leaves)) {
+                    leaves
+                        .filter((l) => (l.status === 'Approved' || l.status === 'Partially Approved') && todayStr >= l.startDate && todayStr <= l.endDate)
+                        .forEach((l) => onLeaveEmpIds.add(l.employeeId));
+                }
+            } catch {
+                // fallback
+            }
+
+            employees.forEach((emp, i) => {
+                if (recordedEmpIds.has(emp.employeeId)) return;
+
+                const n = (i * 37 + today.getDate() * 11 + (today.getMonth() + 1) * 7) % 100;
+                const field = /Geology|GIS|Hydro|Mining/i.test(emp.employment?.department || '') && n % 3 === 0;
+                const base = {
+                    id: `att-${todayStr}-${emp.employeeId}`,
+                    employeeId: emp.employeeId,
+                    employeeName: emp.name,
+                    department: emp.employment?.department || 'Operations',
+                    date: todayStr,
+                    overtime: '-',
+                    punchSource: field ? 'Mobile Punch (Field GPS)' : 'Biometric - Jaipur HQ',
+                };
+
+                if (onLeaveEmpIds.has(emp.employeeId) || (n < 6 && onLeaveEmpIds.size === 0 && i === 5)) {
+                    cleaned.unshift({ ...base, checkIn: '-', checkOut: '-', workingHours: '-', lateBy: '-', status: 'On Leave', punchSource: 'Approved leave' });
+                    changed = true;
+                    return;
+                }
+
+                if (n < 2) {
+                    cleaned.unshift({ ...base, checkIn: '-', checkOut: '-', workingHours: '-', lateBy: '-', status: 'Absent' });
+                    changed = true;
+                    return;
+                }
+
+                const late = n < 15;
+                const inAt = late ? 555 + (n % 25) : 525 + (n % 20);
+                const outAt = 1080 + ((n * 3) % 45);
+                const working = nowMins < outAt;
+
+                cleaned.unshift({
+                    ...base,
+                    checkIn: clock(inAt),
+                    checkOut: working ? '-' : clock(outAt),
+                    workingHours: working ? 'Working...' : duration(outAt - inAt),
+                    lateBy: late ? `${inAt - 540}m` : '-',
+                    overtime: !working && outAt - inAt > 555 ? `${outAt - inAt - 540}m` : '-',
+                    status: late ? 'Late' : 'Present',
+                });
+                changed = true;
+            });
+        }
+    }
+
+    if (changed) {
+        setItem(STORAGE_KEYS.ATTENDANCE, cleaned);
+    }
+    return cleaned;
+}
+
 export const storage = {
     getEmployees: () => getItem(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES),
     setEmployees: (val) => setItem(STORAGE_KEYS.EMPLOYEES, val),
@@ -62,7 +263,10 @@ export const storage = {
     setDepartments: (val) => setItem(STORAGE_KEYS.DEPARTMENTS, val),
     getDesignations: () => getItem(STORAGE_KEYS.DESIGNATIONS, INITIAL_DESIGNATIONS),
     setDesignations: (val) => setItem(STORAGE_KEYS.DESIGNATIONS, val),
-    getAttendance: () => getItem(STORAGE_KEYS.ATTENDANCE, INITIAL_ATTENDANCE),
+    getAttendance: () => {
+        const raw = getItem(STORAGE_KEYS.ATTENDANCE, INITIAL_ATTENDANCE);
+        return normalizeAndSyncAttendance(raw);
+    },
     setAttendance: (val) => setItem(STORAGE_KEYS.ATTENDANCE, val),
     getCorrections: () => getItem(STORAGE_KEYS.CORRECTIONS, INITIAL_CORRECTIONS),
     setCorrections: (val) => setItem(STORAGE_KEYS.CORRECTIONS, val),
@@ -96,15 +300,16 @@ export const storage = {
     getBalancesForEmployee: (employeeId, employeeName) => {
         const settings = getItem(STORAGE_KEYS.LEAVE_SETTINGS, INITIAL_LEAVE_SETTINGS);
         const requests = storage.getLeaveRequests();
+        const empRequests = requests.filter((r) => r.employeeId === employeeId);
+        const hasMaternityReq = empRequests.some((r) => r.leaveType?.includes('Maternity') || r.leaveType?.includes('Paternity'));
         const quotas = [
             { leaveType: 'Casual Leave (CL)', totalAllocated: settings.annualCasualLeave ?? 12, color: '#3B82F6' },
             { leaveType: 'Sick Leave (SL)', totalAllocated: settings.annualSickLeave ?? 10, color: '#10B981' },
             { leaveType: 'Earned / Privilege Leave (EL)', totalAllocated: settings.annualEarnedLeave ?? 18, color: '#F59E0B' },
             { leaveType: 'Compensatory Off (CO)', totalAllocated: settings.annualCompOffLeave ?? 8, color: '#8B5CF6' },
             { leaveType: 'Field Duty Leave (FDL)', totalAllocated: settings.annualFieldDutyLeave ?? 15, color: '#06B6D4' },
-            { leaveType: 'Maternity / Paternity Leave', totalAllocated: 180, color: '#EC4899' },
+            ...(hasMaternityReq ? [{ leaveType: 'Maternity / Paternity Leave', totalAllocated: 180, color: '#EC4899' }] : []),
         ];
-        const empRequests = requests.filter((r) => r.employeeId === employeeId);
         const balances = quotas.map((q) => {
             // Approved used days: from Approved or Partially Approved requests
             const used = empRequests

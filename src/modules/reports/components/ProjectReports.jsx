@@ -68,6 +68,20 @@ export function ProjectReports({ switcher }) {
 
   const byStage = ERM_STAGES.map((st, i) => ({ label: `${i + 1}. ${st.label}`, count: active.filter((p) => p.stageIndex === i).length, note: st.owner }))
 
+  const projectExecutionStatusData = [
+    { name: 'Delivered & Closed', value: projects.filter((p) => p.closure.closedOn).length, color: '#10B981' },
+    { name: 'With Approval Authority', value: active.filter((p) => ERM_STAGES[p.stageIndex]?.key === 'approval').length, color: '#F59E0B' },
+    { name: 'Active Field Execution', value: active.filter((p) => ERM_STAGES[p.stageIndex]?.key !== 'approval').length, color: '#2563EB' },
+  ].filter((item) => item.value > 0)
+
+  const STAGE_COLORS = ['#2563EB', '#0D9488', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#64748B']
+  const stagePieData = byStage.map((st, idx) => ({
+    name: st.label,
+    value: st.count,
+    owner: st.note,
+    color: STAGE_COLORS[idx % STAGE_COLORS.length],
+  })).filter((st) => st.value > 0)
+
   const authorities = [...new Set(projects.map((p) => p.code))].map((code) => {
     const mine = projects.filter((p) => p.code === code)
     const done = approved.filter((p) => p.code === code)
@@ -146,31 +160,80 @@ export function ProjectReports({ switcher }) {
       <div className="dash-row report-row">
         <section className="card">
           <header className="card-header">
-            <BarChart3 className="card-icon" size={22} strokeWidth={1.8} />
-            <h2>Started, Submitted &amp; Closed — last 6 months</h2>
+            <PieIcon className="card-icon" size={22} strokeWidth={1.8} />
+            <div>
+              <h2>Project Execution &amp; Delivery Status</h2>
+              <p className="card-subtitle">Distribution across {projects.length} lifetime projects</p>
+            </div>
           </header>
-          <div className="report-chart">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={monthlyFlow(projects)} margin={{ top: 8, right: 12, left: -18, bottom: 0 }} barGap={4}>
-                <CartesianGrid stroke="#edf1f3" vertical={false} />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} tick={{ fill: '#7c8b96', fontSize: 12 }} />
-                <YAxis allowDecimals={false} tickLine={false} axisLine={false} tick={{ fill: '#7c8b96', fontSize: 12 }} />
-                <Tooltip cursor={{ fill: 'rgba(31,111,120,0.06)' }} contentStyle={{ borderRadius: 8, border: '1px solid #e1e8eb', fontSize: 12 }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
-                <Bar dataKey="Started" fill="#2a8089" radius={[4, 4, 0, 0]} animationDuration={700} />
-                <Bar dataKey="Submitted" fill="#c8943a" radius={[4, 4, 0, 0]} animationDuration={800} />
-                <Bar dataKey="Closed" fill="#2e9e6b" radius={[4, 4, 0, 0]} animationDuration={900} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="report-chart" style={{ height: 260 }}>
+            {projectExecutionStatusData.length === 0 ? (
+              <p className="empty-state" style={{ padding: '2rem', textAlign: 'center' }}>No projects on record.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={projectExecutionStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={4}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  >
+                    {projectExecutionStatusData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: '1px solid #e1e8eb', fontSize: 12 }}
+                    formatter={(val, name) => [`${val} projects (${Math.round((val / (projects.length || 1)) * 100)}%)`, name]}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 
         <section className="card">
           <header className="card-header">
-            <Layers className="card-icon" size={22} strokeWidth={1.8} />
-            <h2>Running Projects by Stage</h2>
+            <PieIcon className="card-icon" size={22} strokeWidth={1.8} />
+            <div>
+              <h2>Running Projects by Stage</h2>
+              <p className="card-subtitle">Workflow stage allocation of {active.length} active jobs</p>
+            </div>
           </header>
-          <Bars rows={byStage} color="var(--teal-600)" />
+          <div className="report-chart" style={{ height: 260 }}>
+            {stagePieData.length === 0 ? (
+              <p className="empty-state" style={{ padding: '2rem', textAlign: 'center' }}>No active projects in stages.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stagePieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={85}
+                    paddingAngle={3}
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  >
+                    {stagePieData.map((entry) => (
+                      <Cell key={entry.name} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: '1px solid #e1e8eb', fontSize: 12 }}
+                    formatter={(val, name, item) => [`${val} projects (Lead: ${item.payload.owner || 'Assigned'})`, name]}
+                  />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12, paddingTop: 10 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
+          </div>
         </section>
       </div>
 

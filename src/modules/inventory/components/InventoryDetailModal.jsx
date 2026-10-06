@@ -1,9 +1,9 @@
 import { useEffect, useId } from 'react'
-import { Boxes, Calendar, CheckCircle2, Clock, MapPin, RotateCcw, User, UserCheck, X } from 'lucide-react'
+import { Boxes, Calendar, CheckCircle2, Clock, MapPin, Pencil, RotateCcw, User, UserCheck, X } from 'lucide-react'
 import { Portal } from '../../../shared/components/Portal'
 import { formatINR } from '../../../shared/utils/format'
 
-export function InventoryDetailModal({ item, assignments = [], onClose, onAssign, onReturn, canManage }) {
+export function InventoryDetailModal({ item, assignments = [], onClose, onAssign, onReturn, onEdit, canManage }) {
   const titleId = useId()
 
   useEffect(() => {
@@ -42,21 +42,36 @@ export function InventoryDetailModal({ item, assignments = [], onClose, onAssign
           <div className="inv-modal-header">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 whitespace-nowrap">
                   {item.assetId || item.id}
                 </span>
                 <span className="cat-badge">{item.category}</span>
               </div>
               <h2 id={titleId} className="mt-1">{item.name}</h2>
             </div>
-            <button
-              type="button"
-              className="btn-icon-soft"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-2">
+              {canManage && onEdit && (
+                <button
+                  type="button"
+                  className="btn btn-small btn-outline flex items-center gap-1.5"
+                  onClick={() => {
+                    onClose()
+                    onEdit(item)
+                  }}
+                  title="Edit item specifications"
+                >
+                  <Pencil size={13} /> Edit
+                </button>
+              )}
+              <button
+                type="button"
+                className="btn-icon-soft"
+                onClick={onClose}
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
 
           <div className="inv-modal-body">

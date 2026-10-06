@@ -30,6 +30,7 @@ import {
 import { allProjects } from '../../erm/utils/projects'
 import { storage } from '../../../hrms/core/storage/storage'
 import { AddInventoryModal } from '../components/AddInventoryModal'
+import { EditInventoryModal } from '../components/EditInventoryModal'
 import { AssignInventoryModal } from '../components/AssignInventoryModal'
 import { ReturnInventoryModal } from '../components/ReturnInventoryModal'
 import { InventoryDetailModal } from '../components/InventoryDetailModal'
@@ -60,6 +61,7 @@ export function InventoryPage() {
 
   // Modals state
   const [showAddModal, setShowAddModal] = useState(false)
+  const [editingItem, setEditingItem] = useState(null)
   const [assigningItem, setAssigningItem] = useState(null)
   const [returningAssignment, setReturningAssignment] = useState(null)
   const [viewingItem, setViewingItem] = useState(null)
@@ -245,6 +247,17 @@ export function InventoryPage() {
     }
   }
 
+  const handleUpdateItem = (itemId, itemData) => {
+    try {
+      updateInventoryItem(itemId, itemData)
+      setEditingItem(null)
+      showToast('Inventory item updated successfully.')
+    } catch (err) {
+      showToast(err.message || 'Failed to update inventory item.', true)
+      throw err
+    }
+  }
+
   const handleConfirmAssign = (assignmentData) => {
     try {
       assignInventory(assignmentData)
@@ -269,6 +282,15 @@ export function InventoryPage() {
 
   const handleDeleteItem = (itemId) => {
     try {
+      const item = inventory.find((i) => i.id === itemId || i.assetId === itemId)
+      if (item && item.assignedQuantity > 0) {
+        showToast(
+          `Cannot delete "${item.name}": ${item.assignedQuantity} unit(s) are actively assigned. Return all units first.`,
+          true,
+        )
+        setConfirmDeleteId(null)
+        return
+      }
       deleteInventoryItem(itemId)
       setConfirmDeleteId(null)
       showToast('Inventory item deleted.')
@@ -507,16 +529,16 @@ export function InventoryPage() {
                 )}
               </div>
             ) : (
-              <table className="leads-table" aria-label="Inventory Stock Table">
+              <table className="inventory-table" aria-label="Inventory Stock Table">
                 <thead>
                   <tr>
-                    <th>Item ID / Asset</th>
-                    <th>Item Name & Description</th>
-                    <th>Category</th>
-                    <th style={{ minWidth: '130px' }}>Stock Level</th>
-                    <th>Status</th>
-                    <th>Location</th>
-                    <th style={{ textAlign: 'right' }}>Actions</th>
+                    <th className="inv-col-id">Item ID / Asset</th>
+                    <th style={{ minWidth: '220px' }}>Item Name & Description</th>
+                    <th className="inv-col-cat">Category</th>
+                    <th className="inv-col-stock">Stock Level</th>
+                    <th className="inv-col-status">Status</th>
+                    <th className="inv-col-location">Location</th>
+                    <th className="inv-col-actions">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -528,8 +550,8 @@ export function InventoryPage() {
 
                     return (
                       <tr key={item.id} className="lead-row">
-                        <td>
-                          <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+                        <td className="inv-col-id">
+                          <span className="inv-asset-badge">
                             {item.assetId || item.id}
                           </span>
                         </td>
@@ -541,10 +563,10 @@ export function InventoryPage() {
                             </span>
                           )}
                         </td>
-                        <td>
+                        <td className="inv-col-cat">
                           <span className="cat-badge">{item.category}</span>
                         </td>
-                        <td>
+                        <td className="inv-col-stock">
                           <div className="stock-bar-wrap">
                             <div className="stock-bar-nums">
                               <span className="font-bold text-slate-900">
@@ -560,7 +582,7 @@ export function InventoryPage() {
                             </div>
                           </div>
                         </td>
-                        <td>
+                        <td className="inv-col-status">
                           <span
                             className={`inv-badge ${
                               item.status === 'Available'
@@ -575,13 +597,13 @@ export function InventoryPage() {
                             {item.status}
                           </span>
                         </td>
-                        <td>
-                          <span className="text-xs text-slate-600 flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                        <td className="inv-col-location">
+                          <span className="text-xs text-slate-600 flex items-center gap-1.5 whitespace-nowrap">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
                             {item.location || 'Jaipur HQ'}
                           </span>
                         </td>
-                        <td>
+                        <td className="inv-col-actions">
                           <div className="inv-action-btns justify-end">
                             <button
                               type="button"
@@ -597,6 +619,15 @@ export function InventoryPage() {
                               <>
                                 <button
                                   type="button"
+                                  className="btn-icon-soft"
+                                  onClick={() => setEditingItem(item)}
+                                  title="Edit item specifications"
+                                  aria-label={`Edit ${item.name}`}
+                                >
+                                  <Pencil size={13} />
+                                </button>
+                                <button
+                                  type="button"
                                   className="btn-assign"
                                   onClick={() => setAssigningItem(item)}
                                   disabled={available <= 0}
@@ -609,7 +640,12 @@ export function InventoryPage() {
                                   type="button"
                                   className="btn-icon-danger"
                                   onClick={() => setConfirmDeleteId(item.id)}
-                                  title="Delete inventory item"
+                                  disabled={item.assignedQuantity > 0}
+                                  title={
+                                    item.assignedQuantity > 0
+                                      ? 'Cannot delete: item currently assigned to employees'
+                                      : 'Delete inventory item'
+                                  }
                                   aria-label={`Delete ${item.name}`}
                                 >
                                   <Trash2 size={13} />
@@ -641,16 +677,16 @@ export function InventoryPage() {
                 </p>
               </div>
             ) : (
-              <table className="leads-table" aria-label="Active Inventory Assignments Table">
+              <table className="inventory-table" aria-label="Active Inventory Assignments Table">
                 <thead>
                   <tr>
-                    <th>Item & Asset</th>
-                    <th>Assigned To</th>
-                    <th>Quantity</th>
-                    <th>Assigned Date</th>
-                    <th>Expected Return</th>
-                    <th>Project / Site</th>
-                    <th style={{ textAlign: 'right' }}>Action</th>
+                    <th style={{ minWidth: '180px' }}>Item & Asset</th>
+                    <th className="inv-col-emp">Assigned To</th>
+                    <th className="inv-col-qty">Quantity</th>
+                    <th className="inv-col-date">Assigned Date</th>
+                    <th style={{ width: '130px', minWidth: '120px' }}>Expected Return</th>
+                    <th style={{ minWidth: '170px' }}>Project / Site</th>
+                    <th className="inv-col-actions">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -658,38 +694,42 @@ export function InventoryPage() {
                     <tr key={asg.id || asg.assignmentId} className="lead-row">
                       <td>
                         <div className="font-semibold text-slate-900">{asg.itemName}</div>
-                        <span className="font-mono text-[11px] text-slate-500">
+                        <span className="font-mono text-[11px] text-slate-500 whitespace-nowrap">
                           {asg.assetId || asg.inventoryItemId} · {asg.category}
                         </span>
                       </td>
-                      <td>
-                        <div className="flex items-center gap-1.5 font-medium text-slate-900">
-                          <User size={13} className="text-blue-600" />
+                      <td className="inv-col-emp">
+                        <div className="flex items-center gap-1.5 font-medium text-slate-900 whitespace-nowrap">
+                          <User size={13} className="text-blue-600 shrink-0" />
                           <span>{asg.employeeName}</span>
                         </div>
-                        <span className="text-[11px] font-mono text-slate-500">
+                        <span className="text-[11px] font-mono text-slate-500 whitespace-nowrap">
                           {asg.employeeId}
                         </span>
                       </td>
-                      <td>
-                        <span className="font-bold text-slate-900">
+                      <td className="inv-col-qty">
+                        <span className="font-bold text-slate-900 whitespace-nowrap">
                           {asg.quantity} {asg.unit || 'Nos'}
                         </span>
                       </td>
-                      <td>
-                        <span className="text-xs text-slate-600">{asg.assignedDate || '—'}</span>
+                      <td className="inv-col-date">
+                        <span className="inv-date-text text-slate-600 font-mono">{asg.assignedDate || '—'}</span>
                       </td>
-                      <td>
-                        <span className="text-xs font-medium text-amber-700">
+                      <td className="whitespace-nowrap">
+                        <span
+                          className={`text-xs font-medium whitespace-nowrap ${
+                            asg.expectedReturnDate ? 'text-amber-700' : 'text-slate-400'
+                          }`}
+                        >
                           {asg.expectedReturnDate || 'Open / Indefinite'}
                         </span>
                       </td>
                       <td>
-                        <span className="text-xs text-slate-700 truncate max-w-[180px] block">
+                        <span className="text-xs text-slate-700 truncate max-w-[190px] block" title={asg.projectName || 'General Duty'}>
                           {asg.projectName || 'General Duty'}
                         </span>
                       </td>
-                      <td>
+                      <td className="inv-col-actions">
                         <div className="inv-action-btns justify-end">
                           {canManage && (
                             <button
@@ -721,15 +761,15 @@ export function InventoryPage() {
                 <p>No historical inventory checkout or return records match your filters.</p>
               </div>
             ) : (
-              <table className="leads-table" aria-label="Inventory History Table">
+              <table className="inventory-table" aria-label="Inventory History Table">
                 <thead>
                   <tr>
-                    <th>Item & Asset</th>
-                    <th>Employee</th>
-                    <th>Quantity</th>
-                    <th>Out Date</th>
-                    <th>Return Date</th>
-                    <th>Status</th>
+                    <th style={{ minWidth: '180px' }}>Item & Asset</th>
+                    <th className="inv-col-emp">Employee</th>
+                    <th className="inv-col-qty">Quantity</th>
+                    <th className="inv-col-date">Out Date</th>
+                    <th className="inv-col-date">Return Date</th>
+                    <th className="inv-col-status">Status</th>
                     <th>Remarks</th>
                   </tr>
                 </thead>
@@ -738,28 +778,34 @@ export function InventoryPage() {
                     <tr key={asg.id || asg.assignmentId} className="lead-row">
                       <td>
                         <div className="font-semibold text-slate-900">{asg.itemName}</div>
-                        <span className="font-mono text-[11px] text-slate-500">
+                        <span className="font-mono text-[11px] text-slate-500 whitespace-nowrap">
                           {asg.assetId || asg.inventoryItemId}
                         </span>
                       </td>
-                      <td>
-                        <div className="font-medium text-slate-900">{asg.employeeName}</div>
-                        <span className="text-[11px] font-mono text-slate-500">{asg.employeeId}</span>
+                      <td className="inv-col-emp">
+                        <div className="font-medium text-slate-900 whitespace-nowrap">{asg.employeeName}</div>
+                        <span className="text-[11px] font-mono text-slate-500 whitespace-nowrap">{asg.employeeId}</span>
                       </td>
-                      <td>
-                        <span className="font-semibold">
+                      <td className="inv-col-qty">
+                        <span className="font-semibold whitespace-nowrap">
                           {asg.quantity} {asg.unit || 'Nos'}
                         </span>
                       </td>
-                      <td>
-                        <span className="text-xs text-slate-600">{asg.assignedDate || '—'}</span>
+                      <td className="inv-col-date">
+                        <span className="inv-date-text text-slate-600 font-mono">{asg.assignedDate || '—'}</span>
                       </td>
-                      <td>
-                        <span className="text-xs font-semibold text-emerald-700">
-                          {asg.returnDate || (asg.status === 'Assigned' ? 'Active' : '—')}
-                        </span>
+                      <td className="inv-col-date">
+                        {asg.returnDate ? (
+                          <span className="inv-date-text font-semibold text-emerald-700 font-mono">
+                            {asg.returnDate}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-400" title="Item currently out in field">
+                            —
+                          </span>
+                        )}
                       </td>
-                      <td>
+                      <td className="inv-col-status">
                         <span
                           className={`inv-badge ${
                             asg.status === 'Assigned' ? 'inv-badge-assigned' : 'inv-badge-returned'
@@ -769,7 +815,7 @@ export function InventoryPage() {
                         </span>
                       </td>
                       <td>
-                        <span className="text-xs text-slate-600 italic line-clamp-1">
+                        <span className="text-xs text-slate-600 italic line-clamp-1" title={asg.returnRemarks || asg.remarks || '—'}>
                           {asg.returnRemarks || asg.remarks || '—'}
                         </span>
                       </td>
@@ -787,6 +833,14 @@ export function InventoryPage() {
         <AddInventoryModal
           onClose={() => setShowAddModal(false)}
           onSave={handleSaveItem}
+        />
+      )}
+
+      {editingItem && (
+        <EditInventoryModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSave={handleUpdateItem}
         />
       )}
 
@@ -814,45 +868,72 @@ export function InventoryPage() {
           onClose={() => setViewingItem(null)}
           onAssign={(item) => setAssigningItem(item)}
           onReturn={(asg) => setReturningAssignment(asg)}
+          onEdit={(item) => setEditingItem(item)}
           canManage={canManage}
         />
       )}
 
       {confirmDeleteId && (() => {
         const item = inventory.find((i) => i.id === confirmDeleteId)
+        const hasActiveCheckouts = item && (item.assignedQuantity > 0)
         return (
           <div className="inv-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="del-confirm-title">
-            <div className="inv-modal-box" style={{ maxWidth: 400 }}>
+            <div className="inv-modal-box" style={{ maxWidth: 420 }}>
               <div style={{ padding: '24px 24px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span style={{ width: 36, height: 36, borderRadius: 8, background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Trash2 size={18} color="#ef4444" />
+                  <span style={{ width: 36, height: 36, borderRadius: 8, background: hasActiveCheckouts ? '#fef3c7' : '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Trash2 size={18} color={hasActiveCheckouts ? '#d97706' : '#ef4444'} />
                   </span>
-                  <h3 id="del-confirm-title" style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Delete Inventory Item?</h3>
+                  <h3 id="del-confirm-title" style={{ margin: 0, fontSize: 15, fontWeight: 700, color: '#0f172a' }}>
+                    {hasActiveCheckouts ? 'Cannot Delete Item' : 'Delete Inventory Item?'}
+                  </h3>
                 </div>
                 {item && (
-                  <p style={{ margin: 0, fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
-                    You are about to permanently delete <strong>{item.name}</strong>{' '}
-                    <span style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>{item.assetId || item.id}</span>.
-                    This action cannot be undone.
-                  </p>
+                  hasActiveCheckouts ? (
+                    <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <p style={{ margin: 0, color: '#b45309', fontWeight: 600 }}>
+                        &ldquo;{item.name}&rdquo; currently has {item.assignedQuantity} unit(s) checked out to field employees.
+                      </p>
+                      <p style={{ margin: 0 }}>
+                        Please go to the <strong>Active Assignments</strong> tab and process returns for all checked-out units before deleting this item.
+                      </p>
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0, fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>
+                      You are about to permanently delete <strong>{item.name}</strong>{' '}
+                      <span style={{ fontFamily: 'monospace', fontSize: 11, background: '#f1f5f9', padding: '1px 5px', borderRadius: 4 }}>{item.assetId || item.id}</span>.
+                      This action cannot be undone.
+                    </p>
+                  )
                 )}
               </div>
               <div style={{ padding: '12px 24px 20px', display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={() => setConfirmDeleteId(null)}
-                  style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', color: '#475569', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteItem(confirmDeleteId)}
-                  style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, border: 'none', borderRadius: 6, background: '#ef4444', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-                >
-                  <Trash2 size={13} /> Delete
-                </button>
+                {hasActiveCheckouts ? (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDeleteId(null)}
+                    style={{ padding: '7px 18px', fontSize: 13, fontWeight: 600, border: '1px solid #cbd5e1', borderRadius: 6, background: '#fff', color: '#334155', cursor: 'pointer' }}
+                  >
+                    Close
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeleteId(null)}
+                      style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, border: '1px solid #e2e8f0', borderRadius: 6, background: '#fff', color: '#475569', cursor: 'pointer' }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteItem(confirmDeleteId)}
+                      style={{ padding: '7px 16px', fontSize: 13, fontWeight: 600, border: 'none', borderRadius: 6, background: '#ef4444', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                      <Trash2 size={13} /> Delete
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
