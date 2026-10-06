@@ -1,6 +1,6 @@
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { useLayoutEffect, useRef, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAccess, useCrm } from '../../core/permissions/crm'
 import { countFollowUpsDue } from '../../modules/reports/utils/dashboardStats'
 import { questionsFor } from '../../modules/crm/utils/questions'
@@ -15,7 +15,7 @@ import { NAV_GROUPS } from './navigation'
  * mountain in place of the motto; both step aside when less than footerRoom pixels are left under the menu.
  * An item's badgeTone colours its count (e.g. tone-urgent for something waiting).
  */
-export function Sidebar({ onNavigate, nav, counts, expanded = false, footer, footerRoom = 200 }) {
+export function Sidebar({ onNavigate, onClose, nav, counts, expanded = false, footer, footerRoom = 200 }) {
   const { followUps, leads, user, projectEdits, vendorApplications, tenders, bids, clarifications, documents, scanInbox } = useCrm()
   const { can, role, may } = useAccess()
   const badges = counts ?? {
@@ -72,7 +72,19 @@ export function Sidebar({ onNavigate, nav, counts, expanded = false, footer, foo
   return (
     <aside className={`sidebar ${crowded ? 'is-crowded' : ''}`}>
       <div className="sidebar-brand">
-        <Logo />
+        <Link to="/" onClick={onNavigate} className="sidebar-brand-link" aria-label="Go to homepage">
+          <Logo />
+        </Link>
+        {onClose && (
+          <button
+            type="button"
+            className="sidebar-close-btn"
+            onClick={onClose}
+            aria-label="Close menu"
+          >
+            <X size={19} />
+          </button>
+        )}
       </div>
 
       <nav className="sidebar-nav" aria-label="Main" ref={navRef}>

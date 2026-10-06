@@ -23,9 +23,26 @@
   height: var(--chrome-height);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 0 20px;
   border-bottom: 1px solid var(--sidebar-line);
   flex-shrink: 0;
+}
+
+.sidebar-brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.sidebar-close-btn {
+  display: none;
+}
+
+.mobile-search-trigger {
+  display: none;
 }
 
 .logo {
@@ -336,6 +353,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .topbar {
@@ -470,6 +489,8 @@
 .app-content {
   flex: 1;
   padding: 18px 24px 20px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .app-footer {
@@ -502,15 +523,21 @@
 
 /* ---------- Desktop: menu button collapses sidebar to an icon rail ---------- */
 @media (min-width: 1024px) {
+  .app-shell.desktop-collapsed,
   .app-shell.menu-toggled {
     --sidebar-width: 76px;
   }
 
   /* The icon rail shows every page; the module headers step aside. */
+  .desktop-collapsed .nav-group-items,
   .menu-toggled .nav-group-items {
     grid-template-rows: 1fr;
   }
 
+  .desktop-collapsed .logo-text,
+  .desktop-collapsed .sidebar-section,
+  .desktop-collapsed .nav-item span:not(.nav-icon),
+  .desktop-collapsed .sidebar-motto,
   .menu-toggled .logo-text,
   .menu-toggled .sidebar-section,
   .menu-toggled .nav-item span:not(.nav-icon),
@@ -518,26 +545,31 @@
     display: none;
   }
 
+  .desktop-collapsed .sidebar-brand,
   .menu-toggled .sidebar-brand {
     justify-content: center;
     padding: 0;
   }
 
+  .desktop-collapsed .nav-item,
   .menu-toggled .nav-item {
     justify-content: center;
     padding: 0;
   }
 
+  .desktop-collapsed .nav-item.is-active,
   .menu-toggled .nav-item.is-active {
     margin-left: 0;
     padding: 0;
     border-radius: 8px;
   }
 
+  .desktop-collapsed .nav-item.is-active::before,
   .menu-toggled .nav-item.is-active::before {
     display: none;
   }
 
+  .desktop-collapsed .nav-item .nav-badge,
   .menu-toggled .nav-item .nav-badge {
     display: grid;
     position: absolute;
@@ -559,23 +591,52 @@
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 40;
-    width: 260px;
+    z-index: 50;
+    width: 280px;
+    max-width: calc(100vw - 44px);
     transform: translateX(-100%);
-    transition: transform 0.22s ease;
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
+  .sidebar-brand {
+    padding: 0 14px 0 18px;
+  }
+
+  .sidebar-close-btn {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .sidebar-close-btn:hover {
+    background: var(--sidebar-hover);
+    color: var(--ink);
+  }
+
+  .mobile-open .sidebar,
   .menu-toggled .sidebar {
     transform: translateX(0);
-    box-shadow: 8px 0 32px rgba(15, 42, 61, 0.2);
+    box-shadow: 12px 0 36px rgba(15, 42, 61, 0.28);
   }
 
+  .mobile-open .sidebar-backdrop,
   .menu-toggled .sidebar-backdrop {
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 30;
-    background: rgba(15, 42, 61, 0.35);
+    z-index: 45;
+    background: rgba(15, 42, 61, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    animation: fade-in 0.2s ease;
   }
 
   .topbar {
@@ -597,12 +658,92 @@
   }
 }
 
+body.mobile-drawer-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
 @media (max-width: 640px) {
-  .search {
+  .topbar {
+    height: 58px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+
+  .mobile-search-trigger {
+    display: grid;
+    place-items: center;
+  }
+
+  .search-container:not(.is-mobile-expanded) {
     display: none;
+  }
+
+  .search-container.is-mobile-expanded {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 25;
+    display: flex;
+  }
+
+  .search-container.is-mobile-expanded .search {
+    width: 100%;
+    max-width: none;
+    height: 42px;
+    padding: 0 8px 0 12px;
+    box-shadow: 0 4px 20px rgba(15, 42, 61, 0.2);
+    background: var(--surface);
+    border-color: var(--teal-600);
+  }
+
+  .search-mobile-close {
+    border: none;
+    background: transparent;
+    color: var(--ink-2);
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: 4px;
+  }
+
+  .search-mobile-close:hover {
+    background: var(--chrome-hover);
+    color: var(--ink);
+  }
+
+  .app-content {
+    padding: 12px 12px 18px;
+  }
+
+  .app-footer {
+    padding: 0 12px 14px;
+    font-size: 12px;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  .user-chip {
+    padding: 2px 4px;
+    gap: 6px;
   }
 
   .user-chip > svg {
     display: none;
+  }
+
+  .icon-button {
+    width: 36px;
+    height: 36px;
   }
 }

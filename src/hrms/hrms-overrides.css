@@ -415,3 +415,43 @@
     gap: 10px;
   }
 }
+
+/* ── Responsive rules for HRMS on Tablet & Mobile ── */
+@media (max-width: 1023px) {
+  .hrms .page-header {
+    margin-bottom: 16px;
+  }
+  .hrms .page-title h1 {
+    font-size: 28px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hrms .page-title h1 {
+    font-size: 24px !important;
+  }
+  .hrms .stat-grid,
+  .hrms .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .hrms .table-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hrms .page-title h1 {
+    font-size: 22px !important;
+  }
+  .hrms .stat-grid,
+  .hrms .stats-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .hrms .dialog-content {
+    max-width: 95vw !important;
+    padding: 16px !important;
+  }
+}

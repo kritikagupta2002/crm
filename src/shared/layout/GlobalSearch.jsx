@@ -1,4 +1,4 @@
-import { Building2, FileText, FolderKanban, Search, Users } from 'lucide-react'
+import { Building2, FileText, FolderKanban, Search, Users, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StagePill } from '../components/StagePill'
@@ -15,6 +15,7 @@ export function GlobalSearch() {
   const { can } = useAccess()
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
+  const [mobileActive, setMobileActive] = useState(false)
   const [active, setActive] = useState(0)
   const inputRef = useRef(null)
   const wrapRef = useRef(null)
@@ -78,6 +79,7 @@ export function GlobalSearch() {
     navigate(item.to)
     setQuery('')
     setOpen(false)
+    setMobileActive(false)
     inputRef.current?.blur()
   }
 
@@ -92,35 +94,66 @@ export function GlobalSearch() {
       pick(flat[active])
     } else if (e.key === 'Escape') {
       setOpen(false)
+      setMobileActive(false)
       inputRef.current?.blur()
     }
   }
 
   let index = -1
   return (
-    <div className="global-search" ref={wrapRef}>
-      <label className="search">
-        <Search size={16} className="muted" />
-        <span className="sr-only">Search</span>
-        <input
-          ref={inputRef}
-          type="search"
-          value={query}
-          placeholder="Search clients, enquiries, projects"
-          onChange={(e) => {
-            setQuery(e.target.value)
-            setActive(0)
-            setOpen(true)
-          }}
-          onFocus={() => setOpen(true)}
-          onKeyDown={onKeyDown}
-          role="combobox"
-          aria-expanded={open && q.length >= 2}
-          aria-controls="search-results"
-          aria-autocomplete="list"
-        />
-        <kbd>/</kbd>
-      </label>
+    <div className={`global-search ${mobileActive ? 'is-mobile-open' : ''}`} ref={wrapRef}>
+      {/* Mobile search trigger button */}
+      <button
+        type="button"
+        className="icon-button mobile-search-trigger"
+        onClick={() => {
+          setMobileActive(true)
+          setTimeout(() => inputRef.current?.focus(), 50)
+        }}
+        aria-label="Search"
+      >
+        <Search size={19} />
+      </button>
+
+      {/* Main search bar */}
+      <div className={`search-container ${mobileActive ? 'is-mobile-expanded' : ''}`}>
+        <label className="search">
+          <Search size={16} className="muted" />
+          <span className="sr-only">Search</span>
+          <input
+            ref={inputRef}
+            type="search"
+            value={query}
+            placeholder="Search clients, enquiries, projects"
+            onChange={(e) => {
+              setQuery(e.target.value)
+              setActive(0)
+              setOpen(true)
+            }}
+            onFocus={() => setOpen(true)}
+            onKeyDown={onKeyDown}
+            role="combobox"
+            aria-expanded={open && q.length >= 2}
+            aria-controls="search-results"
+            aria-autocomplete="list"
+          />
+          <kbd>/</kbd>
+          {mobileActive && (
+            <button
+              type="button"
+              className="search-mobile-close"
+              onClick={() => {
+                setMobileActive(false)
+                setOpen(false)
+                setQuery('')
+              }}
+              aria-label="Close search"
+            >
+              <X size={17} />
+            </button>
+          )}
+        </label>
+      </div>
 
       {open && q.length >= 2 && (
         <div className="search-results" id="search-results" role="listbox">

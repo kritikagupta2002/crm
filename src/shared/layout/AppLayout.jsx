@@ -31,28 +31,56 @@ function pageTitle(pathname) {
  * on desktop it collapses the sidebar to an icon rail, on small screens it opens the sidebar as a drawer.
  */
 export function AppLayout() {
-  const [menuToggled, setMenuToggled] = useState(readCollapsed)
+  const [desktopCollapsed, setDesktopCollapsed] = useState(readCollapsed)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const { changeCount, resetDemoData, teamSignedIn, role } = useCrm()
   const { pathname } = useLocation()
 
+  // On route change: close mobile drawer, scroll to top, update document title
   useEffect(() => {
     document.title = `${pageTitle(pathname)} · Bansal Geo CRM`
-    // A new page starts at the top; otherwise it opens at the previous page's scroll position.
-    // Only the path counts, so switching tabs or filters (?tab=…) doesn't jump.
     window.scrollTo(0, 0)
+    setMobileOpen(false)
   }, [pathname])
 
-  const toggleMenu = () =>
-    setMenuToggled((value) => {
+  // Lock body scroll on small screens when mobile drawer is open
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.classList.add('mobile-drawer-open')
+    } else {
+      document.body.classList.remove('mobile-drawer-open')
+    }
+    return () => {
+      document.body.classList.remove('mobile-drawer-open')
+    }
+  }, [mobileOpen])
+
+  // Auto-close mobile drawer on window resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
       if (!isSmallScreen()) {
+        setMobileOpen(false)
+      }
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const toggleMenu = () => {
+    if (isSmallScreen()) {
+      setMobileOpen((prev) => !prev)
+    } else {
+      setDesktopCollapsed((prev) => {
+        const next = !prev
         try {
-          localStorage.setItem(COLLAPSED_KEY, value ? '0' : '1')
+          localStorage.setItem(COLLAPSED_KEY, next ? '1' : '0')
         } catch {
           // Only a convenience.
         }
-      }
-      return !value
-    })
+        return next
+      })
+    }
+  }
 
   // The CRM is for the team; clients and vendors have their own portals and sign-ins.
   if (!teamSignedIn) return <Navigate to="/login" replace state={{ from: pathname }} />
@@ -65,10 +93,15 @@ export function AppLayout() {
     }
   }
 
+  const isMenuToggled = isSmallScreen() ? mobileOpen : desktopCollapsed
+
   return (
-    <div className={`app-shell ${menuToggled ? 'menu-toggled' : ''}`}>
-      <Sidebar onNavigate={() => isSmallScreen() && setMenuToggled(false)} />
-      <div className="sidebar-backdrop" onClick={() => setMenuToggled(false)} />
+    <div className={`app-shell ${desktopCollapsed ? 'desktop-collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''} ${isMenuToggled ? 'menu-toggled' : ''}`}>
+      <Sidebar
+        onNavigate={() => setMobileOpen(false)}
+        onClose={() => setMobileOpen(false)}
+      />
+      <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />
 
       <div className="app-main">
         <Topbar onMenuClick={toggleMenu} />
