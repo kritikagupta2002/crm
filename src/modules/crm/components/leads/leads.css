@@ -28,7 +28,7 @@
 }
 
 .insight-card .card-header h2 {
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .insight-bars {
@@ -44,7 +44,7 @@
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
   margin-bottom: 4px;
 }
@@ -55,7 +55,7 @@
 }
 
 .insight-bar-top .muted {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .insight-track {
@@ -200,7 +200,7 @@
   border: none;
   border-bottom: 2px solid transparent;
   background: none;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
   white-space: nowrap;
 }
@@ -217,7 +217,7 @@
   padding: 1px 7px;
   border-radius: 999px;
   background: var(--bg);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--ink-3);
 }
@@ -327,15 +327,15 @@
 }
 
 .page-button {
-  min-width: 32px;
-  height: 32px;
+  min-width: 34px;
+  height: 34px;
   padding: 0 6px;
   display: inline-grid;
   place-items: center;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--surface);
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--ink-2);
 }
 
@@ -362,12 +362,12 @@
 }
 
 .page-size {
-  height: 32px;
+  height: 34px;
   padding: 0 8px;
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--surface);
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 
 .empty-state {

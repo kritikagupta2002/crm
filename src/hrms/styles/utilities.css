@@ -201,7 +201,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -266,47 +266,11 @@ a {
  * ============================================================
  */
 
-/* ── Font sizes (base 14px) ──────────────────────────────── */
-
-/* 10px  0.714rem  → micro labels, badges */
-
-/* 11px  0.785rem  → popover section labels */
-
-/* 11.5px            → user-meta sub-line */
-
-/* 12px  0.857rem  → cell-sub, muted, timestamps */
-
-/* 12.5px            → table headers, small buttons */
-
-/* 13px  0.928rem  → body, table cells, inputs */
-
-/* 13.5px            → search results, list items */
-
-/* 14px  1rem      → base body */
-
-/* 15px  1.071rem  → nav items */
-
-/* 16px  1.142rem  → card h2 titles */
-
-/* 17px  1.214rem  → workflow company names */
-
-/* 19px  1.357rem  → quote grand total (serif) */
-
-/* 20px  1.428rem  → sidebar logo name */
-
-/* 24px  1.714rem  → no-access heading */
-
-/* 26px  1.857rem  → glance-figures (serif) */
-
-/* 32px  2.285rem  → page title h1 (serif) */
-
-/* 34px  2.428rem  → stat-value (serif) */
-
 /* ── Page title ──────────────────────────────────────────── */
 
 .page-title h1 {
   font-family: var(--font-serif);
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -314,7 +278,7 @@ a {
 
 .page-title p {
   margin: 4px 0 0;
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--ink-2);
 }
 
@@ -322,7 +286,7 @@ a {
 
 .stat-value {
   font-family: var(--font-serif);
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 600;
   line-height: 1.05;
   color: var(--ink);
@@ -332,7 +296,7 @@ a {
 
 .workflow-company {
   font-family: var(--font-serif);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -580,7 +544,7 @@ a {
 .card-header h2 {
   flex: 1;
   min-width: 0;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -590,7 +554,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink-3);
 }
 
@@ -629,7 +593,7 @@ a {
 }
 
 .stat-top h3 {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--ink);
 }
@@ -649,7 +613,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.4;
 }
 
@@ -669,13 +633,13 @@ a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
+  height: 40px;
   padding: 0 16px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: var(--surface);
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14.5px;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
 
@@ -696,9 +660,9 @@ a {
 /* Size modifier */
 
 .btn.btn-small {
-  height: 32px;
+  height: 34px;
   padding: 0 12px;
-  font-size: 12.5px;
+  font-size: 13px;
   gap: 6px;
 }
 
@@ -815,9 +779,9 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -859,7 +823,7 @@ a {
   border-radius: 999px;
   background: var(--gold-100);
   color: var(--gold-600);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -877,12 +841,12 @@ a {
 }
 
 .segmented button {
-  height: 30px;
+  height: 34px;
   padding: 0 14px;
   border: none;
   border-radius: 6px;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 
@@ -947,7 +911,7 @@ a {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14.5px;
   min-width: 660px;
 }
 
@@ -955,10 +919,10 @@ a {
   white-space: nowrap;
   text-align: left;
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink);
   background: var(--bg);
-  padding: 10px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -971,7 +935,7 @@ a {
 }
 
 .data-table td {
-  padding: 10px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line-soft);
   color: var(--ink-2);
   vertical-align: middle;

@@ -11,7 +11,7 @@
 
 .vendor-order-work {
   margin: -4px 0 0;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
 }
 
@@ -20,7 +20,7 @@
 }
 
 .vendor-trail summary {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--teal-700);
   cursor: pointer;
@@ -54,7 +54,7 @@
   padding: 10px 12px;
   border-radius: var(--radius);
   background: var(--amber-bg, #fff6e5);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 
@@ -75,7 +75,7 @@
   gap: 10px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--line-soft);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .doc-slots li:last-child {
@@ -105,7 +105,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
   cursor: pointer;
 }
@@ -146,7 +146,7 @@
 
 .mobile-code {
   padding: 0 2px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-3);
 }
 
@@ -171,7 +171,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--green);
 }
@@ -204,7 +204,7 @@
   border-radius: var(--radius);
   background: var(--teal-50);
   font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
-  font-size: 15px;
+  font-size: 16px;
   letter-spacing: 0.12em;
   color: var(--ink);
   user-select: none;
@@ -229,7 +229,7 @@
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid var(--line-soft);
-  font-size: 13.5px;
+  font-size: 14.5px;
 }
 
 .track-result p {
@@ -247,7 +247,7 @@
 .track-history {
   margin: 12px 0 0;
   padding: 0 0 0 18px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink-2);
 }
 
@@ -280,24 +280,13 @@
 
 /* ---------- Works and bids (vendor portal) ---------- */
 
-
-
-
-
-
-
-
-
-
-
-
 /* The tender page: eProc's sections as label / value pairs, then the bid. */
 
 .eproc-section h2 {
   margin-bottom: 10px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line-soft);
-  font-size: 15px;
+  font-size: 16.5px;
 }
 
 .eproc-grid {
@@ -308,13 +297,13 @@
 }
 
 .eproc-grid dt {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-3);
 }
 
 .eproc-grid dd {
   margin: 2px 0 0;
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 1.45;
   color: var(--ink);
   overflow-wrap: anywhere;
@@ -368,13 +357,13 @@
 
 .vendor-topline strong {
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: 17.5px;
   font-weight: 600;
   color: var(--ink);
 }
 
 .vendor-topline span {
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .user-chip.is-static {
@@ -390,7 +379,7 @@
   align-items: center;
   gap: 5px;
   margin-bottom: 6px;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--teal-700);
 }
 
@@ -567,7 +556,7 @@
 .clarify-q,
 .clarify-a {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--ink-2);
 }
@@ -644,7 +633,7 @@
 
 .vendor-shell .sidebar-section {
   height: 28px;
-  font-size: 11px;
+  font-size: 12.5px;
   cursor: default;
 }
 
@@ -673,7 +662,7 @@
 .vendor-shell .nav-item {
   height: 38px;
   gap: 12px;
-  font-size: 14px;
+  font-size: 15.5px;
 }
 
 
@@ -723,14 +712,14 @@
 
 .vendor-hero-hello {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--ink-2);
 }
 
 .vendor-hero h1 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 600;
   line-height: 1.1;
   color: var(--ink);
@@ -750,7 +739,7 @@
   border: 1px solid var(--line);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.85);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   color: var(--ink-2);
 }
@@ -803,7 +792,7 @@
 }
 
 .work-tile strong {
-  font-size: 14.5px;
+  font-size: 15.5px;
   line-height: 1.35;
   color: var(--ink);
 }
@@ -817,7 +806,7 @@
 
 .work-tile-top .status-pill {
   gap: 4px;
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 
 .cat-chip {
@@ -825,7 +814,7 @@
   padding: 2px 8px;
   border-radius: 6px;
   background: var(--gold-100);
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--gold-600);
 }
@@ -834,7 +823,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px 14px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink-3);
 }
 
@@ -848,7 +837,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--teal-700);
 }
@@ -901,7 +890,7 @@
 }
 
 .vendor-timeline strong {
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 1.35;
   color: var(--ink);
 }
@@ -941,7 +930,7 @@
 }
 
 .order-track-head strong {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
 }
 
@@ -959,7 +948,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-3);
 }
 
@@ -1064,7 +1053,7 @@
 .tender-summary-title h1 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 600;
   line-height: 1.2;
   color: var(--ink);
@@ -1072,7 +1061,7 @@
 
 .tender-summary-title p {
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .tender-chips {
@@ -1117,13 +1106,13 @@
 }
 
 .tender-facts dt {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--ink-3);
 }
 
 .tender-facts dd {
   margin: 0;
-  font-size: 14px;
+  font-size: 15.5px;
   font-weight: 600;
   color: var(--ink);
   overflow-wrap: anywhere;
@@ -1225,7 +1214,7 @@
 }
 
 .dates-timeline strong {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--ink-2);
 }
@@ -1277,7 +1266,7 @@
   grid-template-columns: auto 1fr;
   gap: 4px 12px;
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .side-facts div {
@@ -1406,7 +1395,7 @@
 .vendor-shell .nav-badge {
   min-width: 22px;
   height: 20px;
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 
 .vendor-shell .nav-badge.is-info {
@@ -1452,13 +1441,13 @@
   align-items: flex-start;
   gap: 2px;
   color: #fff;
-  font-size: 12.5px;
+  font-size: 13.5px;
   text-shadow: 0 1px 8px rgba(15, 30, 40, 0.6);
 }
 
 .vendor-help strong {
   font-family: var(--font-serif);
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   line-height: 1.2;
 }

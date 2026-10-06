@@ -82,7 +82,8 @@ export const AddEmployeePage = () => {
         return age;
     }, [formData.dob]);
     const handleChange = (field, value) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
+        const actualVal = value && typeof value === 'object' && 'target' in value ? value.target.value : value;
+        setFormData((prev) => ({ ...prev, [field]: actualVal }));
         if (errors[field]) {
             setErrors((prev) => {
                 const next = { ...prev };
@@ -182,7 +183,7 @@ export const AddEmployeePage = () => {
             else if (desig.length > 50) {
                 errs.designation = 'Designation cannot exceed 50 characters';
             }
-            if (!formData.joiningDate.trim())
+            if (!String(formData.joiningDate || '').trim())
                 errs.joiningDate = 'Joining Date is required';
             if (formData.reportingManager && formData.reportingManager.length > 50) {
                 errs.reportingManager = 'Manager name cannot exceed 50 characters';
@@ -424,7 +425,7 @@ export const AddEmployeePage = () => {
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Date of Birth <span className="text-rose-500 font-bold">*</span>
                   </label>
-                  <DatePicker value={formData.dob} min={minDobDate} max={maxDobDate} onChange={(val) => handleChange('dob', val)}/>
+                  <DatePicker value={formData.dob} min={minDobDate} max={maxDobDate} onChange={(e) => handleChange('dob', e?.target?.value ?? e)}/>
                   {errors.dob ? (<span className="text-xs text-rose-600 font-medium block mt-1">{errors.dob}</span>) : calculatedAge !== null ? (<span className="text-[11px] text-slate-400 block mt-1">Age: {calculatedAge} years</span>) : null}
                 </div>
 
@@ -480,7 +481,7 @@ export const AddEmployeePage = () => {
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Joining Date <span className="text-rose-500 font-bold">*</span>
                   </label>
-                  <DatePicker value={formData.joiningDate} min="2010-01-01" max="2027-12-31" onChange={(val) => handleChange('joiningDate', val)}/>
+                  <DatePicker value={formData.joiningDate} min="2010-01-01" max="2027-12-31" onChange={(e) => handleChange('joiningDate', e?.target?.value ?? e)}/>
                   {errors.joiningDate && (<span className="text-xs text-rose-600 font-medium block mt-1">{errors.joiningDate}</span>)}
                 </div>
 

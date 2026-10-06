@@ -131,16 +131,16 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
                   }}
                   placeholder={searchPlaceholder}
                   style={{ paddingLeft: '36px', paddingRight: '30px' }}
-                  className={`w-full text-xs font-inter border border-[#E2E8F0] dark:border-[#253344] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#627079] dark:placeholder:text-slate-500 text-[#0F172A] dark:text-slate-200 bg-[#F8FAFC] dark:bg-[#111821] transition-all duration-200 ${compact ? 'h-[34px] py-1.5' : 'h-[38px] py-2'} shadow-2xs`}
+                  className={`w-full text-sm font-sans border border-[#d3dce1] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#7c8b96] text-[#0f2a3d] bg-[#ffffff] transition-all duration-200 ${compact ? 'h-[36px] py-1.5' : 'h-[40px] py-2'} shadow-2xs`}
                 />
                 {searchTerm && (<button type="button" onClick={() => {
                         setSearchTerm('');
                         setCurrentPage(1);
-                    }} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#627079] hover:text-[#0F172A] dark:hover:text-slate-200 p-0.5 rounded-md transition-colors" title="Clear search">
-                    <X className="w-3 h-3"/>
+                    }} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#7c8b96] hover:text-[#0f2a3d] p-0.5 rounded-md transition-colors" title="Clear search">
+                    <X className="w-3.5 h-3.5"/>
                   </button>)}
               </div>)}
-            {sortedData.length > 0 && (<span className={`hidden sm:inline-flex items-center text-[10.5px] font-inter font-medium text-[#627079] dark:text-slate-400 bg-[#F8FAFC] dark:bg-[#111821] px-2.5 rounded-full border border-[#E2E8F0] dark:border-[#253344] shadow-2xs ${compact ? 'h-[34px]' : 'h-[38px]'}`}>
+            {sortedData.length > 0 && (<span className={`hidden sm:inline-flex items-center text-xs font-sans font-medium text-[#4a5b68] bg-[#f4f7f8] px-3 rounded-full border border-[#d3dce1] shadow-2xs ${compact ? 'h-[36px]' : 'h-[40px]'}`}>
                 {sortedData.length} {sortedData.length === 1 ? 'record' : 'records'}
               </span>)}
             {filterComponent && (<div className="flex items-center gap-1.5 flex-wrap w-full sm:w-auto">
@@ -155,31 +155,31 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
 
       {/* Table Container with Smooth Touch Horizontal Scrolling */}
       <div className="overflow-x-auto custom-sidebar-scroll w-full touch-pan-x">
-        <table className="w-full text-left border-collapse text-xs min-w-[720px] lg:min-w-full">
+        <table className="w-full text-left border-collapse text-sm min-w-[720px] lg:min-w-full">
           <thead>
-            <tr className="bg-[#F8FAFC] dark:bg-[#111821] border-b border-[#E2E8F0] dark:border-[#253344] text-[#627079] dark:text-slate-400 font-inter font-semibold text-[11px] uppercase tracking-wider">
-              {selectable && (<th className={`${compact ? 'py-2 px-2.5' : 'py-2.5 px-3'} w-10`}>
-                  <input type="checkbox" checked={isAllSelected} onChange={(e) => handleSelectAll(e.target.checked)} className="rounded border-[#CBD5E1] text-teal-700 focus:ring-teal-600 cursor-pointer w-3.5 h-3.5"/>
+            <tr className="bg-[#f4f7f8] border-b border-[#e1e8eb] text-[#0f2a3d] font-sans font-semibold text-xs tracking-normal">
+              {selectable && (<th className={`${compact ? 'py-2.5 px-3' : 'py-3 px-3.5'} w-10`}>
+                  <input type="checkbox" checked={isAllSelected} onChange={(e) => handleSelectAll(e.target.checked)} className="rounded border-[#d3dce1] text-teal-700 focus:ring-teal-600 cursor-pointer w-3.5 h-3.5"/>
                 </th>)}
               {columns.map((col) => {
             const isCenter = col.className?.includes('text-center');
             const isRight = col.className?.includes('text-right');
             const isStickyRight = col.className?.includes('sticky');
             const justifyClass = isCenter ? 'justify-center' : isRight ? 'justify-end' : 'justify-start';
-            return (<th key={col.key} className={`${compact ? 'py-2 px-2.5 sm:px-3' : 'py-3 px-3 sm:px-4'} select-none whitespace-nowrap font-inter ${col.className || ''} ${isStickyRight
-                    ? 'sticky right-0 z-20 bg-[#F8FAFC] dark:bg-[#111821] shadow-[-6px_0_10px_-3px_rgba(0,0,0,0.04)] dark:shadow-[-6px_0_10px_-3px_rgba(0,0,0,0.3)]'
-                    : ''} ${col.sortable ? 'cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1E2B3A] transition-colors' : ''}`} onClick={() => col.sortable && handleSort(col.key)}>
+            return (<th key={col.key} className={`${compact ? 'py-2.5 px-3 sm:px-3.5' : 'py-3.5 px-3.5 sm:px-4'} select-none whitespace-nowrap font-sans ${col.className || ''} ${isStickyRight
+                    ? 'sticky right-0 z-20 bg-[#f4f7f8] shadow-[-6px_0_10px_-3px_rgba(0,0,0,0.04)]'
+                    : ''} ${col.sortable ? 'cursor-pointer hover:bg-slate-100 transition-colors' : ''}`} onClick={() => col.sortable && handleSort(col.key)}>
                     <div className={`flex items-center gap-1.5 ${justifyClass}`}>
                       <span>{col.header}</span>
                       {col.sortable && (<span className="text-slate-400">
-                          {sortKey === col.key ? (sortDirection === 'asc' ? (<ChevronUp className="w-3 h-3 text-teal-700 dark:text-teal-400"/>) : (<ChevronDown className="w-3 h-3 text-teal-700 dark:text-teal-400"/>)) : (<ChevronsUpDown className="w-3 h-3 hover:text-teal-700"/>)}
+                          {sortKey === col.key ? (sortDirection === 'asc' ? (<ChevronUp className="w-3.5 h-3.5 text-teal-700"/>) : (<ChevronDown className="w-3.5 h-3.5 text-teal-700"/>)) : (<ChevronsUpDown className="w-3.5 h-3.5 hover:text-teal-700"/>)}
                         </span>)}
                     </div>
                   </th>);
         })}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#253344] font-inter">
+          <tbody className="divide-y divide-[#edf1f3] font-sans">
             {paginatedData.length === 0 ? (<tr>
                 <td colSpan={columns.length + (selectable ? 1 : 0)} className="py-8">
                   <EmptyState title={emptyTitle} description={emptyDescription} className="border-none shadow-none bg-transparent"/>
@@ -187,21 +187,21 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
               </tr>) : (paginatedData.map((item, index) => {
             const key = getKey(item) || String(index);
             const isSelected = selectedIds.has(key);
-            return (<tr key={key} onClick={() => onRowClick && onRowClick(item)} className={`group transition-colors duration-150 ${isSelected ? 'bg-teal-50/70 dark:bg-teal-950/40' : 'hover:bg-slate-50/80 dark:hover:bg-[#1E2B3A]/50'} ${onRowClick ? 'cursor-pointer' : ''}`}>
-                    {selectable && (<td className={`${compact ? 'py-2 px-2.5 sm:px-3' : 'py-2.5 px-3 sm:px-4'} w-10 align-middle`} onClick={(e) => e.stopPropagation()}>
-                        <input type="checkbox" checked={isSelected} onChange={(e) => handleSelectItem(item, e.target.checked)} className="rounded border-[#CBD5E1] text-teal-700 focus:ring-teal-600 cursor-pointer w-3.5 h-3.5"/>
+            return (<tr key={key} onClick={() => onRowClick && onRowClick(item)} className={`group transition-colors duration-150 ${isSelected ? 'bg-teal-50/70' : 'hover:bg-slate-50/80'} ${onRowClick ? 'cursor-pointer' : ''}`}>
+                    {selectable && (<td className={`${compact ? 'py-2.5 px-3 sm:px-3.5' : 'py-3 px-3 sm:px-4'} w-10 align-middle`} onClick={(e) => e.stopPropagation()}>
+                        <input type="checkbox" checked={isSelected} onChange={(e) => handleSelectItem(item, e.target.checked)} className="rounded border-[#d3dce1] text-teal-700 focus:ring-teal-600 cursor-pointer w-3.5 h-3.5"/>
                       </td>)}
                     {columns.map((col) => {
                     const isStickyRight = col.className?.includes('sticky');
-                    return (<td key={col.key} className={`${compact ? 'py-2 px-2.5 sm:px-3' : 'py-3 px-3 sm:px-4'} align-middle text-[#334155] dark:text-slate-200 ${col.className || ''} ${isStickyRight
+                    return (<td key={col.key} className={`${compact ? 'py-2.5 px-3 sm:px-3.5' : 'py-3 px-3 sm:px-4'} align-middle text-[#4a5b68] ${col.className || ''} ${isStickyRight
                             ? `sticky right-0 z-10 ${isSelected
-                                ? 'bg-teal-50 dark:bg-[#161F2E]'
-                                : 'bg-white dark:bg-[#161F2E] group-hover:bg-slate-50 dark:group-hover:bg-[#1E2B3A]'} shadow-[-6px_0_10px_-3px_rgba(0,0,0,0.04)] dark:shadow-[-6px_0_10px_-3px_rgba(0,0,0,0.3)]`
+                                ? 'bg-teal-50'
+                                : 'bg-white group-hover:bg-slate-50'} shadow-[-6px_0_10px_-3px_rgba(0,0,0,0.04)]`
                             : ''}`}>
                           {col.render ? col.render(item) : item[col.key]}
                         </td>);
                 })}
-                  </tr>);
+                    </tr>);
         }))}
           </tbody>
         </table>

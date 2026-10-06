@@ -58,8 +58,8 @@
 .erm-dot {
   position: relative;
   z-index: 1;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -67,7 +67,7 @@
   border: 2px solid var(--line);
   border-radius: 50%;
   background: var(--surface);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--ink-3);
 }
@@ -92,7 +92,7 @@
 }
 
 .erm-stages strong {
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   color: var(--ink-2);
 }
@@ -108,7 +108,7 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  font-size: 11.5px;
+  font-size: 12.5px;
   line-height: 1.3;
 }
 
@@ -124,7 +124,7 @@
   align-items: center;
   gap: 8px 12px;
   margin-bottom: 10px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .stage-line {
@@ -133,7 +133,7 @@
   align-items: center;
   gap: 8px 14px;
   margin: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 
@@ -486,23 +486,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 52px;
+  height: 54px;
   border-radius: var(--radius);
   background: var(--teal-50);
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--teal-700);
 }
 
 .visit-date b {
   font-family: var(--font-serif);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.1;
   color: var(--teal-900);
 }
 
 .visit-list strong {
   display: block;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -512,12 +512,12 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px;
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 
 .visit-list p {
   margin: 6px 0 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 
@@ -541,9 +541,9 @@
   align-items: center;
   gap: 8px;
   margin: 0 0 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--ink-3);
 }

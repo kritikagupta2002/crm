@@ -14,14 +14,14 @@
 .enquiry-title {
   margin: 0 0 6px;
   font-family: var(--font-serif);
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 500;
   color: var(--ink);
 }
 
 .enquiry-lead {
   margin: 0 0 8px;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink-2);
 }
 
@@ -35,7 +35,7 @@
 .public-form legend {
   padding: 0;
   margin-bottom: 8px;
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -63,7 +63,7 @@
   flex-wrap: wrap;
   gap: 12px;
   padding-top: 10px;
-  font-size: 12.5px;
+  font-size: 13.5px;
 }
 
 .public-form-foot .btn {
@@ -106,12 +106,12 @@
 }
 
 .next-steps strong {
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--ink);
 }
 
 .next-steps span {
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.45;
   color: var(--ink-2);
 }
@@ -138,13 +138,13 @@
 .enquiry-done h1 {
   margin: 0 0 10px;
   font-family: var(--font-serif);
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 500;
 }
 
 .enquiry-done p {
   margin: 0 0 10px;
-  font-size: 14.5px;
+  font-size: 15.5px;
   line-height: 1.6;
   color: var(--ink-2);
 }
@@ -167,12 +167,12 @@
 }
 
 .enquiry-id > span {
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink-3);
 }
 
 .enquiry-id strong {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--teal-700);
 }
 
@@ -187,13 +187,13 @@
 }
 
 .enquiry-summary dt {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-3);
 }
 
 .enquiry-summary dd {
   margin: 2px 0 0;
-  font-size: 13.5px;
+  font-size: 14.5px;
   color: var(--ink);
 }
 
@@ -234,7 +234,7 @@
 
 .enquiry-file-list strong {
   overflow: hidden;
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 500;
   color: var(--ink);
   text-overflow: ellipsis;

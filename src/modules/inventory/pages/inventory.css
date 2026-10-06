@@ -4,6 +4,32 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.inventory-page h1 {
+  font-family: var(--font-serif);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.inventory-page h2 {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.inventory-page h3 {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
 .inventory-stats {
@@ -29,18 +55,19 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  height: 38px;
+  height: 40px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .inventory-search:focus-within {
   border-color: var(--teal-600);
-  box-shadow: 0 0 0 2px rgba(31, 111, 120, 0.15);
+  box-shadow: 0 0 0 3px var(--teal-50);
 }
 
 .inventory-search > svg {
   flex-shrink: 0;
   margin-right: 9px;
+  color: var(--ink-3);
 }
 
 .inventory-search input {
@@ -48,7 +75,7 @@
   border: none;
   background: transparent;
   outline: none;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink);
   min-width: 0;
 }
@@ -61,27 +88,30 @@
 }
 
 .inventory-filter-select {
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 0 14px;
+  height: 40px;
+  font-size: 14px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   color: var(--ink);
   outline: none;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .inventory-filter-select:focus {
   border-color: var(--teal-600);
+  box-shadow: 0 0 0 3px var(--teal-50);
 }
 
 .btn-reset-filters {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
-  font-size: 12px;
+  padding: 0 14px;
+  height: 40px;
+  font-size: 13.5px;
   color: var(--ink-2);
   background: transparent;
   border: 1px dashed var(--line);
@@ -108,13 +138,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 11px;
+  font-size: 12.5px;
 }
 
 .stock-bar-track {
   width: 100%;
   height: 6px;
-  background: #e2e8f0;
+  background: var(--line-soft);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -126,69 +156,69 @@
 }
 
 .stock-bar-fill.good {
-  background: #10b981;
+  background: var(--green);
 }
 
 .stock-bar-fill.medium {
-  background: #f59e0b;
+  background: var(--amber);
 }
 
 .stock-bar-fill.low {
-  background: #ef4444;
+  background: var(--red);
 }
 
 /* Status Badges */
 .inv-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12.5px;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .inv-badge-available {
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid rgba(46, 158, 107, 0.25);
 }
 
 .inv-badge-partially {
-  background: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid rgba(47, 111, 179, 0.25);
 }
 
 .inv-badge-assigned {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
+  background: var(--amber-bg);
+  color: var(--amber);
+  border: 1px solid rgba(194, 122, 18, 0.25);
 }
 
 .inv-badge-returned {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #cbd5e1;
+  background: var(--line-soft);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
 }
 
 .inv-badge-out {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid rgba(210, 76, 71, 0.25);
 }
 
 /* Category Badge */
 .cat-badge {
   display: inline-block;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 500;
-  background: #f8fafc;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+  background: var(--bg);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
 }
 
 /* Empty State */
@@ -203,20 +233,21 @@
 }
 
 .inv-empty-state svg {
-  color: #94a3b8;
+  color: var(--ink-3);
   margin-bottom: 8px;
 }
 
 .inv-empty-state h3 {
-  font-size: 15px;
+  font-family: var(--font-serif);
+  font-size: 18px;
   font-weight: 600;
-  color: var(--text-primary, #0f172a);
+  color: var(--ink);
   margin: 0;
 }
 
 .inv-empty-state p {
-  font-size: 13px;
-  color: var(--text-secondary, #64748b);
+  font-size: 14px;
+  color: var(--ink-2);
   max-width: 360px;
   margin: 0;
 }
@@ -232,44 +263,46 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 6px 12px;
+  font-size: 13.5px;
+  font-weight: 500;
   color: #fff;
-  background: #0284c7;
-  border: 1px solid transparent;
-  border-radius: 6px;
+  background: var(--teal-700);
+  border: 1px solid var(--teal-700);
+  border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-assign:hover:not(:disabled) {
-  background: #0369a1;
+  background: var(--teal-900);
+  border-color: var(--teal-900);
 }
 
 .btn-assign:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: #94a3b8;
+  background: var(--ink-3);
+  border-color: var(--ink-3);
 }
 
 .btn-return {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #065f46;
-  background: #d1fae5;
-  border: 1px solid #a7f3d0;
-  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--green);
+  background: var(--green-bg);
+  border: 1px solid rgba(46, 158, 107, 0.3);
+  border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .btn-return:hover {
-  background: #a7f3d0;
+  background: #d4edd9;
 }
 
 .btn-icon-soft {
@@ -324,17 +357,17 @@
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  font-size: 13px;
+  font-size: 14.5px;
   background: var(--surface);
 }
 
 .inventory-page .inventory-table th {
   white-space: nowrap !important;
   font-weight: 600;
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ink-2);
+  font-size: 13.5px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
   padding: 12px 14px;
   background: var(--bg);
   border-bottom: 1px solid var(--line);
@@ -344,12 +377,12 @@
 .inventory-page .inventory-table td {
   padding: 12px 14px;
   vertical-align: middle;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink-2);
 }
 
 .inventory-page .inventory-table tr:hover td {
-  background: rgba(0, 0, 0, 0.015);
+  background: #fafcfc;
 }
 
 /* Specific Column Width & Nowrap Rules */
@@ -363,13 +396,13 @@
   display: inline-block;
   white-space: nowrap !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 600;
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 4px;
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
 }
 
 .inv-col-cat {
@@ -465,14 +498,14 @@
 
 .inv-modal-header h2 {
   font-family: var(--font-serif);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   margin: 0;
   color: var(--ink);
 }
 
 .inv-modal-header p {
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--ink-2);
   margin: 2px 0 0 0;
 }
@@ -503,13 +536,13 @@
 }
 
 .inv-form-group label {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13.5px;
+  font-weight: 500;
   color: var(--ink);
 }
 
 .inv-form-group label span.required {
-  color: #ef4444;
+  color: var(--red);
   margin-left: 2px;
 }
 
@@ -518,11 +551,11 @@
 .inv-form-textarea {
   width: 100%;
   padding: 8px 12px;
-  font-size: 13px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #fff;
-  color: #0f172a;
+  font-size: 14.5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
@@ -531,8 +564,8 @@
 .inv-form-input:focus,
 .inv-form-select:focus,
 .inv-form-textarea:focus {
-  border-color: #0284c7;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+  border-color: var(--teal-600);
+  box-shadow: 0 0 0 3px var(--teal-50);
 }
 
 .inv-form-row {

@@ -49,20 +49,20 @@
 
 .logo-name {
   font-family: var(--font-serif);
-  font-size: 20px;
+  font-size: 21px;
   font-weight: 600;
   color: #fff;
 }
 
 .logo-sub {
   font-family: var(--font-serif);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--gold-500);
 }
 
 .logo-tag {
   margin-top: 2px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--sidebar-muted);
 }
 
@@ -103,14 +103,14 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: 34px;
+  height: 36px;
   padding: 0 12px;
   border: none;
   border-radius: 8px;
   background: none;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--sidebar-muted);
   white-space: nowrap;
@@ -185,7 +185,7 @@
   padding: 0 14px;
   border-radius: 8px;
   color: var(--sidebar-text);
-  font-size: 15px;
+  font-size: 15.5px;
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
@@ -251,7 +251,7 @@
   border-radius: 11px;
   background: var(--sidebar-text);
   color: #fff;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   display: grid;
   place-items: center;
@@ -393,7 +393,7 @@
   border: none;
   outline: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .search kbd {
@@ -402,7 +402,7 @@
   border-radius: 4px;
   background: var(--bg);
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-3);
 }
 
@@ -440,12 +440,12 @@
 }
 
 .avatar {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--teal-700);
   color: #fff;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   display: grid;
   place-items: center;
@@ -454,16 +454,16 @@
 .user-meta {
   display: flex;
   flex-direction: column;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .user-meta strong {
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .user-meta span {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--ink-3);
 }
 
@@ -478,7 +478,7 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 0 24px 14px;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-3);
 }
 
@@ -486,7 +486,7 @@
   border: none;
   background: none;
   padding: 0;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-3);
   text-decoration: underline;
   text-underline-offset: 2px;

@@ -83,7 +83,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
@@ -98,9 +98,15 @@ h1,
 }
 
 h2,
-h3 {
+h3,
+h4,
+.card-header h2,
+.chart-title,
+.section-title {
+  font-family: var(--font-serif);
   margin: 0;
   font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .font-serif {
@@ -157,7 +163,7 @@ a {
   flex: 1;
   min-width: 0;
   font-family: var(--font-serif);
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--ink);
   letter-spacing: -0.01em;
@@ -168,7 +174,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink-3);
 }
 
@@ -179,7 +185,7 @@ a {
   border: none;
   background: none;
   color: var(--teal-700);
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 500;
   padding: 4px 0;
 }
@@ -193,13 +199,13 @@ a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
+  height: 40px;
   padding: 0 16px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: var(--surface);
   font-weight: 500;
-  font-size: 13px;
+  font-size: 14.5px;
   transition: background 0.15s, border-color 0.15s;
 }
 
@@ -236,14 +242,14 @@ a {
 .select,
 input.input,
 select.select {
-  height: 38px;
+  height: 40px;
   padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background-color: var(--surface);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14.5px;
   line-height: normal;
   outline: none;
   box-sizing: border-box;
@@ -267,14 +273,14 @@ select.select,
 .page-actions select,
 .card-header select,
 .field select {
-  height: 38px;
+  height: 40px;
   padding: 0 32px 0 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background-color: var(--surface);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14.5px;
   outline: none;
   cursor: pointer;
   appearance: none;
@@ -313,8 +319,8 @@ select.select:focus,
 
 .select.select-sm,
 select.select-sm {
-  height: 32px;
-  font-size: 12.5px;
+  height: 34px;
+  font-size: 13.5px;
   padding: 0 28px 0 10px;
   background-position: right 8px center;
   background-size: 12px 12px;
@@ -325,7 +331,7 @@ select.select-sm {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  height: 38px;
+  height: 40px;
   padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -350,7 +356,7 @@ select.select-sm {
   outline: none;
   background: transparent;
   color: var(--ink);
-  font-size: 13px;
+  font-size: 14px;
   font-family: var(--font-sans);
   padding: 0;
 }
@@ -420,7 +426,7 @@ select.select-sm {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 14.5px;
   min-width: 660px;
 }
 
@@ -438,10 +444,10 @@ select.select-sm {
   white-space: nowrap;
   text-align: left;
   font-weight: 600;
-  font-size: 12.5px;
+  font-size: 13.5px;
   color: var(--ink);
   background: var(--bg);
-  padding: 10px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -454,7 +460,7 @@ select.select-sm {
 }
 
 .data-table td {
-  padding: 10px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line-soft);
   color: var(--ink-2);
   vertical-align: middle;
@@ -488,7 +494,7 @@ select.select-sm {
 }
 
 .cell-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-3);
 }
 
@@ -531,7 +537,7 @@ select.select-sm {
   border: none;
   border-radius: 6px;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .row-menu-list button:hover {
@@ -581,7 +587,7 @@ select.select-sm {
 
 .stat-top h3 {
   min-width: 0;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--ink);
   overflow-wrap: break-word;
@@ -600,7 +606,7 @@ select.select-sm {
 
 .stat-value {
   font-family: var(--font-serif);
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 600;
   line-height: 1.05;
   color: var(--ink);
@@ -610,7 +616,7 @@ select.select-sm {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.4;
 }
 
@@ -652,7 +658,7 @@ select.select-sm {
 
 .page-title h1 {
   font-family: var(--font-serif);
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -660,7 +666,7 @@ select.select-sm {
 
 .page-title p {
   margin: 4px 0 0;
-  font-size: 13.5px;
+  font-size: 15px;
   color: var(--ink-2);
 }
 
@@ -685,12 +691,12 @@ select.select-sm {
 }
 
 .segmented button {
-  height: 30px;
+  height: 32px;
   padding: 0 14px;
   border: none;
   border-radius: 6px;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
 }
 
@@ -742,9 +748,9 @@ select.select-sm {
 }
 
 .btn.btn-small {
-  height: 32px;
+  height: 34px;
   padding: 0 12px;
-  font-size: 12.5px;
+  font-size: 13.5px;
   gap: 6px;
 }
 
@@ -752,9 +758,9 @@ select.select-sm {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
+  padding: 4px 11px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -810,7 +816,7 @@ select.select-sm {
   }
 
   .page-title h1 {
-    font-size: 26px;
+    font-size: 28px;
   }
 
   .page-actions {
@@ -940,11 +946,11 @@ select.select-sm {
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 7px 8px;
+  padding: 8px 10px;
   border: none;
   border-radius: 6px;
   background: none;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink-2);
   text-align: left;
 }

@@ -43,7 +43,7 @@
 }
 
 .warning-modal-title h2 {
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 600;
   margin: 0;
   color: var(--ink);
@@ -69,7 +69,7 @@
 .warning-status-banner div {
   display: flex;
   flex-direction: column;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink);
 }
 
@@ -80,7 +80,7 @@
   padding: 12px 24px;
   background: var(--red-bg);
   color: var(--red);
-  font-size: 13px;
+  font-size: 14px;
   border-bottom: 1px solid rgba(210, 76, 71, 0.2);
 }
 
@@ -89,7 +89,7 @@
   padding: 28px 36px;
   background: #ffffff;
   color: var(--ink);
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 1.6;
 }
 
@@ -102,27 +102,27 @@
 
 .letterhead-company {
   font-family: var(--font-serif);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--navy, #12303e);
 }
 
 .letterhead-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-2);
   margin-top: 2px;
   font-weight: 500;
 }
 
 .letterhead-address {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--ink-3);
   margin-top: 2px;
 }
 
 .letterhead-tag {
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 700;
   letter-spacing: 1px;
   color: var(--red);
@@ -157,7 +157,7 @@
 }
 
 .meta-label {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -165,7 +165,7 @@
 }
 
 .meta-val {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--ink);
 }
 
@@ -174,7 +174,7 @@
   background: var(--red-bg);
   color: var(--red);
   border-left: 3px solid var(--red);
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 600;
   margin-bottom: 20px;
 }
@@ -198,7 +198,7 @@
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
   resize: vertical;
 }
@@ -213,7 +213,7 @@
 
 .letter-remarks-box strong {
   display: block;
-  font-size: 12.5px;
+  font-size: 13.5px;
   margin-bottom: 4px;
   color: var(--ink);
 }
@@ -234,7 +234,7 @@
 }
 
 .signoff-label {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--ink-3);
   text-transform: uppercase;
   font-weight: 600;
@@ -243,12 +243,12 @@
 
 .signoff-val {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15.5px;
   color: var(--ink);
 }
 
 .signoff-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-2);
 }
 
@@ -291,7 +291,7 @@
   background: var(--green-bg);
   color: var(--green);
   border: 1px solid rgba(46, 158, 107, 0.3);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -309,9 +309,9 @@
   border-color: rgba(210, 76, 71, 0.4);
   background: var(--red-bg);
   font-weight: 500;
-  font-size: 12px;
-  padding: 3px 8px;
-  height: 28px;
+  font-size: 13px;
+  padding: 3px 10px;
+  height: 32px;
   border-radius: 6px;
   border: 1px solid rgba(210, 76, 71, 0.3);
   white-space: nowrap;
@@ -349,7 +349,7 @@
 }
 
 .warning-edit-header strong {
-  font-size: 13px;
+  font-size: 14.5px;
   color: var(--ink);
 }
 
@@ -362,7 +362,7 @@
 .warning-edit-textarea {
   width: 100%;
   font-family: var(--font-sans);
-  font-size: 13.5px;
+  font-size: 14.5px;
   line-height: 1.6;
   padding: 12px 14px;
   border: 1px solid var(--line);
@@ -383,14 +383,14 @@
 
 .warning-edit-input {
   width: 100%;
-  height: 38px;
+  height: 40px;
   padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 14.5px;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
@@ -415,9 +415,9 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
+  height: 30px;
+  padding: 0 12px;
+  font-size: 13px;
   font-weight: 500;
   border: none;
   background: transparent;
@@ -446,7 +446,7 @@
   border: 1px solid var(--line);
   padding: 4px 10px;
   border-radius: var(--radius);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--ink-2);
   cursor: pointer;
@@ -466,7 +466,7 @@
   padding: 10px 24px;
   background: #ecfdf5;
   color: #065f46;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   border-bottom: 1px solid #a7f3d0;
 }

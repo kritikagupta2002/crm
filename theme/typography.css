@@ -3,7 +3,7 @@
 /* Page title */
 .page-title h1 {
   font-family: var(--font-serif);
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 600;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -11,14 +11,14 @@
 
 .page-title p {
   margin: 4px 0 0;
-  font-size: 13.5px;
+  font-size: 15px;
   color: var(--ink-2);
 }
 
 /* Stat value */
 .stat-value {
   font-family: var(--font-serif);
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 600;
   line-height: 1.05;
   color: var(--ink);
@@ -27,7 +27,7 @@
 /* Workflow company */
 .workflow-company {
   font-family: var(--font-serif);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -66,13 +66,13 @@
 }
 
 .cell-sub {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--ink-3);
 }
 
 /* Responsive heading */
 @media (max-width: 640px) {
   .page-title h1 {
-    font-size: 26px;
+    font-size: 28px;
   }
 }

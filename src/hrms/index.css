@@ -239,7 +239,7 @@ body {
   background-color: var(--bg);
   color: var(--ink-2);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -277,23 +277,23 @@ h4, h5, h6 {
 }
 
 label {
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 500;
   color: var(--ink-2);
 }
 
 table {
-  font-size: 13.5px;
+  font-size: 14.5px;
 }
 
 th {
-  font-size: 12.5px;
+  font-size: 13.5px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
 td {
-  font-size: 13.5px;
+  font-size: 14.5px;
 }
 
 #root {
@@ -309,7 +309,7 @@ td {
 /* ── BANSAL GEO CRM TYPOGRAPHY SCALE ── */
 .page-title {
   font-family: var(--font-heading);
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 500;
   line-height: 1.25;
   color: var(--ink);
@@ -318,7 +318,7 @@ td {
 
 .stat-value {
   font-family: var(--font-heading);
-  font-size: 34px;
+  font-size: 38px;
   font-weight: 500;
   line-height: 1.05;
   color: var(--ink);
@@ -327,7 +327,7 @@ td {
 
 .stat-value-sm {
   font-family: var(--font-heading);
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 500;
   line-height: 1.1;
   color: var(--ink);
@@ -339,9 +339,9 @@ td {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 22px;
-  padding: 0 8px;
-  font-size: 11px;
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.02em;
   border-radius: 9999px;
@@ -350,9 +350,9 @@ td {
 }
 
 .pill-sm {
-  height: 19px;
-  padding: 0 6px;
-  font-size: 10px;
+  height: 22px;
+  padding: 0 8px;
+  font-size: 11.5px;
 }
 
 .pill-dot {
@@ -483,10 +483,10 @@ td {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
+  height: 40px;
   padding: 0 18px;
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 600;
   color: #ffffff;
   background: var(--teal-700);
@@ -519,10 +519,10 @@ td {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 38px;
+  height: 40px;
   padding: 0 16px;
   font-family: var(--font-body);
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 500;
   color: var(--ink);
   background: var(--chrome);
@@ -540,7 +540,7 @@ td {
 .enterprise-table-header {
   background-color: #FAFAF8;
   color: #1A2430;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -574,9 +574,9 @@ td {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.125rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 9999px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   background-color: #fffbeb;
   color: #b45309;
@@ -587,9 +587,9 @@ td {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.125rem 0.5rem;
+  padding: 0.2rem 0.6rem;
   border-radius: 9999px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   background-color: #f1f5f9;
   color: #475569;

@@ -3,30 +3,39 @@
  * Only for the HRMS pages: everything is under .hrms.
  */
 
-/* Base typography guarantee for HRMS */
+/* ── Base Typography & Theme for HRMS ── */
 .hrms {
+  --font-heading: var(--font-serif, 'Fraunces', Georgia, serif);
   font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
   color: var(--ink);
+  font-size: 15px;
+  line-height: 1.5;
 }
 
+/* CRM Serif Headings Everywhere in HRMS */
 .hrms h1,
+.hrms h2,
+.hrms h3,
+.hrms h4,
+.hrms h5,
+.hrms h6,
 .hrms .page-title h1,
 .hrms .font-heading,
-.hrms .font-serif {
+.hrms .font-serif,
+.hrms .card-header h2,
+.hrms .chart-title,
+.hrms .section-title,
+.hrms .modal-title,
+.hrms .dialog-title,
+.hrms .stat-value,
+.hrms .punch-clock-time {
   font-family: var(--font-serif, 'Fraunces', Georgia, serif);
   color: var(--ink);
   letter-spacing: -0.01em;
 }
 
-.hrms h2,
-.hrms .card-header h2,
-.hrms .chart-title {
-  font-family: var(--font-serif, 'Fraunces', Georgia, serif);
-}
-
-/* Page header: the CRM's, with a small badge beside the title when a page has one. */
 .hrms .page-header {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .hrms .page-title h1 {
@@ -34,49 +43,298 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.hrms .page-title p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  color: var(--ink-2);
 }
 
 .hrms .page-title-badge {
   display: inline-flex;
   font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 13px;
 }
 
 .hrms .page-actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
 }
 
-/* Button variants the CRM doesn't have. */
+.hrms h2,
+.hrms .card-header h2,
+.hrms .chart-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.hrms h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.hrms h4 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ── Scaled-Up Typography Utility Overrides for HRMS ── */
+.hrms .text-xs,
+.hrms .text-\[10px\],
+.hrms .text-\[10\.5px\],
+.hrms .text-\[11px\],
+.hrms .text-\[11\.5px\],
+.hrms .text-\[12px\] {
+  font-size: 13.5px !important;
+}
+
+.hrms .text-sm,
+.hrms .text-\[13px\],
+.hrms .text-\[13\.5px\],
+.hrms .text-\[14px\] {
+  font-size: 15px !important;
+}
+
+.hrms .text-base,
+.hrms .text-\[15px\],
+.hrms .text-\[16px\] {
+  font-size: 16.5px !important;
+}
+
+.hrms .text-lg,
+.hrms .text-\[18px\] {
+  font-size: 19px !important;
+}
+
+.hrms .text-xl,
+.hrms .text-\[20px\] {
+  font-size: 22px !important;
+}
+
+.hrms .text-2xl,
+.hrms .text-\[24px\] {
+  font-size: 26px !important;
+}
+
+.hrms .text-3xl,
+.hrms .text-\[30px\] {
+  font-size: 34px !important;
+}
+
+/* ── CRM Data Table Uniform Styling in HRMS ── */
+.hrms table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14.5px;
+}
+
+.hrms table th,
+.hrms .enterprise-table-header,
+.hrms thead th {
+  font-family: var(--font-sans) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  background: var(--bg) !important;
+  padding: 12px 14px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  border-bottom: 1px solid var(--line) !important;
+  white-space: nowrap;
+}
+
+.hrms table td,
+.hrms .enterprise-table-row td,
+.hrms tbody td {
+  font-family: var(--font-sans) !important;
+  font-size: 14.5px !important;
+  color: var(--ink-2);
+  padding: 12px 14px !important;
+  border-bottom: 1px solid var(--line-soft) !important;
+  vertical-align: middle;
+}
+
+.hrms table tbody tr:hover td,
+.hrms .enterprise-table-row:hover td {
+  background: #fafcfc !important;
+}
+
+/* ── CRM Form Controls Uniform Styling in HRMS ── */
+.hrms input:not([type="checkbox"]):not([type="radio"]),
+.hrms select,
+.hrms textarea,
+.hrms .form-input,
+.hrms .form-select {
+  font-family: var(--font-sans) !important;
+  font-size: 14.5px !important;
+  color: var(--ink) !important;
+  background-color: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  box-sizing: border-box;
+}
+
+.hrms input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.hrms select {
+  height: 40px !important;
+  padding: 0 12px !important;
+}
+
+.hrms select {
+  padding-right: 32px !important;
+}
+
+.hrms input[type="date"] {
+  padding-left: 38px !important;
+  cursor: pointer;
+}
+
+.hrms input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 4px;
+  margin-right: -4px;
+  transition: opacity 0.15s ease;
+}
+
+.hrms input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.hrms textarea {
+  min-height: 84px;
+  padding: 10px 12px;
+}
+
+.hrms input:focus,
+.hrms select:focus,
+.hrms textarea:focus {
+  border-color: var(--teal-600) !important;
+  box-shadow: 0 0 0 3px var(--teal-50) !important;
+  outline: none !important;
+}
+
+.hrms label,
+.hrms .form-label {
+  font-family: var(--font-sans) !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--ink) !important;
+}
+
+/* ── CRM Buttons in HRMS ── */
+.hrms .btn,
+.hrms .crm-btn-primary,
+.hrms .crm-btn-gold,
+.hrms .crm-btn-secondary {
+  font-family: var(--font-sans) !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  border-radius: var(--radius) !important;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  transition: all 0.15s ease;
+}
+
+.hrms .btn-sm,
+.hrms .btn.btn-small {
+  height: 34px !important;
+  font-size: 13.5px !important;
+  padding: 0 12px !important;
+}
+
+.hrms .btn-primary,
+.hrms .crm-btn-primary {
+  background: var(--teal-700) !important;
+  border-color: var(--teal-700) !important;
+  color: #fff !important;
+}
+
+.hrms .btn-primary:hover,
+.hrms .crm-btn-primary:hover {
+  background: var(--teal-900) !important;
+  border-color: var(--teal-900) !important;
+}
+
 .hrms .btn-outline {
-  color: var(--teal-700);
-  border-color: var(--teal-200);
+  color: var(--teal-700) !important;
+  border-color: var(--teal-200) !important;
+  background: var(--surface) !important;
 }
 
 .hrms .btn-outline:hover {
-  background: var(--teal-50);
-  border-color: var(--teal-400);
+  background: var(--teal-50) !important;
+  border-color: var(--teal-400) !important;
 }
 
 .hrms .btn-quiet {
-  border-color: transparent;
-  background: transparent;
-  color: var(--ink-2);
+  border-color: transparent !important;
+  background: transparent !important;
+  color: var(--ink-2) !important;
 }
 
 .hrms .btn-quiet:hover {
-  background: var(--bg);
-  color: var(--ink);
+  background: var(--bg) !important;
+  color: var(--ink) !important;
 }
 
 .hrms .btn svg {
   flex-shrink: 0;
 }
 
-/* Cards: a gold top edge where the module marks a card as featured. */
+/* ── CRM Cards & Stat Cards in HRMS ── */
+.hrms .card,
+.hrms .card-crm,
+.hrms .card-premium,
+.hrms .kpi-card,
+.hrms .chart-card-wrapper,
+.hrms .report-chart-container,
+.hrms .employee-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow) !important;
+}
+
 .hrms .card-gold-edge {
-  box-shadow: inset 0 3px 0 var(--gold-500), var(--shadow);
+  box-shadow: inset 0 3px 0 var(--gold-500), var(--shadow) !important;
+}
+
+.hrms .stat-card {
+  box-shadow: inset 0 3px 0 var(--tone, transparent), var(--shadow) !important;
+}
+
+.hrms .stat-top h3,
+.hrms .kpi-card h3 {
+  font-family: var(--font-sans) !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: var(--ink) !important;
+}
+
+.hrms .stat-value,
+.hrms .kpi-card .stat-value {
+  font-family: var(--font-serif) !important;
+  font-size: 38px !important;
+  font-weight: 600 !important;
+  line-height: 1.05 !important;
+  color: var(--ink) !important;
+}
+
+.hrms .stat-meta,
+.hrms .kpi-card .stat-meta {
+  font-size: 13.5px !important;
+  color: var(--ink-3) !important;
 }
 
 .hrms .text-green {
@@ -90,22 +348,52 @@
   gap: 3px;
 }
 
-/* Form labels in the module used a brown; the CRM's labels are ink. */
-.hrms .text-\[\#3D2D1E\] {
-  color: var(--ink);
+/* ── Badges & Status Pills in HRMS ── */
+.hrms .badge,
+.hrms .status-badge,
+.hrms .badge-gold,
+.hrms .badge-slate,
+.hrms .punch-source-badge {
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  border-radius: 999px !important;
+  padding: 3px 10px !important;
 }
 
-/* The module's accent orange becomes the CRM's gold. */
+/* Colors harmonization */
+.hrms .text-\[\#3D2D1E\] {
+  color: var(--ink) !important;
+}
+
 .hrms .text-\[\#D5860B\] {
-  color: var(--gold-600);
+  color: var(--gold-600) !important;
 }
 
 .hrms .bg-\[\#D5860B\] {
-  background-color: var(--gold-500);
+  background-color: var(--gold-500) !important;
 }
 
 .hrms .border-\[\#D5860B\] {
-  border-color: var(--gold-500);
+  border-color: var(--gold-500) !important;
+}
+
+/* Clear out hardcoded dark classes or backgrounds so HRMS matches CRM */
+.hrms .dark\:bg-\[\#131E2B\],
+.hrms .dark\:bg-\[\#111821\],
+.hrms .dark\:bg-\[\#161F2E\],
+.hrms .dark\:bg-\[\#1E2B3A\] {
+  background-color: var(--surface) !important;
+}
+
+.hrms .dark\:border-\[\#223347\],
+.hrms .dark\:border-\[\#253344\] {
+  border-color: var(--line) !important;
+}
+
+.hrms .dark\:text-slate-200,
+.hrms .dark\:text-slate-300,
+.hrms .dark\:text-slate-400 {
+  color: var(--ink-2) !important;
 }
 
 /* HR dashboard: six figures, three a row until the screen is wide enough for all six, two on a phone. */
