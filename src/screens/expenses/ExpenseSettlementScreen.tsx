@@ -26,12 +26,28 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
   route,
   navigation,
 }) => {
-  const { expenseId } = route.params;
   const { expenses, settleExpense } = useHrms();
   const { session, hasRole } = useAuth();
 
   const isAccountantOrAdmin = hasRole(['Admin', 'Accountant']);
-  const expense = expenses.find((e) => e.id === expenseId || e.expenseNumber === expenseId);
+
+  const approvedExpenses = expenses.filter(
+    (e) => e.status === 'Approved' || e.status === 'Partially Approved'
+  );
+  const routeExpenseId = route?.params?.expenseId;
+  const initialExpenseId =
+    routeExpenseId ||
+    (approvedExpenses.length > 0 ? approvedExpenses[0].id : expenses[0]?.id);
+
+  const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(initialExpenseId);
+
+  React.useEffect(() => {
+    if (route?.params?.expenseId) {
+      setCurrentExpenseId(route.params.expenseId);
+    }
+  }, [route?.params?.expenseId]);
+
+  const expense = expenses.find((e) => e.id === currentExpenseId || e.expenseNumber === currentExpenseId);
 
   const [utrRef, setUtrRef] = useState('');
   const [paymentMode, setPaymentMode] = useState<'Bank Transfer' | 'UPI' | 'Cheque'>('Bank Transfer');
@@ -44,7 +60,13 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
       <View style={styles.container}>
         <AppHeader title="Finance Settlement" showBack onBack={() => navigation.goBack()} />
         <View style={styles.notFoundBox}>
-          <Text style={styles.notFoundText}>Expense record not found.</Text>
+          <Text style={styles.notFoundText}>No expense claims pending finance settlement.</Text>
+          <Button
+            title="Return to Expenses"
+            variant="outline"
+            style={{ marginTop: 16 }}
+            onPress={() => navigation.goBack()}
+          />
         </View>
       </View>
     );

@@ -13,6 +13,8 @@ import { useFinance, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatusBadge, Button, Input, EmptyState } from '../../components';
 import { GstTransaction, GstReturn } from '../../types';
+import { formatDate } from '../../utils/date';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ShieldCheck,
   Search,
@@ -33,6 +35,7 @@ import {
 const SUPPLY_TYPES = ['All', 'Outward (B2B Taxable)', 'Inward (Contractor B2B)'] as const;
 
 export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { gstTransactions, gstReturns } = useFinance();
   const { hasRole } = useAuth();
 
@@ -232,7 +235,10 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
         }
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom + 40, 72) }}
+      >
         <View style={styles.formulaBanner}>
           <View style={styles.formulaHeader}>
             <ShieldCheck size={20} color={colors.primary} />
@@ -424,9 +430,15 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
       </ScrollView>
 
       {selectedTransaction && (
-        <Modal visible={!!selectedTransaction} transparent animationType="fade">
+        <Modal
+          visible={!!selectedTransaction}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={() => setSelectedTransaction(null)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.detailModalContent}>
+            <View style={[styles.detailModalContent, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.detailDocNo}>{selectedTransaction.docNumber}</Text>
@@ -526,9 +538,15 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
       )}
 
       {selectedReturn && (
-        <Modal visible={!!selectedReturn} transparent animationType="slide">
+        <Modal
+          visible={!!selectedReturn}
+          transparent
+          animationType="slide"
+          statusBarTranslucent
+          onRequestClose={() => setSelectedReturn(null)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.detailModalContent}>
+            <View style={[styles.detailModalContent, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.detailDocNo}>{selectedReturn.returnType}</Text>
@@ -1039,14 +1057,15 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    justifyContent: 'center',
-    padding: spacing.md,
+    justifyContent: 'flex-end',
   },
   detailModalContent: {
     backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
     padding: spacing.lg,
-    maxHeight: '85%',
+    maxHeight: '92%',
+    width: '100%',
   },
   modalHeader: {
     flexDirection: 'row',

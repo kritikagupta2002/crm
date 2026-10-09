@@ -9,6 +9,7 @@ import {
   Alert,
   Linking,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHrms, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatusBadge, Input, EmptyState, Button } from '../../components';
@@ -33,6 +34,7 @@ import {
 } from 'lucide-react-native';
 
 export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { employees, departments, designations, refreshHrms, deleteEmployee, isLoading } = useHrms();
   const { userRole, hasRole, session } = useAuth();
 
@@ -236,7 +238,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
           <View style={styles.contactActions}>
             {item.phone ? (
               <TouchableOpacity
-                style={styles.contactBtn}
+                style={styles.contactPhoneBtn}
                 onPress={() => handleCall(item.phone)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
@@ -246,7 +248,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
             ) : null}
             {item.email ? (
               <TouchableOpacity
-                style={styles.contactBtn}
+                style={styles.contactEmailBtn}
                 onPress={() => handleEmail(item.email)}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
@@ -344,7 +346,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
               onPress={() => setSelectedDept(item)}
             >
               <Text style={[styles.filterChipText, selectedDept === item && styles.filterChipTextActive]}>
-                {item}
+                {item === 'All' ? 'All Departments' : item}
               </Text>
             </TouchableOpacity>
           )}
@@ -362,7 +364,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
               onPress={() => setSelectedStatus(item)}
             >
               <Text style={[styles.smallFilterChipText, selectedStatus === item && styles.smallFilterChipTextActive]}>
-                {item}
+                {item === 'All' ? 'All Status' : item}
               </Text>
             </TouchableOpacity>
           )}
@@ -373,7 +375,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
         data={filteredEmployees}
         keyExtractor={item => item.id}
         renderItem={renderEmpCard}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <EmptyState
@@ -426,31 +428,37 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.border.subtle,
+    borderRadius: 16,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   statItem: {
     flex: 1,
     alignItems: 'center',
   },
   statValue: {
-    ...typography.h4,
+    fontSize: 24,
     fontWeight: '800',
-    color: colors.text.primary,
+    color: '#0f172a',
+    letterSpacing: -0.4,
   },
   statLabel: {
-    ...typography.caption,
-    fontSize: 10,
-    color: colors.text.secondary,
+    fontSize: 10.5,
+    color: '#64748b',
     textTransform: 'uppercase',
-    fontWeight: '600',
-    marginTop: 1,
+    fontWeight: '700',
+    marginTop: 3,
+    letterSpacing: 0.4,
   },
   statDivider: {
     width: 1,
-    height: 24,
-    backgroundColor: colors.border.subtle,
+    height: 32,
+    backgroundColor: '#f1f5f9',
   },
   searchContainer: {
     paddingHorizontal: spacing.lg,
@@ -461,6 +469,7 @@ const styles = StyleSheet.create({
   },
   filterList: {
     paddingHorizontal: spacing.lg,
+    paddingRight: spacing.xxl,
     gap: spacing.xs,
   },
   filterChip: {
@@ -485,16 +494,16 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   smallFilterChip: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: borderRadius.sm,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 4,
+    borderRadius: borderRadius.full,
     backgroundColor: colors.background.secondary,
     borderWidth: 1,
     borderColor: colors.border.subtle,
   },
   smallFilterChipActive: {
-    backgroundColor: colors.primaryLight,
-    borderColor: colors.primary,
+    backgroundColor: colors.primaryDark,
+    borderColor: colors.primaryDark,
   },
   smallFilterChipText: {
     ...typography.caption,
@@ -503,7 +512,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   smallFilterChipTextActive: {
-    color: colors.primary,
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   list: {
@@ -639,14 +648,23 @@ const styles = StyleSheet.create({
   contactActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.md,
+    gap: spacing.sm,
     flex: 1,
+    minWidth: 0,
+    marginRight: spacing.xs,
   },
-  contactBtn: {
+  contactPhoneBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    maxWidth: '48%',
+    flexShrink: 0,
+  },
+  contactEmailBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flex: 1,
+    minWidth: 0,
   },
   contactBtnText: {
     ...typography.caption,

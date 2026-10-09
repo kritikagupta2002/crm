@@ -137,9 +137,9 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
 
   return (
     <View style={styles.rootContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#022c22" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Treasury Terminal Top Bar (Emerald & Gold) */}
+      {/* 1. Treasury Terminal Top Bar (Light Theme & Comptroller Deck) */}
       <View style={[styles.treasuryHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
@@ -162,7 +162,7 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             </Text>
             <View style={styles.roleTagRow}>
               <View style={styles.roleTag}>
-                <Scale size={10} color="#f59e0b" strokeWidth={2.4} style={{ marginRight: 3 }} />
+                <Scale size={10} color="#b45309" strokeWidth={2.4} style={{ marginRight: 3 }} />
                 <Text style={styles.roleTagText}>TREASURY COMPTROLLER</Text>
               </View>
               <Text style={styles.orgTagText}>FY 2025-26 Books</Text>
@@ -176,7 +176,7 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             onPress={() => navigation.navigate('FinanceDashboard')}
             style={styles.iconButton}
           >
-            <Search size={19} color="#a7f3d0" strokeWidth={2.2} />
+            <Search size={19} color="#475569" strokeWidth={2.2} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -184,7 +184,7 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             onPress={() => navigation.navigate('AlertsTab')}
             style={styles.iconButton}
           >
-            <Bell size={19} color="#a7f3d0" strokeWidth={2.2} />
+            <Bell size={19} color="#475569" strokeWidth={2.2} />
             <View style={styles.bellBadge}>
               <Text style={styles.bellBadgeText}>
                 {unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : '2'}
@@ -237,6 +237,133 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
                 <View style={[styles.ratioDot, { backgroundColor: '#f97316' }]} />
                 <Text style={styles.ratioText}>AP Payables: ₹14.6 L</Text>
               </View>
+            </View>
+          </View>
+
+          {/* Treasury Bento KPI Grid */}
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              {/* AR Receivables */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Invoices')}
+                style={[styles.kpiCard, styles.kpiCardProjects]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
+                    <IndianRupee size={17} color="#2563eb" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeProjects}>
+                    <Text style={styles.kpiBadgeTextProjects}>{overdueCount > 0 ? `${overdueCount} Overdue` : 'Current'}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueProjects}>
+                    ₹{(receivables / 100000).toFixed(1)} L
+                  </Text>
+                  <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Client Receivables</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Pending Collections
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* AP Payables */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('VendorBills')}
+                style={[styles.kpiCard, styles.kpiCardClients]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
+                    <Wallet size={17} color="#0f766e" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeClients}>
+                    <Text style={styles.kpiBadgeTextClients}>3-Way Match</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueClients}>
+                    ₹{(payables / 100000).toFixed(1)} L
+                  </Text>
+                  <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Vendor Payables</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Approved Rig & Field Invoices
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.kpiRow}>
+              {/* Net Cash Flow */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('CashFlowStatement')}
+                style={[styles.kpiCard, styles.kpiCardEmployees]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
+                    <Landmark size={17} color="#15803d" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeEmployees}>
+                    <Text style={styles.kpiBadgeTextEmployees}>Surplus</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueEmployees}>
+                    ₹{(netCashFlow / 100000).toFixed(1)} L
+                  </Text>
+                  <ArrowUpRight size={16} color="#15803d" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Net Cashflow</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Operational Liquidity
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Release Queue */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('VendorBills')}
+                style={[styles.kpiCard, styles.kpiCardPending]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={17} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Action Req</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValuePending}>
+                    {pendingBills.length || 3}
+                  </Text>
+                  <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Release Queue</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    CFO Payment Clearance
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -439,15 +566,16 @@ const styles = StyleSheet.create({
 
   /* 1. Treasury Terminal Header */
   treasuryHeader: {
-    backgroundColor: '#022c22',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#064e3b',
+    borderBottomColor: '#e2e8f0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    ...shadows.sm,
   },
   headerLeftRow: {
     flexDirection: 'row',
@@ -462,14 +590,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#064e3b',
+    backgroundColor: '#ede9fe',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#f59e0b',
+    borderColor: '#7c3aed',
   },
   avatarInitials: {
-    color: '#f59e0b',
+    color: '#6d28d9',
     fontSize: 17,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -478,28 +606,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -1,
     right: -1,
-    backgroundColor: '#f59e0b',
+    backgroundColor: '#7c3aed',
     borderRadius: radius.full,
     width: 18,
     height: 18,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#022c22',
+    borderColor: '#ffffff',
   },
   headerTitleCol: {
     flex: 1,
   },
   greetingText: {
     fontSize: 12,
-    color: '#a7f3d0',
+    color: '#64748b',
     fontWeight: '500',
     marginBottom: 1,
   },
   userNameText: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#ffffff',
+    color: '#0f172a',
     letterSpacing: -0.3,
   },
   roleTagRow: {
@@ -511,22 +639,22 @@ const styles = StyleSheet.create({
   roleTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    backgroundColor: '#fef3c7',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    borderColor: '#fde68a',
   },
   roleTagText: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: '#f59e0b',
+    color: '#b45309',
     letterSpacing: 0.6,
   },
   orgTagText: {
     fontSize: 11,
-    color: '#a7f3d0',
+    color: '#64748b',
     fontWeight: '500',
   },
   headerRightActions: {
@@ -538,9 +666,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: '#e2e8f0',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -557,7 +685,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 3,
     borderWidth: 1.5,
-    borderColor: '#022c22',
+    borderColor: '#ffffff',
   },
   bellBadgeText: {
     color: '#ffffff',
@@ -571,13 +699,13 @@ const styles = StyleSheet.create({
 
   /* 2. Treasury Terminal Card */
   treasuryTerminalCard: {
-    backgroundColor: '#063f32',
+    backgroundColor: '#ffffff',
     borderRadius: 18,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#0b5a48',
-    ...shadows.md,
+    borderColor: '#e2e8f0',
+    ...shadows.sm,
   },
   terminalTopRow: {
     flexDirection: 'row',
@@ -588,21 +716,21 @@ const styles = StyleSheet.create({
   balanceSeal: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    backgroundColor: '#ecfdf5',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
+    borderColor: '#a7f3d0',
   },
   balanceSealText: {
-    color: '#10b981',
+    color: '#059669',
     fontSize: 10,
     fontWeight: '800',
     letterSpacing: 0.8,
   },
   terminalDrCrMatch: {
-    color: '#a7f3d0',
+    color: '#64748b',
     fontSize: 11,
     fontWeight: '700',
   },
@@ -615,32 +743,33 @@ const styles = StyleSheet.create({
   liquidityNetVal: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#ffffff',
+    color: '#0f172a',
     letterSpacing: -0.5,
   },
   liquidityNetLabel: {
     fontSize: 12,
-    color: '#a7f3d0',
+    color: '#64748b',
     marginTop: 2,
   },
   solvencyPill: {
-    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    backgroundColor: '#fef3c7',
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderWidth: 1,
-    borderColor: 'rgba(245, 158, 11, 0.4)',
+    borderColor: '#fde68a',
   },
   solvencyPillText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#f59e0b',
+    color: '#b45309',
   },
   ratioBarBg: {
     height: 7,
     borderRadius: 3.5,
     flexDirection: 'row',
     overflow: 'hidden',
+    backgroundColor: '#f1f5f9',
     marginBottom: 10,
   },
   ratioBarAr: {
@@ -665,7 +794,7 @@ const styles = StyleSheet.create({
     borderRadius: 3.5,
   },
   ratioText: {
-    color: '#cbd5e1',
+    color: '#475569',
     fontSize: 11,
     fontWeight: '600',
   },
@@ -879,5 +1008,159 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: '#64748b',
     marginTop: 1,
+  },
+
+  /* Bento KPI Grid */
+  kpiGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardProjects: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardClients: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardEmployees: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxProjects: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxClients: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxEmployees: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiBadgeProjects: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextProjects: {
+    color: '#1d4ed8',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeClients: {
+    backgroundColor: '#ccfbf1',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextClients: {
+    color: '#0f766e',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeEmployees: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextEmployees: {
+    color: '#15803d',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#dc2626',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValueProjects: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueClients: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueEmployees: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValuePending: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#ea580c',
+    letterSpacing: -0.5,
+  },
+  kpiLabelsCol: {
+    marginTop: 2,
+  },
+  kpiTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+    marginBottom: 1,
+  },
+  kpiSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
   },
 });

@@ -27,8 +27,8 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
   route,
   navigation,
 }) => {
-  const { employeeId } = route.params;
   const { employees, departments, designations, updateEmployee } = useHrms();
+  const employeeId = route?.params?.employeeId || employees[0]?.id;
   const { hasRole } = useAuth();
 
   const emp = employees.find(e => e.id === employeeId || e.employeeId === employeeId);

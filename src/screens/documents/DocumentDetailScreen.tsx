@@ -61,7 +61,6 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
   navigation,
   route,
 }) => {
-  const { docId } = route.params || {};
   const {
     govtDocuments,
     scanInbox,
@@ -75,6 +74,7 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
     dispatchGovtDocument,
     receiveGovtDocument,
   } = useCrm();
+  const docId = route?.params?.docId || govtDocuments[0]?.id;
   const { session } = useAuth();
   const currentUserName = (session as any)?.name || (session as any)?.contactPerson || 'Active User';
   const currentUserId = (session as any)?.employeeId || 'emp-001';

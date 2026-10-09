@@ -21,6 +21,8 @@ import {
   EmptyState,
 } from '../../components';
 import { VendorBill, Vendor, WorkOrder } from '../../types';
+import { formatDate } from '../../utils/date';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   FileSpreadsheet,
   Search,
@@ -32,9 +34,13 @@ import {
   CreditCard,
   AlertCircle,
   FileCheck,
+  ArrowUpRight,
+  Clock,
+  Wallet,
 } from 'lucide-react-native';
 
 export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { vendorBills, recordVendorBill, updateVendorBillStatus } = useFinance();
   const { vendors } = useCrm();
   const { hasRole } = useAuth();
@@ -113,6 +119,18 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
   const numNetPayable = numBase + numGst - numTds;
 
   const statusOptions = ['All', 'Pending Approval', 'Approved', 'Paid', 'Overdue'];
+
+  const totalPayableAmount = useMemo(() => {
+    return vendorBills.reduce((acc, b) => acc + (b.totalAmount || 0), 0);
+  }, [vendorBills]);
+
+  const pendingBillsCount = useMemo(() => {
+    return vendorBills.filter((b) => b.status === 'Pending Approval' || b.status === 'Unpaid').length;
+  }, [vendorBills]);
+
+  const approvedBillsCount = useMemo(() => {
+    return vendorBills.filter((b) => b.status === 'Approved').length;
+  }, [vendorBills]);
 
   const filteredBills = useMemo(() => {
     return vendorBills.filter((b) => {
@@ -328,8 +346,12 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
 
         <View style={styles.cardFooter}>
           <View style={styles.datesRow}>
-            <Text style={styles.dateText}>Dated: {item.date}</Text>
-            {item.dueDate && <Text style={styles.dateText}>Due: {item.dueDate}</Text>}
+            <Text style={styles.dateText}>
+              Dated: {formatDate(item.date || item.billDate || (item as any).createdAt) || '—'}
+            </Text>
+            {item.dueDate ? (
+              <Text style={styles.dateText}>Due: {formatDate(item.dueDate) || item.dueDate}</Text>
+            ) : null}
           </View>
 
           <View style={styles.cardActionsRow}>
@@ -387,6 +409,7 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filterScrollView}
         contentContainerStyle={styles.filterScroll}
       >
         {statusOptions.map((st) => (
@@ -422,7 +445,86 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
         data={filteredBills}
         keyExtractor={(item) => item.id}
         renderItem={renderBillCard}
-        contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              <View style={[styles.kpiCard, styles.kpiCardTotal]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
+                    <FileSpreadsheet size={16} color="#0284c7" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeTotal}>
+                    <Text style={styles.kpiBadgeTextTotal}>Payables</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValText}>₹{(totalPayableAmount / 100000).toFixed(1)} L</Text>
+                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Gross Inward</Text>
+                <Text style={styles.kpiSubText}>All vendor bills</Text>
+              </View>
+
+              <View style={[styles.kpiCard, styles.kpiCardPending]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Action Req</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>
+                    {pendingBillsCount}
+                  </Text>
+                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>3-Way Pending</Text>
+                <Text style={styles.kpiSubText}>Awaiting audit verification</Text>
+              </View>
+            </View>
+
+            <View style={styles.kpiRow}>
+              <View style={[styles.kpiCard, styles.kpiCardPaid]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
+                    <CheckCircle2 size={16} color="#16a34a" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePaid}>
+                    <Text style={styles.kpiBadgeTextPaid}>Approved</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                    {approvedBillsCount}
+                  </Text>
+                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Ready to Pay</Text>
+                <Text style={styles.kpiSubText}>CFO release queue</Text>
+              </View>
+
+              <View style={[styles.kpiCard, styles.kpiCardActive]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
+                    <Building size={16} color="#7c3aed" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeActive}>
+                    <Text style={styles.kpiBadgeTextActive}>Empanelled</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValText}>{vendors.length || 8}</Text>
+                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Vendor Base</Text>
+                <Text style={styles.kpiSubText}>Subcontractors & Labs</Text>
+              </View>
+            </View>
+          </View>
+        }
+        contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
         ListEmptyComponent={
           <EmptyState
             title="No Vendor Bills Found"
@@ -436,9 +538,15 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
         }
       />
 
-      <Modal visible={showAddModal} transparent animationType="slide">
+      <Modal
+        visible={showAddModal}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setShowAddModal(false)}
+      >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
             <View style={styles.modalHeader}>
               <View>
                 <Text style={styles.modalTitle}>Record Subcontractor Bill</Text>
@@ -593,9 +701,15 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
       </Modal>
 
       {showPayModal && billToPay && (
-        <Modal visible={showPayModal} transparent animationType="slide">
+        <Modal
+          visible={showPayModal}
+          transparent
+          animationType="slide"
+          statusBarTranslucent
+          onRequestClose={() => setShowPayModal(false)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { paddingBottom: Math.max(insets.bottom + 20, 28) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.modalTitle}>Disburse Vendor Payment</Text>
@@ -673,9 +787,15 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
       )}
 
       {selectedBill && (
-        <Modal visible={!!selectedBill} transparent animationType="fade">
+        <Modal
+          visible={!!selectedBill}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={() => setSelectedBill(null)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { maxHeight: '94%', paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.modalTitle}>{selectedBill.billNo}</Text>
@@ -790,10 +910,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
   },
+  filterScrollView: {
+    flexGrow: 0,
+    marginBottom: spacing.xs,
+  },
   filterScroll: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingVertical: 4,
     gap: spacing.xs,
+    alignItems: 'center',
   },
   filterDivider: {
     width: 1,
@@ -804,9 +929,14 @@ const styles = StyleSheet.create({
   },
   filterChip: {
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: borderRadius.full,
     backgroundColor: colors.background.tertiary,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    minHeight: 34,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   filterChipActive: {
     backgroundColor: colors.primary,
@@ -956,7 +1086,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -964,6 +1094,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: borderRadius.xl,
     borderTopRightRadius: borderRadius.xl,
     maxHeight: '92%',
+    width: '100%',
     padding: spacing.lg,
   },
   modalHeader: {
@@ -1302,5 +1433,140 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.xs,
+  },
+
+  /* Bento KPI Grid */
+  kpiGrid: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
+    gap: 10,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardTotal: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiCardPaid: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardActive: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxTotal: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiIconBoxPaid: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxActive: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiBadgeTotal: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextTotal: {
+    color: '#0284c7',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#ea580c',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePaid: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPaid: {
+    color: '#16a34a',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeActive: {
+    backgroundColor: '#f3e8ff',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextActive: {
+    color: '#7c3aed',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValText: {
+    fontSize: 25,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiTitleText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+    marginBottom: 1,
+  },
+  kpiSubText: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
   },
 });

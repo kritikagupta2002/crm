@@ -113,13 +113,17 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
     );
   }
 
-  const maxValue = Math.max(
+  const rawMax = Math.max(
     ...data.map((d) => Math.max(d.value, d.secondaryValue || 0)),
     1
   );
+  // Add 25-30% headroom so bars never hit the ceiling
+  const maxValue = rawMax <= 4 ? 6 : Math.ceil(rawMax * 1.25);
 
-  const chartHeight = height - 40;
-  const barWidth = Math.max(14, Math.min(28, 260 / (data.length * (secondaryLabel ? 2.5 : 1.8))));
+  const chartHeight = height - 42;
+  const leftOffset = 26;
+  const barWidth = Math.max(12, Math.min(22, 220 / (data.length * (secondaryLabel ? 2.2 : 1.6))));
+  const totalWidth = data.length * 52 + leftOffset + 16;
 
   return (
     <View style={styles.chartWrapper}>
@@ -136,35 +140,75 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
         )}
       </View>
 
-      <Svg width="100%" height={chartHeight + 30} viewBox={`0 0 ${data.length * 55 + 20} ${chartHeight + 30}`}>
-        {[0, 0.25, 0.5, 0.75, 1].map((pct, i) => {
-          const y = chartHeight * (1 - pct) + 10;
+      <Svg width="100%" height={chartHeight + 34} viewBox={`0 0 ${totalWidth} ${chartHeight + 34}`}>
+        {[0, 0.5, 1].map((pct, i) => {
+          const y = chartHeight * (1 - pct) + 14;
+          const tickVal = Math.round(pct * maxValue);
           return (
             <G key={`grid-${i}`}>
-              <Line x1="10" y1={y} x2={data.length * 55 + 10} y2={y} stroke={colors.border.default} strokeWidth="1" strokeDasharray="3,3" />
+              <Line x1={leftOffset} y1={y} x2={totalWidth - 8} y2={y} stroke="#E2E8F0" strokeWidth="1" strokeDasharray="3,3" />
+              <SvgText
+                x={leftOffset - 6}
+                y={y + 3}
+                fill={colors.textTertiary}
+                fontSize="9"
+                textAnchor="end"
+                fontWeight="500"
+              >
+                {tickVal}
+              </SvgText>
             </G>
           );
         })}
 
         {data.map((d, index) => {
-          const xCenter = 30 + index * 55;
+          const xCenter = leftOffset + 24 + index * 52;
           const h1 = (d.value / maxValue) * chartHeight;
-          const y1 = chartHeight - h1 + 10;
+          const y1 = chartHeight - h1 + 14;
 
           if (secondaryLabel && d.secondaryValue !== undefined) {
             const h2 = (d.secondaryValue / maxValue) * chartHeight;
-            const y2 = chartHeight - h2 + 10;
-            const bW = barWidth * 0.85;
+            const y2 = chartHeight - h2 + 14;
+            const bW = barWidth * 0.9;
 
             return (
               <G key={`bar-group-${index}`}>
-                <Rect x={xCenter - bW - 2} y={y1} width={bW} height={Math.max(2, h1)} fill={primaryColor} rx={3} />
-                <Rect x={xCenter + 2} y={y2} width={bW} height={Math.max(2, h2)} fill={secondaryColor} rx={3} />
+                <Rect x={xCenter - bW - 2} y={y1} width={bW} height={Math.max(3, h1)} fill={primaryColor} rx={3} />
+                {d.value > 0 ? (
+                  <SvgText
+                    x={xCenter - bW / 2 - 2}
+                    y={Math.max(10, y1 - 3)}
+                    fill={primaryColor}
+                    fontSize="9"
+                    fontWeight="700"
+                    textAnchor="middle"
+                  >
+                    {d.value}
+                  </SvgText>
+                ) : null}
+
+                {d.secondaryValue > 0 ? (
+                  <>
+                    <Rect x={xCenter + 2} y={y2} width={bW} height={Math.max(3, h2)} fill={secondaryColor} rx={3} />
+                    <SvgText
+                      x={xCenter + bW / 2 + 2}
+                      y={Math.max(10, y2 - 3)}
+                      fill={secondaryColor}
+                      fontSize="9"
+                      fontWeight="700"
+                      textAnchor="middle"
+                    >
+                      {d.secondaryValue}
+                    </SvgText>
+                  </>
+                ) : null}
+
                 <SvgText
                   x={xCenter}
-                  y={chartHeight + 24}
-                  fill={colors.textMuted}
+                  y={chartHeight + 28}
+                  fill={colors.textSecondary}
                   fontSize="10"
+                  fontWeight="600"
                   textAnchor="middle"
                 >
                   {d.label}
@@ -175,12 +219,25 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
 
           return (
             <G key={`bar-single-${index}`}>
-              <Rect x={xCenter - barWidth / 2} y={y1} width={barWidth} height={Math.max(2, h1)} fill={primaryColor} rx={4} />
+              <Rect x={xCenter - barWidth / 2} y={y1} width={barWidth} height={Math.max(3, h1)} fill={primaryColor} rx={4} />
+              {d.value > 0 ? (
+                <SvgText
+                  x={xCenter}
+                  y={Math.max(10, y1 - 3)}
+                  fill={primaryColor}
+                  fontSize="9"
+                  fontWeight="700"
+                  textAnchor="middle"
+                >
+                  {d.value}
+                </SvgText>
+              ) : null}
               <SvgText
                 x={xCenter}
-                y={chartHeight + 24}
-                fill={colors.textMuted}
+                y={chartHeight + 28}
+                fill={colors.textSecondary}
                 fontSize="10"
+                fontWeight="600"
                 textAnchor="middle"
               >
                 {d.label}

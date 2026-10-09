@@ -57,7 +57,7 @@ const formatINR = (n: number) => {
 };
 
 export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, navigation }) => {
-  const { clientId, clientName } = route.params;
+  const { clientId, clientName } = route?.params || {};
   const { clients, leads, projects } = useCrm();
 
   const [portalModalVisible, setPortalModalVisible] = useState(false);

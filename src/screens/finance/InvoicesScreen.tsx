@@ -24,6 +24,8 @@ import {
 } from '../../components';
 import { FinanceInvoice, Client, InvoiceItem } from '../../types';
 import { generateInvoiceUpiLink, COMPANY_BANK_DETAILS } from '../../utils/payments';
+import { formatDate } from '../../utils/date';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Receipt,
   Search,
@@ -38,12 +40,15 @@ import {
   CreditCard,
   QrCode,
   Trash2,
+  ArrowUpRight,
+  Clock,
 } from 'lucide-react-native';
 
 const statusOptions = ['All', 'Paid', 'Pending', 'Partially Paid', 'Overdue', 'Draft'];
 const invoiceKeyExtractor = (item: FinanceInvoice) => item.id;
 
 export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { invoices, createInvoice, updateInvoiceStatus } = useFinance();
   const { clients } = useCrm();
   const { hasRole } = useAuth();
@@ -162,6 +167,19 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
       return matchesSearch && matchesStatus;
     });
   }, [invoices, search, selectedStatus]);
+
+  const totalInvoicedAmount = useMemo(
+    () => invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0),
+    [invoices]
+  );
+  const pendingReceivablesAmount = useMemo(
+    () => invoices.filter((i) => i.status !== 'Paid').reduce((sum, inv) => sum + (inv.totalAmount || 0), 0),
+    [invoices]
+  );
+  const clearedPaidAmount = useMemo(
+    () => invoices.filter((i) => i.status === 'Paid').reduce((sum, inv) => sum + (inv.totalAmount || 0), 0),
+    [invoices]
+  );
 
   const handleCreateInvoice = async () => {
     if (!selectedClientId) {
@@ -331,8 +349,12 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
         <View style={styles.cardFooter}>
           <View style={styles.datesRow}>
-            <Text style={styles.dateText}>Dated: {item.date}</Text>
-            <Text style={styles.dateText}>Due: {item.dueDate}</Text>
+            <Text style={styles.dateText}>
+              Dated: {formatDate(item.date || item.invoiceDate || (item as any).createdAt) || '—'}
+            </Text>
+            <Text style={styles.dateText}>
+              Due: {formatDate(item.dueDate || (item as any).due_date) || '—'}
+            </Text>
           </View>
           <View style={styles.cardActionsRow}>
             <TouchableOpacity
@@ -388,6 +410,7 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.filterScrollView}
         contentContainerStyle={styles.filterScroll}
       >
         {statusOptions.map((st) => (
@@ -409,7 +432,86 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         data={filteredInvoices}
         keyExtractor={invoiceKeyExtractor}
         renderItem={renderInvoiceCard}
-        contentContainerStyle={styles.list}
+        ListHeaderComponent={
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              <View style={[styles.kpiCard, styles.kpiCardTotal]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
+                    <Receipt size={16} color="#0284c7" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeTotal}>
+                    <Text style={styles.kpiBadgeTextTotal}>18% GST</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValText}>₹{(totalInvoicedAmount / 100000).toFixed(1)} L</Text>
+                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Total Invoiced</Text>
+                <Text style={styles.kpiSubText}>Gross sales ledger</Text>
+              </View>
+
+              <View style={[styles.kpiCard, styles.kpiCardPending]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>
+                    ₹{(pendingReceivablesAmount / 100000).toFixed(1)} L
+                  </Text>
+                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Receivables Due</Text>
+                <Text style={styles.kpiSubText}>Pending collections</Text>
+              </View>
+            </View>
+
+            <View style={styles.kpiRow}>
+              <View style={[styles.kpiCard, styles.kpiCardPaid]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
+                    <CheckCircle2 size={16} color="#16a34a" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePaid}>
+                    <Text style={styles.kpiBadgeTextPaid}>Received</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                    ₹{(clearedPaidAmount / 100000).toFixed(1)} L
+                  </Text>
+                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Cleared Remittance</Text>
+                <Text style={styles.kpiSubText}>Bank settled receipts</Text>
+              </View>
+
+              <View style={[styles.kpiCard, styles.kpiCardCount]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxCount]}>
+                    <CreditCard size={16} color="#7c3aed" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeCount}>
+                    <Text style={styles.kpiBadgeTextCount}>Active</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#7c3aed' }]}>{invoices.length}</Text>
+                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Tax Invoices</Text>
+                <Text style={styles.kpiSubText}>All corporate ledgers</Text>
+              </View>
+            </View>
+          </View>
+        }
+        contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
         ListEmptyComponent={
           <EmptyState
             title="No Invoices Found"
@@ -423,9 +525,15 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         }
       />
 
-      <Modal visible={showAddModal} transparent animationType="slide">
+      <Modal
+        visible={showAddModal}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setShowAddModal(false)}
+      >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
             <View style={styles.modalHeader}>
               <View>
                 <Text style={styles.modalTitle}>Issue Exploration Tax Invoice</Text>
@@ -579,9 +687,15 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
       </Modal>
 
       {selectedInvoice && (
-        <Modal visible={!!selectedInvoice} transparent animationType="fade">
+        <Modal
+          visible={!!selectedInvoice}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={() => setSelectedInvoice(null)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { maxHeight: '94%', paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.modalTitle}>{selectedInvoice.invoiceNo}</Text>
@@ -592,7 +706,13 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 </TouchableOpacity>
               </View>
 
-              <ScrollView contentContainerStyle={styles.detailDocContent} showsVerticalScrollIndicator={false}>
+              <ScrollView
+                contentContainerStyle={[
+                  styles.detailDocContent,
+                  { paddingBottom: Math.max(insets.bottom + 32, 48) },
+                ]}
+                showsVerticalScrollIndicator={false}
+              >
                 <View style={styles.docCompanyHeader}>
                   <Text style={styles.docCompanyName}>BANSAL GEO SERVICES PVT LTD</Text>
                   <Text style={styles.docCompanySub}>Jaipur Corporate HQ, C-Scheme, Jaipur, Rajasthan</Text>
@@ -610,8 +730,12 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                   )}
                   <Text style={styles.docProjectTitle}>Project: {selectedInvoice.projectTitle}</Text>
                   <View style={styles.docDatesRow}>
-                    <Text style={styles.docDate}>Invoice Date: {selectedInvoice.date}</Text>
-                    <Text style={styles.docDate}>Due Date: {selectedInvoice.dueDate}</Text>
+                    <Text style={styles.docDate}>
+                      Invoice Date: {formatDate(selectedInvoice.date || selectedInvoice.invoiceDate || (selectedInvoice as any).createdAt) || '—'}
+                    </Text>
+                    <Text style={styles.docDate}>
+                      Due Date: {formatDate(selectedInvoice.dueDate || (selectedInvoice as any).due_date) || '—'}
+                    </Text>
                   </View>
                 </View>
 
@@ -736,18 +860,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.sm,
   },
+  filterScrollView: {
+    flexGrow: 0,
+    marginBottom: spacing.xs,
+  },
   filterScroll: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingVertical: 4,
     gap: spacing.xs,
+    alignItems: 'center',
   },
   filterChip: {
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: borderRadius.full,
     backgroundColor: colors.background.tertiary,
     borderWidth: 1,
     borderColor: 'transparent',
+    minHeight: 34,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   filterChipActive: {
     backgroundColor: colors.primary,
@@ -759,6 +891,136 @@ const styles = StyleSheet.create({
   },
   filterChipTextActive: {
     color: '#ffffff',
+  },
+  kpiGrid: {
+    gap: 10,
+    marginBottom: spacing.md,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 118,
+  },
+  kpiCardTotal: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiCardPaid: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardCount: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxTotal: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiIconBoxPaid: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxCount: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiBadgeTotal: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 7,
+  },
+  kpiBadgeTextTotal: {
+    color: '#0284c7',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 7,
+  },
+  kpiBadgeTextPending: {
+    color: '#ea580c',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePaid: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 7,
+  },
+  kpiBadgeTextPaid: {
+    color: '#16a34a',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeCount: {
+    backgroundColor: '#f3e8ff',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 7,
+  },
+  kpiBadgeTextCount: {
+    color: '#7c3aed',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValText: {
+    fontSize: 25,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiTitleText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  kpiSubText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#64748b',
+    marginTop: 1,
   },
   list: {
     padding: spacing.lg,
@@ -900,7 +1162,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
     justifyContent: 'flex-end',
   },
   modalContent: {
@@ -908,6 +1170,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: borderRadius.xl,
     borderTopRightRadius: borderRadius.xl,
     maxHeight: '92%',
+    width: '100%',
     padding: spacing.lg,
   },
   modalHeader: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet, StatusBar } from 'react-native';
 import { useVendorPortal } from './useVendorPortal';
 import {
   vendorTheme,
@@ -85,6 +85,7 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       {/* 1. VENDOR PROCUREMENT HEADER */}
       <VendorPortalHeader
         vendorName={vendorName}

@@ -31,12 +31,31 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
   route,
   navigation,
 }) => {
-  const { expenseId } = route.params;
   const { expenses, reviewExpense, raiseExpenseQuery } = useHrms();
   const { session, hasRole } = useAuth();
 
   const isHrOrAdmin = hasRole(['Admin', 'HR']);
-  const expense = expenses.find((e) => e.id === expenseId || e.expenseNumber === expenseId);
+
+  const pendingExpenses = expenses.filter(
+    (e) => e.status === 'Pending' || e.status === 'Queried'
+  );
+
+  const routeExpenseId = route?.params?.expenseId;
+  const initialExpenseId =
+    routeExpenseId ||
+    (pendingExpenses.length > 0 ? pendingExpenses[0].id : expenses[0]?.id);
+
+  const [currentExpenseId, setCurrentExpenseId] = useState<string | undefined>(initialExpenseId);
+
+  React.useEffect(() => {
+    if (route?.params?.expenseId) {
+      setCurrentExpenseId(route.params.expenseId);
+    }
+  }, [route?.params?.expenseId]);
+
+  const expense = expenses.find(
+    (e) => e.id === currentExpenseId || e.expenseNumber === currentExpenseId
+  );
 
   const [showPartialModal, setShowPartialModal] = useState(false);
   const [partialAmount, setPartialAmount] = useState('');
@@ -54,9 +73,15 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
   if (!expense) {
     return (
       <View style={styles.container}>
-        <AppHeader title="Audit & Review" showBack onBack={() => navigation.goBack()} />
+        <AppHeader title="Audit & Review Queue" showBack onBack={() => navigation.goBack()} />
         <View style={styles.notFoundBox}>
-          <Text style={styles.notFoundText}>Expense record not found.</Text>
+          <Text style={styles.notFoundText}>No pending expense claims to review.</Text>
+          <Button
+            title="Return to Expenses"
+            variant="outline"
+            style={{ marginTop: 16 }}
+            onPress={() => navigation.goBack()}
+          />
         </View>
       </View>
     );
@@ -205,6 +230,30 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         showBack
         onBack={() => navigation.goBack()}
       />
+
+      {pendingExpenses.length > 1 && (
+        <View style={styles.queueContainer}>
+          <Text style={styles.queueLabel}>
+            Audit Queue ({Math.max(1, pendingExpenses.findIndex((p) => p.id === expense.id) + 1)} of {pendingExpenses.length}):
+          </Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.queueScroll}>
+            {pendingExpenses.map((pe) => {
+              const isSelected = pe.id === expense.id;
+              return (
+                <TouchableOpacity
+                  key={pe.id}
+                  onPress={() => setCurrentExpenseId(pe.id)}
+                  style={[styles.queueChip, isSelected && styles.queueChipActive]}
+                >
+                  <Text style={[styles.queueChipText, isSelected && styles.queueChipTextActive]}>
+                    #{pe.expenseNumber || pe.id} • {pe.employeeName?.split(' ')[0]} (₹{Number(pe.requestedAmount || pe.amount || 0).toLocaleString('en-IN')})
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+      )}
 
       <ScrollView contentContainerStyle={styles.content}>
         <Card style={styles.card}>
@@ -497,70 +546,78 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   empTitle: {
-    ...typography.h3,
-    color: colors.text.primary,
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
   },
   deptText: {
-    ...typography.caption,
-    color: colors.text.tertiary,
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: '500',
     marginTop: 2,
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    marginTop: 4,
+    marginTop: 5,
   },
   metaText: {
-    ...typography.caption,
-    color: colors.text.secondary,
+    fontSize: 13,
+    color: '#475569',
+    fontWeight: '500',
   },
   categoryBadge: {
-    ...typography.caption,
+    fontSize: 13,
     fontWeight: '700',
-    color: colors.primary,
+    color: '#0d9488',
     marginTop: spacing.xs,
   },
   descBox: {
     backgroundColor: colors.background.secondary,
-    padding: spacing.sm,
+    padding: 12,
     borderRadius: borderRadius.sm,
     marginTop: spacing.sm,
   },
   descLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.text.tertiary,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#475569',
     letterSpacing: 0.5,
   },
   descText: {
-    ...typography.caption,
-    color: colors.text.primary,
-    marginTop: 3,
-    lineHeight: 18,
+    fontSize: 14,
+    color: '#0f172a',
+    marginTop: 4,
+    lineHeight: 20,
+    fontWeight: '500',
   },
   amountGrid: {
     flexDirection: 'row',
-    backgroundColor: colors.background.secondary,
+    backgroundColor: '#f8fafc',
     borderRadius: borderRadius.sm,
-    padding: spacing.sm,
+    padding: 12,
     marginTop: spacing.sm,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   amtCol: {
     flex: 1,
     alignItems: 'center',
   },
   amtLabel: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.text.tertiary,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#64748b',
     letterSpacing: 0.5,
   },
   amtVal: {
-    ...typography.body,
+    fontSize: 18,
     fontWeight: '800',
-    color: colors.text.primary,
-    marginTop: 2,
+    color: '#0f172a',
+    marginTop: 4,
+    letterSpacing: -0.3,
   },
   receiptButton: {
     flexDirection: 'row',
@@ -725,5 +782,44 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.semantic.success,
     marginTop: spacing.sm,
+  },
+  queueContainer: {
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
+  },
+  queueLabel: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 6,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  queueScroll: {
+    gap: 8,
+  },
+  queueChip: {
+    backgroundColor: '#f8fafc',
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  queueChipActive: {
+    backgroundColor: '#0d9488',
+    borderColor: '#0d9488',
+  },
+  queueChipText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#64748b',
+  },
+  queueChipTextActive: {
+    color: '#ffffff',
+    fontWeight: '800',
   },
 });

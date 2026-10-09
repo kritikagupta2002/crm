@@ -73,15 +73,139 @@ export const styles = StyleSheet.create({
   stepperHeader: {
     marginBottom: spacing.sm,
   },
+  stepperHeaderTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   sectionHeading: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
   },
+  stageProgressBadge: {
+    backgroundColor: colors.primary + '18',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radius.full,
+  },
+  stageProgressBadgeText: {
+    fontSize: typography.fontSizes.xxs,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.primaryDark,
+  },
   stageIndicatorText: {
     fontSize: typography.fontSizes.xs,
-    color: colors.primary,
+    color: colors.primaryDark,
     fontWeight: typography.fontWeights.semibold,
+  },
+  stepperProgressBarTrack: {
+    height: 4,
+    backgroundColor: colors.borderLight,
+    borderRadius: radius.full,
+    overflow: 'hidden',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  stepperProgressBarFill: {
+    height: '100%',
+    backgroundColor: colors.primaryDark,
+    borderRadius: radius.full,
+  },
+  stepperScrollContent: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: 2,
+    paddingRight: spacing.md,
+    alignItems: 'flex-start',
+  },
+  stepItemWrapper: {
+    width: 90,
+    minWidth: 86,
+    alignItems: 'center',
+    paddingHorizontal: 2,
+  },
+  stepNodeRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    height: 28,
+    marginBottom: 6,
+  },
+  connectorLine: {
+    position: 'absolute',
+    height: 2,
+    backgroundColor: colors.borderLight,
+    top: 13,
+    zIndex: 0,
+  },
+  connectorLineLeft: {
+    left: 0,
+    right: '50%',
+  },
+  connectorLineRight: {
+    left: '50%',
+    right: 0,
+  },
+  connectorLineActive: {
+    backgroundColor: colors.success,
+  },
+  stepDot: {
+    width: 26,
+    height: 26,
+    borderRadius: radius.full,
+    backgroundColor: colors.surfaceMuted,
+    borderWidth: 1.5,
+    borderColor: colors.borderDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  stepDotDone: {
+    backgroundColor: colors.success,
+    borderColor: colors.success,
+  },
+  stepDotCurrent: {
+    backgroundColor: colors.primaryDark,
+    borderColor: colors.primary,
+    borderWidth: 2,
+    ...shadows.xs,
+  },
+  stepDotNum: {
+    fontSize: typography.fontSizes.xxs,
+    fontWeight: typography.fontWeights.bold,
+    color: colors.textMuted,
+  },
+  stepDotNumActive: {
+    color: colors.white,
+  },
+  stepDotLabel: {
+    fontSize: 10,
+    lineHeight: 13,
+    color: colors.textMuted,
+    textAlign: 'center',
+    fontWeight: typography.fontWeights.medium,
+    minHeight: 28,
+  },
+  stepDotLabelDone: {
+    color: colors.textSecondary,
+    fontWeight: typography.fontWeights.medium,
+  },
+  stepDotLabelActive: {
+    color: colors.primaryDark,
+    fontWeight: typography.fontWeights.bold,
+  },
+  readyDeliverableBtn: {
+    marginTop: spacing.xs,
+    backgroundColor: '#ffffff',
+    borderWidth: 1.5,
+    borderColor: colors.primaryDark,
+  },
+  overdueText: {
+    color: colors.danger,
+    fontWeight: typography.fontWeights.bold,
   },
   stepperRow: {
     flexDirection: 'row',
@@ -92,46 +216,7 @@ export const styles = StyleSheet.create({
   },
   stepDotContainer: {
     alignItems: 'center',
-    width: '13.5%',
-  },
-  stepDot: {
-    width: 22,
-    height: 22,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
-    borderWidth: 1,
-    borderColor: colors.borderDark,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 3,
-  },
-  stepDotDone: {
-    backgroundColor: colors.success,
-    borderColor: colors.success,
-  },
-  stepDotCurrent: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
-  },
-  stepDotNum: {
-    fontSize: typography.fontSizes.xxs - 2,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textMuted,
-  },
-  stepDotNumActive: {
-    color: colors.white,
-  },
-  stepDotLabel: {
-    fontSize: 9,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-  stepDotLabelDone: {
-    color: colors.textSecondary,
-  },
-  stepDotLabelActive: {
-    color: colors.accent,
-    fontWeight: typography.fontWeights.bold,
+    width: 84,
   },
   nextStepCard: {
     backgroundColor: colors.surfaceMuted,
@@ -432,25 +517,34 @@ export const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xxs,
     color: colors.textMuted,
   },
-  fieldTeamList: {
+  fieldTeamContainer: {
     marginTop: spacing.sm,
   },
   fieldTeamHeading: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.semibold,
     color: colors.textSecondary,
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  fieldTeamChipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
   },
   memberTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     backgroundColor: colors.surfaceMuted,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.xs,
-    alignSelf: 'flex-start',
-    marginBottom: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   memberTagText: {
     fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.medium,
     color: colors.textPrimary,
   },
   mutedText: {

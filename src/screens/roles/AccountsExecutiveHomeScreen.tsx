@@ -114,9 +114,9 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
 
   return (
     <View style={styles.rootContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#1e3a8a" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Bookkeeping Desk Top Bar (Royal Blue & Sky) */}
+      {/* 1. Bookkeeping Desk Top Bar (Light Theme & Accounts Desk) */}
       <View style={[styles.billingHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
@@ -139,7 +139,7 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             </Text>
             <View style={styles.roleTagRow}>
               <View style={styles.roleTag}>
-                <CreditCard size={10} color="#1e3a8a" strokeWidth={2.4} style={{ marginRight: 3 }} />
+                <CreditCard size={10} color="#0284c7" strokeWidth={2.4} style={{ marginRight: 3 }} />
                 <Text style={styles.roleTagText}>ACCOUNTS EXECUTIVE</Text>
               </View>
               <Text style={styles.orgTagText}>Billing & Daybook Desk</Text>
@@ -153,7 +153,7 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             onPress={() => navigation.navigate('Invoices')}
             style={styles.iconButton}
           >
-            <Search size={19} color="#ffffff" strokeWidth={2.2} />
+            <Search size={19} color="#475569" strokeWidth={2.2} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -161,7 +161,7 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             onPress={() => navigation.navigate('AlertsTab')}
             style={styles.iconButton}
           >
-            <Bell size={19} color="#ffffff" strokeWidth={2.2} />
+            <Bell size={19} color="#475569" strokeWidth={2.2} />
             <View style={styles.bellBadge}>
               <Text style={styles.bellBadgeText}>
                 {unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : '2'}
@@ -230,6 +230,133 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
                 </View>
                 <Text style={styles.padTileTitle}>3-Way Match</Text>
                 <Text style={styles.padTileSub}>PO vs Bill vs DPR</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Accounts Bento KPI Grid */}
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              {/* Client Invoices */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Invoices')}
+                style={[styles.kpiCard, styles.kpiCardProjects]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
+                    <Receipt size={17} color="#2563eb" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeProjects}>
+                    <Text style={styles.kpiBadgeTextProjects}>GST Bills</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueProjects}>
+                    {invoices.length || 6}
+                  </Text>
+                  <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Client Invoices</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Raised This Month
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Inward Bills */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('VendorBills')}
+                style={[styles.kpiCard, styles.kpiCardClients]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
+                    <FileSpreadsheet size={17} color="#0f766e" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeClients}>
+                    <Text style={styles.kpiBadgeTextClients}>Logged</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueClients}>
+                    {vendorBills.length || 8}
+                  </Text>
+                  <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Inward Bills</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Rigs & Assays Recorded
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.kpiRow}>
+              {/* Daybook Vouchers */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Vouchers')}
+                style={[styles.kpiCard, styles.kpiCardEmployees]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
+                    <Scale size={17} color="#15803d" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeEmployees}>
+                    <Text style={styles.kpiBadgeTextEmployees}>Posted</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueEmployees}>
+                    {vouchers.length || 24}
+                  </Text>
+                  <ArrowUpRight size={16} color="#15803d" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Daybook Entries</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Journal & Cash Vouchers
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* 3-Way Match Pending */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('VendorBills')}
+                style={[styles.kpiCard, styles.kpiCardPending]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={17} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValuePending}>
+                    {pendingBillsReview.length || 3}
+                  </Text>
+                  <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>3-Way Matches</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Awaiting Verification
+                  </Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -447,15 +574,16 @@ const styles = StyleSheet.create({
 
   /* 1. Billing Header */
   billingHeader: {
-    backgroundColor: '#1e3a8a',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e40af',
+    borderBottomColor: '#e2e8f0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    ...shadows.sm,
   },
   headerLeftRow: {
     flexDirection: 'row',
@@ -470,14 +598,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1e40af',
+    backgroundColor: '#e0f2fe',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#60a5fa',
+    borderColor: '#0284c7',
   },
   avatarInitials: {
-    color: '#ffffff',
+    color: '#0369a1',
     fontSize: 17,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -486,28 +614,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -1,
     right: -1,
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#0284c7',
     borderRadius: radius.full,
     width: 18,
     height: 18,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#1e3a8a',
+    borderColor: '#ffffff',
   },
   headerTitleCol: {
     flex: 1,
   },
   greetingText: {
     fontSize: 12,
-    color: '#bfdbfe',
+    color: '#64748b',
     fontWeight: '500',
     marginBottom: 1,
   },
   userNameText: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#ffffff',
+    color: '#0f172a',
     letterSpacing: -0.3,
   },
   roleTagRow: {
@@ -519,19 +647,21 @@ const styles = StyleSheet.create({
   roleTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e0f2fe',
     paddingHorizontal: 7,
     paddingVertical: 1.5,
     borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#bae6fd',
   },
   roleTagText: {
     fontSize: 9.5,
     fontWeight: '800',
-    color: '#1e3a8a',
+    color: '#0284c7',
   },
   orgTagText: {
     fontSize: 11,
-    color: '#bfdbfe',
+    color: '#64748b',
     fontWeight: '600',
   },
   headerRightActions: {
@@ -543,9 +673,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
+    borderColor: '#e2e8f0',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -562,7 +692,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 3,
     borderWidth: 1.5,
-    borderColor: '#1e3a8a',
+    borderColor: '#ffffff',
   },
   bellBadgeText: {
     color: '#ffffff',
@@ -857,5 +987,159 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: '#64748b',
     marginTop: 1,
+  },
+
+  /* Bento KPI Grid */
+  kpiGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardProjects: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardClients: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardEmployees: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxProjects: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxClients: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxEmployees: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiBadgeProjects: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextProjects: {
+    color: '#1d4ed8',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeClients: {
+    backgroundColor: '#ccfbf1',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextClients: {
+    color: '#0f766e',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeEmployees: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextEmployees: {
+    color: '#15803d',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#dc2626',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValueProjects: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueClients: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueEmployees: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValuePending: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#ea580c',
+    letterSpacing: -0.5,
+  },
+  kpiLabelsCol: {
+    marginTop: 2,
+  },
+  kpiTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+    marginBottom: 1,
+  },
+  kpiSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
   },
 });

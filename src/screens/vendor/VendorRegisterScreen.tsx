@@ -312,7 +312,7 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
       header={
         <AppHeader
           title="Vendor Onboarding"
-          subtitle="Empanellment & Statutory Registration Wizard"
+          subtitle="Empanelment & Statutory Registration Wizard"
           showBack
           onBack={() => navigation.goBack()}
         />

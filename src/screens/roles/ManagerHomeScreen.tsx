@@ -32,8 +32,8 @@ import {
   Receipt,
   Radio,
   Gauge,
-  Flame,
   HardHat,
+  Building2,
 } from 'lucide-react-native';
 import { colors, radius, shadows } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
@@ -139,9 +139,9 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
 
   return (
     <View style={styles.rootContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#0f172a" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Tactical Command Center Header (Dark Slate & Emerald Radar) */}
+      {/* 1. Tactical Command Center Header (Light Theme & Emerald Radar) */}
       <View style={[styles.commandHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
@@ -175,7 +175,7 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             onPress={() => navigation.navigate('Tasks')}
             style={styles.iconButton}
           >
-            <Search size={19} color="#94a3b8" strokeWidth={2.2} />
+            <Search size={19} color="#475569" strokeWidth={2.2} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -183,7 +183,7 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             onPress={() => navigation.navigate('AlertsTab')}
             style={styles.iconButton}
           >
-            <Bell size={19} color="#94a3b8" strokeWidth={2.2} />
+            <Bell size={19} color="#475569" strokeWidth={2.2} />
             <View style={styles.bellBadge}>
               <Text style={styles.bellBadgeText}>
                 {unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : '2'}
@@ -268,6 +268,133 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                 <Text style={styles.shiftLabel}>Safety Record</Text>
                 <Text style={[styles.shiftVal, { color: '#10b981' }]}>0 Incidents</Text>
               </View>
+            </View>
+          </View>
+
+          {/* Executive Bento KPI Grid */}
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              {/* Projects Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Projects')}
+                style={[styles.kpiCard, styles.kpiCardProjects]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
+                    <FolderKanban size={17} color="#2563eb" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeProjects}>
+                    <Text style={styles.kpiBadgeTextProjects}>Live Sites</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueProjects}>
+                    {activeProjects.length || 4}
+                  </Text>
+                  <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Active Projects</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Exploration & Mining
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* On-Site Crew Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('EmployeeDirectory')}
+                style={[styles.kpiCard, styles.kpiCardClients]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
+                    <Users size={17} color="#0f766e" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeClients}>
+                    <Text style={styles.kpiBadgeTextClients}>85% Live</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueClients}>
+                    {staffPresentCount}
+                  </Text>
+                  <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>On-Site Rig Crew</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    42 Active On-Site
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.kpiRow}>
+              {/* Core Drilled Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('DrillingDpr')}
+                style={[styles.kpiCard, styles.kpiCardEmployees]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
+                    <Compass size={17} color="#7e22ce" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeEmployees}>
+                    <Text style={styles.kpiBadgeTextEmployees}>HQ Wireline</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueEmployees}>
+                    1,420
+                  </Text>
+                  <ArrowUpRight size={16} color="#7c3aed" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Core Drilled (M)</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Target: 2,000 Meters
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Pending WBS Tasks Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Tasks')}
+                style={[styles.kpiCard, styles.kpiCardPending]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={17} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValuePending}>
+                    {pendingTasksCount}
+                  </Text>
+                  <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={[styles.kpiTitle, { color: '#9a3412' }]}>Pending Tasks</Text>
+                  <Text style={[styles.kpiSubtitle, { color: '#ea580c' }]} numberOfLines={1}>
+                    Field WBS Action
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -476,16 +603,18 @@ const styles = StyleSheet.create({
   },
 
   /* 1. Tactical Command Header */
+  /* 1. Tactical Command Header */
   commandHeader: {
-    backgroundColor: '#0f172a',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#1e293b',
+    borderBottomColor: '#e2e8f0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    ...shadows.sm,
   },
   headerLeftRow: {
     flexDirection: 'row',
@@ -500,14 +629,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1e293b',
+    backgroundColor: '#ccfbf1',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#10b981',
+    borderColor: '#0d9488',
   },
   avatarInitials: {
-    color: '#10b981',
+    color: '#0f766e',
     fontSize: 17,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -523,7 +652,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#0f172a',
+    borderColor: '#ffffff',
   },
   headerTitleCol: {
     flex: 1,
@@ -538,23 +667,23 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 3.5,
-    backgroundColor: '#10b981',
+    backgroundColor: '#059669',
   },
   radarStatusText: {
     fontSize: 10,
     fontWeight: '800',
-    color: '#10b981',
+    color: '#059669',
     letterSpacing: 0.6,
   },
   userNameText: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#ffffff',
+    color: '#0f172a',
     letterSpacing: -0.3,
   },
   orgTagText: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#64748b',
     fontWeight: '500',
   },
   headerRightActions: {
@@ -566,9 +695,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: '#e2e8f0',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -585,7 +714,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 3,
     borderWidth: 1.5,
-    borderColor: '#0f172a',
+    borderColor: '#ffffff',
   },
   bellBadgeText: {
     color: '#ffffff',
@@ -599,13 +728,13 @@ const styles = StyleSheet.create({
 
   /* 2. Live Rig Telemetry Console */
   telemetryCard: {
-    backgroundColor: '#111e33',
+    backgroundColor: '#ffffff',
     borderRadius: 18,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#1e293b',
-    ...shadows.md,
+    borderColor: '#e2e8f0',
+    ...shadows.sm,
   },
   telemetryHeader: {
     flexDirection: 'row',
@@ -619,7 +748,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   telemetryTitle: {
-    color: '#ffffff',
+    color: '#0f172a',
     fontSize: 12,
     fontWeight: '800',
     letterSpacing: 0.8,
@@ -640,7 +769,7 @@ const styles = StyleSheet.create({
     width: 9,
     height: 9,
     borderRadius: 4.5,
-    backgroundColor: '#10b981',
+    backgroundColor: '#059669',
     marginRight: 10,
   },
   rigStatusDotStandby: {
@@ -659,33 +788,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rigName: {
-    color: '#ffffff',
+    color: '#0f172a',
     fontSize: 13.5,
     fontWeight: '700',
   },
   rigDrilledVal: {
-    color: '#10b981',
+    color: '#059669',
     fontSize: 12.5,
     fontWeight: '800',
   },
   rigSubText: {
-    color: '#94a3b8',
+    color: '#64748b',
     fontSize: 11,
     marginTop: 1,
   },
   rigDivider: {
     height: 1,
-    backgroundColor: '#1e293b',
+    backgroundColor: '#f1f5f9',
     marginLeft: 19,
   },
   shiftStrip: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(15, 23, 42, 0.6)',
+    backgroundColor: '#f8fafc',
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 8,
     borderWidth: 1,
-    borderColor: '#1e293b',
+    borderColor: '#e2e8f0',
   },
   shiftCol: {
     flex: 1,
@@ -693,18 +822,18 @@ const styles = StyleSheet.create({
   },
   shiftLabel: {
     fontSize: 10,
-    color: '#94a3b8',
+    color: '#64748b',
     marginBottom: 2,
   },
   shiftVal: {
     fontSize: 13.5,
     fontWeight: '800',
-    color: '#ffffff',
+    color: '#0f172a',
   },
   shiftDivider: {
     width: 1,
     height: 24,
-    backgroundColor: '#1e293b',
+    backgroundColor: '#e2e8f0',
   },
 
   /* Section Headers */
@@ -977,5 +1106,159 @@ const styles = StyleSheet.create({
     fontSize: 10.5,
     color: '#64748b',
     marginTop: 1,
+  },
+
+  /* Bento KPI Grid */
+  kpiGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardProjects: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardClients: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardEmployees: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxProjects: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxClients: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxEmployees: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiBadgeProjects: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextProjects: {
+    color: '#1d4ed8',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeClients: {
+    backgroundColor: '#ccfbf1',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextClients: {
+    color: '#0f766e',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeEmployees: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextEmployees: {
+    color: '#15803d',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#dc2626',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValueProjects: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueClients: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueEmployees: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValuePending: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#ea580c',
+    letterSpacing: -0.5,
+  },
+  kpiLabelsCol: {
+    marginTop: 2,
+  },
+  kpiTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+    marginBottom: 1,
+  },
+  kpiSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
   },
 });

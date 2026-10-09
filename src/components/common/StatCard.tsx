@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { colors, radius, spacing, typography, shadows } from '../../theme';
+import { ArrowUpRight } from 'lucide-react-native';
+import { colors, radius, spacing, shadows } from '../../theme';
 
 interface StatCardProps {
   title?: string;
@@ -50,7 +51,7 @@ const StatCardInner: React.FC<StatCardProps> = ({
           {displayTitle}
         </Text>
         {icon ? (
-          <View style={[styles.iconContainer, { backgroundColor: computedColor + '12' }]}>
+          <View style={[styles.iconContainer, { backgroundColor: computedColor + '15' }]}>
             {icon}
           </View>
         ) : null}
@@ -58,14 +59,19 @@ const StatCardInner: React.FC<StatCardProps> = ({
 
       <View style={styles.valueRow}>
         <View style={{ flex: 1 }}>
-          <Text
-            style={[styles.value, { color: computedColor }]}
-            numberOfLines={1}
-            adjustsFontSizeToFit
-            minimumFontScale={0.75}
-          >
-            {value}
-          </Text>
+          <View style={styles.valueAndArrowRow}>
+            <Text
+              style={[styles.value, { color: computedColor }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.7}
+            >
+              {value}
+            </Text>
+            {!chart ? (
+              <ArrowUpRight size={15} color={computedColor} strokeWidth={2.4} style={styles.arrowIcon} />
+            ) : null}
+          </View>
           {displaySub ? (
             <Text
               style={styles.subtitle}
@@ -93,48 +99,39 @@ export const StatCard = React.memo(StatCardInner);
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 13,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
     ...shadows.xs,
     flex: 1,
-    minWidth: 100,
+    minWidth: 110,
+    minHeight: 122,
+    justifyContent: 'space-between',
     marginBottom: spacing.xs + 2,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   title: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textSecondary,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 11.5,
+    color: '#64748b',
+    fontWeight: '700',
     flex: 1,
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
   },
   iconContainer: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.sm,
+    width: 32,
+    height: 32,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: spacing.xs,
-  },
-  value: {
-    fontSize: typography.fontSizes.xl,
-    fontWeight: typography.fontWeights.heavy,
-    marginBottom: 2,
-    letterSpacing: -0.4,
-  },
-  subtitle: {
-    fontSize: typography.fontSizes.xxs + 1,
-    color: colors.textMuted,
-    fontWeight: typography.fontWeights.medium,
   },
   valueRow: {
     flexDirection: 'row',
@@ -142,26 +139,45 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.xs,
   },
+  valueAndArrowRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 3,
+  },
+  value: {
+    fontSize: 26,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+  },
+  arrowIcon: {
+    marginLeft: 6,
+  },
+  subtitle: {
+    fontSize: 11.5,
+    color: '#64748b',
+    fontWeight: '500',
+  },
   chartWrap: {
     marginLeft: spacing.xs,
     alignItems: 'center',
     justifyContent: 'center',
   },
   trendBadge: {
-    marginTop: spacing.xs,
+    marginTop: 6,
     backgroundColor: colors.successBg,
     alignSelf: 'flex-start',
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: radius.full,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
   trendBadgeNegative: {
     backgroundColor: colors.dangerBg,
   },
   trendText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 10,
     color: colors.successText,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: '800',
   },
   trendTextNegative: {
     color: colors.dangerText,

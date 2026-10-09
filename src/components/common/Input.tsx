@@ -33,6 +33,7 @@ export const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const isMultiline = Boolean(props.multiline);
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -45,15 +46,25 @@ export const Input: React.FC<InputProps> = ({
       <View
         style={[
           styles.inputWrapper,
+          isMultiline ? styles.inputWrapperMultiline : null,
           isFocused ? styles.inputFocused : null,
           error ? styles.inputError : null,
           props.editable === false ? styles.inputDisabled : null,
         ]}
       >
-        {leftIcon ? <View style={styles.leftIcon}>{leftIcon}</View> : null}
+        {leftIcon ? (
+          <View style={[styles.leftIcon, isMultiline && styles.iconMultiline]}>
+            {leftIcon}
+          </View>
+        ) : null}
         <TextInput
           placeholderTextColor={colors.textTertiary}
-          style={[styles.input, style]}
+          textAlignVertical={isMultiline ? 'top' : 'center'}
+          style={[
+            styles.input,
+            isMultiline ? styles.inputMultiline : null,
+            style,
+          ]}
           onFocus={(e) => {
             setIsFocused(true);
             onFocus?.(e);
@@ -64,7 +75,11 @@ export const Input: React.FC<InputProps> = ({
           }}
           {...props}
         />
-        {rightIcon ? <View style={styles.rightIcon}>{rightIcon}</View> : null}
+        {rightIcon ? (
+          <View style={[styles.rightIcon, isMultiline && styles.iconMultiline]}>
+            {rightIcon}
+          </View>
+        ) : null}
       </View>
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
       {helperText && !error ? <Text style={styles.helperText}>{helperText}</Text> : null}
@@ -93,6 +108,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     minHeight: 46,
   },
+  inputWrapperMultiline: {
+    alignItems: 'flex-start',
+    minHeight: 88,
+    paddingVertical: spacing.sm,
+  },
+  iconMultiline: {
+    marginTop: 4,
+  },
   inputFocused: {
     borderColor: colors.primaryDark,
     backgroundColor: colors.surface,
@@ -110,6 +133,13 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.base,
     color: colors.textPrimary,
     paddingVertical: spacing.xs + 3,
+  },
+  inputMultiline: {
+    minHeight: 72,
+    textAlignVertical: 'top',
+    paddingTop: 4,
+    paddingBottom: 4,
+    lineHeight: 20,
   },
   leftIcon: {
     marginRight: spacing.sm,

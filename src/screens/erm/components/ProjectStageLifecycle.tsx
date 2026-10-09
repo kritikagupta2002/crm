@@ -1,15 +1,17 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import {
   Check,
   Plus,
   Landmark,
   ScrollText,
   CheckCircle2,
+  ArrowRight,
 } from 'lucide-react-native';
 import { Card, Button, Input } from '../../../components/common';
 import { colors, spacing } from '../../../theme';
 import { formatCurrencyLakhs as formatCurrency } from '../../../utils';
+import { formatDate } from '../../../utils/date';
 import {
   ERM_STAGES,
   ErmStageConfig,
@@ -96,32 +98,76 @@ export const ProjectStageLifecycle: React.FC<ProjectStageLifecycleProps> = ({
   return (
     <Card style={styles.stepperCard}>
       <View style={styles.stepperHeader}>
-        <Text style={styles.sectionHeading}>7-Stage Operational Lifecycle</Text>
+        <View style={styles.stepperHeaderTop}>
+          <Text style={styles.sectionHeading}>7-Stage Operational Lifecycle</Text>
+          <View style={styles.stageProgressBadge}>
+            <Text style={styles.stageProgressBadgeText}>
+              {Math.round((currentStage / 7) * 100)}% Complete
+            </Text>
+          </View>
+        </View>
         <Text style={styles.stageIndicatorText}>
           Stage {currentStage} of 7: {currentStageCfg?.label}
         </Text>
+        <View style={styles.stepperProgressBarTrack}>
+          <View
+            style={[
+              styles.stepperProgressBarFill,
+              { width: `${Math.round((currentStage / 7) * 100)}%` },
+            ]}
+          />
+        </View>
       </View>
 
-      <View style={styles.stepperRow}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.stepperScrollContent}
+      >
         {ERM_STAGES.map((st, i) => {
           const stageNum = (i + 1) as ProjectStageNumber;
           const isCompleted = stageNum < currentStage;
           const isCurrent = stageNum === currentStage;
           return (
-            <View key={st.key} style={styles.stepDotContainer}>
-              <View
-                style={[
-                  styles.stepDot,
-                  isCompleted && styles.stepDotDone,
-                  isCurrent && styles.stepDotCurrent,
-                ]}
-              >
-                {isCompleted ? (
-                  <Check size={12} color={colors.white} strokeWidth={3} />
-                ) : (
-                  <Text style={[styles.stepDotNum, isCurrent && styles.stepDotNumActive]}>
-                    {stageNum}
-                  </Text>
+            <View key={st.key} style={styles.stepItemWrapper}>
+              <View style={styles.stepNodeRow}>
+                {i > 0 && (
+                  <View
+                    style={[
+                      styles.connectorLine,
+                      styles.connectorLineLeft,
+                      (isCompleted || isCurrent) && styles.connectorLineActive,
+                    ]}
+                  />
+                )}
+                <View
+                  style={[
+                    styles.stepDot,
+                    isCompleted && styles.stepDotDone,
+                    isCurrent && styles.stepDotCurrent,
+                  ]}
+                >
+                  {isCompleted ? (
+                    <Check size={13} color={colors.white} strokeWidth={3} />
+                  ) : (
+                    <Text
+                      style={[
+                        styles.stepDotNum,
+                        isCurrent && styles.stepDotNumActive,
+                      ]}
+                    >
+                      {stageNum}
+                    </Text>
+                  )}
+                </View>
+                {i < ERM_STAGES.length - 1 && (
+                  <View
+                    style={[
+                      styles.connectorLine,
+                      styles.connectorLineRight,
+                      isCompleted && styles.connectorLineActive,
+                    ]}
+                  />
                 )}
               </View>
               <Text
@@ -130,14 +176,14 @@ export const ProjectStageLifecycle: React.FC<ProjectStageLifecycleProps> = ({
                   isCurrent && styles.stepDotLabelActive,
                   isCompleted && styles.stepDotLabelDone,
                 ]}
-                numberOfLines={1}
+                numberOfLines={2}
               >
                 {st.label}
               </Text>
             </View>
           );
         })}
-      </View>
+      </ScrollView>
 
       <View style={styles.nextStepCard}>
         <View style={styles.nextStepHead}>
@@ -279,10 +325,11 @@ export const ProjectStageLifecycle: React.FC<ProjectStageLifecycleProps> = ({
                 </View>
                 <Button
                   title="Ready for Deliverable Submission"
+                  rightIcon={<ArrowRight size={14} color={colors.primaryDark} />}
                   onPress={() => updateProjectStage(project.id, 4)}
-                  variant="secondary"
+                  variant="outline"
                   size="sm"
-                  style={{ marginTop: spacing.xs }}
+                  style={styles.readyDeliverableBtn}
                 />
               </View>
             )}
@@ -363,7 +410,7 @@ export const ProjectStageLifecycle: React.FC<ProjectStageLifecycleProps> = ({
                             {step.label}
                           </Text>
                           {step.date && (
-                            <Text style={styles.checkItemDate}>Done on {step.date}</Text>
+                            <Text style={styles.checkItemDate}>Done on {formatDate(step.date)}</Text>
                           )}
                         </View>
                       </TouchableOpacity>
@@ -421,7 +468,7 @@ export const ProjectStageLifecycle: React.FC<ProjectStageLifecycleProps> = ({
                     <CheckCircle2 size={20} color={colors.success} />
                     <View>
                       <Text style={styles.closedBannerTitle}>
-                        Project Closed on {project.closure.closedOn}
+                        Project Closed on {formatDate(project.closure.closedOn)}
                       </Text>
                       <Text style={styles.closedBannerSub}>
                         {project.closure.note || 'Technical archive sealed and feedback received.'}

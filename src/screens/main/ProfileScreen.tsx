@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -40,15 +40,43 @@ interface ProfileScreenProps {
   navigation: any;
 }
 
+const ROLE_DISPLAY_NAMES: Record<string, string> = {
+  super_admin: 'Super Admin',
+  director: 'Director',
+  manager: 'Manager',
+  employee: 'Employee',
+  finance_master: 'Finance Master',
+  accounts_executive: 'Accounts Exec',
+};
+
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const isCompact = screenWidth <= 360;
 
-  const { logout } = useAuth();
+  const { logout, session, canonicalRole } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const userName = 'Dr. Rajesh Bansal';
+  const activeRoleBadge = useMemo(
+    () => ROLE_DISPLAY_NAMES[canonicalRole] || 'Super Admin',
+    [canonicalRole]
+  );
+  const userName = useMemo(
+    () => (session && 'name' in session ? session.name : 'Dr. Rajesh Bansal'),
+    [session]
+  );
+
+  const navigateToPersonalInfo = useCallback(() => navigation.navigate('PersonalInfo'), [navigation]);
+  const navigateToAccountSecurity = useCallback(() => navigation.navigate('AccountSecurity'), [navigation]);
+  const navigateToAppSettings = useCallback(() => navigation.navigate('AppSettings'), [navigation]);
+  const navigateToNotificationPreferences = useCallback(() => navigation.navigate('NotificationPreferences'), [navigation]);
+  const navigateToLanguage = useCallback(() => navigation.navigate('Language'), [navigation]);
+  const navigateToRoleSelection = useCallback(() => navigation.navigate('RoleSelection'), [navigation]);
+  const navigateToAuditLog = useCallback(() => navigation.navigate('AuditLog'), [navigation]);
+  const navigateToSentMessages = useCallback(() => navigation.navigate('SentMessages'), [navigation]);
+  const navigateToHelpSupport = useCallback(() => navigation.navigate('HelpSupport'), [navigation]);
+  const handleOpenLogout = useCallback(() => setShowLogoutModal(true), []);
+  const handleCloseLogout = useCallback(() => setShowLogoutModal(false), []);
 
   return (
     <View style={styles.container}>
@@ -80,7 +108,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             <View style={styles.profileInfoCol}>
               <Text style={styles.profileName}>{userName}</Text>
               <View style={styles.roleTag}>
-                <Text style={styles.roleTagText}>SUPER ADMIN</Text>
+                <Text style={styles.roleTagText}>{activeRoleBadge.toUpperCase()}</Text>
               </View>
               <Text style={styles.companyName}>Bansal Geo Solutions Pvt. Ltd.</Text>
             </View>
@@ -119,16 +147,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Personal Information */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() =>
-                  Alert.alert(
-                    'Personal Information',
-                    `Name: ${userName}\nEmail: rajesh.bansal@bansalgeo.com\nDesignation: Managing Director & Chief Geoscientist\nEmployee ID: BGS-MD-001`
-                  )
-                }
+                onPress={navigateToPersonalInfo}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <User size={22} color="#2563eb" strokeWidth={2.3} />
+                  <User size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Personal Information</Text>
@@ -142,16 +165,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Account & Security */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() =>
-                  Alert.alert(
-                    'Account & Security',
-                    '2-Factor Authentication: Enabled\nBiometrics: Active\nActive Sessions: 1 (Android Device)'
-                  )
-                }
+                onPress={navigateToAccountSecurity}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Shield size={22} color="#2563eb" strokeWidth={2.3} />
+                  <Shield size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Account & Security</Text>
@@ -175,13 +193,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* App Settings */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() =>
-                  Alert.alert('App Settings', 'Theme: System Light\nOffline Sync: Enabled\nStorage Limit: 250MB')
-                }
+                onPress={navigateToAppSettings}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Settings size={22} color="#2563eb" strokeWidth={2.3} />
+                  <Settings size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>App Settings</Text>
@@ -197,11 +213,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Notifications */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() => navigation.navigate('AlertsTab')}
+                onPress={navigateToNotificationPreferences}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Bell size={22} color="#2563eb" strokeWidth={2.3} />
+                  <Bell size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Notifications</Text>
@@ -217,17 +233,15 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Language */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() =>
-                  Alert.alert('Language', 'Current system language: English (India)')
-                }
+                onPress={navigateToLanguage}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Globe size={22} color="#2563eb" strokeWidth={2.3} />
+                  <Globe size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Language</Text>
-                  <Text style={styles.menuSubtitle}>System language and regional format</Text>
+                  <Text style={styles.menuSubtitle}>System language and regional</Text>
                 </View>
                 <View style={styles.badgePill}>
                   <Text style={styles.badgeText}>English</Text>
@@ -248,7 +262,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Switch Role */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() => navigation.navigate('RoleSelection')}
+                onPress={navigateToRoleSelection}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#fefce8' }]}>
@@ -259,7 +273,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                   <Text style={styles.menuSubtitle}>Change operational perspective</Text>
                 </View>
                 <View style={[styles.badgePill, { backgroundColor: '#fef3c7' }]}>
-                  <Text style={[styles.badgeText, { color: '#92400e' }]}>Super Admin</Text>
+                  <Text style={[styles.badgeText, { color: '#92400e' }]}>{activeRoleBadge}</Text>
                 </View>
                 <ChevronRight size={18} color="#94a3b8" />
               </TouchableOpacity>
@@ -269,11 +283,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Audit Log */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() => navigation.navigate('MisReports')}
+                onPress={navigateToAuditLog}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <FileText size={22} color="#2563eb" strokeWidth={2.3} />
+                  <FileText size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Audit Log</Text>
@@ -287,13 +301,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Sent Messages */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() =>
-                  Alert.alert('Sent Messages', 'No active external broadcast dispatches.')
-                }
+                onPress={navigateToSentMessages}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Send size={22} color="#2563eb" strokeWidth={2.3} />
+                  <Send size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Sent Messages</Text>
@@ -315,16 +327,11 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Help & Support */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() =>
-                  Alert.alert(
-                    'Helpdesk Support',
-                    'Contact IT Support: it-ops@bansalgeo.com\nHelpline: +91 (0141) 2984-GEO'
-                  )
-                }
+                onPress={navigateToHelpSupport}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Headphones size={22} color="#2563eb" strokeWidth={2.3} />
+                  <Headphones size={22} color="#0284c7" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Help & Support</Text>
@@ -346,7 +353,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               {/* Sign Out */}
               <TouchableOpacity
                 activeOpacity={0.75}
-                onPress={() => setShowLogoutModal(true)}
+                onPress={handleOpenLogout}
                 style={styles.menuRow}
               >
                 <View style={[styles.iconBox, { backgroundColor: '#fef2f2' }]}>
@@ -367,14 +374,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
       <ConfirmationModal
         visible={showLogoutModal}
         title="Sign Out"
-        message="Are you sure you want to end your Super Admin session?"
+        message={`Are you sure you want to end your ${activeRoleBadge} session?`}
         confirmText="Sign Out"
         confirmVariant="danger"
         onConfirm={async () => {
-          setShowLogoutModal(false);
+          handleCloseLogout();
           await logout();
         }}
-        onCancel={() => setShowLogoutModal(false)}
+        onCancel={handleCloseLogout}
       />
     </View>
   );

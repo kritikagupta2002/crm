@@ -11,10 +11,12 @@ import {
   FileImage,
   FileSpreadsheet,
   FileText,
+  User,
 } from 'lucide-react-native';
 import { Card, Button, SegmentedControl } from '../../../components/common';
 import { colors } from '../../../theme';
 import { Project } from '../../../types';
+import { formatDate, parseDateSafe } from '../../../utils/date';
 import { styles } from './projectDetailStyles';
 
 interface ProjectTabsProps {
@@ -93,16 +95,19 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
               </View>
             </View>
 
-            <View style={styles.fieldTeamList}>
+            <View style={styles.fieldTeamContainer}>
               <Text style={styles.fieldTeamHeading}>Field Team Members:</Text>
               {(project.team?.members || []).length === 0 ? (
                 <Text style={styles.mutedText}>No field members allocated yet.</Text>
               ) : (
-                project.team!.members.map((m) => (
-                  <View key={m} style={styles.memberTag}>
-                    <Text style={styles.memberTagText}>{m}</Text>
-                  </View>
-                ))
+                <View style={styles.fieldTeamChipsRow}>
+                  {project.team!.members.map((m) => (
+                    <View key={m} style={styles.memberTag}>
+                      <User size={12} color={colors.primary} />
+                      <Text style={styles.memberTagText}>{m}</Text>
+                    </View>
+                  ))}
+                </View>
               )}
             </View>
           </Card>
@@ -176,9 +181,9 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
                           {t.title}
                         </Text>
                         <Text style={styles.taskMeta}>
-                          {t.assigneeName} • Due {t.dueDate}
+                          {t.assigneeName} • Due {formatDate(t.dueDate)}
                           {t.overdue && !isDone && (
-                            <Text style={{ color: colors.danger }}> • OVERDUE</Text>
+                            <Text style={styles.overdueText}> • OVERDUE</Text>
                           )}
                         </Text>
                       </View>
@@ -215,9 +220,15 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
               project.fieldVisits!.map((v) => (
                 <View key={v.id} style={styles.visitItem}>
                   <View style={styles.visitDateBadge}>
-                    <Text style={styles.visitDay}>{v.date.slice(8, 10)}</Text>
+                    <Text style={styles.visitDay}>
+                      {parseDateSafe(v.date)?.getDate() || v.date.slice(8, 10)}
+                    </Text>
                     <Text style={styles.visitMonth}>
-                      {new Date(v.date).toLocaleString('default', { month: 'short' })}
+                      {parseDateSafe(v.date)
+                        ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][
+                            parseDateSafe(v.date)!.getMonth()
+                          ]
+                        : 'LOG'}
                     </Text>
                   </View>
 
@@ -283,7 +294,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
                       {doc.name}
                     </Text>
                     <Text style={styles.docSub}>
-                      {doc.category || 'General'} • {(doc.size / 1024 / 1024).toFixed(1)} MB • {doc.addedOn}
+                      {doc.category || 'General'} • {(doc.size / 1024 / 1024).toFixed(1)} MB • {formatDate(doc.addedOn)}
                     </Text>
                   </View>
 
@@ -324,7 +335,7 @@ export const ProjectTabs: React.FC<ProjectTabsProps> = ({
                 <View key={h.id} style={styles.historyRow}>
                   <View style={styles.historyDot} />
                   <View style={styles.historyContent}>
-                    <Text style={styles.historyDate}>{h.date}</Text>
+                    <Text style={styles.historyDate}>{formatDate(h.date)}</Text>
                     <Text style={styles.historyText}>{h.text}</Text>
                   </View>
                 </View>

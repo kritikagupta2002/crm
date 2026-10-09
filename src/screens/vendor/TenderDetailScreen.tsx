@@ -47,7 +47,6 @@ interface TenderDetailScreenProps {
 }
 
 export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, navigation }) => {
-  const { tenderId } = route.params;
   const {
     tenders,
     clarifications,
@@ -59,6 +58,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
     savedTenders,
     toggleSavedTender,
   } = useCrm();
+  const tenderId = route?.params?.tenderId || tenders[0]?.id;
   const { role, session } = useAuth();
 
   const isDirector = (role as any) === 'director' || (role as any) === 'admin';
@@ -768,49 +768,52 @@ const styles = StyleSheet.create({
   },
   tenderIdBadge: {
     fontSize: 13,
-    fontWeight: typography.fontWeights.heavy,
-    color: colors.primary,
-    backgroundColor: colors.primaryBg,
+    fontWeight: '800',
+    color: '#0d9488',
+    backgroundColor: '#ccfbf1',
     paddingHorizontal: 9,
     paddingVertical: 3.5,
     borderRadius: radius.sm,
   },
   tenderMainTitle: {
-    fontSize: 18.5,
-    fontWeight: typography.fontWeights.heavy,
-    color: colors.textPrimary,
-    lineHeight: 25,
+    fontSize: 21,
+    fontWeight: '800',
+    color: '#0f172a',
+    lineHeight: 27,
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   categorySub: {
-    fontSize: 13.5,
-    fontWeight: typography.fontWeights.medium,
-    color: colors.textSecondary,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#64748b',
     marginBottom: spacing.sm,
   },
   kpiRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: spacing.sm,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.surfaceMuted,
+    paddingVertical: 12,
+    borderTopWidth: 1.2,
+    borderBottomWidth: 1.2,
+    borderColor: '#f1f5f9',
     marginBottom: spacing.sm,
   },
   kpiCol: {
     flex: 1,
   },
   kpiLabel: {
-    fontSize: 11,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textMuted,
-    letterSpacing: 0.5,
-    marginBottom: 3,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#64748b',
+    letterSpacing: 0.3,
+    marginBottom: 4,
+    textTransform: 'uppercase',
   },
   kpiVal: {
-    fontSize: 14.5,
-    fontWeight: typography.fontWeights.heavy,
-    color: colors.textPrimary,
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
   },
   headerActionRow: {
     flexDirection: 'row',

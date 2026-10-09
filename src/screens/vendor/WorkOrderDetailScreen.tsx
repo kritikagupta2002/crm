@@ -30,7 +30,6 @@ interface WorkOrderDetailScreenProps {
 }
 
 export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ route, navigation }) => {
-  const { woId } = route.params;
   const {
     workOrders,
     startWorkOrder,
@@ -39,6 +38,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
     checkWorkOrderBill,
     payWorkOrder,
   } = useCrm();
+  const woId = route?.params?.woId || workOrders[0]?.id;
   const { role, session } = useAuth();
 
   const isAccountant = (role as any) === 'accountant' || (role as any) === 'director' || (role as any) === 'admin';
@@ -846,9 +846,10 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   finVal: {
-    fontSize: 14.5,
-    fontWeight: typography.fontWeights.heavy,
+    fontSize: 18,
+    fontWeight: '800',
     color: colors.textPrimary,
+    letterSpacing: -0.3,
   },
   stepperCard: {
     padding: spacing.md,

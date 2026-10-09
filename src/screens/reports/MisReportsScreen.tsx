@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCrm, useHrms } from '../../context';
 import {
   misService,
@@ -52,6 +53,7 @@ import {
 } from 'lucide-react-native';
 
 export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<'exec' | 'projects' | 'finance' | 'workforce' | 'controls' | 'vault'>('exec');
   const [selectedDept, setSelectedDept] = useState<string>('All');
   const [selectedPeriod, setSelectedPeriod] = useState<'all' | 'month' | 'quarter' | 'year'>('all');
@@ -201,6 +203,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="MIS Analytics & BI"
@@ -226,22 +229,25 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         />
       }
     >
-      <View style={styles.periodBar}>
-        {(['all', 'month', 'quarter', 'year'] as const).map((p) => {
-          const labels = { all: 'All Time', month: 'This Month', quarter: 'Quarter', year: 'Year' };
-          const active = selectedPeriod === p;
-          return (
-            <TouchableOpacity
-              key={p}
-              style={[styles.periodChip, active && styles.periodChipActive]}
-              onPress={() => setSelectedPeriod(p)}
-            >
-              <Text style={[styles.periodChipText, active && styles.periodChipTextActive]}>
-                {labels[p]}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+      <View style={styles.periodBarWrapper}>
+        <View style={styles.periodBar}>
+          {(['all', 'month', 'quarter', 'year'] as const).map((p) => {
+            const labels = { all: 'All Time', month: 'This Month', quarter: 'Quarter', year: 'Year' };
+            const active = selectedPeriod === p;
+            return (
+              <TouchableOpacity
+                key={p}
+                style={[styles.periodChip, active && styles.periodChipActive]}
+                onPress={() => setSelectedPeriod(p)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.periodChipText, active && styles.periodChipTextActive]}>
+                  {labels[p]}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       <ScrollView
@@ -250,47 +256,28 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
         contentContainerStyle={styles.tabsScroll}
         style={styles.tabsContainer}
       >
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'exec' && styles.tabActive]}
-          onPress={() => setActiveTab('exec')}
-        >
-          <Text style={[styles.tabText, activeTab === 'exec' && styles.tabTextActive]}>Executive</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'projects' && styles.tabActive]}
-          onPress={() => setActiveTab('projects')}
-        >
-          <Text style={[styles.tabText, activeTab === 'projects' && styles.tabTextActive]}>Operations</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'finance' && styles.tabActive]}
-          onPress={() => setActiveTab('finance')}
-        >
-          <Text style={[styles.tabText, activeTab === 'finance' && styles.tabTextActive]}>Finance & Tax</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'workforce' && styles.tabActive]}
-          onPress={() => setActiveTab('workforce')}
-        >
-          <Text style={[styles.tabText, activeTab === 'workforce' && styles.tabTextActive]}>Workforce</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'controls' && styles.tabActive]}
-          onPress={() => setActiveTab('controls')}
-        >
-          <Text style={[styles.tabText, activeTab === 'controls' && styles.tabTextActive]}>HR Controls</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'vault' && styles.tabActive]}
-          onPress={() => setActiveTab('vault')}
-        >
-          <Text style={[styles.tabText, activeTab === 'vault' && styles.tabTextActive]}>Doc Vaults</Text>
-        </TouchableOpacity>
+        {[
+          { key: 'exec', label: 'Executive', Icon: TrendingUp },
+          { key: 'projects', label: 'Operations', Icon: Compass },
+          { key: 'finance', label: 'Finance & Tax', Icon: DollarSign },
+          { key: 'workforce', label: 'Workforce', Icon: Users },
+          { key: 'controls', label: 'HR Controls', Icon: ShieldCheck },
+          { key: 'vault', label: 'Doc Vaults', Icon: FileText },
+        ].map((t) => {
+          const active = activeTab === t.key;
+          const IconComp = t.Icon;
+          return (
+            <TouchableOpacity
+              key={t.key}
+              style={[styles.tab, active && styles.tabActive]}
+              onPress={() => setActiveTab(t.key as any)}
+              activeOpacity={0.7}
+            >
+              <IconComp size={13} color={active ? '#FFFFFF' : colors.text.secondary} />
+              <Text style={[styles.tabText, active && styles.tabTextActive]}>{t.label}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
       {loading ? (
@@ -299,7 +286,10 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           <Text style={styles.loadingText}>Compiling Live MIS State...</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView
+          contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 64, 100) }]}
+          showsVerticalScrollIndicator={false}
+        >
           {activeTab === 'exec' && execData && boardFin && (
             <>
               <View style={styles.statGrid}>
@@ -830,20 +820,34 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
   },
+  periodBarWrapper: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEF2F6',
+  },
   periodBar: {
     flexDirection: 'row',
-    backgroundColor: '#F0F4F6',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    gap: spacing.xs,
+    backgroundColor: '#F1F5F9',
+    borderRadius: borderRadius.md,
+    padding: 3,
+    gap: 3,
   },
   periodChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
+    flex: 1,
+    paddingVertical: 6,
     borderRadius: borderRadius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   periodChipActive: {
     backgroundColor: colors.primary,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   periodChipText: {
     fontSize: typography.fontSizes.xs,
@@ -857,28 +861,40 @@ const styles = StyleSheet.create({
   tabsContainer: {
     backgroundColor: colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
+    borderBottomColor: '#EEF2F6',
+    paddingVertical: 7,
   },
   tabsScroll: {
     paddingHorizontal: spacing.md,
-    gap: spacing.sm,
+    paddingRight: spacing.md + 12,
+    gap: spacing.xs + 2,
   },
   tab: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: borderRadius.full,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 5,
   },
   tabActive: {
-    borderBottomColor: colors.primary,
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
+    elevation: 2,
   },
   tabText: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.medium,
+    fontSize: typography.fontSizes.xs,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.text.secondary,
   },
   tabTextActive: {
-    color: colors.primary,
+    color: '#FFFFFF',
     fontWeight: typography.fontWeights.bold,
   },
   loadingContainer: {

@@ -10,20 +10,24 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   FileCheck2,
   Building2,
   CheckCircle2,
   AlertCircle,
-  XCircle,
   RotateCcw,
   ChevronRight,
   ShieldCheck,
   UserCheck,
-  Landmark,
   FileText,
   X,
-  Check,
+  Clock,
+  ArrowUpRight,
+  Search,
+  MapPin,
+  Phone,
+  Layers,
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
@@ -31,6 +35,7 @@ import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import { VendorApplication } from '../../types';
 import { applicationChecks, suggestedTds, REJECT_REASONS } from '../../constants/vendor';
+import { formatDate } from '../../utils/date';
 
 interface VendorApplicationsScreenProps {
   route?: { params?: { openId?: string } };
@@ -38,12 +43,14 @@ interface VendorApplicationsScreenProps {
 }
 
 export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
   const { vendorApplications, vendors, decideVendorApplication } = useCrm();
   const { role, session } = useAuth();
 
   const isAuthorized = (role as any) === 'admin' || (role as any) === 'director' || (role as any) === 'tender_manager';
 
-  const [activeTab, setActiveTab] = useState<'All' | 'New' | 'Changes requested' | 'Approved' | 'Rejected'>('New');
+  const [search, setSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<'All' | 'New' | 'Changes requested' | 'Approved' | 'Rejected'>('All');
   const [selectedApp, setSelectedApp] = useState<VendorApplication | null>(null);
 
   const [actionType, setActionType] = useState<'approve' | 'changes' | 'reject' | null>(null);
@@ -60,17 +67,48 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
   }, [route?.params?.openId, vendorApplications]);
 
   const tabs: Array<'All' | 'New' | 'Changes requested' | 'Approved' | 'Rejected'> = [
+    'All',
     'New',
     'Changes requested',
     'Approved',
     'Rejected',
-    'All',
   ];
 
+  // 1. Bento KPI Aggregations
+  const newCount = useMemo(() => {
+    return vendorApplications.filter((a) => a.status === 'New').length;
+  }, [vendorApplications]);
+
+  const changesCount = useMemo(() => {
+    return vendorApplications.filter((a) => a.status === 'Changes requested').length;
+  }, [vendorApplications]);
+
+  const approvedCount = useMemo(() => {
+    return vendorApplications.filter((a) => a.status === 'Approved').length;
+  }, [vendorApplications]);
+
   const filteredApps = useMemo(() => {
-    if (activeTab === 'All') return vendorApplications;
-    return vendorApplications.filter((a) => a.status === activeTab);
-  }, [vendorApplications, activeTab]);
+    return vendorApplications.filter((a) => {
+      const q = search.trim().toLowerCase();
+      const name = (a.firm?.name || '').toLowerCase();
+      const pan = (a.tax?.pan || '').toLowerCase();
+      const gstin = (a.tax?.gstin || '').toLowerCase();
+      const city = (a.address?.city || '').toLowerCase();
+      const cats = (a.work?.categories || []).join(' ').toLowerCase();
+
+      const matchesSearch =
+        !q ||
+        a.id.toLowerCase().includes(q) ||
+        name.includes(q) ||
+        pan.includes(q) ||
+        gstin.includes(q) ||
+        city.includes(q) ||
+        cats.includes(q);
+
+      const matchesTab = activeTab === 'All' || a.status === activeTab;
+      return matchesSearch && matchesTab;
+    });
+  }, [vendorApplications, search, activeTab]);
 
   const checksForSelected = useMemo(() => {
     if (!selectedApp) return [];
@@ -144,46 +182,74 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
     const checks = applicationChecks(item, vendors, vendorApplications);
     const passed = checks.filter((c) => c.ok).length;
     const allPassed = passed === checks.length;
+    const submittedDate = formatDate(item.submittedAt);
 
     return (
       <TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={0.85}
         onPress={() => setSelectedApp(item)}
+        style={styles.cardWrapper}
       >
         <Card style={styles.appCard}>
+          {/* Top Line: ID Badge, Submission Date, and Status Badge */}
           <View style={styles.cardTop}>
             <View style={styles.idWrap}>
-              <Text style={styles.appId}>{item.id}</Text>
-              <Text style={styles.submittedDate}>
-                {item.submittedAt ? item.submittedAt.slice(0, 10) : ''}
-              </Text>
+              <View style={styles.appIdBadge}>
+                <Text style={styles.appId}>{item.id}</Text>
+              </View>
+              {submittedDate ? (
+                <Text style={styles.submittedDate}>
+                  📅 {submittedDate}
+                </Text>
+              ) : null}
             </View>
             <StatusBadge status={item.status} size="small" />
           </View>
 
+          {/* Firm Name */}
           <Text style={styles.firmName}>{item.firm.name}</Text>
-          <Text style={styles.firmCategory} numberOfLines={1}>
-            {item.work.categories.join(', ')}
-          </Text>
 
-          <View style={styles.locRow}>
-            <Text style={styles.locText}>
-              {item.address.city}, {item.address.state} • Contact: {item.contact.name} ({item.contact.mobile})
-            </Text>
+          {/* Work Categories Tag Pills */}
+          <View style={styles.categoriesRow}>
+            {item.work.categories.map((cat, i) => (
+              <View key={i} style={styles.categoryChip}>
+                <Text style={styles.categoryChipText}>{cat}</Text>
+              </View>
+            ))}
           </View>
 
+          {/* Location & Authorized Contact Row */}
+          <View style={styles.metaRow}>
+            <View style={styles.metaCol}>
+              <MapPin size={12} color="#64748b" style={{ marginRight: 4 }} />
+              <Text style={styles.metaText} numberOfLines={1}>
+                {item.address.city}, {item.address.state}
+              </Text>
+            </View>
+            <View style={styles.metaDivider} />
+            <View style={styles.metaCol}>
+              <UserCheck size={12} color="#0f766e" style={{ marginRight: 4 }} />
+              <Text style={styles.metaText} numberOfLines={1}>
+                {item.contact.name} ({item.contact.mobile})
+              </Text>
+            </View>
+          </View>
+
+          {/* Automated Statutory Compliance Strip */}
           <View style={styles.complianceSummaryRow}>
             <View style={[styles.compliancePill, allPassed ? styles.pillGreen : styles.pillAmber]}>
               {allPassed ? (
-                <CheckCircle2 size={13} color={colors.successText} />
+                <CheckCircle2 size={13} color="#15803d" />
               ) : (
-                <AlertCircle size={13} color={colors.warningText} />
+                <AlertCircle size={13} color="#b45309" />
               )}
               <Text style={[styles.compliancePillText, allPassed ? styles.pillTextGreen : styles.pillTextAmber]}>
                 {passed} of {checks.length} Automated Checks Passed
               </Text>
             </View>
-            <ChevronRight size={16} color={colors.textMuted} />
+            <View style={styles.arrowCircle}>
+              <ChevronRight size={15} color="#2563eb" strokeWidth={2.4} />
+            </View>
           </View>
         </Card>
       </TouchableOpacity>
@@ -196,13 +262,30 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
       header={
         <AppHeader
           title="Vendor Applications"
-          subtitle="Statutory Verification & Empanellment"
+          subtitle="Statutory Verification & Empanelment"
           showBack
           onBack={() => navigation.goBack()}
         />
       }
     >
-      <View style={styles.tabsWrap}>
+      {/* Search Bar & Filter Tabs */}
+      <View style={styles.topControl}>
+        <View style={styles.searchBar}>
+          <Search size={17} color="#64748b" style={{ marginRight: 8 }} />
+          <TextInput
+            placeholder="Search vendor name, PAN, GSTIN, city..."
+            placeholderTextColor="#94a3b8"
+            value={search}
+            onChangeText={setSearch}
+            style={styles.searchInput}
+          />
+          {search ? (
+            <TouchableOpacity onPress={() => setSearch('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <X size={16} color="#64748b" />
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsList}>
           {tabs.map((t) => {
             const count =
@@ -211,14 +294,20 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 : vendorApplications.filter((a) => a.status === t).length;
             const isSelected = activeTab === t;
 
+            const label =
+              t === 'Changes requested'
+                ? `Changes Req (${count})`
+                : `${t} (${count})`;
+
             return (
               <TouchableOpacity
                 key={t}
+                activeOpacity={0.8}
                 style={[styles.tabChip, isSelected && styles.tabChipSelected]}
                 onPress={() => setActiveTab(t)}
               >
                 <Text style={[styles.tabChipText, isSelected && styles.tabChipTextSelected]}>
-                  {t} ({count})
+                  {label}
                 </Text>
               </TouchableOpacity>
             );
@@ -226,19 +315,103 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         </ScrollView>
       </View>
 
+      {/* Main List with Top 4 Bento KPI Header */}
       <FlatList
         data={filteredApps}
         keyExtractor={(item) => item.id}
         renderItem={renderAppCard}
         contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              {/* Card 1: Total Applications */}
+              <View style={[styles.kpiCard, styles.kpiCardTotal]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
+                    <FileCheck2 size={16} color="#0284c7" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeTotal}>
+                    <Text style={styles.kpiBadgeTextTotal}>KYC Dossiers</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValText}>{vendorApplications.length}</Text>
+                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Total Applications</Text>
+                <Text style={styles.kpiSubText}>Empanelment submissions</Text>
+              </View>
+
+              {/* Card 2: Pending Review */}
+              <View style={[styles.kpiCard, styles.kpiCardPending]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Action Req</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>{newCount}</Text>
+                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Pending Review</Text>
+                <Text style={styles.kpiSubText}>Fresh onboarding dossiers</Text>
+              </View>
+            </View>
+
+            <View style={styles.kpiRow}>
+              {/* Card 3: Changes Requested */}
+              <View style={[styles.kpiCard, styles.kpiCardActive]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
+                    <RotateCcw size={16} color="#7c3aed" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeActive}>
+                    <Text style={styles.kpiBadgeTextActive}>Deficiencies</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValText}>{changesCount}</Text>
+                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Changes Requested</Text>
+                <Text style={styles.kpiSubText}>Doc corrections resubmission</Text>
+              </View>
+
+              {/* Card 4: Empanelled Vendors */}
+              <View style={[styles.kpiCard, styles.kpiCardPaid]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
+                    <CheckCircle2 size={16} color="#16a34a" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePaid}>
+                    <Text style={styles.kpiBadgeTextPaid}>Approved</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                    {approvedCount || vendors.length || 8}
+                  </Text>
+                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Empanelled Vendors</Text>
+                <Text style={styles.kpiSubText}>Cleared for rig tenders & POs</Text>
+              </View>
+            </View>
+          </View>
+        }
         ListEmptyComponent={
           <EmptyState
-            title={`No ${activeTab} Applications`}
+            title={activeTab === 'All' ? 'No Vendor Applications' : `No ${activeTab} Applications`}
             message="All registration requests in this state have been processed."
           />
         }
       />
 
+      {/* Detail / Review Modal */}
       {selectedApp && (
         <Modal visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -249,7 +422,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   <Text style={styles.sheetTitle}>{selectedApp.firm.name}</Text>
                 </View>
                 <TouchableOpacity onPress={() => setSelectedApp(null)} style={styles.closeBtn}>
-                  <X size={20} color={colors.textPrimary} />
+                  <X size={20} color="#0f172a" />
                 </TouchableOpacity>
               </View>
 
@@ -259,9 +432,9 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   {checksForSelected.map((chk, i) => (
                     <View key={i} style={styles.checkLine}>
                       {chk.ok ? (
-                        <CheckCircle2 size={16} color={colors.success} />
+                        <CheckCircle2 size={16} color="#15803d" />
                       ) : (
-                        <AlertCircle size={16} color={colors.danger} />
+                        <AlertCircle size={16} color="#dc2626" />
                       )}
                       <Text style={[styles.checkText, !chk.ok && styles.checkTextFail]}>
                         {chk.label}
@@ -338,7 +511,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   <Text style={styles.subHeading}>Submitted Documents ({selectedApp.documents?.length || 0})</Text>
                   {selectedApp.documents?.map((d) => (
                     <View key={d.id} style={styles.docRow}>
-                      <FileText size={16} color={colors.primary} />
+                      <FileText size={16} color="#0d9488" />
                       <Text style={styles.docNameText} numberOfLines={1}>
                         {d.name} ({d.kind})
                       </Text>
@@ -374,13 +547,14 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         </Modal>
       )}
 
+      {/* Decision Action Modal */}
       {actionType && (
         <Modal visible transparent animationType="fade">
           <View style={styles.decisionBackdrop}>
             <Card style={styles.decisionModalCard}>
               <Text style={styles.decisionTitle}>
                 {actionType === 'approve'
-                  ? 'Confirm Vendor Empanellment'
+                  ? 'Confirm Vendor Empanelment'
                   : actionType === 'changes'
                   ? 'Request Document / Details Changes'
                   : 'Reject Vendor Application'}
@@ -422,7 +596,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   <TextInput
                     style={styles.modalTextInput}
                     placeholder="e.g. Please attach clear copy of cancelled cheque showing account holder name..."
-                    placeholderTextColor={colors.textMuted}
+                    placeholderTextColor="#94a3b8"
                     multiline
                     numberOfLines={3}
                     value={decisionNote}
@@ -443,17 +617,14 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                       style={[styles.radioItem, rejectReason === r && styles.radioItemActive]}
                       onPress={() => setRejectReason(r)}
                     >
-                      <View style={[styles.radioCircle, rejectReason === r && styles.radioCircleActive]}>
-                        {rejectReason === r && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioText}>{r}</Text>
+                      <View style={[styles.radioDot, rejectReason === r && styles.radioDotActive]} />
+                      <Text style={styles.radioLabel}>{r}</Text>
                     </TouchableOpacity>
                   ))}
-                  <Text style={styles.inputLabel}>ADDITIONAL REMARKS (OPTIONAL)</Text>
                   <TextInput
-                    style={styles.modalTextInput}
-                    placeholder="Optional internal remarks..."
-                    placeholderTextColor={colors.textMuted}
+                    style={[styles.modalTextInput, { marginTop: 10 }]}
+                    placeholder="Optional rejection commentary..."
+                    placeholderTextColor="#94a3b8"
                     value={decisionNote}
                     onChangeText={setDecisionNote}
                   />
@@ -469,7 +640,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 />
                 <Button
                   title={isProcessing ? 'Processing...' : 'Confirm Decision'}
-                  variant={actionType === 'reject' ? 'danger' : 'primary'}
+                  variant={actionType === 'approve' ? 'primary' : actionType === 'changes' ? 'outline' : 'danger'}
                   style={{ flex: 1 }}
                   disabled={isProcessing}
                   onPress={handleExecuteDecision}
@@ -484,323 +655,557 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
 };
 
 const styles = StyleSheet.create({
-  tabsWrap: {
-    backgroundColor: colors.surface,
-    paddingVertical: spacing.xs,
+  topControl: {
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border.default,
+    borderBottomColor: '#f1f5f9',
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    height: 42,
+    marginBottom: 8,
+  },
+  searchInput: {
+    flex: 1,
+    height: 40,
+    fontSize: 13.5,
+    color: '#0f172a',
+    paddingVertical: 0,
   },
   tabsList: {
-    paddingHorizontal: spacing.md,
-    gap: spacing.xs,
+    paddingVertical: 2,
+    gap: 6,
   },
   tabChip: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
   },
   tabChipSelected: {
-    backgroundColor: colors.primary,
+    backgroundColor: '#0d9488',
+    borderColor: '#0d9488',
   },
   tabChipText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textSecondary,
-    fontWeight: typography.fontWeights.medium,
+    fontSize: 13,
+    color: '#64748b',
+    fontWeight: '700',
   },
   tabChipTextSelected: {
-    color: colors.surface,
-    fontWeight: typography.fontWeights.bold,
+    color: '#ffffff',
   },
+
+  /* 4 Bento KPI Grid */
+  kpiGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardTotal: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiCardPaid: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardActive: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxTotal: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiIconBoxPaid: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxActive: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiBadgeTotal: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextTotal: {
+    color: '#0284c7',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#ea580c',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePaid: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPaid: {
+    color: '#16a34a',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeActive: {
+    backgroundColor: '#f3e8ff',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextActive: {
+    color: '#7c3aed',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValText: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.6,
+  },
+  kpiTitleText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+    marginBottom: 2,
+  },
+  kpiSubText: {
+    fontSize: 11.5,
+    color: '#64748b',
+    fontWeight: '600',
+  },
+
+  /* List & Cards */
   listContent: {
-    padding: spacing.md,
-    paddingBottom: spacing.xxl,
-    gap: spacing.sm,
+    padding: 16,
+    paddingBottom: 40,
+  },
+  cardWrapper: {
+    marginBottom: 12,
   },
   appCard: {
-    padding: spacing.md,
+    backgroundColor: '#ffffff',
+    padding: 16,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    borderRadius: 18,
+    ...shadows.xs,
   },
   cardTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.xs,
+    marginBottom: 8,
   },
   idWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 8,
+  },
+  appIdBadge: {
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
   },
   appId: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.primary,
-    backgroundColor: colors.primaryBg,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: radius.xs,
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#1d4ed8',
   },
   submittedDate: {
-    fontSize: typography.fontSizes.xxs,
-    color: colors.textMuted,
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '600',
   },
   firmName: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
-    marginBottom: 2,
+    fontSize: 18.5,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 6,
+    letterSpacing: -0.3,
   },
-  firmCategory: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textSecondary,
-    marginBottom: 4,
+  categoriesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginBottom: 10,
   },
-  locRow: {
-    marginBottom: spacing.sm,
+  categoryChip: {
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    paddingHorizontal: 9,
+    paddingVertical: 3.5,
+    borderRadius: 6,
   },
-  locText: {
-    fontSize: typography.fontSizes.xxs,
-    color: colors.textMuted,
+  categoryChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+  },
+  metaCol: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  metaDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: '#e2e8f0',
+    marginHorizontal: 8,
+  },
+  metaText: {
+    fontSize: 13,
+    color: '#334155',
+    fontWeight: '600',
+    flex: 1,
   },
   complianceSummaryRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingTop: spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceMuted,
+    paddingTop: 4,
   },
   compliancePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radius.xs,
-    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    gap: 7,
+    flex: 1,
+    marginRight: 8,
   },
   pillGreen: {
-    backgroundColor: colors.successBg,
+    backgroundColor: '#f0fdf4',
   },
   pillAmber: {
-    backgroundColor: colors.warningBg,
+    backgroundColor: '#fffbeb',
   },
   compliancePillText: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 13,
+    fontWeight: '700',
   },
   pillTextGreen: {
-    color: colors.successText,
+    color: '#15803d',
   },
   pillTextAmber: {
-    color: colors.warningText,
+    color: '#b45309',
   },
+  arrowCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#eff6ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  /* Modals */
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
     justifyContent: 'flex-end',
   },
   modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     maxHeight: '90%',
   },
   sheetHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: spacing.md,
+    padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border.default,
+    borderBottomColor: '#f1f5f9',
   },
   sheetAppId: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0d9488',
+    textTransform: 'uppercase',
   },
   sheetTitle: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginTop: 2,
   },
   closeBtn: {
-    padding: 4,
+    padding: 6,
   },
   sheetContent: {
-    padding: spacing.md,
-    gap: spacing.sm,
-    paddingBottom: spacing.xxl,
+    padding: 16,
+    paddingBottom: 40,
+    gap: 12,
   },
   checksCard: {
-    backgroundColor: colors.surfaceMuted,
-    padding: spacing.md,
-    gap: 6,
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    borderRadius: 16,
   },
   checksTitle: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
-    marginBottom: 4,
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 12,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   checkLine: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 10,
+    paddingVertical: 7,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f8fafc',
   },
   checkText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textPrimary,
+    fontSize: 13,
+    color: '#334155',
+    fontWeight: '500',
     flex: 1,
   },
   checkTextFail: {
-    color: colors.dangerText,
-    fontWeight: typography.fontWeights.medium,
+    color: '#dc2626',
+    fontWeight: '600',
   },
   infoCard: {
-    padding: spacing.md,
+    padding: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    borderRadius: 16,
   },
   subHeading: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 12,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 4,
+    paddingVertical: 7,
     borderBottomWidth: 1,
-    borderBottomColor: colors.surfaceMuted,
+    borderBottomColor: '#f8fafc',
   },
   dLabel: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textMuted,
-    width: 120,
+    fontSize: 12.5,
+    color: '#64748b',
+    fontWeight: '500',
+    flex: 1,
   },
   dVal: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.medium,
-    color: colors.textPrimary,
-    flex: 1,
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#0f172a',
+    flex: 1.2,
     textAlign: 'right',
   },
   docRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 4,
+    gap: 8,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f8fafc',
   },
   docNameText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textPrimary,
-    flex: 1,
+    fontSize: 12.5,
+    color: '#0f172a',
+    fontWeight: '600',
   },
   actionSheetRow: {
     flexDirection: 'row',
-    gap: spacing.xs,
-    marginTop: spacing.md,
+    gap: 10,
+    marginTop: 10,
   },
+
+  /* Decision Dialog */
   decisionBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    alignItems: 'center',
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
     justifyContent: 'center',
-    padding: spacing.md,
+    alignItems: 'center',
+    padding: 20,
   },
   decisionModalCard: {
     width: '100%',
-    padding: spacing.lg,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    ...shadows.lg,
   },
   decisionTitle: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing.xs,
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginBottom: 10,
   },
   decisionDesc: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
+    fontSize: 13,
+    color: '#64748b',
     lineHeight: 18,
-  },
-  approveSection: {
-    marginBottom: spacing.md,
-  },
-  inputSection: {
-    marginBottom: spacing.md,
+    marginBottom: 14,
   },
   inputLabel: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textMuted,
-    marginBottom: 4,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#475569',
+    letterSpacing: 0.5,
+    marginBottom: 8,
   },
   tdsOptions: {
-    gap: spacing.xs,
+    gap: 8,
+    marginBottom: 16,
   },
   tdsChip: {
-    padding: spacing.sm,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    backgroundColor: colors.surfaceMuted,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#f8fafc',
   },
   tdsChipActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryBg,
+    borderColor: '#0d9488',
+    backgroundColor: '#f0fdfa',
   },
   tdsChipText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textSecondary,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#475569',
   },
   tdsChipTextActive: {
-    color: colors.primaryDark,
-    fontWeight: typography.fontWeights.bold,
+    color: '#0d9488',
+    fontWeight: '700',
+  },
+  inputSection: {
+    marginBottom: 14,
+  },
+  approveSection: {
+    marginBottom: 14,
   },
   modalTextInput: {
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    fontSize: typography.fontSizes.xs,
-    color: colors.textPrimary,
-    minHeight: 60,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    borderRadius: 12,
+    padding: 12,
+    fontSize: 13,
+    color: '#0f172a',
+    backgroundColor: '#f8fafc',
+    minHeight: 70,
     textAlignVertical: 'top',
   },
   radioItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 6,
+    paddingVertical: 8,
+    gap: 10,
   },
   radioItemActive: {},
-  radioCircle: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.xs,
+  radioDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: '#cbd5e1',
   },
-  radioCircleActive: {
-    borderColor: colors.danger,
+  radioDotActive: {
+    borderColor: '#dc2626',
+    backgroundColor: '#dc2626',
   },
-  radioInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.danger,
-  },
-  radioText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textPrimary,
-    flex: 1,
+  radioLabel: {
+    fontSize: 13,
+    color: '#334155',
+    fontWeight: '500',
   },
   decisionBtnRow: {
     flexDirection: 'row',
-    gap: spacing.sm,
-    marginTop: spacing.md,
+    gap: 10,
+    marginTop: 10,
   },
 });

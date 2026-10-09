@@ -109,6 +109,16 @@ import {
 import { PayrollScreen, PayslipsScreen } from '../screens/payroll';
 
 import { MisReportsScreen } from '../screens/reports';
+import {
+  PersonalInfoScreen,
+  AccountSecurityScreen,
+  AppSettingsScreen,
+  NotificationPreferencesScreen,
+  LanguageScreen,
+  AuditLogScreen,
+  SentMessagesScreen,
+  HelpSupportScreen,
+} from '../screens/profile';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -165,6 +175,16 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen name="Tasks" component={TasksScreen} />
           <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
+
+          {/* Profile Sub-pages */}
+          <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+          <Stack.Screen name="AccountSecurity" component={AccountSecurityScreen} />
+          <Stack.Screen name="AppSettings" component={AppSettingsScreen} />
+          <Stack.Screen name="NotificationPreferences" component={NotificationPreferencesScreen} />
+          <Stack.Screen name="Language" component={LanguageScreen} />
+          <Stack.Screen name="AuditLog" component={AuditLogScreen} />
+          <Stack.Screen name="SentMessages" component={SentMessagesScreen} />
+          <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
 
           {/* CRM Workspace Screens */}
           {canAccessCrm && (

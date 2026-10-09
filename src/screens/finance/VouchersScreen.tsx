@@ -13,6 +13,8 @@ import { useFinance, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatusBadge, Button, Input, EmptyState } from '../../components';
 import { FinanceVoucher } from '../../types';
+import { formatDate } from '../../utils/date';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Scale,
   Search,
@@ -60,6 +62,7 @@ const VOUCHER_TYPES = [
 ] as const;
 
 export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { vouchers, createVoucher } = useFinance();
   const { hasRole } = useAuth();
 
@@ -198,7 +201,7 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               </View>
             </View>
             <View style={styles.headerRight}>
-              <Text style={styles.dateText}>{item.date}</Text>
+              <Text style={styles.dateText}>{formatDate(item.date) || item.date}</Text>
               <StatusBadge status={item.status || 'Posted'} size="sm" />
             </View>
           </View>
@@ -345,7 +348,7 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           showsHorizontalScrollIndicator={false}
           data={VOUCHER_TYPES}
           keyExtractor={item => item}
-          contentContainerStyle={styles.filterList}
+          contentContainerStyle={[styles.filterList, { paddingRight: spacing.xxl }]}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={[styles.filterChip, selectedType === item && styles.filterChipActive]}
@@ -368,7 +371,7 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         data={filteredVouchers}
         keyExtractor={item => item.id}
         renderItem={renderVoucherCard}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
         ListEmptyComponent={
           <EmptyState
             title="No Vouchers Found"
@@ -382,9 +385,15 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         }
       />
 
-      <Modal visible={showAddModal} transparent animationType="slide">
+      <Modal
+        visible={showAddModal}
+        transparent
+        animationType="slide"
+        statusBarTranslucent
+        onRequestClose={() => setShowAddModal(false)}
+      >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={[styles.modalContent, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
             <View style={styles.modalHeader}>
               <View>
                 <Text style={styles.modalTitle}>New Double-Entry Journal Entry</Text>
@@ -400,7 +409,10 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 520 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: Math.max(insets.bottom + 20, 32) }}
+            >
               <Text style={styles.fieldLabel}>Voucher Classification</Text>
               <View style={styles.typeChipsGrid}>
                 {[
@@ -595,9 +607,15 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
       </Modal>
 
       {selectedVoucher && (
-        <Modal visible={!!selectedVoucher} transparent animationType="fade">
+        <Modal
+          visible={!!selectedVoucher}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={() => setSelectedVoucher(null)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.detailModalContent}>
+            <View style={[styles.detailModalContent, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.detailVNumber}>{selectedVoucher.voucherNumber}</Text>
@@ -608,11 +626,16 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 </TouchableOpacity>
               </View>
 
-              <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 450 }}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: Math.max(insets.bottom + 20, 32) }}
+              >
                 <View style={styles.detailMetaGrid}>
                   <View style={styles.detailMetaCol}>
                     <Text style={styles.detailMetaLabel}>POSTING DATE</Text>
-                    <Text style={styles.detailMetaVal}>{selectedVoucher.date}</Text>
+                    <Text style={styles.detailMetaVal}>
+                      {formatDate(selectedVoucher.date) || selectedVoucher.date}
+                    </Text>
                   </View>
                   <View style={styles.detailMetaCol}>
                     <Text style={styles.detailMetaLabel}>AUDIT STATUS</Text>
@@ -1009,14 +1032,15 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    justifyContent: 'center',
-    padding: spacing.md,
+    justifyContent: 'flex-end',
   },
   modalContent: {
     backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
     padding: spacing.lg,
-    maxHeight: '90%',
+    maxHeight: '92%',
+    width: '100%',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -1184,9 +1208,11 @@ const styles = StyleSheet.create({
   },
   detailModalContent: {
     backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
     padding: spacing.lg,
-    maxHeight: '85%',
+    maxHeight: '92%',
+    width: '100%',
   },
   detailVNumber: {
     ...typography.h3,

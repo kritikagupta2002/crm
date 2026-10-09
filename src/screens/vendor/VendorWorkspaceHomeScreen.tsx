@@ -356,7 +356,7 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
               <View style={styles.alertCardHeader}>
                 <UserCheck size={20} color="#D97706" />
                 <Text style={styles.alertCardTitle}>
-                  {metrics.pendingApps} Vendor Registration(s) Needing Empanellment
+                  {metrics.pendingApps} Vendor Registration(s) Needing Empanelment
                 </Text>
               </View>
               <Text style={styles.alertCardDesc}>
@@ -423,33 +423,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ffffff',
-    borderRadius: radius.md,
-    paddingVertical: 10,
+    borderRadius: 16,
+    paddingVertical: 14,
     paddingHorizontal: 8,
     marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    ...shadows.xs,
   },
   metricItem: {
     flex: 1,
     alignItems: 'center',
   },
   metricVal: {
-    fontSize: 16,
+    fontSize: 24,
     fontWeight: '800',
     color: '#0f172a',
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
   },
   metricLbl: {
-    fontSize: 10,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: '#64748b',
-    marginTop: 1,
+    marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   metricDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: colors.border.default,
+    width: 1.2,
+    height: 38,
+    backgroundColor: '#e2e8f0',
   },
   launchpadSection: {
     marginBottom: spacing.md,

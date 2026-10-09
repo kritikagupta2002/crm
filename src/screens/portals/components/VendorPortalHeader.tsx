@@ -41,7 +41,7 @@ export const VendorPortalHeader: React.FC<VendorPortalHeaderProps> = ({
         <View style={styles.leftBrandCol}>
           <View style={styles.brandBadgeRow}>
             <View style={styles.brandIconBox}>
-              <Building2 size={20} color="#ffffff" strokeWidth={2.4} />
+              <Building2 size={20} color="#0284c7" strokeWidth={2.4} />
             </View>
             <View>
               <Text style={styles.brandSuperText}>BANSAL GEO</Text>
@@ -132,7 +132,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: vendorTheme.colors.navy,
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
     alignItems: 'center',
     justifyContent: 'center',
   },

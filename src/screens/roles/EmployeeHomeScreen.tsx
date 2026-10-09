@@ -151,9 +151,9 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
 
   return (
     <View style={styles.rootContainer}>
-      <StatusBar barStyle="light-content" backgroundColor="#0284c7" />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Personal Staff Companion Header (Sky Blue & White) */}
+      {/* 1. Personal Staff Companion Header (Light Theme) */}
       <View style={[styles.companionHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
@@ -190,7 +190,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             onPress={() => navigation.navigate('Tasks')}
             style={styles.iconButton}
           >
-            <Search size={19} color="#ffffff" strokeWidth={2.2} />
+            <Search size={19} color="#475569" strokeWidth={2.2} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -198,7 +198,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             onPress={() => navigation.navigate('AlertsTab')}
             style={styles.iconButton}
           >
-            <Bell size={19} color="#ffffff" strokeWidth={2.2} />
+            <Bell size={19} color="#475569" strokeWidth={2.2} />
             <View style={styles.bellBadge}>
               <Text style={styles.bellBadgeText}>
                 {unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : '2'}
@@ -251,6 +251,133 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
                 <Text style={styles.punchBigButtonText}>
                   {isPunchedIn ? 'Punch Out for Shift' : 'Punch In with Geolocation'}
                 </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Employee Bento KPI Grid */}
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              {/* Duty Status */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Attendance')}
+                style={[styles.kpiCard, styles.kpiCardProjects]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
+                    <Clock size={17} color="#2563eb" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeProjects}>
+                    <Text style={styles.kpiBadgeTextProjects}>{isPunchedIn ? 'On Duty' : 'Off Duty'}</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueProjects}>
+                    {isPunchedIn ? '8.5 h' : '--:--'}
+                  </Text>
+                  <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Shift Hours</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    GPS Clocked Site
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Tasks Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Tasks')}
+                style={[styles.kpiCard, styles.kpiCardClients]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
+                    <CheckCircle2 size={17} color="#0f766e" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeClients}>
+                    <Text style={styles.kpiBadgeTextClients}>Active</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueClients}>
+                    {pendingTasksCount}
+                  </Text>
+                  <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Assigned Tasks</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Core Logging & Assays
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.kpiRow}>
+              {/* Leave Balance */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => setShowLeaveModal(true)}
+                style={[styles.kpiCard, styles.kpiCardEmployees]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
+                    <Calendar size={17} color="#7e22ce" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeEmployees}>
+                    <Text style={styles.kpiBadgeTextEmployees}>Available</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueEmployees}>
+                    18
+                  </Text>
+                  <ArrowUpRight size={16} color="#7c3aed" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Leave Quota</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Casual & Earned Left
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Field TA/DA Claims */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Expenses')}
+                style={[styles.kpiCard, styles.kpiCardPending]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Receipt size={17} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Submitted</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValuePending}>
+                    3
+                  </Text>
+                  <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={[styles.kpiTitle, { color: '#9a3412' }]}>Field Claims</Text>
+                  <Text style={[styles.kpiSubtitle, { color: '#ea580c' }]} numberOfLines={1}>
+                    TA/DA Reimbursement
+                  </Text>
+                </View>
               </TouchableOpacity>
             </View>
           </View>
@@ -520,13 +647,16 @@ const styles = StyleSheet.create({
 
   /* 1. Companion Header */
   companionHeader: {
-    backgroundColor: '#0284c7',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+    ...shadows.sm,
   },
   headerLeftRow: {
     flexDirection: 'row',
@@ -541,14 +671,14 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#0369a1',
+    backgroundColor: '#d1fae5',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#ffffff',
+    borderColor: '#059669',
   },
   avatarInitials: {
-    color: '#ffffff',
+    color: '#047857',
     fontSize: 17,
     fontWeight: '800',
     letterSpacing: 0.5,
@@ -557,28 +687,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -1,
     right: -1,
-    backgroundColor: '#10b981',
+    backgroundColor: '#059669',
     borderRadius: radius.full,
     width: 18,
     height: 18,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#0284c7',
+    borderColor: '#ffffff',
   },
   headerTitleCol: {
     flex: 1,
   },
   greetingText: {
     fontSize: 12,
-    color: '#e0f2fe',
+    color: '#64748b',
     fontWeight: '500',
     marginBottom: 1,
   },
   userNameText: {
     fontSize: 19,
     fontWeight: '800',
-    color: '#ffffff',
+    color: '#0f172a',
     letterSpacing: -0.3,
   },
   roleTagRow: {
@@ -590,10 +720,12 @@ const styles = StyleSheet.create({
   roleTag: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: '#e0f2fe',
     paddingHorizontal: 7,
     paddingVertical: 1.5,
     borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#bae6fd',
   },
   roleTagText: {
     fontSize: 9.5,
@@ -602,7 +734,7 @@ const styles = StyleSheet.create({
   },
   orgTagText: {
     fontSize: 11,
-    color: '#e0f2fe',
+    color: '#64748b',
     fontWeight: '600',
   },
   headerRightActions: {
@@ -614,9 +746,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    backgroundColor: '#f8fafc',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.28)',
+    borderColor: '#e2e8f0',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -633,7 +765,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 3,
     borderWidth: 1.5,
-    borderColor: '#0284c7',
+    borderColor: '#ffffff',
   },
   bellBadgeText: {
     color: '#ffffff',
@@ -1041,5 +1173,159 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 14.5,
     fontWeight: '800',
+  },
+
+  /* Bento KPI Grid */
+  kpiGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardProjects: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardClients: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardEmployees: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxProjects: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxClients: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxEmployees: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiBadgeProjects: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextProjects: {
+    color: '#1d4ed8',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeClients: {
+    backgroundColor: '#ccfbf1',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextClients: {
+    color: '#0f766e',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeEmployees: {
+    backgroundColor: '#f3e8ff',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextEmployees: {
+    color: '#7e22ce',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#dc2626',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValueProjects: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueClients: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueEmployees: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValuePending: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#ea580c',
+    letterSpacing: -0.5,
+  },
+  kpiLabelsCol: {
+    marginTop: 2,
+  },
+  kpiTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+    marginBottom: 1,
+  },
+  kpiSubtitle: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
   },
 });

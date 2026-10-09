@@ -411,6 +411,7 @@ const styles = StyleSheet.create({
   filterTabsContent: {
     gap: 6,
     paddingVertical: 2,
+    paddingRight: 24,
   },
   filterTab: {
     flexDirection: 'row',
@@ -454,7 +455,7 @@ const styles = StyleSheet.create({
     color: colors.textInverse,
   },
   listContent: {
-    paddingBottom: spacing.huge,
+    paddingBottom: 100,
   },
   leadCard: {
     marginBottom: spacing.sm,

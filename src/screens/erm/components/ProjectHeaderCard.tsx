@@ -5,6 +5,7 @@ import { Card, StatusBadge } from '../../../components/common';
 import { colors } from '../../../theme';
 import { Project } from '../../../types';
 import { formatCurrencyLakhs as formatCurrency } from '../../../utils';
+import { formatDate } from '../../../utils/date';
 import { styles } from './projectDetailStyles';
 
 interface ProjectHeaderCardProps {
@@ -37,7 +38,9 @@ export const ProjectHeaderCard: React.FC<ProjectHeaderCardProps> = ({ project })
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statLabel}>Target Due</Text>
-          <Text style={styles.statValue}>{project.dueOn || project.endDate}</Text>
+          <Text style={styles.statValue}>
+            {formatDate(project.dueOn || project.endDate) || '—'}
+          </Text>
         </View>
       </View>
     </Card>

@@ -40,8 +40,8 @@ interface LeadDetailScreenProps {
 }
 
 export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navigation }) => {
-  const { leadId } = route.params;
   const { leads, followUps, quotes, updateLeadStage, scheduleFollowUp, completeFollowUp } = useCrm();
+  const leadId = route?.params?.leadId || leads[0]?.id;
   const { can } = useAuth();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'quotes' | 'followups' | 'queries'>('overview');

@@ -92,6 +92,16 @@ export type RootStackParamList = {
   SamplingActivity: { type?: string } | undefined;
   DrillingDpr: { type?: 'core' | 'non-core' } | undefined;
   DispatchDatabase: undefined;
+
+  // Profile Sub-pages
+  PersonalInfo: undefined;
+  AccountSecurity: undefined;
+  AppSettings: undefined;
+  NotificationPreferences: undefined;
+  Language: undefined;
+  AuditLog: undefined;
+  SentMessages: undefined;
+  HelpSupport: undefined;
 };
 
 export type MainTabParamList = {

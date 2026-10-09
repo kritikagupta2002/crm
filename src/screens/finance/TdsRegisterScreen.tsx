@@ -13,6 +13,7 @@ import { useFinance, useAuth } from '../../context';
 import { colors, spacing, typography, borderRadius } from '../../theme';
 import { AppHeader, Card, StatusBadge, Button, Input, EmptyState } from '../../components';
 import { TdsRecord } from '../../types';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Percent,
   Search,
@@ -34,6 +35,7 @@ const SECTIONS = ['All', '194C', '194J', '194I', '192'] as const;
 const STATUSES = ['All', 'Pending Deposit', 'Deposited'] as const;
 
 export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
   const { taxRecords, updateTaxStatus } = useFinance();
   const { hasRole } = useAuth();
 
@@ -290,13 +292,14 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
               onPress={() => setSelectedQuarter(q)}
             >
               <Text style={[styles.filterChipText, selectedQuarter === q && styles.filterChipTextActive]}>
-                {q}
+                {q === 'All' ? 'All Qtrs' : q}
               </Text>
             </TouchableOpacity>
           ))}
 
           <View style={styles.filterDivider} />
 
+          <Text style={[styles.filterLabel, { marginLeft: 2 }]}>Status:</Text>
           {STATUSES.map(st => (
             <TouchableOpacity
               key={st}
@@ -304,7 +307,7 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
               onPress={() => setSelectedStatus(st)}
             >
               <Text style={[styles.filterChipText, selectedStatus === st && styles.filterChipTextActive]}>
-                {st}
+                {st === 'All' ? 'All Status' : st}
               </Text>
             </TouchableOpacity>
           ))}
@@ -315,7 +318,7 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         data={filteredRecords}
         keyExtractor={item => item.id}
         renderItem={renderTdsCard}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 60, 96) }]}
         ListEmptyComponent={
           <EmptyState
             title="No TDS Records Found"
@@ -330,9 +333,15 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
       />
 
       {selectedRecord && (
-        <Modal visible={!!selectedRecord} transparent animationType="fade">
+        <Modal
+          visible={!!selectedRecord}
+          transparent
+          animationType="fade"
+          statusBarTranslucent
+          onRequestClose={() => setSelectedRecord(null)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.detailModalContent}>
+            <View style={[styles.detailModalContent, { paddingBottom: Math.max(insets.bottom + 16, 24) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <View style={styles.tagWrap}>
@@ -453,9 +462,15 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
       )}
 
       {depositRecord && (
-        <Modal visible={showDepositModal} transparent animationType="slide">
+        <Modal
+          visible={showDepositModal}
+          transparent
+          animationType="slide"
+          statusBarTranslucent
+          onRequestClose={() => setShowDepositModal(false)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.depositModalContent}>
+            <View style={[styles.depositModalContent, { paddingBottom: Math.max(insets.bottom + 20, 28) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.modalTitle}>Deposit Statutory TDS Challan</Text>
@@ -521,9 +536,15 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
       )}
 
       {certificateRecord && (
-        <Modal visible={showCertificateModal} transparent animationType="slide">
+        <Modal
+          visible={showCertificateModal}
+          transparent
+          animationType="slide"
+          statusBarTranslucent
+          onRequestClose={() => setShowCertificateModal(false)}
+        >
           <View style={styles.modalOverlay}>
-            <View style={styles.certModalContent}>
+            <View style={[styles.certModalContent, { paddingBottom: Math.max(insets.bottom + 20, 28) }]}>
               <View style={styles.modalHeader}>
                 <View>
                   <Text style={styles.certHeaderTitle}>FORM NO. 16A</Text>
@@ -683,6 +704,7 @@ const styles = StyleSheet.create({
   filterList: {
     alignItems: 'center',
     gap: 6,
+    paddingRight: spacing.lg,
   },
   filterLabel: {
     ...typography.caption,
@@ -846,26 +868,31 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.65)',
-    justifyContent: 'center',
-    padding: spacing.md,
+    justifyContent: 'flex-end',
   },
   detailModalContent: {
     backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
     padding: spacing.lg,
-    maxHeight: '85%',
+    maxHeight: '92%',
+    width: '100%',
   },
   depositModalContent: {
     backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
     padding: spacing.lg,
     gap: spacing.sm,
+    width: '100%',
   },
   certModalContent: {
     backgroundColor: colors.background.secondary,
-    borderRadius: borderRadius.xl,
+    borderTopLeftRadius: borderRadius.xl,
+    borderTopRightRadius: borderRadius.xl,
     padding: spacing.lg,
-    maxHeight: '88%',
+    maxHeight: '92%',
+    width: '100%',
   },
   modalHeader: {
     flexDirection: 'row',

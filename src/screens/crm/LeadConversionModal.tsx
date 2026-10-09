@@ -11,8 +11,8 @@ interface LeadConversionModalProps {
 }
 
 export const LeadConversionModal: React.FC<LeadConversionModalProps> = ({ route, navigation }) => {
-  const { leadId } = route.params;
   const { leads, convertLead } = useCrm();
+  const leadId = route?.params?.leadId || leads[0]?.id;
 
   const lead = leads.find((l) => l.id === leadId);
 

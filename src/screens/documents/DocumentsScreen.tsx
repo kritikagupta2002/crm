@@ -7,10 +7,12 @@ import {
   TouchableOpacity,
   Modal,
   ScrollView,
+  TextInput,
 } from 'react-native';
 import { useCrm, useAuth } from '../../context';
-import { colors, spacing, typography, borderRadius } from '../../theme';
-import { AppHeader, Card, StatusBadge, Input, EmptyState, Button } from '../../components';
+import { colors, spacing, typography, borderRadius, radius } from '../../theme';
+import { AppHeader, Card, StatusBadge, EmptyState, Button } from '../../components';
+import { formatDate } from '../../utils/date';
 import { GovtDocument, DocumentItem } from '../../types';
 import {
   FileText,
@@ -130,7 +132,7 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
             <Text style={styles.metaDot}>•</Text>
             <Text style={styles.metaProject}>{item.project.id}</Text>
             <Text style={styles.metaDot}>•</Text>
-            <Text style={styles.metaDate}>{item.letter.date}</Text>
+            <Text style={styles.metaDate}>{formatDate(item.letter.date)}</Text>
           </View>
 
           <View style={styles.custodyRow}>
@@ -186,7 +188,7 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
 
         <View style={styles.custodyRow}>
           <Text style={styles.custodyText}>
-            Uploaded: {item.uploadDate} by {item.uploaderName}
+            Uploaded: {formatDate(item.uploadDate)} by {item.uploaderName}
           </Text>
           <View style={styles.accessBadge}>
             <Lock size={11} color={colors.text.tertiary} />
@@ -205,7 +207,6 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
-
           <TouchableOpacity
             style={styles.headerFilterBtn}
             onPress={() => setShowFilterModal(true)}
@@ -236,20 +237,23 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
       </View>
 
       <View style={styles.searchBar}>
-        <Search size={16} color={colors.text.tertiary} style={{ marginRight: spacing.xs }} />
-        <Input
+        <Search size={16} color="#94a3b8" />
+        <TextInput
           placeholder={
             activeView === 'Government documents'
               ? 'Search letter title, ref, client, or lease...'
               : 'Search files, projects...'
           }
+          placeholderTextColor="#94a3b8"
           value={search}
           onChangeText={setSearch}
           style={styles.searchInput}
+          autoCapitalize="none"
+          autoCorrect={false}
         />
         {search.length > 0 && (
           <TouchableOpacity onPress={() => setSearch('')}>
-            <X size={16} color={colors.text.tertiary} />
+            <X size={16} color="#94a3b8" />
           </TouchableOpacity>
         )}
       </View>
@@ -438,68 +442,76 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.background.secondary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.subtle,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 8,
   },
   searchInput: {
     flex: 1,
-    borderWidth: 0,
-    backgroundColor: 'transparent',
-    paddingVertical: spacing.xs,
+    height: 42,
+    fontSize: 13,
+    color: '#0F172A',
+    paddingVertical: 0,
   },
   stageTabsContainer: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    gap: spacing.xs,
+    paddingVertical: 8,
+    gap: 8,
+    alignItems: 'center',
   },
   stagePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.full,
-    backgroundColor: colors.background.secondary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: colors.border.subtle,
+    borderColor: '#E2E8F0',
+    minHeight: 32,
   },
   stagePillActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
+    backgroundColor: '#0D9488',
+    borderColor: '#0D9488',
   },
   stagePillText: {
-    ...typography.caption,
+    fontSize: 12,
     fontWeight: '600',
-    color: colors.text.secondary,
+    color: '#475569',
   },
   stagePillTextActive: {
-    color: colors.text.inverse,
+    color: '#FFFFFF',
+    fontWeight: '700',
   },
   stagePillBadge: {
-    backgroundColor: colors.background.tertiary,
-    borderRadius: borderRadius.full,
+    backgroundColor: '#F1F5F9',
+    borderRadius: radius.full,
     paddingHorizontal: 6,
     paddingVertical: 1,
   },
-
   stagePillBadgeActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    backgroundColor: 'rgba(255, 255, 255, 0.28)',
   },
   stagePillBadgeText: {
-    fontSize: 10,
+    fontSize: 10.5,
     fontWeight: '700',
-    color: colors.text.secondary,
+    color: '#64748B',
   },
   stagePillBadgeTextActive: {
-    color: colors.text.inverse,
+    color: '#FFFFFF',
   },
   listContent: {
     padding: spacing.md,
     gap: spacing.sm,
-    paddingBottom: spacing.xxl,
+    paddingBottom: 90,
   },
   docCard: {
     marginBottom: spacing.md,

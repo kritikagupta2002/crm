@@ -24,7 +24,7 @@ export const EmployeeDetailScreen: React.FC<{ route: any; navigation: any }> = (
   route,
   navigation,
 }) => {
-  const { employeeId } = route.params;
+  const employeeId = route?.params?.employeeId || 'EMP-2024-001';
   const {
     emp,
     activeEmployeeId,

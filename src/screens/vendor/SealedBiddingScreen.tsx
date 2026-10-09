@@ -6,8 +6,8 @@ import { AppHeader, Card, StatusBadge, Button, ConfirmationModal } from '../../c
 import { ShieldCheck, Key, Lock, Unlock, Award, CheckCircle2, AlertCircle, FileCheck, ArrowRight } from 'lucide-react-native';
 
 export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({ route, navigation }) => {
-  const { tenderId } = route.params;
   const { tenders, unsealTenderBids, allotTender } = useCrm();
+  const tenderId = route?.params?.tenderId || tenders[0]?.id;
 
   const tender = tenders.find(t => t.id === tenderId);
 

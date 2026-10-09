@@ -25,6 +25,7 @@ import {
   Briefcase,
   IndianRupee,
   CheckCircle2,
+  ArrowUpRight,
 } from 'lucide-react-native';
 import { ScreenContainer, AppHeader, Card, StatusBadge, Button, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
@@ -54,6 +55,18 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'All' | 'Open' | 'Evaluation' | 'Allotted'>('All');
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+
+  const totalEstimatedVal = useMemo(() => {
+    return tenders.reduce((sum, t) => sum + (t.estimatedValue || t.estimate || 0), 0);
+  }, [tenders]);
+
+  const openBidsCount = useMemo(() => {
+    return tenders.filter((t) => tenderPhase(t) === 'Open').length;
+  }, [tenders]);
+
+  const evaluationCount = useMemo(() => {
+    return tenders.filter((t) => tenderPhase(t) === 'Evaluation').length;
+  }, [tenders]);
 
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState(TENDER_CATEGORIES[0]);
@@ -286,6 +299,87 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderTenderCard}
         contentContainerStyle={styles.listContent}
+        ListHeaderComponent={
+          <View style={styles.kpiGrid}>
+            <View style={styles.kpiRow}>
+              {/* Card 1: Total Tenders */}
+              <View style={[styles.kpiCard, styles.kpiCardTotal]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
+                    <Layers size={16} color="#0284c7" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeTotal}>
+                    <Text style={styles.kpiBadgeTextTotal}>Procurement</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValText}>{tenders.length}</Text>
+                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Tender Packages</Text>
+                <Text style={styles.kpiSubText}>Active subcontract notices</Text>
+              </View>
+
+              {/* Card 2: Open Bids */}
+              <View style={[styles.kpiCard, styles.kpiCardPending]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Live Bidding</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>{openBidsCount}</Text>
+                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Open for Bidding</Text>
+                <Text style={styles.kpiSubText}>Accepting vendor proposals</Text>
+              </View>
+            </View>
+
+            <View style={styles.kpiRow}>
+              {/* Card 3: Estimated Value */}
+              <View style={[styles.kpiCard, styles.kpiCardPaid]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
+                    <IndianRupee size={16} color="#16a34a" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePaid}>
+                    <Text style={styles.kpiBadgeTextPaid}>Budget</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                    ₹{(totalEstimatedVal / 100000).toFixed(1)} L
+                  </Text>
+                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Estimated Value</Text>
+                <Text style={styles.kpiSubText}>Sanctioned tender outlay</Text>
+              </View>
+
+              {/* Card 4: Dual-Key Vault */}
+              <View style={[styles.kpiCard, styles.kpiCardActive]}>
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
+                    <Lock size={16} color="#7c3aed" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeActive}>
+                    <Text style={styles.kpiBadgeTextActive}>Dual-Key</Text>
+                  </View>
+                </View>
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValText}>{evaluationCount}</Text>
+                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.kpiTitleText}>Vault Unseal Queue</Text>
+                <Text style={styles.kpiSubText}>Sealed bids awaiting unlock</Text>
+              </View>
+            </View>
+          </View>
+        }
         ListEmptyComponent={
           <EmptyState
             title="No Tenders Found"
@@ -711,5 +805,138 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.lg,
+  },
+
+  /* Bento KPI Grid */
+  kpiGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardTotal: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiCardPaid: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardActive: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxTotal: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiIconBoxPaid: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxActive: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiBadgeTotal: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextTotal: {
+    color: '#0284c7',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#ea580c',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePaid: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPaid: {
+    color: '#16a34a',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeActive: {
+    backgroundColor: '#f3e8ff',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextActive: {
+    color: '#7c3aed',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValText: {
+    fontSize: 25,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiTitleText: {
+    fontSize: 13,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+    marginBottom: 1,
+  },
+  kpiSubText: {
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '600',
   },
 });

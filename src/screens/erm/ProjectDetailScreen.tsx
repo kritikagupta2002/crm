@@ -19,7 +19,7 @@ export const ProjectDetailScreen: React.FC<ProjectDetailScreenProps> = ({
   route,
   navigation,
 }) => {
-  const { projectId, initialTab } = route.params;
+  const { projectId, initialTab } = route?.params || {};
   const {
     project,
     role,

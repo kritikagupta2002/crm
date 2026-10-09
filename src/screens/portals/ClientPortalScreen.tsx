@@ -84,7 +84,7 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={clientTheme.colors.navy} />
+      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <View style={styles.container}>
         {/* 1. Executive Portal Header */}
         <ClientPortalHeader
@@ -257,7 +257,7 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: clientTheme.colors.navy,
+    backgroundColor: '#ffffff',
   },
   container: {
     flex: 1,

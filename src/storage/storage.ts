@@ -223,7 +223,16 @@ class MobileStorage {
   getClients = () => this.getJson<Client[]>(KEYS.CLIENTS, INITIAL_CLIENTS);
   setClients = (val: Client[]) => this.setJson(KEYS.CLIENTS, val);
 
-  getLeads = () => this.getJson<Lead[]>(KEYS.LEADS, INITIAL_LEADS);
+  getLeads = async (): Promise<Lead[]> => {
+    const stored = await this.getJson<Lead[]>(KEYS.LEADS, INITIAL_LEADS);
+    const hasApprovalLeads = stored.some((l) => l.quoteStatus === 'Accepted');
+    if (!hasApprovalLeads) {
+      const merged = [...stored, ...INITIAL_LEADS.filter((il) => !stored.some((sl) => sl.id === il.id))];
+      await this.setLeads(merged);
+      return merged;
+    }
+    return stored;
+  };
   setLeads = (val: Lead[]) => this.setJson(KEYS.LEADS, val);
 
   getFollowUps = () => this.getJson<FollowUp[]>(KEYS.FOLLOW_UPS, INITIAL_FOLLOW_UPS);
@@ -295,10 +304,32 @@ class MobileStorage {
   getReimbursements = () => this.getJson<ReimbursementClaim[]>(KEYS.REIMBURSEMENTS, INITIAL_REIMBURSEMENTS);
   setReimbursements = (val: ReimbursementClaim[]) => this.setJson(KEYS.REIMBURSEMENTS, val);
 
-  getInvoices = () => this.getJson<FinanceInvoice[]>(KEYS.INVOICES, INITIAL_INVOICES);
+  getInvoices = async (): Promise<FinanceInvoice[]> => {
+    const list = await this.getJson<FinanceInvoice[]>(KEYS.INVOICES, INITIAL_INVOICES);
+    return list.map((inv) => {
+      const seed = INITIAL_INVOICES.find((s) => s.id === inv.id || s.invoiceNo === inv.invoiceNo);
+      return {
+        ...inv,
+        date: inv.date || inv.invoiceDate || seed?.date || '2026-08-10',
+        invoiceDate: inv.invoiceDate || inv.date || seed?.invoiceDate || '2026-08-10',
+        dueDate: inv.dueDate || (inv as any).due_date || seed?.dueDate || '2026-09-10',
+      };
+    });
+  };
   setInvoices = (val: FinanceInvoice[]) => this.setJson(KEYS.INVOICES, val);
 
-  getVendorBills = () => this.getJson<VendorBill[]>(KEYS.VENDOR_BILLS, INITIAL_VENDOR_BILLS);
+  getVendorBills = async (): Promise<VendorBill[]> => {
+    const list = await this.getJson<VendorBill[]>(KEYS.VENDOR_BILLS, INITIAL_VENDOR_BILLS);
+    return list.map((vb) => {
+      const seed = INITIAL_VENDOR_BILLS.find((s) => s.id === vb.id || s.billNo === vb.billNo);
+      return {
+        ...vb,
+        date: vb.date || vb.billDate || seed?.date || '2026-08-15',
+        billDate: vb.billDate || vb.date || seed?.billDate || '2026-08-15',
+        dueDate: vb.dueDate || seed?.dueDate || '2026-09-15',
+      };
+    });
+  };
   setVendorBills = (val: VendorBill[]) => this.setJson(KEYS.VENDOR_BILLS, val);
 
   getVouchers = () => this.getJson<FinanceVoucher[]>(KEYS.VOUCHERS, INITIAL_VOUCHERS);

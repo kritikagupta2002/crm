@@ -24,7 +24,7 @@ export const ClientPortalHeader: React.FC<ClientPortalHeaderProps> = ({
       <View style={styles.topBar}>
         <View style={styles.brandRow}>
           <View style={styles.brandIconWrap}>
-            <Compass size={22} color="#ffffff" strokeWidth={2.4} />
+            <Compass size={22} color="#0284c7" strokeWidth={2.4} />
           </View>
           <View style={styles.brandTitleWrap}>
             <Text style={styles.brandTitle}>BANSAL GEO</Text>
@@ -42,7 +42,7 @@ export const ClientPortalHeader: React.FC<ClientPortalHeaderProps> = ({
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Bell size={20} color="#ffffff" />
+            <Bell size={20} color="#334155" />
             {unreadCount > 0 && (
               <View style={styles.badgePill}>
                 <Text style={styles.badgeText}>
@@ -59,7 +59,7 @@ export const ClientPortalHeader: React.FC<ClientPortalHeaderProps> = ({
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <LogOut size={18} color="#fee2e2" />
+            <LogOut size={18} color="#dc2626" />
           </TouchableOpacity>
         </View>
       </View>
@@ -69,13 +69,13 @@ export const ClientPortalHeader: React.FC<ClientPortalHeaderProps> = ({
 
 const styles = StyleSheet.create({
   headerWrapper: {
-    backgroundColor: clientTheme.colors.navyDark,
+    backgroundColor: '#ffffff',
     paddingTop: Platform.OS === 'ios' ? 48 : (StatusBar.currentHeight || 24) + 8,
     paddingHorizontal: 16,
     paddingBottom: 14,
-    borderBottomLeftRadius: clientTheme.radius.lg,
-    borderBottomRightRadius: clientTheme.radius.lg,
-    ...clientTheme.shadows.md,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+    ...clientTheme.shadows.sm,
   },
   topBar: {
     flexDirection: 'row',
@@ -93,7 +93,9 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#1b3a60',
+    backgroundColor: '#eff6ff',
+    borderWidth: 1,
+    borderColor: '#bfdbfe',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -103,12 +105,12 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 16.5,
     fontWeight: '900',
-    color: '#ffffff',
+    color: '#0f172a',
     letterSpacing: 0.8,
   },
   brandSubtitle: {
     fontSize: 12,
-    color: '#94a3b8',
+    color: '#64748b',
     fontWeight: '600',
     marginTop: 1,
   },
@@ -121,13 +123,16 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
   logoutBtn: {
-    backgroundColor: 'rgba(220, 38, 38, 0.2)',
+    backgroundColor: '#fef2f2',
+    borderColor: '#fee2e2',
   },
   badgePill: {
     position: 'absolute',
