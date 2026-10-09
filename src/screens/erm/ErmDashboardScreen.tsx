@@ -210,10 +210,10 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
             </View>
             <View style={styles.projStatsRow}>
               <Text style={styles.projBudgetVal}>
-                Budget: {formatCurrency(activeProjects[0].baselineBudget || 4200000)}
+                Budget: {formatCurrency(activeProjects[0].baselineBudget || 0)}
               </Text>
               <Text style={styles.projTaskCount}>
-                {activeProjects[0].tasks?.length || 6} Tasks
+                {activeProjects[0].tasks?.length || 0} Tasks
               </Text>
             </View>
           </View>

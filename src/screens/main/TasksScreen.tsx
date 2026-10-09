@@ -4,6 +4,7 @@ import { CheckCircle2, Circle, Clock, CheckSquare, AlertTriangle, Layers, Calend
 import { ScreenContainer, AppHeader, Card, StatusBadge, SegmentedControl, EmptyState } from '../../components/common';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
 import { useCrm } from '../../context/CrmContext';
+import { useAuth } from '../../context/AuthContext';
 import { Task } from '../../types';
 
 interface TasksScreenProps {
@@ -14,6 +15,7 @@ const keyExtractor = (item: Task & { projectTitle: string; projectCode: string }
   item.id || `${item.projectId}-${item.key}`;
 
 export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
+  const { session, canonicalRole } = useAuth();
   const { projects, updateProjectTask } = useCrm();
   const [filterIndex, setFilterIndex] = useState(0);
   const allTasks = useMemo(() => {
@@ -23,8 +25,20 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         list.push({ ...t, projectTitle: p.title || p.name || 'Project Block', projectCode: p.projectCode });
       });
     });
+    if (canonicalRole === 'employee' && session) {
+      const myName = ((session as any).name || '').toLowerCase();
+      const myFirstName = myName.split(' ')[0] || '';
+      return list.filter((t) => {
+        const assigned = (t.assigneeName || t.assignee || '').toLowerCase();
+        return (
+          assigned.includes(myName) ||
+          (myFirstName && assigned.includes(myFirstName)) ||
+          !assigned
+        );
+      });
+    }
     return list;
-  }, [projects]);
+  }, [projects, canonicalRole, session]);
 
   const stats = useMemo(() => {
     const completedCount = allTasks.filter((t) => t.status === 'Completed').length;

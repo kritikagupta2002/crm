@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useCrm, useAuth } from '../../context';
 import { Tender, WorkOrder, SealedBid } from '../../types';
 import { tenderPhase } from '../../constants/vendor';
-import { PortalTab } from './components/VendorPortalHeader';
+import { VendorNavTab } from './components/VendorBottomNav';
 
 export const useVendorPortal = () => {
   const { session, logout } = useAuth();
@@ -21,79 +21,152 @@ export const useVendorPortal = () => {
     askClarification,
   } = useCrm();
 
-  const [activeTab, setActiveTab] = useState<PortalTab>('home');
+  const [activeTab, setActiveTab] = useState<VendorNavTab>('home');
+  const [notificationsVisible, setNotificationsVisible] = useState(false);
   const [tenderSearch, setTenderSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [accountModalVisible, setAccountModalVisible] = useState(false);
 
+  // Delivery Modal State
   const [deliveryModalVisible, setDeliveryModalVisible] = useState(false);
   const [selectedWoForDelivery, setSelectedWoForDelivery] = useState<WorkOrder | null>(null);
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
 
+  // Billing Modal State
   const [billingModalVisible, setBillingModalVisible] = useState(false);
   const [selectedWoForBilling, setSelectedWoForBilling] = useState<WorkOrder | null>(null);
   const [invoiceNo, setInvoiceNo] = useState('');
   const [billAmount, setBillAmount] = useState('');
   const [billRemarks, setBillRemarks] = useState('');
 
+  // Pre-bid Clarification State
   const [askModalVisible, setAskModalVisible] = useState(false);
   const [selectedTenderForAsk, setSelectedTenderForAsk] = useState<Tender | null>(null);
   const [questionText, setQuestionText] = useState('');
 
+  // Authenticated vendor identity normalization
   const vendorName =
-    session?.accountType === 'vendor' ? (session as any).name : 'Apex Drilling Services';
+    session?.accountType === 'vendor'
+      ? (session as any).vendorName || (session as any).name || 'Apex Drilling & Coring Pvt Ltd'
+      : 'Apex Drilling & Coring Pvt Ltd';
+
   const vendorCode =
-    session?.accountType === 'vendor' ? (session as any).vendorId : 'VEND-001';
-  const currentVendor = vendors.find((v) => v.id === vendorCode) || {
-    id: vendorCode,
-    name: vendorName,
-    contactPerson: 'Mr. Rajesh Verma',
-    phone: '9829012345',
-    email: 'rajesh@apexdrilling.in',
-    workCategory: 'Drilling & Boring',
-    rating: 4.8,
-    approvalStatus: 'approved' as const,
-    pan: 'ABCDE1234F',
-    gstin: '08ABCDE1234F1Z5',
-    bankDetails: {
-      accountNumber: '912010045678912',
-      ifscCode: 'HDFC0000123',
-      bankName: 'HDFC Bank, MI Road Jaipur',
-    },
-    msmeRegistrationNo: 'UDYAM-RJ-14-0012345',
-    address: 'Plot 45, Vishwakarma Industrial Area, Jaipur, Rajasthan 302013',
-  };
+    session?.accountType === 'vendor'
+      ? (session as any).vendorId || (session as any).id || 'VND-2026-014'
+      : 'VND-2026-014';
 
-  const myWorkOrders = workOrders.filter((w) => w.vendorId === vendorCode);
-  const myBids: { tender: Tender; bid: SealedBid }[] = [];
-  tenders.forEach((t) => {
-    const b = t.sealedBids.find((bid) => bid.vendorId === vendorCode);
-    if (b) {
-      myBids.push({ tender: t, bid: b });
+  const vendorCategory =
+    session?.accountType === 'vendor' ? (session as any).category : 'Drilling Contractor';
+
+  // Vendor keys set to ensure robust multi-key matching (id, vendorId, vendorCode)
+  const vendorKeys = useMemo(() => {
+    const keys = new Set<string>();
+    if (vendorCode) keys.add(vendorCode);
+    if ((session as any)?.id) keys.add((session as any).id);
+    if ((session as any)?.vendorId) keys.add((session as any).vendorId);
+    // If persona is Apex Drilling, also allow alias VN-01 / ven-001
+    if (vendorName.toLowerCase().includes('apex') || vendorCode === 'VND-2026-014' || vendorCode === 'ven-001') {
+      keys.add('ven-001');
+      keys.add('VND-2026-014');
+      keys.add('VN-01');
     }
-  });
+    return keys;
+  }, [vendorCode, vendorName, session]);
 
-  const openTenders = tenders.filter((t) => tenderPhase(t) === 'Open');
-  const freshTenders = openTenders.filter(
-    (t) => !myBids.some((b) => b.tender.id === t.id)
-  );
-  const waitingOrders = myWorkOrders.filter((w) =>
-    ['Issued', 'Started', 'Delivered'].includes(w.currentStage)
-  );
-  const totalPaid = myWorkOrders.reduce(
-    (sum, w) => sum + (w.paidAmount || 0),
-    0
-  );
-  const totalContract = myWorkOrders.reduce(
-    (sum, w) => sum + (w.contractValue || 0),
-    0
-  );
+  // Current vendor profile record
+  const currentVendor = useMemo(() => {
+    const found = vendors.find(
+      (v) =>
+        vendorKeys.has(v.id) ||
+        vendorKeys.has(v.vendorCode || '') ||
+        v.name.toLowerCase() === vendorName.toLowerCase()
+    );
+    if (found) return found;
 
+    return {
+      id: vendorCode,
+      vendorCode: vendorCode,
+      name: vendorName,
+      contact: 'Harish Mehta',
+      contactPerson: 'Harish Mehta',
+      phone: (session as any)?.mobile || '9811223344',
+      email: 'accounts@apexdrilling.in',
+      workCategory: vendorCategory || 'Core Drilling & Subcontracting',
+      work: vendorCategory || 'Core Drilling & Subcontracting',
+      rating: 4.8,
+      approvalStatus: 'approved' as const,
+      empanelledStatus: 'Active',
+      pan: 'AAKFR4521M',
+      gstin: '08AAKFR4521M1Z3',
+      bankDetails: {
+        accountNumber: '3844 1102 7781',
+        ifscCode: 'SBIN0001124',
+        bankName: 'State Bank of India, Udaipur',
+      },
+      bank: {
+        accountNo: '3844 1102 7781',
+        ifsc: 'SBIN0001124',
+        name: 'State Bank of India, Udaipur',
+      },
+      msmeRegistrationNo: 'UDYAM-RJ-14-0012345',
+      address: 'Plot 45, Vishwakarma Industrial Area, Jaipur, Rajasthan 302013',
+    };
+  }, [vendors, vendorKeys, vendorCode, vendorName, vendorCategory, session]);
+
+  // STRICT DATA ISOLATION: Only work orders belonging to authenticated vendor
+  const myWorkOrders = useMemo(() => {
+    return workOrders.filter(
+      (w) =>
+        vendorKeys.has(w.vendorId) ||
+        (w.vendor && w.vendor.toLowerCase() === vendorName.toLowerCase()) ||
+        (w.vendorName && w.vendorName.toLowerCase() === vendorName.toLowerCase())
+    );
+  }, [workOrders, vendorKeys, vendorName]);
+
+  // STRICT DATA ISOLATION: Only bids belonging to authenticated vendor
+  const myBids = useMemo(() => {
+    const list: { tender: Tender; bid: SealedBid }[] = [];
+    tenders.forEach((t) => {
+      const b = t.sealedBids.find(
+        (bid) =>
+          vendorKeys.has(bid.vendorId) ||
+          (bid.vendorName && bid.vendorName.toLowerCase() === vendorName.toLowerCase())
+      );
+      if (b) {
+        list.push({ tender: t, bid: b });
+      }
+    });
+    return list;
+  }, [tenders, vendorKeys, vendorName]);
+
+  const openTenders = useMemo(() => {
+    return tenders.filter((t) => tenderPhase(t) === 'Open');
+  }, [tenders]);
+
+  const freshTenders = useMemo(() => {
+    return openTenders.filter((t) => !myBids.some((b) => b.tender.id === t.id));
+  }, [openTenders, myBids]);
+
+  const waitingOrders = useMemo(() => {
+    return myWorkOrders.filter((w) =>
+      ['Issued', 'Started', 'Delivered'].includes(w.currentStage)
+    );
+  }, [myWorkOrders]);
+
+  const totalPaid = useMemo(() => {
+    return myWorkOrders.reduce((sum, w) => sum + (w.paidAmount || 0), 0);
+  }, [myWorkOrders]);
+
+  const totalContract = useMemo(() => {
+    return myWorkOrders.reduce((sum, w) => sum + (w.contractValue || 0), 0);
+  }, [myWorkOrders]);
+
+  // Mobilization / Start
   const handleStartWork = (wo: WorkOrder) => {
     Alert.alert(
       'Confirm Mobilization',
-      `Confirm that fieldwork and equipment mobilization for ${wo.woNumber} (${wo.projectTitle}) has officially started?`,
+      `Confirm that fieldwork and equipment mobilization for ${wo.woNumber || wo.id} (${wo.projectTitle}) has officially commenced on site?`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -102,11 +175,11 @@ export const useVendorPortal = () => {
             try {
               await startWorkOrder(
                 wo.id,
-                'Mobilization confirmed by contractor via portal'
+                'Mobilization confirmed by contractor via portal.'
               );
               Alert.alert(
-                'Work Started',
-                `Order ${wo.woNumber} is now marked as Started.`
+                'Work Order Started',
+                `Subcontract ${wo.woNumber || wo.id} is now in "Started" stage.`
               );
             } catch (err: any) {
               Alert.alert('Error', err.message || 'Failed to update stage');
@@ -117,10 +190,11 @@ export const useVendorPortal = () => {
     );
   };
 
+  // Delivery Dialog
   const handleOpenDelivery = (wo: WorkOrder) => {
     setSelectedWoForDelivery(wo);
     setDeliveryNotes('');
-    setAttachedFiles(['Field_Survey_Log_v1.pdf', 'Core_Drilling_Photos.zip']);
+    setAttachedFiles(['Field_Survey_Log_v1.pdf', 'Core_Drilling_Lithology_Photos.pdf']);
     setDeliveryModalVisible(true);
   };
 
@@ -129,7 +203,7 @@ export const useVendorPortal = () => {
     if (!deliveryNotes.trim()) {
       Alert.alert(
         'Validation Error',
-        'Please enter completion notes describing delivered fieldwork.'
+        'Please enter completion notes describing delivered fieldwork meterage.'
       );
       return;
     }
@@ -139,27 +213,28 @@ export const useVendorPortal = () => {
         files: attachedFiles.map((fn, idx) => ({
           id: `proof-${Date.now()}-${idx}`,
           name: fn,
-          size: '2.4 MB',
+          size: 2400000,
         })),
       });
       setDeliveryModalVisible(false);
       Alert.alert(
         'Delivery Submitted',
-        'Your field deliverables and survey log have been submitted to Project Management.'
+        'Your field deliverables and lithology sheets have been submitted to Project Management for review.'
       );
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to record delivery');
     }
   };
 
+  // Milestone Billing Dialog
   const handleOpenBilling = (wo: WorkOrder) => {
     setSelectedWoForBilling(wo);
     setInvoiceNo(
-      `INV/${new Date().getFullYear()}/${Math.floor(1000 + Math.random() * 9000)}`
+      `APX-INV-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`
     );
-    const remainingCeiling = wo.contractValue - (wo.paidAmount || 0);
+    const remainingCeiling = (wo.contractValue || 0) - (wo.paidAmount || 0);
     setBillAmount(
-      String(Math.min(remainingCeiling, Math.round(wo.contractValue * 0.4)))
+      String(Math.min(remainingCeiling, Math.round((wo.contractValue || 0) * 0.4)))
     );
     setBillRemarks('');
     setBillingModalVisible(true);
@@ -173,9 +248,9 @@ export const useVendorPortal = () => {
       return;
     }
     const remainingCeiling =
-      selectedWoForBilling.contractValue -
+      (selectedWoForBilling.contractValue || 0) -
       (selectedWoForBilling.paidAmount || 0);
-    if (amt > remainingCeiling) {
+    if (amt > remainingCeiling + 0.01) {
       Alert.alert(
         'Ceiling Violation',
         `Invoice amount ₹${amt.toLocaleString(
@@ -191,24 +266,26 @@ export const useVendorPortal = () => {
       await billWorkOrder(selectedWoForBilling.id, {
         billNo: invoiceNo.trim() || `INV-${Date.now()}`,
         amount: amt,
+        tdsRate: 0.02,
         notes: billRemarks.trim(),
       });
       setBillingModalVisible(false);
       Alert.alert(
-        'Invoice Submitted',
-        'Invoice has been uploaded and queued for 3-way verification by Accounts.'
+        'Invoice Lodged',
+        `Milestone bill ${invoiceNo.trim()} has been uploaded and queued for 3-way reconciliation.`
       );
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to submit bill');
     }
   };
 
+  // Bid Withdrawal
   const handleWithdrawBid = (tender: Tender) => {
     Alert.alert(
       'Withdraw Sealed Bid',
-      `Are you sure you want to withdraw your bid for ${tender.tenderNo}? You can lodge a modified bid as long as the submission deadline is open.`,
+      `Are you sure you want to withdraw your bid for ${tender.tenderNo || tender.id}? You can lodge a revised quote as long as the tender remains open.`,
       [
-        { text: 'No, Keep Bid', style: 'cancel' },
+        { text: 'Keep Bid', style: 'cancel' },
         {
           text: 'Withdraw Bid',
           style: 'destructive',
@@ -217,7 +294,7 @@ export const useVendorPortal = () => {
               await withdrawBid(tender.id, vendorCode, vendorName);
               Alert.alert(
                 'Bid Withdrawn',
-                'Your sealed bid has been withdrawn from escrow.'
+                'Your sealed bid has been safely withdrawn from the dual-key chamber.'
               );
             } catch (err: any) {
               Alert.alert('Error', err.message || 'Failed to withdraw bid');
@@ -228,6 +305,7 @@ export const useVendorPortal = () => {
     );
   };
 
+  // Pre-bid Clarifications
   const handleOpenClarification = (t: Tender) => {
     setSelectedTenderForAsk(t);
     setQuestionText('');
@@ -242,39 +320,44 @@ export const useVendorPortal = () => {
     try {
       await askClarification(
         selectedTenderForAsk.id,
+        questionText.trim(),
         vendorCode,
-        vendorName,
-        questionText.trim()
+        vendorName
       );
       setAskModalVisible(false);
       Alert.alert(
-        'Query Submitted',
-        'Your question has been forwarded to the Project Lead & Tender Committee.'
+        'Inquiry Submitted',
+        'Your question has been forwarded to the Bansal Geo Tender Evaluation Committee.'
       );
     } catch (err: any) {
       Alert.alert('Error', err.message || 'Failed to submit clarification');
     }
   };
 
-  const filteredTenders = tenders.filter((t) => {
-    const title = (t.title || '').toLowerCase();
-    const no = (t.tenderNo || t.id || '').toLowerCase();
-    const cat = (t.category || t.tenderCategory || '').toLowerCase();
-    const searchLower = tenderSearch.toLowerCase();
-    const matchesSearch =
-      title.includes(searchLower) ||
-      no.includes(searchLower) ||
-      cat.includes(searchLower);
-    const matchesCat =
-      selectedCategory === 'all' ||
-      (t.category || t.tenderCategory) === selectedCategory;
-    return matchesSearch && matchesCat;
-  });
+  // Search and filter tenders
+  const filteredTenders = useMemo(() => {
+    return tenders.filter((t) => {
+      const title = (t.title || '').toLowerCase();
+      const no = (t.tenderNo || t.id || '').toLowerCase();
+      const cat = (t.category || t.tenderCategory || '').toLowerCase();
+      const searchLower = tenderSearch.toLowerCase();
+      const matchesSearch =
+        title.includes(searchLower) ||
+        no.includes(searchLower) ||
+        cat.includes(searchLower);
+      const matchesCat =
+        selectedCategory === 'all' ||
+        (t.category || t.tenderCategory) === selectedCategory;
+      return matchesSearch && matchesCat;
+    });
+  }, [tenders, tenderSearch, selectedCategory]);
 
   return {
     logout,
     activeTab,
     setActiveTab,
+    notificationsVisible,
+    setNotificationsVisible,
     tenderSearch,
     setTenderSearch,
     selectedCategory,
@@ -282,6 +365,7 @@ export const useVendorPortal = () => {
     filteredTenders,
     vendorName,
     vendorCode,
+    vendorCategory,
     currentVendor,
     myWorkOrders,
     myBids,

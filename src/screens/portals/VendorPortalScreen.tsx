@@ -1,14 +1,15 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import { useVendorPortal } from './useVendorPortal';
 import {
-  styles,
+  vendorTheme,
   VendorPortalHeader,
+  VendorBottomNav,
+  VendorNotificationsModal,
   VendorHomeTab,
   VendorTendersTab,
-  VendorBidsTab,
-  VendorWorkOrdersTab,
-  VendorPaymentsTab,
+  VendorWorkTab,
+  VendorProfileTab,
   VendorPortalModals,
 } from './components';
 
@@ -19,6 +20,8 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
     logout,
     activeTab,
     setActiveTab,
+    notificationsVisible,
+    setNotificationsVisible,
     tenderSearch,
     setTenderSearch,
     selectedCategory,
@@ -26,6 +29,7 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
     filteredTenders,
     vendorName,
     vendorCode,
+    vendorCategory,
     currentVendor,
     myWorkOrders,
     myBids,
@@ -70,33 +74,47 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
     handleOpenClarification,
   } = useVendorPortal();
 
+  // Active unread alerts count
+  const unreadCount =
+    waitingOrders.length +
+    freshTenders.filter((t) => {
+      const closing = new Date(t.submissionDeadline || t.closesAt || '').getTime();
+      const diff = (closing - Date.now()) / (1000 * 60 * 60 * 24);
+      return diff >= 0 && diff <= 3;
+    }).length;
+
   return (
     <View style={styles.container}>
+      {/* 1. VENDOR PROCUREMENT HEADER */}
       <VendorPortalHeader
         vendorName={vendorName}
         vendorCode={vendorCode}
-        onOpenAccountModal={() => setAccountModalVisible(true)}
+        category={currentVendor?.workCategory || currentVendor?.work || vendorCategory}
+        empanelledStatus={currentVendor?.empanelledStatus || 'Empanelled'}
+        unreadNotificationsCount={unreadCount}
+        onOpenNotifications={() => setNotificationsVisible(true)}
         onLogout={logout}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        openTendersCount={openTenders.length}
-        myBidsCount={myBids.length}
-        myWorkOrdersCount={myWorkOrders.length}
-        hasWaitingOrders={waitingOrders.length > 0}
       />
 
-      <ScrollView contentContainerStyle={styles.content}>
+      {/* 2. SCROLLABLE TAB CONTENT BODY */}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {activeTab === 'home' && (
           <VendorHomeTab
             vendorName={vendorName}
+            vendorCode={vendorCode}
             currentVendor={currentVendor}
-            onOpenAccountModal={() => setAccountModalVisible(true)}
             freshTenders={freshTenders}
             myBids={myBids}
             waitingOrders={waitingOrders}
-            totalPaid={totalPaid}
-            setActiveTab={setActiveTab}
             myWorkOrders={myWorkOrders}
+            clarifications={clarifications}
+            totalPaid={totalPaid}
+            totalContract={totalContract}
+            onNavigateTab={(tab) => setActiveTab(tab)}
             handleStartWork={handleStartWork}
             handleOpenDelivery={handleOpenDelivery}
             handleOpenBilling={handleOpenBilling}
@@ -112,43 +130,57 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
             setSelectedCategory={setSelectedCategory}
             filteredTenders={filteredTenders}
             vendorCode={vendorCode}
+            myBids={myBids}
             savedTenders={savedTenders}
             toggleSavedTender={toggleSavedTender}
-            handleOpenClarification={handleOpenClarification}
             navigation={navigation}
           />
         )}
 
-        {activeTab === 'bids' && (
-          <VendorBidsTab
+        {activeTab === 'work' && (
+          <VendorWorkTab
+            myWorkOrders={myWorkOrders}
             myBids={myBids}
             vendorCode={vendorCode}
-            setActiveTab={setActiveTab}
-            handleWithdrawBid={handleWithdrawBid}
-            clarifications={clarifications}
-            navigation={navigation}
-          />
-        )}
-
-        {activeTab === 'workOrders' && (
-          <VendorWorkOrdersTab
-            myWorkOrders={myWorkOrders}
+            vendorName={vendorName}
             handleStartWork={handleStartWork}
             handleOpenDelivery={handleOpenDelivery}
             handleOpenBilling={handleOpenBilling}
+            handleWithdrawBid={handleWithdrawBid}
             navigation={navigation}
           />
         )}
 
-        {activeTab === 'payments' && (
-          <VendorPaymentsTab
-            totalContract={totalContract}
-            totalPaid={totalPaid}
-            myWorkOrders={myWorkOrders}
+        {activeTab === 'profile' && (
+          <VendorProfileTab
+            vendorName={vendorName}
+            vendorCode={vendorCode}
+            currentVendor={currentVendor}
+            onLogout={logout}
+            navigation={navigation}
           />
         )}
       </ScrollView>
 
+      {/* 3. MOBILE-NATIVE 4-DESTINATION BOTTOM NAVIGATION BAR */}
+      <VendorBottomNav
+        activeTab={activeTab}
+        onTabChange={(tab) => setActiveTab(tab)}
+        openTendersCount={freshTenders.length}
+        activeWorkCount={waitingOrders.length}
+      />
+
+      {/* 4. REAL CONTEXTUAL NOTIFICATIONS DRAWER */}
+      <VendorNotificationsModal
+        visible={notificationsVisible}
+        onClose={() => setNotificationsVisible(false)}
+        openTenders={openTenders}
+        myBids={myBids}
+        myWorkOrders={myWorkOrders}
+        navigation={navigation}
+      />
+
+      {/* 5. VENDOR ACTION MODALS (DELIVERY, BILLING, CLARIFICATIONS) */}
       <VendorPortalModals
         accountModalVisible={accountModalVisible}
         setAccountModalVisible={setAccountModalVisible}
@@ -181,3 +213,15 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: vendorTheme.colors.sandstone,
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 20,
+  },
+});

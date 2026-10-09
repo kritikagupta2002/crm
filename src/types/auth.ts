@@ -4,6 +4,14 @@ export type TeamRole = 'admin' | 'hr' | 'accountant' | 'lead' | 'employee';
 
 export type HrmsRole = 'hr' | 'employee';
 
+export type CanonicalRole =
+  | 'super_admin'
+  | 'director'
+  | 'manager'
+  | 'employee'
+  | 'finance_master'
+  | 'accounts_executive';
+
 export type WorkspaceId =
   | 'crm'
   | 'erm'
@@ -12,7 +20,8 @@ export type WorkspaceId =
   | 'hrms'
   | 'expenses'
   | 'finance'
-  | 'mis';
+  | 'mis'
+  | 'field_database';
 
 export interface UserSession {
   id: string;
@@ -21,6 +30,7 @@ export interface UserSession {
   email: string;
   accountType: 'team';
   role: TeamRole;
+  canonicalRole?: CanonicalRole;
   hrmsRole: HrmsRole;
   designation: string;
   department: string;

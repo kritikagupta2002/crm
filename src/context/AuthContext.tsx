@@ -1,18 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
-import { ActiveSession, UserSession, ClientSession, VendorSession, TeamRole, WorkspaceId, AccountType } from '../types';
+import { ActiveSession, UserSession, ClientSession, VendorSession, TeamRole, CanonicalRole, WorkspaceId, AccountType } from '../types';
 import { mobileStorage } from '../storage';
-import { TEAM_PERSONAS, CLIENT_PERSONAS, VENDOR_PERSONAS, WORKSPACE_ACCESS } from '../constants';
+import { TEAM_PERSONAS, CANONICAL_PERSONAS, CLIENT_PERSONAS, VENDOR_PERSONAS, WORKSPACE_ACCESS } from '../constants';
 
 interface AuthContextType {
   session: ActiveSession;
   accountType: AccountType;
   role: TeamRole;
+  canonicalRole: CanonicalRole;
   userRole: TeamRole;
   isLoading: boolean;
-  loginTeam: (role: TeamRole) => Promise<void>;
+  loginTeam: (role: TeamRole, customUser?: UserSession) => Promise<void>;
+  loginCanonical: (canonicalRole: CanonicalRole, customUser?: UserSession) => Promise<void>;
   loginClient: (enquiryId: string, mobile: string) => Promise<boolean>;
   loginVendor: (vendorId: string, mobile: string) => Promise<boolean>;
   switchTeamRole: (role: TeamRole) => Promise<void>;
+  switchCanonicalRole: (canonicalRole: CanonicalRole) => Promise<void>;
   logout: () => Promise<void>;
   resetAppData: () => Promise<void>;
   hasWorkspace: (workspace: WorkspaceId) => boolean;
@@ -59,10 +62,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     bootstrap();
   }, []);
 
-  const loginTeam = useCallback(async (targetRole: TeamRole) => {
-    const persona = TEAM_PERSONAS[targetRole];
+  const loginTeam = useCallback(async (targetRole: TeamRole, customUser?: UserSession) => {
+    const persona = customUser || TEAM_PERSONAS[targetRole];
     if (persona) {
       const activeUser = { ...persona, isExplicitLogin: true };
+      setSession(activeUser);
+      await mobileStorage.setActiveSession(activeUser);
+    }
+  }, []);
+
+  const loginCanonical = useCallback(async (canonicalRole: CanonicalRole, customUser?: UserSession) => {
+    const persona = customUser || CANONICAL_PERSONAS[canonicalRole];
+    if (persona) {
+      const activeUser = { ...persona, canonicalRole, isExplicitLogin: true };
       setSession(activeUser);
       await mobileStorage.setActiveSession(activeUser);
     }
@@ -131,6 +143,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
+  const switchCanonicalRole = useCallback(async (canonicalRole: CanonicalRole) => {
+    const persona = CANONICAL_PERSONAS[canonicalRole];
+    if (persona) {
+      const activeUser = { ...persona, canonicalRole, isExplicitLogin: true };
+      setSession(activeUser);
+      await mobileStorage.setActiveSession(activeUser);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     setSession(null);
     await mobileStorage.setActiveSession(null);
@@ -144,52 +165,135 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const accountType: AccountType = session?.accountType || 'team';
   const role: TeamRole = session?.accountType === 'team' ? (session as UserSession).role : 'employee';
 
+  const canonicalRole: CanonicalRole = useMemo(() => {
+    if (!session || session.accountType !== 'team') return 'employee';
+    const user = session as UserSession;
+    if (user.canonicalRole) return user.canonicalRole;
+    if (user.role === 'admin') return 'super_admin';
+    if (user.role === 'lead') return 'director';
+    if (user.role === 'hr') return 'manager';
+    if (user.role === 'accountant') return 'accounts_executive';
+    return 'employee';
+  }, [session]);
+
   const hasWorkspace = useCallback((workspace: WorkspaceId): boolean => {
     if (!session) return false;
     if (session.accountType !== 'team') return false;
-    const allowed = WORKSPACE_ACCESS[role] || [];
+    const user = session as UserSession;
+
+    // Explicit director restriction: strictly no finance
+    if (canonicalRole === 'director' && workspace === 'finance') {
+      return false;
+    }
+
+    const allowed = user.workspaces || WORKSPACE_ACCESS[role] || [];
     return allowed.includes(workspace);
-  }, [session, role]);
+  }, [session, canonicalRole, role]);
 
   const can = useCallback((action: 'view' | 'manage' | 'approve', module: string): boolean => {
     if (!session) return false;
     if (session.accountType !== 'team') return false;
-    if (role === 'admin') return true;
 
-    if (action === 'approve') {
-      if (module === 'quotes') return false;
-      if (module === 'leave') return role === 'hr';
-      if (module === 'expenses') return role === 'hr' || role === 'accountant';
+    // Super Admin: Full authority
+    if (canonicalRole === 'super_admin') return true;
+
+    // Director: All except Finance
+    if (canonicalRole === 'director') {
+      if (['finance', 'invoices', 'bills', 'vouchers', 'tds', 'gst'].includes(module)) {
+        return false;
+      }
+      return true;
     }
 
-    if (role === 'hr') {
-      return ['hrms', 'expenses', 'mis', 'leave', 'attendance', 'employees', 'organization', 'shifts', 'payroll'].includes(module);
+    // Manager: ERM, HRMS & projects
+    if (canonicalRole === 'manager') {
+      if (['finance', 'invoices', 'bills', 'vouchers', 'tds', 'gst'].includes(module)) return false;
+      if (action === 'approve') {
+        return ['leave', 'tasks', 'expenses'].includes(module);
+      }
+      return ['erm', 'hrms', 'projects', 'tasks', 'team', 'leave', 'attendance', 'shifts', 'expenses', 'documents', 'mis', 'field_database'].includes(module);
     }
-    if (role === 'accountant') {
-      return ['crm', 'vendor', 'hrms', 'expenses', 'finance', 'invoices', 'bills', 'vouchers', 'tds', 'gst'].includes(module);
+
+    // Employee: Personal tasks and HR self-service only
+    if (canonicalRole === 'employee') {
+      if (action === 'approve') return false;
+      if (action === 'manage') {
+        return ['tasks', 'attendance', 'leave_request', 'expense_claim'].includes(module);
+      }
+      return ['tasks', 'attendance', 'leave', 'expenses', 'payslips', 'documents'].includes(module);
     }
-    if (role === 'lead') {
-      return ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'projects', 'tasks', 'tenders'].includes(module);
+
+    // Finance Master: Complete Finance & Accounting Authority
+    if (canonicalRole === 'finance_master') {
+      if (action === 'approve') {
+        return ['invoices', 'bills', 'vouchers', 'expenses', 'settlement', 'tax'].includes(module);
+      }
+      return ['finance', 'expenses', 'vendor', 'mis', 'invoices', 'bills', 'vouchers', 'tds', 'gst', 'budget', 'claims_audit'].includes(module);
     }
-    return ['crm', 'vendor', 'hrms', 'expenses', 'finance', 'attendance', 'leave', 'payslips'].includes(module);
-  }, [session, role]);
+
+    // Accounts Executive: Billing, accounts & books (entry and view)
+    if (canonicalRole === 'accounts_executive') {
+      if (action === 'approve') return false;
+      return ['finance', 'invoices', 'bills', 'vouchers', 'tds', 'gst', 'expenses'].includes(module);
+    }
+
+    return false;
+  }, [session, canonicalRole]);
 
   const hasRole = useCallback((roles: string[] | string): boolean => {
     if (!session || session.accountType !== 'team') return false;
-    const roleList = Array.isArray(roles) ? roles : [roles];
-    return roleList.some(r => ROLE_NAME_MAP[r] === role);
-  }, [session, role]);
+    const roleList = (Array.isArray(roles) ? roles : [roles]).map(r => r.toLowerCase().trim());
+
+    // Super Admin matches all roles
+    if (canonicalRole === 'super_admin') return true;
+
+    // Check direct canonical match
+    if (roleList.includes(canonicalRole.toLowerCase())) return true;
+
+    // Finance Master has full finance and accounting authority, but NOT Super Admin HR/Operations
+    if (canonicalRole === 'finance_master') {
+      return roleList.includes('finance_master') || roleList.includes('accountant') || roleList.includes('finance');
+    }
+
+    // Accounts Executive has accounting and billing authority
+    if (canonicalRole === 'accounts_executive') {
+      return roleList.includes('accounts_executive') || roleList.includes('accountant');
+    }
+
+    // Manager has HR and project management authority
+    if (canonicalRole === 'manager') {
+      return roleList.includes('manager') || roleList.includes('hr');
+    }
+
+    // Director has leadership and management oversight (all except finance)
+    if (canonicalRole === 'director') {
+      return roleList.includes('director') || roleList.includes('lead') || roleList.includes('executive') || roleList.includes('manager');
+    }
+
+    // Employee has employee-only authority
+    if (canonicalRole === 'employee') {
+      return roleList.includes('employee');
+    }
+
+    return roleList.some(r =>
+      r === role.toLowerCase() ||
+      ROLE_NAME_MAP[r] === role
+    );
+  }, [session, canonicalRole, role]);
 
   const value = useMemo<AuthContextType>(() => ({
     session,
     accountType,
     role,
+    canonicalRole,
     userRole: role,
     isLoading,
     loginTeam,
+    loginCanonical,
     loginClient,
     loginVendor,
     switchTeamRole,
+    switchCanonicalRole,
     logout,
     resetAppData,
     hasWorkspace,
@@ -199,11 +303,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     session,
     accountType,
     role,
+    canonicalRole,
     isLoading,
     loginTeam,
+    loginCanonical,
     loginClient,
     loginVendor,
     switchTeamRole,
+    switchCanonicalRole,
     logout,
     resetAppData,
     hasWorkspace,

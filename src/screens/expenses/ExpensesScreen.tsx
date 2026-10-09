@@ -331,31 +331,35 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   );
 
   return (
-    <ScreenContainer edges={['bottom']}>
-      <AppHeader
-        title={isPrivileged ? 'Expense Workspace' : 'My Expenses'}
-        subtitle={
-          isPrivileged
-            ? 'Organization expense audit & disbursement'
-            : 'Field travel, lodging & exploration vouchers'
-        }
-        scenicBanner
-        badge="Expenses & Claims"
-        badgeIcon={<Receipt size={12} color="#0d9488" />}
-        showBack
-        onBack={() => navigation.goBack()}
-        onNotificationPress={() => navigation.navigate('Notifications')}
-        rightAction={
-          <TouchableOpacity
-            style={styles.addClaimHeaderBtn}
-            onPress={() => navigation.navigate('ExpenseClaim')}
-          >
-            <Plus size={16} color="#FFFFFF" />
-            <Text style={styles.addClaimText}>Claim</Text>
-          </TouchableOpacity>
-        }
-      />
-
+    <ScreenContainer
+      scrollable={false}
+      edges={['bottom']}
+      header={
+        <AppHeader
+          title={isPrivileged ? 'Expense Workspace' : 'My Expenses'}
+          subtitle={
+            isPrivileged
+              ? 'Organization expense audit & disbursement'
+              : 'Field travel, lodging & exploration vouchers'
+          }
+          scenicBanner
+          badge="Expenses & Claims"
+          badgeIcon={<Receipt size={12} color="#0d9488" />}
+          showBack
+          onBack={() => navigation.goBack()}
+          onNotificationPress={() => navigation.navigate('Notifications')}
+          rightAction={
+            <TouchableOpacity
+              style={styles.addClaimHeaderBtn}
+              onPress={() => navigation.navigate('ExpenseClaim')}
+            >
+              <Plus size={16} color="#FFFFFF" />
+              <Text style={styles.addClaimText}>Claim</Text>
+            </TouchableOpacity>
+          }
+        />
+      }
+    >
       <FlatList
         data={filteredExpenses}
         keyExtractor={(item) => item.id}

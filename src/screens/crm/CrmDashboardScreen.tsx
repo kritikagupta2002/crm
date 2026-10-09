@@ -263,7 +263,7 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
             <Text style={styles.metricSubtext}>{formatCurrency(summary.wonAmount)} closed</Text>
           </View>
           <View style={styles.metricChartCol}>
-            <DonutMini percentage={summary.conversionRate || 33} color="#059669" />
+            <DonutMini percentage={summary.conversionRate || 0} color="#059669" />
           </View>
         </View>
       </View>

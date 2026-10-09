@@ -187,24 +187,43 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
       </View>
 
       <View style={styles.toolbar}>
-        <View style={styles.searchBar}>
-          <Search size={16} color={colors.textMuted} />
-          <TextInput
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search block, client, authority, site..."
-            placeholderTextColor={colors.textMuted}
-          />
-          {search ? (
-            <TouchableOpacity onPress={() => setSearch('')}>
-              <X size={16} color={colors.textMuted} />
+        <View style={styles.searchRow}>
+          <View style={styles.searchBar}>
+            <Search size={18} color="#64748b" />
+            <TextInput
+              style={styles.searchInput}
+              value={search}
+              onChangeText={setSearch}
+              placeholder="Search block, client, authority, site..."
+              placeholderTextColor="#94a3b8"
+            />
+            {search ? (
+              <TouchableOpacity onPress={() => setSearch('')}>
+                <X size={18} color="#64748b" />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+
+          <View style={styles.viewToggle}>
+            <TouchableOpacity
+              activeOpacity={0.75}
+              style={[styles.viewToggleBtn, viewMode === 'list' && styles.viewToggleBtnActive]}
+              onPress={() => setViewMode('list')}
+            >
+              <List size={18} color={viewMode === 'list' ? colors.primary : '#64748b'} strokeWidth={2.3} />
             </TouchableOpacity>
-          ) : null}
+            <TouchableOpacity
+              activeOpacity={0.75}
+              style={[styles.viewToggleBtn, viewMode === 'timeline' && styles.viewToggleBtnActive]}
+              onPress={() => setViewMode('timeline')}
+            >
+              <GanttChart size={18} color={viewMode === 'timeline' ? colors.primary : '#64748b'} strokeWidth={2.3} />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={styles.viewSwitchRow}>
-          {stageIndex >= 0 && (
+        {stageIndex >= 0 && (
+          <View style={styles.activeFiltersRow}>
             <TouchableOpacity
               style={styles.filterChip}
               onPress={() => setSelectedStageKey(null)}
@@ -212,25 +231,10 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
               <Text style={styles.filterChipText}>
                 Stage: {ERM_STAGES[stageIndex].label}
               </Text>
-              <X size={12} color={colors.primary} />
-            </TouchableOpacity>
-          )}
-
-          <View style={styles.viewToggle}>
-            <TouchableOpacity
-              style={[styles.viewToggleBtn, viewMode === 'list' && styles.viewToggleBtnActive]}
-              onPress={() => setViewMode('list')}
-            >
-              <List size={14} color={viewMode === 'list' ? colors.primary : colors.textMuted} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.viewToggleBtn, viewMode === 'timeline' && styles.viewToggleBtnActive]}
-              onPress={() => setViewMode('timeline')}
-            >
-              <GanttChart size={14} color={viewMode === 'timeline' ? colors.primary : colors.textMuted} />
+              <X size={13} color={colors.primary} />
             </TouchableOpacity>
           </View>
-        </View>
+        )}
       </View>
 
       <View style={styles.tabsWrap}>
@@ -550,216 +554,246 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border.default,
   },
   toolbar: {
-    marginVertical: spacing.xs,
-    gap: spacing.xs,
+    marginVertical: 8,
+    gap: 8,
   },
-  searchBar: {
+  searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    gap: spacing.xs,
+    gap: 8,
+  },
+  searchBar: {
+    flex: 1,
+    height: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    gap: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: typography.fontSizes.xs,
-    color: colors.textPrimary,
-    padding: 0,
+    fontSize: 14,
+    color: '#0f172a',
+    paddingVertical: 0,
   },
-  viewSwitchRow: {
+  viewToggle: {
+    height: 44,
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    borderRadius: 12,
+    padding: 3,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+  },
+  viewToggleBtn: {
+    height: 36,
+    width: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 9,
+  },
+  viewToggleBtnActive: {
+    backgroundColor: '#ffffff',
+    ...shadows.xs,
+  },
+  activeFiltersRow: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     backgroundColor: colors.primary + '15',
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radius.full,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
   filterChipText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 12.5,
     color: colors.primary,
-    fontWeight: typography.fontWeights.semibold,
-  },
-  viewToggle: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.xs,
-    padding: 2,
-    marginLeft: 'auto',
-  },
-  viewToggleBtn: {
-    paddingHorizontal: spacing.xs + 2,
-    paddingVertical: 4,
-    borderRadius: radius.xs - 2,
-  },
-  viewToggleBtnActive: {
-    backgroundColor: colors.surface,
-    ...shadows.sm,
+    fontWeight: '700',
   },
   tabsWrap: {
-    marginBottom: spacing.xs,
+    marginBottom: 8,
   },
   tabsContent: {
-    gap: spacing.xs,
+    gap: 8,
     paddingVertical: 2,
+    paddingRight: 16,
   },
   tabBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 5,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
   },
   tabBtnActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
   tabBtnText: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.medium,
-    color: colors.textSecondary,
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#475569',
   },
   tabBtnTextActive: {
-    color: colors.white,
-    fontWeight: typography.fontWeights.bold,
+    color: '#ffffff',
+    fontWeight: '700',
   },
   tabBadge: {
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: radius.full,
-    backgroundColor: colors.surfaceMuted,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 10,
+    backgroundColor: '#f1f5f9',
   },
   tabBadgeActive: {
-    backgroundColor: colors.white + '30',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   tabBadgeText: {
-    fontSize: typography.fontSizes.xxs,
-    color: colors.textMuted,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 11,
+    color: '#64748b',
+    fontWeight: '800',
   },
   tabBadgeTextActive: {
-    color: colors.white,
+    color: '#ffffff',
   },
   listContent: {
     paddingBottom: spacing.huge,
   },
   card: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
     backgroundColor: '#ffffff',
-    borderRadius: radius.md,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.border.default,
-    padding: 12,
+    borderColor: '#e2e8f0',
+    padding: spacing.md,
+    ...shadows.xs,
   },
   cardTopRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   codeWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
+    gap: 8,
+    flexWrap: 'wrap',
   },
   codeText: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.primary,
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#1d4ed8',
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: '#dbeafe',
   },
   stageTag: {
-    backgroundColor: '#f1f5f9',
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-    borderRadius: radius.xs,
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
   },
   stageTagText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 11,
     color: '#475569',
-    fontWeight: typography.fontWeights.medium,
+    fontWeight: '600',
   },
   projectTitle: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
-    marginBottom: 2,
+    fontSize: 15.5,
+    fontWeight: '800',
+    color: '#0f172a',
+    lineHeight: 21,
+    marginBottom: 4,
   },
   clientSiteRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: spacing.xs,
+    gap: 6,
+    marginBottom: 8,
+    flexWrap: 'wrap',
   },
   clientName: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.medium,
-    color: colors.textSecondary,
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#334155',
   },
   clientText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textSecondary,
+    fontSize: 12.5,
+    color: '#334155',
   },
   dotDivider: {
-    color: colors.textMuted,
-    fontSize: typography.fontSizes.xs,
+    color: '#94a3b8',
+    fontSize: 12,
   },
   siteText: {
-    fontSize: typography.fontSizes.xs,
-    color: colors.textMuted,
+    fontSize: 12,
+    color: '#64748b',
     flex: 1,
   },
   nowAtRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    marginVertical: 4,
+    gap: 6,
+    backgroundColor: '#f8fafc',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    marginVertical: 6,
   },
   nowAtLabel: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748b',
   },
   nowAtValue: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
+    fontSize: 11.5,
+    fontWeight: '700',
+    color: '#0f172a',
     flex: 1,
   },
   progressContainer: {
-    marginTop: 4,
-    marginBottom: spacing.xs,
+    marginTop: 8,
+    marginBottom: 10,
   },
   progressHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 3,
+    marginBottom: 4,
   },
   progressLabel: {
-    fontSize: typography.fontSizes.xxs,
-    color: colors.textMuted,
+    fontSize: 11.5,
+    color: '#64748b',
+    fontWeight: '500',
   },
   progressPercent: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0f172a',
   },
   progressBarBg: {
-    height: 5,
-    backgroundColor: colors.surfaceMuted,
+    height: 7,
+    backgroundColor: '#f1f5f9',
     borderRadius: radius.full,
     overflow: 'hidden',
   },
@@ -771,43 +805,51 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: spacing.xs,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
-    marginTop: 2,
+    borderTopColor: '#f1f5f9',
+    marginTop: 4,
   },
   budgetCol: {
-    flex: 1,
+    flex: 1.2,
   },
   budgetLabel: {
-    fontSize: typography.fontSizes.xxs - 2,
-    color: colors.textMuted,
+    fontSize: 9.5,
+    color: '#94a3b8',
     textTransform: 'uppercase',
+    fontWeight: '700',
+    letterSpacing: 0.4,
+    marginBottom: 1,
   },
   budgetVal: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textPrimary,
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#0f172a',
   },
   teamCol: {
-    flex: 1,
+    flex: 1.2,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
   },
   teamText: {
-    fontSize: typography.fontSizes.xxs,
-    color: colors.textSecondary,
+    fontSize: 11.5,
+    color: '#475569',
+    fontWeight: '500',
   },
   actionCol: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    backgroundColor: '#eff6ff',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radius.full,
   },
   taskCountText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 11,
     color: colors.primary,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: '700',
   },
   timelineCard: {
     marginBottom: spacing.sm,

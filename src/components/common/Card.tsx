@@ -16,7 +16,7 @@ export const Card: React.FC<CardProps> = ({
   variant = 'elevated',
 }) => {
   const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth < 360;
+  const isCompact = screenWidth <= 360;
   const responsivePadding = isCompact ? spacing.md : spacing.lg;
 
   const getVariantStyle = () => {

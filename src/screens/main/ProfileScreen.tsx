@@ -1,12 +1,39 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
-import { Shield, Mail, LogOut, RefreshCw, Check, Building2 } from 'lucide-react-native';
-import { ScreenContainer, AppHeader, Button, ConfirmationModal } from '../../components/common';
-import { colors, spacing, radius, shadows } from '../../theme';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Alert,
+  StatusBar,
+  ImageBackground,
+  useWindowDimensions,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  User,
+  Shield,
+  Settings,
+  Bell,
+  Globe,
+  Crown,
+  FileText,
+  Send,
+  HelpCircle,
+  LogOut,
+  ChevronRight,
+  AlertTriangle,
+  Briefcase,
+  Users,
+  Headphones,
+} from 'lucide-react-native';
+import { colors, radius, shadows } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
-import { TeamRole } from '../../types';
-import { TEAM_PERSONAS } from '../../constants';
+import { ConfirmationModal } from '../../components/common';
 
+const heroBannerImg = require('../../../assets/hero-banner.jpg');
 const drRajeshImg = require('../../../assets/dr-rajesh-bansal.jpg');
 
 interface ProfileScreenProps {
@@ -14,210 +41,333 @@ interface ProfileScreenProps {
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
-  const { session, role, switchTeamRole, logout, resetAppData } = useAuth();
+  const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
+  const isCompact = screenWidth <= 360;
+
+  const { logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [resetting, setResetting] = useState(false);
 
-  const handleResetDemoData = async () => {
-    Alert.alert(
-      'Reset Demo Storage',
-      'This will reset all local CRM, HRMS, and Finance data back to factory defaults. Continue?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: async () => {
-            setResetting(true);
-            try {
-              await resetAppData();
-              Alert.alert('Reset Complete', 'Local data re-initialized.');
-            } catch (e: any) {
-              Alert.alert('Error', e.message);
-            } finally {
-              setResetting(false);
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  const handleRoleSwitch = (targetRole: TeamRole) => {
-    switchTeamRole(targetRole);
-    Alert.alert('Role Switched', `Switched active persona to ${targetRole.toUpperCase()}`);
-  };
+  const userName = 'Dr. Rajesh Bansal';
 
   return (
-    <ScreenContainer
-      scrollable
-      header={
-        <AppHeader
-          title="Account & Profile"
-          subtitle="User settings & operational security"
-          badge="Executive Profile"
-          onNotificationPress={() => navigation.navigate('Notifications')}
-        />
-      }
-    >
-      {/* Profile Identity Header Block */}
-      <View style={styles.identityCard}>
-        <Image source={drRajeshImg} style={styles.avatarImage} />
-        <View style={styles.identityInfoCol}>
-          <Text style={styles.nameText}>
-            {(session as any)?.name || 'Dr. Rajesh Bansal'}
-          </Text>
-          <Text style={styles.designationText} numberOfLines={1}>
-            {(session as any)?.designation || 'Managing Director & Chief Geoscientist'}
-          </Text>
-          <View style={styles.badgeRow}>
-            <View style={styles.roleTag}>
-              <Text style={styles.roleTagText}>{role.toUpperCase()}</Text>
-            </View>
-            <View style={styles.idTag}>
-              <Text style={styles.idTagText}>ID: {(session as any).employeeId || 'EMP-001'}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
-      {/* Account Information Settings Group */}
-      <Text style={styles.groupHeader}>Account Information</Text>
-      <View style={styles.settingsGroup}>
-        <View style={styles.settingsRow}>
-          <View style={styles.rowIconBox}>
-            <Mail size={16} color={colors.primaryDark} strokeWidth={2} />
-          </View>
-          <View style={styles.rowTextCol}>
-            <Text style={styles.rowLabel}>Work Email</Text>
-            <Text style={styles.rowValue}>{(session as any)?.email || 'rajesh.bansal@bansalgeo.com'}</Text>
-          </View>
-        </View>
-
-        <View style={styles.rowDivider} />
-
-        <View style={styles.settingsRow}>
-          <View style={styles.rowIconBox}>
-            <Building2 size={16} color={colors.primaryDark} strokeWidth={2} />
-          </View>
-          <View style={styles.rowTextCol}>
-            <Text style={styles.rowLabel}>Organization</Text>
-            <Text style={styles.rowValue}>Bansal Geological Services Pvt Ltd</Text>
-          </View>
-        </View>
-
-        <View style={styles.rowDivider} />
-
-        <View style={styles.settingsRow}>
-          <View style={styles.rowIconBox}>
-            <Shield size={16} color={colors.primaryDark} strokeWidth={2} />
-          </View>
-          <View style={styles.rowTextCol}>
-            <Text style={styles.rowLabel}>Access Tier</Text>
-            <Text style={styles.rowValue}>Executive Level • 8 Workspaces Authorized</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Persona Switcher (Administrative / Testing) */}
-      {session?.accountType === 'team' ? (
-        <>
-          <Text style={styles.groupHeader}>TESTING / DEMO / ROLE PREVIEW</Text>
-          <View style={styles.settingsGroup}>
-            {(['admin', 'hr', 'accountant', 'lead', 'employee'] as TeamRole[]).map((r, idx) => {
-              const isCurrent = role === r;
-              const p = TEAM_PERSONAS[r];
-              const isLast = idx === 4;
-
-              return (
-                <React.Fragment key={r}>
-                  <TouchableOpacity
-                    activeOpacity={0.7}
-                    onPress={() => handleRoleSwitch(r)}
-                    style={[styles.personaRow, isCurrent && styles.personaRowActive]}
-                  >
-                    <View style={styles.personaTextCol}>
-                      <View style={styles.personaTitleRow}>
-                        <Text style={[styles.personaRoleTitle, isCurrent && styles.personaRoleTitleActive]}>
-                          {r.toUpperCase()}
-                        </Text>
-                        <Text style={styles.personaName} numberOfLines={1} ellipsizeMode="tail">
-                          — {p.name}
-                        </Text>
-                      </View>
-                      <Text style={styles.personaDesignation} numberOfLines={1}>
-                        {p.designation} • {p.department}
-                      </Text>
-                    </View>
-
-                    {isCurrent ? (
-                      <View style={styles.activeCheckPill}>
-                        <Check size={12} color="#ffffff" strokeWidth={3} />
-                      </View>
-                    ) : (
-                      <View style={styles.inactiveDot} />
-                    )}
-                  </TouchableOpacity>
-                  {!isLast ? <View style={styles.rowDivider} /> : null}
-                </React.Fragment>
-              );
-            })}
-          </View>
-        </>
-      ) : null}
-
-      {/* Demo Data Management */}
-      <Text style={styles.groupHeader}>Data & Storage</Text>
-      <View style={styles.settingsGroup}>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={handleResetDemoData}
-          style={styles.settingsActionRow}
-          disabled={resetting}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top Mountain Panoramic Hero Banner */}
+        <ImageBackground
+          source={heroBannerImg}
+          style={[styles.heroBanner, { paddingTop: Math.max(insets.top + 12, 38) }]}
+          resizeMode="cover"
         >
-          <View style={styles.rowIconBox}>
-            <RefreshCw size={16} color={colors.warning} strokeWidth={2} />
-          </View>
-          <View style={styles.rowTextCol}>
-            <Text style={styles.rowLabelDanger}>Reset Local Mock Storage</Text>
-            <Text style={styles.rowSub}>Restore local factory default mock state</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
+          <View style={styles.heroOverlay} />
 
-      {/* About Application */}
-      <Text style={styles.groupHeader}>About Application</Text>
-      <View style={styles.settingsGroup}>
-        <View style={styles.settingsRow}>
-          <View style={styles.rowTextCol}>
-            <Text style={styles.rowLabel}>Version</Text>
-            <Text style={styles.rowValue}>v2.4.1 (Enterprise Native Build)</Text>
+          {/* Profile Header Line */}
+          <View style={styles.profileHeaderRow}>
+            {/* Avatar with Gold Crown */}
+            <View style={styles.avatarWrapper}>
+              <Image source={drRajeshImg} style={styles.avatarImage} />
+              <View style={styles.avatarBadge}>
+                <Crown size={11} color="#ffffff" strokeWidth={2.4} />
+              </View>
+            </View>
+
+            {/* Name, Role & Company */}
+            <View style={styles.profileInfoCol}>
+              <Text style={styles.profileName}>{userName}</Text>
+              <View style={styles.roleTag}>
+                <Text style={styles.roleTagText}>SUPER ADMIN</Text>
+              </View>
+              <Text style={styles.companyName}>Bansal Geo Solutions Pvt. Ltd.</Text>
+            </View>
+
+            {/* Right Metrics Strip: Projects & Employees */}
+            <View style={styles.headerMetricsRow}>
+              <View style={styles.headerMetricCol}>
+                <Briefcase size={16} color="#cbd5e1" strokeWidth={2.2} style={{ marginBottom: 2 }} />
+                <Text style={styles.headerMetricVal}>5</Text>
+                <Text style={styles.headerMetricLabel}>Projects</Text>
+              </View>
+
+              <View style={styles.headerMetricDivider} />
+
+              <View style={styles.headerMetricCol}>
+                <Users size={16} color="#cbd5e1" strokeWidth={2.2} style={{ marginBottom: 2 }} />
+                <Text style={styles.headerMetricVal}>87</Text>
+                <Text style={styles.headerMetricLabel}>Employees</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Tagline below */}
+          <Text style={styles.heroMotto}>“Exploring Sustainable Opportunities”</Text>
+        </ImageBackground>
+
+        <View style={[styles.bodyContent, isCompact && { paddingHorizontal: 8 }]}>
+          {/* Section 1: ACCOUNT */}
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeaderRow}>
+              <User size={15} color="#64748b" strokeWidth={2.2} />
+              <Text style={styles.sectionHeaderText}>ACCOUNT</Text>
+            </View>
+
+            <View style={styles.cardContainer}>
+              {/* Personal Information */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() =>
+                  Alert.alert(
+                    'Personal Information',
+                    `Name: ${userName}\nEmail: rajesh.bansal@bansalgeo.com\nDesignation: Managing Director & Chief Geoscientist\nEmployee ID: BGS-MD-001`
+                  )
+                }
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <User size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Personal Information</Text>
+                  <Text style={styles.menuSubtitle}>Contact details, profile photo, designation</Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+
+              <View style={styles.menuDivider} />
+
+              {/* Account & Security */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() =>
+                  Alert.alert(
+                    'Account & Security',
+                    '2-Factor Authentication: Enabled\nBiometrics: Active\nActive Sessions: 1 (Android Device)'
+                  )
+                }
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <Shield size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Account & Security</Text>
+                  <Text style={styles.menuSubtitle}>
+                    Password, biometrics, 2FA, active sessions
+                  </Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Section 2: APP PREFERENCES */}
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeaderRow}>
+              <Settings size={16} color="#64748b" strokeWidth={2.3} />
+              <Text style={styles.sectionHeaderText}>APP PREFERENCES</Text>
+            </View>
+
+            <View style={styles.cardContainer}>
+              {/* App Settings */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() =>
+                  Alert.alert('App Settings', 'Theme: System Light\nOffline Sync: Enabled\nStorage Limit: 250MB')
+                }
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <Settings size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>App Settings</Text>
+                  <Text style={styles.menuSubtitle}>
+                    Theme, offline sync, storage limit (250MB)
+                  </Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+
+              <View style={styles.menuDivider} />
+
+              {/* Notifications */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => navigation.navigate('AlertsTab')}
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <Bell size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Notifications</Text>
+                  <Text style={styles.menuSubtitle}>
+                    Push alerts, email notifications, quiet hours
+                  </Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+
+              <View style={styles.menuDivider} />
+
+              {/* Language */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() =>
+                  Alert.alert('Language', 'Current system language: English (India)')
+                }
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <Globe size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Language</Text>
+                  <Text style={styles.menuSubtitle}>System language and regional format</Text>
+                </View>
+                <View style={styles.badgePill}>
+                  <Text style={styles.badgeText}>English</Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Section 3: ADMINISTRATION */}
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeaderRow}>
+              <Crown size={16} color="#64748b" strokeWidth={2.3} />
+              <Text style={styles.sectionHeaderText}>ADMINISTRATION</Text>
+            </View>
+
+            <View style={styles.cardContainer}>
+              {/* Switch Role */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => navigation.navigate('RoleSelection')}
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#fefce8' }]}>
+                  <Users size={22} color="#d97706" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Switch Role</Text>
+                  <Text style={styles.menuSubtitle}>Change operational perspective</Text>
+                </View>
+                <View style={[styles.badgePill, { backgroundColor: '#fef3c7' }]}>
+                  <Text style={[styles.badgeText, { color: '#92400e' }]}>Super Admin</Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+
+              <View style={styles.menuDivider} />
+
+              {/* Audit Log */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => navigation.navigate('MisReports')}
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <FileText size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Audit Log</Text>
+                  <Text style={styles.menuSubtitle}>System activities & compliance trail</Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+
+              <View style={styles.menuDivider} />
+
+              {/* Sent Messages */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() =>
+                  Alert.alert('Sent Messages', 'No active external broadcast dispatches.')
+                }
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <Send size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Sent Messages</Text>
+                  <Text style={styles.menuSubtitle}>Broadcast logs & operational dispatches</Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Section 4: SUPPORT */}
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeaderRow}>
+              <HelpCircle size={16} color="#64748b" strokeWidth={2.3} />
+              <Text style={styles.sectionHeaderText}>SUPPORT</Text>
+            </View>
+
+            <View style={styles.cardContainer}>
+              {/* Help & Support */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() =>
+                  Alert.alert(
+                    'Helpdesk Support',
+                    'Contact IT Support: it-ops@bansalgeo.com\nHelpline: +91 (0141) 2984-GEO'
+                  )
+                }
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
+                  <Headphones size={22} color="#2563eb" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={styles.menuTitle}>Help & Support</Text>
+                  <Text style={styles.menuSubtitle}>Knowledge base, FAQs & IT helpdesk</Text>
+                </View>
+                <ChevronRight size={18} color="#94a3b8" />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Section 5: DANGER ZONE */}
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeaderRow}>
+              <AlertTriangle size={16} color="#dc2626" strokeWidth={2.3} />
+              <Text style={[styles.sectionHeaderText, { color: '#dc2626' }]}>DANGER ZONE</Text>
+            </View>
+
+            <View style={[styles.cardContainer, styles.dangerCardContainer]}>
+              {/* Sign Out */}
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => setShowLogoutModal(true)}
+                style={styles.menuRow}
+              >
+                <View style={[styles.iconBox, { backgroundColor: '#fef2f2' }]}>
+                  <LogOut size={22} color="#dc2626" strokeWidth={2.3} />
+                </View>
+                <View style={styles.menuInfoCol}>
+                  <Text style={[styles.menuTitle, { color: '#dc2626' }]}>Sign Out</Text>
+                  <Text style={styles.menuSubtitle}>Sign out from your account</Text>
+                </View>
+                <ChevronRight size={18} color="#ef4444" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-        <View style={styles.rowDivider} />
-        <View style={styles.settingsRow}>
-          <View style={styles.rowTextCol}>
-            <Text style={styles.rowLabel}>Governance & Security</Text>
-            <Text style={styles.rowValue}>Offline-First • ISO 9001:2015 & DGMS Compliant</Text>
-          </View>
-        </View>
-      </View>
+      </ScrollView>
 
-      {/* Session Sign Out */}
-      <Button
-        title="Sign Out of Session"
-        variant="secondary"
-        size="md"
-        onPress={() => setShowLogoutModal(true)}
-        icon={<LogOut size={16} color={colors.danger} />}
-        textStyle={{ color: colors.danger }}
-        style={styles.logoutBtn}
-      />
-
+      {/* Confirmation Modals */}
       <ConfirmationModal
         visible={showLogoutModal}
         title="Sign Out"
-        message="Are you sure you want to end your active session?"
+        message="Are you sure you want to end your Super Admin session?"
         confirmText="Sign Out"
         confirmVariant="danger"
         onConfirm={async () => {
@@ -226,209 +376,201 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         }}
         onCancel={() => setShowLogoutModal(false)}
       />
-    </ScreenContainer>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  /* Identity Card */
-  identityCard: {
+  container: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+  },
+  scrollContent: {
+    paddingBottom: 110,
+  },
+
+  /* Top Mountain Hero Banner */
+  heroBanner: {
+    paddingHorizontal: 12,
+    paddingBottom: 18,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(10, 25, 47, 0.78)',
+  },
+  profileHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: spacing.lg,
-    marginTop: spacing.xs,
-    ...shadows.xs,
+    zIndex: 1,
+  },
+  avatarWrapper: {
+    position: 'relative',
+    marginRight: 11,
   },
   avatarImage: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    borderWidth: 2,
-    borderColor: colors.primaryDark,
-    marginRight: spacing.md,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 2.5,
+    borderColor: '#ffffff',
   },
-  identityInfoCol: {
+  avatarBadge: {
+    position: 'absolute',
+    bottom: -1,
+    right: -1,
+    backgroundColor: '#f59e0b',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: '#ffffff',
+  },
+  profileInfoCol: {
     flex: 1,
   },
-  nameText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    letterSpacing: -0.2,
-  },
-  designationText: {
-    fontSize: 11.5,
-    color: colors.textSecondary,
-    marginTop: 1,
-    fontWeight: '400',
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 6,
+  profileName: {
+    fontSize: 21,
+    fontWeight: '900',
+    color: '#ffffff',
+    letterSpacing: -0.3,
   },
   roleTag: {
-    backgroundColor: colors.primaryBg,
-    paddingHorizontal: 7,
-    paddingVertical: 1.5,
-    borderRadius: radius.sm,
-    borderWidth: 1,
-    borderColor: '#99f6e4',
+    backgroundColor: '#fef3c7',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+    marginTop: 3,
+    marginBottom: 3,
   },
   roleTagText: {
-    fontSize: 9.5,
-    fontWeight: '700',
-    color: colors.primaryDark,
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#92400e',
+    letterSpacing: 0.5,
   },
-  idTag: {
-    backgroundColor: colors.surfaceSubtle,
-    paddingHorizontal: 7,
-    paddingVertical: 1.5,
-    borderRadius: radius.sm,
-  },
-  idTagText: {
-    fontSize: 9.5,
+  companyName: {
+    fontSize: 13,
+    color: '#cbd5e1',
     fontWeight: '600',
-    color: colors.textMuted,
   },
-
-  /* Group Header */
-  groupHeader: {
+  headerMetricsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.14)',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginLeft: 6,
+  },
+  headerMetricCol: {
+    alignItems: 'center',
+    paddingHorizontal: 6,
+  },
+  headerMetricVal: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#ffffff',
+  },
+  headerMetricLabel: {
     fontSize: 11,
+    color: '#cbd5e1',
     fontWeight: '700',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    marginBottom: spacing.xs + 2,
-    marginLeft: 2,
+  },
+  headerMetricDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    marginHorizontal: 4,
+  },
+  heroMotto: {
+    fontSize: 14,
+    fontStyle: 'italic',
+    color: '#e2e8f0',
+    marginTop: 12,
+    zIndex: 1,
   },
 
-  /* Settings Group Container */
-  settingsGroup: {
+  /* Body Content & Sections */
+  bodyContent: {
+    paddingHorizontal: 12,
+    paddingTop: 16,
+  },
+  sectionContainer: {
+    marginBottom: 18,
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+    paddingHorizontal: 4,
+  },
+  sectionHeaderText: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#64748b',
+    letterSpacing: 0.9,
+  },
+  cardContainer: {
     backgroundColor: '#ffffff',
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: spacing.lg,
+    borderRadius: 18,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
     overflow: 'hidden',
     ...shadows.xs,
   },
-  settingsRow: {
+  dangerCardContainer: {
+    borderColor: '#fee2e2',
+  },
+  menuRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.sm + 3,
-    paddingHorizontal: spacing.md,
+    paddingVertical: 15,
+    paddingHorizontal: 16,
   },
-  settingsActionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm + 4,
-    paddingHorizontal: spacing.md,
-  },
-  rowIconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surfaceSubtle,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md - 2,
-  },
-  rowTextCol: {
-    flex: 1,
-  },
-  rowLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: colors.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-  rowLabelDanger: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  rowValue: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginTop: 1,
-  },
-  rowSub: {
-    fontSize: 11,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  rowDivider: {
+  menuDivider: {
     height: 1,
-    backgroundColor: colors.borderLight,
-    marginLeft: spacing.md + 32,
+    backgroundColor: '#f1f5f9',
+    marginLeft: 78,
   },
-
-  /* Persona Row */
-  personaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.sm + 2,
-    paddingHorizontal: spacing.md,
-  },
-  personaRowActive: {
-    backgroundColor: colors.primaryBg,
-  },
-  personaTextCol: {
-    flex: 1,
-    paddingRight: spacing.sm,
-  },
-  personaTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  personaRoleTitle: {
-    fontSize: 12.5,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  personaRoleTitleActive: {
-    color: colors.primaryDark,
-  },
-  personaName: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  personaDesignation: {
-    fontSize: 10.5,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  activeCheckPill: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: colors.primaryDark,
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 14,
   },
-  inactiveDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: colors.borderDark,
+  menuInfoCol: {
+    flex: 1,
+    marginRight: 8,
   },
-
-  logoutBtn: {
-    marginTop: spacing.xs,
-    marginBottom: spacing.xxl,
-    borderColor: colors.border.default,
+  menuTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#0f172a',
+  },
+  menuSubtitle: {
+    fontSize: 13,
+    color: '#64748b',
+    marginTop: 3,
+    lineHeight: 18,
+  },
+  badgePill: {
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 10,
+    paddingVertical: 4.5,
+    borderRadius: 12,
+    marginRight: 6,
+  },
+  badgeText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#0f172a',
   },
 });

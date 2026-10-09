@@ -65,6 +65,9 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
   const isTenderManager = (role as any) === 'tender_manager' || (role as any) === 'director' || (role as any) === 'admin';
   const isVendorUser = session?.accountType === 'vendor' || (role as any) === 'vendor';
 
+  const currentVendorId = (session as any)?.vendorId || (session as any)?.id || 'VND-2026-014';
+  const currentVendorName = (session as any)?.vendorName || (session as any)?.name || 'Apex Drilling & Coring Pvt Ltd';
+
   const tender = tenders.find((t) => t.id === tenderId);
 
   const [activeTab, setActiveTab] = useState<'spec' | 'bids' | 'clarifications' | 'documents'>('spec');
@@ -88,6 +91,17 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
   const tenderClarifications = useMemo(() => {
     return clarifications.filter((c) => c.tenderId === tenderId);
   }, [clarifications, tenderId]);
+
+  const myVendorBid = useMemo(() => {
+    if (!tender) return null;
+    return tender.sealedBids.find(
+      (b) =>
+        b.vendorId === currentVendorId ||
+        b.vendorId === (session as any)?.id ||
+        (b.vendorName && b.vendorName.toLowerCase().includes('apex')) ||
+        (currentVendorId === 'VND-2026-014' && (b.vendorId === 'ven-001' || b.vendorId === 'VN-01'))
+    );
+  }, [tender, currentVendorId, session]);
 
   if (!tender) {
     return (
@@ -122,7 +136,14 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       return;
     }
 
-    const bidderVendor = vendors.find((v) => v.id === selectedBidVendorId) || vendors[0];
+    const bidderVendor = isVendorUser
+      ? {
+          id: currentVendorId,
+          name: currentVendorName,
+          contact: (session as any)?.contactPerson || 'Harish Mehta',
+          phone: (session as any)?.mobile || '9811223344',
+        }
+      : vendors.find((v) => v.id === selectedBidVendorId) || vendors[0];
 
     setIsSubmittingBid(true);
     try {
@@ -261,7 +282,9 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
           onPress={() => setActiveTab('bids')}
         >
           <Text style={[styles.tabBtnText, activeTab === 'bids' && styles.tabBtnTextActive]}>
-            Sealed Bids ({liveBids.length})
+            {isVendorUser
+              ? `My Bid (${myVendorBid && myVendorBid.status !== 'Withdrawn' ? '1' : '0'})`
+              : `Sealed Bids (${liveBids.length})`}
           </Text>
         </TouchableOpacity>
 
@@ -324,66 +347,143 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
 
       {activeTab === 'bids' && (
         <View style={styles.tabSection}>
-          {sealedCount > 0 && phase !== 'Allotted' && (
-            <Card style={styles.chamberWarningCard}>
-              <View style={styles.chamberWarningHeader}>
-                <Lock size={20} color={colors.accent} />
-                <Text style={styles.chamberWarningTitle}>Dual-Key Cryptographic Vault</Text>
-              </View>
-              <Text style={styles.chamberWarningDesc}>
-                In accordance with sealed bidding protocols, vendor quotation amounts remain masked and strictly inaccessible to all staff until the official closing date and dual-key ceremony.
-              </Text>
-              {isTenderManager && (
-                <Button
-                  title="Go to Dual-Key Unsealing Ceremony"
-                  variant="primary"
-                  size="small"
-                  style={{ alignSelf: 'flex-start', marginTop: spacing.xs }}
-                  onPress={() => navigation.navigate('SealedBidding', { tenderId: tender.id })}
-                />
-              )}
-            </Card>
-          )}
-
-          {liveBids.length === 0 ? (
-            <Card style={styles.contentCard}>
-              <Text style={styles.mutedText}>No vendor bids lodged on this tender yet.</Text>
-            </Card>
-          ) : (
-            liveBids.map((b) => (
-              <Card key={b.id} style={styles.bidCard}>
+          {isVendorUser ? (
+            /* EXTERNAL VENDOR: STRICT DATA ISOLATION - SHOW ONLY AUTHENTICATED VENDOR'S BID */
+            myVendorBid && myVendorBid.status !== 'Withdrawn' ? (
+              <Card style={styles.bidCard}>
                 <View style={styles.bidTop}>
                   <View>
-                    <Text style={styles.bidIdText}>{b.id}</Text>
-                    <Text style={styles.bidVendorName}>{b.vendorName}</Text>
+                    <Text style={styles.bidIdText}>Bid Ref: {myVendorBid.id}</Text>
+                    <Text style={styles.bidVendorName}>{myVendorBid.vendorName}</Text>
                   </View>
-                  <StatusBadge status={b.status || 'Submitted'} size="small" />
+                  <StatusBadge status={myVendorBid.status || 'Submitted'} size="small" />
                 </View>
 
                 <View style={styles.bidAmountRow}>
                   <Text style={styles.bidAmountLabel}>COMMERCIAL QUOTATION:</Text>
-                  {b.isSealed ? (
-                    <View style={styles.sealedMaskBadge}>
-                      <Lock size={12} color={colors.accent} />
-                      <Text style={styles.sealedMaskText}>SEALED ENCRYPTED QUOTATION</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.unsealedAmountText}>{formatCurrency(b.bidAmount)}</Text>
-                  )}
+                  <Text style={styles.unsealedAmountText}>{formatCurrency(myVendorBid.bidAmount)}</Text>
+                </View>
+
+                <View style={styles.sealedMaskBadge}>
+                  <Lock size={12} color={colors.accent} />
+                  <Text style={styles.sealedMaskText}>SEALED ENCRYPTED IN DUAL-KEY ESCROW</Text>
                 </View>
 
                 <View style={styles.bidFooter}>
                   <Text style={styles.bidTimeText}>
-                    Submitted: {b.submissionDate || b.submittedAt?.slice(0, 10)}
+                    Submitted: {myVendorBid.submissionDate || myVendorBid.submittedAt?.slice(0, 10)}
                   </Text>
-                  {phase === 'Open' && (isVendorUser || isDirector) && (
-                    <TouchableOpacity onPress={() => withdrawBid(tender.id, b.vendorId)}>
+                  {phase === 'Open' && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        Alert.alert(
+                          'Withdraw Bid',
+                          'Are you sure you want to withdraw your sealed bid? You can resubmit while the tender remains open.',
+                          [
+                            { text: 'Keep Bid', style: 'cancel' },
+                            {
+                              text: 'Withdraw Bid',
+                              style: 'destructive',
+                              onPress: async () => {
+                                try {
+                                  await withdrawBid(tender.id, myVendorBid.vendorId);
+                                  Alert.alert('Bid Withdrawn', 'Your sealed bid has been safely withdrawn.');
+                                } catch (err: any) {
+                                  Alert.alert('Error', err.message || 'Failed to withdraw bid');
+                                }
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                    >
                       <Text style={styles.withdrawLink}>Withdraw Bid</Text>
                     </TouchableOpacity>
                   )}
                 </View>
               </Card>
-            ))
+            ) : (
+              <Card style={styles.contentCard}>
+                <Text style={styles.cardHeading}>No Sealed Bid Submitted</Text>
+                <Text style={styles.mutedText}>
+                  Your firm has not submitted a commercial quotation for this subcontract notice.
+                </Text>
+                {phase === 'Open' && (
+                  <Button
+                    title="Submit Sealed Quotation"
+                    variant="primary"
+                    size="small"
+                    style={{ alignSelf: 'flex-start', marginTop: spacing.sm }}
+                    onPress={() => setShowBidModal(true)}
+                  />
+                )}
+              </Card>
+            )
+          ) : (
+            /* INTERNAL STAFF / TENDER COMMITTEE VIEW */
+            <>
+              {sealedCount > 0 && phase !== 'Allotted' && (
+                <Card style={styles.chamberWarningCard}>
+                  <View style={styles.chamberWarningHeader}>
+                    <Lock size={20} color={colors.accent} />
+                    <Text style={styles.chamberWarningTitle}>Dual-Key Cryptographic Vault</Text>
+                  </View>
+                  <Text style={styles.chamberWarningDesc}>
+                    In accordance with sealed bidding protocols, vendor quotation amounts remain masked and strictly inaccessible to all staff until the official closing date and dual-key ceremony.
+                  </Text>
+                  {isTenderManager && (
+                    <Button
+                      title="Go to Dual-Key Unsealing Ceremony"
+                      variant="primary"
+                      size="small"
+                      style={{ alignSelf: 'flex-start', marginTop: spacing.xs }}
+                      onPress={() => navigation.navigate('SealedBidding', { tenderId: tender.id })}
+                    />
+                  )}
+                </Card>
+              )}
+
+              {liveBids.length === 0 ? (
+                <Card style={styles.contentCard}>
+                  <Text style={styles.mutedText}>No vendor bids lodged on this tender yet.</Text>
+                </Card>
+              ) : (
+                liveBids.map((b) => (
+                  <Card key={b.id} style={styles.bidCard}>
+                    <View style={styles.bidTop}>
+                      <View>
+                        <Text style={styles.bidIdText}>{b.id}</Text>
+                        <Text style={styles.bidVendorName}>{b.vendorName}</Text>
+                      </View>
+                      <StatusBadge status={b.status || 'Submitted'} size="small" />
+                    </View>
+
+                    <View style={styles.bidAmountRow}>
+                      <Text style={styles.bidAmountLabel}>COMMERCIAL QUOTATION:</Text>
+                      {b.isSealed ? (
+                        <View style={styles.sealedMaskBadge}>
+                          <Lock size={12} color={colors.accent} />
+                          <Text style={styles.sealedMaskText}>SEALED ENCRYPTED QUOTATION</Text>
+                        </View>
+                      ) : (
+                        <Text style={styles.unsealedAmountText}>{formatCurrency(b.bidAmount)}</Text>
+                      )}
+                    </View>
+
+                    <View style={styles.bidFooter}>
+                      <Text style={styles.bidTimeText}>
+                        Submitted: {b.submissionDate || b.submittedAt?.slice(0, 10)}
+                      </Text>
+                      {phase === 'Open' && (isVendorUser || isDirector) && (
+                        <TouchableOpacity onPress={() => withdrawBid(tender.id, b.vendorId)}>
+                          <Text style={styles.withdrawLink}>Withdraw Bid</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </Card>
+                ))
+              )}
+            </>
           )}
         </View>
       )}
@@ -487,19 +587,27 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
 
               <ScrollView contentContainerStyle={styles.sheetContent}>
                 <Text style={styles.fieldLabel}>BIDDING FIRM *</Text>
-                <View style={styles.vendorSelectorWrap}>
-                  {vendors.map((v) => (
-                    <TouchableOpacity
-                      key={v.id}
-                      style={[styles.vendorSelectChip, selectedBidVendorId === v.id && styles.vendorSelectChipActive]}
-                      onPress={() => setSelectedBidVendorId(v.id)}
-                    >
-                      <Text style={[styles.vendorSelectText, selectedBidVendorId === v.id && styles.vendorSelectTextActive]}>
-                        {v.name} ({v.id})
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
+                {isVendorUser ? (
+                  <View style={[styles.textInput, { justifyContent: 'center', backgroundColor: '#f1f5f9', paddingVertical: 12 }]}>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textPrimary }}>
+                      {currentVendorName} ({currentVendorId})
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.vendorSelectorWrap}>
+                    {vendors.map((v) => (
+                      <TouchableOpacity
+                        key={v.id}
+                        style={[styles.vendorSelectChip, selectedBidVendorId === v.id && styles.vendorSelectChipActive]}
+                        onPress={() => setSelectedBidVendorId(v.id)}
+                      >
+                        <Text style={[styles.vendorSelectText, selectedBidVendorId === v.id && styles.vendorSelectTextActive]}>
+                          {v.name} ({v.id})
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
 
                 <Text style={styles.fieldLabel}>TOTAL QUOTATION AMOUNT (EXCLUDING GST) (₹) *</Text>
                 <TextInput
@@ -659,29 +767,31 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   tenderIdBadge: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 13,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.primary,
     backgroundColor: colors.primaryBg,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: radius.xs,
+    paddingHorizontal: 9,
+    paddingVertical: 3.5,
+    borderRadius: radius.sm,
   },
   tenderMainTitle: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 18.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
-    marginBottom: 2,
+    lineHeight: 25,
+    marginBottom: 4,
   },
   categorySub: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.medium,
     color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
   kpiRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.sm,
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: colors.surfaceMuted,
@@ -691,13 +801,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   kpiLabel: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 11,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textMuted,
-    marginBottom: 2,
+    letterSpacing: 0.5,
+    marginBottom: 3,
   },
   kpiVal: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 14.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   headerActionRow: {
@@ -707,10 +819,10 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xs,
   },
   bookmarkBtn: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 9,
     borderRadius: radius.md,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: colors.border.default,
   },
   bookmarkBtnActive: {
@@ -718,17 +830,18 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   bookmarkBtnText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textSecondary,
   },
   bookmarkBtnTextActive: {
     color: colors.primaryDark,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
   tabContainer: {
     flexDirection: 'row',
     backgroundColor: colors.surface,
-    padding: 4,
+    padding: 5,
     borderRadius: radius.lg,
     marginBottom: spacing.sm,
     borderWidth: 1,
@@ -736,7 +849,7 @@ const styles = StyleSheet.create({
   },
   tabBtn: {
     flex: 1,
-    paddingVertical: spacing.xs + 2,
+    paddingVertical: 8,
     alignItems: 'center',
     borderRadius: radius.md,
   },
@@ -744,13 +857,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   tabBtnText: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.medium,
+    fontSize: 12,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.textSecondary,
   },
   tabBtnTextActive: {
     color: colors.surface,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
   tabSection: {
     gap: spacing.sm,
@@ -760,31 +873,31 @@ const styles = StyleSheet.create({
     padding: spacing.md,
   },
   cardHeading: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 15.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
   specRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 4,
+    paddingVertical: 7,
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceMuted,
   },
   specLabel: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textMuted,
   },
   specVal: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.medium,
+    fontSize: 14,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.textPrimary,
   },
   descText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textSecondary,
-    lineHeight: 18,
+    lineHeight: 21,
   },
   chamberWarningCard: {
     backgroundColor: colors.accentBg,
@@ -792,6 +905,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: spacing.md,
     gap: spacing.xs,
+    borderRadius: radius.md,
   },
   chamberWarningHeader: {
     flexDirection: 'row',
@@ -799,14 +913,14 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   chamberWarningTitle: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 14.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.accent,
   },
   chamberWarningDesc: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.text.secondary,
-    lineHeight: 18,
+    lineHeight: 19,
   },
   bidCard: {
     padding: spacing.md,
@@ -818,26 +932,27 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   bidIdText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.textMuted,
   },
   bidVendorName: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 15.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   bidAmountRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.xs + 2,
     borderTopWidth: 1,
     borderBottomWidth: 1,
     borderColor: colors.surfaceMuted,
-    marginVertical: 4,
+    marginVertical: 6,
   },
   bidAmountLabel: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
     fontWeight: typography.fontWeights.bold,
     color: colors.textMuted,
   },
@@ -845,18 +960,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.accentBg,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: radius.xs,
-    gap: 4,
+    gap: 5,
   },
   sealedMaskText: {
-    fontSize: 10,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 12,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.accent,
   },
   unsealedAmountText: {
-    fontSize: typography.fontSizes.sm,
+    fontSize: 16,
     fontWeight: typography.fontWeights.heavy,
     color: colors.primary,
   },
@@ -864,16 +979,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 6,
   },
   bidTimeText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
     color: colors.textMuted,
   },
   withdrawLink: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.danger,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: typography.fontWeights.bold,
   },
   clarificationHeaderRow: {
     flexDirection: 'row',
@@ -882,7 +997,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   clarificationSubtitle: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.textMuted,
     flex: 1,
   },
@@ -892,44 +1007,44 @@ const styles = StyleSheet.create({
   qHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   qBadge: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 13,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.primary,
   },
   qDate: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 11.5,
     color: colors.textMuted,
   },
   questionBody: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textPrimary,
-    lineHeight: 18,
+    lineHeight: 20,
     marginBottom: spacing.xs,
   },
   answerBox: {
     backgroundColor: colors.surfaceMuted,
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
     borderRadius: radius.md,
-    marginTop: 4,
+    marginTop: 6,
   },
   answerHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginBottom: 2,
+    gap: 5,
+    marginBottom: 3,
   },
   answerAuthor: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 12,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.successText,
   },
   answerBody: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textPrimary,
-    lineHeight: 18,
+    lineHeight: 20,
   },
   unansweredRow: {
     flexDirection: 'row',
@@ -938,39 +1053,40 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   unansweredText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
     color: colors.warningText,
     fontStyle: 'italic',
   },
   docItemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: spacing.xs,
+    paddingVertical: spacing.xs + 3,
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceMuted,
   },
   docItemTitle: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
   },
   docItemSub: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 11.5,
     color: colors.textMuted,
+    marginTop: 2,
   },
   docItemAction: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 13,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.primary,
   },
   mutedText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.textMuted,
     fontStyle: 'italic',
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   modalSheet: {
@@ -988,8 +1104,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border.default,
   },
   sheetTitle: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 17.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   closeBtn: {
@@ -1000,28 +1116,30 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   fieldLabel: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textMuted,
-    marginBottom: 4,
+    fontSize: 11.5,
+    fontWeight: typography.fontWeights.heavy,
+    color: colors.textSecondary,
+    marginBottom: 5,
     marginTop: spacing.sm,
+    letterSpacing: 0.5,
   },
   textInput: {
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: colors.border.default,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs + 2,
-    fontSize: typography.fontSizes.sm,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.sm,
+    fontSize: 14,
     color: colors.textPrimary,
+    minHeight: 46,
   },
   vendorSelectorWrap: {
     gap: spacing.xs,
   },
   vendorSelectChip: {
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
     borderRadius: radius.md,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: colors.border.default,
     backgroundColor: colors.surfaceMuted,
   },
@@ -1030,24 +1148,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryBg,
   },
   vendorSelectText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   vendorSelectTextActive: {
     color: colors.primaryDark,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
   declarationCheck: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginTop: spacing.md,
-    gap: spacing.xs,
+    gap: spacing.xs + 2,
   },
   checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
-    borderWidth: 1,
+    width: 20,
+    height: 20,
+    borderRadius: 5,
+    borderWidth: 1.5,
     borderColor: colors.border.default,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1057,10 +1175,10 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   declarationText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12.5,
     color: colors.textSecondary,
     flex: 1,
-    lineHeight: 16,
+    lineHeight: 18,
   },
   sheetActions: {
     flexDirection: 'row',

@@ -216,9 +216,9 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         <View style={styles.cardHeader}>
           <View style={styles.applicantInfo}>
             <View style={styles.avatarMini}>
-              <User size={14} color={colors.primary} />
+              <User size={20} color={colors.primary} strokeWidth={2.3} />
             </View>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={styles.applicantName}>{item.employeeName}</Text>
               <Text style={styles.applicantMeta}>
                 {item.employeeId} • {item.department || 'Geology & Mineral Exploration'}
@@ -226,12 +226,12 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
             </View>
           </View>
 
-          <StatusBadge status={item.status as any} size="small" />
+          <StatusBadge status={item.status as any} size="medium" />
         </View>
 
         {isOwnRequest && (
           <View style={styles.selfReviewNotice}>
-            <AlertTriangle size={13} color={colors.semantic.warning} />
+            <AlertTriangle size={16} color={colors.semantic.warning} />
             <Text style={styles.selfReviewText}>
               4-Eyes Rule: You cannot adjudicate your own application.
             </Text>
@@ -250,7 +250,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         </View>
 
         <View style={styles.dateSpanRow}>
-          <Calendar size={14} color={colors.text.secondary} />
+          <Calendar size={17} color="#475569" strokeWidth={2.2} />
           <Text style={styles.dateSpanText}>
             {formatDate(item.startDate)} → {formatDate(item.endDate)}
           </Text>
@@ -265,13 +265,13 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         )}
 
         <Text style={styles.reasonText}>
-          <Text style={{ fontWeight: '700' }}>Reason: </Text>
+          <Text style={{ fontWeight: '800', color: '#0f172a' }}>Reason: </Text>
           "{item.reason}"
         </Text>
 
         {item.contactDuringLeave && (
           <View style={styles.contactRow}>
-            <Phone size={12} color={colors.text.tertiary} />
+            <Phone size={14} color="#64748b" strokeWidth={2} />
             <Text style={styles.contactText}>Emergency Contact: {item.contactDuringLeave}</Text>
           </View>
         )}
@@ -294,7 +294,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
 
         {item.status === 'Pending' && (
           <View style={styles.syncNotice}>
-            <CheckCircle2 size={12} color={colors.semantic.success} />
+            <CheckCircle2 size={16} color={colors.semantic.success} />
             <Text style={styles.syncNoticeText}>
               Approval automatically backfills Attendance records to 'On-Leave'.
             </Text>
@@ -303,30 +303,63 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
 
         {item.status === 'Pending' && (
           <View style={styles.actionsRow}>
-            <Button
-              title="Decline"
-              variant="outline"
-              size="small"
+            <TouchableOpacity
+              activeOpacity={0.8}
               disabled={isOwnRequest}
               onPress={() => handleOpenReview(item, 'Reject')}
-              style={{ flex: 1 }}
-            />
-            <Button
-              title="Partial"
-              variant="secondary"
-              size="small"
+              style={[
+                styles.actionBtn,
+                styles.actionBtnDecline,
+                isOwnRequest && styles.actionBtnDisabled,
+              ]}
+            >
+              <X size={17} color={isOwnRequest ? '#94a3b8' : '#dc2626'} strokeWidth={2.5} />
+              <Text
+                style={[
+                  styles.actionBtnText,
+                  { color: isOwnRequest ? '#94a3b8' : '#dc2626' },
+                ]}
+              >
+                Decline
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
               disabled={isOwnRequest}
               onPress={() => handleOpenReview(item, 'Partial')}
-              style={{ flex: 1 }}
-            />
-            <Button
-              title="Approve"
-              variant="primary"
-              size="small"
+              style={[
+                styles.actionBtn,
+                styles.actionBtnPartial,
+                isOwnRequest && styles.actionBtnDisabled,
+              ]}
+            >
+              <Clock size={17} color={isOwnRequest ? '#94a3b8' : '#d97706'} strokeWidth={2.3} />
+              <Text
+                style={[
+                  styles.actionBtnText,
+                  { color: isOwnRequest ? '#94a3b8' : '#d97706' },
+                ]}
+              >
+                Partial
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
               disabled={isOwnRequest}
               onPress={() => handleOpenReview(item, 'Full')}
-              style={{ flex: 1.3 }}
-            />
+              style={[
+                styles.actionBtn,
+                styles.actionBtnApprove,
+                isOwnRequest && styles.actionBtnDisabled,
+              ]}
+            >
+              <Check size={18} color="#ffffff" strokeWidth={2.8} />
+              <Text style={[styles.actionBtnText, { color: '#ffffff', fontWeight: '800' }]}>
+                Approve
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
       </Card>
@@ -689,24 +722,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.background.tertiary,
     borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.sm,
-    height: 38,
-    gap: spacing.xs,
+    paddingHorizontal: 12,
+    height: 44,
+    gap: 8,
   },
   searchInput: {
     flex: 1,
-    ...typography.bodySmall,
+    fontSize: 14,
+    fontWeight: '500',
     color: colors.text.primary,
     paddingVertical: 0,
   },
   statusChipsRow: {
-    gap: spacing.xs,
-    paddingVertical: 4,
+    gap: 8,
+    paddingVertical: 6,
+    paddingRight: 16,
   },
   statusChip: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 5,
-    borderRadius: borderRadius.sm,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
     backgroundColor: colors.background.tertiary,
     borderWidth: 1,
     borderColor: colors.border.default,
@@ -716,7 +751,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   statusChipText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '600',
     color: colors.text.secondary,
   },
@@ -726,13 +761,16 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: spacing.md,
-    paddingBottom: 40,
-    gap: spacing.sm,
+    paddingBottom: 60,
+    gap: 14,
   },
   card: {
-    padding: spacing.md,
-    borderRadius: borderRadius.md,
-    gap: 8,
+    padding: 16,
+    borderRadius: 16,
+    gap: 10,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#ffffff',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -742,142 +780,185 @@ const styles = StyleSheet.create({
   applicantInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.sm,
+    gap: 10,
     flex: 1,
   },
   avatarMini: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     backgroundColor: `${colors.primary}18`,
     alignItems: 'center',
     justifyContent: 'center',
   },
   applicantName: {
-    ...typography.bodySmall,
+    fontSize: 16.5,
     fontWeight: '800',
     color: colors.text.primary,
+    letterSpacing: -0.2,
   },
   applicantMeta: {
-    fontSize: 10,
+    fontSize: 12,
     color: colors.text.tertiary,
+    marginTop: 2,
+    fontWeight: '500',
   },
   selfReviewNotice: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
     backgroundColor: `${colors.semantic.warning}15`,
-    padding: 6,
-    borderRadius: borderRadius.sm,
+    padding: 9,
+    borderRadius: borderRadius.md,
   },
   selfReviewText: {
-    fontSize: 11,
+    fontSize: 12.5,
     color: colors.semantic.warning,
     fontWeight: '700',
+    flex: 1,
   },
   metaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 2,
   },
   leaveTypePill: {
-    backgroundColor: colors.background.tertiary,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: borderRadius.sm,
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
   leaveTypePillText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '700',
     color: colors.text.primary,
   },
   durationBadge: {
     backgroundColor: `${colors.primary}15`,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: borderRadius.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
   },
   durationBadgeText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '800',
     color: colors.primary,
   },
   dateSpanRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
+    marginTop: 2,
   },
   dateSpanText: {
-    ...typography.bodySmall,
-    fontWeight: '600',
+    fontSize: 14.5,
+    fontWeight: '700',
     color: colors.text.primary,
   },
   partialBadgeBox: {
     backgroundColor: `${colors.semantic.warning}15`,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     borderRadius: borderRadius.sm,
   },
   partialBadgeText: {
-    fontSize: 11,
+    fontSize: 12.5,
     fontWeight: '700',
     color: colors.semantic.warning,
   },
   reasonText: {
-    ...typography.caption,
+    fontSize: 13.5,
     color: colors.text.secondary,
-    lineHeight: 16,
+    lineHeight: 19,
+    marginTop: 2,
   },
   contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 7,
+    marginTop: 2,
   },
   contactText: {
-    fontSize: 10,
+    fontSize: 12.5,
     color: colors.text.tertiary,
+    fontWeight: '500',
   },
   adjudicatedRejectionBox: {
     backgroundColor: `${colors.semantic.danger}12`,
-    padding: spacing.xs,
-    borderRadius: borderRadius.sm,
+    padding: 10,
+    borderRadius: borderRadius.md,
   },
   adjudicatedRejectionText: {
-    fontSize: 11,
+    fontSize: 12.5,
     color: colors.semantic.danger,
     fontWeight: '600',
   },
   adjudicatedApprovalBox: {
     backgroundColor: `${colors.semantic.success}12`,
-    padding: spacing.xs,
-    borderRadius: borderRadius.sm,
+    padding: 10,
+    borderRadius: borderRadius.md,
   },
   adjudicatedApprovalText: {
-    fontSize: 11,
+    fontSize: 12.5,
     color: colors.semantic.success,
     fontWeight: '600',
   },
   syncNotice: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: `${colors.semantic.success}10`,
-    padding: 6,
-    borderRadius: borderRadius.sm,
+    gap: 8,
+    backgroundColor: `${colors.semantic.success}12`,
+    padding: 9,
+    borderRadius: borderRadius.md,
+    marginTop: 2,
   },
   syncNoticeText: {
-    fontSize: 10,
+    fontSize: 12,
     color: colors.semantic.success,
     fontWeight: '600',
     flex: 1,
   },
   actionsRow: {
     flexDirection: 'row',
-    gap: spacing.xs,
-    marginTop: 4,
+    gap: 10,
+    marginTop: 6,
     borderTopWidth: 1,
     borderTopColor: colors.border.subtle,
-    paddingTop: 8,
+    paddingTop: 12,
+  },
+  actionBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  actionBtnDecline: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1.5,
+    borderColor: '#fca5a5',
+  },
+  actionBtnPartial: {
+    backgroundColor: '#fffbeb',
+    borderWidth: 1.5,
+    borderColor: '#fde68a',
+  },
+  actionBtnApprove: {
+    flex: 1.3,
+    backgroundColor: '#059669',
+    borderWidth: 0,
+  },
+  actionBtnDisabled: {
+    opacity: 0.45,
+    backgroundColor: '#f1f5f9',
+    borderColor: '#e2e8f0',
+  },
+  actionBtnText: {
+    fontSize: 14.5,
+    fontWeight: '700',
   },
   modalOverlay: {
     flex: 1,

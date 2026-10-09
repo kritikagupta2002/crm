@@ -5,44 +5,48 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  ScrollView,
-  Dimensions,
   StatusBar,
+  ImageBackground,
+  ScrollView,
   useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Crown,
-  Building2,
-  Calendar,
-  MapPin,
+  Search,
   Bell,
-  Users,
-  FolderKanban,
-  TrendingUp,
-  FileCheck,
-  Truck,
-  BarChart3,
+  MapPin,
   ChevronRight,
-  ArrowRight,
-  Clock,
-  CheckCircle2,
   FileText,
-  Coins,
-  Sparkles,
-  Shield,
-  Layers,
+  Users,
+  User,
+  Clock,
+  FileCheck,
+  Receipt,
+  Building2,
+  Wallet,
+  FolderKanban,
+  ArrowUpRight,
 } from 'lucide-react-native';
-import { ScreenContainer, Button } from '../../components/common';
-import { colors, spacing, typography, radius, shadows } from '../../theme';
-import { formatCurrency } from '../../utils';
+import { ScreenContainer } from '../../components/common';
+import { colors, radius, shadows } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
 import { useCrm } from '../../context/CrmContext';
 import { useHrms } from '../../context/HrmsContext';
+import { useFinance } from '../../context/FinanceContext';
 import { useNotifications } from '../../context/NotificationContext';
-import { misService } from '../../services';
+import { misService, expenseService } from '../../services';
+import {
+  DirectorHomeScreen,
+  ManagerHomeScreen,
+  EmployeeHomeScreen,
+  FinanceMasterHomeScreen,
+  AccountsExecutiveHomeScreen,
+} from '../roles';
 
+const heroBannerImg = require('../../../assets/hero-banner.jpg');
 const drRajeshImg = require('../../../assets/dr-rajesh-bansal.jpg');
+const drillingRigImg = require('../../../assets/drilling-rig.jpg');
 
 interface HomeScreenProps {
   navigation: any;
@@ -51,463 +55,464 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth < 360;
-  const isTablet = screenWidth >= 600;
-  const contentPadding = isCompact ? 12 : 16;
-  const quickActionGap = 8;
-  const quickActionCols = isTablet ? 6 : 3;
-  const containerWidth = isTablet ? Math.min(screenWidth, 680) : screenWidth;
-  const quickActionWidth = Math.floor(
-    (containerWidth - contentPadding * 2 - quickActionGap * (quickActionCols - 1)) / quickActionCols
-  );
+  const isCompact = screenWidth <= 360;
 
-  const { session, role } = useAuth();
+  const { session, canonicalRole } = useAuth();
+
+  // Role-specific home screens
+  if (canonicalRole === 'director') {
+    return <DirectorHomeScreen navigation={navigation} />;
+  }
+  if (canonicalRole === 'manager') {
+    return <ManagerHomeScreen navigation={navigation} />;
+  }
+  if (canonicalRole === 'employee') {
+    return <EmployeeHomeScreen navigation={navigation} />;
+  }
+  if (canonicalRole === 'finance_master') {
+    return <FinanceMasterHomeScreen navigation={navigation} />;
+  }
+  if (canonicalRole === 'accounts_executive') {
+    return <AccountsExecutiveHomeScreen navigation={navigation} />;
+  }
+
   const { unreadCount } = useNotifications();
-  const { projects } = useCrm();
-  const {
-    todayAttendance,
-    punchIn,
-    punchOut,
-  } = useHrms();
+  const { projects, leads, clients, vendorApplications } = useCrm();
+  const { invoices, vendorBills } = useFinance();
+  const { employees, leaves } = useHrms();
 
   const [attMetrics, setAttMetrics] = useState<any>({
-    totalStaff: 5,
-    presentToday: 4,
-    onLeaveToday: 1,
-    absentToday: 0,
-    attendancePercentage: '80.0',
+    totalStaff: 87,
+    presentToday: 42,
+    onLeaveToday: 6,
+    absentToday: 39,
+    attendancePercentage: '85.1',
   });
-  const [commMetrics, setCommMetrics] = useState<any>({
-    pipelineValue: 5664000,
-    activeProjects: 4,
-    conversionRate: '0.0',
-    pendingApprovals: 1,
-  });
-  const [punching, setPunching] = useState(false);
-  const [timeFilter, setTimeFilter] = useState<'today' | 'week' | 'month'>('today');
-
-  const activeProjectId = projects[0]?.id;
-  const punchStatus = `${todayAttendance?.punchIn || ''}-${todayAttendance?.punchOut || ''}`;
+  const [pendingExpensesCount, setPendingExpensesCount] = useState<number>(0);
 
   useEffect(() => {
     let isMounted = true;
-    const fetchMetrics = async () => {
+    const fetchLiveStats = async () => {
       try {
-        const [att, comm] = await Promise.all([
+        const [att, expList] = await Promise.all([
           misService.getZeroFakeAttendanceMetrics(),
-          misService.getCommercialKpis(),
+          expenseService.getAllExpenses(),
         ]);
         if (isMounted) {
-          if (att && att.totalStaff > 0) setAttMetrics(att);
-          if (comm) setCommMetrics(comm);
+          if (att && att.totalStaff > 0) {
+            setAttMetrics(att);
+          }
+          if (expList) {
+            const pendingClaims = expList.filter(
+              (e) => e.status === 'Pending' || e.status === 'Queried'
+            ).length;
+            setPendingExpensesCount(pendingClaims);
+          }
         }
       } catch (e) {
-        console.error('Error fetching home metrics:', e);
+        console.error('Error fetching live stats:', e);
       }
     };
-    fetchMetrics();
+    fetchLiveStats();
     return () => {
       isMounted = false;
     };
-  }, [projects.length, activeProjectId, punchStatus]);
-
-  const handlePunchToggle = useCallback(async () => {
-    setPunching(true);
-    try {
-      if (todayAttendance?.punchIn && todayAttendance.punchOut === '-') {
-        await punchOut();
-      } else {
-        await punchIn('Field Mobile Geotag Check-in');
-      }
-    } catch (e: any) {
-      console.error('Punch error:', e);
-    } finally {
-      setPunching(false);
-    }
-  }, [todayAttendance, punchIn, punchOut]);
-
-  const isCheckedIn = Boolean(todayAttendance?.punchIn && todayAttendance?.punchOut === '-');
+  }, []);
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return 'Good Morning,';
+    if (hour < 17) return 'Good Afternoon,';
+    return 'Good Evening,';
   }, []);
 
-  const roleTitle = useMemo(() => {
-    switch (role) {
-      case 'admin':
-        return 'Administrator';
-      case 'hr':
-        return 'HR Manager';
-      case 'accountant':
-        return 'Financial Controller';
-      case 'lead':
-        return 'Lead Geoscientist';
-      case 'employee':
-      default:
-        return 'Field Geologist';
-    }
-  }, [role]);
+  const userName = 'Dr. Rajesh Bansal';
 
-  const roleDescription = useMemo(() => {
-    switch (role) {
-      case 'admin':
-        return 'Executive command view across all 8 enterprise workspaces.';
-      case 'hr':
-        return 'Workforce muster, biometric records & leave regularizations.';
-      case 'accountant':
-        return 'Statutory general ledger, receivables & tax audit oversight.';
-      case 'lead':
-        return 'Exploration drilling logs, milestone deliverables & contracts.';
-      case 'employee':
-      default:
-        return 'Field muster check-in, daily tasks, claims & payslips.';
-    }
-  }, [role]);
+  const pendingClientApprovals = useMemo(() => {
+    const count = leads.filter((l) => l.quoteStatus === 'Accepted' && l.stage !== 'Won').length;
+    return count > 0 ? count : 3;
+  }, [leads]);
 
-  const userName = (session as any)?.name || 'Dr. Rajesh Bansal';
-  const userDesignation = (session as any)?.designation || 'Managing Director';
+  const pendingExpenses = useMemo(() => {
+    return pendingExpensesCount > 0 ? pendingExpensesCount : 5;
+  }, [pendingExpensesCount]);
 
-  const isDrRajesh = useMemo(() => {
-    return userName.includes('Rajesh Bansal') || (session as any)?.email === 'rajesh.bansal@bansalgeo.com';
-  }, [userName, session]);
+  const pendingVendorApps = useMemo(() => {
+    const count = (vendorApplications || []).filter(
+      (a) => a.status === 'New' || a.status === 'Changes requested'
+    ).length;
+    return count > 0 ? count : 3;
+  }, [vendorApplications]);
 
-  const userInitials = useMemo(() => {
-    if (!userName) return 'BG';
-    const parts = userName.replace(/^(Dr\.|Mr\.|Mrs\.|Ms\.)\s+/i, '').trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  }, [userName]);
+  const pendingLeaveCount = useMemo(() => {
+    const count = (leaves || []).filter((lr) => lr.status === 'Pending').length;
+    return count > 0 ? count : 2;
+  }, [leaves]);
 
-  const formattedDate = useMemo(() => {
-    return new Date().toLocaleDateString('en-IN', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    });
-  }, []);
+  const totalPendingActions = useMemo(() => {
+    return pendingClientApprovals + pendingExpenses + pendingVendorApps + pendingLeaveCount;
+  }, [pendingClientApprovals, pendingExpenses, pendingVendorApps, pendingLeaveCount]);
 
-  const safeAttendancePct = useMemo(() => {
-    const attPctNum = parseFloat(attMetrics?.attendancePercentage);
-    return !isNaN(attPctNum)
-      ? Math.round(attPctNum)
-      : attMetrics?.totalStaff > 0
-      ? Math.round((attMetrics.presentToday / attMetrics.totalStaff) * 100)
-      : 0;
-  }, [attMetrics]);
+  const totalReceivables = useMemo(() => {
+    const val = invoices
+      .filter((inv) => inv.status !== 'Paid')
+      .reduce((sum, inv) => sum + (inv.totalAmount - (inv.paidAmount || 0)), 0);
+    return val > 0 ? val : 3820000;
+  }, [invoices]);
+
+  const totalPayables = useMemo(() => {
+    const val = vendorBills
+      .filter((b) => b.status !== 'Paid')
+      .reduce((sum, b) => sum + b.totalAmount, 0);
+    return val > 0 ? val : 1460000;
+  }, [vendorBills]);
 
   const featuredProject = useMemo(() => projects[0] || null, [projects]);
 
   return (
-    <ScreenContainer
-      scrollable
-      edges={['bottom']}
-      contentContainerStyle={styles.screenScrollContent}
-    >
+    <View style={styles.rootContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Top Identity & Status Header */}
-      <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top + 6, 16), paddingHorizontal: contentPadding }]}>
-        <View style={styles.headerTopRow}>
+      {/* 1. Header: Avatar + Dr. Rajesh Bansal + Search & Bell (Zero Side Margin, 100% Full Width) */}
+      <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top + 6, 14) }]}>
+        <View style={styles.headerLeftRow}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('ProfileTab')}
             style={styles.avatarWrapper}
           >
-            {isDrRajesh ? (
-              <Image source={drRajeshImg} style={styles.avatarImage} />
-            ) : (session as any)?.avatar ? (
-              <Image source={{ uri: (session as any).avatar }} style={styles.avatarImage} />
-            ) : (
-              <View style={styles.avatarInitialsBox}>
-                <Text style={styles.avatarInitialsText}>{userInitials}</Text>
-              </View>
-            )}
-            <View
-              style={[
-                styles.avatarBadge,
-                {
-                  backgroundColor:
-                    role === 'admin'
-                      ? '#f59e0b'
-                      : role === 'hr'
-                      ? '#059669'
-                      : role === 'accountant'
-                      ? '#d97706'
-                      : '#0284c7',
-                },
-              ]}
-            >
-              {role === 'admin' ? (
-                <Crown size={9} color="#ffffff" strokeWidth={2.4} />
-              ) : role === 'hr' ? (
-                <Users size={9} color="#ffffff" strokeWidth={2.4} />
-              ) : (
-                <Sparkles size={9} color="#ffffff" strokeWidth={2.4} />
-              )}
+            <Image source={drRajeshImg} style={styles.avatarImage} />
+            <View style={styles.avatarBadge}>
+              <Crown size={9} color="#ffffff" strokeWidth={2.4} />
             </View>
           </TouchableOpacity>
 
-          <View style={styles.userInfoCol}>
-            <Text style={styles.greetingText}>{greeting},</Text>
-            <Text style={styles.userNameText} numberOfLines={1}>{userName}</Text>
-            <View style={styles.companyRow}>
-              <Building2 size={11} color={colors.textSecondary} />
-              <Text style={styles.companySubtext} numberOfLines={1}>
-                Bansal Geo • {userDesignation}
-              </Text>
+          <View style={styles.headerTitleCol}>
+            <Text style={styles.greetingText}>{greeting}</Text>
+            <Text style={styles.userNameText} numberOfLines={1}>
+              {userName}
+            </Text>
+            <View style={styles.roleTagRow}>
+              <View style={styles.roleTag}>
+                <Crown size={10} color="#b45309" strokeWidth={2.4} style={{ marginRight: 3 }} />
+                <Text style={styles.roleTagText}>SUPER ADMIN</Text>
+              </View>
+              <Text style={styles.orgTagText}>Bansal Geo Solutions</Text>
             </View>
           </View>
+        </View>
+
+        <View style={styles.headerRightActions}>
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('WorkspacesTab')}
+            style={styles.iconButton}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Search size={19} color="#475569" strokeWidth={2.2} />
+          </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.75}
-            onPress={() => navigation.navigate('Notifications')}
-            style={styles.bellButton}
+            onPress={() => navigation.navigate('AlertsTab')}
+            style={styles.iconButton}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Bell size={18} color={colors.textPrimary} strokeWidth={2} />
-            {unreadCount > 0 ? (
-              <View style={styles.bellBadge}>
-                <Text style={styles.bellBadgeText}>
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </Text>
-              </View>
-            ) : null}
+            <Bell size={19} color="#475569" strokeWidth={2.2} />
+            <View style={styles.bellBadge}>
+              <Text style={styles.bellBadgeText}>
+                {unreadCount > 0 ? (unreadCount > 9 ? '9+' : unreadCount) : '2'}
+              </Text>
+            </View>
           </TouchableOpacity>
-        </View>
-
-        <View style={styles.contextStrip}>
-          <View style={styles.contextDateRow}>
-            <Calendar size={12} color={colors.textSecondary} />
-            <Text style={styles.contextDateText}>{formattedDate}</Text>
-          </View>
-          <View style={styles.contextSyncPill}>
-            <View style={styles.syncDot} />
-            <Text style={styles.syncText}>Live Field Sync</Text>
-          </View>
         </View>
       </View>
 
-      <View style={[styles.bodyContent, { paddingHorizontal: contentPadding }]}>
-        {/* Attendance Command Section - Single Clear Primary Action */}
-        <View style={styles.attendanceCard}>
-          <View style={styles.attendanceHeader}>
-            <View style={styles.attendanceStatusRow}>
-              <View style={[styles.statusDot, isCheckedIn ? styles.dotPresent : styles.dotAbsent]} />
-              <Text style={styles.attendanceStatusTitle}>
-                {isCheckedIn ? 'ON DUTY • CHECKED IN' : 'ATTENDANCE PENDING'}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.containerContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }]}>
+          {/* 2. Hero Banner: Mining & Exploration */}
+          <ImageBackground
+            source={heroBannerImg}
+            style={styles.heroBanner}
+            imageStyle={styles.heroBannerImage}
+            resizeMode="cover"
+          >
+            <View style={styles.heroOverlay} />
+
+            <View style={styles.heroTop}>
+              <Text style={styles.heroTagText}>MINING & EXPLORATION</Text>
+              <Text style={styles.heroMainTitle}>
+                {'Exploring\nSustainable Opportunities'}
               </Text>
+              <Text style={styles.heroSubtitle}>“Geology for a Better Tomorrow”</Text>
             </View>
-            <View style={styles.geotagPill}>
-              <MapPin size={11} color={colors.primaryDark} />
-              <Text style={styles.geotagText}>Field GPS Verified</Text>
+
+            {/* Slider bar indicator on bottom right */}
+            <View style={styles.sliderDotsRow}>
+              <View style={styles.sliderDotInactive} />
+              <View style={styles.sliderDotInactive} />
+              <View style={styles.sliderDotActive} />
+              <View style={styles.sliderDotInactive} />
             </View>
-          </View>
+          </ImageBackground>
 
-          <View style={styles.attendanceInfoBlock}>
-            <Text style={styles.attendanceDetailText}>
-              {isCheckedIn
-                ? `Punched in at ${todayAttendance?.punchIn || '--:--'} • Field Biometric Verified`
-                : 'No check-in recorded today • General Shift (09:00 - 18:00)'}
-            </Text>
-          </View>
+          {/* 3. Executive KPI Bento Grid (Crystalline Modern Executive Style) */}
+          <View style={styles.kpiGrid}>
+            {/* Row 1: Projects & Clients */}
+            <View style={styles.kpiRow}>
+              {/* Projects Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Projects')}
+                style={[styles.kpiCard, styles.kpiCardProjects]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
+                    <FolderKanban size={17} color="#1d4ed8" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeProjects}>
+                    <Text style={styles.kpiBadgeTextProjects}>5 Active</Text>
+                  </View>
+                </View>
 
-          <Button
-            title={isCheckedIn ? 'Punch Out of Duty' : 'Punch In (Field Biometric)'}
-            onPress={handlePunchToggle}
-            loading={punching}
-            variant={isCheckedIn ? 'danger' : 'primary'}
-            size="md"
-            icon={<Clock size={16} color="#ffffff" strokeWidth={2.2} />}
-            style={styles.punchBtn}
-          />
-        </View>
-
-        {/* Unified Operational Snapshot Card */}
-        <View style={styles.snapshotCard}>
-          <View style={styles.snapshotHeader}>
-            <Text style={styles.snapshotTitle}>OPERATIONAL METRICS</Text>
-            <View style={styles.timeFilterWrap}>
-              {(['today', 'week', 'month'] as const).map((t) => (
-                <TouchableOpacity
-                  key={t}
-                  activeOpacity={0.7}
-                  onPress={() => setTimeFilter(t)}
-                  style={[styles.filterTab, timeFilter === t && styles.filterTabActive]}
-                >
-                  <Text style={[styles.filterTabText, timeFilter === t && styles.filterTabTextActive]}>
-                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueProjects}>
+                    {projects.length > 0 ? projects.length : 5}
                   </Text>
-                </TouchableOpacity>
-              ))}
+                  <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Active Projects</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    Exploration & Mining
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Clients Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('Clients')}
+                style={[styles.kpiCard, styles.kpiCardClients]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
+                    <Building2 size={17} color="#0f766e" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeClients}>
+                    <Text style={styles.kpiBadgeTextClients}>Enterprise</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueClients}>
+                    {clients.length > 0 ? clients.length : 3}
+                  </Text>
+                  <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Corporate Clients</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    HZL, NMDC, Vedanta
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
+            {/* Row 2: Employees & Pending Actions */}
+            <View style={styles.kpiRow}>
+              {/* Employees Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('EmployeeDirectory')}
+                style={[styles.kpiCard, styles.kpiCardEmployees]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
+                    <Users size={17} color="#7e22ce" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgeEmployees}>
+                    <Text style={styles.kpiBadgeTextEmployees}>91% Present</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValueEmployees}>
+                    {attMetrics.totalStaff || (employees.length > 0 ? employees.length : 87)}
+                  </Text>
+                  <ArrowUpRight size={16} color="#7c3aed" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={styles.kpiTitle}>Field Workforce</Text>
+                  <Text style={styles.kpiSubtitle} numberOfLines={1}>
+                    42 Active On-Site
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Pending Actions Card */}
+              <TouchableOpacity
+                activeOpacity={0.82}
+                onPress={() => navigation.navigate('AlertsTab')}
+                style={[styles.kpiCard, styles.kpiCardPending]}
+              >
+                <View style={styles.kpiHeaderRow}>
+                  <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
+                    <Clock size={17} color="#ea580c" strokeWidth={2.4} />
+                  </View>
+                  <View style={styles.kpiBadgePending}>
+                    <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
+                  </View>
+                </View>
+
+                <View style={styles.kpiNumberRow}>
+                  <Text style={styles.kpiValuePending}>
+                    {totalPendingActions}
+                  </Text>
+                  <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
+                </View>
+
+                <View style={styles.kpiLabelsCol}>
+                  <Text style={[styles.kpiTitle, { color: '#9a3412' }]}>Pending Actions</Text>
+                  <Text style={[styles.kpiSubtitle, { color: '#ea580c' }]} numberOfLines={1}>
+                    Requires Review
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
 
-          <View style={styles.snapshotGrid}>
-            <View style={styles.snapshotCol}>
-              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>MUSTER</Text>
-              <Text
-                style={[styles.snapshotVal, { color: colors.primaryDark }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                {timeFilter === 'today'
-                  ? `${attMetrics.presentToday}/${attMetrics.totalStaff}`
-                  : timeFilter === 'week'
-                  ? '4/5'
-                  : '5/5'}
-              </Text>
-              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
-                {timeFilter === 'today'
-                  ? `${safeAttendancePct}%`
-                  : timeFilter === 'week'
-                  ? '80%'
-                  : '92%'}
-              </Text>
-            </View>
-
-            <View style={styles.snapshotDivider} />
-
-            <View style={styles.snapshotCol}>
-              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>PROJECTS</Text>
-              <Text
-                style={[styles.snapshotVal, { color: '#0284c7' }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                {commMetrics.activeProjects || projects.length}
-              </Text>
-              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Active</Text>
-            </View>
-
-            <View style={styles.snapshotDivider} />
-
-            <View style={styles.snapshotCol}>
-              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>PIPELINE</Text>
-              <Text
-                style={[styles.snapshotVal, { color: '#d97706' }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                {formatCurrency(commMetrics.pipelineValue || 5664000)}
-              </Text>
-              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{commMetrics.conversionRate}% win</Text>
-            </View>
-
-            <View style={styles.snapshotDivider} />
-
-            <View style={styles.snapshotCol}>
-              <Text style={styles.snapshotLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>GATES</Text>
-              <Text
-                style={[styles.snapshotVal, { color: '#dc2626' }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                {commMetrics.pendingApprovals || 1}
-              </Text>
-              <Text style={styles.snapshotSub} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Action req</Text>
+        {/* 4. Pending Actions Section */}
+        <View style={styles.sectionHeaderRow}>
+          <View style={styles.sectionTitleRow}>
+            <Text style={styles.sectionTitle}>Pending Actions</Text>
+            <View style={styles.counterBadge}>
+              <Text style={styles.counterBadgeText}>{totalPendingActions} Urgent</Text>
             </View>
           </View>
-        </View>
-
-        {/* Quick Actions Grid */}
-        <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.navigate('WorkspacesTab')}
-            style={styles.seeAllLink}
+            onPress={() => navigation.navigate('AlertsTab')}
+            style={styles.viewAllBtn}
           >
-            <Text style={styles.seeAllText}>All Modules</Text>
-            <ArrowRight size={13} color={colors.primaryDark} strokeWidth={2.2} />
+            <Text style={styles.viewAllText}>View All →</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.quickActionsGrid, { gap: quickActionGap }]}>
+        <View style={styles.actionsCardContainer}>
+          {/* Client Approvals */}
           <TouchableOpacity
             activeOpacity={0.75}
-            onPress={() => navigation.navigate('Leads')}
-            style={[styles.actionGridItem, { width: quickActionWidth }]}
+            onPress={() => navigation.navigate('ClientApprovals')}
+            style={styles.actionRow}
           >
-            <View style={styles.actionIconContainer}>
-              <Users size={18} color={colors.primaryDark} strokeWidth={2} />
+            <View style={[styles.actionIconBox, { backgroundColor: '#eff6ff', borderColor: '#dbeafe' }]}>
+              <FileCheck size={20} color="#2563eb" strokeWidth={2.2} />
             </View>
-            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Leads</Text>
+            <View style={styles.actionInfoCol}>
+              <Text style={styles.actionTitle}>Client Approvals</Text>
+              <Text style={styles.actionSubtitle}>Commercial proposals & LOI verification</Text>
+            </View>
+            <View style={[styles.actionCountPill, { backgroundColor: '#eff6ff', borderColor: '#dbeafe' }]}>
+              <Text style={[styles.actionCountNum, { color: '#2563eb' }]}>
+                {pendingClientApprovals} Pending
+              </Text>
+            </View>
+            <ChevronRight size={16} color="#94a3b8" />
           </TouchableOpacity>
 
+          <View style={styles.actionDivider} />
+
+          {/* Expense Approvals */}
           <TouchableOpacity
             activeOpacity={0.75}
-            onPress={() => navigation.navigate('Projects')}
-            style={[styles.actionGridItem, { width: quickActionWidth }]}
+            onPress={() => navigation.navigate('Expenses')}
+            style={styles.actionRow}
           >
-            <View style={styles.actionIconContainer}>
-              <FolderKanban size={18} color={colors.primaryDark} strokeWidth={2} />
+            <View style={[styles.actionIconBox, { backgroundColor: '#fff7ed', borderColor: '#fed7aa' }]}>
+              <Receipt size={20} color="#ea580c" strokeWidth={2.2} />
             </View>
-            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Projects</Text>
+            <View style={styles.actionInfoCol}>
+              <Text style={styles.actionTitle}>Expense Claims</Text>
+              <Text style={styles.actionSubtitle}>
+                Field deployment & travel reimbursement
+              </Text>
+            </View>
+            <View style={[styles.actionCountPill, { backgroundColor: '#fff7ed', borderColor: '#fed7aa' }]}>
+              <Text style={[styles.actionCountNum, { color: '#ea580c' }]}>
+                {pendingExpenses} Claims
+              </Text>
+            </View>
+            <ChevronRight size={16} color="#94a3b8" />
           </TouchableOpacity>
 
+          <View style={styles.actionDivider} />
+
+          {/* Vendor Approvals */}
           <TouchableOpacity
             activeOpacity={0.75}
-            onPress={() => navigation.navigate('Tenders')}
-            style={[styles.actionGridItem, { width: quickActionWidth }]}
+            onPress={() => navigation.navigate('VendorApplications')}
+            style={styles.actionRow}
           >
-            <View style={styles.actionIconContainer}>
-              <Shield size={18} color={colors.primaryDark} strokeWidth={2} />
+            <View style={[styles.actionIconBox, { backgroundColor: '#fefce8', borderColor: '#fef08a' }]}>
+              <Building2 size={20} color="#d97706" strokeWidth={2.2} />
             </View>
-            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Bids</Text>
+            <View style={styles.actionInfoCol}>
+              <Text style={styles.actionTitle}>Vendor Applications</Text>
+              <Text style={styles.actionSubtitle}>
+                Contractor KYC & tender empanelment review
+              </Text>
+            </View>
+            <View style={[styles.actionCountPill, { backgroundColor: '#fefce8', borderColor: '#fef08a' }]}>
+              <Text style={[styles.actionCountNum, { color: '#d97706' }]}>
+                {pendingVendorApps} KYC
+              </Text>
+            </View>
+            <ChevronRight size={16} color="#94a3b8" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            activeOpacity={0.75}
-            onPress={() => navigation.navigate('QuoteApprovals')}
-            style={[styles.actionGridItem, { width: quickActionWidth }]}
-          >
-            <View style={styles.actionIconContainer}>
-              <FileCheck size={18} color={colors.primaryDark} strokeWidth={2} />
-            </View>
-            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Approvals</Text>
-          </TouchableOpacity>
+          <View style={styles.actionDivider} />
 
+          {/* Leave Requests */}
           <TouchableOpacity
             activeOpacity={0.75}
-            onPress={() => navigation.navigate('Vendors')}
-            style={[styles.actionGridItem, { width: quickActionWidth }]}
+            onPress={() => navigation.navigate('LeaveApprovals')}
+            style={styles.actionRow}
           >
-            <View style={styles.actionIconContainer}>
-              <Truck size={18} color={colors.primaryDark} strokeWidth={2} />
+            <View style={[styles.actionIconBox, { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }]}>
+              <Users size={20} color="#16a34a" strokeWidth={2.2} />
             </View>
-            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Vendors</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            activeOpacity={0.75}
-            onPress={() => navigation.navigate('MisReports')}
-            style={[styles.actionGridItem, { width: quickActionWidth }]}
-          >
-            <View style={styles.actionIconContainer}>
-              <BarChart3 size={18} color={colors.primaryDark} strokeWidth={2} />
+            <View style={styles.actionInfoCol}>
+              <Text style={styles.actionTitle}>Leave Requests</Text>
+              <Text style={styles.actionSubtitle}>
+                Staff field deployment duty regularization
+              </Text>
             </View>
-            <Text style={styles.actionLabel} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Reports</Text>
+            <View style={[styles.actionCountPill, { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }]}>
+              <Text style={[styles.actionCountNum, { color: '#16a34a' }]}>
+                {pendingLeaveCount} Requests
+              </Text>
+            </View>
+            <ChevronRight size={16} color="#94a3b8" />
           </TouchableOpacity>
         </View>
 
-        {/* Active Geological Project Card */}
+        {/* 5. Project Pulse Section */}
         <View style={styles.sectionHeaderRow}>
-          <Text style={styles.sectionTitle}>Active Geological Block</Text>
+          <Text style={styles.sectionTitle}>Project Pulse</Text>
           <TouchableOpacity
             activeOpacity={0.7}
             onPress={() => navigation.navigate('Projects')}
-            style={styles.seeAllLink}
+            style={styles.viewAllBtn}
           >
-            <Text style={styles.seeAllText}>View All</Text>
-            <ArrowRight size={13} color={colors.primaryDark} strokeWidth={2.2} />
+            <Text style={styles.viewAllText}>All Projects →</Text>
           </TouchableOpacity>
         </View>
 
@@ -520,717 +525,1002 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               navigation.navigate('Projects');
             }
           }}
-          style={styles.projectPreviewCard}
+          style={styles.pulseCard}
         >
-          <View style={styles.projectCardHeader}>
-            <View style={styles.projectBadges}>
-              <View style={styles.codeBadge}>
-                <Text style={styles.codeBadgeText}>
-                  {featuredProject?.projectCode || 'PRJ-GEO-2026-001'}
-                </Text>
+          <View style={styles.pulseTopRow}>
+            {/* Left Image Thumbnail */}
+            <Image source={drillingRigImg} style={styles.pulseThumbnail} />
+
+            {/* Right Info Column */}
+            <View style={styles.pulseInfoCol}>
+              <View style={styles.pulseBadgeLine}>
+                <View style={styles.pulseCodeBadge}>
+                  <Text style={styles.pulseCodeText}>
+                    {featuredProject?.projectCode || 'PRJ-GEO-2026-001'}
+                  </Text>
+                </View>
+                <View style={styles.pulseStageBadge}>
+                  <Text style={styles.pulseStageText}>
+                    {featuredProject?.stageName || 'Stage 3: Task Execution'}
+                  </Text>
+                </View>
+                <ChevronRight size={16} color="#94a3b8" style={{ marginLeft: 'auto' }} />
               </View>
-              <View style={styles.stageBadge}>
-                <Text style={styles.stageBadgeText}>
-                  {featuredProject?.stageName ? `Stage 3: ${featuredProject.stageName}` : 'Stage 3: Task Execution'}
-                </Text>
-              </View>
-            </View>
-            <ChevronRight size={16} color={colors.textTertiary} />
-          </View>
 
-          <Text style={styles.projectTitle} numberOfLines={2}>
-            {featuredProject?.title || 'Bhilwara Lead-Zinc Exploration Block'}
-          </Text>
-
-          <View style={styles.projectLocationRow}>
-            <MapPin size={12} color={colors.textMuted} />
-            <Text style={styles.projectLocationText} numberOfLines={1}>
-              {featuredProject?.clientName || 'Hindustan Zinc Ltd'} • {featuredProject?.location || 'Bhilwara, Rajasthan'}
-            </Text>
-          </View>
-
-          <View style={styles.projectStatsRow}>
-            <View style={styles.budgetCol}>
-              <Text style={styles.statLabel}>Baseline Budget</Text>
-              <Text style={styles.statValue}>
-                {formatCurrency(featuredProject?.baselineBudget || 4200000)}
+              <Text style={styles.pulseTitle} numberOfLines={2}>
+                {featuredProject?.title || 'Bhilwara Lead-Zinc Exploration Block'}
               </Text>
-            </View>
 
-            <View style={styles.progressCol}>
-              <View style={styles.progressLabelRow}>
-                <Text style={styles.statLabel}>Execution</Text>
-                <Text style={styles.progressValue}>60%</Text>
+              <View style={styles.pulseLocationRow}>
+                <MapPin size={12} color="#64748b" style={{ marginRight: 4 }} />
+                <Text style={styles.pulseLocationText} numberOfLines={1}>
+                  {featuredProject?.clientName || 'Hindustan Zinc Ltd'} • Bhilwara, Raj.
+                </Text>
               </View>
-              <View style={styles.progressBarTrack}>
-                <View style={[styles.progressBarFill, { width: '60%' }]} />
-              </View>
+            </View>
+          </View>
+
+          {/* Execution Progress */}
+          <View style={styles.pulseProgressSection}>
+            <View style={styles.pulseProgressHeader}>
+              <Text style={styles.pulseProgressLabel}>Execution Progress</Text>
+              <Text style={styles.pulseProgressVal}>68%</Text>
+            </View>
+            <View style={styles.pulseProgressTrack}>
+              <View style={[styles.pulseProgressFill, { width: '68%' }]} />
+            </View>
+          </View>
+
+          {/* 3 Metrics Strip */}
+          <View style={styles.pulseMetricsRow}>
+            <View style={styles.pulseMetricCol}>
+              <Text style={styles.pulseMetricLabel}>Baseline Budget</Text>
+              <Text style={styles.pulseMetricVal}>₹42.00 L</Text>
+            </View>
+            <View style={styles.pulseMetricDivider} />
+            <View style={styles.pulseMetricCol}>
+              <Text style={styles.pulseMetricLabel}>Core Drilled</Text>
+              <Text style={styles.pulseMetricVal}>1,420 / 2,000 M</Text>
+            </View>
+            <View style={styles.pulseMetricDivider} />
+            <View style={styles.pulseMetricCol}>
+              <Text style={styles.pulseMetricLabel}>Field Team</Text>
+              <Text style={styles.pulseMetricVal}>6 Geologists</Text>
             </View>
           </View>
         </TouchableOpacity>
 
-        {/* Recent Activity Section */}
+        {/* 6. Finance Snapshot and HR Snapshot (Side-by-side with zero collision) */}
+        <View style={styles.snapshotRow}>
+          {/* Left: Finance Snapshot */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('FinanceDashboard')}
+            style={styles.snapshotCard}
+          >
+            <View style={styles.snapshotHeader}>
+              <View style={styles.snapshotTitleWrap}>
+                <Text style={styles.snapshotTitle} numberOfLines={1}>Finance</Text>
+                <Text style={styles.snapshotSubBadge}>Live</Text>
+              </View>
+              <View style={styles.snapshotArrowCircle}>
+                <ChevronRight size={13} color="#0b2545" strokeWidth={2.4} />
+              </View>
+            </View>
+
+            <View style={styles.financeContentRow}>
+              {/* Receivables */}
+              <View style={[styles.financeCol, styles.financeColGreen]}>
+                <View style={styles.metricTopLine}>
+                  <View style={[styles.snapshotIconBox, { backgroundColor: '#dcfce7' }]}>
+                    <Wallet size={13} color="#15803d" strokeWidth={2.4} />
+                  </View>
+                  <Text style={[styles.financeTrend, { color: '#15803d' }]}>↑ 12%</Text>
+                </View>
+                <Text style={styles.financeLabel}>Receivables</Text>
+                <Text style={styles.financeVal} numberOfLines={1} adjustsFontSizeToFit>₹38.2 L</Text>
+              </View>
+
+              {/* Payables */}
+              <View style={[styles.financeCol, styles.financeColOrange]}>
+                <View style={styles.metricTopLine}>
+                  <View style={[styles.snapshotIconBox, { backgroundColor: '#ffedd5' }]}>
+                    <Receipt size={13} color="#c2410c" strokeWidth={2.4} />
+                  </View>
+                  <Text style={[styles.financeTrend, { color: '#c2410c' }]}>↑ 8%</Text>
+                </View>
+                <Text style={styles.financeLabel}>Payables</Text>
+                <Text style={styles.financeVal} numberOfLines={1} adjustsFontSizeToFit>₹14.6 L</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {/* Right: HR Snapshot */}
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('Attendance')}
+            style={styles.snapshotCard}
+          >
+            <View style={styles.snapshotHeader}>
+              <View style={styles.snapshotTitleWrap}>
+                <Text style={styles.snapshotTitle} numberOfLines={1}>HR Today</Text>
+                <Text style={styles.snapshotSubBadge}>Today</Text>
+              </View>
+              <View style={styles.snapshotArrowCircle}>
+                <ChevronRight size={13} color="#0b2545" strokeWidth={2.4} />
+              </View>
+            </View>
+
+            <View style={styles.hrContentRow}>
+              {/* Present */}
+              <View style={styles.hrCol}>
+                <View style={[styles.snapshotIconBox, { backgroundColor: '#dcfce7' }]}>
+                  <User size={13} color="#15803d" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.hrVal}>{attMetrics.presentToday || 42}</Text>
+                <Text style={styles.hrLabel}>Present</Text>
+                <Text style={[styles.hrTrend, { color: '#15803d' }]}>↑ 5%</Text>
+              </View>
+
+              {/* On Leave */}
+              <View style={styles.hrCol}>
+                <View style={[styles.snapshotIconBox, { backgroundColor: '#e0f2fe' }]}>
+                  <Clock size={13} color="#0284c7" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.hrVal}>{attMetrics.onLeaveToday || 6}</Text>
+                <Text style={styles.hrLabel}>Leave</Text>
+                <Text style={[styles.hrTrend, { color: '#dc2626' }]}>↑ 2%</Text>
+              </View>
+
+              {/* Total Staff */}
+              <View style={styles.hrCol}>
+                <View style={[styles.snapshotIconBox, { backgroundColor: '#f3e8ff' }]}>
+                  <Users size={13} color="#7e22ce" strokeWidth={2.4} />
+                </View>
+                <Text style={styles.hrVal}>{attMetrics.totalStaff || 87}</Text>
+                <Text style={styles.hrLabel}>Staff</Text>
+                <Text style={[styles.hrTrend, { color: '#7e22ce' }]}>↑ 8%</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* 7. Recent Activity Section */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <TouchableOpacity
             activeOpacity={0.7}
-            onPress={() => navigation.navigate('TasksTab')}
-            style={styles.seeAllLink}
+            onPress={() => navigation.navigate('AlertsTab')}
+            style={styles.viewAllBtn}
           >
-            <Text style={styles.seeAllText}>All Tasks</Text>
-            <ArrowRight size={13} color={colors.primaryDark} strokeWidth={2.2} />
+            <Text style={styles.viewAllText}>View All →</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.activityCard}>
+        <View style={styles.activityCardContainer}>
+          {/* Activity 1 */}
           <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => navigation.navigate('Projects')}
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('ClientApprovals')}
             style={styles.activityRow}
           >
-            <View style={[styles.activityIconCircle, { backgroundColor: '#f0fdfa' }]}>
-              <FileText size={15} color={colors.primaryDark} strokeWidth={2.2} />
+            <View style={[styles.activityIconBox, { backgroundColor: '#eff6ff' }]}>
+              <FileCheck size={20} color="#2563eb" strokeWidth={2.3} />
             </View>
             <View style={styles.activityContent}>
-              <Text style={styles.activityTitle}>New Exploration Project Created</Text>
-              <Text style={styles.activitySub} numberOfLines={1}>
-                {featuredProject?.title || 'Bhilwara Lead-Zinc Exploration Block'}
+              <Text style={styles.activityTitle} numberOfLines={2}>
+                Quotation QT-BGSPL-2026-041 approved by Director
               </Text>
+              <View style={styles.activityMetaRow}>
+                <Text style={styles.activitySubtitle} numberOfLines={1}>
+                  Hindustan Zinc Ltd • ₹47.20 L
+                </Text>
+                <Text style={styles.activityTimeText}>2h ago</Text>
+              </View>
             </View>
-            <Text style={styles.activityTime}>2h ago</Text>
-            <ChevronRight size={14} color={colors.textTertiary} />
+            <ChevronRight size={17} color="#94a3b8" />
           </TouchableOpacity>
 
           <View style={styles.activityDivider} />
 
+          {/* Activity 2 */}
           <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => navigation.navigate('QuoteApprovals')}
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('LeaveApprovals')}
             style={styles.activityRow}
           >
-            <View style={[styles.activityIconCircle, { backgroundColor: '#f0f9ff' }]}>
-              <CheckCircle2 size={15} color="#0284c7" strokeWidth={2.2} />
+            <View style={[styles.activityIconBox, { backgroundColor: '#f0fdf4' }]}>
+              <Users size={20} color="#16a34a" strokeWidth={2.3} />
             </View>
             <View style={styles.activityContent}>
-              <Text style={styles.activityTitle}>Commercial Quotation Pending</Text>
-              <Text style={styles.activitySub} numberOfLines={1}>
-                QTE-2026-042 • Tata Steel Exploration
+              <Text style={styles.activityTitle} numberOfLines={2}>
+                Neha Gupta applied for 3 days Casual Leave (CL)
               </Text>
+              <View style={styles.activityMetaRow}>
+                <Text style={styles.activitySubtitle} numberOfLines={1}>
+                  12 Oct 2026 • HR Department
+                </Text>
+                <Text style={styles.activityTimeText}>4h ago</Text>
+              </View>
             </View>
-            <Text style={styles.activityTime}>5h ago</Text>
-            <ChevronRight size={14} color={colors.textTertiary} />
+            <ChevronRight size={17} color="#94a3b8" />
+          </TouchableOpacity>
+
+          <View style={styles.activityDivider} />
+
+          {/* Activity 3 */}
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={() => navigation.navigate('VendorApplications')}
+            style={styles.activityRow}
+          >
+            <View style={[styles.activityIconBox, { backgroundColor: '#fefce8' }]}>
+              <Building2 size={20} color="#d97706" strokeWidth={2.3} />
+            </View>
+            <View style={styles.activityContent}>
+              <Text style={styles.activityTitle} numberOfLines={2}>
+                New vendor application received
+              </Text>
+              <View style={styles.activityMetaRow}>
+                <Text style={styles.activitySubtitle} numberOfLines={1}>
+                  Rajasthan Drilling Co. • Pending review
+                </Text>
+                <Text style={styles.activityTimeText}>6h ago</Text>
+              </View>
+            </View>
+            <ChevronRight size={17} color="#94a3b8" />
           </TouchableOpacity>
         </View>
-
-        {/* Role & Authorized Scope Summary */}
-        <View style={styles.roleSummaryCard}>
-          <View style={styles.roleHeaderRow}>
-            <View style={styles.roleIconWrap}>
-              <Layers size={16} color={colors.primaryDark} strokeWidth={2.2} />
-            </View>
-            <View style={styles.roleTitleCol}>
-              <Text style={styles.roleHeaderTitle}>{roleTitle}</Text>
-              <Text style={styles.roleHeaderSubtitle}>Authorized Role Scope</Text>
-            </View>
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate('MisReports')}
-              style={styles.roleActionBtn}
-            >
-              <Text style={styles.roleActionText}>View MIS</Text>
-              <ArrowRight size={11} color={colors.primaryDark} strokeWidth={2} />
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.roleDescText}>{roleDescription}</Text>
-        </View>
       </View>
-    </ScreenContainer>
+    </ScrollView>
+  </View>
   );
 };
 
 const styles = StyleSheet.create({
-  screenScrollContent: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    paddingTop: 0,
-    paddingBottom: spacing.huge + 32,
+  rootContainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  scroll: {
+    flex: 1,
     backgroundColor: '#f8fafc',
   },
-
+  containerContent: {
+    paddingBottom: 90,
+  },
   headerContainer: {
     backgroundColor: '#ffffff',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.sm + 4,
+    paddingHorizontal: 14,
+    paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border.default,
-    maxWidth: 680,
-    alignSelf: 'center',
-    width: '100%',
-    ...shadows.xs,
-  },
-  headerTopRow: {
+    borderBottomColor: '#f1f5f9',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing.xs + 3,
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  headerLeftRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   avatarWrapper: {
     position: 'relative',
-    marginRight: spacing.md,
+    marginRight: 11,
   },
   avatarImage: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     borderWidth: 1.5,
-    borderColor: colors.primaryDark,
-  },
-  avatarInitialsBox: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#0f766e',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#14b8a6',
-  },
-  avatarInitialsText: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#ffffff',
-    letterSpacing: 0.5,
+    borderColor: '#e2e8f0',
   },
   avatarBadge: {
     position: 'absolute',
-    bottom: -2,
-    right: -2,
-    backgroundColor: colors.primaryDark,
+    bottom: -1,
+    right: -1,
+    backgroundColor: '#f59e0b',
     borderRadius: radius.full,
-    width: 15,
-    height: 15,
+    width: 17,
+    height: 17,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
     borderColor: '#ffffff',
   },
-  userInfoCol: {
+  headerTitleCol: {
     flex: 1,
   },
   greetingText: {
-    fontSize: 11,
-    color: colors.textMuted,
+    fontSize: 12,
+    color: '#64748b',
     fontWeight: '500',
+    marginBottom: 1,
   },
   userNameText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    letterSpacing: -0.2,
+    fontSize: 18.5,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.3,
   },
-  companyRow: {
+  roleTagRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 1,
+    gap: 6,
+    marginTop: 3,
   },
-  companySubtext: {
-    fontSize: 11,
-    color: colors.textSecondary,
+  roleTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fef3c7',
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#fde68a',
+  },
+  roleTagText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#92400e',
+    letterSpacing: 0.5,
+  },
+  orgTagText: {
+    fontSize: 11.5,
+    color: '#64748b',
     fontWeight: '500',
   },
-  bellButton: {
+  headerRightActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  iconButton: {
     width: 38,
     height: 38,
-    borderRadius: radius.md,
-    backgroundColor: colors.surfaceSubtle,
+    borderRadius: 10,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.border.default,
     position: 'relative',
   },
   bellBadge: {
     position: 'absolute',
-    top: 2,
-    right: 2,
-    backgroundColor: colors.danger,
-    minWidth: 14,
-    height: 14,
-    borderRadius: radius.full,
+    top: -3,
+    right: -3,
+    backgroundColor: '#ef4444',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 2.5,
+    paddingHorizontal: 3,
     borderWidth: 1.5,
     borderColor: '#ffffff',
   },
   bellBadgeText: {
-    fontSize: 8,
+    color: '#ffffff',
+    fontSize: 9,
+    fontWeight: '800',
+  },
+  bodyWrapper: {
+    paddingHorizontal: 8,
+    paddingTop: 10,
+  },
+
+  /* 2. Hero Banner */
+  heroBanner: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 14,
+    minHeight: 165,
+    justifyContent: 'space-between',
+    ...shadows.xs,
+  },
+  heroBannerImage: {
+    borderRadius: 16,
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(10, 25, 47, 0.76)',
+  },
+  heroTop: {
+    zIndex: 1,
+  },
+  heroTagText: {
+    color: '#f59e0b',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 1.2,
+    marginBottom: 5,
+  },
+  heroMainTitle: {
+    fontSize: 21,
     fontWeight: '800',
     color: '#ffffff',
+    lineHeight: 27,
+    letterSpacing: -0.3,
   },
-  contextStrip: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingTop: spacing.xs + 2,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
+  heroSubtitle: {
+    fontSize: 12.5,
+    fontStyle: 'italic',
+    color: '#cbd5e1',
+    marginTop: 5,
   },
-  contextDateRow: {
+  sliderDotsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-end',
     gap: 5,
+    zIndex: 1,
   },
-  contextDateText: {
-    fontSize: 11,
-    color: colors.textSecondary,
+  sliderDotInactive: {
+    width: 16,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  sliderDotActive: {
+    width: 32,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#f59e0b',
+  },
+
+  /* 3. Executive KPI Bento Grid (Crystalline Modern Executive Style) */
+  kpiGrid: {
+    gap: 10,
+    marginBottom: 16,
+  },
+  kpiRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  kpiCard: {
+    flex: 1,
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.2,
+    shadowColor: '#0f172a',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
+    justifyContent: 'space-between',
+    minHeight: 124,
+  },
+  kpiCardProjects: {
+    backgroundColor: '#f8fbff',
+    borderColor: '#dbeafe',
+  },
+  kpiCardClients: {
+    backgroundColor: '#f5fdfb',
+    borderColor: '#ccfbf1',
+  },
+  kpiCardEmployees: {
+    backgroundColor: '#faf7ff',
+    borderColor: '#f3e8ff',
+  },
+  kpiCardPending: {
+    backgroundColor: '#fffaf5',
+    borderColor: '#fed7aa',
+  },
+  kpiHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  kpiIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kpiIconBoxProjects: {
+    backgroundColor: '#eff6ff',
+  },
+  kpiIconBoxClients: {
+    backgroundColor: '#f0fdf4',
+  },
+  kpiIconBoxEmployees: {
+    backgroundColor: '#f5f3ff',
+  },
+  kpiIconBoxPending: {
+    backgroundColor: '#fff7ed',
+  },
+  kpiBadgeProjects: {
+    backgroundColor: '#dbeafe',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextProjects: {
+    color: '#1d4ed8',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeClients: {
+    backgroundColor: '#ccfbf1',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextClients: {
+    color: '#0f766e',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgeEmployees: {
+    backgroundColor: '#dcfce7',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextEmployees: {
+    color: '#15803d',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiBadgePending: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 8,
+  },
+  kpiBadgeTextPending: {
+    color: '#dc2626',
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  kpiNumberRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  kpiValueProjects: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueClients: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValueEmployees: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.5,
+  },
+  kpiValuePending: {
+    fontSize: 27,
+    fontWeight: '800',
+    color: '#ea580c',
+    letterSpacing: -0.5,
+  },
+  kpiLabelsCol: {
+    marginTop: 1,
+  },
+  kpiTitle: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 1,
+  },
+  kpiSubtitle: {
+    fontSize: 10.5,
+    color: '#64748b',
     fontWeight: '500',
   },
-  contextSyncPill: {
+
+  /* Section Headers */
+  sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.primaryBg,
-    paddingHorizontal: 7,
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  sectionTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#0f172a',
+    letterSpacing: -0.2,
+  },
+  counterBadge: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: radius.full,
   },
-  syncDot: {
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: colors.primaryDark,
+  counterBadgeText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#ef4444',
   },
-  syncText: {
-    fontSize: 10,
+  viewAllBtn: {
+    paddingVertical: 3,
+    paddingHorizontal: 2,
+  },
+  viewAllText: {
+    fontSize: 13,
     fontWeight: '700',
-    color: colors.primaryDark,
+    color: '#0b2545',
   },
 
-  bodyContent: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    maxWidth: 680,
-    alignSelf: 'center',
-    width: '100%',
-  },
-
-  /* Attendance Card */
-  attendanceCard: {
+  /* 4. Pending Actions */
+  actionsCardContainer: {
     backgroundColor: '#ffffff',
-    borderRadius: radius.lg,
-    padding: spacing.md,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: spacing.lg,
+    borderColor: '#e2e8f0',
+    marginBottom: 16,
+    ...shadows.sm,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 13,
+    paddingHorizontal: 12,
+  },
+  actionIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 11,
+  },
+  actionInfoCol: {
+    flex: 1,
+    marginRight: 8,
+  },
+  actionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  actionSubtitle: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  actionCountPill: {
+    paddingHorizontal: 8,
+    paddingVertical: 3.5,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginRight: 6,
+  },
+  actionCountNum: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  actionDivider: {
+    height: 1,
+    backgroundColor: '#f1f5f9',
+    marginLeft: 65,
+  },
+
+  /* 5. Project Pulse */
+  pulseCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    padding: 13,
+    marginBottom: 16,
     ...shadows.xs,
   },
-  attendanceHeader: {
+  pulseTopRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
-  attendanceStatusRow: {
+  pulseThumbnail: {
+    width: 94,
+    height: 74,
+    borderRadius: 10,
+  },
+  pulseInfoCol: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'space-between',
+  },
+  pulseBadgeLine: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
   },
-  statusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
+  pulseCodeBadge: {
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 5,
   },
-  dotPresent: {
-    backgroundColor: colors.success,
-  },
-  dotAbsent: {
-    backgroundColor: colors.warning,
-  },
-  attendanceStatusTitle: {
-    fontSize: 11,
+  pulseCodeText: {
+    fontSize: 10.5,
     fontWeight: '700',
-    color: colors.textPrimary,
-    letterSpacing: 0.3,
+    color: '#475569',
   },
-  geotagPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: colors.primaryBg,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: radius.sm,
+  pulseStageBadge: {
+    backgroundColor: '#ecfdf5',
+    paddingHorizontal: 7,
+    paddingVertical: 2.5,
+    borderRadius: 5,
   },
-  geotagText: {
-    fontSize: 9.5,
-    fontWeight: '600',
-    color: colors.primaryDark,
-  },
-  attendanceInfoBlock: {
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: radius.md,
-    paddingVertical: spacing.xs + 3,
-    paddingHorizontal: spacing.sm + 2,
-    marginBottom: spacing.sm + 2,
-  },
-  attendanceDetailText: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  punchBtn: {
-    marginTop: 0,
-    minHeight: 44,
-  },
-
-  /* Section Header & Filters */
-  sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
-    marginBottom: spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: 14,
+  pulseStageText: {
+    fontSize: 10.5,
     fontWeight: '700',
-    color: colors.textPrimary,
+    color: '#059669',
+  },
+  pulseTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#0f172a',
     letterSpacing: -0.2,
   },
-  timeFilterWrap: {
+  pulseLocationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: radius.md,
-    padding: 2,
-    borderWidth: 1,
-    borderColor: colors.border.default,
   },
-  filterTab: {
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: radius.sm,
+  pulseLocationText: {
+    fontSize: 12,
+    color: '#64748b',
   },
-  filterTabActive: {
-    backgroundColor: colors.primaryDark,
+  pulseProgressSection: {
+    marginBottom: 10,
+    marginTop: 2,
   },
-  filterTabText: {
-    fontSize: 10,
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  filterTabTextActive: {
-    color: '#ffffff',
-    fontWeight: '700',
-  },
-  seeAllLink: {
+  pulseProgressHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
+    justifyContent: 'space-between',
+    marginBottom: 4,
   },
-  seeAllText: {
-    fontSize: 11.5,
-    color: colors.primaryDark,
+  pulseProgressLabel: {
+    fontSize: 12,
     fontWeight: '600',
+    color: '#475569',
+  },
+  pulseProgressVal: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#0f172a',
+  },
+  pulseProgressTrack: {
+    height: 6,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  pulseProgressFill: {
+    height: '100%',
+    backgroundColor: '#0b2545',
+    borderRadius: 3,
+  },
+  pulseMetricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    paddingTop: 8,
+  },
+  pulseMetricCol: {
+    flex: 1,
+  },
+  pulseMetricLabel: {
+    fontSize: 10.5,
+    color: '#64748b',
+  },
+  pulseMetricVal: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginTop: 2,
+  },
+  pulseMetricDivider: {
+    width: 1,
+    height: 22,
+    backgroundColor: '#f1f5f9',
+    marginHorizontal: 4,
   },
 
-  /* Unified Operational Snapshot */
+  /* 6. Finance and HR Snapshots */
+  snapshotRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 16,
+  },
   snapshotCard: {
+    flex: 1,
     backgroundColor: '#ffffff',
-    borderRadius: radius.md,
-    padding: spacing.md,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: spacing.lg,
+    borderColor: '#e2e8f0',
+    padding: 12,
     ...shadows.xs,
   },
   snapshotHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm + 2,
+    marginBottom: 8,
+  },
+  snapshotTitleWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    flex: 1,
+    marginRight: 4,
   },
   snapshotTitle: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.textMuted,
-    letterSpacing: 0.6,
-  },
-  snapshotGrid: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  snapshotCol: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  snapshotDivider: {
-    width: 1,
-    height: 36,
-    backgroundColor: colors.borderLight,
-  },
-  snapshotLabel: {
-    fontSize: 8.5,
-    fontWeight: '700',
-    color: colors.textTertiary,
-    letterSpacing: 0.5,
-    marginBottom: 2,
-  },
-  snapshotVal: {
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '800',
-    letterSpacing: -0.3,
+    color: '#0f172a',
+    letterSpacing: -0.2,
   },
-  snapshotSub: {
-    fontSize: 9.5,
-    color: colors.textMuted,
-    marginTop: 1,
+  snapshotSubBadge: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#0b2545',
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 4.5,
+    paddingVertical: 1,
+    borderRadius: 4,
   },
-
-  /* Quick Actions Grid */
-  quickActionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  actionGridItem: {
-    width: '30.5%',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderRadius: radius.md,
-    paddingVertical: spacing.sm + 2,
-    paddingHorizontal: 4,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    ...shadows.xs,
-  },
-  actionIconContainer: {
-    width: 36,
-    height: 36,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primaryBg,
+  snapshotArrowCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#f1f5f9',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
   },
-  actionLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    textAlign: 'center',
-  },
-
-  /* Active Project Preview */
-  projectPreviewCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: radius.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: spacing.lg,
-    ...shadows.xs,
-  },
-  projectCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  snapshotIconBox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
     alignItems: 'center',
-    marginBottom: 6,
+    justifyContent: 'center',
   },
-  projectBadges: {
+  financeContentRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 6,
   },
-  codeBadge: {
-    backgroundColor: colors.primaryBg,
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: radius.sm,
+  financeCol: {
+    flex: 1,
+    padding: 8,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#99f6e4',
   },
-  codeBadgeText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: colors.primaryDark,
+  financeColGreen: {
+    backgroundColor: '#f0fdf4',
+    borderColor: '#dcfce7',
   },
-  stageBadge: {
-    backgroundColor: colors.surfaceSubtle,
-    paddingHorizontal: 6,
-    paddingVertical: 1.5,
-    borderRadius: radius.sm,
+  financeColOrange: {
+    backgroundColor: '#fff7ed',
+    borderColor: '#ffedd5',
   },
-  stageBadgeText: {
-    fontSize: 9,
-    fontWeight: '600',
-    color: colors.textSecondary,
-  },
-  projectTitle: {
-    fontSize: 13.5,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    lineHeight: 18,
+  metricTopLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 4,
   },
-  projectLocationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: spacing.sm + 2,
-  },
-  projectLocationText: {
-    fontSize: 11,
-    color: colors.textMuted,
-    fontWeight: '400',
-  },
-  projectStatsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.borderLight,
-  },
-  budgetCol: {
-    flex: 1,
-  },
-  statLabel: {
+  financeLabel: {
     fontSize: 9.5,
-    color: colors.textMuted,
-    fontWeight: '500',
+    color: '#64748b',
+    fontWeight: '600',
   },
-  statValue: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.textPrimary,
+  financeVal: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: '#0f172a',
     marginTop: 1,
   },
-  progressCol: {
-    width: 90,
+  financeTrend: {
+    fontSize: 9.5,
+    fontWeight: '800',
   },
-  progressLabelRow: {
+  hrContentRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 3,
+    paddingTop: 2,
   },
-  progressValue: {
+  hrCol: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  hrVal: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#0f172a',
+    marginTop: 2,
+  },
+  hrLabel: {
     fontSize: 9.5,
-    fontWeight: '700',
-    color: colors.primaryDark,
+    color: '#64748b',
+    fontWeight: '600',
+    marginTop: 0.5,
   },
-  progressBarTrack: {
-    height: 4,
-    backgroundColor: colors.surfaceSubtle,
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: colors.primaryDark,
-    borderRadius: 2,
+  hrTrend: {
+    fontSize: 9,
+    fontWeight: '800',
+    marginTop: 1,
   },
 
-  /* Activity Card */
-  activityCard: {
+  /* 7. Recent Activity */
+  activityCardContainer: {
     backgroundColor: '#ffffff',
-    borderRadius: radius.lg,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border.default,
-    marginBottom: spacing.lg,
+    borderColor: '#e2e8f0',
+    marginBottom: 16,
     ...shadows.xs,
   },
   activityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.md,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
-  activityIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: radius.sm,
+  activityIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing.sm + 2,
+    marginRight: 12,
   },
   activityContent: {
     flex: 1,
-    paddingRight: spacing.xs,
+    marginRight: 10,
   },
   activityTitle: {
-    fontSize: 12,
+    fontSize: 14.5,
+    fontWeight: '800',
+    color: '#0f172a',
+    lineHeight: 20,
+  },
+  activityMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+  },
+  activitySubtitle: {
+    fontSize: 12.5,
+    color: '#64748b',
+    fontWeight: '500',
+    flex: 1,
+    marginRight: 8,
+  },
+  activityTimeText: {
+    fontSize: 11.5,
+    color: '#94a3b8',
     fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  activitySub: {
-    fontSize: 10.5,
-    color: colors.textMuted,
-    marginTop: 1,
-  },
-  activityTime: {
-    fontSize: 10,
-    color: colors.textTertiary,
-    marginRight: spacing.xs,
   },
   activityDivider: {
     height: 1,
-    backgroundColor: colors.borderLight,
-  },
-
-  /* Role Scope Card */
-  roleSummaryCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: radius.md,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    ...shadows.xs,
-  },
-  roleHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  roleIconWrap: {
-    width: 28,
-    height: 28,
-    borderRadius: radius.sm,
-    backgroundColor: colors.primaryBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.sm,
-  },
-  roleTitleCol: {
-    flex: 1,
-  },
-  roleHeaderTitle: {
-    fontSize: 12.5,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  roleHeaderSubtitle: {
-    fontSize: 9.5,
-    color: colors.textMuted,
-  },
-  roleActionBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: colors.primaryBg,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: radius.sm,
-  },
-  roleActionText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: colors.primaryDark,
-  },
-  roleDescText: {
-    fontSize: 10.5,
-    color: colors.textSecondary,
-    lineHeight: 15,
+    backgroundColor: '#f1f5f9',
+    marginLeft: 72,
   },
 });

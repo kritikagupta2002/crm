@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { AppNotification } from '../types';
 import { mobileStorage } from '../storage';
+import { INITIAL_NOTIFICATIONS } from '../constants';
 
 interface NotificationContextType {
   notifications: AppNotification[];
@@ -16,7 +17,11 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   const loadNotifications = useCallback(async () => {
-    const list = await mobileStorage.getNotifications();
+    let list = await mobileStorage.getNotifications();
+    if (!list || list.length === 0 || !list.some((n) => n.id === 'alert-1')) {
+      list = INITIAL_NOTIFICATIONS;
+      await mobileStorage.setNotifications(list);
+    }
     setNotifications(list);
   }, []);
 

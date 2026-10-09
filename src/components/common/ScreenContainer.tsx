@@ -21,6 +21,7 @@ interface ScreenContainerProps {
   onRefresh?: () => void;
   header?: React.ReactNode;
   edges?: readonly Edge[];
+  noPadding?: boolean;
 }
 
 export const ScreenContainer: React.FC<ScreenContainerProps> = ({
@@ -32,9 +33,10 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
   onRefresh,
   header,
   edges,
+  noPadding = false,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth < 360;
+  const isCompact = screenWidth <= 360;
   const isTablet = screenWidth >= 640;
   const responsivePadding = isCompact ? 12 : spacing.lg;
   const resolvedEdges: readonly Edge[] = edges ?? (header ? ['bottom'] : ['top', 'bottom']);
@@ -52,7 +54,9 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
               style={styles.scroll}
               contentContainerStyle={[
                 styles.scrollContent,
-                { paddingHorizontal: responsivePadding },
+                noPadding
+                  ? { paddingHorizontal: 0, paddingTop: 0 }
+                  : { paddingHorizontal: responsivePadding },
                 isTablet && styles.tabletContent,
                 contentContainerStyle,
               ]}
@@ -75,7 +79,9 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
             <View
               style={[
                 styles.staticContent,
-                { paddingHorizontal: responsivePadding },
+                noPadding
+                  ? { paddingHorizontal: 0, paddingTop: 0 }
+                  : { paddingHorizontal: responsivePadding },
                 isTablet && styles.tabletContent,
                 contentContainerStyle,
               ]}

@@ -83,6 +83,8 @@ interface CrmContextType {
   addGovtLetter: (projectId: string, letter: Omit<GovtLetter, 'id'>) => Promise<GovtLetter>;
   createProject: (data: Partial<Project>) => Promise<Project>;
   submitDeliverable: (projectId: string, deliv: Omit<any, 'id' | 'projectId' | 'submissionDate' | 'status'>) => Promise<any>;
+  approveDeliverable: (projectId: string, deliverableId: string, remarks?: string) => Promise<{ project: Project; deliverable: Deliverable }>;
+  rejectDeliverable: (projectId: string, deliverableId: string, reason: string) => Promise<{ project: Project; deliverable: Deliverable }>;
   addVendor: (data: Omit<Vendor, 'id'>) => Promise<Vendor>;
   updateVendor: (id: string, patch: Partial<Vendor>) => Promise<Vendor>;
   submitVendorApplication: (details: Omit<VendorApplication, 'id' | 'submittedAt' | 'status' | 'history'>, files?: any[]) => Promise<VendorApplication>;
@@ -496,6 +498,18 @@ export const CrmProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     return d;
   }, [refreshProjects]);
 
+  const approveDeliverable = useCallback(async (projectId: string, deliverableId: string, remarks?: string) => {
+    const res = await crmService.approveDeliverable(projectId, deliverableId, remarks);
+    await refreshProjects();
+    return res;
+  }, [refreshProjects]);
+
+  const rejectDeliverable = useCallback(async (projectId: string, deliverableId: string, reason: string) => {
+    const res = await crmService.rejectDeliverable(projectId, deliverableId, reason);
+    await refreshProjects();
+    return res;
+  }, [refreshProjects]);
+
   const addVendor = useCallback(async (data: Omit<Vendor, 'id'>) => {
     const v = await crmService.addVendor(data);
     await refreshVendors();
@@ -833,6 +847,8 @@ export const CrmProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addGovtLetter,
       createProject,
       submitDeliverable,
+      approveDeliverable,
+      rejectDeliverable,
       addVendor,
       updateVendor,
       submitVendorApplication,
@@ -932,6 +948,8 @@ export const CrmProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addGovtLetter,
       createProject,
       submitDeliverable,
+      approveDeliverable,
+      rejectDeliverable,
       addVendor,
       updateVendor,
       submitVendorApplication,

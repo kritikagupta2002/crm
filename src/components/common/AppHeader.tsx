@@ -39,7 +39,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const { unreadCount } = useNotifications();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
-  const isNarrow = screenWidth < 360;
+  const isNarrow = screenWidth <= 360;
   const headerPadding = isNarrow ? spacing.md : spacing.lg;
 
   const androidStatusBar = StatusBar.currentHeight ?? 24;

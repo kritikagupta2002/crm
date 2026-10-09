@@ -10,3 +10,4 @@ export * from './ClientApprovalsScreen';
 export * from './ClientOnboardingScreen';
 export * from './ClientsScreen';
 export * from './ClientDetailScreen';
+export * from './CrmWorkspaceHomeScreen';

@@ -80,11 +80,24 @@ export type RootStackParamList = {
   Payslips: { payslipId?: string } | undefined;
 
   MisReports: undefined;
+
+  Tasks: undefined;
+  RoleSelection: undefined;
+
+  CrmWorkspaceHome: undefined;
+  ErmWorkspaceHome: undefined;
+
+  FieldDatabaseHome: undefined;
+  GeologicalMapping: undefined;
+  SamplingActivity: { type?: string } | undefined;
+  DrillingDpr: { type?: 'core' | 'non-core' } | undefined;
+  DispatchDatabase: undefined;
 };
 
 export type MainTabParamList = {
   HomeTab: undefined;
-  TasksTab: undefined;
   WorkspacesTab: undefined;
+  AlertsTab: undefined;
   ProfileTab: undefined;
+  TasksTab?: undefined;
 };

@@ -1,4 +1,4 @@
-import { TeamRole, WorkspaceId, UserSession, ClientSession, VendorSession } from '../types';
+import { TeamRole, CanonicalRole, WorkspaceId, UserSession, ClientSession, VendorSession } from '../types';
 
 export interface WorkspaceConfig {
   id: WorkspaceId;
@@ -66,64 +66,311 @@ export const ALL_WORKSPACES: WorkspaceConfig[] = [
     iconName: 'BarChart3',
     color: '#db2777',
   },
+  {
+    id: 'field_database',
+    title: 'Field Database',
+    subtitle: 'Geological Field Data, Logging & Samples',
+    iconName: 'Compass',
+    color: '#9a3412',
+  },
 ];
 
+export interface CanonicalRoleItem {
+  key: CanonicalRole;
+  title: string;
+  subtitle: string;
+  description: string;
+  personName: string;
+  teamRole: TeamRole;
+  email: string;
+  iconName?: string;
+  isEmployeeDropdown?: boolean;
+}
+
+export const CANONICAL_ROLE_LIST: CanonicalRoleItem[] = [
+  {
+    key: 'super_admin',
+    title: 'Super Admin',
+    subtitle: 'Everything',
+    description: 'Everything',
+    personName: 'Kritika Gupta',
+    teamRole: 'admin',
+    email: 'kritika.gupta@bansalgeo.com',
+    iconName: 'Crown',
+  },
+  {
+    key: 'director',
+    title: 'Director',
+    subtitle: 'All except Finance',
+    description: 'All except Finance',
+    personName: 'Dr. Sunita Meena',
+    teamRole: 'lead',
+    email: 'sunita.meena@bansalgeo.com',
+    iconName: 'Briefcase',
+  },
+  {
+    key: 'manager',
+    title: 'Manager',
+    subtitle: 'ERM, HRMS & projects',
+    description: 'ERM, HRMS & projects',
+    personName: 'Kavita Rawat',
+    teamRole: 'hr',
+    email: 'kavita.rawat@bansalgeo.com',
+    iconName: 'Users',
+  },
+  {
+    key: 'employee',
+    title: 'Employee',
+    subtitle: 'My tasks & HR self-service',
+    description: 'My tasks & HR self-service',
+    personName: '6 people',
+    teamRole: 'employee',
+    email: 'neha.gupta@bansalgeo.com',
+    iconName: 'UserCheck',
+    isEmployeeDropdown: true,
+  },
+  {
+    key: 'finance_master',
+    title: 'Finance Master',
+    subtitle: 'Full access & Finance',
+    description: 'Full access & Finance',
+    personName: 'N. Jain',
+    teamRole: 'admin',
+    email: 'n.jain@bansalgeo.com',
+    iconName: 'Landmark',
+  },
+  {
+    key: 'accounts_executive',
+    title: 'Accounts Executive',
+    subtitle: 'Billing, accounts & books',
+    description: 'Billing, accounts & books',
+    personName: 'Pooja Sharma',
+    teamRole: 'accountant',
+    email: 'pooja.sharma@bansalgeo.com',
+    iconName: 'CreditCard',
+  },
+];
+
+export interface EmployeeTeamMember {
+  id: string;
+  name: string;
+  designation: string;
+  email: string;
+  department: string;
+}
+
+export const EMPLOYEE_MEMBERS: EmployeeTeamMember[] = [
+  {
+    id: 'emp-005',
+    name: 'Neha Gupta',
+    designation: 'Field Exploration Geologist',
+    email: 'neha.gupta@bansalgeo.com',
+    department: 'Geology & Mineral Exploration',
+  },
+  {
+    id: 'emp-007',
+    name: 'Vikram Patel',
+    designation: 'Geophysical Project Lead',
+    email: 'vikram.patel@bansalgeo.com',
+    department: 'Geology & Mineral Exploration',
+  },
+  {
+    id: 'emp-008',
+    name: 'Rohit Meena',
+    designation: 'Senior Field Surveyor',
+    email: 'rohit.meena@bansalgeo.com',
+    department: 'Geology & Surveying',
+  },
+  {
+    id: 'emp-009',
+    name: 'Suresh Verma',
+    designation: 'Core Drilling Specialist',
+    email: 'suresh.verma@bansalgeo.com',
+    department: 'Drilling & Field Operations',
+  },
+  {
+    id: 'emp-010',
+    name: 'Ankit Sharma',
+    designation: 'GIS Remote Sensing Analyst',
+    email: 'ankit.sharma@bansalgeo.com',
+    department: 'GIS & Remote Sensing',
+  },
+  {
+    id: 'emp-011',
+    name: 'Rahul Soni',
+    designation: 'Site Operations Coordinator',
+    email: 'rahul.soni@bansalgeo.com',
+    department: 'Field Logistics',
+  },
+];
+
+export const CANONICAL_ROLES = CANONICAL_ROLE_LIST;
+
 export const WORKSPACE_ACCESS: Record<TeamRole, WorkspaceId[]> = {
-  admin: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'finance', 'mis'],
-  hr: ['hrms', 'expenses', 'mis'],
+  admin: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'finance', 'mis', 'field_database'],
+  hr: ['crm', 'erm', 'hrms', 'expenses', 'mis'],
   accountant: ['crm', 'vendor', 'hrms', 'expenses', 'finance'],
-  lead: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses'],
+  lead: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'field_database'],
   employee: ['crm', 'vendor', 'hrms', 'expenses'],
 };
 
-export const TEAM_PERSONAS: Record<TeamRole, UserSession> = {
-  admin: {
+export const CANONICAL_ROLE_WORKSPACES: Record<CanonicalRole, WorkspaceId[]> = {
+  super_admin: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'finance', 'mis', 'field_database'],
+  director: ['crm', 'erm', 'vendor', 'documents', 'hrms', 'expenses', 'mis', 'field_database'],
+  manager: ['erm', 'hrms', 'expenses', 'documents', 'mis', 'field_database'],
+  employee: ['hrms', 'expenses'],
+  finance_master: ['finance', 'expenses', 'vendor', 'mis'],
+  accounts_executive: ['finance', 'expenses'],
+};
+
+export interface RolePermissionScope {
+  canViewAllEmployees: boolean;
+  canManageHR: boolean;
+  canApproveLeave: boolean;
+  canViewFinance: boolean;
+  canApproveFinance: boolean;
+  canCreateInvoices: boolean;
+  canApproveVouchers: boolean;
+  canViewPayroll: boolean;
+  canManageProjects: boolean;
+  canApproveQuotes: boolean;
+  canApproveTenders: boolean;
+  canApproveExpenses: boolean;
+  isPersonalScopeOnly: boolean;
+}
+
+export const CANONICAL_ROLE_PERMISSIONS: Record<CanonicalRole, RolePermissionScope> = {
+  super_admin: {
+    canViewAllEmployees: true,
+    canManageHR: true,
+    canApproveLeave: true,
+    canViewFinance: true,
+    canApproveFinance: true,
+    canCreateInvoices: true,
+    canApproveVouchers: true,
+    canViewPayroll: true,
+    canManageProjects: true,
+    canApproveQuotes: true,
+    canApproveTenders: true,
+    canApproveExpenses: true,
+    isPersonalScopeOnly: false,
+  },
+  director: {
+    canViewAllEmployees: true,
+    canManageHR: true,
+    canApproveLeave: true,
+    canViewFinance: false,
+    canApproveFinance: false,
+    canCreateInvoices: false,
+    canApproveVouchers: false,
+    canViewPayroll: false,
+    canManageProjects: true,
+    canApproveQuotes: true,
+    canApproveTenders: true,
+    canApproveExpenses: true,
+    isPersonalScopeOnly: false,
+  },
+  manager: {
+    canViewAllEmployees: false,
+    canManageHR: true,
+    canApproveLeave: true,
+    canViewFinance: false,
+    canApproveFinance: false,
+    canCreateInvoices: false,
+    canApproveVouchers: false,
+    canViewPayroll: false,
+    canManageProjects: true,
+    canApproveQuotes: false,
+    canApproveTenders: false,
+    canApproveExpenses: true,
+    isPersonalScopeOnly: false,
+  },
+  employee: {
+    canViewAllEmployees: false,
+    canManageHR: false,
+    canApproveLeave: false,
+    canViewFinance: false,
+    canApproveFinance: false,
+    canCreateInvoices: false,
+    canApproveVouchers: false,
+    canViewPayroll: false,
+    canManageProjects: false,
+    canApproveQuotes: false,
+    canApproveTenders: false,
+    canApproveExpenses: false,
+    isPersonalScopeOnly: true,
+  },
+  finance_master: {
+    canViewAllEmployees: false,
+    canManageHR: false,
+    canApproveLeave: false,
+    canViewFinance: true,
+    canApproveFinance: true,
+    canCreateInvoices: true,
+    canApproveVouchers: true,
+    canViewPayroll: true,
+    canManageProjects: false,
+    canApproveQuotes: false,
+    canApproveTenders: false,
+    canApproveExpenses: true,
+    isPersonalScopeOnly: false,
+  },
+  accounts_executive: {
+    canViewAllEmployees: false,
+    canManageHR: false,
+    canApproveLeave: false,
+    canViewFinance: true,
+    canApproveFinance: false,
+    canCreateInvoices: true,
+    canApproveVouchers: false,
+    canViewPayroll: false,
+    canManageProjects: false,
+    canApproveQuotes: false,
+    canApproveTenders: false,
+    canApproveExpenses: false,
+    isPersonalScopeOnly: false,
+  },
+};
+
+export const CANONICAL_PERSONAS: Record<CanonicalRole, UserSession> = {
+  super_admin: {
     id: 'emp-001',
     employeeId: 'BGS-2021-001',
-    name: 'Dr. Rajesh Bansal',
-    email: 'rajesh.bansal@bansalgeo.com',
+    name: 'Kritika Gupta',
+    email: 'kritika.gupta@bansalgeo.com',
     accountType: 'team',
     role: 'admin',
+    canonicalRole: 'super_admin',
     hrmsRole: 'hr',
-    designation: 'Managing Director & Chief Geoscientist',
+    designation: 'Super Administrator & Board Director',
     department: 'Executive Board',
-    workspaces: WORKSPACE_ACCESS.admin,
+    workspaces: CANONICAL_ROLE_WORKSPACES.super_admin,
   },
-  hr: {
-    id: 'emp-002',
-    employeeId: 'BGS-2021-009',
-    name: 'Pooja Joshi',
-    email: 'pooja.joshi@bansalgeo.com',
-    accountType: 'team',
-    role: 'hr',
-    hrmsRole: 'hr',
-    designation: 'Head of Human Resources',
-    department: 'Human Resources',
-    workspaces: WORKSPACE_ACCESS.hr,
-  },
-  accountant: {
-    id: 'emp-003',
-    employeeId: 'BGS-2022-011',
-    name: 'Ramesh Iyer',
-    email: 'ramesh.iyer@bansalgeo.com',
-    accountType: 'team',
-    role: 'accountant',
-    hrmsRole: 'employee',
-    designation: 'Chief Financial Controller',
-    department: 'Finance & Accounts',
-    workspaces: WORKSPACE_ACCESS.accountant,
-  },
-  lead: {
+  director: {
     id: 'emp-004',
     employeeId: 'BGS-2022-018',
-    name: 'Vikram Patel',
-    email: 'vikram.patel@bansalgeo.com',
+    name: 'Dr. Sunita Meena',
+    email: 'sunita.meena@bansalgeo.com',
     accountType: 'team',
     role: 'lead',
+    canonicalRole: 'director',
     hrmsRole: 'employee',
-    designation: 'Chief Geophysical Project Manager',
-    department: 'Geology & Mineral Exploration',
-    workspaces: WORKSPACE_ACCESS.lead,
+    designation: 'Director (Operations & Exploration)',
+    department: 'Executive Board',
+    workspaces: CANONICAL_ROLE_WORKSPACES.director,
+  },
+  manager: {
+    id: 'emp-002',
+    employeeId: 'BGS-2021-009',
+    name: 'Kavita Rawat',
+    email: 'kavita.rawat@bansalgeo.com',
+    accountType: 'team',
+    role: 'hr',
+    canonicalRole: 'manager',
+    hrmsRole: 'hr',
+    designation: 'Manager (ERM, HRMS & projects)',
+    department: 'Human Resources & Operations',
+    workspaces: CANONICAL_ROLE_WORKSPACES.manager,
   },
   employee: {
     id: 'emp-005',
@@ -132,11 +379,46 @@ export const TEAM_PERSONAS: Record<TeamRole, UserSession> = {
     email: 'neha.gupta@bansalgeo.com',
     accountType: 'team',
     role: 'employee',
+    canonicalRole: 'employee',
     hrmsRole: 'employee',
     designation: 'Field Exploration Geologist',
     department: 'Geology & Mineral Exploration',
-    workspaces: WORKSPACE_ACCESS.employee,
+    workspaces: CANONICAL_ROLE_WORKSPACES.employee,
   },
+  finance_master: {
+    id: 'emp-006',
+    employeeId: 'BGS-2021-005',
+    name: 'N. Jain',
+    email: 'n.jain@bansalgeo.com',
+    accountType: 'team',
+    role: 'admin',
+    canonicalRole: 'finance_master',
+    hrmsRole: 'employee',
+    designation: 'Finance Master (Full Access & Finance)',
+    department: 'Finance & Treasury',
+    workspaces: CANONICAL_ROLE_WORKSPACES.finance_master,
+  },
+  accounts_executive: {
+    id: 'emp-003',
+    employeeId: 'BGS-2022-011',
+    name: 'Pooja Sharma',
+    email: 'pooja.sharma@bansalgeo.com',
+    accountType: 'team',
+    role: 'accountant',
+    canonicalRole: 'accounts_executive',
+    hrmsRole: 'employee',
+    designation: 'Accounts Executive (Billing, accounts & books)',
+    department: 'Finance & Accounts',
+    workspaces: CANONICAL_ROLE_WORKSPACES.accounts_executive,
+  },
+};
+
+export const TEAM_PERSONAS: Record<TeamRole, UserSession> = {
+  admin: CANONICAL_PERSONAS.super_admin,
+  hr: CANONICAL_PERSONAS.manager,
+  accountant: CANONICAL_PERSONAS.accounts_executive,
+  lead: CANONICAL_PERSONAS.director,
+  employee: CANONICAL_PERSONAS.employee,
 };
 
 export const CLIENT_PERSONAS: ClientSession[] = [

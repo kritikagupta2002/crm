@@ -43,8 +43,19 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
 
   const isAccountant = (role as any) === 'accountant' || (role as any) === 'director' || (role as any) === 'admin';
   const isDirector = (role as any) === 'director' || (role as any) === 'admin';
+  const isVendorUser = session?.accountType === 'vendor' || (role as any) === 'vendor';
+  const vendorId = (session as any)?.vendorId || (session as any)?.id || 'VND-2026-014';
+  const vendorName = (session as any)?.vendorName || (session as any)?.name || '';
 
   const wo = workOrders.find((w) => w.id === woId || w.woNumber === woId);
+
+  const isMyWorkOrder =
+    !isVendorUser ||
+    !wo ||
+    wo.vendorId === vendorId ||
+    wo.vendorId === (session as any)?.id ||
+    (wo.vendor && wo.vendor.toLowerCase().includes('apex') && vendorName.toLowerCase().includes('apex')) ||
+    (vendorId === 'VND-2026-014' && (wo.vendorId === 'ven-001' || wo.vendorId === 'VN-01'));
 
   const [showDeliveryModal, setShowDeliveryModal] = useState<boolean>(false);
   const [deliveryNotes, setDeliveryNotes] = useState<string>('');
@@ -69,14 +80,18 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
 
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  if (!wo) {
+  if (!wo || (isVendorUser && !isMyWorkOrder)) {
     return (
       <ScreenContainer
         scrollable={false}
         header={<AppHeader title="Work Order" showBack onBack={() => navigation.goBack()} />}
       >
         <View style={styles.centerContainer}>
-          <Text style={styles.notFoundText}>Work Order not found.</Text>
+          <Text style={styles.notFoundText}>
+            {!wo
+              ? 'Work Order not found.'
+              : 'Access Restricted: You are not authorized to view this subcontract work order.'}
+          </Text>
           <Button title="Back to Orders" variant="outline" onPress={() => navigation.goBack()} />
         </View>
       </ScreenContainer>
@@ -786,49 +801,53 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   woBadge: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 13,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.primary,
     backgroundColor: colors.primaryBg,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: radius.xs,
+    paddingHorizontal: 9,
+    paddingVertical: 3.5,
+    borderRadius: radius.sm,
   },
   woTitle: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 18.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
-    marginBottom: 2,
+    lineHeight: 25,
+    marginBottom: 4,
   },
   vendorText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 14,
     color: colors.textSecondary,
-    fontWeight: typography.fontWeights.medium,
-    marginBottom: 2,
+    fontWeight: typography.fontWeights.bold,
+    marginBottom: 3,
   },
   scopeText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12.5,
     color: colors.textMuted,
     marginBottom: spacing.sm,
   },
   finGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: spacing.xs,
+    paddingTop: spacing.sm,
     borderTopWidth: 1,
     borderTopColor: colors.surfaceMuted,
+    marginTop: spacing.xs,
   },
   finItem: {
     flex: 1,
   },
   finLabel: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 11,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textMuted,
-    marginBottom: 2,
+    letterSpacing: 0.5,
+    marginBottom: 3,
   },
   finVal: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 14.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   stepperCard: {
@@ -836,11 +855,12 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   sectionTitle: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 12.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   stepperRow: {
     flexDirection: 'row',
@@ -852,9 +872,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   stepNode: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
     justifyContent: 'center',
@@ -867,23 +887,25 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   stepNodeText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
     color: colors.textMuted,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
   stepNodeTextCurrent: {
     color: colors.surface,
   },
   stepLabel: {
-    fontSize: 9,
+    fontSize: 10.5,
     color: colors.textMuted,
+    fontWeight: typography.fontWeights.semibold,
   },
   stepLabelCurrent: {
     color: colors.primary,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
   stepLabelDone: {
     color: colors.successText,
+    fontWeight: typography.fontWeights.bold,
   },
   actionPromptCard: {
     padding: spacing.md,
@@ -898,26 +920,27 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   promptTitle: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 15.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   stageActionBody: {
     marginTop: spacing.xs,
   },
   promptDesc: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textSecondary,
-    lineHeight: 18,
+    lineHeight: 20,
     marginBottom: spacing.sm,
   },
   unbilledHint: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.textPrimary,
     marginBottom: spacing.sm,
   },
   roleNotice: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.warningText,
     fontStyle: 'italic',
   },
@@ -927,12 +950,12 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   paidTitle: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 15.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.successText,
   },
   paidSub: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
   },
@@ -941,25 +964,26 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   cardHeading: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 15.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 4,
+    paddingVertical: 7,
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceMuted,
   },
   dLabel: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textMuted,
-    width: 120,
+    width: 130,
   },
   dVal: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 14,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.textPrimary,
     flex: 1,
     textAlign: 'right',
@@ -967,47 +991,48 @@ const styles = StyleSheet.create({
   fileRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 4,
+    gap: 8,
+    paddingVertical: 6,
   },
   fileName: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.primary,
   },
   activeBillBox: {
     backgroundColor: colors.surfaceMuted,
     borderRadius: radius.md,
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
   },
   billHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   billNoText: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 15,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   billAmtText: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 15.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.primary,
   },
   billDateText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
     color: colors.textMuted,
   },
   checkBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 6,
+    gap: 5,
+    marginTop: 8,
   },
   checkBadgeText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12.5,
     color: colors.successText,
-    fontWeight: typography.fontWeights.semibold,
+    fontWeight: typography.fontWeights.bold,
   },
   returnedBillItem: {
     flexDirection: 'row',
@@ -1019,42 +1044,43 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   returnedTitle: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.dangerText,
   },
   returnedReason: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
     color: colors.dangerText,
-    marginTop: 1,
+    marginTop: 2,
   },
   trailItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingVertical: 6,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceMuted,
   },
   trailDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: colors.primary,
     marginTop: 5,
+    marginRight: 6,
   },
   trailAction: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
   },
   trailMeta: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12,
     color: colors.textMuted,
-    marginTop: 1,
+    marginTop: 2,
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   modalSheet: {
@@ -1072,8 +1098,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border.default,
   },
   sheetTitle: {
-    fontSize: typography.fontSizes.base,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 18,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   sheetContent: {
@@ -1081,32 +1107,35 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
   fieldLabel: {
-    fontSize: typography.fontSizes.xxs,
-    fontWeight: typography.fontWeights.bold,
-    color: colors.textMuted,
-    marginBottom: 4,
+    fontSize: 11.5,
+    fontWeight: typography.fontWeights.heavy,
+    color: colors.textSecondary,
+    marginBottom: 5,
     marginTop: spacing.sm,
+    letterSpacing: 0.5,
   },
   modalInput: {
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: colors.border.default,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs + 2,
-    fontSize: typography.fontSizes.sm,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.sm,
+    fontSize: 14.5,
     color: colors.textPrimary,
+    minHeight: 48,
   },
   fileChip: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.surfaceMuted,
     borderRadius: radius.md,
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
     gap: spacing.xs,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   fileChipText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.semibold,
     color: colors.textPrimary,
   },
   btnRow: {
@@ -1117,12 +1146,12 @@ const styles = StyleSheet.create({
   ceilingNotice: {
     backgroundColor: colors.primaryBg,
     borderRadius: radius.md,
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
     marginBottom: spacing.xs,
   },
   ceilingNoticeText: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.primaryDark,
   },
   centerBackdrop: {
@@ -1137,21 +1166,21 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
   },
   reconcileSub: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textSecondary,
     marginBottom: spacing.md,
-    lineHeight: 18,
+    lineHeight: 19,
   },
   decisionChoiceRow: {
-    gap: spacing.xs,
+    gap: spacing.xs + 2,
     marginBottom: spacing.sm,
   },
   choiceChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
     borderRadius: radius.md,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: colors.border.default,
     backgroundColor: colors.surfaceMuted,
     gap: spacing.xs,
@@ -1165,49 +1194,49 @@ const styles = StyleSheet.create({
     backgroundColor: colors.dangerBg,
   },
   choiceText: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13.5,
     color: colors.textSecondary,
   },
   choiceTextApproved: {
     color: colors.successText,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
   choiceTextReturned: {
     color: colors.dangerText,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
   tdsSummaryBox: {
     backgroundColor: colors.surfaceMuted,
     borderRadius: radius.md,
     padding: spacing.md,
-    gap: 6,
+    gap: 7,
   },
   tdsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   tdsLabel: {
-    fontSize: typography.fontSizes.xs,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   tdsVal: {
-    fontSize: typography.fontSizes.xs,
-    fontWeight: typography.fontWeights.semibold,
+    fontSize: 13.5,
+    fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
   },
   tdsTotalRow: {
     borderTopWidth: 1,
     borderTopColor: colors.border.default,
-    paddingTop: 6,
-    marginTop: 2,
+    paddingTop: 8,
+    marginTop: 4,
   },
   tdsTotalLabel: {
-    fontSize: typography.fontSizes.sm,
-    fontWeight: typography.fontWeights.bold,
+    fontSize: 14,
+    fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
   },
   tdsTotalVal: {
-    fontSize: typography.fontSizes.base,
+    fontSize: 17,
     fontWeight: typography.fontWeights.heavy,
     color: colors.success,
   },
@@ -1218,9 +1247,9 @@ const styles = StyleSheet.create({
   },
   secChip: {
     flex: 1,
-    padding: spacing.sm,
+    padding: spacing.sm + 2,
     borderRadius: radius.md,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: colors.border.default,
     backgroundColor: colors.surfaceMuted,
     alignItems: 'center',
@@ -1230,11 +1259,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primaryBg,
   },
   secChipText: {
-    fontSize: typography.fontSizes.xxs,
+    fontSize: 12.5,
     color: colors.textSecondary,
   },
   secChipTextActive: {
     color: colors.primaryDark,
-    fontWeight: typography.fontWeights.bold,
+    fontWeight: typography.fontWeights.heavy,
   },
 });

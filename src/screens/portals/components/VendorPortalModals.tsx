@@ -6,12 +6,23 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import { X, FileText } from 'lucide-react-native';
-import { Button } from '../../../components';
-import { colors, spacing } from '../../../theme';
+import {
+  X,
+  FileText,
+  IndianRupee,
+  ShieldCheck,
+  CheckCircle2,
+  FileSpreadsheet,
+  AlertCircle,
+  HelpCircle,
+  Paperclip,
+} from 'lucide-react-native';
 import { WorkOrder, Tender } from '../../../types';
-import { styles } from './vendorPortalStyles';
+import { vendorTheme } from './vendorTheme';
 
 interface VendorPortalModalsProps {
   accountModalVisible: boolean;
@@ -75,290 +86,464 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
   setQuestionText,
   handleSubmitClarification,
 }) => {
+  // Compute Section 194C TDS preview
+  const numAmount = parseFloat(billAmount) || 0;
+  const tdsEstimate = Math.round(numAmount * 0.02);
+  const netEstimate = Math.max(0, numAmount - tdsEstimate);
+
+  const remainingCeiling = selectedWoForBilling
+    ? (selectedWoForBilling.contractValue || 0) - (selectedWoForBilling.paidAmount || 0)
+    : 0;
+
   return (
     <>
-      <Modal visible={accountModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>Contractor Profile</Text>
-                <Text style={styles.modalSub}>Verified Banking & Compliance Record</Text>
-              </View>
-              <TouchableOpacity
-                onPress={() => setAccountModalVisible(false)}
-                style={styles.modalCloseBtn}
-              >
-                <X size={20} color={colors.text.secondary} />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-              <View style={styles.profileSection}>
-                <Text style={styles.profileSectionTitle}>FIRM IDENTITY</Text>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>Vendor Code</Text>
-                  <Text style={styles.profileVal}>{currentVendor.id}</Text>
-                </View>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>Legal Firm Name</Text>
-                  <Text style={styles.profileVal}>{currentVendor.name}</Text>
-                </View>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>PAN Card</Text>
-                  <Text style={styles.profileVal}>{currentVendor.pan}</Text>
-                </View>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>GSTIN</Text>
-                  <Text style={styles.profileVal}>{currentVendor.gstin}</Text>
-                </View>
-                {(currentVendor as any).msmeRegistrationNo || (currentVendor as any).msme ? (
-                  <View style={styles.profileRow}>
-                    <Text style={styles.profileLabel}>MSME Reg. No</Text>
-                    <Text style={styles.profileVal}>
-                      {(currentVendor as any).msmeRegistrationNo || (currentVendor as any).msme}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
-
-              <View style={styles.profileSection}>
-                <Text style={styles.profileSectionTitle}>BANKING DETAILS (FOR ELECTRONIC RTGS/NEFT)</Text>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>Bank Name</Text>
-                  <Text style={styles.profileVal}>
-                    {(currentVendor as any).bankDetails?.bankName || (currentVendor as any).bank?.name}
-                  </Text>
-                </View>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>Account Number</Text>
-                  <Text style={styles.profileVal}>
-                    {'•'.repeat(8)}
-                    {((currentVendor as any).bankDetails?.accountNumber || (currentVendor as any).bank?.accountNo)?.slice(-4) || '7890'}
-                  </Text>
-                </View>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>IFSC Code</Text>
-                  <Text style={styles.profileVal}>
-                    {(currentVendor as any).bankDetails?.ifscCode || (currentVendor as any).bank?.ifsc}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.profileSection}>
-                <Text style={styles.profileSectionTitle}>CONTACT PERSON</Text>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>Authorized Rep</Text>
-                  <Text style={styles.profileVal}>{currentVendor.contactPerson}</Text>
-                </View>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>Mobile</Text>
-                  <Text style={styles.profileVal}>+91 {currentVendor.phone}</Text>
-                </View>
-                <View style={styles.profileRow}>
-                  <Text style={styles.profileLabel}>Email</Text>
-                  <Text style={styles.profileVal}>{currentVendor.email}</Text>
-                </View>
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              <Button
-                title="Close"
-                variant="primary"
-                onPress={() => setAccountModalVisible(false)}
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
-
+      {/* 1. DELIVERY REPORT MODAL */}
       <Modal visible={deliveryModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>Fieldwork Delivery</Text>
-                <Text style={styles.modalSub}>{selectedWoForDelivery?.woNumber}</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.modalOverlay}
+        >
+          <View style={styles.modalSheet}>
+            <View style={styles.sheetHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sheetTitle}>Fieldwork Delivery Report</Text>
+                <Text style={styles.sheetSubtitle}>
+                  Order: {selectedWoForDelivery?.woNumber || selectedWoForDelivery?.id}
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setDeliveryModalVisible(false)}
-                style={styles.modalCloseBtn}
+                style={styles.closeBtn}
               >
-                <X size={20} color={colors.text.secondary} />
+                <X size={18} color={vendorTheme.colors.navy} />
               </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-              <Text style={styles.inputLabel}>Field Completion Notes *</Text>
+            <ScrollView contentContainerStyle={styles.sheetBody}>
+              <Text style={styles.inputLabel}>COMPLETION NOTES & FIELD SUMMARY *</Text>
               <TextInput
-                style={[styles.textInput, { height: 80 }]}
+                style={[styles.textInput, { height: 90, textAlignVertical: 'top' }]}
                 multiline
-                placeholder="Describe completed boreholes, depths drilled, samples gathered, or test results..."
-                placeholderTextColor={colors.text.tertiary}
+                placeholder="Detail completed borehole meterage, samples collected, recoveries, rig equipment logs..."
+                placeholderTextColor={vendorTheme.colors.textTertiary}
                 value={deliveryNotes}
                 onChangeText={setDeliveryNotes}
               />
 
-              <Text style={styles.inputLabel}>Attached Field Proofs & Survey Sheets</Text>
-              {attachedFiles.map((fn, idx) => (
-                <View key={idx} style={styles.fileChipRow}>
-                  <FileText size={14} color={colors.primary} />
-                  <Text style={styles.fileNameText}>{fn}</Text>
-                </View>
-              ))}
+              <Text style={styles.inputLabel}>DELIVERY PROOFS & LITHOLOGY SHEETS</Text>
+              <View style={styles.filesList}>
+                {attachedFiles.map((fn, idx) => (
+                  <View key={idx} style={styles.fileItem}>
+                    <FileText size={15} color={vendorTheme.colors.teal} />
+                    <Text style={styles.fileName} numberOfLines={1}>
+                      {fn}
+                    </Text>
+                  </View>
+                ))}
+              </View>
 
-              <Button
-                title="Attach Additional Files"
-                variant="outline"
-                size="small"
+              <TouchableOpacity
+                style={styles.addFileBtn}
                 onPress={() =>
                   setAttachedFiles([
                     ...attachedFiles,
-                    `Field_Data_Sheet_${Date.now().toString().slice(-4)}.csv`,
+                    `Survey_Attestation_${Date.now().toString().slice(-4)}.pdf`,
                   ])
                 }
-              />
+              >
+                <Paperclip size={14} color={vendorTheme.colors.navy} />
+                <Text style={styles.addFileText}>Attach Additional Field Document</Text>
+              </TouchableOpacity>
             </ScrollView>
 
-            <View style={styles.modalFooter}>
-              <Button
-                title="Cancel"
-                variant="outline"
+            <View style={styles.sheetActions}>
+              <TouchableOpacity
                 onPress={() => setDeliveryModalVisible(false)}
-                style={{ flex: 1 }}
-              />
-              <Button
-                title="Submit Delivery"
-                variant="primary"
+                style={styles.cancelBtn}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={handleSubmitDelivery}
-                style={{ flex: 1 }}
-              />
+                style={styles.submitBtn}
+              >
+                <Text style={styles.submitBtnText}>Submit Field Deliverables</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
+      {/* 2. MILESTONE BILLING MODAL WITH 2% TDS LOGIC */}
       <Modal visible={billingModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>Submit Milestone Bill</Text>
-                <Text style={styles.modalSub}>{selectedWoForBilling?.woNumber}</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.modalOverlay}
+        >
+          <View style={styles.modalSheet}>
+            <View style={styles.sheetHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sheetTitle}>Submit Milestone Invoice</Text>
+                <Text style={styles.sheetSubtitle}>
+                  Order: {selectedWoForBilling?.woNumber || selectedWoForBilling?.id}
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setBillingModalVisible(false)}
-                style={styles.modalCloseBtn}
+                style={styles.closeBtn}
               >
-                <X size={20} color={colors.text.secondary} />
+                <X size={18} color={vendorTheme.colors.navy} />
               </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-              <Text style={styles.inputLabel}>Tax Invoice Number *</Text>
+            <ScrollView contentContainerStyle={styles.sheetBody}>
+              <View style={styles.ceilingNotice}>
+                <Text style={styles.ceilingNoticeText}>
+                  Remaining Unbilled Ceiling: ₹{remainingCeiling.toLocaleString('en-IN')}
+                </Text>
+              </View>
+
+              <Text style={styles.inputLabel}>TAX INVOICE NUMBER *</Text>
               <TextInput
                 style={styles.textInput}
-                placeholder="e.g. INV/2026/0124"
-                placeholderTextColor={colors.text.tertiary}
+                placeholder="e.g. APX-INV-2026-089"
+                placeholderTextColor={vendorTheme.colors.textTertiary}
                 value={invoiceNo}
                 onChangeText={setInvoiceNo}
+                autoCapitalize="characters"
               />
 
-              <Text style={styles.inputLabel}>Billing Amount (₹) *</Text>
+              <Text style={styles.inputLabel}>GROSS INVOICE AMOUNT (EXCLUDING GST) (₹) *</Text>
               <TextInput
                 style={styles.textInput}
                 keyboardType="numeric"
-                placeholder="Amount in Rupees"
-                placeholderTextColor={colors.text.tertiary}
+                placeholder="e.g. 500000"
+                placeholderTextColor={vendorTheme.colors.textTertiary}
                 value={billAmount}
                 onChangeText={setBillAmount}
               />
 
-              {selectedWoForBilling && (
-                <Text style={styles.ceilingHint}>
-                  Remaining Contract Ceiling: ₹
-                  {(
-                    selectedWoForBilling.contractValue -
-                    (selectedWoForBilling.paidAmount || 0)
-                  ).toLocaleString('en-IN')}
-                </Text>
+              {/* Live Section 194C TDS Preview */}
+              {numAmount > 0 && (
+                <View style={styles.tdsPreviewCard}>
+                  <Text style={styles.tdsPreviewTitle}>STATUTORY TDS ESTIMATE (SEC 194C)</Text>
+                  <View style={styles.tdsPreviewRow}>
+                    <Text style={styles.tdsPreviewLabel}>Gross Invoice Amount:</Text>
+                    <Text style={styles.tdsPreviewVal}>₹{numAmount.toLocaleString('en-IN')}</Text>
+                  </View>
+                  <View style={styles.tdsPreviewRow}>
+                    <Text style={styles.tdsPreviewLabel}>Less: TDS Deduction @ 2%:</Text>
+                    <Text style={[styles.tdsPreviewVal, { color: vendorTheme.colors.crimson }]}>
+                      - ₹{tdsEstimate.toLocaleString('en-IN')}
+                    </Text>
+                  </View>
+                  <View style={styles.tdsDivider} />
+                  <View style={styles.tdsPreviewRow}>
+                    <Text style={styles.tdsPreviewTotalLabel}>Est. Net Bank Remittance:</Text>
+                    <Text style={styles.tdsPreviewTotalVal}>₹{netEstimate.toLocaleString('en-IN')}</Text>
+                  </View>
+                </View>
               )}
 
-              <Text style={styles.inputLabel}>Remarks / Milestone Reference</Text>
+              <Text style={styles.inputLabel}>MILESTONE DESCRIPTION / WORK SUMMARY</Text>
               <TextInput
-                style={[styles.textInput, { height: 70 }]}
+                style={[styles.textInput, { height: 70, textAlignVertical: 'top' }]}
                 multiline
-                placeholder="Milestone description or payment reference notes..."
-                placeholderTextColor={colors.text.tertiary}
+                placeholder="Completed core logging, borehole depths, milestone milestone reference..."
+                placeholderTextColor={vendorTheme.colors.textTertiary}
                 value={billRemarks}
                 onChangeText={setBillRemarks}
               />
             </ScrollView>
 
-            <View style={styles.modalFooter}>
-              <Button
-                title="Cancel"
-                variant="outline"
+            <View style={styles.sheetActions}>
+              <TouchableOpacity
                 onPress={() => setBillingModalVisible(false)}
-                style={{ flex: 1 }}
-              />
-              <Button
-                title="Lodge Bill"
-                variant="primary"
+                style={styles.cancelBtn}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={handleSubmitBill}
-                style={{ flex: 1 }}
-              />
+                style={[styles.submitBtn, { backgroundColor: vendorTheme.colors.emerald }]}
+              >
+                <Text style={styles.submitBtnText}>Lodge Invoice</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
 
+      {/* 3. PRE-BID CLARIFICATION QUERY MODAL */}
       <Modal visible={askModalVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <View>
-                <Text style={styles.modalTitle}>Ask Pre-Bid Clarification</Text>
-                <Text style={styles.modalSub}>{selectedTenderForAsk?.tenderNo}</Text>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.modalOverlay}
+        >
+          <View style={styles.modalSheet}>
+            <View style={styles.sheetHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sheetTitle}>Ask Pre-Bid Clarification</Text>
+                <Text style={styles.sheetSubtitle}>
+                  Tender: {selectedTenderForAsk?.tenderNo || selectedTenderForAsk?.id}
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setAskModalVisible(false)}
-                style={styles.modalCloseBtn}
+                style={styles.closeBtn}
               >
-                <X size={20} color={colors.text.secondary} />
+                <X size={18} color={vendorTheme.colors.navy} />
               </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}>
-              <Text style={styles.inputLabel}>Your Technical Query *</Text>
+            <ScrollView contentContainerStyle={styles.sheetBody}>
+              <Text style={styles.inputLabel}>TECHNICAL QUERY / AMBIGUITY *</Text>
               <TextInput
-                style={[styles.textInput, { height: 100 }]}
+                style={[styles.textInput, { height: 110, textAlignVertical: 'top' }]}
                 multiline
-                placeholder="Please state specific clause, BOQ item, or soil depth clarification..."
-                placeholderTextColor={colors.text.tertiary}
+                placeholder="State specific scope clause, lithology logging requirement, borehole inclination, or testing standard..."
+                placeholderTextColor={vendorTheme.colors.textTertiary}
                 value={questionText}
                 onChangeText={setQuestionText}
               />
+
+              <View style={styles.infoHint}>
+                <HelpCircle size={14} color={vendorTheme.colors.textMuted} />
+                <Text style={styles.infoHintText}>
+                  Your query will be submitted to the Bansal Geo Tender Evaluation Committee. Official responses are broadcast to all prospective bidders before bid opening.
+                </Text>
+              </View>
             </ScrollView>
 
-            <View style={styles.modalFooter}>
-              <Button
-                title="Cancel"
-                variant="outline"
+            <View style={styles.sheetActions}>
+              <TouchableOpacity
                 onPress={() => setAskModalVisible(false)}
-                style={{ flex: 1 }}
-              />
-              <Button
-                title="Send Query"
-                variant="primary"
+                style={styles.cancelBtn}
+              >
+                <Text style={styles.cancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 onPress={handleSubmitClarification}
-                style={{ flex: 1 }}
-              />
+                style={styles.submitBtn}
+              >
+                <Text style={styles.submitBtnText}>Submit Inquiry</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(11, 37, 69, 0.65)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: vendorTheme.colors.surface,
+    borderTopLeftRadius: vendorTheme.radius.xl,
+    borderTopRightRadius: vendorTheme.radius.xl,
+    maxHeight: '88%',
+    ...vendorTheme.shadows.lg,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: vendorTheme.colors.sandstoneBorder,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: vendorTheme.colors.navy,
+    letterSpacing: -0.2,
+  },
+  sheetSubtitle: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: vendorTheme.colors.textSecondary,
+    marginTop: 2,
+  },
+  closeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: vendorTheme.colors.sandstoneDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetBody: {
+    padding: 18,
+    gap: 12,
+  },
+  inputLabel: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: vendorTheme.colors.textSecondary,
+    letterSpacing: 0.6,
+  },
+  textInput: {
+    backgroundColor: vendorTheme.colors.sandstone,
+    borderWidth: 1.2,
+    borderColor: vendorTheme.colors.sandstoneBorderDark,
+    borderRadius: vendorTheme.radius.md,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14.5,
+    color: vendorTheme.colors.graphite,
+    minHeight: 48,
+  },
+  filesList: {
+    gap: 8,
+  },
+  fileItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    padding: 12,
+    borderRadius: 8,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  fileName: {
+    fontSize: 13.5,
+    fontWeight: '600',
+    color: vendorTheme.colors.graphite,
+  },
+  addFileBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 46,
+    borderRadius: vendorTheme.radius.md,
+    borderWidth: 1.2,
+    borderColor: vendorTheme.colors.sandstoneBorderDark,
+    backgroundColor: vendorTheme.colors.sandstone,
+    gap: 8,
+    marginTop: 4,
+  },
+  addFileText: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: vendorTheme.colors.navy,
+  },
+  ceilingNotice: {
+    backgroundColor: '#f0fdfa',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccfbf1',
+    marginBottom: 4,
+  },
+  ceilingNoticeText: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: vendorTheme.colors.tealDark,
+  },
+  tdsPreviewCard: {
+    backgroundColor: vendorTheme.colors.sandstone,
+    padding: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: vendorTheme.colors.sandstoneBorderDark,
+    marginVertical: 4,
+  },
+  tdsPreviewTitle: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: vendorTheme.colors.textMuted,
+    letterSpacing: 0.6,
+    marginBottom: 8,
+  },
+  tdsPreviewRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 3,
+  },
+  tdsPreviewLabel: {
+    fontSize: 13,
+    color: vendorTheme.colors.textSecondary,
+    fontWeight: '500',
+  },
+  tdsPreviewVal: {
+    fontSize: 13.5,
+    fontWeight: '700',
+    color: vendorTheme.colors.graphite,
+  },
+  tdsDivider: {
+    height: 1,
+    backgroundColor: vendorTheme.colors.sandstoneBorderDark,
+    marginVertical: 8,
+  },
+  tdsPreviewTotalLabel: {
+    fontSize: 13.5,
+    fontWeight: '800',
+    color: vendorTheme.colors.navy,
+  },
+  tdsPreviewTotalVal: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: vendorTheme.colors.emerald,
+  },
+  infoHint: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#f8fafc',
+    padding: 12,
+    borderRadius: 8,
+    gap: 10,
+    marginTop: 4,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  infoHintText: {
+    flex: 1,
+    fontSize: 12.5,
+    color: vendorTheme.colors.textSecondary,
+    lineHeight: 18,
+  },
+  sheetActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 18,
+    borderTopWidth: 1,
+    borderTopColor: vendorTheme.colors.sandstoneBorder,
+  },
+  cancelBtn: {
+    flex: 1,
+    height: 50,
+    borderRadius: vendorTheme.radius.md,
+    borderWidth: 1.2,
+    borderColor: vendorTheme.colors.sandstoneBorderDark,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: vendorTheme.colors.sandstone,
+  },
+  cancelBtnText: {
+    fontSize: 14.5,
+    fontWeight: '700',
+    color: vendorTheme.colors.textSecondary,
+  },
+  submitBtn: {
+    flex: 2,
+    backgroundColor: vendorTheme.colors.navy,
+    height: 50,
+    borderRadius: vendorTheme.radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...vendorTheme.shadows.sm,
+  },
+  submitBtnText: {
+    fontSize: 14.5,
+    fontWeight: '800',
+    color: '#ffffff',
+  },
+});

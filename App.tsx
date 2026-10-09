@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import {
@@ -28,7 +28,7 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar style="light" />
       <AuthProvider>
         <NotificationProvider>
           <CrmProvider>
@@ -45,3 +45,5 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
+// Bansal Geo Client Portal v2.6.2 build trigger
+

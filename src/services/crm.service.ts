@@ -175,6 +175,14 @@ export class CrmService {
     return projectsService.submitDeliverable(projectId, deliv);
   }
 
+  async approveDeliverable(projectId: string, deliverableId: string, remarks?: string): Promise<{ project: Project; deliverable: Deliverable }> {
+    return projectsService.approveDeliverable(projectId, deliverableId, remarks);
+  }
+
+  async rejectDeliverable(projectId: string, deliverableId: string, reason: string): Promise<{ project: Project; deliverable: Deliverable }> {
+    return projectsService.rejectDeliverable(projectId, deliverableId, reason);
+  }
+
   // --- Vendors Domain (33-40) ---
   async getVendors(): Promise<Vendor[]> {
     return vendorsService.getVendors();

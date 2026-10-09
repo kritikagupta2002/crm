@@ -707,6 +707,73 @@ export class ProjectsService {
     await mobileStorage.setProjects(projects);
     return newDeliv;
   }
+
+  async approveDeliverable(projectId: string, deliverableId: string, remarks?: string): Promise<{ project: Project; deliverable: Deliverable }> {
+    const projects = await mobileStorage.getProjects();
+    const proj = projects.find((p) => p.id === projectId);
+    if (!proj) throw new Error('Project not found.');
+
+    const deliv = (proj.deliverables || []).find((d) => d.id === deliverableId);
+    if (!deliv) throw new Error('Deliverable not found.');
+
+    deliv.status = 'Client Approved';
+
+    if (!proj.history) proj.history = [];
+    proj.history.unshift({
+      id: 'h-' + Date.now(),
+      kind: 'milestone',
+      date: new Date().toISOString().split('T')[0],
+      text: `Technical deliverable "${deliv.title}" signed off by Client${remarks ? ` (${remarks})` : ''}`,
+    });
+
+    // Check if project is in Stage 5 (Client Approval) and all deliverables are now approved
+    if (proj.currentStage === 5) {
+      const unapproved = (proj.deliverables || []).filter((d) => d.status !== 'Client Approved');
+      if (unapproved.length === 0) {
+        if (proj.stages && proj.stages[4]) {
+          proj.stages[4].status = 'Completed';
+          proj.stages[4].completedAt = new Date().toISOString().split('T')[0];
+        }
+        proj.currentStage = 6;
+        proj.stageIndex = 5;
+        proj.stageName = 'Stage 6: Invoicing';
+        if (proj.stages && proj.stages[5]) {
+          proj.stages[5].status = 'In Progress';
+        }
+        proj.history.unshift({
+          id: 'h-' + (Date.now() + 1),
+          kind: 'milestone',
+          date: new Date().toISOString().split('T')[0],
+          text: 'Stage 5 Client Approval completed. Project transitioned to Stage 6: Invoicing.',
+        });
+      }
+    }
+
+    await mobileStorage.setProjects(projects);
+    return { project: proj, deliverable: deliv };
+  }
+
+  async rejectDeliverable(projectId: string, deliverableId: string, reason: string): Promise<{ project: Project; deliverable: Deliverable }> {
+    const projects = await mobileStorage.getProjects();
+    const proj = projects.find((p) => p.id === projectId);
+    if (!proj) throw new Error('Project not found.');
+
+    const deliv = (proj.deliverables || []).find((d) => d.id === deliverableId);
+    if (!deliv) throw new Error('Deliverable not found.');
+
+    deliv.status = 'Revision Requested';
+
+    if (!proj.history) proj.history = [];
+    proj.history.unshift({
+      id: 'h-' + Date.now(),
+      kind: 'letter',
+      date: new Date().toISOString().split('T')[0],
+      text: `Client requested revision on "${deliv.title}": ${reason}`,
+    });
+
+    await mobileStorage.setProjects(projects);
+    return { project: proj, deliverable: deliv };
+  }
 }
 
 export const projectsService = new ProjectsService();

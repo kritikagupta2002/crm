@@ -11,3 +11,4 @@ export * from './expenses';
 export * from './finance';
 export * from './payroll';
 export * from './reports';
+export * from './field';
