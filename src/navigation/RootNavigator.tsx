@@ -27,6 +27,7 @@ import {
   ClientOnboardingScreen,
   ClientsScreen,
   ClientDetailScreen,
+  LeadConversionModal,
 } from '../screens/crm';
 
 import {
@@ -201,6 +202,7 @@ export const RootNavigator: React.FC = () => {
               <Stack.Screen name="ClientOnboarding" component={ClientOnboardingScreen} />
               <Stack.Screen name="Clients" component={ClientsScreen} />
               <Stack.Screen name="ClientDetail" component={ClientDetailScreen} />
+              <Stack.Screen name="LeadConversion" component={LeadConversionModal} options={{ presentation: 'modal' }} />
             </>
           )}
 
@@ -282,13 +284,11 @@ export const RootNavigator: React.FC = () => {
           {/* Expenses & Claims */}
           <Stack.Screen name="Expenses" component={ExpensesScreen} />
           <Stack.Screen name="ExpenseClaim" component={ExpenseClaimScreen} />
+          <Stack.Screen name="ExpenseQueries" component={ExpenseQueriesScreen} />
           {canManageHrms && (
-            <>
-              <Stack.Screen name="ExpenseReview" component={ExpenseReviewScreen} />
-              <Stack.Screen name="ExpenseQueries" component={ExpenseQueriesScreen} />
-            </>
+            <Stack.Screen name="ExpenseReview" component={ExpenseReviewScreen} />
           )}
-          {canApproveFinance && (
+          {canAccessFinance && (
             <Stack.Screen name="ExpenseSettlement" component={ExpenseSettlementScreen} />
           )}
           <Stack.Screen name="Reimbursement" component={ReimbursementScreen} />

@@ -376,6 +376,10 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
         keyExtractor={item => item.id}
         renderItem={renderEmpCard}
         contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={5}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={
           <EmptyState

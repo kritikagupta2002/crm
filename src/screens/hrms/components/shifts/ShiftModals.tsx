@@ -98,7 +98,7 @@ export const ShiftModals: React.FC<ShiftModalsProps> = ({
 }) => {
   return (
     <>
-      <Modal
+      <Modal statusBarTranslucent
         visible={showShiftModal}
         animationType="slide"
         transparent
@@ -285,7 +285,7 @@ export const ShiftModals: React.FC<ShiftModalsProps> = ({
         </KeyboardAvoidingView>
       </Modal>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={showAssignModal}
         animationType="slide"
         transparent

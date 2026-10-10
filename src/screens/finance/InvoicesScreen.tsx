@@ -432,6 +432,10 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         data={filteredInvoices}
         keyExtractor={invoiceKeyExtractor}
         renderItem={renderInvoiceCard}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>

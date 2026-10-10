@@ -401,9 +401,9 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
           {/* 3. Today's Field WBS Dispatch Section */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
-              <Text style={styles.sectionTitle}>Today's Operational WBS Tasks</Text>
+              <Text style={styles.sectionTitle}>Operational WBS Tasks</Text>
               <View style={styles.counterBadge}>
-                <Text style={styles.counterBadgeText}>{pendingTasksCount} Tasks Pending</Text>
+                <Text style={styles.counterBadgeText}>{pendingTasksCount} Pending</Text>
               </View>
             </View>
             <TouchableOpacity
@@ -419,23 +419,20 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             {activeTasks.map((t, idx) => (
               <React.Fragment key={t.id}>
                 <TouchableOpacity
-                  activeOpacity={0.75}
+                  activeOpacity={0.7}
                   onPress={() => toggleTask(t.id)}
                   style={styles.taskRow}
                 >
-                  <TouchableOpacity
-                    onPress={() => toggleTask(t.id)}
+                  <View
                     style={[
-                      styles.taskCheckCircle,
-                      t.done && styles.taskCheckCircleDone,
+                      styles.taskCheckbox,
+                      t.done && styles.taskCheckboxDone,
                     ]}
                   >
                     {t.done ? (
-                      <Check size={14} color="#ffffff" strokeWidth={3} />
-                    ) : (
-                      <View style={styles.taskCheckInner} />
-                    )}
-                  </TouchableOpacity>
+                      <Check size={13} color="#FFFFFF" strokeWidth={3} />
+                    ) : null}
+                  </View>
 
                   <View style={styles.taskInfoCol}>
                     <Text
@@ -448,23 +445,33 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                       {t.title}
                     </Text>
                     <View style={styles.taskMetaRow}>
-                      <Text style={styles.taskProjectText}>{t.project}</Text>
-                      <Text style={styles.taskTimeText}>• Due {t.time}</Text>
+                      <Text style={styles.taskProjectText} numberOfLines={1}>
+                        {t.project}
+                      </Text>
+                      <Text style={styles.taskTimeText}> • Due {t.time}</Text>
                     </View>
                   </View>
 
                   <View
                     style={[
                       styles.priorityPill,
-                      t.priority === 'High'
-                        ? { backgroundColor: '#fee2e2', borderColor: '#fca5a5' }
-                        : { backgroundColor: '#eff6ff', borderColor: '#bfdbfe' },
+                      t.done
+                        ? { backgroundColor: '#F1F5F9', borderColor: '#E2E8F0' }
+                        : t.priority === 'High'
+                        ? { backgroundColor: '#FEE2E2', borderColor: '#FCA5A5' }
+                        : { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' },
                     ]}
                   >
                     <Text
                       style={[
                         styles.priorityPillText,
-                        { color: t.priority === 'High' ? '#dc2626' : '#2563eb' },
+                        {
+                          color: t.done
+                            ? '#94A3B8'
+                            : t.priority === 'High'
+                            ? '#DC2626'
+                            : '#2563EB',
+                        },
                       ]}
                     >
                       {t.priority}
@@ -722,7 +729,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   bodyWrapper: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingTop: 12,
   },
 
@@ -880,43 +887,38 @@ const styles = StyleSheet.create({
   tasksCardContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: '#e2e8f0',
     marginBottom: 16,
-    ...shadows.sm,
+    ...shadows.xs,
   },
   taskRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 13,
-    paddingHorizontal: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
-  taskCheckCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 2,
-    borderColor: '#cbd5e1',
+  taskCheckbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.8,
+    borderColor: '#94a3b8',
+    backgroundColor: '#f8fafc',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
   },
-  taskCheckCircleDone: {
+  taskCheckboxDone: {
     backgroundColor: '#059669',
     borderColor: '#059669',
-  },
-  taskCheckInner: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'transparent',
   },
   taskInfoCol: {
     flex: 1,
     marginRight: 8,
   },
   taskTitle: {
-    fontSize: 14.5,
+    fontSize: 14,
     fontWeight: '700',
     color: '#0f172a',
   },
@@ -927,17 +929,19 @@ const styles = StyleSheet.create({
   taskMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    marginTop: 2,
+    gap: 2,
+    marginTop: 2.5,
   },
   taskProjectText: {
     fontSize: 12,
     color: '#0d9488',
     fontWeight: '600',
+    flexShrink: 1,
   },
   taskTimeText: {
     fontSize: 11.5,
     color: '#64748b',
+    flexShrink: 0,
   },
   priorityPill: {
     paddingHorizontal: 8,
@@ -952,7 +956,7 @@ const styles = StyleSheet.create({
   taskDivider: {
     height: 1,
     backgroundColor: '#f1f5f9',
-    marginLeft: 50,
+    marginHorizontal: 14,
   },
 
   /* 4. Leave Queue */

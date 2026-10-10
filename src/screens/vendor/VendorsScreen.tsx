@@ -139,6 +139,7 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Vendor Master"
@@ -197,6 +198,10 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
         keyExtractor={(v) => v.id}
         renderItem={renderVendorCard}
         contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
@@ -311,7 +316,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
   },
   searchSection: {
-    paddingHorizontal: spacing.md,
     paddingTop: spacing.sm,
     paddingBottom: spacing.xs,
     backgroundColor: colors.surface,
@@ -323,6 +327,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.surfaceMuted,
     borderRadius: radius.md,
+    marginHorizontal: 16,
     paddingHorizontal: spacing.sm,
     marginBottom: spacing.xs,
   },
@@ -336,6 +341,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   categoryList: {
+    paddingHorizontal: 16,
     paddingVertical: spacing.xs,
     gap: spacing.xs,
   },
@@ -361,7 +367,8 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeights.bold,
   },
   listContent: {
-    padding: spacing.md,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: spacing.xxl,
     gap: spacing.sm,
   },

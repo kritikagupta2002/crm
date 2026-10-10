@@ -445,6 +445,10 @@ export const VendorBillsScreen: React.FC<{ navigation: any }> = ({ navigation })
         data={filteredBills}
         keyExtractor={(item) => item.id}
         renderItem={renderBillCard}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>

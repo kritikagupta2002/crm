@@ -221,7 +221,7 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
       />
 
       {/* Compose Broadcast Modal */}
-      <Modal
+      <Modal statusBarTranslucent
         visible={composeModalVisible}
         animationType="slide"
         transparent={true}

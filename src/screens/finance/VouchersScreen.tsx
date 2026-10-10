@@ -371,6 +371,10 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         data={filteredVouchers}
         keyExtractor={item => item.id}
         renderItem={renderVoucherCard}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 32, 60) }]}
         ListEmptyComponent={
           <EmptyState

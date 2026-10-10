@@ -228,6 +228,7 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Quotations & Proposals"
@@ -325,6 +326,9 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
           keyExtractor={(item) => `${item.lead.id}-${item.quote.number}`}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           renderItem={({ item }) => {
             const { lead, quote } = item;
             return (
@@ -371,7 +375,7 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
       )}
 
       {selectedQuoteLead && (
-        <Modal
+        <Modal statusBarTranslucent
           visible={Boolean(selectedQuoteLead)}
           animationType="slide"
           transparent
@@ -543,7 +547,7 @@ export const QuotesScreen: React.FC<QuotesScreenProps> = ({ navigation, route })
       )}
 
       {rejectingLeadId && (
-        <Modal
+        <Modal statusBarTranslucent
           visible={Boolean(rejectingLeadId)}
           transparent
           animationType="fade"

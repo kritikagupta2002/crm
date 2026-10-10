@@ -14,6 +14,7 @@ import {
   APPROVALS,
   MILESTONES,
 } from '../../constants';
+import { INITIAL_PROJECTS } from '../../constants/seeds/erm';
 
 export class ProjectsService {
   private normalizeProject(proj: Project): Project {
@@ -67,7 +68,11 @@ export class ProjectsService {
       note: null,
     };
 
-    const tasks = (proj.tasks || []).map((t) => ({
+    const initialMatch = INITIAL_PROJECTS.find((ip) => ip.id === proj.id);
+    const initialTasks = initialMatch?.tasks || [];
+    const rawTasks = (proj.tasks && proj.tasks.length > 0) ? proj.tasks : initialTasks;
+
+    const tasks = rawTasks.map((t) => ({
       ...t,
       assignee: t.assignee || t.assigneeName || '',
       assigneeName: t.assigneeName || t.assignee || 'Unassigned',

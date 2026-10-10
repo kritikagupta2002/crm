@@ -39,7 +39,7 @@ export const LeaveDetailModal: React.FC<LeaveDetailModalProps> = ({
   if (!request) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="slide">
+    <Modal statusBarTranslucent visible={visible} transparent animationType="slide">
       <View style={styles.modalOverlay}>
         <View style={styles.detailModalBox}>
           <View style={styles.modalHeader}>

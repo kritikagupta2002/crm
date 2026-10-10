@@ -354,7 +354,7 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
 
           <View style={styles.signOffCardsStack}>
             {/* Card 1: Major Commercial Quotation */}
-            <View style={[styles.signOffCard, { borderLeftColor: '#0284C7' }]}>
+            <View style={styles.signOffCard}>
               <View style={styles.signOffTopLine}>
                 <View style={[styles.signOffTag, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}>
                   <FileCheck2 size={12} color="#1D4ED8" strokeWidth={2.4} style={{ marginRight: 4 }} />
@@ -399,7 +399,7 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
 
             {/* Card 2: Contractor Grade-A Empanelment */}
-            <View style={[styles.signOffCard, { borderLeftColor: '#D97706' }]}>
+            <View style={styles.signOffCard}>
               <View style={styles.signOffTopLine}>
                 <View style={[styles.signOffTag, { backgroundColor: '#FEFCE8', borderColor: '#FEF08A' }]}>
                   <Building2 size={12} color="#B45309" strokeWidth={2.4} style={{ marginRight: 4 }} />
@@ -443,7 +443,7 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
 
             {/* Card 3: 4-Eyes Government Clearance */}
-            <View style={[styles.signOffCard, { borderLeftColor: '#7C3AED' }]}>
+            <View style={styles.signOffCard}>
               <View style={styles.signOffTopLine}>
                 <View style={[styles.signOffTag, { backgroundColor: '#FAF5FF', borderColor: '#F3E8FF' }]}>
                   <FileText size={12} color="#7E22CE" strokeWidth={2.4} style={{ marginRight: 4 }} />
@@ -967,7 +967,6 @@ const styles = StyleSheet.create({
     padding: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderLeftWidth: 4.5,
     ...shadows.xs,
   },
   signOffTopLine: {

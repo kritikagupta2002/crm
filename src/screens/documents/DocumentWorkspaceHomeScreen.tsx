@@ -559,8 +559,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: '#FDE68A',
-    borderLeftWidth: 4,
-    borderLeftColor: '#D97706',
   },
   urgentHead: {
     flexDirection: 'row',
@@ -600,8 +598,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderLeftWidth: 4,
-    borderLeftColor: '#EF4444',
   },
   verifySub: {
     fontSize: typography.fontSizes.xs,

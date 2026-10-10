@@ -526,7 +526,7 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
         />
       )}
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={showRosterModal}
         animationType="slide"
         transparent

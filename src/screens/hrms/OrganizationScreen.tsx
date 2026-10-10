@@ -834,7 +834,7 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </ScrollView>
       )}
 
-      <Modal visible={showDesigModal} transparent animationType="slide">
+      <Modal visible={showDesigModal} transparent animationType="slide" statusBarTranslucent>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
@@ -927,7 +927,7 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </KeyboardAvoidingView>
       </Modal>
 
-      <Modal visible={showDeptModal} transparent animationType="slide">
+      <Modal visible={showDeptModal} transparent animationType="slide" statusBarTranslucent>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
@@ -1303,8 +1303,8 @@ const styles = StyleSheet.create({
   },
   desigBranchContainer: {
     backgroundColor: colors.background.primary,
-    borderLeftWidth: 2,
-    borderLeftColor: colors.primary,
+    borderLeftWidth: 1.5,
+    borderLeftColor: colors.border.subtle,
     marginLeft: spacing.lg,
     paddingLeft: spacing.md,
     paddingVertical: spacing.sm,

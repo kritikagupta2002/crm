@@ -312,7 +312,7 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
         ))}
       </Card>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={portalModalVisible}
         animationType="slide"
         transparent

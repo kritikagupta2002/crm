@@ -251,7 +251,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
 
         <View style={styles.kpiContainer}>
           <View style={styles.kpiRow}>
-            <View style={[styles.kpiBox, { borderLeftColor: colors.primary }]}>
+            <View style={styles.kpiBox}>
               <Text style={styles.kpiLabel}>NET GST PAYABLE</Text>
               <Text style={[styles.kpiVal, { color: colors.primary }]}>
                 ₹{netGstLiability.toLocaleString('en-IN')}
@@ -259,7 +259,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               <Text style={styles.kpiSub}>GSTR-3B cash liability</Text>
             </View>
 
-            <View style={[styles.kpiBox, { borderLeftColor: colors.semantic.success }]}>
+            <View style={styles.kpiBox}>
               <Text style={styles.kpiLabel}>OUTPUT GST (SALES)</Text>
               <Text style={styles.kpiVal}>₹{totalOutputGst.toLocaleString('en-IN')}</Text>
               <Text style={styles.kpiSub}>From client invoices</Text>
@@ -267,7 +267,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
           </View>
 
           <View style={styles.kpiRow}>
-            <View style={[styles.kpiBox, { borderLeftColor: colors.semantic.warning }]}>
+            <View style={styles.kpiBox}>
               <Text style={styles.kpiLabel}>INPUT CREDIT (ITC)</Text>
               <Text style={[styles.kpiVal, { color: colors.semantic.success }]}>
                 ₹{totalInputItc.toLocaleString('en-IN')}
@@ -275,7 +275,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               <Text style={styles.kpiSub}>On vendor/contractor bills</Text>
             </View>
 
-            <View style={[styles.kpiBox, { borderLeftColor: '#8B5CF6' }]}>
+            <View style={styles.kpiBox}>
               <Text style={styles.kpiLabel}>B2B TRANSACTIONS</Text>
               <Text style={styles.kpiVal}>{gstTransactions.length}</Text>
               <Text style={styles.kpiSub}>Audited tax entries</Text>
@@ -672,7 +672,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm + 2,
     borderWidth: 1,
     borderColor: colors.border.default,
-    borderLeftWidth: 3.5,
   },
   kpiLabel: {
     ...typography.caption,

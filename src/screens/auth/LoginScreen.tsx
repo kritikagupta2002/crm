@@ -823,7 +823,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       </ScrollView>
 
       {/* 1. Modal: Role Switcher Bottom Sheet */}
-      <Modal
+      <Modal statusBarTranslucent
         visible={showRoleModal}
         transparent={true}
         animationType="slide"
@@ -901,7 +901,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       </Modal>
 
       {/* 2. Modal: Employee Team Member Picker */}
-      <Modal
+      <Modal statusBarTranslucent
         visible={showEmployeeModal}
         transparent={true}
         animationType="slide"

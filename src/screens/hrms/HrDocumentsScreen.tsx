@@ -319,7 +319,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
         </ScrollView>
       </View>
 
-      <Modal visible={isUploadOpen} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={isUploadOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
@@ -437,7 +437,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
         </View>
       </Modal>
 
-      <Modal visible={!!previewDoc} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={!!previewDoc} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.previewCard}>
             <View style={styles.modalHeader}>

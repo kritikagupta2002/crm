@@ -135,7 +135,7 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {isEmployee && (
           <View style={styles.summaryGrid}>
-            <Card style={[styles.summaryCard, { borderLeftColor: '#10B981' }]}>
+            <Card style={styles.summaryCard}>
               <View style={[styles.summaryIconWrap, { backgroundColor: '#ECFDF5' }]}>
                 <UserCheck size={18} color="#059669" />
               </View>
@@ -145,7 +145,7 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
               </View>
             </Card>
 
-            <Card style={[styles.summaryCard, { borderLeftColor: '#F59E0B' }]}>
+            <Card style={styles.summaryCard}>
               <View style={[styles.summaryIconWrap, { backgroundColor: '#FFFBEB' }]}>
                 <Clock size={18} color="#D97706" />
               </View>
@@ -155,7 +155,7 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
               </View>
             </Card>
 
-            <Card style={[styles.summaryCard, { borderLeftColor: '#8B5CF6' }]}>
+            <Card style={styles.summaryCard}>
               <View style={[styles.summaryIconWrap, { backgroundColor: '#FAF5FF' }]}>
                 <CalendarOff size={18} color="#7C3AED" />
               </View>
@@ -165,7 +165,7 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
               </View>
             </Card>
 
-            <Card style={[styles.summaryCard, { borderLeftColor: '#64748B' }]}>
+            <Card style={styles.summaryCard}>
               <View style={[styles.summaryIconWrap, { backgroundColor: '#F1F5F9' }]}>
                 <Building2 size={18} color="#475569" />
               </View>
@@ -384,7 +384,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border.subtle,
-    borderLeftWidth: 4,
     gap: spacing.xs,
   },
   summaryIconWrap: {

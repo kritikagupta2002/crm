@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   FlatList,
   TouchableOpacity,
@@ -131,20 +132,10 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     const isSettled = item.status === 'Settled';
     const isApproved = item.status === 'Approved';
 
-    const accentColor = isSettled
-      ? '#0D9488'
-      : isApproved
-      ? '#16A34A'
-      : isQueried
-      ? '#DC2626'
-      : item.status === 'Partially Approved'
-      ? '#D97706'
-      : '#3B82F6';
-
     const initials = getInitials(item.employeeName);
 
     return (
-      <View style={[styles.card, { borderLeftColor: accentColor }]}>
+      <View style={styles.card}>
         {/* Top Line: Expense ID, Status Badge & Date */}
         <View style={styles.cardHeader}>
           <View style={styles.tagWrap}>
@@ -332,8 +323,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             <View style={[styles.compactSquircle, { backgroundColor: '#F0FDFA' }]}>
               <Plus size={18} color="#0D9488" strokeWidth={2.5} />
             </View>
-            <Text style={styles.compactActionTitle}>New Claim</Text>
-            <Text style={styles.compactActionSub}>Submit</Text>
+            <Text style={styles.compactActionTitle} numberOfLines={1}>New Claim</Text>
+            <Text style={styles.compactActionSub} numberOfLines={1}>Submit</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -344,8 +335,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             <View style={[styles.compactSquircle, { backgroundColor: '#FFFBEB' }]}>
               <MessageSquare size={17} color="#D97706" />
             </View>
-            <Text style={styles.compactActionTitle}>Queries ({openQueryCount})</Text>
-            <Text style={styles.compactActionSub}>Clarification</Text>
+            <Text style={styles.compactActionTitle} numberOfLines={1}>Queries ({openQueryCount})</Text>
+            <Text style={styles.compactActionSub} numberOfLines={1}>Clarify</Text>
           </TouchableOpacity>
 
           {isPrivileged && (
@@ -357,8 +348,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               <View style={[styles.compactSquircle, { backgroundColor: '#EFF6FF' }]}>
                 <ShieldCheck size={17} color="#2563EB" />
               </View>
-              <Text style={styles.compactActionTitle}>Audit Queue</Text>
-              <Text style={styles.compactActionSub}>HR</Text>
+              <Text style={styles.compactActionTitle} numberOfLines={1}>Audit Queue</Text>
+              <Text style={styles.compactActionSub} numberOfLines={1}>Review</Text>
             </TouchableOpacity>
           )}
 
@@ -370,23 +361,30 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             <View style={[styles.compactSquircle, { backgroundColor: '#FAF5FF' }]}>
               <FileText size={17} color="#9333EA" />
             </View>
-            <Text style={styles.compactActionTitle}>Policy SOP</Text>
-            <Text style={styles.compactActionSub}>Per-Diem</Text>
+            <Text style={styles.compactActionTitle} numberOfLines={1}>Policy SOP</Text>
+            <Text style={styles.compactActionSub} numberOfLines={1}>Per-Diem</Text>
           </TouchableOpacity>
         </View>
       </View>
 
       {/* 3. Search Bar */}
-      <View style={styles.searchContainer}>
-        <Input
+      <View style={styles.searchBox}>
+        <Search size={16} color="#64748B" />
+        <TextInput
           placeholder={isPrivileged ? 'Search staff, project, category, claim ID...' : 'Search my claims, project, category...'}
+          placeholderTextColor="#94A3B8"
           value={search}
           onChangeText={setSearch}
-          leftIcon={<Search size={17} color={colors.text.secondary} />}
+          style={styles.searchInput}
         />
+        {search ? (
+          <TouchableOpacity onPress={() => setSearch('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <X size={15} color="#64748B" />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
-      {/* 4. Filter Chips with right padding */}
+      {/* 4. Filter Chips with full edge-to-edge scroll */}
       <View style={styles.filterScroll}>
         <FlatList
           horizontal
@@ -398,6 +396,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             <TouchableOpacity
               style={[styles.filterChip, selectedStatus === item && styles.filterChipActive]}
               onPress={() => setSelectedStatus(item)}
+              activeOpacity={0.8}
             >
               <Text
                 style={[
@@ -452,6 +451,9 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 60, 96) }]}
         ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
         }
@@ -544,7 +546,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   listHeaderWrap: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 16,
     paddingTop: spacing.sm,
   },
   sectionHeader: {
@@ -562,7 +564,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 14,
     paddingHorizontal: 8,
-    marginBottom: spacing.xs + 2,
+    marginBottom: 10,
     borderWidth: 1.2,
     borderColor: '#E2E8F0',
     ...shadows.xs,
@@ -598,7 +600,7 @@ const styles = StyleSheet.create({
 
   /* Compact Action Tiles */
   launchpadSection: {
-    marginBottom: spacing.xs + 2,
+    marginBottom: 10,
   },
   compactActionRow: {
     flexDirection: 'row',
@@ -636,50 +638,73 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  searchContainer: {
-    marginBottom: 4,
+  searchBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.2,
+    borderColor: '#E2E8F0',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 42,
+    gap: 8,
+    marginBottom: 10,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 13,
+    color: colors.text.primary,
+    paddingVertical: 0,
   },
   filterScroll: {
-    marginBottom: spacing.xs + 2,
+    marginHorizontal: -16,
+    marginBottom: 10,
   },
   filterList: {
-    gap: 6,
+    paddingHorizontal: 16,
+    gap: 8,
     paddingVertical: 2,
-    paddingRight: spacing.xl,
   },
   filterChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 6.5,
     borderRadius: radius.full,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   filterChipActive: {
     backgroundColor: '#0D9488',
     borderColor: '#0D9488',
+    shadowColor: '#0D9488',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
+    elevation: 2,
   },
   filterChipText: {
-    fontSize: 11,
-    fontWeight: typography.fontWeights.semibold,
-    color: colors.text.secondary,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
   },
   filterChipTextActive: {
     color: '#FFFFFF',
+    fontWeight: '700',
   },
 
   list: {
     paddingBottom: 96,
   },
   card: {
-    marginHorizontal: spacing.md,
+    marginHorizontal: 16,
     marginBottom: spacing.sm,
     padding: 13,
     borderRadius: radius.lg,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderLeftWidth: 4.5,
     ...shadows.xs,
   },
   cardHeader: {

@@ -238,6 +238,7 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Tender Notice Board"
@@ -299,6 +300,10 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderTenderCard}
         contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
@@ -395,7 +400,7 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
       />
 
       {showCreateModal && (
-        <Modal visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>

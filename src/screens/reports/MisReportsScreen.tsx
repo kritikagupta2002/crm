@@ -990,8 +990,6 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.md,
     padding: spacing.sm,
     gap: 2,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
   },
   projTitle: {
     fontSize: typography.fontSizes.xs,

@@ -396,7 +396,7 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         }
       />
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={Boolean(activeDispatchDoc)}
         transparent
         animationType="slide"
@@ -464,7 +464,7 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         </View>
       </Modal>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={Boolean(activeReceiveDoc)}
         transparent
         animationType="slide"
@@ -513,7 +513,7 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
         </View>
       </Modal>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={showAddCustomModal}
         transparent
         animationType="slide"

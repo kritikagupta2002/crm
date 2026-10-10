@@ -287,7 +287,7 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         }
       />
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={Boolean(activeScan)}
         transparent
         animationType="slide"
@@ -412,7 +412,7 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
         </View>
       </Modal>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={Boolean(previewScan)}
         transparent
         animationType="fade"

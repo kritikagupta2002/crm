@@ -263,6 +263,9 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           renderItem={renderCorrectionItem}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           ListEmptyComponent={
             <EmptyState
               icon={<FileEdit size={48} color={colors.text.tertiary} />}
@@ -275,7 +278,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
         />
       </View>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={reviewModalOpen}
         transparent
         animationType="fade"

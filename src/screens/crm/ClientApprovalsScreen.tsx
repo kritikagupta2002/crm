@@ -163,6 +163,7 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Client Approval Gates"
@@ -244,6 +245,9 @@ export const ClientApprovalsScreen: React.FC<ClientApprovalsScreenProps> = ({ na
           data={visibleLeads}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }) => {
             const stepsDone = APPROVAL_STEPS.filter((s) => (item.approval as any)?.[s.key]).length;

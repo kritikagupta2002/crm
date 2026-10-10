@@ -132,6 +132,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Projects & Approvals"
@@ -347,6 +348,9 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           renderItem={({ item }) => {
             const currentStage = item.currentStage || 1;
             const stageLabel = ERM_STAGES[Math.min(6, currentStage - 1)]?.label || item.stageName;
@@ -437,7 +441,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         />
       )}
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={createModalVisible}
         transparent
         animationType="slide"

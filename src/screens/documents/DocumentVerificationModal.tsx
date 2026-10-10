@@ -60,7 +60,7 @@ export const DocumentVerificationModal: React.FC<DocumentVerificationModalProps>
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal statusBarTranslucent visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
         <View style={styles.content}>
           <View style={styles.header}>

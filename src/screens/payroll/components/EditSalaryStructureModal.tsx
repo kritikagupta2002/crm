@@ -60,7 +60,7 @@ export const EditSalaryStructureModal: React.FC<EditSalaryStructureModalProps> =
   onSaveStructure,
 }) => {
   return (
-    <Modal
+    <Modal statusBarTranslucent
       visible={!!editingStructure}
       animationType="slide"
       transparent

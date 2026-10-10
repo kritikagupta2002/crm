@@ -387,7 +387,7 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         )}
       </ScrollView>
 
-      <Modal visible={showPartialModal} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showPartialModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalHeading}>Partial Amount Approval</Text>
@@ -441,7 +441,7 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         </View>
       </Modal>
 
-      <Modal visible={showQueryModal} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showQueryModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalHeading}>Raise Clarification Query</Text>
@@ -486,7 +486,7 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         </View>
       </Modal>
 
-      <Modal visible={showReceiptModal} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={showReceiptModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.receiptHead}>

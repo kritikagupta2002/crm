@@ -228,12 +228,12 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
 
       <View style={styles.statsContainer}>
         <View style={styles.statRow}>
-          <View style={[styles.statBox, { borderLeftColor: '#8B5CF6' }]}>
+          <View style={styles.statBox}>
             <Text style={styles.statLabel}>TOTAL TDS WITHHELD</Text>
             <Text style={styles.statValue}>₹{totalTdsWithheld.toLocaleString('en-IN')}</Text>
             <Text style={styles.statSub}>Gross tax withheld</Text>
           </View>
-          <View style={[styles.statBox, { borderLeftColor: colors.semantic.success }]}>
+          <View style={styles.statBox}>
             <Text style={styles.statLabel}>TDS DEPOSITED</Text>
             <Text style={[styles.statValue, { color: colors.semantic.success }]}>
               ₹{totalDeposited.toLocaleString('en-IN')}
@@ -243,14 +243,14 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         </View>
 
         <View style={styles.statRow}>
-          <View style={[styles.statBox, { borderLeftColor: colors.semantic.warning }]}>
+          <View style={styles.statBox}>
             <Text style={styles.statLabel}>PENDING DEPOSIT</Text>
             <Text style={[styles.statValue, { color: colors.semantic.warning }]}>
               ₹{pendingDeposit.toLocaleString('en-IN')}
             </Text>
             <Text style={styles.statSub}>Due by 7th of next month</Text>
           </View>
-          <View style={[styles.statBox, { borderLeftColor: colors.primary }]}>
+          <View style={styles.statBox}>
             <Text style={styles.statLabel}>TAX SCHEDULES</Text>
             <Text style={styles.statValue}>{taxRecords.length}</Text>
             <Text style={styles.statSub}>Active challan records</Text>
@@ -318,6 +318,10 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
         data={filteredRecords}
         keyExtractor={item => item.id}
         renderItem={renderTdsCard}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         contentContainerStyle={[styles.list, { paddingBottom: Math.max(insets.bottom + 60, 96) }]}
         ListEmptyComponent={
           <EmptyState
@@ -672,7 +676,6 @@ const styles = StyleSheet.create({
     padding: spacing.sm + 2,
     borderWidth: 1,
     borderColor: colors.border.default,
-    borderLeftWidth: 3.5,
   },
   statLabel: {
     ...typography.caption,

@@ -575,7 +575,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       )}
 
       {showBidModal && (
-        <Modal visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -674,7 +674,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       )}
 
       {showAskModal && (
-        <Modal visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade">
           <View style={styles.modalBackdropCenter}>
             <Card style={styles.centerModalCard}>
               <Text style={styles.sheetTitle}>Ask Clarification Question</Text>
@@ -709,7 +709,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       )}
 
       {showAnswerModal && (
-        <Modal visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade">
           <View style={styles.modalBackdropCenter}>
             <Card style={styles.centerModalCard}>
               <Text style={styles.sheetTitle}>Publish Official Clarification Reply</Text>

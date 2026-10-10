@@ -407,8 +407,6 @@ export const styles = StyleSheet.create({
     backgroundColor: `${colors.semantic.success}10`,
     padding: spacing.sm,
     borderRadius: borderRadius.sm,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.semantic.success,
   },
   answerHeader: {
     ...typography.caption,

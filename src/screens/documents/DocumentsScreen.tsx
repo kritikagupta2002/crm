@@ -297,6 +297,10 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
           keyExtractor={(item) => item.id}
           renderItem={renderGovtCard}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           refreshing={isLoading}
           onRefresh={refreshGovtDocuments}
           ListEmptyComponent={
@@ -313,6 +317,10 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
           keyExtractor={(item) => item.id}
           renderItem={renderOtherCard}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           refreshing={isLoading}
           onRefresh={refreshGovtDocuments}
           ListEmptyComponent={
@@ -325,7 +333,7 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         />
       )}
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={showFilterModal}
         transparent
         animationType="slide"

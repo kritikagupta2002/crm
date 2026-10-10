@@ -308,7 +308,7 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
               {/* Net Cash Flow */}
               <TouchableOpacity
                 activeOpacity={0.82}
-                onPress={() => navigation.navigate('CashFlowStatement')}
+                onPress={() => navigation.navigate('FinanceDashboard')}
                 style={[styles.kpiCard, styles.kpiCardEmployees]}
               >
                 <View style={styles.kpiHeaderRow}>

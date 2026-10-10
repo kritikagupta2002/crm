@@ -159,7 +159,7 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal statusBarTranslucent visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
 

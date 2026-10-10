@@ -52,8 +52,8 @@ export const INITIAL_PROJECTS: Project[] = [
     tasks: [
       { id: 't-1', projectId: 'prj-001', key: 'kickoff', title: 'Kick-off & data collection', assigneeName: 'Dr. Sunita Meena', assignee: 'Dr. Sunita Meena', dueDate: '2026-08-08', due: '2026-08-08', priority: 'High', status: 'Completed', standard: true, doneOn: '2026-08-08' },
       { id: 't-2', projectId: 'prj-001', key: 'field', title: 'Field survey & sampling', assigneeName: 'Ajay Kumar', assignee: 'Ajay Kumar', dueDate: '2026-09-12', due: '2026-09-12', priority: 'Urgent', status: 'Completed', standard: true, doneOn: '2026-09-12' },
-      { id: 't-3', projectId: 'prj-001', key: 'analysis', title: 'Analysis & modelling', assigneeName: 'Dr. Sunita Meena', assignee: 'Dr. Sunita Meena', dueDate: '2026-10-01', due: '2026-10-01', priority: 'Urgent', status: 'In Progress', standard: true, overdue: true },
-      { id: 't-4', projectId: 'prj-001', key: 'report', title: 'Report preparation', assigneeName: 'Dr. Sunita Meena', assignee: 'Dr. Sunita Meena', dueDate: '2026-11-05', due: '2026-11-05', priority: 'High', status: 'Todo', standard: true },
+      { id: 't-3', projectId: 'prj-001', key: 'analysis', title: 'Analysis & modelling', assigneeName: 'Neha Gupta', assignee: 'Neha Gupta', dueDate: '2026-10-01', due: '2026-10-01', priority: 'Urgent', status: 'In Progress', standard: true, overdue: true },
+      { id: 't-4', projectId: 'prj-001', key: 'report', title: 'Report preparation', assigneeName: 'Neha Gupta', assignee: 'Neha Gupta', dueDate: '2026-11-05', due: '2026-11-05', priority: 'High', status: 'Todo', standard: true },
       { id: 't-5', projectId: 'prj-001', key: 'submission', title: 'Submission to authority', assigneeName: 'Kritika Gupta', assignee: 'Kritika Gupta', dueDate: '2026-11-20', due: '2026-11-20', priority: 'Medium', status: 'Todo', standard: true },
       { id: 't-6', projectId: 'prj-001', title: 'Core drilling & logging HQ coring (0-150m)', assigneeName: 'Imran Ali', assignee: 'Imran Ali', dueDate: '2026-10-08', due: '2026-10-08', priority: 'High', status: 'In Progress', standard: false },
     ],

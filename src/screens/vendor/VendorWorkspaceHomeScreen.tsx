@@ -310,7 +310,7 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
           <Text style={styles.sectionHeader}>OPERATIONAL RADAR</Text>
 
           {metrics.billsToCheck.length > 0 && (
-            <Card style={[styles.alertCard, { borderLeftColor: '#EF4444' }]}>
+            <Card style={styles.alertCard}>
               <View style={styles.alertCardHeader}>
                 <AlertCircle size={20} color="#EF4444" />
                 <Text style={styles.alertCardTitle}>
@@ -331,7 +331,7 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
           )}
 
           {metrics.billsToPay.length > 0 && (
-            <Card style={[styles.alertCard, { borderLeftColor: '#16A34A' }]}>
+            <Card style={styles.alertCard}>
               <View style={styles.alertCardHeader}>
                 <DollarSign size={20} color="#16A34A" />
                 <Text style={styles.alertCardTitle}>
@@ -352,7 +352,7 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
           )}
 
           {metrics.pendingApps > 0 && (
-            <Card style={[styles.alertCard, { borderLeftColor: '#D97706' }]}>
+            <Card style={styles.alertCard}>
               <View style={styles.alertCardHeader}>
                 <UserCheck size={20} color="#D97706" />
                 <Text style={styles.alertCardTitle}>
@@ -593,7 +593,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderLeftWidth: 4,
     marginBottom: spacing.xs,
     ...shadows.sm,
   },

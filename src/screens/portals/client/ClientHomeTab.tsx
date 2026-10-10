@@ -263,56 +263,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
         </View>
       ) : null}
 
-      {/* 4. QUICK ACTION SHORTCUTS (EASY ACCESS) */}
-      <View style={styles.quickActionsBlock}>
-        <Text style={styles.blockTitle}>Quick Portals</Text>
-        <View style={styles.quickActionsRow}>
-          <TouchableOpacity
-            style={styles.quickActionTile}
-            activeOpacity={0.8}
-            onPress={() => onNavigateTab('projects')}
-          >
-            <View style={[styles.quickActionIconWrap, { backgroundColor: '#e0f2fe' }]}>
-              <Compass size={22} color="#0284c7" />
-            </View>
-            <Text style={styles.quickActionLabel}>Projects</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickActionTile}
-            activeOpacity={0.8}
-            onPress={() => onNavigateTab('deliverables')}
-          >
-            <View style={[styles.quickActionIconWrap, { backgroundColor: '#fef3c7' }]}>
-              <ShieldCheck size={22} color="#d97706" />
-            </View>
-            <Text style={styles.quickActionLabel}>Sign-Off</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickActionTile}
-            activeOpacity={0.8}
-            onPress={() => onNavigateTab('invoices')}
-          >
-            <View style={[styles.quickActionIconWrap, { backgroundColor: '#fee2e2' }]}>
-              <Receipt size={22} color="#dc2626" />
-            </View>
-            <Text style={styles.quickActionLabel}>Invoices</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.quickActionTile}
-            activeOpacity={0.8}
-            onPress={() => onNavigateTab('profile')}
-          >
-            <View style={[styles.quickActionIconWrap, { backgroundColor: '#f3e8ff' }]}>
-              <User size={22} color="#7c3aed" />
-            </View>
-            <Text style={styles.quickActionLabel}>Profile</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {/* 5. ACTIVE GEOLOGICAL PROJECT SPOTLIGHT */}
       {featuredProject && (
         <View style={styles.sectionBlock}>

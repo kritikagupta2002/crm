@@ -615,8 +615,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: colors.border.default,
-    borderLeftWidth: 3.5,
-    borderLeftColor: '#d97706',
     ...shadows.xs,
   },
   approvalHeader: {

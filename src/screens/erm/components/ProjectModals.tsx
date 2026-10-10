@@ -92,7 +92,7 @@ export const ProjectModals: React.FC<ProjectModalsProps> = ({
 }) => {
   return (
     <>
-      <Modal
+      <Modal statusBarTranslucent
         visible={taskModalVisible}
         transparent
         animationType="slide"
@@ -146,7 +146,7 @@ export const ProjectModals: React.FC<ProjectModalsProps> = ({
         </View>
       </Modal>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={visitModalVisible}
         transparent
         animationType="slide"
@@ -216,7 +216,7 @@ export const ProjectModals: React.FC<ProjectModalsProps> = ({
         </View>
       </Modal>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={docModalVisible}
         transparent
         animationType="slide"
@@ -273,7 +273,7 @@ export const ProjectModals: React.FC<ProjectModalsProps> = ({
         </View>
       </Modal>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={letterModalVisible}
         transparent
         animationType="slide"

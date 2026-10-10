@@ -351,7 +351,7 @@ Digitally Certified under IT Act 2000.`;
         )}
       </ScrollView>
 
-      <Modal
+      <Modal statusBarTranslucent
         visible={isPreviewOpen && !!selectedSlip}
         animationType="slide"
         transparent

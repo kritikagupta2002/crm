@@ -778,7 +778,7 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
         </Card>
       </ScrollView>
 
-      <Modal visible={showEditLinks} transparent animationType="slide" onRequestClose={() => setShowEditLinks(false)}>
+      <Modal statusBarTranslucent visible={showEditLinks} transparent animationType="slide" onRequestClose={() => setShowEditLinks(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeadRow}>
@@ -824,7 +824,7 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
         </View>
       </Modal>
 
-      <Modal visible={showPreviewModal} transparent animationType="fade" onRequestClose={() => setShowPreviewModal(false)}>
+      <Modal statusBarTranslucent visible={showPreviewModal} transparent animationType="fade" onRequestClose={() => setShowPreviewModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { maxHeight: '90%' }]}>
             <View style={styles.modalHeadRow}>

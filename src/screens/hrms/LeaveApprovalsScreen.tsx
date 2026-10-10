@@ -417,6 +417,10 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         data={filteredRequests}
         keyExtractor={(item) => item.id}
         renderItem={renderApprovalCard}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <EmptyState
@@ -431,7 +435,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         }
       />
 
-      <Modal visible={isModalOpen} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={isModalOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.adjudicateModalBox}>
             <View style={styles.modalHeader}>

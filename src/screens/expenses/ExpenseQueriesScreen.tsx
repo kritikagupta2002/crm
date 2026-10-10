@@ -187,6 +187,10 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
         data={accessibleQueries}
         keyExtractor={(item) => item.id}
         renderItem={renderQueryCard}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <EmptyState
@@ -201,7 +205,7 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
         }
       />
 
-      <Modal visible={!!selectedQuery} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={!!selectedQuery} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.modalHeader}>

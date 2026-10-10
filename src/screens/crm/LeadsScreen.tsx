@@ -205,6 +205,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Leads & Pipeline"
@@ -278,6 +279,9 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
           keyExtractor={leadKeyExtractor}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Inbox size={40} color={colors.textMuted} />
@@ -401,7 +405,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </ScrollView>
       )}
 
-      <Modal visible={showFilterModal} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={showFilterModal} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.filterModalCard}>
             <View style={styles.modalHeader}>
@@ -537,7 +541,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </ScreenContainer>
       </Modal>
 
-      <Modal visible={Boolean(losingLeadId)} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={Boolean(losingLeadId)} transparent animationType="fade">
         <View style={styles.modalBackdrop}>
           <View style={styles.lostModalCard}>
             <View style={styles.modalHeader}>

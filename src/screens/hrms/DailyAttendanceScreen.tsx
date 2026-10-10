@@ -303,6 +303,9 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
           renderItem={renderAttendanceItem}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
           ListEmptyComponent={
             <EmptyState
               icon={<Calendar size={48} color={colors.text.tertiary} />}

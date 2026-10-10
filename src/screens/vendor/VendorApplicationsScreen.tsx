@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
@@ -86,6 +86,28 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
   const approvedCount = useMemo(() => {
     return vendorApplications.filter((a) => a.status === 'Approved').length;
   }, [vendorApplications]);
+
+  // Pre-calculated counts per tab
+  const tabCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: vendorApplications.length };
+    tabs.forEach((t) => {
+      if (t !== 'All') {
+        counts[t] = vendorApplications.filter((a) => a.status === t).length;
+      }
+    });
+    return counts;
+  }, [vendorApplications, tabs]);
+
+  // Pre-calculated compliance verification map for instant card rendering
+  const appComplianceMap = useMemo(() => {
+    const map = new Map<string, { passed: number; total: number; allPassed: boolean }>();
+    vendorApplications.forEach((app) => {
+      const checks = applicationChecks(app, vendors, vendorApplications);
+      const passed = checks.filter((c) => c.ok).length;
+      map.set(app.id, { passed, total: checks.length, allPassed: passed === checks.length });
+    });
+    return map;
+  }, [vendorApplications, vendors]);
 
   const filteredApps = useMemo(() => {
     return vendorApplications.filter((a) => {
@@ -178,10 +200,9 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
     }
   };
 
-  const renderAppCard = ({ item }: { item: VendorApplication }) => {
-    const checks = applicationChecks(item, vendors, vendorApplications);
-    const passed = checks.filter((c) => c.ok).length;
-    const allPassed = passed === checks.length;
+  const renderAppCard = useCallback(({ item }: { item: VendorApplication }) => {
+    const compliance = appComplianceMap.get(item.id) || { passed: 0, total: 0, allPassed: false };
+    const { passed, total, allPassed } = compliance;
     const submittedDate = formatDate(item.submittedAt);
 
     return (
@@ -244,7 +265,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 <AlertCircle size={13} color="#b45309" />
               )}
               <Text style={[styles.compliancePillText, allPassed ? styles.pillTextGreen : styles.pillTextAmber]}>
-                {passed} of {checks.length} Automated Checks Passed
+                {passed} of {total} Automated Checks Passed
               </Text>
             </View>
             <View style={styles.arrowCircle}>
@@ -254,11 +275,12 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         </Card>
       </TouchableOpacity>
     );
-  };
+  }, [appComplianceMap]);
 
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Vendor Applications"
@@ -288,10 +310,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabsList}>
           {tabs.map((t) => {
-            const count =
-              t === 'All'
-                ? vendorApplications.length
-                : vendorApplications.filter((a) => a.status === t).length;
+            const count = tabCounts[t] || 0;
             const isSelected = activeTab === t;
 
             const label =
@@ -322,6 +341,9 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         renderItem={renderAppCard}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
@@ -413,7 +435,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
 
       {/* Detail / Review Modal */}
       {selectedApp && (
-        <Modal visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -549,7 +571,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
 
       {/* Decision Action Modal */}
       {actionType && (
-        <Modal visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade">
           <View style={styles.decisionBackdrop}>
             <Card style={styles.decisionModalCard}>
               <Text style={styles.decisionTitle}>

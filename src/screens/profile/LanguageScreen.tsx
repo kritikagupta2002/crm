@@ -32,7 +32,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
     };
   }, []);
 
-  const [selectedLanguage, setSelectedLanguage] = useState<'en' | 'hi' | 'gu' | 'mr'>('en');
+  const [selectedLanguage, setSelectedLanguage] = useState<'en'>('en');
   const [currencyFormat, setCurrencyFormat] = useState<'in' | 'intl'>('in');
   const [dateFormat, setDateFormat] = useState<'dmy' | 'ymd' | 'dMy'>('dmy');
   const [savedToast, setSavedToast] = useState(false);
@@ -44,7 +44,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
   }, []);
 
   const handleSelectLang = useCallback(
-    (code: 'en' | 'hi' | 'gu' | 'mr') => {
+    (code: 'en') => {
       setSelectedLanguage(code);
       triggerToast();
     },
@@ -94,72 +94,18 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
 
           {/* English */}
           <TouchableOpacity
-            style={[styles.langRow, selectedLanguage === 'en' && styles.langRowSelected]}
+            style={[styles.langRow, styles.langRowSelected]}
             onPress={() => handleSelectLang('en')}
-            activeOpacity={0.75}
+            activeOpacity={0.8}
           >
             <View style={styles.langRadio}>
-              {selectedLanguage === 'en' && <View style={styles.langRadioDot} />}
+              <View style={styles.langRadioDot} />
             </View>
             <View style={styles.langTextCol}>
               <Text style={styles.langTitle}>English (India)</Text>
               <Text style={styles.langNative}>Corporate standard interface</Text>
             </View>
-            {selectedLanguage === 'en' && <Check size={18} color="#0284c7" strokeWidth={2.5} />}
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          {/* Hindi */}
-          <TouchableOpacity
-            style={[styles.langRow, selectedLanguage === 'hi' && styles.langRowSelected]}
-            onPress={() => handleSelectLang('hi')}
-            activeOpacity={0.75}
-          >
-            <View style={styles.langRadio}>
-              {selectedLanguage === 'hi' && <View style={styles.langRadioDot} />}
-            </View>
-            <View style={styles.langTextCol}>
-              <Text style={styles.langTitle}>हिन्दी (Hindi)</Text>
-              <Text style={styles.langNative}>भारत • राष्ट्रीय भाषा समर्थन</Text>
-            </View>
-            {selectedLanguage === 'hi' && <Check size={18} color="#0284c7" strokeWidth={2.5} />}
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          {/* Gujarati */}
-          <TouchableOpacity
-            style={[styles.langRow, selectedLanguage === 'gu' && styles.langRowSelected]}
-            onPress={() => handleSelectLang('gu')}
-            activeOpacity={0.75}
-          >
-            <View style={styles.langRadio}>
-              {selectedLanguage === 'gu' && <View style={styles.langRadioDot} />}
-            </View>
-            <View style={styles.langTextCol}>
-              <Text style={styles.langTitle}>ગુજરાતી (Gujarati)</Text>
-              <Text style={styles.langNative}>પશ્ચિમ ભારત ખનન ક્ષેત્ર</Text>
-            </View>
-            {selectedLanguage === 'gu' && <Check size={18} color="#0284c7" strokeWidth={2.5} />}
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          {/* Marathi */}
-          <TouchableOpacity
-            style={[styles.langRow, selectedLanguage === 'mr' && styles.langRowSelected]}
-            onPress={() => handleSelectLang('mr')}
-            activeOpacity={0.75}
-          >
-            <View style={styles.langRadio}>
-              {selectedLanguage === 'mr' && <View style={styles.langRadioDot} />}
-            </View>
-            <View style={styles.langTextCol}>
-              <Text style={styles.langTitle}>मराठी (Marathi)</Text>
-              <Text style={styles.langNative}>महाराष्ट्र भूवैज्ञानिक सर्वेक्षण</Text>
-            </View>
-            {selectedLanguage === 'mr' && <Check size={18} color="#0284c7" strokeWidth={2.5} />}
+            <Check size={18} color="#0284c7" strokeWidth={2.5} />
           </TouchableOpacity>
         </View>
 

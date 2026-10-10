@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import {
   Search,
@@ -59,6 +59,17 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
     ).length;
   }, [workOrders]);
 
+  // Pre-calculated counts per stage for snappy chip tabs
+  const stageCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: workOrders.length };
+    STAGES.forEach((s) => {
+      if (s !== 'All') {
+        counts[s] = workOrders.filter((w) => w.currentStage === s).length;
+      }
+    });
+    return counts;
+  }, [workOrders]);
+
   // 2. Filtered list
   const filteredOrders = useMemo(() => {
     return workOrders.filter((wo) => {
@@ -80,7 +91,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
     });
   }, [workOrders, search, selectedStage]);
 
-  const renderWorkOrderCard = ({ item }: { item: WorkOrder }) => {
+  const renderWorkOrderCard = useCallback(({ item }: { item: WorkOrder }) => {
     const contractVal = item.contractValue || item.amount || 0;
     const billedVal = item.billedAmount || (item.bill ? item.bill.amount : 0);
     const paidVal = item.paidAmount || (item.payment ? item.payment.gross : 0);
@@ -270,11 +281,12 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [navigation]);
 
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Subcontracts (Work Orders)"
@@ -310,10 +322,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
           contentContainerStyle={styles.stageTabsList}
           renderItem={({ item: stage }) => {
             const isSelected = selectedStage === stage;
-            const count =
-              stage === 'All'
-                ? workOrders.length
-                : workOrders.filter((w) => w.currentStage === stage).length;
+            const count = stageCounts[stage] || 0;
 
             return (
               <TouchableOpacity
@@ -336,6 +345,10 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
         keyExtractor={(item) => item.id}
         renderItem={renderWorkOrderCard}
         contentContainerStyle={styles.listContent}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
+        showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
@@ -435,7 +448,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
 const styles = StyleSheet.create({
   topControl: {
     backgroundColor: '#ffffff',
-    paddingHorizontal: 16,
     paddingTop: 10,
     paddingBottom: 8,
     borderBottomWidth: 1,
@@ -446,6 +458,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#ffffff',
     borderRadius: 12,
+    marginHorizontal: 16,
     paddingHorizontal: 12,
     borderWidth: 1.2,
     borderColor: '#e2e8f0',
@@ -460,6 +473,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   stageTabsList: {
+    paddingHorizontal: 16,
     paddingVertical: 2,
     gap: 6,
   },
@@ -619,7 +633,8 @@ const styles = StyleSheet.create({
 
   /* List & Cards */
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 40,
   },
   cardWrapper: {

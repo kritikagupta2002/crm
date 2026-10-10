@@ -175,6 +175,7 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Client Master Directory"
@@ -297,6 +298,9 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
           data={visibleClients}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          maxToRenderPerBatch={8}
+          windowSize={5}
           contentContainerStyle={[
             styles.listContent,
             { paddingBottom: Math.max(insets.bottom + 50, 84) },

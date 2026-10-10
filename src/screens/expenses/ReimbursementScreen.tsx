@@ -528,6 +528,10 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         keyExtractor={(item) => item.id}
         renderItem={renderClaimCard}
         contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />
         }
@@ -548,7 +552,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         }
       />
 
-      <Modal visible={showAddModal} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showAddModal} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <ScrollView contentContainerStyle={styles.modalScroll} keyboardShouldPersistTaps="handled">
             <View style={styles.modalContent}>
@@ -775,7 +779,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         </View>
       </Modal>
 
-      <Modal visible={!!reviewTarget} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={!!reviewTarget} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.modalHeader}>
@@ -850,7 +854,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         </View>
       </Modal>
 
-      <Modal visible={!!settleTarget} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={!!settleTarget} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.modalHeader}>

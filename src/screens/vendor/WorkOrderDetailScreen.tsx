@@ -505,7 +505,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showDeliveryModal && (
-        <Modal visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -555,7 +555,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showBillModal && (
-        <Modal visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -621,7 +621,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showCheckModal && (
-        <Modal visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade">
           <View style={styles.centerBackdrop}>
             <Card style={styles.centerCard}>
               <Text style={styles.sheetTitle}>3-Way Reconciliation Check</Text>
@@ -694,7 +694,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showPayModal && (
-        <Modal visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>

@@ -513,7 +513,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         )}
       </ScrollView>
 
-      <Modal visible={isUploadModalOpen} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={isUploadModalOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
@@ -643,7 +643,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </View>
       </Modal>
 
-      <Modal visible={!!selectedDoc} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={!!selectedDoc} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.previewCard}>
             <View style={styles.modalHeader}>
@@ -744,7 +744,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </View>
       </Modal>
 
-      <Modal visible={deptPickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={deptPickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
@@ -778,7 +778,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      <Modal visible={statusPickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={statusPickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
@@ -812,7 +812,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      <Modal visible={typePickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={typePickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
@@ -848,7 +848,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      <Modal visible={empPickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={empPickerVisible} transparent animationType="fade">
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}

@@ -32,6 +32,7 @@ import { colors, spacing, typography, radius, shadows } from '../../theme';
 import { useCrm } from '../../context/CrmContext';
 import { useAuth } from '../../context/AuthContext';
 import { Task } from '../../types';
+import { INITIAL_PROJECTS } from '../../constants/seeds/erm';
 
 interface TasksScreenProps {
   navigation: any;
@@ -88,12 +89,18 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
   const [selectedPriority, setSelectedPriority] = useState<PriorityFilter>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [scopeMode, setScopeMode] = useState<'all' | 'my'>('all');
 
   // Extract flat list of all project tasks with parent project context
-  const allTasks = useMemo(() => {
+  const projectTasks = useMemo(() => {
     const list: (Task & { projectTitle: string; projectCode: string })[] = [];
-    projects.forEach((p) => {
-      (p.tasks || []).forEach((t) => {
+    const sourceProjects = (projects && projects.length > 0) ? projects : INITIAL_PROJECTS;
+    sourceProjects.forEach((p) => {
+      const pTasks = (p.tasks && p.tasks.length > 0)
+        ? p.tasks
+        : (INITIAL_PROJECTS.find((ip) => ip.id === p.id)?.tasks || []);
+
+      pTasks.forEach((t) => {
         list.push({
           ...t,
           projectTitle: p.title || p.name || 'Project Block',
@@ -101,21 +108,28 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         });
       });
     });
-
-    if (canonicalRole === 'employee' && session) {
-      const myName = ((session as any).name || '').toLowerCase();
-      const myFirstName = myName.split(' ')[0] || '';
-      return list.filter((t) => {
-        const assigned = (t.assigneeName || t.assignee || '').toLowerCase();
-        return (
-          assigned.includes(myName) ||
-          (myFirstName && assigned.includes(myFirstName)) ||
-          !assigned
-        );
-      });
-    }
     return list;
-  }, [projects, canonicalRole, session]);
+  }, [projects]);
+
+  const myTasks = useMemo(() => {
+    if (!session) return [];
+    const myName = ((session as any).name || '').toLowerCase();
+    const myFirstName = myName.split(' ')[0] || '';
+    return projectTasks.filter((t) => {
+      const assigned = (t.assigneeName || t.assignee || '').toLowerCase();
+      return (
+        (myName && assigned.includes(myName)) ||
+        (myFirstName && assigned.includes(myFirstName))
+      );
+    });
+  }, [projectTasks, session]);
+
+  const allTasks = useMemo(() => {
+    if (scopeMode === 'my' && myTasks.length > 0) {
+      return myTasks;
+    }
+    return projectTasks;
+  }, [scopeMode, myTasks, projectTasks]);
 
   // Aggregate completion and overdue metrics
   const stats = useMemo(() => {
@@ -169,6 +183,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
   return (
     <ScreenContainer
       scrollable={false}
+      noPadding
       header={
         <AppHeader
           title="Field & Project Tasks"
@@ -180,6 +195,28 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
     >
       {/* 1. Hero Progress & Interactive KPI Header */}
       <View style={styles.heroCard}>
+        {/* Scope Selector: All Project Tasks vs Assigned to Me */}
+        <View style={styles.scopeSwitcherRow}>
+          <TouchableOpacity
+            style={[styles.scopeBtn, scopeMode === 'all' && styles.scopeBtnActive]}
+            onPress={() => setScopeMode('all')}
+            activeOpacity={0.75}
+          >
+            <Text style={[styles.scopeBtnText, scopeMode === 'all' && styles.scopeBtnTextActive]}>
+              All Project Tasks ({projectTasks.length})
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.scopeBtn, scopeMode === 'my' && styles.scopeBtnActive]}
+            onPress={() => setScopeMode('my')}
+            activeOpacity={0.75}
+          >
+            <Text style={[styles.scopeBtnText, scopeMode === 'my' && styles.scopeBtnTextActive]}>
+              Assigned to Me ({myTasks.length})
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.heroHeader}>
           <View style={styles.heroTitleCol}>
             <Text style={styles.heroEyebrow}>PROJECT EXECUTION PROGRESS</Text>
@@ -357,6 +394,9 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         data={filteredTasks}
         keyExtractor={(item) => item.id || `${item.projectId}-${item.key}`}
         showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
         style={styles.taskList}
         contentContainerStyle={[
           styles.listContent,
@@ -383,17 +423,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
           const avatarTheme = getAvatarTheme(item.assigneeName || item.assignee);
           const initials = getInitials(item.assigneeName || item.assignee);
 
-          // Determine card left accent color
-          const leftStripeColor = isOverdue
-            ? '#EF4444' // Vibrant Red
-            : item.priority === 'Urgent'
-            ? '#F43F5E' // Rose
-            : item.priority === 'High'
-            ? '#F59E0B' // Amber
-            : isDone
-            ? '#10B981' // Emerald
-            : '#0D9488'; // Teal
-
           return (
             <TouchableOpacity
               activeOpacity={0.75}
@@ -405,7 +434,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
               }
               style={[
                 styles.taskCard,
-                { borderLeftColor: leftStripeColor },
                 isDone && styles.taskCardDone,
                 isOverdue && styles.taskCardOverdue,
               ]}
@@ -534,13 +562,43 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  // Scope Switcher
+  scopeSwitcherRow: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: radius.md,
+    padding: 3,
+    marginBottom: spacing.xs + 4,
+    gap: 4,
+  },
+  scopeBtn: {
+    flex: 1,
+    paddingVertical: 6,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scopeBtnActive: {
+    backgroundColor: '#FFFFFF',
+    ...shadows.xs,
+  },
+  scopeBtnText: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  scopeBtnTextActive: {
+    color: colors.textPrimary,
+    fontWeight: '800',
+  },
+
   // 1. Hero Progress Header
   heroCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: radius.lg,
     padding: spacing.md,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.xs,
+    marginHorizontal: 16,
+    marginTop: 10,
     marginBottom: spacing.xs,
     borderWidth: 1,
     borderColor: '#E2E8F0',
@@ -652,20 +710,20 @@ const styles = StyleSheet.create({
 
   // 2. Search & Priority Controls
   controlsSection: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 16,
     paddingTop: spacing.xs,
     paddingBottom: spacing.xs,
-    gap: 6,
+    gap: 8,
   },
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: '#E2E8F0',
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.sm + 2,
-    height: 38,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    height: 42,
     gap: 8,
   },
   searchInput: {
@@ -676,8 +734,8 @@ const styles = StyleSheet.create({
   },
   priorityScroll: {
     alignItems: 'center',
-    gap: 5,
-    paddingRight: spacing.lg,
+    gap: 6,
+    paddingHorizontal: 16,
   },
   priorityFilterLabel: {
     fontSize: 10,
@@ -720,9 +778,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: spacing.md,
-    gap: 9,
-    paddingTop: 2,
+    paddingHorizontal: 16,
+    gap: 10,
+    paddingTop: 4,
   },
   taskCard: {
     backgroundColor: '#FFFFFF',
@@ -730,7 +788,6 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    borderLeftWidth: 4.5,
     ...shadows.xs,
   },
   taskCardDone: {

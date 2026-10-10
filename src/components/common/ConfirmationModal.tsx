@@ -31,6 +31,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       visible={visible}
       transparent
       animationType="fade"
+      statusBarTranslucent
       onRequestClose={onCancel}
     >
       <View style={styles.overlay}>
@@ -41,7 +42,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <View style={styles.buttonRow}>
             <Button
               title={cancelText}
-              variant="outline"
+              variant="secondary"
               size="md"
               onPress={onCancel}
               disabled={loading}
@@ -65,38 +66,37 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: colors.backdrop,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: spacing.md,
+    padding: spacing.lg,
   },
   modalCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: '#ffffff',
     borderRadius: radius.xl,
-    padding: spacing.lg,
+    padding: 22,
     width: '100%',
     maxWidth: 340,
-    borderWidth: 1,
-    borderColor: colors.border.default,
-    ...shadows.md,
+    borderWidth: 1.2,
+    borderColor: '#e2e8f0',
+    ...shadows.lg,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: typography.fontWeights.bold,
     color: colors.textPrimary,
-    marginBottom: spacing.xs,
-    letterSpacing: -0.2,
+    marginBottom: 8,
+    letterSpacing: -0.3,
   },
   message: {
-    fontSize: typography.fontSizes.sm,
+    fontSize: 13.5,
     color: colors.textSecondary,
-    lineHeight: 19,
-    marginBottom: spacing.lg,
+    lineHeight: 20,
+    marginBottom: 20,
   },
   buttonRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: spacing.sm,
+    gap: 12,
   },
   cancelBtn: {
     flex: 1,
