@@ -9,9 +9,9 @@ import {
   Alert,
   Modal,
   TextInput,
-  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useResponsive } from '../../utils/responsive';
 import {
   UserCheck,
   Clock,
@@ -46,8 +46,7 @@ interface EmployeeHomeScreenProps {
 
 export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth <= 360;
+  const { isSmall, isCompact, isTablet } = useResponsive();
 
   const { session } = useAuth();
   const { unreadCount } = useNotifications();
@@ -155,6 +154,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
 
       {/* 1. Personal Staff Companion Header (Light Theme) */}
       <View style={[styles.companionHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
+        <View style={[{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -206,6 +206,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </View>
           </TouchableOpacity>
         </View>
+        </View>
       </View>
 
       <ScrollView
@@ -213,7 +214,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
         contentContainerStyle={styles.containerContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }]}>
+        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
           {/* 2. Bespoke Hero: Physical-Style Geolocation Shift Punch Hub */}
           <View style={styles.punchHubCard}>
             <View style={styles.punchHubTop}>
@@ -268,13 +269,13 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
                     <Clock size={17} color="#2563eb" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeProjects}>
-                    <Text style={styles.kpiBadgeTextProjects}>{isPunchedIn ? 'On Duty' : 'Off Duty'}</Text>
+                  <View style={[styles.kpiBadgeProjects, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextProjects} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{isPunchedIn ? 'On Duty' : 'Off Duty'}</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueProjects}>
+                  <Text style={[styles.kpiValueProjects, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {isPunchedIn ? '8.5 h' : '--:--'}
                   </Text>
                   <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
@@ -298,13 +299,13 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
                     <CheckCircle2 size={17} color="#0f766e" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeClients}>
-                    <Text style={styles.kpiBadgeTextClients}>Active</Text>
+                  <View style={[styles.kpiBadgeClients, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextClients} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Active</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueClients}>
+                  <Text style={[styles.kpiValueClients, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {pendingTasksCount}
                   </Text>
                   <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
@@ -330,13 +331,13 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
                     <Calendar size={17} color="#7e22ce" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeEmployees}>
-                    <Text style={styles.kpiBadgeTextEmployees}>Available</Text>
+                  <View style={[styles.kpiBadgeEmployees, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextEmployees} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Available</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueEmployees}>
+                  <Text style={[styles.kpiValueEmployees, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     18
                   </Text>
                   <ArrowUpRight size={16} color="#7c3aed" strokeWidth={2.4} />
@@ -360,13 +361,13 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
                     <Receipt size={17} color="#ea580c" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgePending}>
-                    <Text style={styles.kpiBadgeTextPending}>Submitted</Text>
+                  <View style={[styles.kpiBadgePending, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextPending} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Submitted</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValuePending}>
+                  <Text style={[styles.kpiValuePending, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     3
                   </Text>
                   <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
@@ -517,7 +518,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
 
           <View style={styles.modulesGrid}>
             <TouchableOpacity
-              style={styles.modTile}
+              style={[styles.modTile, isTablet && styles.modTileTablet, isSmall && styles.modTileSmall]}
               activeOpacity={0.8}
               onPress={() => navigation.navigate('Expenses')}
             >
@@ -532,7 +533,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.modTile}
+              style={[styles.modTile, isTablet && styles.modTileTablet, isSmall && styles.modTileSmall]}
               activeOpacity={0.8}
               onPress={() => navigation.navigate('Payslips')}
             >
@@ -547,7 +548,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.modTile}
+              style={[styles.modTile, isTablet && styles.modTileTablet, isSmall && styles.modTileSmall]}
               activeOpacity={0.8}
               onPress={() => navigation.navigate('Attendance')}
             >
@@ -562,7 +563,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.modTile}
+              style={[styles.modTile, isTablet && styles.modTileTablet, isSmall && styles.modTileSmall]}
               activeOpacity={0.8}
               onPress={() => navigation.navigate('Tasks')}
             >
@@ -582,7 +583,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
       {/* Leave Application Modal */}
       <Modal visible={showLeaveModal} animationType="slide" transparent statusBarTranslucent>
         <View style={styles.modalBackdrop}>
-          <View style={styles.modalContainer}>
+          <View style={[styles.modalContainer, isTablet && styles.modalContainerTablet]}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Apply For Leave</Text>
               <TouchableOpacity onPress={() => setShowLeaveModal(false)} style={styles.modalCloseBtn}>
@@ -780,6 +781,11 @@ const styles = StyleSheet.create({
   bodyWrapper: {
     paddingHorizontal: 16,
     paddingTop: 12,
+  },
+  tabletContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
 
   /* 2. Geolocation Punch Hub */
@@ -1071,6 +1077,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     ...shadows.xs,
   },
+  modTileTablet: {
+    width: '31.8%',
+  },
+  modTileSmall: {
+    width: '48%',
+    padding: 7,
+  },
   modIconWrap: {
     width: 38,
     height: 38,
@@ -1105,6 +1118,13 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20,
     padding: 20,
     paddingBottom: 36,
+  },
+  modalContainerTablet: {
+    maxWidth: 520,
+    width: '100%',
+    alignSelf: 'center',
+    borderRadius: 20,
+    marginBottom: 40,
   },
   modalHeader: {
     flexDirection: 'row',

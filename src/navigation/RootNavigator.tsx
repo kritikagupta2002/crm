@@ -127,8 +127,16 @@ export const RootNavigator: React.FC = () => {
   const { session, canonicalRole, isLoading } = useAuth();
   const [showSplash, setShowSplash] = useState<boolean>(true);
 
-  if (isLoading || showSplash) {
+  if (showSplash) {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#041527', alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator size="large" color="#f59e0b" />
+      </View>
+    );
   }
 
   const isSuperAdmin = canonicalRole === 'super_admin';

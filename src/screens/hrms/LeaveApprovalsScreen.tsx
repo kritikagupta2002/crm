@@ -33,8 +33,10 @@ import {
   ChevronDown,
 } from 'lucide-react-native';
 import { formatDate } from '../../utils/workingDays';
+import { useResponsive } from '../../utils/responsive';
 
 export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const { isCompact, isSmall, isTablet } = useResponsive();
   const { leaves, reviewLeave, leaveBalances, refreshHrms } = useHrms();
   const { session, hasRole } = useAuth();
 
@@ -212,7 +214,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
     const reqDays = Number(item.requestedDays || item.days) || 1;
 
     return (
-      <Card style={styles.card}>
+      <Card style={[styles.card, isTablet && styles.tabletCard]}>
         <View style={styles.cardHeader}>
           <View style={styles.applicantInfo}>
             <View style={styles.avatarMini}>
@@ -302,7 +304,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         )}
 
         {item.status === 'Pending' && (
-          <View style={styles.actionsRow}>
+          <View style={[styles.actionsRow, isSmall && { gap: 5 }, isCompact && { gap: 6 }]}>
             <TouchableOpacity
               activeOpacity={0.8}
               disabled={isOwnRequest}
@@ -311,14 +313,21 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                 styles.actionBtn,
                 styles.actionBtnDecline,
                 isOwnRequest && styles.actionBtnDisabled,
+                isSmall && { height: 40, paddingHorizontal: 4 },
+                isCompact && { height: 44, paddingHorizontal: 6 },
               ]}
             >
-              <X size={17} color={isOwnRequest ? '#94a3b8' : '#dc2626'} strokeWidth={2.5} />
+              <X size={isSmall ? 13 : isCompact ? 14 : 17} color={isOwnRequest ? '#94a3b8' : '#dc2626'} strokeWidth={2.5} />
               <Text
                 style={[
                   styles.actionBtnText,
                   { color: isOwnRequest ? '#94a3b8' : '#dc2626' },
+                  isSmall && { fontSize: 11 },
+                  isCompact && { fontSize: 12.5 },
                 ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
               >
                 Decline
               </Text>
@@ -332,14 +341,21 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                 styles.actionBtn,
                 styles.actionBtnPartial,
                 isOwnRequest && styles.actionBtnDisabled,
+                isSmall && { height: 40, paddingHorizontal: 4 },
+                isCompact && { height: 44, paddingHorizontal: 6 },
               ]}
             >
-              <Clock size={17} color={isOwnRequest ? '#94a3b8' : '#d97706'} strokeWidth={2.3} />
+              <Clock size={isSmall ? 13 : isCompact ? 14 : 17} color={isOwnRequest ? '#94a3b8' : '#d97706'} strokeWidth={2.3} />
               <Text
                 style={[
                   styles.actionBtnText,
                   { color: isOwnRequest ? '#94a3b8' : '#d97706' },
+                  isSmall && { fontSize: 11 },
+                  isCompact && { fontSize: 12.5 },
                 ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
               >
                 Partial
               </Text>
@@ -353,10 +369,22 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                 styles.actionBtn,
                 styles.actionBtnApprove,
                 isOwnRequest && styles.actionBtnDisabled,
+                isSmall && { height: 40, paddingHorizontal: 4 },
+                isCompact && { height: 44, paddingHorizontal: 6 },
               ]}
             >
-              <Check size={18} color="#ffffff" strokeWidth={2.8} />
-              <Text style={[styles.actionBtnText, { color: '#ffffff', fontWeight: '800' }]}>
+              <Check size={isSmall ? 14 : isCompact ? 15 : 18} color="#ffffff" strokeWidth={2.8} />
+              <Text
+                style={[
+                  styles.actionBtnText,
+                  { color: '#ffffff', fontWeight: '800' },
+                  isSmall && { fontSize: 11 },
+                  isCompact && { fontSize: 12.5 },
+                ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
+              >
                 Approve
               </Text>
             </TouchableOpacity>
@@ -375,7 +403,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         onBack={() => navigation.goBack()}
       />
 
-      <View style={styles.filterSection}>
+      <View style={[styles.filterSection, isTablet && styles.tabletWrapper]}>
         <View style={styles.searchBar}>
           <Search size={15} color={colors.text.tertiary} />
           <TextInput
@@ -421,7 +449,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         initialNumToRender={8}
         maxToRenderPerBatch={8}
         windowSize={5}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, isTablet && styles.tabletListContent]}
         ListEmptyComponent={
           <EmptyState
             title="Queue Clear"
@@ -437,7 +465,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
 
       <Modal statusBarTranslucent visible={isModalOpen} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.adjudicateModalBox}>
+          <View style={[styles.adjudicateModalBox, isTablet && styles.tabletModalBox]}>
             <View style={styles.modalHeader}>
               <View>
                 <Text style={styles.modalTitle}>Adjudicate Leave Request</Text>
@@ -490,8 +518,8 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                       size={15}
                       color={reviewMode === 'Full' ? colors.semantic.success : colors.text.tertiary}
                     />
-                    <Text style={[styles.decisionTabText, reviewMode === 'Full' && styles.decisionTabTextFull]}>
-                      Full Approval
+                    <Text style={[styles.decisionTabText, reviewMode === 'Full' && styles.decisionTabTextFull]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      {isSmall ? 'Full' : 'Full Approval'}
                     </Text>
                   </TouchableOpacity>
 
@@ -508,8 +536,8 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                       size={15}
                       color={reviewMode === 'Partial' ? colors.semantic.warning : colors.text.tertiary}
                     />
-                    <Text style={[styles.decisionTabText, reviewMode === 'Partial' && styles.decisionTabTextPartial]}>
-                      Partial Approval
+                    <Text style={[styles.decisionTabText, reviewMode === 'Partial' && styles.decisionTabTextPartial]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      {isSmall ? 'Partial' : 'Partial Approval'}
                     </Text>
                   </TouchableOpacity>
 
@@ -525,8 +553,8 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                       size={15}
                       color={reviewMode === 'Reject' ? colors.semantic.danger : colors.text.tertiary}
                     />
-                    <Text style={[styles.decisionTabText, reviewMode === 'Reject' && styles.decisionTabTextReject]}>
-                      Rejection
+                    <Text style={[styles.decisionTabText, reviewMode === 'Reject' && styles.decisionTabTextReject]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      {isSmall ? 'Reject' : 'Rejection'}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -763,10 +791,20 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
   },
+  tabletWrapper: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
+  },
   listContent: {
     padding: spacing.md,
     paddingBottom: 100,
     gap: 14,
+  },
+  tabletListContent: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
   },
   card: {
     padding: 16,
@@ -775,6 +813,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.2,
     borderColor: '#e2e8f0',
     backgroundColor: '#ffffff',
+  },
+  tabletCard: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -975,6 +1018,15 @@ const styles = StyleSheet.create({
     borderTopRightRadius: borderRadius.xl,
     maxHeight: '90%',
     paddingBottom: 24,
+  },
+  tabletModalBox: {
+    maxWidth: 580,
+    alignSelf: 'center',
+    width: '100%',
+    borderBottomLeftRadius: borderRadius.xl,
+    borderBottomRightRadius: borderRadius.xl,
+    marginBottom: 'auto',
+    marginTop: 'auto',
   },
   modalHeader: {
     flexDirection: 'row',

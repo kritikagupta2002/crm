@@ -7,9 +7,9 @@ import {
   TextInput,
   ScrollView,
   StatusBar,
-  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useResponsive } from '../../utils/responsive';
 import {
   Users,
   FolderKanban,
@@ -64,8 +64,7 @@ interface WorkspaceGroup {
 
 export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth <= 360;
+  const { isSmall, isCompact, isTablet } = useResponsive();
 
   const { role, hasWorkspace, canonicalRole } = useAuth();
   const { leads, projects, tenders, vendors, govtDocuments } = useCrm();
@@ -381,6 +380,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
 
       {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 16) }]}>
+        <View style={[{ width: '100%' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerTitleRow}>
           <View style={{ flex: 1, marginRight: 8 }}>
             <Text style={styles.headerTitle}>Workspaces</Text>
@@ -443,6 +443,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
             );
           })}
         </ScrollView>
+        </View>
       </View>
 
       {/* Workspaces Explorer Group */}
@@ -450,6 +451,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
         contentContainerStyle={[
           styles.scrollContent,
           isCompact && { paddingHorizontal: 10 },
+          isTablet && styles.tabletContainer,
         ]}
         showsVerticalScrollIndicator={false}
       >
@@ -520,8 +522,8 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
                       {ws.metrics.map((m, mIdx) => (
                         <React.Fragment key={mIdx}>
                           <View style={styles.metricItem}>
-                            <Text style={styles.metricLabel}>{m.label}</Text>
-                            <Text style={styles.metricValue}>{m.value}</Text>
+                            <Text style={styles.metricLabel} numberOfLines={1}>{m.label}</Text>
+                            <Text style={styles.metricValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{m.value}</Text>
                           </View>
                           {mIdx < ws.metrics.length - 1 && (
                             <View style={styles.metricDivider} />
@@ -544,6 +546,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f8fafc',
+  },
+  tabletContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
   header: {
     backgroundColor: '#ffffff',

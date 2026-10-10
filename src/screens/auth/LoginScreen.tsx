@@ -15,6 +15,7 @@ import {
   Modal,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useResponsive } from '../../utils/responsive';
 import {
   Mail,
   Lock,
@@ -103,6 +104,7 @@ interface LoginScreenProps {
 export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
+  const { isSmall, isCompact, isTablet } = useResponsive();
 
   const { loginTeam, loginCanonical, loginClient, loginVendor } = useAuth();
 
@@ -255,6 +257,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         <View
           style={[
             styles.cardContainer,
+            isTablet && styles.cardContainerTablet,
+            isCompact && { paddingHorizontal: 14 },
             {
               minHeight: height - headerHeight + 38,
               paddingBottom: Math.max(insets.bottom + 24, 40),
@@ -474,6 +478,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                             isSelected && styles.conciseChipTextSelected,
                           ]}
                           numberOfLines={1}
+                          adjustsFontSizeToFit
+                          minimumFontScale={0.8}
                         >
                           {item.title}
                         </Text>
@@ -1004,6 +1010,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 18,
     elevation: 12,
+  },
+  cardContainerTablet: {
+    maxWidth: 540,
+    width: '100%',
+    alignSelf: 'center',
+    borderRadius: 38,
+    marginBottom: 40,
   },
   handlePill: {
     width: 38,

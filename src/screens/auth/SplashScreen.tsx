@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Animated,
-  useWindowDimensions,
   Easing,
   StatusBar,
   ImageBackground,
@@ -15,6 +14,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Layers, Sprout, BarChart3 } from 'lucide-react-native';
 import Svg, { Polygon, Line } from 'react-native-svg';
+import { useResponsive } from '../../utils/responsive';
 
 const splashBgImg = require('../../../assets/splash-background.jpg');
 const emblemImg = require('../../../assets/bansal-geo-emblem.png');
@@ -25,19 +25,31 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   const insets = useSafeAreaInsets();
-  const { width } = useWindowDimensions();
-  const isCompact = width <= 360;
+  const { isSmall, isCompact, isTablet } = useResponsive();
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
   const [percent, setPercent] = useState<number>(0);
-  const [hasFinished, setHasFinished] = useState<boolean>(false);
+  const finishedRef = useRef<boolean>(false);
+
+  const handleFinish = useCallback(() => {
+    if (finishedRef.current) return;
+    finishedRef.current = true;
+
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      onFinish();
+    });
+  }, [fadeAnim, onFinish]);
 
   useEffect(() => {
-    // Fade in whole screen
+    // Fade in whole screen quickly
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 500,
+      duration: 400,
       useNativeDriver: true,
     }).start();
 
@@ -46,56 +58,35 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       setPercent(Math.min(100, Math.round(value * 100)));
     });
 
-    // Animate loading bar to 100%
+    // Animate progress smoothly over 1800ms
     Animated.timing(progressAnim, {
       toValue: 1,
-      duration: 2400,
+      duration: 1800,
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
       useNativeDriver: false,
-    }).start(() => {
-      // Hold 100% briefly, then fade out and finish
-      setTimeout(() => {
-        if (!hasFinished) {
-          setHasFinished(true);
-          Animated.timing(fadeAnim, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-          }).start(() => {
-            onFinish();
-          });
-        }
-      }, 250);
+    }).start(({ finished }) => {
+      if (finished) {
+        setTimeout(() => {
+          handleFinish();
+        }, 200);
+      }
     });
+
+    // Safety fallback: guaranteed finish after 2200ms
+    const fallbackTimer = setTimeout(() => {
+      handleFinish();
+    }, 2200);
 
     return () => {
       progressAnim.removeListener(listenerId);
+      clearTimeout(fallbackTimer);
     };
-  }, []);
-
-  const handleSkip = () => {
-    if (!hasFinished) {
-      setHasFinished(true);
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        onFinish();
-      });
-    }
-  };
-
-  const barTrackWidth = Math.min(width * 0.72, 270);
-  const progressWidth = progressAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, barTrackWidth],
-  });
+  }, [fadeAnim, progressAnim, handleFinish]);
 
   return (
     <TouchableOpacity
       activeOpacity={1}
-      onPress={handleSkip}
+      onPress={handleFinish}
       style={styles.container}
     >
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
@@ -105,34 +96,59 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
+        {/* Dark Vignette Overlay for Crisp Readability across all displays */}
+        <View style={styles.darkScrim} />
+
         <Animated.View
           style={[
             styles.safeContent,
             {
               opacity: fadeAnim,
-              paddingTop: Math.max(insets.top + 115, 170),
-              paddingBottom: Math.max(insets.bottom + 30, 48),
+              paddingTop: Math.max(insets.top + (isSmall ? 18 : 28), 36),
+              paddingBottom: Math.max(insets.bottom + 20, 36),
             },
           ]}
         >
           {/* ================= TOP SECTION ================= */}
-          <View style={styles.topSection}>
+          <View style={[styles.topSection, isTablet && styles.tabletContainer]}>
             {/* Mountain Emblem */}
             <View style={styles.emblemContainer}>
               <Image
                 source={emblemImg}
-                style={[styles.emblemImage, isCompact && { width: 115, height: 60 }]}
+                style={[
+                  styles.emblemImage,
+                  isSmall && { width: 110, height: 56 },
+                  isTablet && { width: 160, height: 82 },
+                ]}
                 resizeMode="contain"
               />
             </View>
 
             {/* Brand Title: BANSAL GEO */}
-            <Text style={[styles.brandTitle, isCompact && { fontSize: 28, letterSpacing: 3 }]}>
+            <Text
+              style={[
+                styles.brandTitle,
+                isSmall && { fontSize: 26, letterSpacing: 2.8 },
+                isCompact && { fontSize: 28, letterSpacing: 3.2 },
+              ]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.8}
+            >
               BANSAL GEO
             </Text>
 
             {/* Subtitle: SOLUTIONS PVT. LTD. */}
-            <Text style={[styles.brandLegal, isCompact && { fontSize: 10.5, letterSpacing: 3.5 }]}>
+            <Text
+              style={[
+                styles.brandLegal,
+                isSmall && { fontSize: 10, letterSpacing: 3 },
+                isCompact && { fontSize: 10.5, letterSpacing: 3.5 },
+              ]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
               SOLUTIONS PVT. LTD.
             </Text>
 
@@ -140,20 +156,28 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             <View style={styles.goldDivider} />
 
             {/* Tagline: “Geology for a Better Tomorrow” */}
-            <Text style={[styles.tagline, isCompact && { fontSize: 15 }]}>
+            <Text
+              style={[
+                styles.tagline,
+                isSmall && { fontSize: 14.5, marginBottom: 16 },
+              ]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+            >
               “Geology for a Better Tomorrow”
             </Text>
 
-            {/* 4 Geological Pillars Row */}
-            <View style={styles.pillarsRow}>
+            {/* 4 Geological Pillars Glass Card */}
+            <View style={[styles.pillarsCard, isSmall && { paddingVertical: 10 }]}>
               {/* 1. Exploration */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
-                  <Svg width={25} height={25} viewBox="0 0 24 24">
+                  <Svg width={23} height={23} viewBox="0 0 24 24">
                     <Polygon
                       points="12,2 22,20 2,20"
                       stroke="#f59e0b"
-                      strokeWidth="1.9"
+                      strokeWidth={2}
                       fill="none"
                       strokeLinejoin="round"
                     />
@@ -163,11 +187,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
                       x2="17"
                       y2="13"
                       stroke="#f59e0b"
-                      strokeWidth="1.9"
+                      strokeWidth={2}
                     />
                   </Svg>
                 </View>
-                <Text style={styles.pillarLabel}>Exploration</Text>
+                <Text style={[styles.pillarLabel, isSmall && { fontSize: 10 }]}>Exploration</Text>
               </View>
 
               <View style={styles.pillarDivider} />
@@ -175,9 +199,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               {/* 2. Resource Management */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
-                  <Layers size={25} color="#f59e0b" strokeWidth={1.9} />
+                  <Layers size={23} color="#f59e0b" strokeWidth={2} />
                 </View>
-                <Text style={styles.pillarLabel}>{'Resource\nManagement'}</Text>
+                <Text style={[styles.pillarLabel, isSmall && { fontSize: 10 }]}>{'Resource\nManagement'}</Text>
               </View>
 
               <View style={styles.pillarDivider} />
@@ -185,9 +209,9 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               {/* 3. Sustainable Solutions */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
-                  <Sprout size={25} color="#f59e0b" strokeWidth={1.9} />
+                  <Sprout size={23} color="#f59e0b" strokeWidth={2} />
                 </View>
-                <Text style={styles.pillarLabel}>{'Sustainable\nSolutions'}</Text>
+                <Text style={[styles.pillarLabel, isSmall && { fontSize: 10 }]}>{'Sustainable\nSolutions'}</Text>
               </View>
 
               <View style={styles.pillarDivider} />
@@ -195,27 +219,40 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               {/* 4. A Better Tomorrow */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
-                  <BarChart3 size={25} color="#f59e0b" strokeWidth={1.9} />
+                  <BarChart3 size={23} color="#f59e0b" strokeWidth={2} />
                 </View>
-                <Text style={styles.pillarLabel}>{'A Better\nTomorrow'}</Text>
+                <Text style={[styles.pillarLabel, isSmall && { fontSize: 10 }]}>{'A Better\nTomorrow'}</Text>
               </View>
             </View>
           </View>
 
           {/* ================= BOTTOM SECTION ================= */}
-          <View style={styles.bottomSection}>
-            {/* Loading Bar with Percentage */}
-            <View style={styles.progressRow}>
-              <View style={[styles.progressBarTrack, { width: barTrackWidth }]}>
-                <Animated.View style={[styles.progressBarFill, { width: progressWidth }]} />
+          <View style={[styles.bottomSection, isTablet && styles.tabletContainer]}>
+            <View style={styles.progressContainer}>
+              <View style={styles.progressHeaderRow}>
+                <Text style={styles.loadingWorkspaceText}>
+                  LOADING YOUR WORKSPACE...
+                </Text>
+                <Text style={styles.percentageText}>{percent}%</Text>
               </View>
-              <Text style={styles.percentageText}>{percent}%</Text>
+
+              {/* Centered Smooth Loading Bar */}
+              <View style={styles.progressBarTrack}>
+                <Animated.View
+                  style={[
+                    styles.progressBarFill,
+                    {
+                      width: progressAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0%', '100%'],
+                      }),
+                    },
+                  ]}
+                />
+              </View>
             </View>
 
-            {/* Subtext: LOADING YOUR WORKSPACE... */}
-            <Text style={styles.loadingWorkspaceText}>
-              LOADING YOUR WORKSPACE...
-            </Text>
+            <Text style={styles.tapToContinueHint}>Tap anywhere to continue</Text>
           </View>
         </Animated.View>
       </ImageBackground>
@@ -233,10 +270,20 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  darkScrim: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(4, 21, 39, 0.46)',
+  },
   safeContent: {
     flex: 1,
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    zIndex: 2,
+  },
+  tabletContainer: {
+    maxWidth: 620,
+    width: '100%',
+    alignSelf: 'center',
   },
 
   /* Top Section */
@@ -247,77 +294,87 @@ const styles = StyleSheet.create({
   emblemContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   emblemImage: {
-    width: 140,
-    height: 72,
+    width: 135,
+    height: 70,
   },
   brandTitle: {
     fontFamily: Platform.select({ ios: 'Georgia', android: 'serif' }),
-    fontSize: 32,
+    fontSize: 31,
     fontWeight: '800',
     color: '#ffffff',
-    letterSpacing: 3.8,
+    letterSpacing: 3.6,
     textAlign: 'center',
   },
   brandLegal: {
-    fontSize: 11.5,
-    fontWeight: '600',
+    fontSize: 11,
+    fontWeight: '700',
     color: '#cbd5e1',
-    letterSpacing: 4.8,
+    letterSpacing: 4.2,
     marginTop: 4,
     textAlign: 'center',
   },
   goldDivider: {
     width: 44,
-    height: 2,
-    backgroundColor: '#d4af37',
-    borderRadius: 1,
-    marginTop: 14,
-    marginBottom: 12,
+    height: 2.5,
+    backgroundColor: '#f59e0b',
+    borderRadius: 1.5,
+    marginTop: 12,
+    marginBottom: 10,
   },
   tagline: {
     fontFamily: Platform.select({ ios: 'Georgia', android: 'serif' }),
-    fontSize: 17,
+    fontSize: 16.5,
     fontStyle: 'italic',
-    color: '#ffffff',
+    color: '#f8fafc',
     textAlign: 'center',
-    marginBottom: 28,
+    marginBottom: 22,
     letterSpacing: 0.2,
   },
 
-  /* 4 Pillars */
-  pillarsRow: {
+  /* 4 Pillars Glass Card */
+  pillarsCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     justifyContent: 'center',
     width: '100%',
-    paddingHorizontal: 4,
+    backgroundColor: 'rgba(7, 24, 46, 0.72)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.25)',
+    paddingVertical: 14,
+    paddingHorizontal: 6,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
   },
   pillarItem: {
     flex: 1,
     alignItems: 'center',
   },
   pillarIconBox: {
-    height: 32,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 6,
   },
   pillarLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
     color: '#ffffff',
     textAlign: 'center',
-    lineHeight: 14.5,
+    lineHeight: 14,
+    letterSpacing: 0.1,
   },
   pillarDivider: {
     width: 1,
-    height: 44,
-    backgroundColor: 'rgba(255, 255, 255, 0.22)',
-    alignSelf: 'flex-start',
-    marginTop: 2,
+    height: 42,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignSelf: 'center',
   },
 
   /* Bottom Section */
@@ -325,35 +382,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  progressRow: {
+  progressContainer: {
+    width: '88%',
+    maxWidth: 340,
+    backgroundColor: 'rgba(7, 24, 46, 0.72)',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.25)',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  progressHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    marginBottom: 10,
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  loadingWorkspaceText: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: '#cbd5e1',
+    letterSpacing: 2.2,
+    flex: 1,
+  },
+  percentageText: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#f59e0b',
+    marginLeft: 8,
   },
   progressBarTrack: {
-    height: 5.5,
-    backgroundColor: 'rgba(51, 65, 85, 0.72)',
-    borderRadius: 3,
+    height: 4.5,
+    backgroundColor: 'rgba(51, 65, 85, 0.65)',
+    borderRadius: 2.5,
     overflow: 'hidden',
+    width: '100%',
   },
   progressBarFill: {
     height: '100%',
     backgroundColor: '#f59e0b',
-    borderRadius: 3,
+    borderRadius: 2.5,
   },
-  percentageText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#ffffff',
-    minWidth: 36,
-  },
-  loadingWorkspaceText: {
-    fontSize: 9.5,
-    fontWeight: '600',
-    color: '#94a3b8',
-    letterSpacing: 3,
-    textAlign: 'center',
+  tapToContinueHint: {
+    fontSize: 10,
+    color: 'rgba(203, 213, 225, 0.6)',
+    fontWeight: '500',
+    marginTop: 8,
+    letterSpacing: 0.5,
   },
 });

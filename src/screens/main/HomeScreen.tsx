@@ -8,9 +8,9 @@ import {
   StatusBar,
   ImageBackground,
   ScrollView,
-  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useResponsive } from '../../utils/responsive';
 import {
   Crown,
   Search,
@@ -54,8 +54,7 @@ interface HomeScreenProps {
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth <= 360;
+  const { isSmall, isCompact, isTablet } = useResponsive();
 
   const { session, canonicalRole } = useAuth();
 
@@ -175,6 +174,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
       {/* 1. Header: Avatar + Dr. Rajesh Bansal + Search & Bell (Zero Side Margin, 100% Full Width) */}
       <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top + 6, 14) }]}>
+        <View style={[{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -226,6 +226,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </TouchableOpacity>
         </View>
+        </View>
       </View>
 
       <ScrollView
@@ -233,7 +234,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         contentContainerStyle={styles.containerContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }]}>
+        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
           {/* 2. Hero Banner: Mining & Exploration */}
           <ImageBackground
             source={heroBannerImg}
@@ -274,13 +275,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
                     <FolderKanban size={17} color="#1d4ed8" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeProjects}>
-                    <Text style={styles.kpiBadgeTextProjects}>5 Active</Text>
+                  <View style={[styles.kpiBadgeProjects, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextProjects} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>5 Active</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueProjects}>
+                  <Text style={[styles.kpiValueProjects, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {projects.length > 0 ? projects.length : 5}
                   </Text>
                   <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
@@ -304,13 +305,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
                     <Building2 size={17} color="#0f766e" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeClients}>
-                    <Text style={styles.kpiBadgeTextClients}>Enterprise</Text>
+                  <View style={[styles.kpiBadgeClients, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextClients} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Enterprise</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueClients}>
+                  <Text style={[styles.kpiValueClients, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {clients.length > 0 ? clients.length : 3}
                   </Text>
                   <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
@@ -337,13 +338,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
                     <Users size={17} color="#7e22ce" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeEmployees}>
-                    <Text style={styles.kpiBadgeTextEmployees}>91% Present</Text>
+                  <View style={[styles.kpiBadgeEmployees, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextEmployees} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>91% Present</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueEmployees}>
+                  <Text style={[styles.kpiValueEmployees, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {attMetrics.totalStaff || (employees.length > 0 ? employees.length : 87)}
                   </Text>
                   <ArrowUpRight size={16} color="#7c3aed" strokeWidth={2.4} />
@@ -367,13 +368,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
                     <Clock size={17} color="#ea580c" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgePending}>
-                    <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
+                  <View style={[styles.kpiBadgePending, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextPending} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Urgent</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValuePending}>
+                  <Text style={[styles.kpiValuePending, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {totalPendingActions}
                   </Text>
                   <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
@@ -909,6 +910,11 @@ const styles = StyleSheet.create({
   bodyWrapper: {
     paddingHorizontal: 8,
     paddingTop: 10,
+  },
+  tabletContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
 
   /* 2. Hero Banner */

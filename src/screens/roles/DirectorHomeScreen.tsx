@@ -40,14 +40,15 @@ import { useCrm } from '../../context/CrmContext';
 import { useHrms } from '../../context/HrmsContext';
 import { useNotifications } from '../../context/NotificationContext';
 
+import { useResponsive } from '../../utils/responsive';
+
 interface DirectorHomeScreenProps {
   navigation: any;
 }
 
 export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth <= 360;
+  const { isCompact, isSmall, isTablet } = useResponsive();
 
   const { session } = useAuth();
   const { unreadCount } = useNotifications();
@@ -136,7 +137,7 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
         contentContainerStyle={[styles.containerContent, { paddingBottom: Math.max(insets.bottom + 85, 110) }]}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 8 }]}>
+        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 8 }, isTablet && styles.tabletContainer]}>
           {/* 2. Bespoke Hero: Strategic Commercial Pipeline Radar */}
           <TouchableOpacity
             activeOpacity={0.9}
@@ -154,16 +155,25 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
 
             <View style={styles.radarValueRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.radarMainValue}>₹1.85 Cr</Text>
-                <Text style={styles.radarSubText}>Enterprise Bids & Active Rate Proposals</Text>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text
+                  style={[styles.radarMainValue, isSmall && { fontSize: 22 }, isCompact && { fontSize: 24 }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.75}
+                >
+                  ₹1.85 Cr
+                </Text>
+                <Text style={styles.radarSubText} numberOfLines={1} adjustsFontSizeToFit>
+                  Enterprise Bids & Active Rate Proposals
+                </Text>
               </View>
-              <View style={styles.winRateBox}>
+              <View style={[styles.winRateBox, { flexShrink: 1 }]}>
                 <View style={styles.winRateTopRow}>
                   <Text style={styles.winRateVal}>78%</Text>
                   <ArrowUpRight size={14} color="#059669" strokeWidth={2.5} />
                 </View>
-                <Text style={styles.winRateLabel}>Win Probability</Text>
+                <Text style={styles.winRateLabel} numberOfLines={1}>Win Probability</Text>
               </View>
             </View>
 
@@ -175,28 +185,28 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
 
             {/* 3 Interactive Pipeline Segment Pills */}
-            <View style={styles.pipelineLegendRow}>
-              <View style={styles.legendPill}>
+            <View style={[styles.pipelineLegendRow, isSmall && { flexWrap: 'wrap', gap: 4 }]}>
+              <View style={[styles.legendPill, isSmall && { paddingHorizontal: 4, paddingVertical: 4 }]}>
                 <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
-                <View>
-                  <Text style={styles.legendLabel}>Active Leads</Text>
-                  <Text style={styles.legendVal}>₹45.0 L</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.legendLabel, isSmall && { fontSize: 8.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Active Leads</Text>
+                  <Text style={[styles.legendVal, isSmall && { fontSize: 10 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>₹45.0 L</Text>
                 </View>
               </View>
 
-              <View style={styles.legendPill}>
+              <View style={[styles.legendPill, isSmall && { paddingHorizontal: 4, paddingVertical: 4 }]}>
                 <View style={[styles.legendDot, { backgroundColor: '#F59E0B' }]} />
-                <View>
-                  <Text style={styles.legendLabel}>Quotations</Text>
-                  <Text style={styles.legendVal}>₹85.0 L</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.legendLabel, isSmall && { fontSize: 8.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Quotations</Text>
+                  <Text style={[styles.legendVal, isSmall && { fontSize: 10 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>₹85.0 L</Text>
                 </View>
               </View>
 
-              <View style={styles.legendPill}>
+              <View style={[styles.legendPill, isSmall && { paddingHorizontal: 4, paddingVertical: 4 }]}>
                 <View style={[styles.legendDot, { backgroundColor: '#10B981' }]} />
-                <View>
-                  <Text style={styles.legendLabel}>Closed Won</Text>
-                  <Text style={styles.legendVal}>₹55.0 L</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.legendLabel, isSmall && { fontSize: 8.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Closed Won</Text>
+                  <Text style={[styles.legendVal, isSmall && { fontSize: 10 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>₹55.0 L</Text>
                 </View>
               </View>
             </View>
@@ -215,20 +225,22 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
                     <FolderKanban size={17} color="#2563eb" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeProjects}>
-                    <Text style={styles.kpiBadgeTextProjects}>{activeProjectsCount} Active</Text>
+                  <View style={[styles.kpiBadgeProjects, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextProjects} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      {activeProjectsCount} Active
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueProjects}>
+                  <Text style={[styles.kpiValueProjects, isSmall && { fontSize: 22 }, isCompact && { fontSize: 24 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {activeProjectsCount || 5}
                   </Text>
                   <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
                 </View>
 
                 <View style={styles.kpiLabelsCol}>
-                  <Text style={styles.kpiTitle}>Active Projects</Text>
+                  <Text style={styles.kpiTitle} numberOfLines={1}>Active Projects</Text>
                   <Text style={styles.kpiSubtitle} numberOfLines={1}>
                     Exploration & Mining
                   </Text>
@@ -245,20 +257,22 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
                     <Building2 size={17} color="#0f766e" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeClients}>
-                    <Text style={styles.kpiBadgeTextClients}>Enterprise</Text>
+                  <View style={[styles.kpiBadgeClients, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextClients} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      Enterprise
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueClients}>
+                  <Text style={[styles.kpiValueClients, isSmall && { fontSize: 22 }, isCompact && { fontSize: 24 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {clients.length > 0 ? clients.length : 3}
                   </Text>
                   <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
                 </View>
 
                 <View style={styles.kpiLabelsCol}>
-                  <Text style={styles.kpiTitle}>Corporate Clients</Text>
+                  <Text style={styles.kpiTitle} numberOfLines={1}>Corporate Clients</Text>
                   <Text style={styles.kpiSubtitle} numberOfLines={1}>
                     HZL, NMDC, Vedanta
                   </Text>
@@ -277,20 +291,22 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
                     <Users size={17} color="#7e22ce" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeEmployees}>
-                    <Text style={styles.kpiBadgeTextEmployees}>91% Present</Text>
+                  <View style={[styles.kpiBadgeEmployees, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextEmployees} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      91% Present
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueEmployees}>
+                  <Text style={[styles.kpiValueEmployees, isSmall && { fontSize: 22 }, isCompact && { fontSize: 24 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {employees.length > 0 ? employees.length : 5}
                   </Text>
                   <ArrowUpRight size={16} color="#7c3aed" strokeWidth={2.4} />
                 </View>
 
                 <View style={styles.kpiLabelsCol}>
-                  <Text style={styles.kpiTitle}>Field Workforce</Text>
+                  <Text style={styles.kpiTitle} numberOfLines={1}>Field Workforce</Text>
                   <Text style={styles.kpiSubtitle} numberOfLines={1}>
                     42 Active On-Site
                   </Text>
@@ -307,20 +323,22 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
                     <Clock size={17} color="#ea580c" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgePending}>
-                    <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
+                  <View style={[styles.kpiBadgePending, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextPending} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      Urgent
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValuePending}>
+                  <Text style={[styles.kpiValuePending, isSmall && { fontSize: 22 }, isCompact && { fontSize: 24 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {totalDirectorApprovals || 13}
                   </Text>
                   <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
                 </View>
 
                 <View style={styles.kpiLabelsCol}>
-                  <Text style={[styles.kpiTitle, { color: '#9a3412' }]}>Pending Actions</Text>
+                  <Text style={[styles.kpiTitle, { color: '#9a3412' }]} numberOfLines={1}>Pending Actions</Text>
                   <Text style={[styles.kpiSubtitle, { color: '#ea580c' }]} numberOfLines={1}>
                     Requires Review
                   </Text>
@@ -604,7 +622,7 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
               return (
                 <TouchableOpacity
                   key={idx}
-                  style={styles.modTile}
+                  style={[styles.modTile, isTablet && styles.modTileTablet, isSmall && styles.modTileSmall]}
                   activeOpacity={0.8}
                   onPress={() => navigation.navigate(mod.route)}
                 >
@@ -770,6 +788,11 @@ const styles = StyleSheet.create({
   bodyWrapper: {
     paddingHorizontal: 12,
     paddingTop: 12,
+  },
+  tabletContainer: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
   },
 
   /* 2. Commercial Pipeline Radar */
@@ -1191,6 +1214,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     ...shadows.xs,
+  },
+  modTileTablet: {
+    width: '31.8%',
+  },
+  modTileSmall: {
+    width: '48%',
+    padding: 7,
   },
   modIconWrap: {
     width: 36,

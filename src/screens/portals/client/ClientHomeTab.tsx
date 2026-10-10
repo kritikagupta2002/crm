@@ -23,6 +23,7 @@ import {
 import { clientTheme } from './clientTheme';
 import { Project, Deliverable, FinanceInvoice } from '../../../types';
 import { ClientTabKey } from './useClientPortal';
+import { useResponsive } from '../../../utils/responsive';
 
 interface ClientHomeTabProps {
   clientCompanyName: string;
@@ -73,10 +74,12 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
   // Recent timeline events aggregated across client projects
   const recentUpdates = (featuredProject?.history || []).slice(0, 4);
 
+  const { isSmall, isCompact, isTablet } = useResponsive();
+
   return (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[styles.contentContainer, isTablet && styles.tabletContainer, isCompact && { padding: 10 }]}
       showsVerticalScrollIndicator={false}
       bounces={true}
     >
@@ -108,7 +111,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
       <View style={styles.kpiGrid}>
         {/* Active Projects */}
         <TouchableOpacity
-          style={styles.kpiCard}
+          style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall]}
           activeOpacity={0.8}
           onPress={() => onNavigateTab('projects')}
         >
@@ -120,7 +123,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
               <Text style={[styles.kpiMiniPillText, { color: clientTheme.colors.navy }]}>Active</Text>
             </View>
           </View>
-          <Text style={styles.kpiValueText}>{activeProjectsCount}</Text>
+          <Text style={styles.kpiValueText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{activeProjectsCount}</Text>
           <Text style={styles.kpiTitle}>My Projects</Text>
           <Text style={styles.kpiSub}>
             {completedProjectsCount > 0 ? `${completedProjectsCount} completed` : 'All in progress'}
@@ -129,7 +132,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
 
         {/* Deliverables Requiring Sign-Off */}
         <TouchableOpacity
-          style={[styles.kpiCard, pendingDeliverablesCount > 0 && styles.kpiCardHighlightGold]}
+          style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall, pendingDeliverablesCount > 0 && styles.kpiCardHighlightGold]}
           activeOpacity={0.8}
           onPress={() => onNavigateTab('deliverables')}
         >
@@ -146,6 +149,9 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
               styles.kpiValueText,
               pendingDeliverablesCount > 0 && { color: clientTheme.colors.goldDark },
             ]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {pendingDeliverablesCount}
           </Text>
@@ -157,7 +163,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
 
         {/* Pending Invoices */}
         <TouchableOpacity
-          style={[styles.kpiCard, pendingInvoicesCount > 0 && styles.kpiCardHighlightCrimson]}
+          style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall, pendingInvoicesCount > 0 && styles.kpiCardHighlightCrimson]}
           activeOpacity={0.8}
           onPress={() => onNavigateTab('invoices')}
         >
@@ -174,6 +180,9 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
               styles.kpiValueText,
               pendingInvoicesCount > 0 && { color: clientTheme.colors.crimson },
             ]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.75}
           >
             {pendingInvoicesCount}
           </Text>
@@ -185,7 +194,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
 
         {/* Remitted Payments */}
         <TouchableOpacity
-          style={styles.kpiCard}
+          style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall]}
           activeOpacity={0.8}
           onPress={() => onNavigateTab('invoices')}
         >
@@ -197,7 +206,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
               <Text style={[styles.kpiMiniPillText, { color: clientTheme.colors.emerald }]}>Paid</Text>
             </View>
           </View>
-          <Text style={[styles.kpiValueText, { color: clientTheme.colors.emerald }]}>
+          <Text style={[styles.kpiValueText, { color: clientTheme.colors.emerald }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
             ₹{(totalPaidAmount / 100000).toFixed(1)}L
           </Text>
           <Text style={styles.kpiTitle}>Settled Total</Text>
@@ -399,6 +408,11 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
     gap: 16,
   },
+  tabletContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
+  },
   welcomeCard: {
     backgroundColor: clientTheme.colors.surface,
     borderRadius: clientTheme.radius.lg,
@@ -482,6 +496,13 @@ const styles = StyleSheet.create({
     borderWidth: 1.2,
     borderColor: clientTheme.colors.sandstoneBorder,
     ...clientTheme.shadows.sm,
+  },
+  kpiCardTablet: {
+    width: '23.5%',
+  },
+  kpiCardSmall: {
+    width: '47.5%',
+    padding: 11,
   },
   kpiCardHighlightGold: {
     borderColor: '#fde68a',

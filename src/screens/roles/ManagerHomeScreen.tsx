@@ -7,9 +7,9 @@ import {
   ScrollView,
   StatusBar,
   Alert,
-  useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useResponsive } from '../../utils/responsive';
 import {
   Users,
   FolderKanban,
@@ -47,8 +47,7 @@ interface ManagerHomeScreenProps {
 
 export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth <= 360;
+  const { isSmall, isCompact, isTablet } = useResponsive();
 
   const { session } = useAuth();
   const { unreadCount } = useNotifications();
@@ -143,6 +142,7 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
 
       {/* 1. Tactical Command Center Header (Light Theme & Emerald Radar) */}
       <View style={[styles.commandHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
+        <View style={[{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -191,6 +191,7 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             </View>
           </TouchableOpacity>
         </View>
+        </View>
       </View>
 
       <ScrollView
@@ -198,7 +199,7 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
         contentContainerStyle={styles.containerContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }]}>
+        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
           {/* 2. Bespoke Hero: Live Field Site Rig Telemetry Console */}
           <View style={styles.telemetryCard}>
             <View style={styles.telemetryHeader}>
@@ -284,13 +285,13 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
                     <FolderKanban size={17} color="#2563eb" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeProjects}>
-                    <Text style={styles.kpiBadgeTextProjects}>Live Sites</Text>
+                  <View style={[styles.kpiBadgeProjects, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextProjects} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Live Sites</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueProjects}>
+                  <Text style={[styles.kpiValueProjects, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {activeProjects.length || 4}
                   </Text>
                   <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
@@ -314,13 +315,13 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
                     <Users size={17} color="#0f766e" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeClients}>
-                    <Text style={styles.kpiBadgeTextClients}>85% Live</Text>
+                  <View style={[styles.kpiBadgeClients, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextClients} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>85% Live</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueClients}>
+                  <Text style={[styles.kpiValueClients, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {staffPresentCount}
                   </Text>
                   <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
@@ -346,13 +347,13 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
                     <Compass size={17} color="#7e22ce" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeEmployees}>
-                    <Text style={styles.kpiBadgeTextEmployees}>HQ Wireline</Text>
+                  <View style={[styles.kpiBadgeEmployees, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextEmployees} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>HQ Wireline</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueEmployees}>
+                  <Text style={[styles.kpiValueEmployees, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     1,420
                   </Text>
                   <ArrowUpRight size={16} color="#7c3aed" strokeWidth={2.4} />
@@ -376,13 +377,13 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
                     <Clock size={17} color="#ea580c" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgePending}>
-                    <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
+                  <View style={[styles.kpiBadgePending, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextPending} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>Urgent</Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValuePending}>
+                  <Text style={[styles.kpiValuePending, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {pendingTasksCount}
                   </Text>
                   <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
@@ -574,7 +575,7 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
               return (
                 <TouchableOpacity
                   key={idx}
-                  style={styles.modTile}
+                  style={[styles.modTile, isTablet && styles.modTileTablet, isSmall && styles.modTileSmall]}
                   activeOpacity={0.8}
                   onPress={() => navigation.navigate(mod.route)}
                 >
@@ -731,6 +732,11 @@ const styles = StyleSheet.create({
   bodyWrapper: {
     paddingHorizontal: 16,
     paddingTop: 12,
+  },
+  tabletContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
 
   /* 2. Live Rig Telemetry Console */
@@ -1089,6 +1095,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     ...shadows.xs,
+  },
+  modTileTablet: {
+    width: '31.8%',
+  },
+  modTileSmall: {
+    width: '48%',
+    padding: 7,
   },
   modIconWrap: {
     width: 38,

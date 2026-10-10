@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth, useFinance, useNotifications } from '../../context';
 import { colors, radius, shadows } from '../../theme';
+import { useResponsive } from '../../utils/responsive';
 import {
   IndianRupee,
   Receipt,
@@ -45,8 +46,7 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
   const insets = useSafeAreaInsets();
   const hookNav = useNavigation<any>();
   const navigation = propNav || hookNav;
-  const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth <= 360;
+  const { isCompact, isSmall, isTablet } = useResponsive();
 
   const { session } = useAuth();
   const { unreadCount } = useNotifications();
@@ -200,7 +200,7 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
-        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }]}>
+        <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
           {/* 2. Bespoke Hero: Double-Entry Balance Radar & Treasury Strip */}
           <View style={styles.treasuryTerminalCard}>
             <View style={styles.terminalTopRow}>
@@ -213,12 +213,19 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
 
             {/* Big Liquidity Figures */}
             <View style={styles.liquidityFiguresRow}>
-              <View>
-                <Text style={styles.liquidityNetVal}>₹23.60 L</Text>
-                <Text style={styles.liquidityNetLabel}>Net Liquid Working Capital</Text>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text
+                  style={[styles.liquidityNetVal, isSmall && { fontSize: 24 }, isCompact && { fontSize: 26 }]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.75}
+                >
+                  ₹23.60 L
+                </Text>
+                <Text style={styles.liquidityNetLabel} numberOfLines={1}>Net Liquid Working Capital</Text>
               </View>
-              <View style={styles.solvencyPill}>
-                <Text style={styles.solvencyPillText}>100% Solvency</Text>
+              <View style={[styles.solvencyPill, { flexShrink: 1 }]}>
+                <Text style={styles.solvencyPillText} numberOfLines={1}>100% Solvency</Text>
               </View>
             </View>
 
@@ -228,14 +235,14 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
               <View style={[styles.ratioBarAp, { flex: 3 }]} />
             </View>
 
-            <View style={styles.ratioLabelsRow}>
+            <View style={[styles.ratioLabelsRow, isSmall && { flexWrap: 'wrap', gap: 6 }]}>
               <View style={styles.ratioItem}>
                 <View style={[styles.ratioDot, { backgroundColor: '#3b82f6' }]} />
-                <Text style={styles.ratioText}>AR Receivables: ₹38.2 L</Text>
+                <Text style={styles.ratioText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>AR Receivables: ₹38.2 L</Text>
               </View>
               <View style={styles.ratioItem}>
                 <View style={[styles.ratioDot, { backgroundColor: '#f97316' }]} />
-                <Text style={styles.ratioText}>AP Payables: ₹14.6 L</Text>
+                <Text style={styles.ratioText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>AP Payables: ₹14.6 L</Text>
               </View>
             </View>
           </View>
@@ -253,20 +260,22 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxProjects]}>
                     <IndianRupee size={17} color="#2563eb" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeProjects}>
-                    <Text style={styles.kpiBadgeTextProjects}>{overdueCount > 0 ? `${overdueCount} Overdue` : 'Current'}</Text>
+                  <View style={[styles.kpiBadgeProjects, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextProjects} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      {overdueCount > 0 ? `${overdueCount} Overdue` : 'Current'}
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueProjects}>
+                  <Text style={[styles.kpiValueProjects, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     ₹{(receivables / 100000).toFixed(1)} L
                   </Text>
                   <ArrowUpRight size={16} color="#2563eb" strokeWidth={2.4} />
                 </View>
 
                 <View style={styles.kpiLabelsCol}>
-                  <Text style={styles.kpiTitle}>Client Receivables</Text>
+                  <Text style={styles.kpiTitle} numberOfLines={1}>Client Receivables</Text>
                   <Text style={styles.kpiSubtitle} numberOfLines={1}>
                     Pending Collections
                   </Text>
@@ -283,20 +292,22 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxClients]}>
                     <Wallet size={17} color="#0f766e" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeClients}>
-                    <Text style={styles.kpiBadgeTextClients}>3-Way Match</Text>
+                  <View style={[styles.kpiBadgeClients, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextClients} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      3-Way Match
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueClients}>
+                  <Text style={[styles.kpiValueClients, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     ₹{(payables / 100000).toFixed(1)} L
                   </Text>
                   <ArrowUpRight size={16} color="#0d9488" strokeWidth={2.4} />
                 </View>
 
                 <View style={styles.kpiLabelsCol}>
-                  <Text style={styles.kpiTitle}>Vendor Payables</Text>
+                  <Text style={styles.kpiTitle} numberOfLines={1}>Vendor Payables</Text>
                   <Text style={styles.kpiSubtitle} numberOfLines={1}>
                     Approved Rig & Field Invoices
                   </Text>
@@ -315,20 +326,22 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxEmployees]}>
                     <Landmark size={17} color="#15803d" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgeEmployees}>
-                    <Text style={styles.kpiBadgeTextEmployees}>Surplus</Text>
+                  <View style={[styles.kpiBadgeEmployees, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextEmployees} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      Surplus
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValueEmployees}>
+                  <Text style={[styles.kpiValueEmployees, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     ₹{(netCashFlow / 100000).toFixed(1)} L
                   </Text>
                   <ArrowUpRight size={16} color="#15803d" strokeWidth={2.4} />
                 </View>
 
                 <View style={styles.kpiLabelsCol}>
-                  <Text style={styles.kpiTitle}>Net Cashflow</Text>
+                  <Text style={styles.kpiTitle} numberOfLines={1}>Net Cashflow</Text>
                   <Text style={styles.kpiSubtitle} numberOfLines={1}>
                     Operational Liquidity
                   </Text>
@@ -345,13 +358,15 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
                     <Clock size={17} color="#ea580c" strokeWidth={2.4} />
                   </View>
-                  <View style={styles.kpiBadgePending}>
-                    <Text style={styles.kpiBadgeTextPending}>Action Req</Text>
+                  <View style={[styles.kpiBadgePending, { flexShrink: 1 }]}>
+                    <Text style={styles.kpiBadgeTextPending} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                      Action Req
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.kpiNumberRow}>
-                  <Text style={styles.kpiValuePending}>
+                  <Text style={[styles.kpiValuePending, isSmall && { fontSize: 20 }, isCompact && { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                     {pendingBills.length || 3}
                   </Text>
                   <ArrowUpRight size={16} color="#ea580c" strokeWidth={2.4} />
@@ -529,7 +544,7 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
               return (
                 <TouchableOpacity
                   key={idx}
-                  style={styles.modTile}
+                  style={[styles.modTile, isTablet && styles.modTileTablet, isSmall && styles.modTileSmall]}
                   activeOpacity={0.8}
                   onPress={() => navigation.navigate(mod.route)}
                 >
@@ -695,6 +710,11 @@ const styles = StyleSheet.create({
   bodyWrapper: {
     paddingHorizontal: 12,
     paddingTop: 12,
+  },
+  tabletContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
 
   /* 2. Treasury Terminal Card */
@@ -987,6 +1007,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     ...shadows.xs,
+  },
+  modTileTablet: {
+    width: '31.8%',
+  },
+  modTileSmall: {
+    width: '48%',
+    padding: 7,
   },
   modIconWrap: {
     width: 38,

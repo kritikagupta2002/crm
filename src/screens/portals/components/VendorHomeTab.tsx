@@ -17,6 +17,7 @@ import { Tender, WorkOrder, SealedBid, TenderClarification } from '../../../type
 import { closingOf, daysFrom } from '../../../constants/vendor';
 import { vendorTheme } from './vendorTheme';
 import { VendorNavTab } from './VendorBottomNav';
+import { useResponsive } from '../../../utils/responsive';
 
 interface VendorHomeTabProps {
   vendorName: string;
@@ -69,8 +70,10 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
   const totalBilled = myWorkOrders.reduce((sum, w) => sum + (w.billedAmount || 0), 0);
   const estimatedTdsDeducted = Math.round(totalPaid * 0.02);
 
+  const { isSmall, isCompact, isTablet } = useResponsive();
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isTablet && styles.tabletContainer]}>
       {/* 1. WELCOME & STATUS BANNER (BIG & IMPACTFUL) */}
       <View style={styles.welcomeCard}>
         <View style={styles.welcomeRow}>
@@ -122,7 +125,7 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
                   <Text style={[styles.tileMiniPillText, { color: '#0284c7' }]}>Live</Text>
                 </View>
               </View>
-              <Text style={styles.tileCount}>{freshTenders.length}</Text>
+              <Text style={styles.tileCount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{freshTenders.length}</Text>
               <Text style={styles.tileLabel}>Open Tenders</Text>
               <Text style={styles.tileSub}>Available to bid</Text>
             </TouchableOpacity>
@@ -140,7 +143,7 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
                   <Text style={[styles.tileMiniPillText, { color: '#d97706' }]}>Bids</Text>
                 </View>
               </View>
-              <Text style={styles.tileCount}>{myBids.length}</Text>
+              <Text style={styles.tileCount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{myBids.length}</Text>
               <Text style={styles.tileLabel}>Active Bids</Text>
               <Text style={styles.tileSub}>Submitted quotes</Text>
             </TouchableOpacity>
@@ -161,7 +164,7 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
                   <Text style={[styles.tileMiniPillText, { color: '#0d9488' }]}>Orders</Text>
                 </View>
               </View>
-              <Text style={styles.tileCount}>{waitingOrders.length}</Text>
+              <Text style={styles.tileCount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{waitingOrders.length}</Text>
               <Text style={styles.tileLabel}>Active Orders</Text>
               <Text style={styles.tileSub}>Field execution</Text>
             </TouchableOpacity>
@@ -184,6 +187,9 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
                   styles.tileCount,
                   pendingBillsCount > 0 && { color: vendorTheme.colors.emerald },
                 ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.75}
               >
                 {pendingBillsCount}
               </Text>
@@ -482,6 +488,11 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 28,
+  },
+  tabletContainer: {
+    maxWidth: 720,
+    width: '100%',
+    alignSelf: 'center',
   },
   welcomeCard: {
     backgroundColor: vendorTheme.colors.surface,

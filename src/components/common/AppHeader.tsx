@@ -40,7 +40,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const isNarrow = screenWidth <= 360;
-  const headerPadding = isNarrow ? spacing.md : spacing.lg;
+  const isTablet = screenWidth >= 640;
+  const headerPadding = isNarrow ? spacing.sm + 4 : spacing.lg;
 
   const androidStatusBar = StatusBar.currentHeight ?? 24;
   const topInset = Math.max(
@@ -49,23 +50,23 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   );
 
   return (
-    <View style={[styles.headerContainer, { paddingTop: Math.max(topInset + 6, 14), paddingHorizontal: headerPadding }]}>
+    <View style={[styles.headerContainer, { paddingTop: Math.max(topInset + 4, 12), paddingHorizontal: headerPadding }]}>
       <StatusBar
         barStyle="dark-content"
         translucent
         backgroundColor="transparent"
       />
       
-      <View style={styles.contentRow}>
+      <View style={[styles.contentRow, isTablet && styles.tabletContentRow]}>
         <View style={styles.leftCol}>
           {showBack ? (
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={onBack}
-              style={styles.backButton}
+              style={[styles.backButton, isNarrow && styles.compactIconButton]}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              <ArrowLeft size={18} color={colors.textPrimary} strokeWidth={2.4} />
+              <ArrowLeft size={isNarrow ? 16 : 18} color={colors.textPrimary} strokeWidth={2.4} />
             </TouchableOpacity>
           ) : null}
 
@@ -81,17 +82,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               style={[styles.screenTitle, isNarrow && { fontSize: 16 }]}
               numberOfLines={1}
               adjustsFontSizeToFit
-              minimumFontScale={0.85}
+              minimumFontScale={0.8}
             >
               {title}
             </Text>
 
             {subtitle ? (
               <Text
-                style={styles.subtitle}
+                style={[styles.subtitle, isNarrow && { fontSize: 10.5 }]}
                 numberOfLines={1}
                 adjustsFontSizeToFit
-                minimumFontScale={0.85}
+                minimumFontScale={0.8}
               >
                 {subtitle}
               </Text>
@@ -106,10 +107,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={onNotificationPress}
-              style={styles.bellBtn}
+              style={[styles.bellBtn, isNarrow && styles.compactIconButton]}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Bell size={18} color={colors.textPrimary} strokeWidth={2} />
+              <Bell size={isNarrow ? 16 : 18} color={colors.textPrimary} strokeWidth={2} />
               {unreadCount > 0 ? (
                 <View style={styles.bellDot}>
                   <Text style={styles.bellDotText}>
@@ -139,6 +140,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     minHeight: 44,
+    width: '100%',
+  },
+  tabletContentRow: {
+    maxWidth: 720,
+    alignSelf: 'center',
   },
   leftCol: {
     flexDirection: 'row',
@@ -156,6 +162,11 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm + 2,
     borderWidth: 1,
     borderColor: colors.border.default,
+  },
+  compactIconButton: {
+    width: 34,
+    height: 34,
+    marginRight: spacing.xs + 2,
   },
   titlesCol: {
     flex: 1,

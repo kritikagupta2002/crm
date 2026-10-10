@@ -24,6 +24,7 @@ import {
 } from '../../components/common';
 import { ExpenseClaim, ExpenseStatus } from '../../types';
 import { formatDate } from '../../utils/date';
+import { useResponsive } from '../../utils/responsive';
 import {
   Receipt,
   Search,
@@ -53,6 +54,7 @@ const getInitials = (name?: string) => {
 
 export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const { isCompact, isSmall, isTablet } = useResponsive();
   const { expenses, queries, refreshHrms } = useHrms();
   const { session, hasRole } = useAuth();
 
@@ -135,7 +137,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     const initials = getInitials(item.employeeName);
 
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, isTablet && styles.tabletCard]}>
         {/* Top Line: Expense ID, Status Badge & Date */}
         <View style={styles.cardHeader}>
           <View style={styles.tagWrap}>
@@ -180,7 +182,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         <View style={styles.amountContainer}>
           <View style={styles.amountCol}>
             <Text style={styles.amountLabel}>CLAIMED</Text>
-            <Text style={styles.amountVal}>
+            <Text style={styles.amountVal} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
               ₹{Number(item.requestedAmount || item.amount || 0).toLocaleString('en-IN')}
             </Text>
           </View>
@@ -188,7 +190,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           {item.approvedAmount !== undefined && item.status !== 'Pending' && (
             <View style={styles.amountCol}>
               <Text style={styles.amountLabel}>APPROVED</Text>
-              <Text style={[styles.amountVal, { color: '#16A34A' }]}>
+              <Text style={[styles.amountVal, { color: '#16A34A' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                 ₹{Number(item.approvedAmount).toLocaleString('en-IN')}
               </Text>
             </View>
@@ -197,7 +199,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           {item.settledAmount !== undefined && (item.status === 'Settled' || item.settledAmount > 0) && (
             <View style={styles.amountCol}>
               <Text style={styles.amountLabel}>SETTLED</Text>
-              <Text style={[styles.amountVal, { color: '#0D9488' }]}>
+              <Text style={[styles.amountVal, { color: '#0D9488' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                 ₹{Number(item.settledAmount).toLocaleString('en-IN')}
               </Text>
             </View>
@@ -265,16 +267,25 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
   };
 
   const renderHeader = () => (
-    <View style={styles.listHeaderWrap}>
+    <View style={[styles.listHeaderWrap, isTablet && styles.tabletWrap]}>
       {/* 1. Interactive KPI Metrics Strip */}
-      <View style={styles.metricsStrip}>
+      <View style={[styles.metricsStrip, isSmall && { paddingVertical: 10, paddingHorizontal: 4 }]}>
         <TouchableOpacity
           activeOpacity={0.7}
           style={[styles.metricItem, selectedStatus === 'All' && styles.metricItemActive]}
           onPress={() => setSelectedStatus('All')}
         >
-          <Text style={[styles.metricVal, { color: '#0D9488' }]}>{`₹${(stats.totalClaimed / 1000).toFixed(1)}k`}</Text>
-          <Text style={styles.metricLbl}>Claimed</Text>
+          <Text
+            style={[styles.metricVal, { color: '#0D9488' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
+            {`₹${(stats.totalClaimed / 1000).toFixed(1)}k`}
+          </Text>
+          <Text style={[styles.metricLbl, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+            Claimed
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.metricDivider} />
@@ -284,8 +295,17 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           style={[styles.metricItem, selectedStatus === 'Approved' && styles.metricItemActive]}
           onPress={() => setSelectedStatus('Approved')}
         >
-          <Text style={[styles.metricVal, { color: '#16A34A' }]}>{`₹${(stats.totalApproved / 1000).toFixed(1)}k`}</Text>
-          <Text style={styles.metricLbl}>Approved</Text>
+          <Text
+            style={[styles.metricVal, { color: '#16A34A' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
+            {`₹${(stats.totalApproved / 1000).toFixed(1)}k`}
+          </Text>
+          <Text style={[styles.metricLbl, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+            Approved
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.metricDivider} />
@@ -295,8 +315,17 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           style={[styles.metricItem, selectedStatus === 'Settled' && styles.metricItemActive]}
           onPress={() => setSelectedStatus('Settled')}
         >
-          <Text style={[styles.metricVal, { color: '#2563EB' }]}>{`₹${(stats.totalSettled / 1000).toFixed(1)}k`}</Text>
-          <Text style={styles.metricLbl}>Settled</Text>
+          <Text
+            style={[styles.metricVal, { color: '#2563EB' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
+            {`₹${(stats.totalSettled / 1000).toFixed(1)}k`}
+          </Text>
+          <Text style={[styles.metricLbl, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+            Settled
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.metricDivider} />
@@ -306,63 +335,88 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           style={[styles.metricItem, selectedStatus === 'Queried' && styles.metricItemActive]}
           onPress={() => setSelectedStatus('Queried')}
         >
-          <Text style={[styles.metricVal, { color: stats.underQuery > 0 ? '#D97706' : '#16A34A' }]}>{stats.underQuery}</Text>
-          <Text style={styles.metricLbl}>Queries</Text>
+          <Text
+            style={[styles.metricVal, { color: stats.underQuery > 0 ? '#D97706' : '#16A34A' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
+            {stats.underQuery}
+          </Text>
+          <Text style={[styles.metricLbl, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+            Queries
+          </Text>
         </TouchableOpacity>
       </View>
 
       {/* 2. Compact Quick Actions Bar */}
       <View style={styles.launchpadSection}>
         <Text style={styles.sectionHeader}>QUICK CLAIM ACTIONS</Text>
-        <View style={styles.compactActionRow}>
+        <View style={[styles.compactActionRow, isSmall && { gap: 4 }, isCompact && { gap: 6 }]}>
           <TouchableOpacity
-            style={styles.compactActionTile}
+            style={[styles.compactActionTile, isCompact && { paddingHorizontal: 2 }]}
             onPress={() => navigation.navigate('ExpenseClaim')}
             activeOpacity={0.8}
           >
-            <View style={[styles.compactSquircle, { backgroundColor: '#F0FDFA' }]}>
-              <Plus size={18} color="#0D9488" strokeWidth={2.5} />
+            <View style={[styles.compactSquircle, { backgroundColor: '#F0FDFA' }, isSmall && { width: 30, height: 30 }]}>
+              <Plus size={isSmall ? 15 : 18} color="#0D9488" strokeWidth={2.5} />
             </View>
-            <Text style={styles.compactActionTitle} numberOfLines={1}>New Claim</Text>
-            <Text style={styles.compactActionSub} numberOfLines={1}>Submit</Text>
+            <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+              New Claim
+            </Text>
+            <Text style={[styles.compactActionSub, isCompact && { fontSize: 8 }]} numberOfLines={1}>
+              Submit
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={styles.compactActionTile}
+            style={[styles.compactActionTile, isCompact && { paddingHorizontal: 2 }]}
             onPress={() => navigation.navigate('ExpenseQueries')}
             activeOpacity={0.8}
           >
-            <View style={[styles.compactSquircle, { backgroundColor: '#FFFBEB' }]}>
-              <MessageSquare size={17} color="#D97706" />
+            <View style={[styles.compactSquircle, { backgroundColor: '#FFFBEB' }, isSmall && { width: 30, height: 30 }]}>
+              <MessageSquare size={isSmall ? 14 : 17} color="#D97706" />
             </View>
-            <Text style={styles.compactActionTitle} numberOfLines={1}>Queries ({openQueryCount})</Text>
-            <Text style={styles.compactActionSub} numberOfLines={1}>Clarify</Text>
+            <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+              Queries ({openQueryCount})
+            </Text>
+            <Text style={[styles.compactActionSub, isCompact && { fontSize: 8 }]} numberOfLines={1}>
+              Clarify
+            </Text>
           </TouchableOpacity>
 
           {isPrivileged && (
             <TouchableOpacity
-              style={styles.compactActionTile}
+              style={[styles.compactActionTile, isCompact && { paddingHorizontal: 2 }]}
               onPress={() => navigation.navigate('ExpenseReview')}
               activeOpacity={0.8}
             >
-              <View style={[styles.compactSquircle, { backgroundColor: '#EFF6FF' }]}>
-                <ShieldCheck size={17} color="#2563EB" />
+              <View style={[styles.compactSquircle, { backgroundColor: '#EFF6FF' }, isSmall && { width: 30, height: 30 }]}>
+                <ShieldCheck size={isSmall ? 14 : 17} color="#2563EB" />
               </View>
-              <Text style={styles.compactActionTitle} numberOfLines={1}>Audit Queue</Text>
-              <Text style={styles.compactActionSub} numberOfLines={1}>Review</Text>
+              <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+                Audit Queue
+              </Text>
+              <Text style={[styles.compactActionSub, isCompact && { fontSize: 8 }]} numberOfLines={1}>
+                Review
+              </Text>
             </TouchableOpacity>
           )}
 
           <TouchableOpacity
-            style={styles.compactActionTile}
+            style={[styles.compactActionTile, isCompact && { paddingHorizontal: 2 }]}
             onPress={() => navigation.navigate('Reimbursement')}
             activeOpacity={0.8}
           >
-            <View style={[styles.compactSquircle, { backgroundColor: '#FAF5FF' }]}>
-              <FileText size={17} color="#9333EA" />
+            <View style={[styles.compactSquircle, { backgroundColor: '#FAF5FF' }, isSmall && { width: 30, height: 30 }]}>
+              <FileText size={isSmall ? 14 : 17} color="#9333EA" />
             </View>
-            <Text style={styles.compactActionTitle} numberOfLines={1}>Policy SOP</Text>
-            <Text style={styles.compactActionSub} numberOfLines={1}>Per-Diem</Text>
+            <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+              Policy SOP
+            </Text>
+            <Text style={[styles.compactActionSub, isCompact && { fontSize: 8 }]} numberOfLines={1}>
+              Per-Diem
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -549,6 +603,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: spacing.sm,
   },
+  tabletWrap: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
+  },
   sectionHeader: {
     fontSize: 10.5,
     fontWeight: typography.fontWeights.bold,
@@ -706,6 +765,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
     ...shadows.xs,
+  },
+  tabletCard: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
   },
   cardHeader: {
     flexDirection: 'row',

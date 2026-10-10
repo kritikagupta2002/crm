@@ -36,9 +36,10 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
   noPadding = false,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
-  const isCompact = screenWidth <= 360;
+  const isSmall = screenWidth < 360;
+  const isCompact = screenWidth <= 375;
   const isTablet = screenWidth >= 640;
-  const responsivePadding = isCompact ? 12 : spacing.lg;
+  const responsivePadding = isSmall ? 10 : isCompact ? 12 : spacing.lg;
   const resolvedEdges: readonly Edge[] = edges ?? (header ? ['bottom'] : ['top', 'bottom']);
 
   return (
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
   },
   tabletContent: {
-    maxWidth: 680,
+    maxWidth: 720,
     alignSelf: 'center',
     width: '100%',
   },

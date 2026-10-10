@@ -10,10 +10,12 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useHrms, useAuth } from '../../context';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
 import { AppHeader, Card, StatusBadge, Button, EmptyState } from '../../components/common';
 import { AttendanceCorrection } from '../../types';
+import { useResponsive } from '../../utils/responsive';
 import {
   FileEdit,
   Plus,
@@ -35,6 +37,8 @@ import {
 } from '../../constants/attendance';
 
 export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  const { isCompact, isSmall, isTablet } = useResponsive();
   const { corrections, reviewCorrection } = useHrms();
   const { session, hasRole } = useAuth();
 
@@ -112,11 +116,11 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
     const proj = getEmployeeProjectById(item.employeeId);
 
     return (
-      <Card style={styles.card}>
+      <Card style={[styles.card, isTablet && styles.tabletCard]}>
         <View style={styles.cardHeader}>
           <View style={styles.headerLeft}>
-            <Text style={styles.staffName}>{item.employeeName}</Text>
-            <Text style={styles.staffMeta}>
+            <Text style={styles.staffName} numberOfLines={1} adjustsFontSizeToFit>{item.employeeName}</Text>
+            <Text style={styles.staffMeta} numberOfLines={1}>
               {item.employeeId} • Applied: {item.appliedDate || item.appliedAt || 'Recent'}
             </Text>
           </View>
@@ -124,7 +128,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
         </View>
 
         <View style={styles.projectTag}>
-          <Text style={styles.projectText}>
+          <Text style={styles.projectText} numberOfLines={1}>
             {proj} • {item.department || 'Operations'}
           </Text>
         </View>
@@ -136,7 +140,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>Logged Punch:</Text>
-            <Text style={styles.detailValue}>
+            <Text style={[styles.detailValue, { flexShrink: 1, textAlign: 'right' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
               {item.currentCheckIn || '-'} — {item.currentCheckOut || '-'}
             </Text>
           </View>
@@ -144,7 +148,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
             <Text style={[styles.detailLabel, { color: colors.primary, fontWeight: '700' }]}>
               Requested Punch:
             </Text>
-            <Text style={[styles.detailValue, { color: colors.primary, fontWeight: '700' }]}>
+            <Text style={[styles.detailValue, { color: colors.primary, fontWeight: '700', flexShrink: 1, textAlign: 'right' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
               {item.requestedCheckIn || item.requestedIn} — {item.requestedCheckOut || item.requestedOut}
             </Text>
           </View>
@@ -172,7 +176,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
                 </Text>
               </View>
             ) : (
-              <View style={styles.btnRow}>
+              <View style={[styles.btnRow, isSmall && { gap: 6 }]}>
                 <Button
                   title="Reject"
                   variant="outline"
@@ -219,7 +223,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
         }
       />
 
-      <View style={styles.content}>
+      <View style={[styles.content, isTablet && styles.tabletContent]}>
         <View style={styles.searchRow}>
           <View style={styles.searchBox}>
             <Search size={16} color={colors.text.tertiary} />
@@ -238,18 +242,22 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           </View>
         </View>
 
-        <View style={styles.statusTabs}>
+        <View style={[styles.statusTabs, isCompact && { gap: 4 }]}>
           {['all', 'Pending', 'Approved', 'Rejected'].map((st) => (
             <TouchableOpacity
               key={st}
-              style={[styles.statusTab, selectedStatus === st && styles.statusTabActive]}
+              style={[styles.statusTab, selectedStatus === st && styles.statusTabActive, isCompact && { paddingVertical: 6 }]}
               onPress={() => setSelectedStatus(st)}
             >
               <Text
                 style={[
                   styles.statusTabText,
                   selectedStatus === st && styles.statusTabTextActive,
+                  isCompact && { fontSize: 10.5 },
                 ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
               >
                 {st === 'all' ? 'All' : st}
               </Text>
@@ -261,7 +269,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
           data={filteredRequests}
           keyExtractor={(item) => item.id}
           renderItem={renderCorrectionItem}
-          contentContainerStyle={styles.listContainer}
+          contentContainerStyle={[styles.listContainer, { paddingBottom: Math.max(insets.bottom + 64, 80) }]}
           showsVerticalScrollIndicator={false}
           initialNumToRender={8}
           maxToRenderPerBatch={8}
@@ -350,6 +358,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: spacing.md,
   },
+  tabletContent: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
+  },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -427,6 +440,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border.subtle,
     marginBottom: spacing.sm,
+  },
+  tabletCard: {
+    maxWidth: 720,
+    alignSelf: 'center',
+    width: '100%',
   },
   cardHeader: {
     flexDirection: 'row',
