@@ -58,7 +58,6 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={{ flex: 1, marginRight: 10 }}>
             <View style={styles.codeRow}>
@@ -82,7 +81,6 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
         </View>
 
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-          {/* 1. PROJECT OVERVIEW CARD */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <Compass size={18} color={clientTheme.colors.navy} />
@@ -135,7 +133,6 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
             </View>
           </View>
 
-          {/* 2. 7-STAGE OPERATIONAL LIFECYCLE STEPPER */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <Layers size={18} color={clientTheme.colors.navy} />
@@ -210,7 +207,6 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
             </View>
           </View>
 
-          {/* 3. GEOLOGICAL & DRILLING HIGHLIGHTS */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <FileText size={18} color={clientTheme.colors.navy} />
@@ -243,7 +239,6 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
             ))}
           </View>
 
-          {/* 4. PROJECT DELIVERABLES */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <ShieldCheck size={18} color={clientTheme.colors.navy} />

@@ -72,7 +72,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
     setRefreshing(false);
   };
 
-  // Operational metrics for billing and books
   const draftInvoices = useMemo(
     () => invoices.filter((i) => i.status === 'Draft' || i.status === 'Pending' || i.status === 'Unpaid'),
     [invoices]
@@ -115,7 +114,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
     <View style={styles.rootContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Bookkeeping Desk Top Bar (Light Theme & Accounts Desk) */}
       <View style={[styles.billingHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={[{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerLeftRow}>
@@ -179,7 +177,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
         <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
-          {/* 2. Bespoke Hero: Daily Bookkeeping Action Pad */}
           <View style={styles.actionPadCard}>
             <Text style={styles.actionPadHeading}>DAILY BOOKKEEPING ACTIONS</Text>
             <Text style={styles.actionPadSub}>Primary daily accounting entries & reconciliation desk</Text>
@@ -235,10 +232,8 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             </View>
           </View>
 
-          {/* Accounts Bento KPI Grid */}
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Client Invoices */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Invoices')}
@@ -268,7 +263,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
                 </View>
               </TouchableOpacity>
 
-              {/* Inward Bills */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('VendorBills')}
@@ -300,7 +294,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Daybook Vouchers */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Vouchers')}
@@ -330,7 +323,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
                 </View>
               </TouchableOpacity>
 
-              {/* 3-Way Match Pending */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('VendorBills')}
@@ -362,7 +354,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             </View>
           </View>
 
-          {/* 3. Inward Vendor Bills Awaiting 3-Way Match */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Inward Bills for 3-Way Match</Text>
@@ -380,7 +371,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
           </View>
 
           <View style={styles.matchingCardsStack}>
-            {/* Match Card 1 */}
             <View style={styles.matchCard}>
               <View style={styles.matchTopRow}>
                 <View style={styles.matchBillBadge}>
@@ -423,7 +413,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
               </TouchableOpacity>
             </View>
 
-            {/* Match Card 2 */}
             <View style={styles.matchCard}>
               <View style={styles.matchTopRow}>
                 <View style={styles.matchBillBadge}>
@@ -467,7 +456,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             </View>
           </View>
 
-          {/* 4. Milestone Billing Queue (Tax Invoices to Raise) */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Milestone Billing Queue (AR)</Text>
@@ -520,7 +508,6 @@ export const AccountsExecutiveHomeScreen: React.FC<AccountsExecutiveHomeScreenPr
             </View>
           </View>
 
-          {/* 5. Accounts Workspaces */}
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>Accounts Workspaces</Text>
           </View>
@@ -573,7 +560,6 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
 
-  /* 1. Billing Header */
   billingHeader: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
@@ -710,7 +696,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* 2. Action Pad Card */
   actionPadCard: {
     backgroundColor: '#ffffff',
     borderRadius: 18,
@@ -764,7 +749,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  /* Section Headers */
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -804,7 +788,6 @@ const styles = StyleSheet.create({
     color: '#0b2545',
   },
 
-  /* 3. Matching Cards Stack */
   matchingCardsStack: {
     gap: 12,
     marginBottom: 18,
@@ -901,7 +884,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* 4. Billing Queue Card */
   billingQueueCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -955,7 +937,6 @@ const styles = StyleSheet.create({
     marginLeft: 46,
   },
 
-  /* 5. Modules Grid */
   modulesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1002,7 +983,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,

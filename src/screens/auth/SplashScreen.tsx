@@ -46,19 +46,16 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   }, [fadeAnim, onFinish]);
 
   useEffect(() => {
-    // Fade in whole screen quickly
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 400,
       useNativeDriver: true,
     }).start();
 
-    // Listen to progress to update live percentage counter
     const listenerId = progressAnim.addListener(({ value }) => {
       setPercent(Math.min(100, Math.round(value * 100)));
     });
 
-    // Animate progress smoothly over 1800ms
     Animated.timing(progressAnim, {
       toValue: 1,
       duration: 1800,
@@ -96,7 +93,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         style={styles.backgroundImage}
         resizeMode="cover"
       >
-        {/* Dark Vignette Overlay for Crisp Readability across all displays */}
         <View style={styles.darkScrim} />
 
         <Animated.View
@@ -109,9 +105,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             },
           ]}
         >
-          {/* ================= TOP SECTION ================= */}
           <View style={[styles.topSection, isTablet && styles.tabletContainer]}>
-            {/* Mountain Emblem */}
             <View style={styles.emblemContainer}>
               <Image
                 source={emblemImg}
@@ -124,7 +118,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               />
             </View>
 
-            {/* Brand Title: BANSAL GEO */}
             <Text
               style={[
                 styles.brandTitle,
@@ -138,7 +131,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               BANSAL GEO
             </Text>
 
-            {/* Subtitle: SOLUTIONS PVT. LTD. */}
             <Text
               style={[
                 styles.brandLegal,
@@ -152,10 +144,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               SOLUTIONS PVT. LTD.
             </Text>
 
-            {/* Metallic Gold Accent Divider */}
             <View style={styles.goldDivider} />
 
-            {/* Tagline: “Geology for a Better Tomorrow” */}
             <Text
               style={[
                 styles.tagline,
@@ -168,9 +158,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
               “Geology for a Better Tomorrow”
             </Text>
 
-            {/* 4 Geological Pillars Glass Card */}
             <View style={[styles.pillarsCard, isSmall && { paddingVertical: 10 }]}>
-              {/* 1. Exploration */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
                   <Svg width={23} height={23} viewBox="0 0 24 24">
@@ -196,7 +184,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
               <View style={styles.pillarDivider} />
 
-              {/* 2. Resource Management */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
                   <Layers size={23} color="#f59e0b" strokeWidth={2} />
@@ -206,7 +193,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
               <View style={styles.pillarDivider} />
 
-              {/* 3. Sustainable Solutions */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
                   <Sprout size={23} color="#f59e0b" strokeWidth={2} />
@@ -216,7 +202,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
               <View style={styles.pillarDivider} />
 
-              {/* 4. A Better Tomorrow */}
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
                   <BarChart3 size={23} color="#f59e0b" strokeWidth={2} />
@@ -226,7 +211,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             </View>
           </View>
 
-          {/* ================= BOTTOM SECTION ================= */}
           <View style={[styles.bottomSection, isTablet && styles.tabletContainer]}>
             <View style={styles.progressContainer}>
               <View style={styles.progressHeaderRow}>
@@ -236,7 +220,6 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
                 <Text style={styles.percentageText}>{percent}%</Text>
               </View>
 
-              {/* Centered Smooth Loading Bar */}
               <View style={styles.progressBarTrack}>
                 <Animated.View
                   style={[
@@ -286,7 +269,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* Top Section */
   topSection: {
     alignItems: 'center',
     width: '100%',
@@ -334,7 +316,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
-  /* 4 Pillars Glass Card */
   pillarsCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -377,7 +358,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* Bottom Section */
   bottomSection: {
     alignItems: 'center',
     width: '100%',

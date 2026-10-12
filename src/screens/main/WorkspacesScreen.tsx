@@ -99,7 +99,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
   };
 
   const allWorkspaces: WorkspaceItemData[] = useMemo(() => [
-    // 1. Field & Exploration
     {
       id: 'field_database',
       title: 'Field Database',
@@ -139,7 +138,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       route: 'ErmWorkspaceHome',
     },
 
-    // 2. Commercial & Supply Chain
     {
       id: 'crm',
       title: 'CRM',
@@ -179,7 +177,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       route: 'VendorWorkspaceHome',
     },
 
-    // 3. Corporate & Finance
     {
       id: 'finance',
       title: 'Finance',
@@ -257,7 +254,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       route: 'DocumentWorkspaceHome',
     },
 
-    // 4. Intelligence & Governance
     {
       id: 'mis',
       title: 'MIS',
@@ -378,7 +374,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={[{ width: '100%' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerTitleRow}>
@@ -394,7 +389,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
           </View>
         </View>
 
-        {/* Search Bar */}
         <View style={styles.searchBar}>
           <Search size={16} color="#94a3b8" style={styles.searchIcon} />
           <TextInput
@@ -415,7 +409,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
           ) : null}
         </View>
 
-        {/* Category Filter Pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -446,7 +439,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
         </View>
       </View>
 
-      {/* Workspaces Explorer Group */}
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -463,7 +455,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
         ) : (
           groupedWorkspaces.map((grp) => (
             <View key={grp.key} style={styles.groupSection}>
-              {/* Group Header Row */}
               <View style={styles.groupHeaderRow}>
                 <View style={styles.groupHeaderLeft}>
                   {grp.icon}
@@ -472,7 +463,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
                 <Text style={styles.groupCountText}>{grp.itemCountLabel}</Text>
               </View>
 
-              {/* Group Items Cards */}
               <View style={styles.cardsList}>
                 {grp.items.map((ws) => (
                   <TouchableOpacity
@@ -481,7 +471,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
                     onPress={() => handleWorkspaceSelect(ws.route)}
                     style={styles.expansiveCard}
                   >
-                    {/* Top Row: Icon + Title + Live Badge + Arrow */}
                     <View style={styles.cardTopRow}>
                       <View style={[styles.iconBox, { backgroundColor: ws.iconBg }]}>
                         {getWorkspaceIcon(ws.id, ws.iconColor)}
@@ -506,7 +495,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
                       </View>
                     </View>
 
-                    {/* Middle Row: Workflow Chips Strip */}
                     <View style={styles.tagsRow}>
                       {ws.tags.map((tag, tIdx) => (
                         <View key={tIdx} style={styles.tagPill}>
@@ -517,7 +505,6 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
                       ))}
                     </View>
 
-                    {/* Bottom Row: Live KPI Mini Metrics Footer */}
                     <View style={styles.metricsFooter}>
                       {ws.metrics.map((m, mIdx) => (
                         <React.Fragment key={mIdx}>

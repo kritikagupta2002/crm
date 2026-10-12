@@ -115,7 +115,6 @@ export const FieldDatabaseHomeScreen: React.FC<FieldDatabaseHomeScreenProps> = (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -135,7 +134,6 @@ export const FieldDatabaseHomeScreen: React.FC<FieldDatabaseHomeScreenProps> = (
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Active Exploration Block Selector & Field Telemetry Hero */}
         <View style={styles.projectContextCard}>
           <View style={styles.telemetryTopRow}>
             <View>
@@ -160,7 +158,6 @@ export const FieldDatabaseHomeScreen: React.FC<FieldDatabaseHomeScreenProps> = (
             </Text>
           </View>
 
-          {/* Geological Telemetry Metrics */}
           <View style={styles.telemetryGrid}>
             <View style={styles.telemetryItem}>
               <Text style={styles.telemetryItemLabel}>Active Rigs</Text>
@@ -182,7 +179,6 @@ export const FieldDatabaseHomeScreen: React.FC<FieldDatabaseHomeScreenProps> = (
           </View>
         </View>
 
-        {/* Quick Field Actions */}
         <View style={styles.quickActionsContainer}>
           <TouchableOpacity
             style={styles.quickActionBtn}
@@ -210,13 +206,11 @@ export const FieldDatabaseHomeScreen: React.FC<FieldDatabaseHomeScreenProps> = (
           </TouchableOpacity>
         </View>
 
-        {/* Geological Field Workflows List Header */}
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionTitle}>Field Activity Modules</Text>
           <Text style={styles.sectionSubtitle}>Standardized Logging, Drilling & Dispatch OS</Text>
         </View>
 
-        {/* Expansive Standalone Cards */}
         <View style={styles.modulesContainer}>
           {fieldModules.map((item) => (
             <TouchableOpacity

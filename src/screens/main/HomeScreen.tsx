@@ -58,7 +58,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const { session, canonicalRole } = useAuth();
 
-  // Role-specific home screens
   if (canonicalRole === 'director') {
     return <DirectorHomeScreen navigation={navigation} />;
   }
@@ -172,7 +171,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     <View style={styles.rootContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Header: Avatar + Dr. Rajesh Bansal + Search & Bell (Zero Side Margin, 100% Full Width) */}
       <View style={[styles.headerContainer, { paddingTop: Math.max(insets.top + 6, 14) }]}>
         <View style={[{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerLeftRow}>
@@ -235,7 +233,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
-          {/* 2. Hero Banner: Mining & Exploration */}
           <ImageBackground
             source={heroBannerImg}
             style={styles.heroBanner}
@@ -252,7 +249,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               <Text style={styles.heroSubtitle}>“Geology for a Better Tomorrow”</Text>
             </View>
 
-            {/* Slider bar indicator on bottom right */}
             <View style={styles.sliderDotsRow}>
               <View style={styles.sliderDotInactive} />
               <View style={styles.sliderDotInactive} />
@@ -261,11 +257,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </ImageBackground>
 
-          {/* 3. Executive KPI Bento Grid (Crystalline Modern Executive Style) */}
           <View style={styles.kpiGrid}>
-            {/* Row 1: Projects & Clients */}
             <View style={styles.kpiRow}>
-              {/* Projects Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Projects')}
@@ -295,7 +288,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 </View>
               </TouchableOpacity>
 
-              {/* Clients Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Clients')}
@@ -326,9 +318,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Row 2: Employees & Pending Actions */}
             <View style={styles.kpiRow}>
-              {/* Employees Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('EmployeeDirectory')}
@@ -358,7 +348,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 </View>
               </TouchableOpacity>
 
-              {/* Pending Actions Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('AlertsTab')}
@@ -390,7 +379,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-        {/* 4. Pending Actions Section */}
         <View style={styles.sectionHeaderRow}>
           <View style={styles.sectionTitleRow}>
             <Text style={styles.sectionTitle}>Pending Actions</Text>
@@ -408,7 +396,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         <View style={styles.actionsCardContainer}>
-          {/* Client Approvals */}
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('ClientApprovals')}
@@ -431,7 +418,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           <View style={styles.actionDivider} />
 
-          {/* Expense Approvals */}
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('Expenses')}
@@ -456,7 +442,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           <View style={styles.actionDivider} />
 
-          {/* Vendor Approvals */}
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('VendorApplications')}
@@ -481,7 +466,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           <View style={styles.actionDivider} />
 
-          {/* Leave Requests */}
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('LeaveApprovals')}
@@ -505,7 +489,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 5. Project Pulse Section */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Project Pulse</Text>
           <TouchableOpacity
@@ -529,10 +512,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           style={styles.pulseCard}
         >
           <View style={styles.pulseTopRow}>
-            {/* Left Image Thumbnail */}
             <Image source={drillingRigImg} style={styles.pulseThumbnail} />
 
-            {/* Right Info Column */}
             <View style={styles.pulseInfoCol}>
               <View style={styles.pulseBadgeLine}>
                 <View style={styles.pulseCodeBadge}>
@@ -561,7 +542,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Execution Progress */}
           <View style={styles.pulseProgressSection}>
             <View style={styles.pulseProgressHeader}>
               <Text style={styles.pulseProgressLabel}>Execution Progress</Text>
@@ -572,7 +552,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* 3 Metrics Strip */}
           <View style={styles.pulseMetricsRow}>
             <View style={styles.pulseMetricCol}>
               <Text style={styles.pulseMetricLabel}>Baseline Budget</Text>
@@ -591,9 +570,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </View>
         </TouchableOpacity>
 
-        {/* 6. Finance Snapshot and HR Snapshot (Side-by-side with zero collision) */}
         <View style={styles.snapshotRow}>
-          {/* Left: Finance Snapshot */}
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('FinanceDashboard')}
@@ -610,7 +587,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.financeContentRow}>
-              {/* Receivables */}
               <View style={[styles.financeCol, styles.financeColGreen]}>
                 <View style={styles.metricTopLine}>
                   <View style={[styles.snapshotIconBox, { backgroundColor: '#dcfce7' }]}>
@@ -622,7 +598,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={styles.financeVal} numberOfLines={1} adjustsFontSizeToFit>₹38.2 L</Text>
               </View>
 
-              {/* Payables */}
               <View style={[styles.financeCol, styles.financeColOrange]}>
                 <View style={styles.metricTopLine}>
                   <View style={[styles.snapshotIconBox, { backgroundColor: '#ffedd5' }]}>
@@ -636,7 +611,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
           </TouchableOpacity>
 
-          {/* Right: HR Snapshot */}
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Attendance')}
@@ -653,7 +627,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.hrContentRow}>
-              {/* Present */}
               <View style={styles.hrCol}>
                 <View style={[styles.snapshotIconBox, { backgroundColor: '#dcfce7' }]}>
                   <User size={13} color="#15803d" strokeWidth={2.4} />
@@ -663,7 +636,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={[styles.hrTrend, { color: '#15803d' }]}>↑ 5%</Text>
               </View>
 
-              {/* On Leave */}
               <View style={styles.hrCol}>
                 <View style={[styles.snapshotIconBox, { backgroundColor: '#e0f2fe' }]}>
                   <Clock size={13} color="#0284c7" strokeWidth={2.4} />
@@ -673,7 +645,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={[styles.hrTrend, { color: '#dc2626' }]}>↑ 2%</Text>
               </View>
 
-              {/* Total Staff */}
               <View style={styles.hrCol}>
                 <View style={[styles.snapshotIconBox, { backgroundColor: '#f3e8ff' }]}>
                   <Users size={13} color="#7e22ce" strokeWidth={2.4} />
@@ -686,7 +657,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 7. Recent Activity Section */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <TouchableOpacity
@@ -699,7 +669,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
 
         <View style={styles.activityCardContainer}>
-          {/* Activity 1 */}
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('ClientApprovals')}
@@ -724,7 +693,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           <View style={styles.activityDivider} />
 
-          {/* Activity 2 */}
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('LeaveApprovals')}
@@ -749,7 +717,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
           <View style={styles.activityDivider} />
 
-          {/* Activity 3 */}
           <TouchableOpacity
             activeOpacity={0.75}
             onPress={() => navigation.navigate('VendorApplications')}
@@ -917,7 +884,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* 2. Hero Banner */
   heroBanner: {
     borderRadius: 16,
     overflow: 'hidden',
@@ -978,7 +944,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f59e0b',
   },
 
-  /* 3. Executive KPI Bento Grid (Crystalline Modern Executive Style) */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,
@@ -1131,7 +1096,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  /* Section Headers */
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1171,7 +1135,6 @@ const styles = StyleSheet.create({
     color: '#0b2545',
   },
 
-  /* 4. Pending Actions */
   actionsCardContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -1227,7 +1190,6 @@ const styles = StyleSheet.create({
     marginLeft: 65,
   },
 
-  /* 5. Project Pulse */
   pulseCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -1349,7 +1311,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
 
-  /* 6. Finance and HR Snapshots */
   snapshotRow: {
     flexDirection: 'row',
     gap: 10,
@@ -1473,7 +1434,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  /* 7. Recent Activity */
   activityCardContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 16,

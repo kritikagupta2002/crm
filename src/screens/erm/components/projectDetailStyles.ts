@@ -49,7 +49,6 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* 4 Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginTop: 4,

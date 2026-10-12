@@ -1,4 +1,4 @@
-/* ---------- Vendor portal: the client portal's frame, with work orders instead of projects ---------- */
+/* Vendor portal: the client portal's frame, with work orders instead of projects */
 .vendor-order {
   display: flex;
   flex-direction: column;

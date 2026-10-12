@@ -55,9 +55,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const [activeFilter, setActiveFilter] = useState<string>('All');
 
-  // Canonical operational alerts matching the exact reference UI
   const [alertsList, setAlertsList] = useState<AlertItem[]>([
-    // Section 1: TODAY
     {
       id: 'alert-1',
       title: 'New Leave Request',
@@ -119,7 +117,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       route: 'VendorApplications',
     },
 
-    // Section 2: EARLIER
     {
       id: 'alert-4',
       title: 'Document verified',
@@ -229,7 +226,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
     return alertsList.filter((a) => !a.read).length;
   }, [alertsList]);
 
-  // Tab definitions with dynamic accurate counts
   const filterTabs = useMemo(() => {
     const approvalsCount = alertsList.filter(
       (a) =>
@@ -359,7 +355,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
         ]}
       >
         <View style={styles.cardHeaderRow}>
-          {/* Left Dot Indicator */}
           <View style={styles.dotContainer}>
             <View
               style={[
@@ -373,14 +368,11 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
             />
           </View>
 
-          {/* Icon Box */}
           <View style={[styles.iconBox, { backgroundColor: item.iconBg }]}>
             {renderIcon(item.iconType, item.iconColor)}
           </View>
 
-          {/* Main Info */}
           <View style={styles.cardInfoCol}>
-            {/* Badges line */}
             <View style={styles.badgesLine}>
               {item.badges.map((b, idx) => (
                 <View key={idx} style={[styles.pillBadge, { backgroundColor: b.bg }]}>
@@ -390,13 +382,10 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
               <ChevronRight size={17} color="#94a3b8" style={{ marginLeft: 'auto' }} />
             </View>
 
-            {/* Title */}
             <Text style={styles.cardTitle}>{item.title}</Text>
 
-            {/* Message Description */}
             <Text style={styles.cardMessage}>{item.message}</Text>
 
-            {/* Meta Row (Date & Action Button) */}
             <View style={styles.metaRow}>
               <View style={styles.dateRow}>
                 <Calendar size={13} color="#94a3b8" style={{ marginRight: 5 }} />
@@ -405,7 +394,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
                 </Text>
               </View>
 
-              {/* Contextual Action Button */}
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => handleActionPress(item)}
@@ -436,7 +424,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>Notifications</Text>
@@ -457,7 +444,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
         </TouchableOpacity>
       </View>
 
-      {/* Filter Tabs */}
       <View style={styles.tabsWrapper}>
         <ScrollView
           horizontal
@@ -503,7 +489,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
         </ScrollView>
       </View>
 
-      {/* Scrollable Notifications List */}
       <ScrollView
         contentContainerStyle={[
           styles.scrollContent,
@@ -511,7 +496,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Section 1: TODAY */}
         {todayItems.length > 0 && (
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
@@ -528,7 +512,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
           </View>
         )}
 
-        {/* Section 2: EARLIER */}
         {earlierItems.length > 0 && (
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
@@ -684,7 +667,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* Alert Card */
   alertCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,

@@ -33,7 +33,7 @@
   align-items: start;
 }
 
-/* ---------- Follow-ups ---------- */
+/* Follow-ups */
 .fu-group {
   padding: 6px 20px 10px;
 }
@@ -155,7 +155,7 @@
   flex: 0 1 150px;
 }
 
-/* ---------- Quotation builder ---------- */
+/* Quotation builder */
 .quote-builder {
   width: min(760px, 100vw);
 }
@@ -253,7 +253,7 @@
   color: var(--teal-900);
 }
 
-/* ---------- Quotation document ---------- */
+/* Quotation document */
 .quote-view {
   width: min(760px, 100vw);
 }
@@ -393,7 +393,7 @@
   }
 }
 
-/* ---------- Approval / onboarding cards ---------- */
+/* Approval / onboarding cards */
 .workflow-card {
   display: flex;
   flex-direction: column;
@@ -463,7 +463,7 @@
   color: var(--green);
 }
 
-/* ---------- Reports ---------- */
+/* Reports */
 .report-row {
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
 }
@@ -503,7 +503,7 @@
   padding: 12px 20px 14px;
 }
 
-/* ---------- Settings ---------- */
+/* Settings */
 .settings-grid {
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
 }
@@ -695,7 +695,7 @@
   font-size: 13px;
 }
 
-/* ---------- Responsive ---------- */
+/* Responsive */
 @media (max-width: 1100px) {
   .report-row {
     grid-template-columns: minmax(0, 1fr);
@@ -757,7 +757,7 @@
   }
 }
 
-/* ---------- Top bar: search, notifications, user menu ---------- */
+/* Top bar: search, notifications, user menu */
 .global-search {
   position: relative;
   flex: 1;
@@ -918,7 +918,6 @@
   font-size: 12px;
 }
 
-/* Profile menu: the demo's roles as one-line rows (role, its person, a tick), then the account actions. */
 .user-menu {
   width: 320px;
   max-height: calc(100vh - var(--chrome-height) - 16px);
@@ -964,7 +963,6 @@
   color: var(--ink-3);
 }
 
-/* What the role opens and changes, under its name. */
 .role-row-text {
   display: flex;
   flex-direction: column;
@@ -1003,7 +1001,6 @@
   visibility: visible;
 }
 
-/* Field Member: the row opens the field team; each member signs in as themselves. */
 .role-row-toggle {
   color: var(--ink-3);
   transition: transform 0.15s ease;
@@ -1089,7 +1086,7 @@
   animation: fade 0.2s ease;
 }
 
-/* ---------- WhatsApp, duplicates, notes, clickable cards ---------- */
+/* WhatsApp, duplicates, notes, clickable cards */
 .btn-whatsapp {
   color: #128c4b;
   border-color: #bfe8cf;
@@ -1141,7 +1138,6 @@
   border-color: var(--gold-500);
 }
 
-/* Sent automatically (Settings → Automations). */
 .timeline-item.type-message .timeline-dot {
   border-color: var(--teal-400);
   border-style: dashed;
@@ -1170,7 +1166,7 @@
   }
 }
 
-/* ---------- Client portal, team side: change requests, projects, letters ---------- */
+/* Client portal, team side: change requests, projects, letters */
 .change-request {
   display: flex;
   flex-direction: column;
@@ -1285,7 +1281,6 @@
   min-width: 0;
 }
 
-/* The share switch and download sit side by side at the end of the row. */
 .letter-list li > .doc-actions {
   flex: none;
   flex-direction: row;
@@ -1330,7 +1325,7 @@
   gap: 8px;
 }
 
-/* ---------- Client document vault, projects page, approvals glance, no-access ---------- */
+/* Client document vault, projects page, approvals glance, no-access */
 .vault-head {
   display: flex;
   align-items: center;
@@ -1498,7 +1493,6 @@ a.glance-item:hover strong {
   margin: 0 0 6px;
 }
 
-/* Audit log: the change text wraps; the role sits under the person. */
 .audit-what {
   min-width: 280px;
   line-height: 1.45;

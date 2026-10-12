@@ -50,7 +50,6 @@ export const SamplingActivityScreen: React.FC<SamplingActivityScreenProps> = ({ 
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
           activeOpacity={0.7}

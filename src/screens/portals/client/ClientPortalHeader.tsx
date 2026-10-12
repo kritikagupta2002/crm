@@ -35,7 +35,6 @@ export const ClientPortalHeader: React.FC<ClientPortalHeaderProps> = ({
         </View>
 
         <View style={styles.actionButtonsRow}>
-          {/* Notifications Button */}
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={onOpenNotifications}
@@ -52,7 +51,6 @@ export const ClientPortalHeader: React.FC<ClientPortalHeaderProps> = ({
             )}
           </TouchableOpacity>
 
-          {/* Secure Logout Button */}
           <TouchableOpacity
             style={[styles.actionBtn, styles.logoutBtn]}
             onPress={onLogout}

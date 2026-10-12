@@ -47,16 +47,13 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
   // Theme selection: Strictly light themes
   const [selectedTheme, setSelectedTheme] = useState<'system' | 'mineral' | 'sandstone'>('system');
 
-  // Offline sync settings
   const [offlineSyncEnabled, setOfflineSyncEnabled] = useState(true);
   const [wifiOnly, setWifiOnly] = useState(false);
   const [syncInterval, setSyncInterval] = useState<'5m' | '15m' | '30m'>('15m');
 
-  // Network & data saving
   const [lowDataMode, setLowDataMode] = useState(false);
   const [autoDownloadReports, setAutoDownloadReports] = useState(true);
 
-  // Cache storage state
   const [cacheSizeMb, setCacheSizeMb] = useState(42.8);
   const [clearingCache, setClearingCache] = useState(false);
   const [cacheToast, setCacheToast] = useState(false);
@@ -92,7 +89,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -110,7 +106,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
         </View>
       </View>
 
-      {/* Cache Cleared Toast */}
       {cacheToast && (
         <View style={styles.toastCard}>
           <CheckCircle2 size={18} color="#059669" strokeWidth={2.4} />
@@ -122,14 +117,12 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Theme Configuration (Strictly Light Theme Palette) */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <Sun size={18} color="#d97706" strokeWidth={2.4} />
             <Text style={styles.sectionTitle}>APPLICATION THEME (100% LIGHT PALETTE)</Text>
           </View>
 
-          {/* Theme Option 1: System Light */}
           <TouchableOpacity
             style={[styles.themeOptionRow, selectedTheme === 'system' && styles.themeOptionSelected]}
             onPress={() => setSelectedTheme('system')}
@@ -147,7 +140,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 
           <View style={styles.divider} />
 
-          {/* Theme Option 2: Mineral White */}
           <TouchableOpacity
             style={[styles.themeOptionRow, selectedTheme === 'mineral' && styles.themeOptionSelected]}
             onPress={() => setSelectedTheme('mineral')}
@@ -165,7 +157,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 
           <View style={styles.divider} />
 
-          {/* Theme Option 3: Sandstone Light */}
           <TouchableOpacity
             style={[styles.themeOptionRow, selectedTheme === 'sandstone' && styles.themeOptionSelected]}
             onPress={() => setSelectedTheme('sandstone')}
@@ -182,14 +173,12 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
           </TouchableOpacity>
         </View>
 
-        {/* 2. Offline Synchronization */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <Wifi size={18} color="#0284c7" strokeWidth={2.4} />
             <Text style={styles.sectionTitle}>OFFLINE SYNCHRONIZATION</Text>
           </View>
 
-          {/* Master Offline Toggle */}
           <View style={styles.toggleRow}>
             <View style={styles.toggleTextCol}>
               <Text style={styles.toggleTitle}>Enable Offline Data Caching</Text>
@@ -205,7 +194,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 
           <View style={styles.divider} />
 
-          {/* Wi-Fi only toggle */}
           <View style={styles.toggleRow}>
             <View style={styles.toggleTextCol}>
               <Text style={styles.toggleTitle}>Sync Over Wi-Fi Only</Text>
@@ -221,7 +209,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 
           <View style={styles.divider} />
 
-          {/* Sync frequency selector */}
           <Text style={styles.subOptionHeader}>AUTO-SYNC FREQUENCY</Text>
           <View style={styles.frequencyRow}>
             {(['5m', '15m', '30m'] as const).map((freq) => (
@@ -239,7 +226,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
           </View>
         </View>
 
-        {/* 3. Storage & Cache Management */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderBetween}>
             <View style={styles.cardHeaderRow}>
@@ -251,7 +237,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             </Text>
           </View>
 
-          {/* Storage Progress Bar */}
           <View style={styles.storageBarBg}>
             <View style={[styles.storageBarFill, { width: `${storagePercent}%` }]} />
           </View>
@@ -259,7 +244,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             {storagePercent}% allocated storage used. Auto-cleanup occurs above 230 MB.
           </Text>
 
-          {/* Breakdown Pills */}
           <View style={styles.storageBreakdown}>
             <View style={styles.breakdownItem}>
               <View style={[styles.breakdownDot, { backgroundColor: '#0284c7' }]} />
@@ -275,7 +259,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             </View>
           </View>
 
-          {/* Clear Cache Button */}
           <TouchableOpacity
             style={styles.clearCacheBtn}
             onPress={handleClearCache}
@@ -289,7 +272,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
           </TouchableOpacity>
         </View>
 
-        {/* 4. Network Optimization */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>DATA CONSERVATION</Text>
 
@@ -322,7 +304,6 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
           </View>
         </View>
 
-        {/* 5. Software Build Info */}
         <View style={styles.buildInfoCard}>
           <Text style={styles.buildTitle}>Bansal Geo Mobile Suite</Text>
           <Text style={styles.buildVersion}>Enterprise Production Build v2.4.0</Text>

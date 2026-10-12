@@ -9,7 +9,7 @@ export interface InvoiceItem {
 export interface FinanceInvoice {
   id: string;
   invoiceNo: string;
-  invoiceNumber?: string; // alias for web parity
+  invoiceNumber?: string;
   clientId: string;
   clientName: string;
   clientGstin?: string;
@@ -18,11 +18,11 @@ export interface FinanceInvoice {
   projectTitle: string;
   projectId?: string;
   date: string;
-  invoiceDate?: string; // alias for web parity
+  invoiceDate?: string;
   dueDate: string;
   items?: InvoiceItem[];
   baseAmount: number;
-  preTaxAmount?: number; // alias for web parity
+  preTaxAmount?: number;
   taxRate?: number; // 18, 12, 5, 0
   cgst: number;
   sgst: number;
@@ -40,18 +40,18 @@ export interface FinanceInvoice {
 export interface VendorBill {
   id: string;
   billNo: string;
-  billNumber?: string; // alias for web parity
+  billNumber?: string;
   vendorId: string;
   vendorName: string;
   vendorGstin?: string;
   category?: string; // Drilling & Coring, Assay & Testing, Equipment Lease, Field Logistics, Survey & Mapping, Consumables
   date: string;
-  billDate?: string; // alias for web parity
+  billDate?: string;
   dueDate?: string;
   baseAmount: number;
   taxRate?: number;
   gstAmount: number;
-  taxAmount?: number; // alias for web parity
+  taxAmount?: number;
   cgst?: number;
   sgst?: number;
   igst?: number;

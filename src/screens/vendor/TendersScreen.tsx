@@ -307,7 +307,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Card 1: Total Tenders */}
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
@@ -325,7 +324,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
                 <Text style={styles.kpiSubText}>Active subcontract notices</Text>
               </View>
 
-              {/* Card 2: Open Bids */}
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
@@ -345,7 +343,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Card 3: Estimated Value */}
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
@@ -365,7 +362,6 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
                 <Text style={styles.kpiSubText}>Sanctioned tender outlay</Text>
               </View>
 
-              {/* Card 4: Dual-Key Vault */}
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
@@ -812,7 +808,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.lg,
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,

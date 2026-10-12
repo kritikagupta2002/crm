@@ -74,7 +74,6 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
     handleOpenClarification,
   } = useVendorPortal();
 
-  // Active unread alerts count
   const unreadCount =
     waitingOrders.length +
     freshTenders.filter((t) => {
@@ -86,7 +85,6 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-      {/* 1. VENDOR PROCUREMENT HEADER */}
       <VendorPortalHeader
         vendorName={vendorName}
         vendorCode={vendorCode}
@@ -97,7 +95,6 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
         onLogout={logout}
       />
 
-      {/* 2. SCROLLABLE TAB CONTENT BODY */}
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -163,7 +160,6 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
         )}
       </ScrollView>
 
-      {/* 3. MOBILE-NATIVE 4-DESTINATION BOTTOM NAVIGATION BAR */}
       <VendorBottomNav
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
@@ -171,7 +167,6 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
         activeWorkCount={waitingOrders.length}
       />
 
-      {/* 4. REAL CONTEXTUAL NOTIFICATIONS DRAWER */}
       <VendorNotificationsModal
         visible={notificationsVisible}
         onClose={() => setNotificationsVisible(false)}
@@ -181,7 +176,6 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
         navigation={navigation}
       />
 
-      {/* 5. VENDOR ACTION MODALS (DELIVERY, BILLING, CLARIFICATIONS) */}
       <VendorPortalModals
         accountModalVisible={accountModalVisible}
         setAccountModalVisible={setAccountModalVisible}

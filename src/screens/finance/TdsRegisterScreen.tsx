@@ -50,7 +50,7 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositRecord, setDepositRecord] = useState<TdsRecord | null>(null);
   const [challanNoInput, setChallanNoInput] = useState('');
-  const [bsrCodeInput, setBsrCodeInput] = useState('0510304'); // HDFC Jaipur BSR Code default
+  const [bsrCodeInput, setBsrCodeInput] = useState('0510304');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const canManage = hasRole(['Admin', 'Accountant']);

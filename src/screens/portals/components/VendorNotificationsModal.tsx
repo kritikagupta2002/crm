@@ -54,10 +54,8 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
 }) => {
   const [filter, setFilter] = useState<'all' | 'tenders' | 'orders' | 'bills'>('all');
 
-  // Build real contextual notifications from active vendor records
   const notifications: VendorNotificationItem[] = [];
 
-  // 1. Tenders closing soon
   openTenders.slice(0, 3).forEach((t) => {
     const closeStr = closingOf(t);
     const hoursLeft = Math.round((new Date(closeStr).getTime() - Date.now()) / (1000 * 3600));
@@ -73,7 +71,6 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
     });
   });
 
-  // 2. Bids status
   myBids.forEach(({ tender, bid }) => {
     notifications.push({
       id: `notif-bid-${bid.id}`,
@@ -90,7 +87,6 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
     });
   });
 
-  // 3. Work Orders
   myWorkOrders.forEach((wo) => {
     if (wo.currentStage === 'Issued') {
       notifications.push({
@@ -166,7 +162,6 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
         <View style={styles.sheetContainer}>
           <View style={styles.sheetHandle} />
 
-          {/* Header */}
           <View style={styles.headerRow}>
             <View style={styles.titleCol}>
               <Text style={styles.sheetTitle}>Vendor Alerts & Inquiries</Text>
@@ -180,7 +175,6 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
             </TouchableOpacity>
           </View>
 
-          {/* Filter Pills */}
           <View style={styles.filterRow}>
             {(['all', 'tenders', 'orders', 'bills'] as const).map((tabKey) => {
               const active = filter === tabKey;
@@ -204,7 +198,6 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
             })}
           </View>
 
-          {/* Notifications List */}
           <ScrollView style={styles.listScroll} showsVerticalScrollIndicator={false}>
             {filtered.length === 0 ? (
               <View style={styles.emptyWrap}>

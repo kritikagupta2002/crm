@@ -58,11 +58,9 @@ export function ClientNotificationsModal({
 }: ClientNotificationsModalProps) {
   const [filterType, setFilterType] = useState<'all' | 'deliverable' | 'invoice' | 'milestone'>('all');
 
-  // Derive genuine client notifications dynamically from isolated datasets
   const notifications = useMemo<ClientNotificationItem[]>(() => {
     const list: ClientNotificationItem[] = [];
 
-    // 1. Deliverables awaiting client sign-off
     deliverables.forEach((d) => {
       if (d.status === 'Submitted' || d.status === 'Draft') {
         list.push({
@@ -91,7 +89,6 @@ export function ClientNotificationsModal({
       }
     });
 
-    // 2. Pending Invoices & Due dates
     invoices.forEach((inv) => {
       if (inv.status !== 'Paid') {
         list.push({
@@ -120,7 +117,6 @@ export function ClientNotificationsModal({
       }
     });
 
-    // 3. Project Milestones & Lifecycle stages
     projects.forEach((p) => {
       const stageName = [
         '',
@@ -182,7 +178,6 @@ export function ClientNotificationsModal({
           style={styles.modalCard}
           onStartShouldSetResponder={() => true}
         >
-          {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerTitleWrap}>
               <View style={styles.iconBadge}>
@@ -204,7 +199,6 @@ export function ClientNotificationsModal({
             </TouchableOpacity>
           </View>
 
-          {/* Filter Pills */}
           <View style={styles.filterBar}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
               <TouchableOpacity
@@ -254,7 +248,6 @@ export function ClientNotificationsModal({
             </ScrollView>
           </View>
 
-          {/* Notifications List */}
           <ScrollView style={styles.listScroll} contentContainerStyle={styles.listContent}>
             {filteredNotifications.length === 0 ? (
               <View style={styles.emptyWrap}>

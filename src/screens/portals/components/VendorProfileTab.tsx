@@ -42,7 +42,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
   onLogout,
   navigation,
 }) => {
-  // Mask sensitive bank account number
   const rawAcct = currentVendor?.bank?.accountNo || currentVendor?.bankDetails?.accountNumber || '3844 1102 7781';
   const cleanAcct = rawAcct.replace(/\s+/g, '');
   const maskedAcct =
@@ -95,7 +94,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* 1. VENDOR PROFILE HEADER CARD */}
       <View style={styles.headerCard}>
         <View style={styles.avatarRow}>
           <View style={styles.avatarBox}>
@@ -120,7 +118,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         </View>
       </View>
 
-      {/* 2. BUSINESS INFORMATION */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <Building2 size={18} color={vendorTheme.colors.navy} />
@@ -160,7 +157,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         </View>
       </View>
 
-      {/* 3. CONTACT INFORMATION */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <User size={18} color={vendorTheme.colors.navy} />
@@ -201,7 +197,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         </View>
       </View>
 
-      {/* 4. STATUTORY & TAX COMPLIANCE */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <ShieldCheck size={18} color={vendorTheme.colors.navy} />
@@ -230,7 +225,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         </View>
       </View>
 
-      {/* 5. BANK ACCOUNT INFORMATION (MASKED) */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <Landmark size={18} color={vendorTheme.colors.navy} />
@@ -265,7 +259,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         </View>
       </View>
 
-      {/* 6. VENDOR STATUTORY DOCUMENTS */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <FileText size={18} color={vendorTheme.colors.navy} />
@@ -301,7 +294,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         ))}
       </View>
 
-      {/* 7. APPLICATION TRACKING & REGISTRATION HELPER */}
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => navigation.navigate('VendorRegister')}
@@ -319,7 +311,6 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         <ChevronRight size={20} color={vendorTheme.colors.teal} />
       </TouchableOpacity>
 
-      {/* 8. SIGN OUT ACTION */}
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={onLogout}

@@ -44,7 +44,6 @@ export const ClientDeliverablesTab: React.FC<ClientDeliverablesTabProps> = ({
       showsVerticalScrollIndicator={false}
       bounces={true}
     >
-      {/* 1. FILTER PILLS ROW */}
       <View style={styles.filterPillsRow}>
         <TouchableOpacity
           style={[styles.filterPill, deliverableFilter === 'all' && styles.filterPillActive]}
@@ -85,7 +84,6 @@ export const ClientDeliverablesTab: React.FC<ClientDeliverablesTabProps> = ({
         )}
       </View>
 
-      {/* 2. NOTICE BANNER */}
       {pendingCount > 0 && (
         <View style={styles.noticeBanner}>
           <Clock size={18} color={clientTheme.colors.goldDark} />
@@ -95,7 +93,6 @@ export const ClientDeliverablesTab: React.FC<ClientDeliverablesTabProps> = ({
         </View>
       )}
 
-      {/* 3. DELIVERABLES LIST */}
       {filteredDeliverables.length === 0 ? (
         <View style={styles.emptyCard}>
           <ShieldCheck size={44} color={clientTheme.colors.textTertiary} />
@@ -112,7 +109,6 @@ export const ClientDeliverablesTab: React.FC<ClientDeliverablesTabProps> = ({
 
           return (
             <View key={deliv.id} style={styles.deliverableCard}>
-              {/* Card Top */}
               <View style={styles.cardHeader}>
                 <View style={styles.projectPill}>
                   <Text style={styles.projectPillText}>{deliv.projectCode || 'CONCESSION'}</Text>
@@ -139,11 +135,9 @@ export const ClientDeliverablesTab: React.FC<ClientDeliverablesTabProps> = ({
                 </View>
               </View>
 
-              {/* Title & Project */}
               <Text style={styles.delivTitle}>{deliv.title}</Text>
               <Text style={styles.projectSubText}>{deliv.projectTitle}</Text>
 
-              {/* Meta Data Box */}
               <View style={styles.metaBox}>
                 <View style={styles.metaRow}>
                   <Text style={styles.metaLabel}>DOCUMENT FILE</Text>
@@ -161,7 +155,6 @@ export const ClientDeliverablesTab: React.FC<ClientDeliverablesTabProps> = ({
                 </View>
               </View>
 
-              {/* Primary Action Button */}
               {isSubmitted ? (
                 <TouchableOpacity
                   style={styles.actionBtnPrimary}

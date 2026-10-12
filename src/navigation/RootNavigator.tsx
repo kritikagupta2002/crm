@@ -179,13 +179,11 @@ export const RootNavigator: React.FC = () => {
         </>
       ) : (
         <>
-          {/* Universal Core App Screens */}
           <Stack.Screen name="MainTabs" component={MainTabNavigator} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
           <Stack.Screen name="Tasks" component={TasksScreen} />
           <Stack.Screen name="RoleSelection" component={RoleSelectionScreen} />
 
-          {/* Profile Sub-pages */}
           <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
           <Stack.Screen name="AccountSecurity" component={AccountSecurityScreen} />
           <Stack.Screen name="AppSettings" component={AppSettingsScreen} />
@@ -195,7 +193,6 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="SentMessages" component={SentMessagesScreen} />
           <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
 
-          {/* CRM Workspace Screens */}
           {canAccessCrm && (
             <>
               <Stack.Screen name="CrmWorkspaceHome" component={CrmWorkspaceHomeScreen} />
@@ -214,7 +211,6 @@ export const RootNavigator: React.FC = () => {
             </>
           )}
 
-          {/* ERM Workspace Screens */}
           {canAccessErm && (
             <>
               <Stack.Screen name="ErmWorkspaceHome" component={ErmWorkspaceHomeScreen} />
@@ -224,7 +220,6 @@ export const RootNavigator: React.FC = () => {
             </>
           )}
 
-          {/* Field Database Workspace */}
           {canAccessField && (
             <>
               <Stack.Screen name="FieldDatabaseHome" component={FieldDatabaseHomeScreen} />
@@ -235,7 +230,6 @@ export const RootNavigator: React.FC = () => {
             </>
           )}
 
-          {/* Vendor Workspace */}
           {canAccessVendor && (
             <>
               <Stack.Screen name="VendorWorkspaceHome" component={VendorWorkspaceHomeScreen} />
@@ -251,7 +245,6 @@ export const RootNavigator: React.FC = () => {
             </>
           )}
 
-          {/* Documents Workspace */}
           {canAccessDocs && (
             <>
               <Stack.Screen name="DocumentWorkspaceHome" component={DocumentWorkspaceHomeScreen} />
@@ -289,7 +282,6 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="HrDocuments" component={HrDocumentsScreen} />
           <Stack.Screen name="EmployeeDocuments" component={EmployeeDocumentsScreen} />
 
-          {/* Expenses & Claims */}
           <Stack.Screen name="Expenses" component={ExpensesScreen} />
           <Stack.Screen name="ExpenseClaim" component={ExpenseClaimScreen} />
           <Stack.Screen name="ExpenseQueries" component={ExpenseQueriesScreen} />
@@ -318,10 +310,8 @@ export const RootNavigator: React.FC = () => {
           {canApproveFinance && (
             <Stack.Screen name="Payroll" component={PayrollScreen} />
           )}
-          {/* Payslips self-service view */}
           <Stack.Screen name="Payslips" component={PayslipsScreen} />
 
-          {/* MIS Executive Reports */}
           {canAccessMis && (
             <Stack.Screen name="MisReports" component={MisReportsScreen} />
           )}

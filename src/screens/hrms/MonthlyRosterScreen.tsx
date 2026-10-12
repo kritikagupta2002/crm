@@ -59,7 +59,7 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
       : 'BGS-2021-001';
 
   const [currentYear, setCurrentYear] = useState<number>(2026);
-  const [currentMonth, setCurrentMonth] = useState<number>(10); // 10 = October
+  const [currentMonth, setCurrentMonth] = useState<number>(10);
   const [selectedDate, setSelectedDate] = useState<string>('2026-10-03');
   const [refreshing, setRefreshing] = useState<boolean>(false);
 

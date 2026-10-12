@@ -1,18 +1,15 @@
 export const vendorTheme = {
   colors: {
-    // Primary geological navy & dark tones
     navy: '#0b2545',
     navyDark: '#061a32',
     navyLight: '#13315c',
     navySubtle: '#e0e7ff',
 
-    // Industrial muted teal
     teal: '#0d9488',
     tealDark: '#0f766e',
     tealLight: '#ccfbf1',
     tealSubtle: '#f0fdfa',
 
-    // Earth sandstone & warm backgrounds
     sandstone: '#f8fafc',
     sandstoneDark: '#f1f5f9',
     sandstoneBorder: '#e2e8f0',
@@ -24,23 +21,19 @@ export const vendorTheme = {
     amberLight: '#fef3c7',
     amberSubtle: '#fffbeb',
 
-    // Graphite & neutral typography
     graphite: '#0f172a',
     textPrimary: '#0f172a',
     textSecondary: '#334155',
     textMuted: '#64748b',
     textTertiary: '#94a3b8',
 
-    // Emerald / Success (delivered, paid, approved)
     emerald: '#059669',
     emeraldLight: '#d1fae5',
     emeraldSubtle: '#ecfdf5',
 
-    // Crimson / Danger (withdrawn, rejected, overdue)
     crimson: '#dc2626',
     crimsonLight: '#fee2e2',
 
-    // Pure surface
     surface: '#ffffff',
     card: '#ffffff',
   },

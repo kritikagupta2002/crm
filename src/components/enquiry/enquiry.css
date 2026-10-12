@@ -1,4 +1,4 @@
-/* ---------- Drawer shell ---------- */
+/* Drawer shell */
 .drawer-root {
   position: fixed;
   inset: 0;
@@ -72,7 +72,7 @@
   min-width: 120px;
 }
 
-/* ---------- Form ---------- */
+/* Form */
 .form-section {
   margin: 0;
   padding: 12px 0 14px;
@@ -249,7 +249,7 @@
   color: var(--ink-3);
 }
 
-/* ---------- Choice chips (radio buttons styled as pills) ---------- */
+/* Choice chips (radio buttons styled as pills) */
 .choice-field {
   margin: 0;
   padding: 0;
@@ -316,7 +316,7 @@
   outline-offset: 2px;
 }
 
-/* ---------- Toggle switch ---------- */
+/* Toggle switch */
 .toggle {
   display: inline-flex;
   align-items: center;
@@ -367,7 +367,7 @@
   outline-offset: 2px;
 }
 
-/* ---------- Toast ---------- */
+/* Toast */
 .toast {
   position: fixed;
   right: 24px;

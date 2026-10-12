@@ -64,7 +64,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
 
   const directorName = (session as any)?.name || 'Dr. Sunita Meena';
 
-  // Derived metrics from existing contexts (zero fake, zero finance)
   const activeProjectsCount = projects.filter((p) => p.status === 'In progress' || p.currentStage >= 1).length || 5;
   const pendingQuoteApprovals = quotes.filter((q) => q.status === 'Draft' || q.status === 'Pending Approval').length || 2;
   const pendingVendorApps = vendorApplications.filter((a) => a.status === 'New' || a.status === 'Changes requested').length || 3;
@@ -77,7 +76,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
     <View style={styles.rootContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Bespoke Executive Boardroom Top Bar */}
       <View style={[styles.executiveHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
@@ -138,7 +136,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 8 }, isTablet && styles.tabletContainer]}>
-          {/* 2. Bespoke Hero: Strategic Commercial Pipeline Radar */}
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => navigation.navigate('Quotes')}
@@ -177,14 +174,12 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
               </View>
             </View>
 
-            {/* Pipeline Stage Segmented Visualizer */}
             <View style={styles.pipelineBar}>
               <View style={[styles.pipelineSeg, { flex: 45, backgroundColor: '#3B82F6' }]} />
               <View style={[styles.pipelineSeg, { flex: 85, backgroundColor: '#F59E0B' }]} />
               <View style={[styles.pipelineSeg, { flex: 55, backgroundColor: '#10B981' }]} />
             </View>
 
-            {/* 3 Interactive Pipeline Segment Pills */}
             <View style={[styles.pipelineLegendRow, isSmall && { flexWrap: 'wrap', gap: 4 }]}>
               <View style={[styles.legendPill, isSmall && { paddingHorizontal: 4, paddingVertical: 4 }]}>
                 <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
@@ -212,10 +207,8 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
           </TouchableOpacity>
 
-          {/* Executive Bento KPI Grid */}
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Projects Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Projects')}
@@ -247,7 +240,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
                 </View>
               </TouchableOpacity>
 
-              {/* Clients Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Clients')}
@@ -281,7 +273,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Field Workforce Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('EmployeeDirectory')}
@@ -313,7 +304,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
                 </View>
               </TouchableOpacity>
 
-              {/* Pending Approvals Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('QuoteApprovals')}
@@ -347,7 +337,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
           </View>
 
-          {/* 3. Executive Sign-Off Deck (Director's Top Responsibility) */}
           <View style={styles.sectionHeaderBox}>
             <View style={styles.sectionHeaderMainRow}>
               <View style={styles.titleWithBadge}>
@@ -371,7 +360,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
           </View>
 
           <View style={styles.signOffCardsStack}>
-            {/* Card 1: Major Commercial Quotation */}
             <View style={styles.signOffCard}>
               <View style={styles.signOffTopLine}>
                 <View style={[styles.signOffTag, { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' }]}>
@@ -416,7 +404,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
               </TouchableOpacity>
             </View>
 
-            {/* Card 2: Contractor Grade-A Empanelment */}
             <View style={styles.signOffCard}>
               <View style={styles.signOffTopLine}>
                 <View style={[styles.signOffTag, { backgroundColor: '#FEFCE8', borderColor: '#FEF08A' }]}>
@@ -460,7 +447,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
               </TouchableOpacity>
             </View>
 
-            {/* Card 3: 4-Eyes Government Clearance */}
             <View style={styles.signOffCard}>
               <View style={styles.signOffTopLine}>
                 <View style={[styles.signOffTag, { backgroundColor: '#FAF5FF', borderColor: '#F3E8FF' }]}>
@@ -505,7 +491,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             </View>
           </View>
 
-          {/* 4. Active Exploration Concessions Portfolio */}
           <View style={styles.sectionHeaderBox}>
             <View style={styles.sectionHeaderMainRow}>
               <View style={styles.titleWithBadge}>
@@ -601,7 +586,6 @@ export const DirectorHomeScreen: React.FC<DirectorHomeScreenProps> = ({ navigati
             ))}
           </View>
 
-          {/* 5. Director Governance Modules */}
           <View style={styles.sectionHeaderBox}>
             <Text style={styles.sectionTitle}>Executive Authority Workspaces</Text>
             <Text style={styles.sectionSubtitle}>
@@ -657,7 +641,6 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
 
-  /* 1. Executive Boardroom Header */
   executiveHeader: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
@@ -795,7 +778,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 
-  /* 2. Commercial Pipeline Radar */
   pipelineRadarCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
@@ -927,7 +909,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* Section Headers */
   sectionHeaderBox: {
     marginBottom: 10,
     marginTop: 4,
@@ -979,7 +960,6 @@ const styles = StyleSheet.create({
     color: '#0D9488',
   },
 
-  /* 3. Executive Sign-Off Deck */
   signOffCardsStack: {
     gap: 12,
     marginBottom: 18,
@@ -1082,7 +1062,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  /* 4. Portfolio Blocks */
   portfolioCardsList: {
     gap: 11,
     marginBottom: 18,
@@ -1197,7 +1176,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#E2E8F0',
   },
 
-  /* 5. Modules Grid */
   modulesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1244,7 +1222,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,

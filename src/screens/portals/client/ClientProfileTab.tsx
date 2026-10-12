@@ -83,7 +83,6 @@ export function ClientProfileTab({
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* 1. Executive Corporate Identity Card */}
       <View style={styles.identityCard}>
         <View style={styles.identityTopRow}>
           <View style={styles.avatarWrap}>
@@ -134,7 +133,6 @@ export function ClientProfileTab({
         </View>
       </View>
 
-      {/* 2. Primary Executive Contact */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <User size={22} color={clientTheme.colors.navy} />
@@ -155,7 +153,6 @@ export function ClientProfileTab({
         </View>
       </View>
 
-      {/* 3. Statutory & Mining Compliance Profile */}
       <View style={styles.sectionCard}>
         <View style={styles.sectionHeader}>
           <ShieldCheck size={22} color={clientTheme.colors.navy} />
@@ -176,7 +173,6 @@ export function ClientProfileTab({
         </View>
       </View>
 
-      {/* 4. Dedicated Bansal Geo Liaison */}
       <View style={styles.liaisonCard}>
         <View style={styles.liaisonHeader}>
           <View style={styles.liaisonIconWrap}>
@@ -196,7 +192,6 @@ export function ClientProfileTab({
         </TouchableOpacity>
       </View>
 
-      {/* 5. New Exploration Scope / Enquiry Link */}
       {onNavigateToEnquiry && (
         <TouchableOpacity
           style={styles.enquiryCard}
@@ -216,7 +211,6 @@ export function ClientProfileTab({
         </TouchableOpacity>
       )}
 
-      {/* 6. Security & Data Isolation Notice */}
       <View style={styles.securityBox}>
         <Lock size={18} color={clientTheme.colors.teal} />
         <Text style={styles.securityText}>
@@ -224,7 +218,6 @@ export function ClientProfileTab({
         </Text>
       </View>
 
-      {/* 7. Sign Out Button */}
       <TouchableOpacity
         style={styles.logoutBtn}
         activeOpacity={0.85}

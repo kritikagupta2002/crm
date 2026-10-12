@@ -77,7 +77,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={{ flex: 1, marginRight: 10 }}>
             <View style={styles.badgeRow}>
@@ -109,10 +108,8 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
         </View>
 
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-          {/* 1. SELLER & BUYER CORPORATE DETAILS */}
           <View style={styles.sectionCard}>
             <View style={styles.partyRow}>
-              {/* Seller */}
               <View style={styles.partyCol}>
                 <Text style={styles.partyRoleLabel}>ISSUED BY (SUPPLIER)</Text>
                 <Text style={styles.partyName}>{COMPANY_BANK_DETAILS.companyName}</Text>
@@ -123,7 +120,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
 
               <View style={styles.partyDivider} />
 
-              {/* Buyer */}
               <View style={styles.partyCol}>
                 <Text style={styles.partyRoleLabel}>BILLED TO (CLIENT)</Text>
                 <Text style={styles.partyName}>{clientCompanyName}</Text>
@@ -133,7 +129,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
             </View>
           </View>
 
-          {/* 2. INVOICE META TIMELINE */}
           <View style={styles.metaStrip}>
             <View style={styles.metaStripCol}>
               <Text style={styles.metaStripLabel}>INVOICE DATE</Text>
@@ -149,7 +144,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
             </View>
           </View>
 
-          {/* 3. LINE ITEMS TABLE */}
           <View style={styles.sectionCard}>
             <Text style={styles.sectionHeading}>Billed Exploration Deliverables</Text>
 
@@ -171,7 +165,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
               </View>
             ))}
 
-            {/* GST Breakdown */}
             <View style={styles.taxSummaryBox}>
               <View style={styles.taxRow}>
                 <Text style={styles.taxLabel}>Taxable Base Value:</Text>
@@ -203,7 +196,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
             </View>
           </View>
 
-          {/* 4. INSTANT UPI PAYMENT OR SETTLEMENT RECEIPT */}
           {isPaid ? (
             <View style={styles.paidReceiptCard}>
               <CheckCircle2 size={24} color={clientTheme.colors.emerald} />
@@ -233,7 +225,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
                 </TouchableOpacity>
               ) : (
                 <View style={styles.upiContainer}>
-                  {/* QR Graphic Box */}
                   <View style={styles.qrDisplayBox}>
                     <View style={styles.qrPatternBox}>
                       <QrCode size={90} color={clientTheme.colors.navy} />
@@ -245,7 +236,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
                     </Text>
                   </View>
 
-                  {/* Bank & VPA Details */}
                   <View style={styles.vpaDetailsCard}>
                     <View style={styles.vpaRow}>
                       <Text style={styles.vpaLabel}>Corporate UPI ID:</Text>
@@ -271,7 +261,6 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
                     </View>
                   </View>
 
-                  {/* UTR Confirmation Form */}
                   <View style={styles.confirmationBox}>
                     <Text style={styles.utrInputLabel}>TRANSACTION REFERENCE / UTR NO. (OPTIONAL)</Text>
                     <TextInput

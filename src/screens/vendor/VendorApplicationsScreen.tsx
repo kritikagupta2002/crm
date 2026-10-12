@@ -74,7 +74,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
     'Rejected',
   ];
 
-  // 1. Bento KPI Aggregations
   const newCount = useMemo(() => {
     return vendorApplications.filter((a) => a.status === 'New').length;
   }, [vendorApplications]);
@@ -87,7 +86,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
     return vendorApplications.filter((a) => a.status === 'Approved').length;
   }, [vendorApplications]);
 
-  // Pre-calculated counts per tab
   const tabCounts = useMemo(() => {
     const counts: Record<string, number> = { All: vendorApplications.length };
     tabs.forEach((t) => {
@@ -212,7 +210,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         style={styles.cardWrapper}
       >
         <Card style={styles.appCard}>
-          {/* Top Line: ID Badge, Submission Date, and Status Badge */}
           <View style={styles.cardTop}>
             <View style={styles.idWrap}>
               <View style={styles.appIdBadge}>
@@ -227,10 +224,8 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
             <StatusBadge status={item.status} size="small" />
           </View>
 
-          {/* Firm Name */}
           <Text style={styles.firmName}>{item.firm.name}</Text>
 
-          {/* Work Categories Tag Pills */}
           <View style={styles.categoriesRow}>
             {item.work.categories.map((cat, i) => (
               <View key={i} style={styles.categoryChip}>
@@ -239,7 +234,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
             ))}
           </View>
 
-          {/* Location & Authorized Contact Row */}
           <View style={styles.metaRow}>
             <View style={styles.metaCol}>
               <MapPin size={12} color="#64748b" style={{ marginRight: 4 }} />
@@ -256,7 +250,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
             </View>
           </View>
 
-          {/* Automated Statutory Compliance Strip */}
           <View style={styles.complianceSummaryRow}>
             <View style={[styles.compliancePill, allPassed ? styles.pillGreen : styles.pillAmber]}>
               {allPassed ? (
@@ -290,7 +283,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         />
       }
     >
-      {/* Search Bar & Filter Tabs */}
       <View style={styles.topControl}>
         <View style={styles.searchBar}>
           <Search size={17} color="#64748b" style={{ marginRight: 8 }} />
@@ -334,7 +326,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         </ScrollView>
       </View>
 
-      {/* Main List with Top 4 Bento KPI Header */}
       <FlatList
         data={filteredApps}
         keyExtractor={(item) => item.id}
@@ -347,7 +338,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Card 1: Total Applications */}
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
@@ -365,7 +355,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 <Text style={styles.kpiSubText}>Empanelment submissions</Text>
               </View>
 
-              {/* Card 2: Pending Review */}
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
@@ -385,7 +374,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Card 3: Changes Requested */}
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
@@ -403,7 +391,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 <Text style={styles.kpiSubText}>Doc corrections resubmission</Text>
               </View>
 
-              {/* Card 4: Empanelled Vendors */}
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
@@ -433,7 +420,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         }
       />
 
-      {/* Detail / Review Modal */}
       {selectedApp && (
         <Modal statusBarTranslucent visible transparent animationType="slide">
           <View style={styles.modalBackdrop}>
@@ -569,7 +555,6 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
         </Modal>
       )}
 
-      {/* Decision Action Modal */}
       {actionType && (
         <Modal statusBarTranslucent visible transparent animationType="fade">
           <View style={styles.decisionBackdrop}>
@@ -728,7 +713,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
 
-  /* 4 Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,
@@ -861,7 +845,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* List & Cards */
   listContent: {
     padding: 16,
     paddingBottom: 40,
@@ -1000,7 +983,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  /* Modals */
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.65)',
@@ -1127,7 +1109,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
-  /* Decision Dialog */
   decisionBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.65)',

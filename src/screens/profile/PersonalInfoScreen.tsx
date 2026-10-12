@@ -88,7 +88,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Top App Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -124,7 +123,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
         </TouchableOpacity>
       </View>
 
-      {/* Success Toast */}
       {showSavedToast && (
         <View style={styles.toastCard}>
           <CheckCircle2 size={18} color="#059669" strokeWidth={2.4} />
@@ -137,7 +135,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Profile Card with Avatar */}
         <View style={styles.profileHeroCard}>
           <View style={styles.avatarContainer}>
             <Image source={drRajeshImg} style={styles.avatarImg} />
@@ -169,11 +166,9 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
           </View>
         </View>
 
-        {/* Section 1: Basic Information */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionHeaderTitle}>PRIMARY CONTACT DETAILS</Text>
 
-          {/* Full Name */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <User size={18} color="#0284c7" strokeWidth={2.2} />
@@ -196,7 +191,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
 
           <View style={styles.divider} />
 
-          {/* Email Address */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <Mail size={18} color="#0284c7" strokeWidth={2.2} />
@@ -221,7 +215,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
 
           <View style={styles.divider} />
 
-          {/* Phone Number */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <Phone size={18} color="#0284c7" strokeWidth={2.2} />
@@ -244,11 +237,9 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
           </View>
         </View>
 
-        {/* Section 2: Corporate & Department Details */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionHeaderTitle}>ORGANIZATIONAL DETAILS</Text>
 
-          {/* Designation */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <Briefcase size={18} color="#059669" strokeWidth={2.2} />
@@ -271,7 +262,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
 
           <View style={styles.divider} />
 
-          {/* Department */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <Building2 size={18} color="#059669" strokeWidth={2.2} />
@@ -294,7 +284,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
 
           <View style={styles.divider} />
 
-          {/* Base Location */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <MapPin size={18} color="#059669" strokeWidth={2.2} />
@@ -317,7 +306,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
 
           <View style={styles.divider} />
 
-          {/* Date of Joining */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <Calendar size={18} color="#059669" strokeWidth={2.2} />
@@ -329,11 +317,9 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
           </View>
         </View>
 
-        {/* Section 3: Health & Emergency Contact */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionHeaderTitle}>HEALTH & EMERGENCY CONTACT</Text>
 
-          {/* Blood Group */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <Heart size={18} color="#dc2626" strokeWidth={2.2} />
@@ -356,7 +342,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
 
           <View style={styles.divider} />
 
-          {/* Emergency Contact */}
           <View style={styles.fieldRow}>
             <View style={styles.fieldIconBox}>
               <Phone size={18} color="#dc2626" strokeWidth={2.2} />
@@ -378,7 +363,6 @@ export const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({ navigati
           </View>
         </View>
 
-        {/* Security Note */}
         <View style={styles.noteCard}>
           <ShieldCheck size={16} color="#0284c7" strokeWidth={2.2} />
           <Text style={styles.noteText}>

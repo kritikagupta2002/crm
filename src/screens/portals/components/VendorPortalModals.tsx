@@ -97,7 +97,6 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
 
   return (
     <>
-      {/* 1. DELIVERY REPORT MODAL */}
       <Modal statusBarTranslucent visible={deliveryModalVisible} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -174,7 +173,6 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* 2. MILESTONE BILLING MODAL WITH 2% TDS LOGIC */}
       <Modal statusBarTranslucent visible={billingModalVisible} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -223,7 +221,6 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
                 onChangeText={setBillAmount}
               />
 
-              {/* Live Section 194C TDS Preview */}
               {numAmount > 0 && (
                 <View style={styles.tdsPreviewCard}>
                   <Text style={styles.tdsPreviewTitle}>STATUTORY TDS ESTIMATE (SEC 194C)</Text>
@@ -274,7 +271,6 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* 3. PRE-BID CLARIFICATION QUERY MODAL */}
       <Modal statusBarTranslucent visible={askModalVisible} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}

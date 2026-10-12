@@ -97,7 +97,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
   const payables = metrics?.vendorBillsAmount || 1460000;
   const netCashFlow = metrics?.netCashFlow || (receivables - payables);
 
-  // Voucher ledger verification
   const totalDebits = useMemo(
     () => vouchers.reduce((sum, v) => sum + (v.debitAmount || v.amount || 0), 0) || 14250000,
     [vouchers]
@@ -108,7 +107,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
   );
   const isLedgerBalanced = Math.abs(totalDebits - totalCredits) < 0.01;
 
-  // Pending approval items
   const pendingBills = useMemo(
     () => vendorBills.filter((b) => b.status === 'Pending Approval' || b.status === 'Unpaid'),
     [vendorBills]
@@ -139,7 +137,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
     <View style={styles.rootContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Treasury Terminal Top Bar (Light Theme & Comptroller Deck) */}
       <View style={[styles.treasuryHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeftRow}>
           <TouchableOpacity
@@ -201,7 +198,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[colors.primary]} />}
       >
         <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
-          {/* 2. Bespoke Hero: Double-Entry Balance Radar & Treasury Strip */}
           <View style={styles.treasuryTerminalCard}>
             <View style={styles.terminalTopRow}>
               <View style={styles.balanceSeal}>
@@ -211,7 +207,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
               <Text style={styles.terminalDrCrMatch}>Dr = Cr (₹1.42 Cr)</Text>
             </View>
 
-            {/* Big Liquidity Figures */}
             <View style={styles.liquidityFiguresRow}>
               <View style={{ flex: 1, marginRight: 8 }}>
                 <Text
@@ -229,7 +224,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
               </View>
             </View>
 
-            {/* AR vs AP Ratio Bar */}
             <View style={styles.ratioBarBg}>
               <View style={[styles.ratioBarAr, { flex: 7 }]} />
               <View style={[styles.ratioBarAp, { flex: 3 }]} />
@@ -247,10 +241,8 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             </View>
           </View>
 
-          {/* Treasury Bento KPI Grid */}
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* AR Receivables */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Invoices')}
@@ -282,7 +274,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
                 </View>
               </TouchableOpacity>
 
-              {/* AP Payables */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('VendorBills')}
@@ -316,7 +307,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Net Cash Flow */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('FinanceDashboard')}
@@ -348,7 +338,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
                 </View>
               </TouchableOpacity>
 
-              {/* Release Queue */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('VendorBills')}
@@ -382,7 +371,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             </View>
           </View>
 
-          {/* 3. CFO Payment Release Queue (Top Responsibility) */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Vendor Payment Release Queue</Text>
@@ -400,7 +388,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
           </View>
 
           <View style={styles.disbursementCardsStack}>
-            {/* Card 1 */}
             <View style={styles.disbursementCard}>
               <View style={styles.disburseTopRow}>
                 <View style={styles.vendorCodeBox}>
@@ -441,7 +428,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
               </TouchableOpacity>
             </View>
 
-            {/* Card 2 */}
             <View style={styles.disbursementCard}>
               <View style={styles.disburseTopRow}>
                 <View style={styles.vendorCodeBox}>
@@ -483,7 +469,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             </View>
           </View>
 
-          {/* 4. Statutory Tax & Compliance Health */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Statutory Tax Health</Text>
@@ -526,7 +511,6 @@ export const FinanceMasterHomeScreen: React.FC<FinanceMasterHomeScreenProps> = (
             </View>
           </View>
 
-          {/* 5. Financial Authority Modules */}
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>Financial Authority Workspaces</Text>
           </View>
@@ -579,7 +563,6 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
 
-  /* 1. Treasury Terminal Header */
   treasuryHeader: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
@@ -717,7 +700,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* 2. Treasury Terminal Card */
   treasuryTerminalCard: {
     backgroundColor: '#ffffff',
     borderRadius: 18,
@@ -819,7 +801,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* Section Headers */
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -859,7 +840,6 @@ const styles = StyleSheet.create({
     color: '#0b2545',
   },
 
-  /* 3. Disbursement Cards */
   disbursementCardsStack: {
     gap: 12,
     marginBottom: 18,
@@ -950,7 +930,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* 4. Tax Health Card */
   taxHealthCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -990,7 +969,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f5f9',
   },
 
-  /* 5. Modules Grid */
   modulesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1037,7 +1015,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,

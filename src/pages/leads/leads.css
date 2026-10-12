@@ -13,7 +13,6 @@
   overflow: hidden;
 }
 
-/* List view: table on the left, source / location breakdowns on the right. */
 .leads-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 250px;
@@ -70,7 +69,7 @@
   border-radius: 999px;
 }
 
-/* ---------- Toolbar ---------- */
+/* Toolbar */
 .leads-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -127,7 +126,7 @@
   gap: 6px;
 }
 
-/* ---------- Stage tabs ---------- */
+/* Stage tabs */
 .stage-tabs {
   display: flex;
   gap: 4px;
@@ -180,7 +179,7 @@
   color: #fff;
 }
 
-/* ---------- Table ---------- */
+/* Table */
 .leads-card .table-wrap {
   padding: 12px 12px 4px;
 }
@@ -227,7 +226,6 @@
   padding-right: 8px;
 }
 
-/* One-line cell; the full text is in the title tooltip and the detail drawer. */
 .cell-clip {
   max-width: 140px;
   white-space: nowrap;
@@ -320,7 +318,7 @@
   color: var(--ink-3);
 }
 
-/* ---------- Board (kanban) ---------- */
+/* Board (kanban) */
 .board {
   display: grid;
   grid-auto-flow: column;
@@ -481,7 +479,7 @@
   color: var(--ink-3);
 }
 
-/* ---------- Lead detail drawer ---------- */
+/* Lead detail drawer */
 .lead-drawer {
   width: min(560px, 100vw);
 }
@@ -710,7 +708,6 @@
   padding-bottom: 14px;
 }
 
-/* Vertical line joining the dots. */
 .timeline-item:not(:last-child)::before {
   content: '';
   position: absolute;
@@ -763,7 +760,7 @@
   color: var(--teal-900);
 }
 
-/* ---------- Lost reason dialog ---------- */
+/* Lost reason dialog */
 .dialog-root {
   position: fixed;
   inset: 0;
@@ -825,7 +822,7 @@
   margin-top: 18px;
 }
 
-/* ---------- Responsive ---------- */
+/* Responsive */
 @media (max-width: 1280px) {
   .leads-layout {
     grid-template-columns: minmax(0, 1fr);

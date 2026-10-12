@@ -420,7 +420,6 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
               </Card>
             )
           ) : (
-            /* INTERNAL STAFF / TENDER COMMITTEE VIEW */
             <>
               {sealedCount > 0 && phase !== 'Allotted' && (
                 <Card style={styles.chamberWarningCard}>

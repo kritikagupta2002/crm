@@ -40,7 +40,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
   const [search, setSearch] = useState('');
   const [selectedStage, setSelectedStage] = useState<string>('All');
 
-  // 1. Bento KPI Aggregations
   const totalContractVal = useMemo(() => {
     return workOrders.reduce((sum, wo) => sum + (wo.contractValue || wo.amount || 0), 0);
   }, [workOrders]);
@@ -59,7 +58,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
     ).length;
   }, [workOrders]);
 
-  // Pre-calculated counts per stage for snappy chip tabs
   const stageCounts = useMemo(() => {
     const counts: Record<string, number> = { All: workOrders.length };
     STAGES.forEach((s) => {
@@ -70,7 +68,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
     return counts;
   }, [workOrders]);
 
-  // 2. Filtered list
   const filteredOrders = useMemo(() => {
     return workOrders.filter((wo) => {
       const q = search.trim().toLowerCase();
@@ -145,7 +142,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
         style={styles.cardWrapper}
       >
         <View style={styles.orderCard}>
-          {/* Top Line: ID Badge, Due Date, and Status Badge */}
           <View style={styles.cardTop}>
             <View style={styles.woIdWrap}>
               <View style={styles.woIdBadge}>
@@ -166,10 +162,8 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </View>
           </View>
 
-          {/* Vendor Name */}
           <Text style={styles.vendorName}>{item.vendorName || item.vendor}</Text>
 
-          {/* Project Line */}
           <View style={styles.projectLine}>
             <Building2 size={13} color="#0f766e" style={{ marginRight: 5 }} />
             <Text style={styles.projectTitle} numberOfLines={1}>
@@ -177,14 +171,12 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </Text>
           </View>
 
-          {/* Scope of Work */}
           {item.work ? (
             <Text style={styles.workScopeText} numberOfLines={2}>
               {item.work}
             </Text>
           ) : null}
 
-          {/* Executive Financial Bento Strip */}
           <View style={styles.financialBentoBox}>
             <View style={styles.finCol}>
               <Text style={styles.finLabel}>CONTRACT</Text>
@@ -206,7 +198,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </View>
           </View>
 
-          {/* Milestone Progress Bar */}
           <View style={styles.progressContainer}>
             <View style={styles.progressTrack}>
               <View
@@ -221,7 +212,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </View>
           </View>
 
-          {/* Card Footer: Clear Operational Milestone Notice */}
           <View style={styles.cardFooter}>
             <View style={styles.statusNote}>
               {item.currentStage === 'Paid' && (
@@ -296,7 +286,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
         />
       }
     >
-      {/* Search & Filter Toolbar */}
       <View style={styles.topControl}>
         <View style={styles.searchBar}>
           <Search size={17} color="#64748b" style={{ marginRight: 8 }} />
@@ -339,7 +328,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
         />
       </View>
 
-      {/* Main List with Top 4 Bento KPI Header */}
       <FlatList
         data={filteredOrders}
         keyExtractor={(item) => item.id}
@@ -352,7 +340,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Card 1: Total Sanctioned */}
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
@@ -370,7 +357,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
                 <Text style={styles.kpiSubText}>Gross contract allocation</Text>
               </View>
 
-              {/* Card 2: Disbursed Paid */}
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
@@ -392,7 +378,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Card 3: Active Field Sites */}
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
@@ -410,7 +395,6 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
                 <Text style={styles.kpiSubText}>Drilling & pumping in progress</Text>
               </View>
 
-              {/* Card 4: Bills & Audit Review */}
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
@@ -498,7 +482,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
 
-  /* 4 Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,
@@ -631,7 +614,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* List & Cards */
   listContent: {
     paddingHorizontal: 16,
     paddingTop: 12,
@@ -723,7 +705,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  /* Inner Financial Bento Box */
   financialBentoBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -760,7 +741,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
 
-  /* Progress track */
   progressContainer: {
     marginBottom: 10,
   },
@@ -775,7 +755,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
 
-  /* Card Footer Notice */
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',

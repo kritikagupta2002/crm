@@ -1439,7 +1439,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     paddingHorizontal: spacing.md,
     paddingTop: spacing.xs,

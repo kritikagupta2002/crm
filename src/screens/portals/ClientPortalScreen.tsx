@@ -24,7 +24,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
     activeTab,
     setActiveTab,
 
-    // Client profile details
     currentClientId,
     clientCompanyName,
     clientContactPerson,
@@ -35,7 +34,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
     clientPan,
     clientAddress,
 
-    // Isolated datasets
     myProjects,
     filteredProjects,
     myDeliverables,
@@ -44,7 +42,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
     filteredInvoices,
     myPayments,
 
-    // Derived KPI numbers
     activeProjectsCount,
     completedProjectsCount,
     pendingDeliverablesCount,
@@ -53,7 +50,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
     totalPaidAmount,
     totalOutstanding,
 
-    // Search and filter state
     projectSearch,
     setProjectSearch,
     deliverableFilter,
@@ -61,7 +57,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
     invoiceFilter,
     setInvoiceFilter,
 
-    // Modal states
     selectedProjectForDetail,
     setSelectedProjectForDetail,
     selectedDeliverableForReview,
@@ -73,20 +68,17 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
     notificationsVisible,
     setNotificationsVisible,
 
-    // Actions
     handleSignOffDeliverable,
     handleRequestRevision,
     handleSettleInvoiceUpi,
   } = useClientPortal();
 
-  // Calculate unread notifications count
   const unreadNotificationsCount = pendingDeliverablesCount + pendingInvoicesCount;
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
       <View style={styles.container}>
-        {/* 1. Executive Portal Header */}
         <ClientPortalHeader
           clientCompanyName={clientCompanyName}
           clientEnquiryId={clientEnquiryId}
@@ -96,7 +88,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
           onLogout={logout}
         />
 
-        {/* 2. Active Tab Content Body */}
         <View style={styles.contentBody}>
           {activeTab === 'home' && (
             <ClientHomeTab
@@ -178,7 +169,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
           )}
         </View>
 
-        {/* 3. Executive Client Bottom Navigation */}
         <ClientBottomNav
           activeTab={activeTab}
           onTabChange={(tab) => setActiveTab(tab)}
@@ -187,7 +177,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
           pendingInvoicesCount={pendingInvoicesCount}
         />
 
-        {/* 4. Project Detail Modal */}
         {selectedProjectForDetail && (
           <ClientProjectDetailModal
             visible={!!selectedProjectForDetail}
@@ -200,7 +189,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
           />
         )}
 
-        {/* 5. Deliverable Detail & Stage 5 Sign-Off Modal */}
         {selectedDeliverableForReview && (
           <ClientDeliverableDetailModal
             visible={!!selectedDeliverableForReview}
@@ -217,7 +205,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
           />
         )}
 
-        {/* 6. Invoice Detail & Instant UPI Payment Modal */}
         {(selectedInvoiceForDetail || selectedInvoiceForUpi) && (
           <ClientInvoiceDetailModal
             visible={!!(selectedInvoiceForDetail || selectedInvoiceForUpi)}
@@ -236,7 +223,6 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
           />
         )}
 
-        {/* 7. Client Notifications Modal */}
         <ClientNotificationsModal
           visible={notificationsVisible}
           onClose={() => setNotificationsVisible(false)}

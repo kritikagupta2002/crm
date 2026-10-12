@@ -56,10 +56,10 @@ const getCompanyInitials = (name: string) => {
 
 const getAvatarColor = (name: string) => {
   const themes = [
-    { bg: '#0F172A', text: '#FFFFFF', border: '#334155' }, // Deep Slate
-    { bg: '#0D9488', text: '#FFFFFF', border: '#0F766E' }, // Teal
-    { bg: '#1E3A8A', text: '#FFFFFF', border: '#1D4ED8' }, // Blue
-    { bg: '#701A75', text: '#FFFFFF', border: '#86198F' }, // Purple
+    { bg: '#0F172A', text: '#FFFFFF', border: '#334155' },
+    { bg: '#0D9488', text: '#FFFFFF', border: '#0F766E' },
+    { bg: '#1E3A8A', text: '#FFFFFF', border: '#1D4ED8' },
+    { bg: '#701A75', text: '#FFFFFF', border: '#86198F' },
   ];
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
@@ -193,7 +193,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         />
       }
     >
-      {/* 1. Interactive KPI Metrics Strip */}
       <View style={styles.metricsStrip}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -234,7 +233,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         </View>
       </View>
 
-      {/* 2. Search Input */}
       <Input
         placeholder="Search client, contact person, location..."
         value={search}
@@ -243,7 +241,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         containerStyle={styles.searchBar}
       />
 
-      {/* 3. Clearly Labeled Filter Chips */}
       <View style={styles.filtersRow}>
         <ScrollView
           horizontal
@@ -286,7 +283,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
         </ScrollView>
       </View>
 
-      {/* 4. Client Cards List */}
       {visibleClients.length === 0 ? (
         <EmptyState
           title="No Clients Found"
@@ -319,7 +315,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
                   })
                 }
               >
-                {/* Header: Company Avatar, Name, Contact & Status Badge */}
                 <View style={styles.cardHeader}>
                   <View style={styles.headerLeftWrap}>
                     <View
@@ -349,7 +344,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
                   <StatusBadge status={item.status} size="sm" />
                 </View>
 
-                {/* Scope & Location Metadata */}
                 <View style={styles.scopeBox}>
                   <View style={styles.infoRow}>
                     <MapPin size={12} color={colors.textMuted} />
@@ -370,7 +364,6 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
                   </View>
                 </View>
 
-                {/* Footer: Portfolio Value, Owner Pill, and 360 Profile CTA */}
                 <View style={styles.cardFooter}>
                   <View>
                     <Text style={styles.label}>BUSINESS</Text>

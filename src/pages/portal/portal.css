@@ -1,4 +1,4 @@
-/* ---------- Client portal ---------- */
+/* Client portal */
 .portal {
   min-height: 100vh;
   display: flex;
@@ -128,7 +128,6 @@
   background: var(--bg);
 }
 
-/* Journey tracker: done = green, current = teal ring, upcoming = grey. */
 .journey {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -553,7 +552,6 @@
     text-align: left;
   }
 
-  /* Five steps don't fit side by side on a phone: stack them as a vertical list. */
   .journey {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -582,7 +580,7 @@
   }
 }
 
-/* ---------- Projects, approvals, letters, updates ---------- */
+/* Projects, approvals, letters, updates */
 .portal-service select {
   margin-top: 6px;
   height: 32px;
@@ -831,14 +829,13 @@
     padding: 0 10px;
   }
 
-  /* Letter and file names wrap on phones instead of being cut off. */
   .portal-docs strong {
     white-space: normal;
     overflow-wrap: anywhere;
   }
 }
 
-/* ---------- Completed stages (won clients) ---------- */
+/* Completed stages (won clients) */
 .done-list {
   display: flex;
   flex-direction: column;
@@ -896,7 +893,6 @@
   animation: rise 0.25s ease backwards;
 }
 
-/* A card shown inside the Completed card: no frame, and the row already names it. */
 .portal-bare .portal-card-head h2 {
   display: none;
 }
@@ -923,7 +919,7 @@
   }
 }
 
-/* ---------- Brand band (portal and enquiry form) ---------- */
+/* Brand band (portal and enquiry form) */
 .portal-band {
   position: relative;
   overflow: hidden;
@@ -940,7 +936,6 @@
   pointer-events: none;
 }
 
-/* The sidebar's mountains as a range along the right, fading into the band on the left. */
 .band-range {
   position: absolute;
   right: 0;
@@ -948,13 +943,11 @@
   width: min(50%, 780px);
   height: 100%;
   pointer-events: none;
-  /* Fade on the visible left edge, whatever part of the drawing is showing. */
   -webkit-mask-image: linear-gradient(to right, transparent 0, #000 40%);
   mask-image: linear-gradient(to right, transparent 0, #000 40%);
   animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s backwards;
 }
 
-/* The short enquiry band shows the whole range, peaks included, at its own height. */
 .portal-band.is-compact .band-range {
   width: auto;
   aspect-ratio: 760 / 300;
@@ -988,7 +981,6 @@
   color: var(--ink-2);
 }
 
-/* Greeting, then the service as a chip under it, so the text keeps the full width. */
 .portal-band .portal-hero-head {
   flex-direction: column;
   align-items: flex-start;
@@ -1020,7 +1012,6 @@
   background: var(--surface);
 }
 
-/* Upcoming steps stay solid over the grey. */
 .portal-band .journey-dot {
   background: var(--surface);
 }
@@ -1029,14 +1020,12 @@
   background: var(--green);
 }
 
-/* Wide screens: the greeting and tracker keep clear of the range. */
 @media (min-width: 1280px) {
   .portal-band:not(.is-compact) .portal-band-inner {
     padding-right: 440px;
   }
 }
 
-/* Narrower: the range would sit behind the text, so it steps back. */
 @media (max-width: 1279px) {
   .band-range {
     width: 70%;
@@ -1044,7 +1033,6 @@
   }
 }
 
-/* Cards start over the band's lower edge. */
 .portal-band + .portal-main {
   position: relative;
   margin-top: -60px;
@@ -1054,7 +1042,7 @@
   margin-top: -40px;
 }
 
-/* ---------- Card titles with an icon chip ---------- */
+/* Card titles with an icon chip */
 .portal-card h2.card-title-icon {
   display: flex;
   align-items: center;
@@ -1096,12 +1084,10 @@
   }
 }
 
-/* The project's ERM stages, in the client's words */
 .portal-stages {
   margin: 14px 0 6px;
 }
 
-/* Phones: the seven stages as a row of dots, with the current one named underneath. */
 .portal-stage-caption {
   display: none;
 }
@@ -1151,7 +1137,6 @@
   font-size: 12.5px;
 }
 
-/* Top bar bell: latest updates without scrolling */
 .portal-bell {
   position: relative;
 }
@@ -1186,7 +1171,6 @@
   font-size: 13px;
 }
 
-/* Phones: the cards in one column, in the order a client needs them. */
 @media (max-width: 900px) {
   .portal-grid > .portal-col {
     display: contents;
@@ -1226,7 +1210,6 @@
   }
 }
 
-/* Phones: WhatsApp and "Ask a question" stay one tap away. */
 .portal-help-bar {
   display: none;
 }
@@ -1251,7 +1234,6 @@
     justify-content: center;
   }
 
-  /* Room for the bar under the last card. */
   .portal:has(.portal-help-bar) .portal-main {
     padding-bottom: 84px;
   }

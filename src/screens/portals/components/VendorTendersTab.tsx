@@ -66,7 +66,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
     'Borewell & pumping test',
   ];
 
-  // Apply filters
   const processedTenders = filteredTenders.filter((t) => {
     const phase = tenderPhase(t);
     const closingTime = closingOf(t);
@@ -82,7 +81,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
     return true;
   });
 
-  // Apply sorting
   processedTenders.sort((a, b) => {
     if (sortBy === 'deadline') {
       return new Date(closingOf(a)).getTime() - new Date(closingOf(b)).getTime();
@@ -101,7 +99,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* 1. LARGE SEARCH BAR */}
       <View style={styles.searchBar}>
         <Search size={19} color={vendorTheme.colors.navy} />
         <TextInput
@@ -118,7 +115,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
         )}
       </View>
 
-      {/* 2. CATEGORY CHIPS (BIGGER & MORE TOUCH-FRIENDLY) */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -140,7 +136,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
         })}
       </ScrollView>
 
-      {/* 3. FILTER & SORT CONTROLS BAR */}
       <View style={styles.filterControlsBar}>
         <ScrollView
           horizontal
@@ -170,7 +165,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
           })}
         </ScrollView>
 
-        {/* Sort Toggle Button */}
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => setShowSortMenu(!showSortMenu)}
@@ -183,7 +177,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Sort Dropdown Popup */}
       {showSortMenu && (
         <View style={styles.sortDropdown}>
           {[
@@ -208,14 +201,12 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
         </View>
       )}
 
-      {/* 4. RESULTS COUNT SUMMARY */}
       <View style={styles.countRow}>
         <Text style={styles.countText}>
           SHOWING {processedTenders.length} NOTICE{processedTenders.length === 1 ? '' : 'S'}
         </Text>
       </View>
 
-      {/* 5. TENDER ROWS LIST (BIG & READABLE CARDS) */}
       {processedTenders.length === 0 ? (
         <View style={styles.emptyWrap}>
           <Gavel size={36} color={vendorTheme.colors.textTertiary} />
@@ -245,7 +236,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
             );
             const isSaved = savedTenders.includes(tender.id);
 
-            // Check if this vendor submitted a bid
             const vendorBid = tender.sealedBids.find(
               (b) =>
                 b.vendorId === vendorCode ||
@@ -259,7 +249,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
                 onPress={() => navigation.navigate('TenderDetail', { tenderId: tender.id })}
                 style={styles.tenderRowCard}
               >
-                {/* Row Header: ID, Category, Save Bookmark */}
                 <View style={styles.rowTopHeader}>
                   <View style={styles.idCategoryRow}>
                     <View style={styles.tenderNoBadge}>
@@ -283,12 +272,10 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
                   </TouchableOpacity>
                 </View>
 
-                {/* Big Tender Title */}
                 <Text style={styles.tenderTitle} numberOfLines={2}>
                   {tender.title}
                 </Text>
 
-                {/* Commercial & Dates Matrix (Spacious & Bold) */}
                 <View style={styles.specStrip}>
                   <View style={styles.specCol}>
                     <Text style={styles.specLabel}>EST. VALUE</Text>
@@ -321,7 +308,6 @@ export const VendorTendersTab: React.FC<VendorTendersTabProps> = ({
                   </View>
                 </View>
 
-                {/* Footer: Opening Date, Bid Status Badge, Chevron */}
                 <View style={styles.rowFooter}>
                   <View style={styles.footerLeft}>
                     {vendorBid ? (

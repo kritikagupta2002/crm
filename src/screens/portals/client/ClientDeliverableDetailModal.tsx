@@ -97,7 +97,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={styles.container}>
-        {/* Header */}
         <View style={styles.header}>
           <View style={{ flex: 1, marginRight: 10 }}>
             <View style={styles.badgeRow}>
@@ -131,7 +130,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
         </View>
 
         <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-          {/* 1. DOCUMENT METADATA CARD */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <FileText size={18} color={clientTheme.colors.navy} />
@@ -166,7 +164,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
             </View>
           </View>
 
-          {/* 2. TECHNICAL REPORT SUMMARY & BOREHOLE PREVIEW */}
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <ShieldCheck size={18} color={clientTheme.colors.navy} />
@@ -196,7 +193,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
               </View>
             </View>
 
-            {/* Verification Stamp */}
             <View style={styles.attestationStamp}>
               <Award size={20} color={clientTheme.colors.teal} />
               <View style={{ flex: 1 }}>
@@ -208,7 +204,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
             </View>
           </View>
 
-          {/* 3. STAGE 5 CLIENT SIGN-OFF SECTION */}
           {isApproved ? (
             <View style={styles.approvedNoticeCard}>
               <CheckCircle2 size={24} color={clientTheme.colors.emerald} />
@@ -230,7 +225,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
                 As authorized signatory of {clientCompanyName}, you can review and grant executive acceptance for this technical deliverable to advance the concession lifecycle to Stage 6: Invoicing.
               </Text>
 
-              {/* Declaration Checkbox */}
               <TouchableOpacity
                 style={styles.declarationRow}
                 activeOpacity={0.8}
@@ -244,7 +238,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
                 </Text>
               </TouchableOpacity>
 
-              {/* Optional Remarks */}
               <Text style={styles.remarksLabel}>SIGN-OFF REMARKS / CONCESSION NOTES (OPTIONAL)</Text>
               <TextInput
                 style={styles.remarksInput}
@@ -254,7 +247,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
                 onChangeText={setSignOffRemarks}
               />
 
-              {/* Action Buttons */}
               <TouchableOpacity
                 style={styles.approveBtn}
                 activeOpacity={0.8}
@@ -267,7 +259,6 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
                 </Text>
               </TouchableOpacity>
 
-              {/* Revision Trigger */}
               {!showRevisionInput ? (
                 <TouchableOpacity
                   style={styles.revisionTriggerBtn}

@@ -54,7 +54,6 @@ export const ClientProjectsTab: React.FC<ClientProjectsTabProps> = ({
       showsVerticalScrollIndicator={false}
       bounces={true}
     >
-      {/* 1. SEARCH INPUT */}
       <View style={styles.searchBar}>
         <Search size={20} color={clientTheme.colors.navy} />
         <TextInput
@@ -74,7 +73,6 @@ export const ClientProjectsTab: React.FC<ClientProjectsTabProps> = ({
         )}
       </View>
 
-      {/* 2. FILTER CHIPS (HORIZONTAL SCROLL) */}
       <View>
         <ScrollView
           horizontal
@@ -119,7 +117,6 @@ export const ClientProjectsTab: React.FC<ClientProjectsTabProps> = ({
         </ScrollView>
       </View>
 
-      {/* 3. PROJECTS LIST */}
       {displayedProjects.length === 0 ? (
         <View style={styles.emptyCard}>
           <Layers size={44} color={clientTheme.colors.textTertiary} />
@@ -142,7 +139,6 @@ export const ClientProjectsTab: React.FC<ClientProjectsTabProps> = ({
               activeOpacity={0.88}
               onPress={() => onOpenProjectDetail(proj)}
             >
-              {/* Card Header */}
               <View style={styles.cardHeader}>
                 <View style={styles.codePill}>
                   <Text style={styles.codeText}>{proj.projectCode || proj.id}</Text>
@@ -168,19 +164,16 @@ export const ClientProjectsTab: React.FC<ClientProjectsTabProps> = ({
                 </View>
               </View>
 
-              {/* Title & Service */}
               <Text style={styles.projectTitle}>{proj.title}</Text>
               <Text style={styles.serviceSubText}>
                 {proj.service || 'Mineral Exploration & Core Drilling'}
               </Text>
 
-              {/* Location */}
               <View style={styles.locationRow}>
                 <MapPin size={15} color={clientTheme.colors.textMuted} />
                 <Text style={styles.locationText}>{proj.location || 'Rajasthan Concession'}</Text>
               </View>
 
-              {/* 7-Stage Progress Bar */}
               <View style={styles.progSection}>
                 <View style={styles.progLabelRow}>
                   <Text style={styles.progLabel}>Lifecycle Progress</Text>
@@ -191,7 +184,6 @@ export const ClientProjectsTab: React.FC<ClientProjectsTabProps> = ({
                 </View>
               </View>
 
-              {/* Financial & Timeline Metrics */}
               <View style={styles.metricsGrid}>
                 <View style={styles.metricCol}>
                   <Text style={styles.metricLabel}>BUDGET</Text>
@@ -215,7 +207,6 @@ export const ClientProjectsTab: React.FC<ClientProjectsTabProps> = ({
                 </View>
               </View>
 
-              {/* Card Primary Action Button */}
               <View style={styles.cardActionBtn}>
                 <Text style={styles.cardActionBtnText}>Inspect Project Details</Text>
                 <ArrowRight size={17} color={clientTheme.colors.navy} />

@@ -85,7 +85,6 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -105,7 +104,6 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Mining Operations Telemetry KPI Hero Card */}
         <View style={styles.kpiHeroCard}>
           <View style={styles.kpiTopRow}>
             <Text style={styles.kpiHeroTitle}>Exploration & Mining Blocks Telemetry</Text>
@@ -134,7 +132,6 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
           </View>
         </View>
 
-        {/* 2. Quick Actions Bar */}
         <View style={styles.quickActionsRow}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -159,13 +156,11 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
           </TouchableOpacity>
         </View>
 
-        {/* 3. Section Title */}
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionTitle}>Project & Operations Submodules</Text>
           <Text style={styles.sectionCount}>{ermModules.length} Modules</Text>
         </View>
 
-        {/* 4. Expansive Submodule Cards */}
         <View style={styles.modulesList}>
           {ermModules.map((item) => (
             <TouchableOpacity
@@ -244,7 +239,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
-  /* 1. KPI Hero Card */
   kpiHeroCard: {
     backgroundColor: '#ffffff',
     borderRadius: 18,
@@ -311,7 +305,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
 
-  /* 2. Quick Actions */
   quickActionsRow: {
     flexDirection: 'row',
     gap: 8,
@@ -331,7 +324,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* 3. Section Title */
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -351,7 +343,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* 4. Expansive Modules List */
   modulesList: {
     gap: 10,
   },

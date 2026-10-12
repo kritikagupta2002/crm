@@ -205,7 +205,6 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
         ListHeaderComponent={
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Card 1: Total Empanelled */}
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
@@ -223,7 +222,6 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
                 <Text style={styles.kpiSubText}>Verified rig & lab vendors</Text>
               </View>
 
-              {/* Card 2: Live Subcontracts */}
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
@@ -243,7 +241,6 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Card 3: Sanctioned Value */}
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
@@ -263,7 +260,6 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
                 <Text style={styles.kpiSubText}>Cumulative order sanction</Text>
               </View>
 
-              {/* Card 4: Categories */}
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
@@ -487,7 +483,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,

@@ -1,6 +1,5 @@
 export const clientTheme = {
   colors: {
-    // Bansal Geo Brand System
     navy: '#0b2545',
     navyDark: '#061a32',
     navySubtle: '#e8edf3',
@@ -15,7 +14,6 @@ export const clientTheme = {
     textMuted: '#64748b',
     textTertiary: '#94a3b8',
 
-    // Geological & Exploration Accents
     teal: '#0d9488',
     tealDark: '#0f766e',
     tealSubtle: '#f0fdfa',
@@ -32,7 +30,6 @@ export const clientTheme = {
     amberSubtle: '#fffbeb',
   },
 
-  // "Bada Bada" Prominent Typography Scale
   typography: {
     display: 24,
     titleXl: 20,

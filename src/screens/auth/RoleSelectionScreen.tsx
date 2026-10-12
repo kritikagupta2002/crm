@@ -72,7 +72,6 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ naviga
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Top Navigation Bar */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -123,7 +122,6 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ naviga
         </View>
       </ScrollView>
 
-      {/* Sticky Bottom Action */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
         <TouchableOpacity
           activeOpacity={0.8}

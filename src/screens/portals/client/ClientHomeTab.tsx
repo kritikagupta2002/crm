@@ -62,16 +62,12 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
   onOpenDeliverableReview,
   onOpenInvoicePay,
 }) => {
-  // Urgent deliverables needing client approval
   const urgentDeliverable = myDeliverables.find((d) => d.status === 'Submitted');
 
-  // Urgent unpaid invoice
   const pendingInvoice = myInvoices.find((i) => i.status !== 'Paid');
 
-  // Primary active project
   const featuredProject = myProjects.find((p) => (p.currentStage || 1) < 7) || myProjects[0];
 
-  // Recent timeline events aggregated across client projects
   const recentUpdates = (featuredProject?.history || []).slice(0, 4);
 
   const { isSmall, isCompact, isTablet } = useResponsive();
@@ -83,7 +79,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
       showsVerticalScrollIndicator={false}
       bounces={true}
     >
-      {/* 1. EXECUTIVE WELCOME HERO */}
       <View style={styles.welcomeCard}>
         <View style={styles.welcomeTopRow}>
           <View style={{ flex: 1 }}>
@@ -107,9 +102,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
         </Text>
       </View>
 
-      {/* 2. 4 EXECUTIVE KPI STAT CARDS */}
       <View style={styles.kpiGrid}>
-        {/* Active Projects */}
         <TouchableOpacity
           style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall]}
           activeOpacity={0.8}
@@ -130,7 +123,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
           </Text>
         </TouchableOpacity>
 
-        {/* Deliverables Requiring Sign-Off */}
         <TouchableOpacity
           style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall, pendingDeliverablesCount > 0 && styles.kpiCardHighlightGold]}
           activeOpacity={0.8}
@@ -161,7 +153,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
           </Text>
         </TouchableOpacity>
 
-        {/* Pending Invoices */}
         <TouchableOpacity
           style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall, pendingInvoicesCount > 0 && styles.kpiCardHighlightCrimson]}
           activeOpacity={0.8}
@@ -192,7 +183,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
           </Text>
         </TouchableOpacity>
 
-        {/* Remitted Payments */}
         <TouchableOpacity
           style={[styles.kpiCard, isTablet && styles.kpiCardTablet, isSmall && styles.kpiCardSmall]}
           activeOpacity={0.8}
@@ -214,7 +204,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* 3. URGENT ACTION SPOTLIGHT (DELIVERABLE SIGN-OFF OR INVOICE DUE) */}
       {urgentDeliverable ? (
         <View style={styles.spotlightCard}>
           <View style={styles.spotlightTopRow}>
@@ -272,7 +261,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
         </View>
       ) : null}
 
-      {/* 5. ACTIVE GEOLOGICAL PROJECT SPOTLIGHT */}
       {featuredProject && (
         <View style={styles.sectionBlock}>
           <View style={styles.sectionHeaderRow}>
@@ -316,7 +304,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
               <Text style={styles.projectLocationText}>{featuredProject.location}</Text>
             </View>
 
-            {/* 7-Stage Progress Bar */}
             <View style={styles.progressContainer}>
               <View style={styles.progressLabelRow}>
                 <Text style={styles.progressLabel}>Lifecycle Progress</Text>
@@ -334,7 +321,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
               </View>
             </View>
 
-            {/* Technical Highlights */}
             <View style={styles.techHighlightsRow}>
               <View style={styles.techCol}>
                 <Text style={styles.techColLabel}>BUDGET</Text>
@@ -365,7 +351,6 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
         </View>
       )}
 
-      {/* 6. RECENT PROJECT TIMELINE UPDATES */}
       {recentUpdates.length > 0 && (
         <View style={styles.sectionBlock}>
           <View style={styles.sectionHeaderRow}>

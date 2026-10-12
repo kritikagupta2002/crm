@@ -114,7 +114,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
 
   const [expandedFaqId, setExpandedFaqId] = useState<string | null>('faq-1');
 
-  // Ticket form state
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketCategory, setTicketCategory] = useState('Field Data & GPS');
   const [ticketMessage, setTicketMessage] = useState('');
@@ -161,7 +160,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -179,7 +177,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
         </View>
       </View>
 
-      {/* Ticket created toast */}
       {ticketSuccess && (
         <View style={styles.toastCard}>
           <CheckCircle2 size={18} color="#059669" strokeWidth={2.4} />
@@ -194,7 +191,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* 1. Quick Contact Channels */}
         <View style={styles.contactRow}>
           <TouchableOpacity style={styles.contactCard} onPress={handleCall} activeOpacity={0.8}>
             <View style={[styles.contactIconBox, { backgroundColor: '#f0f9ff' }]}>
@@ -213,7 +209,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
           </TouchableOpacity>
         </View>
 
-        {/* 2. Knowledge Base & FAQs */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <FileQuestion size={18} color="#0284c7" strokeWidth={2.4} />
@@ -230,14 +225,12 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
           ))}
         </View>
 
-        {/* 3. Raise Support Ticket */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <Headphones size={18} color="#0f172a" strokeWidth={2.4} />
             <Text style={styles.sectionTitle}>RAISE A SUPPORT TICKET</Text>
           </View>
 
-          {/* Category Chips */}
           <Text style={styles.inputLabel}>CATEGORY</Text>
           <View style={styles.categoryRow}>
             {[
@@ -267,7 +260,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
             ))}
           </View>
 
-          {/* Subject */}
           <Text style={styles.inputLabel}>SUBJECT</Text>
           <TextInput
             style={styles.inputField}
@@ -277,7 +269,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
             placeholderTextColor="#94a3b8"
           />
 
-          {/* Description */}
           <Text style={styles.inputLabel}>DETAILED DESCRIPTION</Text>
           <TextInput
             style={[styles.inputField, styles.textArea]}
@@ -290,7 +281,6 @@ export const HelpSupportScreen: React.FC<HelpSupportScreenProps> = ({ navigation
             textAlignVertical="top"
           />
 
-          {/* Submit Button */}
           <TouchableOpacity
             style={styles.submitTicketBtn}
             onPress={handleSubmitTicket}

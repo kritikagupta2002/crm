@@ -138,7 +138,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
     return (
       <View style={[styles.card, isTablet && styles.tabletCard]}>
-        {/* Top Line: Expense ID, Status Badge & Date */}
         <View style={styles.cardHeader}>
           <View style={styles.tagWrap}>
             <View style={styles.claimNumberBadge}>
@@ -152,7 +151,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           </View>
         </View>
 
-        {/* Employee Row */}
         {isPrivileged && (
           <View style={styles.empRow}>
             <View style={styles.empAvatar}>
@@ -165,7 +163,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           </View>
         )}
 
-        {/* Project Block */}
         <View style={styles.projectRow}>
           <MapPin size={12} color="#0D9488" style={{ marginRight: 4 }} />
           <Text style={styles.projectText} numberOfLines={1}>
@@ -173,12 +170,10 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           </Text>
         </View>
 
-        {/* Description */}
         <Text style={styles.descText} numberOfLines={2}>
           {item.description}
         </Text>
 
-        {/* Amount Grid Strip */}
         <View style={styles.amountContainer}>
           <View style={styles.amountCol}>
             <Text style={styles.amountLabel}>CLAIMED</Text>
@@ -206,7 +201,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           )}
         </View>
 
-        {/* Queried Notice Banner */}
         {isQueried && (
           <TouchableOpacity
             style={styles.queriedBanner}
@@ -221,7 +215,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           </TouchableOpacity>
         )}
 
-        {/* Actions Row */}
         <View style={styles.cardActionsRow}>
           {(item as any).hasReceipt || item.receiptFileName ? (
             <TouchableOpacity
@@ -268,7 +261,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
   const renderHeader = () => (
     <View style={[styles.listHeaderWrap, isTablet && styles.tabletWrap]}>
-      {/* 1. Interactive KPI Metrics Strip */}
       <View style={[styles.metricsStrip, isSmall && { paddingVertical: 10, paddingHorizontal: 4 }]}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -349,7 +341,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         </TouchableOpacity>
       </View>
 
-      {/* 2. Compact Quick Actions Bar */}
       <View style={styles.launchpadSection}>
         <Text style={styles.sectionHeader}>QUICK CLAIM ACTIONS</Text>
         <View style={[styles.compactActionRow, isSmall && { gap: 4 }, isCompact && { gap: 6 }]}>
@@ -421,7 +412,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         </View>
       </View>
 
-      {/* 3. Search Bar */}
       <View style={styles.searchBox}>
         <Search size={16} color="#64748B" />
         <TextInput
@@ -438,7 +428,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         ) : null}
       </View>
 
-      {/* 4. Filter Chips with full edge-to-edge scroll */}
       <View style={styles.filterScroll}>
         <FlatList
           horizontal
@@ -525,7 +514,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         }
       />
 
-      {/* Receipt Proof Modal */}
       <Modal
         visible={!!previewReceipt}
         transparent
@@ -657,7 +645,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#E2E8F0',
   },
 
-  /* Compact Action Tiles */
   launchpadSection: {
     marginBottom: 10,
   },
@@ -942,7 +929,6 @@ const styles = StyleSheet.create({
     color: '#0D9488',
   },
 
-  /* Modal */
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

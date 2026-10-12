@@ -132,7 +132,6 @@ const INITIAL_AUDIT_LOGS: AuditRecord[] = [
   },
 ];
 
-// Memoized Audit Card Component for smooth 60fps rendering
 const AuditLogCard = React.memo(({ log }: { log: AuditRecord }) => (
   <View style={styles.logCard}>
     <View style={styles.logTopRow}>
@@ -217,7 +216,6 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ navigation }) =>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -240,7 +238,6 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ navigation }) =>
         </TouchableOpacity>
       </View>
 
-      {/* Sticky Top Controls: Search Bar & Filter Chips (Never loses focus on typing) */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Search size={18} color="#94a3b8" />
@@ -256,7 +253,6 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ navigation }) =>
         </View>
       </View>
 
-      {/* Filter Category Chips */}
       <View style={styles.filterChipsContainer}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
           {[
@@ -288,7 +284,6 @@ export const AuditLogScreen: React.FC<AuditLogScreenProps> = ({ navigation }) =>
         </ScrollView>
       </View>
 
-      {/* High performance FlatList */}
       <FlatList
         data={filteredLogs}
         renderItem={renderItem}

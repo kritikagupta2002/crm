@@ -55,7 +55,6 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -73,7 +72,6 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
         </View>
       </View>
 
-      {/* Auto-saved feedback */}
       {savedToast && (
         <View style={styles.toastCard}>
           <CheckCircle2 size={16} color="#059669" strokeWidth={2.4} />
@@ -85,14 +83,12 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Interface Language */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <Globe size={18} color="#0284c7" strokeWidth={2.4} />
             <Text style={styles.sectionTitle}>INTERFACE LANGUAGE</Text>
           </View>
 
-          {/* English */}
           <TouchableOpacity
             style={[styles.langRow, styles.langRowSelected]}
             onPress={() => handleSelectLang('en')}
@@ -109,7 +105,6 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
           </TouchableOpacity>
         </View>
 
-        {/* 2. Number & Currency Display */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <IndianRupee size={18} color="#059669" strokeWidth={2.4} />
@@ -149,7 +144,6 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
           </TouchableOpacity>
         </View>
 
-        {/* 3. Date & Time Format */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <Calendar size={18} color="#d97706" strokeWidth={2.4} />
@@ -189,7 +183,6 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
           </TouchableOpacity>
         </View>
 
-        {/* 4. Time Zone */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <Clock size={18} color="#64748b" strokeWidth={2.4} />

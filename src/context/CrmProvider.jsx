@@ -46,14 +46,12 @@ function loadChanges() {
       const parsed = JSON.parse(raw)
       if (Array.isArray(parsed.leads) && Array.isArray(parsed.activities)) return { ...EMPTY, ...parsed }
     }
-    // Carry over enquiries saved by the first version of the demo.
     const old = localStorage.getItem(OLD_STORAGE_KEY)
     if (old) {
       const parsed = JSON.parse(old)
       if (Array.isArray(parsed.leads)) return { ...EMPTY, leads: parsed.leads, followUps: parsed.followUps ?? [] }
     }
   } catch {
-    // Storage unavailable or corrupted: start from the generated data only.
   }
   return EMPTY
 }
@@ -144,7 +142,6 @@ function store(key, value) {
     if (value) localStorage.setItem(key, JSON.stringify(value))
     else localStorage.removeItem(key)
   } catch {
-    // Without storage the demo simply asks to sign in again after a refresh.
   }
 }
 
@@ -153,7 +150,6 @@ const loadVendor = () => loadJSON(VENDOR_KEY)?.vendorId ?? null
 function loadClient() {
   const saved = loadJSON(CLIENT_KEY)?.leadId
   if (saved) return saved
-  // An older demo kept the client's sign-in in the team key: move it to its own.
   const old = loadJSON(SESSION_KEY)
   if (old?.type !== 'client' || !old.leadId) return null
   store(CLIENT_KEY, { leadId: old.leadId })
@@ -202,7 +198,6 @@ export function CrmProvider({ children }) {
     try {
       localStorage.setItem(FIELD_KEY, name)
     } catch {
-      // Only the remembered person is lost.
     }
   }, [])
 
@@ -214,7 +209,6 @@ export function CrmProvider({ children }) {
       try {
         localStorage.setItem(ROLE_KEY, next)
       } catch {
-        // Remembering the role is only a convenience.
       }
     },
     [setFieldMember],
@@ -254,7 +248,6 @@ export function CrmProvider({ children }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(changes))
       localStorage.removeItem(OLD_STORAGE_KEY)
     } catch {
-      // Not critical for a demo; data just won't survive a refresh.
     }
   }, [changes])
 
@@ -1022,7 +1015,7 @@ export function CrmProvider({ children }) {
         removeDocument,
         setTags,
         updateSettings,
-        changeCount, // demo changes kept in this browser
+        changeCount,
         resetDemoData,
       }}
     >

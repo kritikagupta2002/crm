@@ -109,7 +109,6 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
           activeOpacity={0.7}
@@ -129,7 +128,6 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Executive Telemetry KPI Hero Card */}
         <View style={styles.kpiHeroCard}>
           <View style={styles.kpiTopRow}>
             <Text style={styles.kpiHeroTitle}>Commercial Pipeline Overview</Text>
@@ -158,7 +156,6 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
           </View>
         </View>
 
-        {/* 2. Quick Actions Bar */}
         <View style={styles.quickActionsRow}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -183,13 +180,11 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
           </TouchableOpacity>
         </View>
 
-        {/* 3. Section Title */}
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionTitle}>Client Lifecycle Modules</Text>
           <Text style={styles.sectionCount}>{crmModules.length} Modules</Text>
         </View>
 
-        {/* 4. Expansive Submodule Cards */}
         <View style={styles.modulesList}>
           {crmModules.map((item) => (
             <TouchableOpacity
@@ -268,7 +263,6 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
-  /* 1. KPI Hero Card */
   kpiHeroCard: {
     backgroundColor: '#ffffff',
     borderRadius: 18,
@@ -335,7 +329,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
 
-  /* 2. Quick Actions */
   quickActionsRow: {
     flexDirection: 'row',
     gap: 8,
@@ -355,7 +348,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* 3. Section Title */
   sectionTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -375,7 +367,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* 4. Expansive Modules List */
   modulesList: {
     gap: 10,
   },

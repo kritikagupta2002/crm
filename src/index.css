@@ -18,18 +18,15 @@
   --ink-3: #7c8b96;
   --bg: #f4f7f8;
   --surface: #ffffff;
-  /* Sidebar and header share one grey so the app frame reads apart from the lighter content area. */
   --chrome: #e4eaed;
   --chrome-hover: #d8e0e4;
   --chrome-line: #d3dce1;
-  /* Light grey sidebar: a shade darker than the content area, with a line, so it reads as its own panel. */
   --sidebar-bg: #e6ebee;
   --sidebar-hover: rgba(15, 42, 61, 0.06);
   --sidebar-line: #d3dce1;
   --sidebar-text: #34495a;
   --sidebar-muted: #627079;
   --sidebar-icon: var(--teal-600);
-  /* Sidebar mountain drawing: cool greys from the far haze to the dark forest, white snow. */
   --mtn-far: #c9d1d5;
   --mtn-far-2: #b3bdc2;
   --mtn-lit: #a3adb3;
@@ -42,10 +39,8 @@
   --mtn-forest-back: #6f7b82;
   --mtn-forest-mid: #505c63;
   --mtn-forest: #36424a;
-  /* Active menu item: the brand teal, like the primary buttons; the gold edge ties it to the logo. */
   --nav-active: var(--teal-700);
   --nav-active-edge: var(--gold-500);
-  /* Logo navy, for the sign-in brand panel. */
   --navy: #12303e;
   --navy-text: #bccbd2;
   --navy-muted: #7f99a5;
@@ -206,7 +201,6 @@ a {
   --tone-bg: #eef1f3;
 }
 
-/* Priority pill: coloured dot + tinted background from the tone class. */
 .priority-pill {
   background: var(--tone-bg);
   color: var(--tone);
@@ -219,7 +213,7 @@ a {
   background: var(--tone);
 }
 
-/* ---------- Text helpers ---------- */
+/* Text helpers */
 .text-ink {
   color: var(--ink);
 }
@@ -245,7 +239,7 @@ a {
   color: var(--red);
 }
 
-/* ---------- Data tables ---------- */
+/* Data tables */
 .table-wrap {
   position: relative; /* contains the absolutely-positioned sr-only header label */
   overflow-x: auto;
@@ -317,7 +311,7 @@ a {
   color: var(--ink-3);
 }
 
-/* ---------- Row action menu ---------- */
+/* Row action menu */
 .icon-button.small {
   width: 30px;
   height: 30px;
@@ -382,7 +376,7 @@ a {
   color: var(--red);
 }
 
-/* ---------- Stat cards ---------- */
+/* Stat cards */
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -394,7 +388,6 @@ a {
   flex-direction: column;
   gap: 6px;
   padding: 14px 16px;
-  /* Coloured top edge carries the card's tone. */
   box-shadow: inset 0 3px 0 var(--tone), var(--shadow);
 }
 
@@ -437,7 +430,7 @@ a {
   line-height: 1.4;
 }
 
-/* ---------- Page header (shared by all pages) ---------- */
+/* Page header (shared by all pages) */
 .page-header {
   position: relative;
   display: flex;
@@ -476,7 +469,6 @@ a {
   gap: 12px;
 }
 
-/* Titles and meta lines may shrink and wrap instead of being clipped by the header. */
 .page-title {
   min-width: 0;
 }
@@ -632,7 +624,7 @@ a {
   white-space: nowrap;
 }
 
-/* ---------- Motion ---------- */
+/* Motion */
 @keyframes rise {
   from {
     opacity: 0;
@@ -652,14 +644,12 @@ a {
   }
 }
 
-/* Each page slides in gently when the route changes (AppLayout keys it by path). */
 .page-anim {
   /* "backwards", not "both": a finished transform animation would keep making this element
      the containing block for any position: fixed child (drawers, dialogs, menus). */
   animation: rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
-/* Cards in a page rise one after another. */
 .page-anim .card {
   animation: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
@@ -711,7 +701,7 @@ a {
   transform: scale(0.97);
 }
 
-/* ---------- Progress + checklist (approval, onboarding) ---------- */
+/* Progress + checklist (approval, onboarding) */
 .progress {
   height: 6px;
   border-radius: 999px;

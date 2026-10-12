@@ -6,20 +6,13 @@
  * ============================================================
  */
 
-/* ════════════════════════════════════════════════════════════
-   APP SHELL  (sidebar + main column grid)
-   ════════════════════════════════════════════════════════════ */
+/* APP SHELL  (sidebar + main column grid) */
 .app-shell {
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100vh;
   transition: grid-template-columns 0.2s ease;
-}
-
-
-/* ════════════════════════════════════════════════════════════
-   SIDEBAR
-   ════════════════════════════════════════════════════════════ */
+}/* SIDEBAR */
 .sidebar {
   position: sticky;
   top: 0;
@@ -41,7 +34,6 @@
   flex-shrink: 0;
 }
 
-/* Logo */
 .logo        { display: flex; align-items: center; gap: 12px; }
 .logo-mark   { width: 44px; height: 38px; flex-shrink: 0; }
 .logo-text   { display: flex; flex-direction: column; line-height: 1.15; white-space: nowrap; }
@@ -49,11 +41,9 @@
 .logo-sub    { font-family: var(--font-serif); font-size: 13px; color: var(--gold-500); }
 .logo-tag    { margin-top: 2px; font-size: 10px; color: var(--sidebar-muted); }
 
-/* On light sidebar override white colours */
 .sidebar .logo-name { color: var(--ink); }
 .sidebar .logo-sub  { color: var(--gold-600); }
 
-/* Navigation */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -94,7 +84,6 @@
 .nav-item svg      { flex-shrink: 0; color: var(--sidebar-icon); transition: color 0.15s; }
 .nav-item:hover    { background: var(--sidebar-hover); color: var(--ink); }
 
-/* Active item — full-width tab effect */
 .nav-item.is-active {
   margin-left: -12px;
   padding-left: 26px;
@@ -113,7 +102,6 @@
   background: var(--nav-active-edge);
 }
 
-/* Badge on nav item */
 .nav-badge {
   margin-left: auto;
   min-width: 24px;
@@ -129,7 +117,6 @@
 }
 .nav-item.is-active .nav-badge { background: rgba(255,255,255,0.25); }
 
-/* Mountain illustration footer */
 .sidebar-brand,
 .sidebar-nav  { position: relative; z-index: 1; }
 
@@ -165,12 +152,7 @@
   height: 2px;
   margin-top: 10px;
   background: var(--gold-500);
-}
-
-
-/* ════════════════════════════════════════════════════════════
-   TOPBAR
-   ════════════════════════════════════════════════════════════ */
+}/* TOPBAR */
 .topbar {
   position: sticky;
   top: 0;
@@ -184,7 +166,6 @@
   border-bottom: 1px solid var(--line);
 }
 
-/* Search input */
 .search {
   flex: 1;
   max-width: 420px;
@@ -235,7 +216,6 @@
   box-shadow: 0 0 0 2px var(--surface);
 }
 
-/* User chip */
 .user-chip {
   display: flex;
   align-items: center;
@@ -250,12 +230,7 @@
 
 .user-meta { display: flex; flex-direction: column; line-height: 1.2; }
 .user-meta strong { font-weight: 500; font-size: 13px; }
-.user-meta span   { font-size: 11.5px; color: var(--ink-3); }
-
-
-/* ════════════════════════════════════════════════════════════
-   MAIN CONTENT + FOOTER
-   ════════════════════════════════════════════════════════════ */
+.user-meta span   { font-size: 11.5px; color: var(--ink-3); }/* MAIN CONTENT + FOOTER */
 .app-main {
   display: flex;
   flex-direction: column;
@@ -288,12 +263,7 @@
 }
 .footer-reset:hover { color: var(--ink); }
 
-.sidebar-backdrop { display: none; }
-
-
-/* ════════════════════════════════════════════════════════════
-   POPOVERS / DROPDOWNS
-   ════════════════════════════════════════════════════════════ */
+.sidebar-backdrop { display: none; }/* POPOVERS / DROPDOWNS */
 .search-results,
 .popover {
   position: absolute;
@@ -328,7 +298,6 @@
 .popover-divider { height: 1px; margin: 6px 4px; background: var(--line); }
 .popover-foot    { margin: 0; padding: 8px 10px; font-size: 12px; }
 
-/* Popover menu rows */
 .menu-row {
   display: flex;
   align-items: center;
@@ -352,14 +321,8 @@ a.menu-row,
 .menu-row.is-selected svg      { color: var(--teal-700); }
 .menu-row:disabled             { opacity: 0.45; cursor: default; }
 
-.user-menu { width: 260px; }
+.user-menu { width: 260px; }/* RESPONSIVE BREAKPOINTS */
 
-
-/* ════════════════════════════════════════════════════════════
-   RESPONSIVE BREAKPOINTS
-   ════════════════════════════════════════════════════════════ */
-
-/* Desktop: sidebar collapses to icon rail */
 @media (min-width: 1024px) {
   .app-shell.menu-toggled                   { --sidebar-width: 76px; }
   .menu-toggled .logo-text,
@@ -379,7 +342,6 @@ a.menu-row,
   }
 }
 
-/* Tablet / mobile: sidebar becomes a drawer */
 @media (max-width: 1023px) {
   .app-shell               { grid-template-columns: minmax(0, 1fr); }
   .sidebar {
@@ -405,7 +367,6 @@ a.menu-row,
   .user-meta, .search kbd { display: none; }
 }
 
-/* Shorter screens: tighter nav */
 @media (max-height: 860px) {
   .nav-item        { height: 40px; }
   .sidebar-section { margin-bottom: 6px; }
@@ -413,7 +374,6 @@ a.menu-row,
 
 @media (max-height: 680px) { .sidebar-footer { display: none; } }
 
-/* Small phone */
 @media (max-width: 640px) {
   .search             { display: none; }
   .user-chip > svg    { display: none; }

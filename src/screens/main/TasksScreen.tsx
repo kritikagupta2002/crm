@@ -66,12 +66,12 @@ const getInitials = (name?: string) => {
 
 const getAvatarTheme = (name?: string) => {
   const themes = [
-    { bg: '#E0F2FE', text: '#0369A1' }, // Sky
-    { bg: '#EDE9FE', text: '#6D28D9' }, // Purple
-    { bg: '#DCFCE7', text: '#15803D' }, // Emerald
-    { bg: '#FEF3C7', text: '#B45309' }, // Amber
-    { bg: '#FCE7F3', text: '#BE185D' }, // Rose/Pink
-    { bg: '#CCFBF1', text: '#0F766E' }, // Teal
+    { bg: '#E0F2FE', text: '#0369A1' },
+    { bg: '#EDE9FE', text: '#6D28D9' },
+    { bg: '#DCFCE7', text: '#15803D' },
+    { bg: '#FEF3C7', text: '#B45309' },
+    { bg: '#FCE7F3', text: '#BE185D' },
+    { bg: '#CCFBF1', text: '#0F766E' },
   ];
   if (!name) return themes[0];
   let hash = 0;
@@ -91,7 +91,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [scopeMode, setScopeMode] = useState<'all' | 'my'>('all');
 
-  // Extract flat list of all project tasks with parent project context
   const projectTasks = useMemo(() => {
     const list: (Task & { projectTitle: string; projectCode: string })[] = [];
     const sourceProjects = (projects && projects.length > 0) ? projects : INITIAL_PROJECTS;
@@ -131,7 +130,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
     return projectTasks;
   }, [scopeMode, myTasks, projectTasks]);
 
-  // Aggregate completion and overdue metrics
   const stats = useMemo(() => {
     const total = allTasks.length;
     const completedCount = allTasks.filter((t) => t.status === 'Completed').length;
@@ -143,21 +141,17 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
 
   const { completedCount, pendingCount, overdueCount, completionPercentage } = stats;
 
-  // Filter tasks based on status tab, priority chip, and search query
   const filteredTasks = useMemo(() => {
     return allTasks.filter((t) => {
       const isDone = t.status === 'Completed';
       const isOverdue = t.overdue && !isDone;
 
-      // Status Tab filter
       if (filterTab === 'pending' && isDone) return false;
       if (filterTab === 'completed' && !isDone) return false;
       if (filterTab === 'overdue' && !isOverdue) return false;
 
-      // Priority filter
       if (selectedPriority !== 'All' && t.priority !== selectedPriority) return false;
 
-      // Text search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const titleMatch = (t.title || '').toLowerCase().includes(q);
@@ -193,9 +187,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         />
       }
     >
-      {/* 1. Hero Progress & Interactive KPI Header */}
       <View style={styles.heroCard}>
-        {/* Scope Selector: All Project Tasks vs Assigned to Me */}
         <View style={styles.scopeSwitcherRow}>
           <TouchableOpacity
             style={[styles.scopeBtn, scopeMode === 'all' && styles.scopeBtnActive]}
@@ -230,7 +222,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
           </View>
         </View>
 
-        {/* Smooth Linear Progress Bar */}
         <View style={styles.progressBarTrack}>
           <View
             style={[
@@ -240,7 +231,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
           />
         </View>
 
-        {/* 4 Interactive Filter Cards */}
         <View style={styles.kpiRow}>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -330,9 +320,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         </View>
       </View>
 
-      {/* 2. Search & Priority Quick Filter Strip */}
       <View style={styles.controlsSection}>
-        {/* Search Bar */}
         <View style={styles.searchBox}>
           <Search size={16} color={colors.textTertiary} />
           <TextInput
@@ -353,7 +341,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
           ) : null}
         </View>
 
-        {/* Priority Filter Pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -389,7 +376,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         </ScrollView>
       </View>
 
-      {/* 3. Task Cards List */}
       <FlatList
         data={filteredTasks}
         keyExtractor={(item) => item.id || `${item.projectId}-${item.key}`}
@@ -438,7 +424,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                 isOverdue && styles.taskCardOverdue,
               ]}
             >
-              {/* Header: Project Tag & Status/Priority Badge */}
               <View style={styles.cardHeaderRow}>
                 <View style={styles.projectTagGroup}>
                   <View style={styles.projectCodeBadge}>
@@ -452,7 +437,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                   </View>
                 </View>
 
-                {/* Status / Priority Pill */}
                 {isOverdue ? (
                   <View style={styles.overdueBadge}>
                     <AlertTriangle size={11} color="#DC2626" />
@@ -480,9 +464,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                 )}
               </View>
 
-              {/* Middle Body: Checkbox, Title & Action Chevron */}
               <View style={styles.cardBodyRow}>
-                {/* Touch Checkbox */}
                 <TouchableOpacity
                   activeOpacity={0.7}
                   onPress={() => toggleTaskDone(item)}
@@ -502,7 +484,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                   )}
                 </TouchableOpacity>
 
-                {/* Title & Navigation Cue */}
                 <View style={styles.titleContainer}>
                   <Text
                     style={[
@@ -518,9 +499,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                 <ChevronRight size={16} color={colors.borderDark} style={{ marginLeft: 6 }} />
               </View>
 
-              {/* Footer: Assignee Avatar Chip & Due Date */}
               <View style={styles.cardFooterRow}>
-                {/* Assignee Avatar Chip */}
                 <View style={styles.assigneeChip}>
                   <View style={[styles.avatarCircle, { backgroundColor: avatarTheme.bg }]}>
                     <Text style={[styles.avatarText, { color: avatarTheme.text }]}>
@@ -532,7 +511,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                   </Text>
                 </View>
 
-                {/* Due Date Indicator */}
                 <View style={styles.dueDateWrap}>
                   <Clock
                     size={12}
@@ -562,7 +540,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  // Scope Switcher
   scopeSwitcherRow: {
     flexDirection: 'row',
     backgroundColor: '#F1F5F9',
@@ -592,7 +569,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  // 1. Hero Progress Header
   heroCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: radius.lg,
@@ -708,7 +684,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  // 2. Search & Priority Controls
   controlsSection: {
     paddingHorizontal: 16,
     paddingTop: spacing.xs,
@@ -773,7 +748,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  // 3. Task Card Styling
   taskList: {
     flex: 1,
   },
@@ -800,7 +774,6 @@ const styles = StyleSheet.create({
     borderColor: '#FCA5A5',
   },
 
-  // Card Header Row
   cardHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -839,7 +812,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  // Badges
   overdueBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -923,7 +895,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 
-  // Card Body Row
   cardBodyRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -981,7 +952,6 @@ const styles = StyleSheet.create({
     textDecorationColor: '#94A3B8',
   },
 
-  // Card Footer Row
   cardFooterRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

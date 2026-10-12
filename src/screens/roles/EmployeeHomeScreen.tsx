@@ -64,11 +64,9 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
     return 'Good Evening,';
   }, []);
 
-  // Attendance Punch State
   const [isPunchedIn, setIsPunchedIn] = useState(true);
   const [punchTime, setPunchTime] = useState('08:42 AM');
 
-  // Personal Tasks state
   const [myTasks, setMyTasks] = useState([
     { id: 'et-1', title: 'Log Core Box BH-04 from 120m to 145m', project: 'Jhamarkotra Phosphate', due: 'Today', done: false, priority: 'High' },
     { id: 'et-2', title: 'Prepare Geological Thin-Section Samples', project: 'Jhamarkotra Phosphate', due: 'Today', done: true, priority: 'Medium' },
@@ -77,7 +75,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
 
   const pendingTasksCount = myTasks.filter((t) => !t.done).length;
 
-  // Leave Modal state
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [leaveType, setLeaveType] = useState<'Casual' | 'Earned' | 'Sick'>('Casual');
   const [leaveDays, setLeaveDays] = useState('2');
@@ -90,7 +87,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
     );
   }, [leaves, session, employeeName]);
 
-  // Personal expense claims
   const myExpenses = useMemo(() => {
     return (expenses || []).filter(
       (e) => (e as any).employeeId === session?.id || (e as any).employeeName?.toLowerCase() === employeeName.toLowerCase()
@@ -152,7 +148,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
     <View style={styles.rootContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Personal Staff Companion Header (Light Theme) */}
       <View style={[styles.companionHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={[{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerLeftRow}>
@@ -215,7 +210,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
-          {/* 2. Bespoke Hero: Physical-Style Geolocation Shift Punch Hub */}
           <View style={styles.punchHubCard}>
             <View style={styles.punchHubTop}>
               <View style={styles.gpsPinBox}>
@@ -233,7 +227,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
               </View>
             </View>
 
-            {/* Live Shift Dial View */}
             <View style={styles.shiftDialBox}>
               <Text style={styles.clockTimeText}>{isPunchedIn ? punchTime : '--:--'}</Text>
               <Text style={styles.shiftStatusSub}>
@@ -256,10 +249,8 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </View>
           </View>
 
-          {/* Employee Bento KPI Grid */}
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Duty Status */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Attendance')}
@@ -289,7 +280,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
                 </View>
               </TouchableOpacity>
 
-              {/* Tasks Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Tasks')}
@@ -321,7 +311,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Leave Balance */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => setShowLeaveModal(true)}
@@ -351,7 +340,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
                 </View>
               </TouchableOpacity>
 
-              {/* Field TA/DA Claims */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Expenses')}
@@ -383,7 +371,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </View>
           </View>
 
-          {/* 3. My Assigned Field Tasks */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>My Today's Tasks</Text>
@@ -463,7 +450,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             ))}
           </View>
 
-          {/* 4. My Annual Leave Quota Hub */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>My Leave Balance Quota</Text>
@@ -511,7 +497,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
             </TouchableOpacity>
           </View>
 
-          {/* 5. Personal Self-Service Actions */}
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>Self-Service Desk</Text>
           </View>
@@ -580,7 +565,6 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
         </View>
       </ScrollView>
 
-      {/* Leave Application Modal */}
       <Modal visible={showLeaveModal} animationType="slide" transparent statusBarTranslucent>
         <View style={styles.modalBackdrop}>
           <View style={[styles.modalContainer, isTablet && styles.modalContainerTablet]}>
@@ -651,7 +635,6 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
 
-  /* 1. Companion Header */
   companionHeader: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
@@ -788,7 +771,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* 2. Geolocation Punch Hub */
   punchHubCard: {
     backgroundColor: '#ffffff',
     borderRadius: 18,
@@ -901,7 +883,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* Section Headers */
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -941,7 +922,6 @@ const styles = StyleSheet.create({
     color: '#0b2545',
   },
 
-  /* 3. Tasks Card Container */
   tasksCardContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -1005,7 +985,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 14,
   },
 
-  /* 4. Leave Quota Card */
   leaveQuotaCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -1059,7 +1038,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* 5. Modules Grid */
   modulesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1106,7 +1084,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  /* Modal */
   modalBackdrop: {
     flex: 1,
     backgroundColor: 'rgba(15, 23, 42, 0.6)',
@@ -1195,7 +1172,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,

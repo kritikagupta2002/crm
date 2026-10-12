@@ -62,7 +62,6 @@ export const TASK_STATUS = { todo: 'To do', 'in-progress': 'In progress', done: 
 
 function buildTasks(base, edits, team, milestones, started) {
   const current = milestones.find((m) => !m.done)
-  // Some running projects have slipped on their current task, so the demo has overdue work to show.
   const slipped = Number(base.id.split('-').pop()) % 2 === 0
   const standard = milestones.map((m) => {
     const saved = edits.tasks?.[m.key] ?? {}
@@ -241,7 +240,6 @@ export function clientUpdates({ lead, quote, projects, activities, followUps }) 
     const sentOn = lead.firstSentOn ?? quote.sentOn
     items.push({ id: 'quote', text: `Quotation ${quote.number.replace(/-R\d+$/, '')} shared with you`, date: sentOn, sort: `${sentOn}T00:00:01` })
   }
-  // The demo's older deals were accepted, paid and confirmed before the app was opened: the same dates the team's timeline shows.
   seededInteractions(lead)
     .filter((i) => CLIENT_MILESTONES[i.key])
     .forEach((i, n) => items.push({ id: i.id, text: CLIENT_MILESTONES[i.key], date: i.date, sort: `${i.date}T00:00:0${n + 2}` }))

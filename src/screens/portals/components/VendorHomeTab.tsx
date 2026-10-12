@@ -54,19 +54,16 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
   handleOpenBilling,
   navigation,
 }) => {
-  // Pending billing count: work orders delivered but not billed or billed & verifying
   const pendingBillsCount = myWorkOrders.filter(
     (w) => w.currentStage === 'Delivered' || w.currentStage === 'Billed'
   ).length;
 
-  // Tenders closing in next 4 days
   const closingSoonTenders = freshTenders.filter((t) => {
     const closingTime = closingOf(t);
     const diffDays = (new Date(closingTime).getTime() - Date.now()) / (1000 * 60 * 60 * 24);
     return diffDays >= 0 && diffDays <= 4;
   });
 
-  // Financial summary
   const totalBilled = myWorkOrders.reduce((sum, w) => sum + (w.billedAmount || 0), 0);
   const estimatedTdsDeducted = Math.round(totalPaid * 0.02);
 
@@ -74,7 +71,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
 
   return (
     <View style={[styles.container, isTablet && styles.tabletContainer]}>
-      {/* 1. WELCOME & STATUS BANNER (BIG & IMPACTFUL) */}
       <View style={styles.welcomeCard}>
         <View style={styles.welcomeRow}>
           <View style={styles.vendorAvatar}>
@@ -106,11 +102,9 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
         </View>
       </View>
 
-      {/* 2. QUICK STATUS 4-TILE MATRIX (BIG NUMBERS & ICONS - 2x2 EXECUTIVE GRID) */}
       <View style={styles.sectionWrap}>
         <Text style={styles.sectionHeaderTitle}>QUICK OVERVIEW</Text>
         <View style={styles.quickGrid}>
-          {/* Row 1: Tenders & Bids */}
           <View style={styles.gridRow}>
             <TouchableOpacity
               activeOpacity={0.8}
@@ -149,7 +143,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
             </TouchableOpacity>
           </View>
 
-          {/* Row 2: Orders & Bills */}
           <View style={styles.gridRow}>
             <TouchableOpacity
               activeOpacity={0.8}
@@ -202,7 +195,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
         </View>
       </View>
 
-      {/* 3. ACTION REQUIRED SECTION (LARGE, ACTIONABLE CARDS) */}
       <View style={styles.sectionWrap}>
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionHeaderTitle}>ACTION REQUIRED</Text>
@@ -223,7 +215,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
           </View>
         ) : (
           <View style={styles.actionList}>
-            {/* Work orders requiring action */}
             {waitingOrders.map((wo) => (
               <View key={wo.id} style={styles.actionRowCard}>
                 <View style={styles.actionRowTop}>
@@ -295,7 +286,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
               </View>
             ))}
 
-            {/* Closing soon tender reminders */}
             {closingSoonTenders.slice(0, 2).map((t) => {
               const closingTime = closingOf(t);
               const label = daysFrom(closingTime);
@@ -327,7 +317,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
         )}
       </View>
 
-      {/* 4. MY WORK - RECENT ACTIVE ORDERS */}
       <View style={styles.sectionWrap}>
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionHeaderTitle}>MY WORK ORDERS</Text>
@@ -395,7 +384,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
         )}
       </View>
 
-      {/* 5. TENDER DEADLINES */}
       <View style={styles.sectionWrap}>
         <View style={styles.sectionTitleRow}>
           <Text style={styles.sectionHeaderTitle}>TENDER DEADLINES</Text>
@@ -444,7 +432,6 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
         </View>
       </View>
 
-      {/* 6. PAYMENT STATUS BREAKDOWN (BIG NUMBERS & CLEAN BREAKDOWN) */}
       <View style={styles.sectionWrap}>
         <Text style={styles.sectionHeaderTitle}>PAYMENT STATUS & TDS SUMMARY</Text>
         <View style={styles.paymentSummaryCard}>

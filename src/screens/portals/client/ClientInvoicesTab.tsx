@@ -49,7 +49,6 @@ export const ClientInvoicesTab: React.FC<ClientInvoicesTabProps> = ({
       showsVerticalScrollIndicator={false}
       bounces={true}
     >
-      {/* 1. FINANCIAL SUMMARY KPI STRIP */}
       <View style={styles.kpiStrip}>
         <View style={styles.kpiCol}>
           <Text style={styles.kpiLabel}>TOTAL SETTLED</Text>
@@ -77,7 +76,6 @@ export const ClientInvoicesTab: React.FC<ClientInvoicesTabProps> = ({
         </View>
       </View>
 
-      {/* 2. FILTER PILLS */}
       <View style={styles.filterPillsRow}>
         <TouchableOpacity
           style={[styles.filterPill, invoiceFilter === 'all' && styles.filterPillActive]}
@@ -107,7 +105,6 @@ export const ClientInvoicesTab: React.FC<ClientInvoicesTabProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* 3. INVOICES LIST */}
       {filteredInvoices.length === 0 ? (
         <View style={styles.emptyCard}>
           <Receipt size={44} color={clientTheme.colors.textTertiary} />
@@ -124,7 +121,6 @@ export const ClientInvoicesTab: React.FC<ClientInvoicesTabProps> = ({
 
           return (
             <View key={inv.id} style={styles.invoiceCard}>
-              {/* Card Top */}
               <View style={styles.cardHeader}>
                 <View>
                   <Text style={styles.invNoText}>{inv.invoiceNo}</Text>
@@ -150,13 +146,11 @@ export const ClientInvoicesTab: React.FC<ClientInvoicesTabProps> = ({
                 </View>
               </View>
 
-              {/* Project Title */}
               <Text style={styles.projectTitleText} numberOfLines={1}>
                 {inv.projectTitle || 'Geological Exploration & Coring Services'}
               </Text>
               <Text style={styles.dueDateText}>Payment Due By: {inv.dueDate}</Text>
 
-              {/* Tax & Amount Breakdown Box */}
               <View style={styles.amountBox}>
                 <View style={styles.amountRow}>
                   <Text style={styles.amountLabel}>Taxable Base:</Text>
@@ -172,7 +166,6 @@ export const ClientInvoicesTab: React.FC<ClientInvoicesTabProps> = ({
                 </View>
               </View>
 
-              {/* Actions Row */}
               {!isPaid ? (
                 <View style={styles.actionsRow}>
                   <TouchableOpacity

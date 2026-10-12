@@ -20,22 +20,18 @@ export function useClientPortal() {
     refreshFinance,
   } = useFinance();
 
-  // Active navigation tab
   const [activeTab, setActiveTab] = useState<ClientTabKey>('home');
 
-  // Search & Filter state
   const [projectSearch, setProjectSearch] = useState<string>('');
   const [deliverableFilter, setDeliverableFilter] = useState<'all' | 'pending' | 'approved' | 'revision'>('all');
   const [invoiceFilter, setInvoiceFilter] = useState<'all' | 'pending' | 'paid'>('all');
 
-  // Modals state
   const [selectedProjectForDetail, setSelectedProjectForDetail] = useState<Project | null>(null);
   const [selectedDeliverableForReview, setSelectedDeliverableForReview] = useState<(Deliverable & { projectTitle: string; projectCode?: string }) | null>(null);
   const [selectedInvoiceForDetail, setSelectedInvoiceForDetail] = useState<FinanceInvoice | null>(null);
   const [selectedInvoiceForUpi, setSelectedInvoiceForUpi] = useState<FinanceInvoice | null>(null);
   const [notificationsVisible, setNotificationsVisible] = useState<boolean>(false);
 
-  // Authenticated client resolution
   const currentClientId = session?.id || 'cli-001';
   const matchedPersona = CLIENT_PERSONAS.find((c) => c.id === currentClientId || c.enquiryId === (session as any)?.enquiryId);
   const clientCompanyName = (session as any)?.companyName || (session as any)?.name || matchedPersona?.companyName || 'Tata Steel Mining Corp';
@@ -58,7 +54,6 @@ export function useClientPortal() {
     });
   }, [projects, currentClientId, clientCompanyName]);
 
-  // Filtered projects by search
   const filteredProjects = useMemo(() => {
     if (!projectSearch.trim()) return myProjects;
     const q = projectSearch.toLowerCase();
@@ -131,7 +126,6 @@ export function useClientPortal() {
       status: string;
     }> = [];
 
-    // Deliverables as documents
     myDeliverables.forEach((d) => {
       docs.push({
         id: `doc-${d.id}`,
@@ -144,7 +138,6 @@ export function useClientPortal() {
       });
     });
 
-    // Project documents
     myProjects.forEach((p) => {
       (p.documents || []).forEach((doc) => {
         docs.push({
@@ -170,7 +163,6 @@ export function useClientPortal() {
       });
     });
 
-    // Invoices as documents
     myInvoices.forEach((inv) => {
       docs.push({
         id: `doc-inv-${inv.id}`,
@@ -197,7 +189,6 @@ export function useClientPortal() {
     .filter((i) => i.status !== 'Paid')
     .reduce((sum, i) => sum + Math.max(0, i.totalAmount - (i.paidAmount || 0)), 0);
 
-  // 6. DELIVERABLE SIGN-OFF HANDLER (Stage 5 Client Approval)
   const handleSignOffDeliverable = useCallback(
     async (projectId: string, deliverableId: string, remarks?: string) => {
       try {
@@ -214,7 +205,6 @@ export function useClientPortal() {
     [approveDeliverable]
   );
 
-  // 7. DELIVERABLE REVISION REQUEST HANDLER
   const handleRequestRevision = useCallback(
     async (projectId: string, deliverableId: string, reason: string) => {
       if (!reason.trim()) {
@@ -235,7 +225,6 @@ export function useClientPortal() {
     [rejectDeliverable]
   );
 
-  // 8. UPI PAYMENT SETTLEMENT HANDLER
   const handleSettleInvoiceUpi = useCallback(
     async (invoiceId: string, utrRef?: string) => {
       try {
@@ -262,7 +251,6 @@ export function useClientPortal() {
     activeTab,
     setActiveTab,
 
-    // Client Profile info
     currentClientId,
     clientCompanyName,
     clientContactPerson,
@@ -273,7 +261,6 @@ export function useClientPortal() {
     clientPan,
     clientAddress,
 
-    // Isolated datasets
     myProjects,
     filteredProjects,
     myDeliverables,
@@ -283,7 +270,6 @@ export function useClientPortal() {
     myPayments,
     myDocuments,
 
-    // Real KPI Metrics
     activeProjectsCount,
     completedProjectsCount,
     pendingDeliverablesCount,
@@ -292,7 +278,6 @@ export function useClientPortal() {
     totalPaidAmount,
     totalOutstanding,
 
-    // Search and filter state
     projectSearch,
     setProjectSearch,
     deliverableFilter,
@@ -300,7 +285,6 @@ export function useClientPortal() {
     invoiceFilter,
     setInvoiceFilter,
 
-    // Modals
     selectedProjectForDetail,
     setSelectedProjectForDetail,
     selectedDeliverableForReview,
@@ -312,7 +296,6 @@ export function useClientPortal() {
     notificationsVisible,
     setNotificationsVisible,
 
-    // Actions
     handleSignOffDeliverable,
     handleRequestRevision,
     handleSettleInvoiceUpi,

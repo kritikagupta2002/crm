@@ -4,12 +4,11 @@
   gap: 16px;
 }
 
-/* Keep scroll targets clear of the sticky header. */
 .dashboard [id] {
   scroll-margin-top: calc(var(--chrome-height) + 16px);
 }
 
-/* ---------- Page header art (dashboard only) ---------- */
+/* Page header art (dashboard only) */
 .page-contours {
   position: absolute;
   top: 0;
@@ -21,7 +20,7 @@
   pointer-events: none;
 }
 
-/* ---------- Rows ---------- */
+/* Rows */
 .dash-row {
   display: grid;
   gap: 18px;
@@ -39,7 +38,7 @@
   grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
 }
 
-/* ---------- Pipeline (chevrons) ---------- */
+/* Pipeline (chevrons) */
 .pipeline {
   display: flex;
   list-style: none;
@@ -93,7 +92,7 @@
   border-radius: 50%;
 }
 
-/* ---------- Conversion ---------- */
+/* Conversion */
 .conversion-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
@@ -190,7 +189,7 @@
   transition: width 0.4s ease;
 }
 
-/* ---------- Follow-ups ---------- */
+/* Follow-ups */
 .followup-list {
   list-style: none;
   margin: 0;
@@ -268,7 +267,6 @@
   color: var(--tone);
 }
 
-/* In a narrow card (beside the activity chart, or on a phone) the time sits under the status and a long title takes two lines. */
 .followups-card {
   container-type: inline-size;
 }
@@ -311,7 +309,6 @@
   }
 }
 
-/* Seven chevrons in a narrow card: a two-word stage takes two lines, so no label runs under the arrow. */
 .pipeline-card {
   container-type: inline-size;
 }
@@ -331,7 +328,7 @@
   }
 }
 
-/* ---------- Trend ---------- */
+/* Trend */
 .legend {
   display: flex;
   gap: 14px;
@@ -362,7 +359,6 @@
   color: var(--ink-3);
 }
 
-/* The chart grows to fill the card when the neighbouring card is taller. */
 .trend-body {
   flex: 1;
   padding: 0 14px 16px;
@@ -373,7 +369,7 @@
   min-height: 210px;
 }
 
-/* ---------- Enquiries by service ---------- */
+/* Enquiries by service */
 .service-bars {
   list-style: none;
   margin: 0;
@@ -410,7 +406,7 @@
   transition: width 0.4s ease;
 }
 
-/* ---------- Responsive ---------- */
+/* Responsive */
 @media (max-width: 1280px) {
   .row-pipeline,
   .row-activity {

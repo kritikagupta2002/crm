@@ -35,9 +35,7 @@ export const VendorPortalHeader: React.FC<VendorPortalHeaderProps> = ({
 
   return (
     <View style={[styles.headerContainer, { paddingTop: topPadding }]}>
-      {/* Top Branding & Actions Bar */}
       <View style={styles.topRow}>
-        {/* Left: Bansal Geo Corporate Branding */}
         <View style={styles.leftBrandCol}>
           <View style={styles.brandBadgeRow}>
             <View style={styles.brandIconBox}>
@@ -50,7 +48,6 @@ export const VendorPortalHeader: React.FC<VendorPortalHeaderProps> = ({
           </View>
         </View>
 
-        {/* Right: Big Notification Bell & Logout Touch Targets */}
         <View style={styles.rightActionsRow}>
           <TouchableOpacity
             activeOpacity={0.75}
@@ -79,7 +76,6 @@ export const VendorPortalHeader: React.FC<VendorPortalHeaderProps> = ({
         </View>
       </View>
 
-      {/* Prominent Contractor Identity Banner */}
       <View style={styles.identityBar}>
         <View style={styles.vendorInfoWrap}>
           <Text style={styles.vendorNameText} numberOfLines={1}>

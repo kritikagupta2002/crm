@@ -71,7 +71,6 @@ const INITIAL_MESSAGES: BroadcastItem[] = [
   },
 ];
 
-// Memoized Dispatch Card to prevent re-renders when toasts or modal states toggle
 const DispatchCard = React.memo(({ item }: { item: BroadcastItem }) => (
   <View style={styles.dispatchCard}>
     <View style={styles.dispatchTopRow}>
@@ -169,7 +168,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -196,7 +194,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
         </TouchableOpacity>
       </View>
 
-      {/* Sent confirmation banner */}
       {sentToast && (
         <View style={styles.toastCard}>
           <CheckCircle2 size={16} color="#059669" strokeWidth={2.4} />
@@ -204,7 +201,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
         </View>
       )}
 
-      {/* Dispatches FlatList */}
       <FlatList
         data={messages}
         keyExtractor={(item) => item.id}
@@ -220,7 +216,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
         showsVerticalScrollIndicator={false}
       />
 
-      {/* Compose Broadcast Modal */}
       <Modal statusBarTranslucent
         visible={composeModalVisible}
         animationType="slide"
@@ -243,7 +238,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              {/* Audience Selector */}
               <Text style={styles.inputLabel}>TARGET RECIPIENTS</Text>
               <View style={styles.targetRow}>
                 {[
@@ -269,7 +263,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
                 ))}
               </View>
 
-              {/* Priority */}
               <Text style={styles.inputLabel}>PRIORITY LEVEL</Text>
               <View style={styles.targetRow}>
                 {[
@@ -298,7 +291,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
                 ))}
               </View>
 
-              {/* Subject */}
               <Text style={styles.inputLabel}>SUBJECT</Text>
               <TextInput
                 style={styles.inputField}
@@ -308,7 +300,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
                 placeholderTextColor="#94a3b8"
               />
 
-              {/* Message Body */}
               <Text style={styles.inputLabel}>MESSAGE BODY</Text>
               <TextInput
                 style={[styles.inputField, styles.textArea]}
@@ -321,7 +312,6 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
                 textAlignVertical="top"
               />
 
-              {/* Dispatch Action Button */}
               <TouchableOpacity
                 style={styles.dispatchActionBtn}
                 onPress={handleSendBroadcast}

@@ -123,7 +123,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // Portals state
   const [portalId, setPortalId] = useState('ENQ-2026-088');
   const [portalMobile, setPortalMobile] = useState('9820112233');
 
@@ -246,14 +245,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-        {/* Top Scenic Mountain & Excavator Hero Banner */}
         <ImageBackground
           source={loginHeaderImg}
           style={[styles.heroBanner, { height: headerHeight }]}
           resizeMode="cover"
         />
 
-        {/* Welcome Back Card - Clean, Focused, Extra Rounded */}
         <View
           style={[
             styles.cardContainer,
@@ -265,10 +262,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             },
           ]}
         >
-          {/* Subtle Top Handle Pill */}
           <View style={styles.handlePill} />
 
-          {/* Title & Subtitle at TOP */}
           <Text style={styles.welcomeTitle}>Welcome Back</Text>
           <Text style={styles.welcomeSubtitle}>
             {activeTab === 'admin'
@@ -278,9 +273,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 : 'Sign in to vendor & contractor portal'}
           </Text>
 
-          {/* 3-Portal Switcher Segmented Control Bar */}
           <View style={styles.portalTabsContainer}>
-            {/* Tab 1: Bansal Geo Internal Portal */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => switchTab('admin')}
@@ -321,10 +314,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               </View>
             </TouchableOpacity>
 
-            {/* Divider between Tab 1 and Tab 2 (when Tab 3 is active) */}
             {activeTab === 'vendor' && <View style={styles.tabDivider} />}
 
-            {/* Tab 2: Client Portal */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => switchTab('client')}
@@ -352,10 +343,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
 
-            {/* Divider between Tab 2 and Tab 3 (when Tab 1 is active) */}
             {activeTab === 'admin' && <View style={styles.tabDivider} />}
 
-            {/* Tab 3: Vendor Portal */}
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={() => switchTab('vendor')}
@@ -390,17 +379,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             </View>
           ) : null}
 
-          {/* Form Content */}
           {activeTab === 'admin' ? (
             <View style={styles.adminPortalContainer}>
-              {/* Concise Role Section Header */}
               <View style={styles.conciseHeaderBar}>
                 <View style={styles.conciseHeaderLeft}>
                   <Sparkles size={13} color="#0b2545" strokeWidth={2.4} />
                   <Text style={styles.conciseHeaderTitle}>SELECT ROLE</Text>
                 </View>
 
-                {/* View Mode Toggle: All 6 (Compact Grid) vs Scroll Bar */}
                 <View style={styles.conciseToggleGroup}>
                   <TouchableOpacity
                     activeOpacity={0.8}
@@ -439,7 +425,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 </View>
               </View>
 
-              {/* MODE 1: COMPACT 2-COLUMN SINGLE-LINE MINI CHIPS */}
               {roleLayoutMode === 'grid' ? (
                 <View style={styles.conciseGridContainer}>
                   {CANONICAL_ROLE_LIST.map((item) => {
@@ -496,7 +481,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   })}
                 </View>
               ) : (
-                /* MODE 2: ULTRA-CONCISE HORIZONTAL CAPSULE RAIL */
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -555,7 +539,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 </ScrollView>
               )}
 
-              {/* Ultra-Slim Persona Summary Strip */}
               <View style={styles.personaStrip}>
                 <View style={styles.personaStripLeft}>
                   <View style={styles.personaDot} />
@@ -583,7 +566,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 )}
               </View>
 
-              {/* Primary Action Button */}
               <TouchableOpacity
                 activeOpacity={0.85}
                 onPress={handleSignIn}
@@ -594,7 +576,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 <ArrowRight size={18} color="#ffffff" strokeWidth={2.4} />
               </TouchableOpacity>
 
-              {/* Optional Custom Credentials Toggle */}
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => setShowManualLogin(!showManualLogin)}
@@ -621,7 +602,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 </View>
               )}
 
-              {/* Manual Email & Password Input Section (when toggled) */}
               {showManualLogin && (
                 <View style={styles.manualLoginForm}>
                   <View style={styles.inputContainer}>
@@ -676,7 +656,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               )}
             </View>
           ) : (
-            /* Client and Vendor Portals Form */
             <View>
               <View style={styles.inputGroup}>
                 {activeTab === 'vendor' && (
@@ -762,7 +741,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 </View>
               </View>
 
-              {/* Primary Sign In Button for Client/Vendor */}
               <TouchableOpacity
                 activeOpacity={0.85}
                 onPress={handleSignIn}
@@ -779,7 +757,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 <ArrowRight size={18} color="#ffffff" strokeWidth={2.4} />
               </TouchableOpacity>
 
-              {/* Client/Vendor Helper Section */}
               <View style={styles.dividerRow}>
                 <View style={styles.dividerLine} />
                 <Text style={styles.dividerText}>OR</Text>
@@ -828,7 +805,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         </View>
       </ScrollView>
 
-      {/* 1. Modal: Role Switcher Bottom Sheet */}
       <Modal statusBarTranslucent
         visible={showRoleModal}
         transparent={true}
@@ -906,7 +882,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* 2. Modal: Employee Team Member Picker */}
       <Modal statusBarTranslucent
         visible={showEmployeeModal}
         transparent={true}
@@ -989,12 +964,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
 
-  /* Hero Banner */
   heroBanner: {
     width: '100%',
   },
 
-  /* Welcome Back Card Container */
   cardContainer: {
     flex: 1,
     backgroundColor: '#ffffff',
@@ -1027,7 +1000,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  /* 3-Portal Switcher Segmented Control */
   portalTabsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1102,7 +1074,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 1,
   },
 
-  /* Typography */
   welcomeTitle: {
     fontSize: 28,
     fontWeight: '900',
@@ -1118,7 +1089,6 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
 
-  /* Error Box */
   errorBox: {
     backgroundColor: '#fef2f2',
     borderWidth: 1,
@@ -1133,7 +1103,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  /* Input Fields */
   inputGroup: {
     gap: 12,
     marginBottom: 6,
@@ -1173,7 +1142,6 @@ const styles = StyleSheet.create({
     color: '#1d4ed8',
   },
 
-  /* Primary Sign In Button */
   signInBtn: {
     backgroundColor: '#0b2545',
     height: 54,
@@ -1196,7 +1164,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
-  /* Divider */
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1215,7 +1182,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 
-  /* Admin Portal & Switch Role Container */
   adminPortalContainer: {
     marginTop: 6,
     marginBottom: 8,
@@ -1264,7 +1230,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  /* Concise 2-Column Mini Chips */
   conciseGridContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1326,7 +1291,6 @@ const styles = StyleSheet.create({
     marginLeft: 3,
   },
 
-  /* Concise Horizontal Capsule Rail */
   conciseRailScroll: {
     flexDirection: 'row',
     gap: 7,
@@ -1365,7 +1329,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  /* Concise Persona Info Strip */
   personaStrip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1443,7 +1406,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 
-  /* Modals */
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(6, 26, 50, 0.65)',
@@ -1572,7 +1534,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 
-  /* Modal Employee Rows */
   modalEmployeeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1632,7 +1593,6 @@ const styles = StyleSheet.create({
     borderColor: '#cbd5e1',
   },
 
-  /* Manual Login Toggle & Fields */
   manualLoginToggle: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1654,7 +1614,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  /* Helper Action Cards (for Client & Vendor) */
   helperCard: {
     flexDirection: 'row',
     alignItems: 'center',

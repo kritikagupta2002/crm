@@ -1,11 +1,10 @@
-/* ---------- ERM: project page ---------- */
+/* ERM: project page */
 .project-page {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-/* Stages: done = green, current = teal ring, upcoming = grey. */
 .stage-card {
   padding: 18px 20px;
 }
@@ -28,7 +27,6 @@
   text-align: center;
 }
 
-/* The dot and label rise in, not the whole item: an animating item would draw the next connector over its dot. */
 .erm-stages li > * {
   animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
@@ -581,7 +579,7 @@
   align-self: flex-start;
 }
 
-/* ---------- ERM dashboard ---------- */
+/* ERM dashboard */
 .stage-counts {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -619,7 +617,6 @@
   display: flex;
   align-items: flex-start;
   gap: 7px;
-  /* Room for a two-line name, so the counts line up across the row. */
   min-height: 34px;
   margin-bottom: 2px;
   line-height: 1.3;
@@ -753,7 +750,6 @@
 }
 
 @media (max-width: 640px) {
-  /* Six stages don't fit across a phone: a vertical list instead. */
   .erm-stages {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -804,7 +800,7 @@
   }
 }
 
-/* ---------- ERM lists: Tasks, Team, Reports ---------- */
+/* ERM lists: Tasks, Team, Reports */
 .cell-link {
   display: block;
   transition: color 0.15s;
@@ -831,7 +827,7 @@
   font-size: 13px;
 }
 
-/* ---------- Projects: timeline view ---------- */
+/* Projects: timeline view */
 .timeline-view {
   padding: 8px 20px 18px;
   overflow-x: auto;
@@ -985,7 +981,7 @@
   }
 }
 
-/* ---------- My Tasks (field team, phone first) ---------- */
+/* My Tasks (field team, phone first) */
 .me-select {
   height: 38px;
   padding: 0 10px;
@@ -1102,7 +1098,7 @@
   }
 }
 
-/* ---------- Govt Letters & Work Orders ---------- */
+/* Govt Letters & Work Orders */
 .record-letter-body {
   display: flex;
   flex-direction: column;
@@ -1348,7 +1344,7 @@
   }
 }
 
-/* ---------- Subcontract drawer, vendor portal ---------- */
+/* Subcontract drawer, vendor portal */
 .text-green {
   color: var(--green);
 }

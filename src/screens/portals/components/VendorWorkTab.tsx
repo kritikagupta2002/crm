@@ -72,7 +72,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* 1. BIGGER SUBSECTION TAB CONTROLLER */}
       <View style={styles.subNavBar}>
         {[
           { key: 'active', label: `Active (${activeOrders.length})` },
@@ -95,7 +94,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
         })}
       </View>
 
-      {/* 2. ACTIVE ORDERS SUBSECTION (BIG & SPACIOUS) */}
       {subSection === 'active' && (
         <View style={styles.sectionBody}>
           {activeOrders.length === 0 ? (
@@ -114,7 +112,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
 
               return (
                 <View key={wo.id} style={styles.woCard}>
-                  {/* Card Header: WO Number, Stage Badge */}
                   <View style={styles.woCardHeader}>
                     <View style={styles.woHeaderLeft}>
                       <View style={styles.woNumberBadge}>
@@ -139,13 +136,11 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
                     </View>
                   </View>
 
-                  {/* Project Title & Scope (Large & Bold) */}
                   <Text style={styles.woProjectTitle}>{wo.projectTitle}</Text>
                   <Text style={styles.woScopeText} numberOfLines={2}>
                     {wo.work || wo.scopeOfWork || 'Geotechnical drilling and field testing operations'}
                   </Text>
 
-                  {/* 6-Stage Timeline Visual Indicator (BIGGER DOTS & LABELS) */}
                   <View style={styles.lifecycleContainer}>
                     <Text style={styles.lifecycleTitle}>6-STAGE CONTRACT LIFECYCLE</Text>
                     <View style={styles.stepperRow}>
@@ -191,7 +186,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
                     </View>
                   </View>
 
-                  {/* Financials & Deadline Strip */}
                   <View style={styles.finStrip}>
                     <View style={styles.finCol}>
                       <Text style={styles.finLabel}>Contract Value</Text>
@@ -209,7 +203,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
                     </View>
                   </View>
 
-                  {/* Big Primary Action Buttons */}
                   <View style={styles.actionsRow}>
                     {wo.currentStage === 'Issued' && (
                       <TouchableOpacity
@@ -257,7 +250,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
         </View>
       )}
 
-      {/* 3. MY BIDS SUBSECTION (SEALED VAULT) */}
       {subSection === 'bids' && (
         <View style={styles.sectionBody}>
           <View style={styles.vaultNoticeCard}>
@@ -332,7 +324,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
                     </View>
                   </View>
 
-                  {/* Actions: Withdraw Bid (if tender open) or View Tender */}
                   <View style={styles.bidActionRow}>
                     {phase === 'Open' && !isWithdrawn && (
                       <TouchableOpacity
@@ -361,7 +352,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
         </View>
       )}
 
-      {/* 4. BILLING SUBSECTION */}
       {subSection === 'billing' && (
         <View style={styles.sectionBody}>
           {pendingBillingOrders.length === 0 ? (
@@ -389,7 +379,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
 
                   <Text style={styles.billingProjectTitle}>{wo.projectTitle}</Text>
 
-                  {/* Ceiling and Status */}
                   <View style={styles.billingFinGrid}>
                     <View style={styles.finCol}>
                       <Text style={styles.finLabel}>Total Contract</Text>
@@ -424,7 +413,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
                     </View>
                   )}
 
-                  {/* Invoice action */}
                   <View style={styles.actionsRow}>
                     {wo.currentStage === 'Delivered' && (
                       <TouchableOpacity
@@ -452,7 +440,6 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
         </View>
       )}
 
-      {/* 5. PAID & TDS REGISTER SUBSECTION */}
       {subSection === 'paid' && (
         <View style={styles.sectionBody}>
           {paidOrders.length === 0 ? (

@@ -86,7 +86,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top Mountain Panoramic Hero Banner */}
         <ImageBackground
           source={heroBannerImg}
           style={[styles.heroBanner, { paddingTop: Math.max(insets.top + 12, 38) }]}
@@ -94,9 +93,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         >
           <View style={styles.heroOverlay} />
 
-          {/* Profile Header Line */}
           <View style={styles.profileHeaderRow}>
-            {/* Avatar with Gold Crown */}
             <View style={styles.avatarWrapper}>
               <Image source={drRajeshImg} style={styles.avatarImage} />
               <View style={styles.avatarBadge}>
@@ -104,7 +101,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               </View>
             </View>
 
-            {/* Name, Role & Company */}
             <View style={styles.profileInfoCol}>
               <Text style={styles.profileName}>{userName}</Text>
               <View style={styles.roleTag}>
@@ -113,7 +109,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               <Text style={styles.companyName}>Bansal Geo Solutions Pvt. Ltd.</Text>
             </View>
 
-            {/* Right Metrics Strip: Projects & Employees */}
             <View style={styles.headerMetricsRow}>
               <View style={styles.headerMetricCol}>
                 <Briefcase size={16} color="#cbd5e1" strokeWidth={2.2} style={{ marginBottom: 2 }} />
@@ -131,12 +126,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Tagline below */}
           <Text style={styles.heroMotto}>“Exploring Sustainable Opportunities”</Text>
         </ImageBackground>
 
         <View style={[styles.bodyContent, isCompact && { paddingHorizontal: 8 }]}>
-          {/* Section 1: ACCOUNT */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
               <User size={15} color="#64748b" strokeWidth={2.2} />
@@ -144,7 +137,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.cardContainer}>
-              {/* Personal Information */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToPersonalInfo}
@@ -162,7 +154,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <View style={styles.menuDivider} />
 
-              {/* Account & Security */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToAccountSecurity}
@@ -182,7 +173,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Section 2: APP PREFERENCES */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
               <Settings size={16} color="#64748b" strokeWidth={2.3} />
@@ -190,7 +180,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.cardContainer}>
-              {/* App Settings */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToAppSettings}
@@ -210,7 +199,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <View style={styles.menuDivider} />
 
-              {/* Notifications */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToNotificationPreferences}
@@ -230,7 +218,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <View style={styles.menuDivider} />
 
-              {/* Language */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToLanguage}
@@ -251,7 +238,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Section 3: ADMINISTRATION */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
               <Crown size={16} color="#64748b" strokeWidth={2.3} />
@@ -259,7 +245,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.cardContainer}>
-              {/* Switch Role */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToRoleSelection}
@@ -280,7 +265,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <View style={styles.menuDivider} />
 
-              {/* Audit Log */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToAuditLog}
@@ -298,7 +282,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
               <View style={styles.menuDivider} />
 
-              {/* Sent Messages */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToSentMessages}
@@ -316,7 +299,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Section 4: SUPPORT */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
               <HelpCircle size={16} color="#64748b" strokeWidth={2.3} />
@@ -324,7 +306,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.cardContainer}>
-              {/* Help & Support */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={navigateToHelpSupport}
@@ -342,7 +323,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
           </View>
 
-          {/* Section 5: DANGER ZONE */}
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
               <AlertTriangle size={16} color="#dc2626" strokeWidth={2.3} />
@@ -350,7 +330,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={[styles.cardContainer, styles.dangerCardContainer]}>
-              {/* Sign Out */}
               <TouchableOpacity
                 activeOpacity={0.75}
                 onPress={handleOpenLogout}
@@ -370,7 +349,6 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         </View>
       </ScrollView>
 
-      {/* Confirmation Modals */}
       <ConfirmationModal
         visible={showLogoutModal}
         title="Sign Out"
@@ -396,7 +374,6 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
 
-  /* Top Mountain Hero Banner */
   heroBanner: {
     paddingHorizontal: 12,
     paddingBottom: 18,
@@ -502,7 +479,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 
-  /* Body Content & Sections */
   bodyContent: {
     paddingHorizontal: 12,
     paddingTop: 16,

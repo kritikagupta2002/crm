@@ -154,18 +154,18 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
   const getLevelColor = (lvl?: string) => {
     switch (lvl) {
       case 'L6':
-        return { bg: '#FEF3C7', text: '#92400E', border: '#FCD34D' }; // Amber
+        return { bg: '#FEF3C7', text: '#92400E', border: '#FCD34D' };
       case 'L5':
-        return { bg: '#F3E8FF', text: '#6B21A8', border: '#D8B4FE' }; // Purple
+        return { bg: '#F3E8FF', text: '#6B21A8', border: '#D8B4FE' };
       case 'L4':
-        return { bg: '#E0E7FF', text: '#3730A3', border: '#A5B4FC' }; // Indigo
+        return { bg: '#E0E7FF', text: '#3730A3', border: '#A5B4FC' };
       case 'L3':
-        return { bg: '#DBEAFE', text: '#1E40AF', border: '#93C5FD' }; // Blue
+        return { bg: '#DBEAFE', text: '#1E40AF', border: '#93C5FD' };
       case 'L2':
-        return { bg: '#CCFBF1', text: '#115E59', border: '#5EEAD4' }; // Teal
+        return { bg: '#CCFBF1', text: '#115E59', border: '#5EEAD4' };
       case 'L1':
       default:
-        return { bg: '#F1F5F9', text: '#334155', border: '#CBD5E1' }; // Slate
+        return { bg: '#F1F5F9', text: '#334155', border: '#CBD5E1' };
     }
   };
 

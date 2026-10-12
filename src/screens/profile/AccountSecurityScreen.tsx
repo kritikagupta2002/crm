@@ -62,7 +62,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
   const [biometricsEnabled, setBiometricsEnabled] = useState(true);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
 
-  // Password fields
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -70,7 +69,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [passwordToast, setPasswordToast] = useState(false);
 
-  // Other sessions state
   const [otherSessions, setOtherSessions] = useState<SessionInfo[]>(INITIAL_SESSIONS);
 
   const handleUpdatePassword = useCallback(() => {
@@ -119,7 +117,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -137,7 +134,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
         </View>
       </View>
 
-      {/* Password Updated Toast */}
       {passwordToast && (
         <View style={styles.toastCard}>
           <CheckCircle2 size={18} color="#059669" strokeWidth={2.4} />
@@ -150,7 +146,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Security Shield Banner */}
         <View style={styles.statusBanner}>
           <View style={styles.shieldIconWrap}>
             <Shield size={22} color="#0284c7" strokeWidth={2.4} />
@@ -163,11 +158,9 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
           </View>
         </View>
 
-        {/* 1. Biometrics & 2FA Toggles */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>AUTHENTICATION METHODS</Text>
 
-          {/* Biometrics */}
           <View style={styles.toggleRow}>
             <View style={styles.toggleIconWrap}>
               <Fingerprint size={20} color="#0284c7" strokeWidth={2.2} />
@@ -186,7 +179,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
 
           <View style={styles.divider} />
 
-          {/* 2FA */}
           <View style={styles.toggleRow}>
             <View style={styles.toggleIconWrap}>
               <Smartphone size={20} color="#059669" strokeWidth={2.2} />
@@ -204,14 +196,12 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
           </View>
         </View>
 
-        {/* 2. Change Password */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
             <KeyRound size={18} color="#0f172a" strokeWidth={2.4} />
             <Text style={styles.sectionTitle}>CHANGE ACCOUNT PASSWORD</Text>
           </View>
 
-          {/* Current Password */}
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Current Password</Text>
             <View style={styles.passwordInputWrap}>
@@ -236,7 +226,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             </View>
           </View>
 
-          {/* New Password */}
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>New Password</Text>
             <View style={styles.passwordInputWrap}>
@@ -261,7 +250,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             </View>
           </View>
 
-          {/* Confirm Password */}
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Confirm New Password</Text>
             <View style={styles.passwordInputWrap}>
@@ -276,7 +264,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             </View>
           </View>
 
-          {/* Submit Button */}
           <TouchableOpacity
             style={styles.updatePasswordBtn}
             onPress={handleUpdatePassword}
@@ -287,7 +274,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
           </TouchableOpacity>
         </View>
 
-        {/* 3. Active Sessions */}
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderBetween}>
             <Text style={styles.sectionTitle}>ACTIVE LOGIN SESSIONS</Text>
@@ -298,7 +284,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             )}
           </View>
 
-          {/* Current Device */}
           <View style={styles.sessionItem}>
             <View style={[styles.sessionIconWrap, { backgroundColor: '#ecfdf5', borderColor: '#a7f3d0' }]}>
               <Smartphone size={20} color="#059669" strokeWidth={2.2} />
@@ -315,7 +300,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             </View>
           </View>
 
-          {/* Other Sessions */}
           {otherSessions.map((sess) => (
             <React.Fragment key={sess.id}>
               <View style={styles.divider} />
@@ -333,7 +317,6 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
           ))}
         </View>
 
-        {/* 4. Security Audit Log snippet */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>RECENT SECURITY EVENTS</Text>
           <View style={styles.eventRow}>

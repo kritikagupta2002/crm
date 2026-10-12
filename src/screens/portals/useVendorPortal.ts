@@ -27,25 +27,21 @@ export const useVendorPortal = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [accountModalVisible, setAccountModalVisible] = useState(false);
 
-  // Delivery Modal State
   const [deliveryModalVisible, setDeliveryModalVisible] = useState(false);
   const [selectedWoForDelivery, setSelectedWoForDelivery] = useState<WorkOrder | null>(null);
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
 
-  // Billing Modal State
   const [billingModalVisible, setBillingModalVisible] = useState(false);
   const [selectedWoForBilling, setSelectedWoForBilling] = useState<WorkOrder | null>(null);
   const [invoiceNo, setInvoiceNo] = useState('');
   const [billAmount, setBillAmount] = useState('');
   const [billRemarks, setBillRemarks] = useState('');
 
-  // Pre-bid Clarification State
   const [askModalVisible, setAskModalVisible] = useState(false);
   const [selectedTenderForAsk, setSelectedTenderForAsk] = useState<Tender | null>(null);
   const [questionText, setQuestionText] = useState('');
 
-  // Authenticated vendor identity normalization
   const vendorName =
     session?.accountType === 'vendor'
       ? (session as any).vendorName || (session as any).name || 'Apex Drilling & Coring Pvt Ltd'
@@ -59,13 +55,11 @@ export const useVendorPortal = () => {
   const vendorCategory =
     session?.accountType === 'vendor' ? (session as any).category : 'Drilling Contractor';
 
-  // Vendor keys set to ensure robust multi-key matching (id, vendorId, vendorCode)
   const vendorKeys = useMemo(() => {
     const keys = new Set<string>();
     if (vendorCode) keys.add(vendorCode);
     if ((session as any)?.id) keys.add((session as any).id);
     if ((session as any)?.vendorId) keys.add((session as any).vendorId);
-    // If persona is Apex Drilling, also allow alias VN-01 / ven-001
     if (vendorName.toLowerCase().includes('apex') || vendorCode === 'VND-2026-014' || vendorCode === 'ven-001') {
       keys.add('ven-001');
       keys.add('VND-2026-014');
@@ -74,7 +68,6 @@ export const useVendorPortal = () => {
     return keys;
   }, [vendorCode, vendorName, session]);
 
-  // Current vendor profile record
   const currentVendor = useMemo(() => {
     const found = vendors.find(
       (v) =>
@@ -162,7 +155,6 @@ export const useVendorPortal = () => {
     return myWorkOrders.reduce((sum, w) => sum + (w.contractValue || 0), 0);
   }, [myWorkOrders]);
 
-  // Mobilization / Start
   const handleStartWork = (wo: WorkOrder) => {
     Alert.alert(
       'Confirm Mobilization',
@@ -190,7 +182,6 @@ export const useVendorPortal = () => {
     );
   };
 
-  // Delivery Dialog
   const handleOpenDelivery = (wo: WorkOrder) => {
     setSelectedWoForDelivery(wo);
     setDeliveryNotes('');
@@ -226,7 +217,6 @@ export const useVendorPortal = () => {
     }
   };
 
-  // Milestone Billing Dialog
   const handleOpenBilling = (wo: WorkOrder) => {
     setSelectedWoForBilling(wo);
     setInvoiceNo(
@@ -279,7 +269,6 @@ export const useVendorPortal = () => {
     }
   };
 
-  // Bid Withdrawal
   const handleWithdrawBid = (tender: Tender) => {
     Alert.alert(
       'Withdraw Sealed Bid',
@@ -305,7 +294,6 @@ export const useVendorPortal = () => {
     );
   };
 
-  // Pre-bid Clarifications
   const handleOpenClarification = (t: Tender) => {
     setSelectedTenderForAsk(t);
     setQuestionText('');
@@ -334,7 +322,6 @@ export const useVendorPortal = () => {
     }
   };
 
-  // Search and filter tenders
   const filteredTenders = useMemo(() => {
     return tenders.filter((t) => {
       const title = (t.title || '').toLowerCase();

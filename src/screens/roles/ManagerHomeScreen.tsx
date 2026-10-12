@@ -63,10 +63,8 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
 
   const managerName = (session as any)?.name || 'Kavita Rawat';
 
-  // State for interactive manager approvals
   const [localLeaves, setLocalLeaves] = useState(leaves);
 
-  // Derived real data
   const pendingLeaves = useMemo(() => {
     return localLeaves.filter((l) => l.status === 'Pending');
   }, [localLeaves]);
@@ -140,7 +138,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
     <View style={styles.rootContainer}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* 1. Tactical Command Center Header (Light Theme & Emerald Radar) */}
       <View style={[styles.commandHeader, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={[{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerLeftRow}>
@@ -200,7 +197,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
         showsVerticalScrollIndicator={false}
       >
         <View style={[styles.bodyWrapper, isCompact && { paddingHorizontal: 6 }, isTablet && styles.tabletContainer]}>
-          {/* 2. Bespoke Hero: Live Field Site Rig Telemetry Console */}
           <View style={styles.telemetryCard}>
             <View style={styles.telemetryHeader}>
               <View style={styles.telemetryTitleRow}>
@@ -210,9 +206,7 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
               <Text style={styles.telemetryTimestamp}>Sync: 2m ago</Text>
             </View>
 
-            {/* Rig List */}
             <View style={styles.rigsList}>
-              {/* Rig 1 */}
               <View style={styles.rigItem}>
                 <View style={styles.rigStatusDotActive} />
                 <View style={styles.rigDetails}>
@@ -226,7 +220,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
 
               <View style={styles.rigDivider} />
 
-              {/* Rig 2 */}
               <View style={styles.rigItem}>
                 <View style={styles.rigStatusDotActive} />
                 <View style={styles.rigDetails}>
@@ -240,7 +233,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
 
               <View style={styles.rigDivider} />
 
-              {/* Rig 3 */}
               <View style={styles.rigItem}>
                 <View style={styles.rigStatusDotStandby} />
                 <View style={styles.rigDetails}>
@@ -253,7 +245,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
               </View>
             </View>
 
-            {/* Tactical Shift Strip */}
             <View style={styles.shiftStrip}>
               <View style={styles.shiftCol}>
                 <Text style={styles.shiftLabel}>On-Site Crew</Text>
@@ -272,10 +263,8 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             </View>
           </View>
 
-          {/* Executive Bento KPI Grid */}
           <View style={styles.kpiGrid}>
             <View style={styles.kpiRow}>
-              {/* Projects Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Projects')}
@@ -305,7 +294,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                 </View>
               </TouchableOpacity>
 
-              {/* On-Site Crew Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('EmployeeDirectory')}
@@ -337,7 +325,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             </View>
 
             <View style={styles.kpiRow}>
-              {/* Core Drilled Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('DrillingDpr')}
@@ -367,7 +354,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
                 </View>
               </TouchableOpacity>
 
-              {/* Pending WBS Tasks Card */}
               <TouchableOpacity
                 activeOpacity={0.82}
                 onPress={() => navigation.navigate('Tasks')}
@@ -399,7 +385,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             </View>
           </View>
 
-          {/* 3. Today's Field WBS Dispatch Section */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Operational WBS Tasks</Text>
@@ -484,7 +469,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             ))}
           </View>
 
-          {/* 4. Crew Leave Approvals Queue (Direct Actionable Desk) */}
           <View style={styles.sectionHeaderRow}>
             <View style={styles.sectionTitleRow}>
               <Text style={styles.sectionTitle}>Crew Leave Approvals Queue</Text>
@@ -557,7 +541,6 @@ export const ManagerHomeScreen: React.FC<ManagerHomeScreenProps> = ({ navigation
             )}
           </View>
 
-          {/* 5. Field Operations Modules */}
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>Operations Command Desks</Text>
           </View>
@@ -610,8 +593,6 @@ const styles = StyleSheet.create({
     paddingBottom: 90,
   },
 
-  /* 1. Tactical Command Header */
-  /* 1. Tactical Command Header */
   commandHeader: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
@@ -739,7 +720,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  /* 2. Live Rig Telemetry Console */
   telemetryCard: {
     backgroundColor: '#ffffff',
     borderRadius: 18,
@@ -849,7 +829,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#e2e8f0',
   },
 
-  /* Section Headers */
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -889,7 +868,6 @@ const styles = StyleSheet.create({
     color: '#0b2545',
   },
 
-  /* 3. Tasks Card Container */
   tasksCardContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
@@ -965,7 +943,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 14,
   },
 
-  /* 4. Leave Queue */
   leaveQueueContainer: {
     gap: 10,
     marginBottom: 16,
@@ -1078,7 +1055,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  /* 5. Modules Grid */
   modulesGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -1125,7 +1101,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 
-  /* Bento KPI Grid */
   kpiGrid: {
     gap: 10,
     marginBottom: 16,

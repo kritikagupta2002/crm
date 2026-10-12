@@ -39,12 +39,10 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
     };
   }, []);
 
-  // Master switches
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailDigest, setEmailDigest] = useState(true);
   const [instantUrgentEmail, setInstantUrgentEmail] = useState(true);
 
-  // Category notification switches
   const [projectMilestones, setProjectMilestones] = useState(true);
   const [stage5SignOffs, setStage5SignOffs] = useState(true);
   const [financeInvoices, setFinanceInvoices] = useState(true);
@@ -52,7 +50,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
   const [vendorTenders, setVendorTenders] = useState(true);
   const [securityAlerts, setSecurityAlerts] = useState(true);
 
-  // Quiet Hours (Do Not Disturb)
   const [quietHoursEnabled, setQuietHoursEnabled] = useState(true);
   const [savedToast, setSavedToast] = useState(false);
 
@@ -70,7 +67,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
           <TouchableOpacity
@@ -88,7 +84,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
         </View>
       </View>
 
-      {/* Auto-saved feedback */}
       {savedToast && (
         <View style={styles.toastCard}>
           <CheckCircle2 size={16} color="#059669" strokeWidth={2.4} />
@@ -100,7 +95,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. Master Push Notification Toggle */}
         <View style={styles.sectionCard}>
           <View style={styles.masterRow}>
             <View style={styles.masterIconBox}>
@@ -119,11 +113,9 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
           </View>
         </View>
 
-        {/* 2. Alert Channels */}
         <View style={[styles.sectionCard, !pushEnabled && styles.sectionDisabled]}>
           <Text style={styles.sectionTitle}>NOTIFICATION CATEGORIES</Text>
 
-          {/* Project Milestones */}
           <View style={styles.channelRow}>
             <View style={[styles.iconBox, { backgroundColor: '#f0f9ff' }]}>
               <FolderKanban size={18} color="#0284c7" strokeWidth={2.2} />
@@ -143,7 +135,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
 
           <View style={styles.divider} />
 
-          {/* Stage 5 Sign-offs */}
           <View style={styles.channelRow}>
             <View style={[styles.iconBox, { backgroundColor: '#fefce8' }]}>
               <FileCheck size={18} color="#d97706" strokeWidth={2.2} />
@@ -163,7 +154,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
 
           <View style={styles.divider} />
 
-          {/* Finance & Invoices */}
           <View style={styles.channelRow}>
             <View style={[styles.iconBox, { backgroundColor: '#ecfdf5' }]}>
               <Receipt size={18} color="#059669" strokeWidth={2.2} />
@@ -183,7 +173,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
 
           <View style={styles.divider} />
 
-          {/* Attendance & Shift */}
           <View style={styles.channelRow}>
             <View style={[styles.iconBox, { backgroundColor: '#f8fafc' }]}>
               <Users size={18} color="#475569" strokeWidth={2.2} />
@@ -203,7 +192,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
 
           <View style={styles.divider} />
 
-          {/* Security & Role Switch */}
           <View style={styles.channelRow}>
             <View style={[styles.iconBox, { backgroundColor: '#fef2f2' }]}>
               <ShieldAlert size={18} color="#dc2626" strokeWidth={2.2} />
@@ -222,7 +210,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
           </View>
         </View>
 
-        {/* 3. Email Notification Configuration */}
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>EMAIL NOTIFICATIONS</Text>
 
@@ -261,7 +248,6 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
           </View>
         </View>
 
-        {/* 4. Quiet Hours */}
         <View style={styles.sectionCard}>
           <View style={styles.masterRow}>
             <View style={[styles.iconBox, { backgroundColor: '#fef3c7' }]}>
