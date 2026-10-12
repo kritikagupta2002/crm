@@ -11,12 +11,18 @@ export const Input = forwardRef(({ label, error, helperText, leftIcon, rightIcon
             {leftIcon}
           </div>)}
         <input ref={ref} id={inputId} disabled={disabled} className={`w-full h-[38px] rounded-lg text-[13px] font-inter bg-white dark:bg-[#111821] border transition-all duration-150 placeholder:text-slate-400 dark:placeholder:text-slate-500
-            ${leftIcon ? 'pl-9' : 'pl-3.5'}
-            ${rightIcon ? 'pr-9' : 'pr-3.5'}
+            ${leftIcon ? 'pl-10 input-has-left-icon' : 'pl-3.5'}
+            ${rightIcon ? 'pr-9 input-has-right-icon' : 'pr-3.5'}
             py-1.5
             ${disabled ? 'opacity-50 cursor-not-allowed border-[#E2E8F0] dark:border-[#253344]' : 'text-[#0F172A] dark:text-slate-100'}
             ${error ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-200' : 'border-[#E2E8F0] dark:border-[#253344] hover:border-slate-300 dark:hover:border-slate-600 focus:border-teal-600 focus:ring-3 focus:ring-teal-500/20'}
-            focus:outline-none ${className}`} {...props}/>
+            focus:outline-none ${className}`}
+            style={{
+              ...(leftIcon ? { paddingLeft: '38px' } : {}),
+              ...(rightIcon ? { paddingRight: '36px' } : {}),
+              ...(props.style || {}),
+            }}
+            {...props}/>
         {rightIcon && (<div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
             {rightIcon}
           </div>)}

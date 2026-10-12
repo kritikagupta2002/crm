@@ -70,7 +70,8 @@ export const ReceivablesPage = () => {
             key: 'invoiceNumber',
             header: 'Invoice',
             sortable: true,
-            render: (rec) => (<span className="font-mono text-xs font-semibold text-teal-800 dark:text-teal-300">
+            className: 'whitespace-nowrap',
+            render: (rec) => (<span className="text-xs font-semibold text-teal-800 dark:text-teal-300 whitespace-nowrap">
           {rec.invoiceNumber}
         </span>),
         },
@@ -78,6 +79,7 @@ export const ReceivablesPage = () => {
             key: 'clientName',
             header: 'Client',
             sortable: true,
+            className: 'min-w-[170px]',
             render: (rec) => (<div className="font-medium text-xs text-[var(--ink,#0f2a3d)] dark:text-slate-200">
           {rec.clientName}
         </div>),
@@ -86,7 +88,8 @@ export const ReceivablesPage = () => {
             key: 'invoiceDate',
             header: 'Invoice Date',
             sortable: true,
-            render: (rec) => (<span className="text-xs text-[var(--ink-3,#7c8b96)] dark:text-slate-400">
+            className: 'whitespace-nowrap',
+            render: (rec) => (<span className="text-xs text-[var(--ink-3,#7c8b96)] dark:text-slate-400 whitespace-nowrap">
           {rec.invoiceDate}
         </span>),
         },
@@ -94,7 +97,8 @@ export const ReceivablesPage = () => {
             key: 'dueDate',
             header: 'Due Date',
             sortable: true,
-            render: (rec) => (<span className="text-xs text-[var(--ink-2,#4a5b68)] dark:text-slate-300">
+            className: 'whitespace-nowrap',
+            render: (rec) => (<span className="text-xs text-[var(--ink-2,#4a5b68)] dark:text-slate-300 whitespace-nowrap font-medium">
           {rec.dueDate}
         </span>),
         },
@@ -102,7 +106,8 @@ export const ReceivablesPage = () => {
             key: 'totalAmount',
             header: 'Total (₹)',
             sortable: true,
-            render: (rec) => (<span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+            className: 'whitespace-nowrap',
+            render: (rec) => (<span className="text-xs font-semibold text-slate-700 dark:text-slate-300 tabular-nums whitespace-nowrap">
           ₹{rec.totalAmount.toLocaleString('en-IN')}
         </span>),
         },
@@ -110,7 +115,8 @@ export const ReceivablesPage = () => {
             key: 'receivedAmount',
             header: 'Received (₹)',
             sortable: true,
-            render: (rec) => (<span className="font-mono text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+            className: 'whitespace-nowrap',
+            render: (rec) => (<span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums whitespace-nowrap">
           ₹{rec.receivedAmount.toLocaleString('en-IN')}
         </span>),
         },
@@ -118,7 +124,8 @@ export const ReceivablesPage = () => {
             key: 'outstandingAmount',
             header: 'Outstanding (₹)',
             sortable: true,
-            render: (rec) => (<span className={`font-mono text-xs font-bold ${rec.outstandingAmount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400'}`}>
+            className: 'whitespace-nowrap',
+            render: (rec) => (<span className={`text-xs font-bold tabular-nums whitespace-nowrap ${rec.outstandingAmount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400'}`}>
           ₹{rec.outstandingAmount.toLocaleString('en-IN')}
         </span>),
         },
@@ -126,14 +133,16 @@ export const ReceivablesPage = () => {
             key: 'status',
             header: 'Status',
             sortable: true,
+            className: 'whitespace-nowrap',
             render: (rec) => <StatusBadge status={rec.status} size="sm"/>,
         },
         {
             key: 'actions',
             header: 'Actions',
-            render: (rec) => (<div className="flex items-center gap-1.5">
+            className: 'whitespace-nowrap',
+            render: (rec) => (<div className="flex items-center gap-1.5 whitespace-nowrap">
           {rec.outstandingAmount > 0 ? (<>
-              <Button variant="primary" size="sm" className="h-7 text-[11px] px-2" onClick={(e) => {
+              <Button variant="primary" size="sm" className="h-7 text-[11px] px-2.5 whitespace-nowrap font-medium" onClick={(e) => {
                         e.stopPropagation();
                         setSelectedReceivable(rec);
                         setCollectionAmount(rec.outstandingAmount);
@@ -146,7 +155,7 @@ export const ReceivablesPage = () => {
                     }} title="Send Payment Reminder">
                 <Send className="w-3.5 h-3.5"/>
               </Button>
-            </>) : (<span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+            </>) : (<span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1 whitespace-nowrap">
               <CheckCircle2 className="w-3 h-3"/> Fully Settled
             </span>)}
         </div>),
@@ -184,7 +193,7 @@ export const ReceivablesPage = () => {
       </div>
 
       {/* Main Table */}
-      <DataTable columns={columns} data={filteredReceivables} keyField="id" searchable searchPlaceholder="Search receivables by invoice, client, or status..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No receivables found" emptyDescription="All invoices in this aging bucket are settled."/>
+      <DataTable columns={columns} data={filteredReceivables} keyField="id" searchable searchPlaceholder="Search invoice, client, status..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No receivables found" emptyDescription="All invoices in this aging bucket are settled."/>
 
       {/* Record Collection Modal */}
       {selectedReceivable && (<Modal isOpen={!!selectedReceivable} onClose={() => setSelectedReceivable(null)} title={`Record Collection - ${selectedReceivable.invoiceNumber}`} description={`Record customer payment from ${selectedReceivable.clientName}`} maxWidth="md">
@@ -192,15 +201,15 @@ export const ReceivablesPage = () => {
             <div className="bg-slate-50 dark:bg-[#111821] p-3 rounded-xl border border-slate-200 dark:border-[#253344] space-y-1 text-xs">
               <div className="flex justify-between text-slate-500">
                 <span>Invoice Total:</span>
-                <span className="font-mono">₹{selectedReceivable.totalAmount.toLocaleString('en-IN')}</span>
+                <span className="tabular-nums font-semibold text-slate-800 dark:text-slate-200">₹{selectedReceivable.totalAmount.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between text-slate-500">
                 <span>Previously Received:</span>
-                <span className="font-mono text-emerald-600">₹{selectedReceivable.receivedAmount.toLocaleString('en-IN')}</span>
+                <span className="tabular-nums font-semibold text-emerald-600">₹{selectedReceivable.receivedAmount.toLocaleString('en-IN')}</span>
               </div>
               <div className="flex justify-between font-bold text-rose-600 dark:text-rose-400 border-t pt-1 border-slate-200 dark:border-[#253344]">
                 <span>Outstanding Balance:</span>
-                <span className="font-mono">₹{selectedReceivable.outstandingAmount.toLocaleString('en-IN')}</span>
+                <span className="tabular-nums font-bold">₹{selectedReceivable.outstandingAmount.toLocaleString('en-IN')}</span>
               </div>
             </div>
 

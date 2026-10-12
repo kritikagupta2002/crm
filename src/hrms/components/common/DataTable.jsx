@@ -117,10 +117,10 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
       {/* Table Toolbar */}
       {(searchable || filterComponent || actionsComponent) && (<div className={`${compact ? 'p-2 sm:p-2.5' : 'p-2.5 sm:p-3.5'} border-b border-[#E2E8F0] dark:border-[#253344] flex flex-col xl:flex-row xl:items-center justify-between gap-2.5 bg-white dark:bg-[#161F2E]`}>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0 w-full xl:w-auto flex-wrap">
-            {searchable && (<div className="relative w-full sm:w-64 md:w-72 lg:w-80 shrink-0">
+            {searchable && (<div className="relative w-full sm:w-80 md:w-96 shrink-0 data-table-search">
                 <Search
-                  className="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#627079] pointer-events-none"
-                  style={{ left: '13px', top: '50%', transform: 'translateY(-50%)' }}
+                  className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#627079] pointer-events-none"
+                  style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }}
                 />
                 <input
                   type="text"
@@ -130,8 +130,8 @@ export function DataTable({ columns, data, keyField, searchable = true, searchPl
                     setCurrentPage(1);
                   }}
                   placeholder={searchPlaceholder}
-                  style={{ paddingLeft: '36px', paddingRight: '30px' }}
-                  className={`w-full text-sm font-sans border border-[#d3dce1] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#7c8b96] text-[#0f2a3d] bg-[#ffffff] transition-all duration-200 ${compact ? 'h-[36px] py-1.5' : 'h-[40px] py-2'} shadow-2xs`}
+                  style={{ paddingLeft: '38px', paddingRight: '32px' }}
+                  className={`w-full text-sm font-sans border border-[#d3dce1] rounded-lg focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-600/20 placeholder:text-[#7c8b96] text-[#0f2a3d] bg-[#ffffff] transition-all duration-200 ${compact ? 'h-[36px] py-1.5' : 'h-[40px] py-2'} shadow-2xs data-table-search-input pl-10`}
                 />
                 {searchTerm && (<button type="button" onClick={() => {
                         setSearchTerm('');

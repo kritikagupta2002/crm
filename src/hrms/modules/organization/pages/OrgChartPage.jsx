@@ -324,20 +324,20 @@ export const OrgChartPage = () => {
 
       {/* Control Bar: Employee Selector & Filter */}
       <Card className="p-3.5 sm:p-4 shadow-2xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3.5">
           {/* Left: Employee Selection */}
-          <div className="flex flex-wrap items-center gap-2.5 flex-1">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-100 dark:border-teal-900/50">
               <Network className="w-4 h-4" />
             </div>
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                Focus Employee Hierarchy
-                <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400">
-                  ({permittedEmployees.length} accessible)
+            <div className="min-w-0">
+              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2 flex-wrap" style={{ fontFamily: 'var(--font-sans)' }}>
+                <span className="whitespace-nowrap">Focus Employee Hierarchy</span>
+                <span className="text-xs font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                  {permittedEmployees.length} accessible
                 </span>
-              </h4>
-              <p className="text-[10px] text-slate-400">
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5 whitespace-nowrap">
                 {isEmployee
                   ? 'Role access: Viewing your personal reporting hierarchy'
                   : isManager
@@ -348,9 +348,9 @@ export const OrgChartPage = () => {
           </div>
 
           {/* Right: Search & Select controls */}
-          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full xl:w-auto">
             {/* Search */}
-            <div className="relative flex-1 md:w-48">
+            <div className="relative w-full sm:w-44 md:w-48 shrink-0">
               <Search
                 className="w-3.5 h-3.5 text-slate-400 pointer-events-none absolute left-3 top-1/2 -translate-y-1/2"
                 style={{ left: '12px', top: '50%', transform: 'translateY(-50%)' }}
@@ -367,11 +367,11 @@ export const OrgChartPage = () => {
 
             {/* Department Filter (For Admins) */}
             {isSuperOrDirector && (
-              <div className="relative">
+              <div className="relative w-full sm:w-auto shrink-0">
                 <select
                   value={departmentFilter}
                   onChange={(e) => setDepartmentFilter(e.target.value)}
-                  className="appearance-none pl-3 pr-8 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-[#253344] bg-slate-50 dark:bg-[#0E1622] text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer"
+                  className="w-full sm:w-auto appearance-none pl-3 pr-8 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-[#253344] bg-slate-50 dark:bg-[#0E1622] text-slate-800 dark:text-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer"
                 >
                   <option value="all">All Departments</option>
                   {departmentOptions.map((dept) => (
@@ -385,7 +385,7 @@ export const OrgChartPage = () => {
             )}
 
             {/* Direct Employee Select Dropdown */}
-            <div className="relative flex-1 md:w-64 min-w-[220px]">
+            <div className="relative w-full sm:w-64 min-w-[200px] flex-1">
               <select
                 value={selectedEmployee?.employeeId || ''}
                 onChange={(e) => setSelectedEmpId(e.target.value)}
@@ -407,7 +407,7 @@ export const OrgChartPage = () => {
                   setSearchTerm('');
                   setDepartmentFilter('all');
                 }}
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
                 title="Reset filters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />

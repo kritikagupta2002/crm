@@ -1,4 +1,4 @@
-﻿/* CRM Theme Modules */
+/* CRM Theme Modules */
 
 /* ── Module page wrapper ─────────────────────────────────── */
 .module-page {
@@ -463,27 +463,158 @@
 /* Approvals glance */
 .approvals-glance .glance-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
-  gap: 24px; padding: 0 20px 18px;
+  grid-template-columns: 310px 1fr;
+  gap: 28px;
+  padding: 0 20px 20px;
+  align-items: stretch;
 }
 
 .glance-figures {
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px; margin: 0; align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  justify-content: space-between;
 }
-.glance-figures > div { padding: 12px 14px; border-radius: var(--radius); background: var(--tone-bg); }
-.glance-figures dt { font-size: 12px; color: var(--ink-2); }
-.glance-figures dd { margin: 4px 0 0; font-family: var(--font-serif); font-size: 26px; font-weight: 600; line-height: 1; color: var(--ink); }
 
-.glance-waiting h3  { margin: 0 0 6px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
-.glance-waiting ul  { margin: 0; padding: 0; list-style: none; }
-.glance-waiting li  { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--line-soft); }
-.glance-waiting li:first-child { border-top: none; }
+.glance-figures > div,
+.glance-figure-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: var(--tone-bg);
+  border-left: 4px solid var(--tone);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+}
 
-.glance-item        { display: flex; flex-direction: column; min-width: 0; font-size: 13px; }
-a.glance-item:hover strong { color: var(--teal-700); }
-.glance-item .muted { font-size: 12px; }
-.glance-when        { flex-shrink: 0; font-size: 12px; color: var(--ink-3); }
+a.glance-figure-card:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(15, 42, 61, 0.08);
+}
+
+.glance-figures dt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.glance-fig-icon {
+  color: var(--tone);
+  flex-shrink: 0;
+}
+
+.glance-figures dd {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.glance-waiting {
+  border-left: 1px solid var(--line-soft);
+  padding-left: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.glance-waiting-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.glance-waiting h3 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+
+.glance-waiting-count {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--amber);
+  background: var(--amber-bg);
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+.glance-waiting ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.glance-waiting li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-top: none;
+  transition: background 0.15s ease;
+}
+
+.glance-waiting li:hover {
+  background: var(--bg);
+}
+
+.glance-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.glance-item strong {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+a.glance-item:hover strong {
+  color: var(--teal-700);
+}
+
+.glance-item .muted {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+
+.glance-when {
+  flex-shrink: 0;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--bg);
+  padding: 3px 9px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
 
 
 /* RESPONSIVE — MODULES */

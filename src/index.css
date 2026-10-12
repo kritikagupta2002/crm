@@ -374,6 +374,17 @@ select.select-sm {
 .p-5 { padding: 20px !important; }
 .p-6 { padding: 24px !important; }
 
+/* Icon Input Padding Utilities */
+.pl-8, input.pl-8 { padding-left: 32px !important; }
+.pl-9, input.pl-9 { padding-left: 36px !important; }
+.pl-10, input.pl-10 { padding-left: 40px !important; }
+.pl-11, input.pl-11 { padding-left: 44px !important; }
+.pl-12, input.pl-12 { padding-left: 48px !important; }
+
+.pr-8, input.pr-8 { padding-right: 32px !important; }
+.pr-9, input.pr-9 { padding-right: 36px !important; }
+.pr-10, input.pr-10 { padding-right: 40px !important; }
+
 .tone-neutral {
   --tone: var(--ink-3);
   --tone-bg: #eef1f3;

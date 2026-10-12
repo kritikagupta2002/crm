@@ -41,7 +41,8 @@
   display: none;
 }
 
-.mobile-search-trigger {
+.mobile-search-trigger,
+.icon-button.mobile-search-trigger {
   display: none;
 }
 
@@ -670,9 +671,15 @@ body.mobile-drawer-open {
     gap: 8px;
   }
 
-  .mobile-search-trigger {
+  .mobile-search-trigger,
+  .icon-button.mobile-search-trigger {
     display: grid;
     place-items: center;
+  }
+
+  .global-search.is-mobile-open .mobile-search-trigger,
+  .global-search.is-mobile-open .icon-button.mobile-search-trigger {
+    display: none;
   }
 
   .search-container:not(.is-mobile-expanded) {

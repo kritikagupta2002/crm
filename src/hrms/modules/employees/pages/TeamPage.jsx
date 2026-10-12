@@ -238,9 +238,13 @@ export const TeamPage = () => {
         {/* Bottom row: Search & Dropdown Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Search Input */}
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"/>
-            <Input placeholder="Search name, ID, role, project..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9"/>
+          <div>
+            <Input
+              leftIcon={<Search className="w-4 h-4 text-slate-400" />}
+              placeholder="Search name, ID, role, project..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
           {/* Department Filter */}

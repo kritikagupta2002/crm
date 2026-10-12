@@ -1,4 +1,4 @@
-import { ArrowRight, Landmark } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Clock, Landmark } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAccess, useCrm } from '../../../../core/permissions/crm'
 import { formatNearDate } from '../../../../shared/utils/date'
@@ -20,9 +20,9 @@ export function ApprovalsGlance() {
       <span className="glance-item">{content}</span>
     )
   const figures = [
-    ['Work in progress', projects.filter((p) => p.status === 'In progress').length, 'tone-info'],
-    ['With the authority', waiting.length, 'tone-attention'],
-    ['Approved', projects.filter((p) => p.status === 'Approved' || p.status === 'Completed').length, 'tone-good'],
+    ['Work in progress', projects.filter((p) => p.status === 'In progress').length, 'tone-info', Clock],
+    ['With the authority', waiting.length, 'tone-attention', Landmark],
+    ['Approved', projects.filter((p) => p.status === 'Approved' || p.status === 'Completed').length, 'tone-good', CheckCircle2],
   ]
 
   return (
@@ -40,17 +40,34 @@ export function ApprovalsGlance() {
       </header>
       <div className="glance-body">
         <dl className="glance-figures">
-          {figures.map(([label, value, tone]) => (
-            <div key={label} className={tone}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
+          {figures.map(([label, value, tone, Icon]) => {
+            const content = (
+              <>
+                <dt>
+                  <Icon size={16} className="glance-fig-icon" />
+                  <span>{label}</span>
+                </dt>
+                <dd>{value}</dd>
+              </>
+            )
+            return can('/projects') ? (
+              <Link key={label} to="/projects" className={`glance-figure-card ${tone}`}>
+                {content}
+              </Link>
+            ) : (
+              <div key={label} className={`glance-figure-card ${tone}`}>
+                {content}
+              </div>
+            )
+          })}
         </dl>
         <div className="glance-waiting">
-          <h3>Waiting on the authority</h3>
+          <div className="glance-waiting-header">
+            <h3>Waiting on the authority</h3>
+            <span className="glance-waiting-count">{waiting.length} pending</span>
+          </div>
           {waiting.length === 0 ? (
-            <p className="muted">Nothing pending.</p>
+            <p className="glance-empty muted">No projects currently awaiting authority approval.</p>
           ) : (
             <ul>
               {waiting.slice(0, 3).map((p) => (

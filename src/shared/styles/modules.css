@@ -800,6 +800,10 @@
   max-width: 460px;
 }
 
+.global-search .mobile-search-trigger {
+  display: none;
+}
+
 .global-search .search {
   max-width: none;
 }
@@ -1193,6 +1197,15 @@
     position: static;
   }
 
+  .global-search .mobile-search-trigger {
+    display: grid;
+    place-items: center;
+  }
+
+  .global-search.is-mobile-open .mobile-search-trigger {
+    display: none;
+  }
+
   .popover {
     position: fixed;
     top: calc(var(--chrome-height) + 6px);
@@ -1419,63 +1432,119 @@
 
 .approvals-glance .glance-body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
-  gap: 24px;
-  padding: 0 20px 18px;
+  grid-template-columns: 310px 1fr;
+  gap: 28px;
+  padding: 0 20px 20px;
+  align-items: stretch;
 }
 
 .glance-figures {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 10px;
   margin: 0;
-  align-self: start;
+  justify-content: space-between;
 }
 
-.glance-figures > div {
-  padding: 12px 14px;
+.glance-figures > div,
+.glance-figure-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
   border-radius: var(--radius);
   background: var(--tone-bg);
+  border-left: 4px solid var(--tone);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.15s ease;
+}
+
+a.glance-figure-card:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 8px rgba(15, 42, 61, 0.08);
 }
 
 .glance-figures dt {
-  font-size: 12px;
-  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.glance-fig-icon {
+  color: var(--tone);
+  flex-shrink: 0;
 }
 
 .glance-figures dd {
-  margin: 4px 0 0;
-  font-family: var(--font-serif);
-  font-size: 26px;
-  font-weight: 600;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 700;
   line-height: 1;
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.glance-waiting {
+  border-left: 1px solid var(--line-soft);
+  padding-left: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.glance-waiting-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
 .glance-waiting h3 {
-  margin: 0 0 6px;
-  font-size: 12.5px;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
   font-weight: 600;
-  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+
+.glance-waiting-count {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--amber);
+  background: var(--amber-bg);
+  padding: 1px 7px;
+  border-radius: 10px;
 }
 
 .glance-waiting ul {
   margin: 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .glance-waiting li {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 7px 0;
-  border-top: 1px solid var(--line-soft);
+  gap: 16px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border-top: none;
+  transition: background 0.15s ease;
 }
 
-.glance-waiting li:first-child {
-  border-top: none;
+.glance-waiting li:hover {
+  background: var(--bg);
 }
 
 .glance-item {
@@ -1485,18 +1554,40 @@
   font-size: 13px;
 }
 
+.glance-item strong {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 a.glance-item:hover strong {
   color: var(--teal-700);
 }
 
 .glance-item .muted {
   font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 2px;
 }
 
 .glance-when {
   flex-shrink: 0;
-  font-size: 12px;
-  color: var(--ink-3);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  background: var(--bg);
+  padding: 3px 9px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.glance-empty {
+  font-size: 13px;
+  padding: 24px 0;
 }
 
 .no-access {
@@ -1517,21 +1608,23 @@ a.glance-item:hover strong {
 @media (max-width: 900px) {
   .approvals-glance .glance-body {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .glance-waiting {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 16px;
   }
 }
 
 @media (max-width: 480px) {
-  .glance-figures {
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 6px;
+  .glance-figure-card {
+    padding: 10px 14px;
   }
-
-  .glance-figures > div {
-    padding: 10px;
-  }
-
   .glance-figures dd {
-    font-size: 22px;
+    font-size: 20px;
   }
 }
 
