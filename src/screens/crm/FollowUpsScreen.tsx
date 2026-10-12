@@ -314,7 +314,7 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         </View>
       )}
 
-      <Modal statusBarTranslucent visible={Boolean(completingItem)} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={Boolean(completingItem)} transparent animationType="fade" onRequestClose={() => setCompletingItem(null)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
@@ -356,7 +356,7 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={Boolean(reschedulingItem)} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={Boolean(reschedulingItem)} transparent animationType="fade" onRequestClose={() => setReschedulingItem(null)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
@@ -398,7 +398,7 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={showAddModal} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showAddModal} transparent animationType="slide" onRequestClose={() => setShowAddModal(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>

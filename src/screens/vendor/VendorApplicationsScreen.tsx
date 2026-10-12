@@ -421,7 +421,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
       />
 
       {selectedApp && (
-        <Modal statusBarTranslucent visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide" onRequestClose={() => setSelectedApp(null)}>
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -556,7 +556,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
       )}
 
       {actionType && (
-        <Modal statusBarTranslucent visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade" onRequestClose={() => setActionType(null)}>
           <View style={styles.decisionBackdrop}>
             <Card style={styles.decisionModalCard}>
               <Text style={styles.decisionTitle}>

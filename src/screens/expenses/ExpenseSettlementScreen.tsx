@@ -58,14 +58,14 @@ export const ExpenseSettlementScreen: React.FC<{ route: any; navigation: any }> 
   if (!expense) {
     return (
       <View style={styles.container}>
-        <AppHeader title="Finance Settlement" showBack onBack={() => navigation.goBack()} />
+        <AppHeader title="Finance Settlement" showBack onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Expenses'))} />
         <View style={styles.notFoundBox}>
           <Text style={styles.notFoundText}>No expense claims pending finance settlement.</Text>
           <Button
             title="Return to Expenses"
             variant="outline"
             style={{ marginTop: 16 }}
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Expenses'))}
           />
         </View>
       </View>

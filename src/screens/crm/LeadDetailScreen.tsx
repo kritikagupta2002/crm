@@ -380,7 +380,7 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </Card>
       )}
 
-      <Modal statusBarTranslucent visible={showAddFollowUp} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showAddFollowUp} transparent animationType="slide" onRequestClose={() => setShowAddFollowUp(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.fuModalCard}>
             <View style={styles.modalHeader}>
@@ -433,7 +433,7 @@ export const LeadDetailScreen: React.FC<LeadDetailScreenProps> = ({ route, navig
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={showLostModal} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={showLostModal} transparent animationType="fade" onRequestClose={() => setShowLostModal(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.fuModalCard}>
             <View style={styles.modalHeader}>

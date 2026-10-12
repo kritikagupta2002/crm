@@ -64,7 +64,7 @@ export const EmployeeDetailScreen: React.FC<{ route: any; navigation: any }> = (
           <Button
             title="Return to Directory"
             variant="secondary"
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('EmployeeDirectory'))}
             style={{ marginTop: spacing.lg }}
           />
         </View>
@@ -102,7 +102,7 @@ export const EmployeeDetailScreen: React.FC<{ route: any; navigation: any }> = (
         emp={emp}
         initials={initials}
         isHrOrAdmin={isHrOrAdmin}
-        onBack={() => navigation.goBack()}
+        onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('EmployeeDirectory'))}
         onEdit={() => navigation.navigate('EditEmployee', { employeeId: emp.id })}
         onCall={handleCall}
         onEmail={handleEmail}

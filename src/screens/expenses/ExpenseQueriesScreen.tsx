@@ -205,7 +205,7 @@ export const ExpenseQueriesScreen: React.FC<{ route?: any; navigation: any }> = 
         }
       />
 
-      <Modal statusBarTranslucent visible={!!selectedQuery} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={!!selectedQuery} transparent animationType="slide" onRequestClose={() => setSelectedQuery(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.modalHeader}>

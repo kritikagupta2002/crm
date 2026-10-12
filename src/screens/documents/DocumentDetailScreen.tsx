@@ -105,11 +105,11 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
   if (!doc) {
     return (
       <View style={styles.container}>
-        <AppHeader title="Document" showBack onBack={() => navigation.goBack()} />
+        <AppHeader title="Document" showBack onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Documents'))} />
         <View style={styles.notFound}>
 
           <Text style={styles.notFoundText}>Document record not found.</Text>
-          <Button title="Go Back" variant="primary" onPress={() => navigation.goBack()} />
+          <Button title="Go Back" variant="primary" onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Documents'))} />
         </View>
       </View>
     );

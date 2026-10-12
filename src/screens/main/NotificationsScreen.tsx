@@ -426,12 +426,22 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeft}>
-          <Text style={styles.headerTitle}>Notifications</Text>
-          <Text style={styles.headerSubtitle}>
-            {unreadAlertsCount === 0
-              ? '0 unread alerts • All caught up'
-              : `${unreadAlertsCount} unread operational alert${unreadAlertsCount > 1 ? 's' : ''}`}
-          </Text>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('HomeTab')}
+            style={styles.backBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <ChevronLeft size={22} color="#0f172a" strokeWidth={2.4} />
+          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.headerTitle}>Notifications</Text>
+            <Text style={styles.headerSubtitle}>
+              {unreadAlertsCount === 0
+                ? '0 unread alerts • All caught up'
+                : `${unreadAlertsCount} unread operational alert${unreadAlertsCount > 1 ? 's' : ''}`}
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity
@@ -549,6 +559,19 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 26,

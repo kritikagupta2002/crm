@@ -118,7 +118,7 @@ export const FieldDatabaseHomeScreen: React.FC<FieldDatabaseHomeScreenProps> = (
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
           activeOpacity={0.7}
-          onPress={() => navigation.goBack()}
+          onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs'))}
           style={styles.backBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >

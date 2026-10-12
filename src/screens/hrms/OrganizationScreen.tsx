@@ -442,7 +442,7 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
             title="Return to Home"
             variant="primary"
             style={{ width: '100%', marginTop: spacing.lg }}
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs'))}
           />
         </View>
       </View>
@@ -834,7 +834,7 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </ScrollView>
       )}
 
-      <Modal visible={showDesigModal} transparent animationType="slide" statusBarTranslucent>
+      <Modal visible={showDesigModal} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowDesigModal(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
@@ -927,7 +927,7 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
         </KeyboardAvoidingView>
       </Modal>
 
-      <Modal visible={showDeptModal} transparent animationType="slide" statusBarTranslucent>
+      <Modal visible={showDeptModal} transparent animationType="slide" statusBarTranslucent onRequestClose={() => setShowDeptModal(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}

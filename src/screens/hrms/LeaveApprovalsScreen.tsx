@@ -201,7 +201,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           <Button
             title="Return to My Leaves"
             variant="primary"
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Leave'))}
             style={{ marginTop: spacing.md }}
           />
         </View>
@@ -463,7 +463,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         }
       />
 
-      <Modal statusBarTranslucent visible={isModalOpen} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={isModalOpen} transparent animationType="slide" onRequestClose={() => setIsModalOpen(false)}>
         <View style={styles.modalOverlay}>
           <View style={[styles.adjudicateModalBox, isTablet && styles.tabletModalBox]}>
             <View style={styles.modalHeader}>

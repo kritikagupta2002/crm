@@ -84,7 +84,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
     return (
       <ScreenContainer
         scrollable={false}
-        header={<AppHeader title="Work Order" showBack onBack={() => navigation.goBack()} />}
+        header={<AppHeader title="Work Order" showBack onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('WorkOrders'))} />}
       >
         <View style={styles.centerContainer}>
           <Text style={styles.notFoundText}>
@@ -92,7 +92,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
               ? 'Work Order not found.'
               : 'Access Restricted: You are not authorized to view this subcontract work order.'}
           </Text>
-          <Button title="Back to Orders" variant="outline" onPress={() => navigation.goBack()} />
+          <Button title="Back to Orders" variant="outline" onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('WorkOrders'))} />
         </View>
       </ScreenContainer>
     );
@@ -505,7 +505,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showDeliveryModal && (
-        <Modal statusBarTranslucent visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide" onRequestClose={() => setShowDeliveryModal(false)}>
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -555,7 +555,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showBillModal && (
-        <Modal statusBarTranslucent visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide" onRequestClose={() => setShowBillModal(false)}>
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -621,7 +621,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showCheckModal && (
-        <Modal statusBarTranslucent visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade" onRequestClose={() => setShowCheckModal(false)}>
           <View style={styles.centerBackdrop}>
             <Card style={styles.centerCard}>
               <Text style={styles.sheetTitle}>3-Way Reconciliation Check</Text>
@@ -694,7 +694,7 @@ export const WorkOrderDetailScreen: React.FC<WorkOrderDetailScreenProps> = ({ ro
       )}
 
       {showPayModal && (
-        <Modal statusBarTranslucent visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide" onRequestClose={() => setShowPayModal(false)}>
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>

@@ -64,13 +64,13 @@ export const VendorDetailScreen: React.FC<VendorDetailScreenProps> = ({ route, n
           <AppHeader
             title="Vendor Profile"
             showBack
-            onBack={() => navigation.goBack()}
+            onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Vendors'))}
           />
         }
       >
         <View style={styles.centerContainer}>
           <Text style={styles.notFoundText}>Vendor not found or enrolled under a different ID.</Text>
-          <Button title="Back to Vendors" variant="outline" onPress={() => navigation.goBack()} />
+          <Button title="Back to Vendors" variant="outline" onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Vendors'))} />
         </View>
       </ScreenContainer>
     );

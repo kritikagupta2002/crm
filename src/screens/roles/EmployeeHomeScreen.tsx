@@ -565,7 +565,7 @@ export const EmployeeHomeScreen: React.FC<EmployeeHomeScreenProps> = ({ navigati
         </View>
       </ScrollView>
 
-      <Modal visible={showLeaveModal} animationType="slide" transparent statusBarTranslucent>
+      <Modal visible={showLeaveModal} animationType="slide" transparent statusBarTranslucent onRequestClose={() => setShowLeaveModal(false)}>
         <View style={styles.modalBackdrop}>
           <View style={[styles.modalContainer, isTablet && styles.modalContainerTablet]}>
             <View style={styles.modalHeader}>

@@ -513,7 +513,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         )}
       </ScrollView>
 
-      <Modal statusBarTranslucent visible={isUploadModalOpen} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={isUploadModalOpen} transparent animationType="slide" onRequestClose={() => setIsUploadModalOpen(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
@@ -643,7 +643,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={!!selectedDoc} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={!!selectedDoc} transparent animationType="fade" onRequestClose={() => setSelectedDoc(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.previewCard}>
             <View style={styles.modalHeader}>
@@ -744,7 +744,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={deptPickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={deptPickerVisible} transparent animationType="fade" onRequestClose={() => setDeptPickerVisible(false)}>
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
@@ -778,7 +778,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      <Modal statusBarTranslucent visible={statusPickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={statusPickerVisible} transparent animationType="fade" onRequestClose={() => setStatusPickerVisible(false)}>
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
@@ -812,7 +812,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      <Modal statusBarTranslucent visible={typePickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={typePickerVisible} transparent animationType="fade" onRequestClose={() => setTypePickerVisible(false)}>
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
@@ -848,7 +848,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
         </TouchableOpacity>
       </Modal>
 
-      <Modal statusBarTranslucent visible={empPickerVisible} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={empPickerVisible} transparent animationType="fade" onRequestClose={() => setEmpPickerVisible(false)}>
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}

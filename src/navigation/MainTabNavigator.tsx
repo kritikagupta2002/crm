@@ -19,6 +19,7 @@ export const MainTabNavigator: React.FC = () => {
 
   return (
     <Tab.Navigator
+      backBehavior="history"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#0b2545',

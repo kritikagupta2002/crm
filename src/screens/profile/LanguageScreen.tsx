@@ -59,7 +59,7 @@ export const LanguageScreen: React.FC<LanguageScreenProps> = ({ navigation }) =>
         <View style={styles.headerLeft}>
           <TouchableOpacity
             style={styles.backBtn}
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('ProfileTab'))}
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >

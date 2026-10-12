@@ -21,6 +21,7 @@ import {
   BarChart3,
   Compass,
   ChevronRight,
+  ChevronLeft,
   Search,
   X,
   Mountain,
@@ -377,6 +378,16 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={[{ width: '100%' }, isTablet && styles.tabletContainer]}>
         <View style={styles.headerTitleRow}>
+          {navigation.canGoBack() && (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => navigation.goBack()}
+              style={styles.backBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <ChevronLeft size={22} color="#0f172a" strokeWidth={2.4} />
+            </TouchableOpacity>
+          )}
           <View style={{ flex: 1, marginRight: 8 }}>
             <Text style={styles.headerTitle}>Workspaces</Text>
             <Text style={styles.headerSubtitle} numberOfLines={1}>
@@ -551,6 +562,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 10,
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#f8fafc',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
   headerTitle: {
     fontSize: 26,

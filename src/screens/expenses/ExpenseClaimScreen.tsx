@@ -305,7 +305,7 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
         </Card>
       </ScrollView>
 
-      <Modal statusBarTranslucent visible={pickerModalOpen} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={pickerModalOpen} transparent animationType="slide" onRequestClose={() => setPickerModalOpen(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.pickerModal}>
             <View style={styles.modalHeader}>
@@ -360,7 +360,7 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={previewModalOpen} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={previewModalOpen} transparent animationType="fade" onRequestClose={() => setPreviewModalOpen(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.previewModal}>
             <View style={styles.modalHeader}>

@@ -107,11 +107,11 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
     return (
       <ScreenContainer
         scrollable={false}
-        header={<AppHeader title="Tender Details" showBack onBack={() => navigation.goBack()} />}
+        header={<AppHeader title="Tender Details" showBack onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Tenders'))} />}
       >
         <View style={styles.centerContainer}>
           <Text style={styles.notFoundText}>Tender notice not found.</Text>
-          <Button title="Back to Tenders" variant="outline" onPress={() => navigation.goBack()} />
+          <Button title="Back to Tenders" variant="outline" onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Tenders'))} />
         </View>
       </ScreenContainer>
     );
@@ -574,7 +574,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       )}
 
       {showBidModal && (
-        <Modal statusBarTranslucent visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide" onRequestClose={() => setShowBidModal(false)}>
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>
@@ -673,7 +673,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       )}
 
       {showAskModal && (
-        <Modal statusBarTranslucent visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade" onRequestClose={() => setShowAskModal(false)}>
           <View style={styles.modalBackdropCenter}>
             <Card style={styles.centerModalCard}>
               <Text style={styles.sheetTitle}>Ask Clarification Question</Text>
@@ -708,7 +708,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       )}
 
       {showAnswerModal && (
-        <Modal statusBarTranslucent visible transparent animationType="fade">
+        <Modal statusBarTranslucent visible transparent animationType="fade" onRequestClose={() => setShowAnswerModal(false)}>
           <View style={styles.modalBackdropCenter}>
             <Card style={styles.centerModalCard}>
               <Text style={styles.sheetTitle}>Publish Official Clarification Reply</Text>

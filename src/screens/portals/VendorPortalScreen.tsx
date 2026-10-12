@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, StatusBar } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, ScrollView, StyleSheet, StatusBar, BackHandler } from 'react-native';
 import { useVendorPortal } from './useVendorPortal';
 import {
   vendorTheme,
@@ -81,6 +81,46 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
       const diff = (closing - Date.now()) / (1000 * 60 * 60 * 24);
       return diff >= 0 && diff <= 3;
     }).length;
+
+  useEffect(() => {
+    const onBackPress = () => {
+      if (
+        notificationsVisible ||
+        accountModalVisible ||
+        deliveryModalVisible ||
+        billingModalVisible ||
+        askModalVisible
+      ) {
+        setNotificationsVisible(false);
+        setAccountModalVisible(false);
+        setDeliveryModalVisible(false);
+        setBillingModalVisible(false);
+        setAskModalVisible(false);
+        return true;
+      }
+      if (activeTab !== 'home') {
+        setActiveTab('home');
+        return true;
+      }
+      return false;
+    };
+
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [
+    notificationsVisible,
+    accountModalVisible,
+    deliveryModalVisible,
+    billingModalVisible,
+    askModalVisible,
+    activeTab,
+    setNotificationsVisible,
+    setAccountModalVisible,
+    setDeliveryModalVisible,
+    setBillingModalVisible,
+    setAskModalVisible,
+    setActiveTab,
+  ]);
 
   return (
     <View style={styles.container}>

@@ -59,7 +59,7 @@ export const PublicEnquiryScreen: React.FC<PublicEnquiryScreenProps> = ({ naviga
           </Text>
           <Button
             title="Return to Sign In"
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Login'))}
             size="lg"
             style={styles.returnBtn}
           />

@@ -84,7 +84,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
           </Text>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('WorkspacesTab'))}
           >
             <Text style={styles.backButtonText}>Return to Workspaces</Text>
           </TouchableOpacity>

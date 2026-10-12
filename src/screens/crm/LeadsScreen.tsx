@@ -405,7 +405,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </ScrollView>
       )}
 
-      <Modal statusBarTranslucent visible={showFilterModal} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={showFilterModal} transparent animationType="fade" onRequestClose={() => setShowFilterModal(false)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.filterModalCard}>
             <View style={styles.modalHeader}>
@@ -436,7 +436,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </View>
       </Modal>
 
-      <Modal visible={showAddModal} animationType="slide">
+      <Modal visible={showAddModal} animationType="slide" onRequestClose={() => setShowAddModal(false)}>
         <ScreenContainer
           scrollable
           header={
@@ -541,7 +541,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         </ScreenContainer>
       </Modal>
 
-      <Modal statusBarTranslucent visible={Boolean(losingLeadId)} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={Boolean(losingLeadId)} transparent animationType="fade" onRequestClose={() => setLosingLeadId(null)}>
         <View style={styles.modalBackdrop}>
           <View style={styles.lostModalCard}>
             <View style={styles.modalHeader}>

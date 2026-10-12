@@ -97,7 +97,7 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
 
   return (
     <>
-      <Modal statusBarTranslucent visible={deliveryModalVisible} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={deliveryModalVisible} transparent animationType="slide" onRequestClose={() => setDeliveryModalVisible(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
@@ -173,7 +173,7 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
         </KeyboardAvoidingView>
       </Modal>
 
-      <Modal statusBarTranslucent visible={billingModalVisible} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={billingModalVisible} transparent animationType="slide" onRequestClose={() => setBillingModalVisible(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
@@ -271,7 +271,7 @@ export const VendorPortalModals: React.FC<VendorPortalModalsProps> = ({
         </KeyboardAvoidingView>
       </Modal>
 
-      <Modal statusBarTranslucent visible={askModalVisible} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={askModalVisible} transparent animationType="slide" onRequestClose={() => setAskModalVisible(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}

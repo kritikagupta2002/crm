@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, Bell } from 'lucide-react-native';
 import { colors, spacing, typography, radius, shadows } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
@@ -29,13 +30,14 @@ interface AppHeaderProps {
 export const AppHeader: React.FC<AppHeaderProps> = ({
   title,
   subtitle,
-  showBack = false,
+  showBack,
   onBack,
   rightAction,
   onNotificationPress,
   badge,
   badgeIcon,
 }) => {
+  const navigation = useNavigation<any>();
   const { unreadCount } = useNotifications();
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
@@ -49,6 +51,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     Platform.OS === 'android' ? androidStatusBar : 16
   );
 
+  const canGoBack = navigation?.canGoBack ? navigation.canGoBack() : false;
+  const shouldShowBack = showBack !== undefined ? showBack : canGoBack;
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else if (navigation?.canGoBack && navigation.canGoBack()) {
+      navigation.goBack();
+    } else if (navigation?.navigate) {
+      navigation.navigate('MainTabs');
+    }
+  };
+
   return (
     <View style={[styles.headerContainer, { paddingTop: Math.max(topInset + 4, 12), paddingHorizontal: headerPadding }]}>
       <StatusBar
@@ -59,10 +74,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       
       <View style={[styles.contentRow, isTablet && styles.tabletContentRow]}>
         <View style={styles.leftCol}>
-          {showBack ? (
+          {shouldShowBack ? (
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={onBack}
+              onPress={handleBack}
               style={[styles.backButton, isNarrow && styles.compactIconButton]}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >

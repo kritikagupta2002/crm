@@ -73,14 +73,14 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
   if (!expense) {
     return (
       <View style={styles.container}>
-        <AppHeader title="Audit & Review Queue" showBack onBack={() => navigation.goBack()} />
+        <AppHeader title="Audit & Review Queue" showBack onBack={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Expenses'))} />
         <View style={styles.notFoundBox}>
           <Text style={styles.notFoundText}>No pending expense claims to review.</Text>
           <Button
             title="Return to Expenses"
             variant="outline"
             style={{ marginTop: 16 }}
-            onPress={() => navigation.goBack()}
+            onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Expenses'))}
           />
         </View>
       </View>
@@ -387,7 +387,7 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         )}
       </ScrollView>
 
-      <Modal statusBarTranslucent visible={showPartialModal} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showPartialModal} transparent animationType="slide" onRequestClose={() => setShowPartialModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalHeading}>Partial Amount Approval</Text>
@@ -441,7 +441,7 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={showQueryModal} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showQueryModal} transparent animationType="slide" onRequestClose={() => setShowQueryModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalHeading}>Raise Clarification Query</Text>
@@ -486,7 +486,7 @@ export const ExpenseReviewScreen: React.FC<{ route: any; navigation: any }> = ({
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={showReceiptModal} transparent animationType="fade">
+      <Modal statusBarTranslucent visible={showReceiptModal} transparent animationType="fade" onRequestClose={() => setShowReceiptModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.receiptHead}>

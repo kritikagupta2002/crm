@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, SafeAreaView, StatusBar, BackHandler } from 'react-native';
 import {
   clientTheme,
   useClientPortal,
@@ -74,6 +74,40 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
   } = useClientPortal();
 
   const unreadNotificationsCount = pendingDeliverablesCount + pendingInvoicesCount;
+
+  useEffect(() => {
+    const onBackPress = () => {
+      if (selectedProjectForDetail || selectedDeliverableForReview || selectedInvoiceForDetail || selectedInvoiceForUpi || notificationsVisible) {
+        setSelectedProjectForDetail(null);
+        setSelectedDeliverableForReview(null);
+        setSelectedInvoiceForDetail(null);
+        setSelectedInvoiceForUpi(null);
+        setNotificationsVisible(false);
+        return true;
+      }
+      if (activeTab !== 'home') {
+        setActiveTab('home');
+        return true;
+      }
+      return false;
+    };
+
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, [
+    activeTab,
+    selectedProjectForDetail,
+    selectedDeliverableForReview,
+    selectedInvoiceForDetail,
+    selectedInvoiceForUpi,
+    notificationsVisible,
+    setActiveTab,
+    setSelectedProjectForDetail,
+    setSelectedDeliverableForReview,
+    setSelectedInvoiceForDetail,
+    setSelectedInvoiceForUpi,
+    setNotificationsVisible,
+  ]);
 
   return (
     <SafeAreaView style={styles.safeArea}>

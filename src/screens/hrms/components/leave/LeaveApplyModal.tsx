@@ -71,7 +71,7 @@ export const LeaveApplyModal: React.FC<LeaveApplyModalProps> = ({
   onSubmit,
 }) => {
   return (
-    <Modal statusBarTranslucent visible={visible} transparent animationType="slide">
+    <Modal statusBarTranslucent visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalOverlay}>
         <View style={styles.applyModalBox}>
           <View style={styles.modalHeader}>

@@ -396,7 +396,7 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
       />
 
       {showCreateModal && (
-        <Modal statusBarTranslucent visible transparent animationType="slide">
+        <Modal statusBarTranslucent visible transparent animationType="slide" onRequestClose={() => setShowCreateModal(false)}>
           <View style={styles.modalBackdrop}>
             <View style={styles.modalSheet}>
               <View style={styles.sheetHeader}>

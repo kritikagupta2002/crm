@@ -552,7 +552,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         }
       />
 
-      <Modal statusBarTranslucent visible={showAddModal} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={showAddModal} transparent animationType="slide" onRequestClose={() => setShowAddModal(false)}>
         <View style={styles.modalOverlay}>
           <ScrollView contentContainerStyle={styles.modalScroll} keyboardShouldPersistTaps="handled">
             <View style={styles.modalContent}>
@@ -779,7 +779,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={!!reviewTarget} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={!!reviewTarget} transparent animationType="slide" onRequestClose={() => setReviewTarget(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.modalHeader}>
@@ -854,7 +854,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
         </View>
       </Modal>
 
-      <Modal statusBarTranslucent visible={!!settleTarget} transparent animationType="slide">
+      <Modal statusBarTranslucent visible={!!settleTarget} transparent animationType="slide" onRequestClose={() => setSettleTarget(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <View style={styles.modalHeader}>
