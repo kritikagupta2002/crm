@@ -213,6 +213,19 @@ export const LeaveApprovalsPage = () => {
             Leave Dashboard
           </Button>}/>
 
+      {/* Executive Authority Banner */}
+      <div className="p-3 bg-gradient-to-r from-teal-50 to-slate-50 dark:from-teal-950/40 dark:to-slate-900 border border-teal-200 dark:border-teal-800 rounded-xl flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-teal-600 animate-pulse" />
+          <span className="text-slate-700 dark:text-slate-300">
+            Designated Approver: <strong className="text-slate-900 dark:text-white">Dharmendra Goyal (Executive Director)</strong>
+          </span>
+        </div>
+        <span className="text-slate-500 text-[11px] hidden sm:inline">
+          Master Oversight: <strong>Dr. Amit Kumar Bansal (Managing Director)</strong>
+        </span>
+      </div>
+
       {/* Filter Controls */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 bg-white dark:bg-[#1A2430] p-2.5 sm:p-3 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mr-1">

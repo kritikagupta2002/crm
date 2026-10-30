@@ -11,14 +11,14 @@ const AuthContext = createContext(undefined);
 
 function hrUserOf(crmUser, role) {
     const employees = storage.getEmployees?.() || [];
-    const employee = employees.find((e) => e?.name === crmUser?.name);
+    const employee = employees.find((e) => e?.name === crmUser?.name || (crmUser?.id && e?.employeeId === crmUser.id) || (crmUser?.email && e?.contact?.workEmail === crmUser.email));
     return {
         id: employee?.id ?? null,
-        name: crmUser?.name || 'Staff Member',
-        email: employee?.contact?.workEmail ?? '',
+        name: employee?.name || crmUser?.name || 'Staff Member',
+        email: employee?.contact?.workEmail ?? crmUser?.email ?? '',
         role: hrRoleOf(role),
-        employeeId: employee?.employeeId ?? null,
-        avatarUrl: '',
+        employeeId: employee?.employeeId ?? crmUser?.id ?? null,
+        avatarUrl: employee?.avatarUrl || '',
         department: employee?.employment?.department ?? '',
         designation: employee?.employment?.designation ?? crmUser?.title ?? 'Employee',
     };

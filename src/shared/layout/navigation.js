@@ -17,8 +17,8 @@ import {
 } from 'lucide-react'
 
 // Roles that have access to full HR administrative controls
-const HR_ADMIN_ROLES = ['Super Admin', 'Director']
-const HR_MANAGEMENT_ROLES = ['Super Admin', 'Director', 'Manager']
+const HR_ADMIN_ROLES = ['Managing Director', 'Super Admin', 'Director']
+const HR_MANAGEMENT_ROLES = ['Managing Director', 'Super Admin', 'Director', 'Manager']
 
 export const NAV_GROUPS = [
   {

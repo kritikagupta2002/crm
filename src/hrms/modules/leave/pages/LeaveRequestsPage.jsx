@@ -252,9 +252,6 @@ export const LeaveRequestsPage = () => {
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave')} leftIcon={<ArrowLeft className="w-4 h-4"/>}>
               Overview
             </Button>
-            <Button variant="primary" size="sm" onClick={() => navigate('/hr/leave/apply')} leftIcon={<Plus className="w-4 h-4"/>}>
-              Apply Leave
-            </Button>
           </div>}/>
 
       {/* Filter Controls */}

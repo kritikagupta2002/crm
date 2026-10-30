@@ -10,11 +10,11 @@ import './auth.css'
 
 function TeamForm({ onDone }) {
   const { role, fieldMember, signIn } = useCrm()
-  const defaultRole = ROLE_ACCESS[role] ? role : 'Super Admin'
+  const defaultRole = ROLE_ACCESS[role] ? role : 'Managing Director'
 
   const [signInAs, setSignInAs] = useState(defaultRole)
   const [member, setMember] = useState(fieldMember || FIELD_MEMBERS[0]?.name || '')
-  const [email, setEmail] = useState(ROLE_USERS[defaultRole]?.email || 'kritika.gupta@bansalgeo.com')
+  const [email, setEmail] = useState(ROLE_USERS[defaultRole]?.email || 'amit.bansal@bansalgeo.com')
   const [password, setPassword] = useState('demo1234')
   const [showPassword, setShowPassword] = useState(false)
 

@@ -14,10 +14,10 @@ export function Sidebar({ onNavigate, onClose, nav, counts, expanded = false, fo
   const { user } = useCrm()
   const { can, role } = useAccess()
   const badges = counts ?? {
-    correctionsPending: ['Super Admin', 'Director'].includes(role)
+    correctionsPending: ['Managing Director', 'Director', 'Super Admin'].includes(role)
       ? (storage.getCorrections?.() || []).filter((c) => c?.status === 'Pending').length
       : 0,
-    leavesPending: ['Super Admin', 'Director'].includes(role)
+    leavesPending: ['Managing Director', 'Director', 'Super Admin'].includes(role)
       ? (storage.getLeaveRequests?.() || []).filter((l) => l?.status === 'Pending').length
       : 0,
   }

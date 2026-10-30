@@ -304,6 +304,10 @@
   width: 100%;
 }
 
+.role-card:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+
 .role-card {
   position: relative;
   display: flex;

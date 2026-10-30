@@ -235,9 +235,9 @@ export function CrmProvider({ children }) {
   const [fieldMember, setFieldMemberState] = useState(loadFieldMember)
   // The person signed in: one per role, except the field team, where it is whichever member signed in.
   const user = useMemo(() => {
-    if (role !== 'Employee') return ROLE_USERS[role] ?? ROLE_USERS['Super Admin']
+    if (role !== 'Employee') return ROLE_USERS[role] ?? ROLE_USERS['Managing Director'] ?? ROLE_USERS['Super Admin']
     const member = FIELD_MEMBERS.find((m) => m.name === fieldMember)
-    return { name: fieldMember, title: member?.title ?? ROLE_USERS[role]?.title }
+    return { name: fieldMember, title: member?.title ?? ROLE_USERS[role]?.title, id: member?.id, email: member?.email }
   }, [role, fieldMember])
   const [teamSignedIn, setTeamSignedIn] = useState(loadTeam)
   const [clientLeadId, setClientLeadId] = useState(loadClient)

@@ -11,6 +11,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { storage } from '@/core/storage/storage';
 import { leaveService } from '@/modules/leave/services/leave.service';
 import { EmployeeDashboard } from '../components/EmployeeDashboard';
+import { ExecutivePunchCard } from '@/modules/attendance/components/ExecutivePunchCard';
 import { getDailyQuote } from '@/data';
 // Live Digital Clock isolated component to prevent parent dashboard re-renders
 const LiveClock = ({ className }) => {
@@ -448,6 +449,9 @@ const AdminDashboard = () => {
             </div>
           </div>
 
+          {/* ── EXECUTIVE ATTENDANCE PUNCH (AMIT BANSAL & DHARMENDRA GOYAL) ── */}
+          <ExecutivePunchCard />
+
           {/* ── DASHBOARD FILTERS BAR ── */}
           <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.2)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -814,7 +818,7 @@ const AdminDashboard = () => {
                       Pending Approvals
                     </h3>
                     <span className="w-5 h-5 rounded-full bg-[#31485A] text-white dark:bg-slate-700 dark:text-white text-[11px] font-bold flex items-center justify-center shadow-2xs">
-                      3
+                      {allLeaveRequests.filter((l) => l.status === 'Pending').length}
                     </span>
                   </div>
                   <button type="button" onClick={() => navigate('/hr/leave/approvals')} className="text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1 transition-colors">
@@ -822,6 +826,12 @@ const AdminDashboard = () => {
                     <span>→</span>
                   </button>
                 </div>
+
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-2.5 mb-3">
+                  {user?.name?.includes('Dharmendra')
+                    ? 'Designated Approver: Reviewing all employee leave and attendance requests.'
+                    : 'Master Oversight: Viewing all raised employee applications across sites.'}
+                </p>
 
                 {/* Table */}
                 <div className="overflow-x-auto custom-sidebar-scroll">
@@ -835,107 +845,69 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-[#253344]">
-                      {/* Row 1: Ravi Gurjar */}
-                      <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <div className="flex items-center gap-2.5">
-                            <span className="w-8 h-8 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs shrink-0">{'Ravi Gurjar'.split(" ").map((w) => w[0]).join("").slice(0, 2)}</span>
-                            <div className="min-w-0">
-                              <p className="font-bold text-[#1E293B] dark:text-slate-100 text-xs leading-tight whitespace-nowrap">Ravi Gurjar</p>
-                              <p className="text-[10px] text-slate-400 font-mono mt-0.5 whitespace-nowrap">BGS-031 • Applied 9 Sep</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/60 whitespace-nowrap">
-                            Earned Leave
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <div className="whitespace-nowrap leading-tight">
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">12 Sep – 14 Sep</span>
-                            <span className="text-[10px] text-slate-400 font-medium ml-1.5">(3 days)</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button type="button" onClick={() => handleApproveLeave('lr-001', 'Ravi Gurjar')} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-800/60 transition-colors shadow-2xs cursor-pointer">
-                              Approve
-                            </button>
-                            <button type="button" onClick={() => handleRejectLeave('lr-001', 'Ravi Gurjar')} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-[#D24C47] dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800/60 transition-colors shadow-2xs cursor-pointer">
-                              Reject
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-
-                      {/* Row 2: Rohan Deshmukh */}
-                      <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <div className="flex items-center gap-2.5">
-                            <span className="w-8 h-8 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs shrink-0">{'Rohan Deshmukh'.split(" ").map((w) => w[0]).join("").slice(0, 2)}</span>
-                            <div className="min-w-0">
-                              <p className="font-bold text-[#1E293B] dark:text-slate-100 text-xs leading-tight whitespace-nowrap">Rohan Deshmukh</p>
-                              <p className="text-[10px] text-slate-400 font-mono mt-0.5 whitespace-nowrap">BGS-017 • Applied 8 Sep</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/60 whitespace-nowrap">
-                            Sick Leave
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <div className="whitespace-nowrap leading-tight">
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">10 Sep – 10 Sep</span>
-                            <span className="text-[10px] text-slate-400 font-medium ml-1.5">(1 day)</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button type="button" onClick={() => handleApproveLeave('lr-002', 'Rohan Deshmukh')} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-800/60 transition-colors shadow-2xs cursor-pointer">
-                              Approve
-                            </button>
-                            <button type="button" onClick={() => handleRejectLeave('lr-002', 'Rohan Deshmukh')} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-[#D24C47] dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800/60 transition-colors shadow-2xs cursor-pointer">
-                              Reject
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-
-                      {/* Row 3: Vikramaditya Rathore */}
-                      <tr className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <div className="flex items-center gap-2.5">
-                            <span className="w-8 h-8 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs shrink-0">{'Vikramaditya Rathore'.split(" ").map((w) => w[0]).join("").slice(0, 2)}</span>
-                            <div className="min-w-0">
-                              <p className="font-bold text-[#1E293B] dark:text-slate-100 text-xs leading-tight whitespace-nowrap">Vikramaditya Rathore</p>
-                              <p className="text-[10px] text-slate-400 font-mono mt-0.5 whitespace-nowrap">BGS-005 • Applied 8 Sep</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/60 whitespace-nowrap">
-                            Casual Leave
-                          </span>
-                        </td>
-                        <td className="py-3 px-3 whitespace-nowrap">
-                          <div className="whitespace-nowrap leading-tight">
-                            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">18 Sep – 19 Sep</span>
-                            <span className="text-[10px] text-slate-400 font-medium ml-1.5">(2 days)</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button type="button" onClick={() => handleApproveLeave('lr-003', 'Vikramaditya Rathore')} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-800/60 transition-colors shadow-2xs cursor-pointer">
-                              Approve
-                            </button>
-                            <button type="button" onClick={() => handleRejectLeave('lr-003', 'Vikramaditya Rathore')} className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-[#D24C47] dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800/60 transition-colors shadow-2xs cursor-pointer">
-                              Reject
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                      {allLeaveRequests.filter((l) => l.status === 'Pending').length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-6 text-center text-xs text-slate-400">
+                            No pending requests waiting for review. All requests processed.
+                          </td>
+                        </tr>
+                      ) : (
+                        allLeaveRequests
+                          .filter((l) => l.status === 'Pending')
+                          .slice(0, 4)
+                          .map((req) => (
+                            <tr key={req.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                              <td className="py-3 px-3 whitespace-nowrap">
+                                <div className="flex items-center gap-2.5">
+                                  <span className="w-8 h-8 rounded-full bg-teal-700 text-white font-bold flex items-center justify-center text-xs shrink-0">
+                                    {req.employeeName.split(' ').map((w) => w[0]).join('').slice(0, 2)}
+                                  </span>
+                                  <div className="min-w-0">
+                                    <p className="font-bold text-[#1E293B] dark:text-slate-100 text-xs leading-tight whitespace-nowrap">
+                                      {req.employeeName}
+                                    </p>
+                                    <p className="text-[10px] text-slate-400 font-mono mt-0.5 whitespace-nowrap">
+                                      {req.employeeId} • Applied {req.appliedOn}
+                                    </p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 whitespace-nowrap">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 border border-teal-200/70 dark:border-teal-800/60 whitespace-nowrap">
+                                  {req.leaveType}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 whitespace-nowrap">
+                                <div className="whitespace-nowrap leading-tight">
+                                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+                                    {req.startDate} – {req.endDate}
+                                  </span>
+                                  <span className="text-[10px] text-slate-400 font-medium ml-1.5">
+                                    ({req.requestedDays || req.days} days)
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-3 px-3 text-right whitespace-nowrap">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleApproveLeave(req.id, req.employeeName)}
+                                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-800/60 transition-colors shadow-2xs cursor-pointer"
+                                  >
+                                    Approve
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRejectLeave(req.id, req.employeeName)}
+                                    className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-rose-50 dark:bg-rose-950/40 text-[#D24C47] dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800/60 transition-colors shadow-2xs cursor-pointer"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                      )}
                     </tbody>
                   </table>
                 </div>

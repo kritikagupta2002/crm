@@ -56,9 +56,6 @@ export const LeaveDashboardPage = () => {
                   Approvals ({pendingRequests.length})
                 </Button>
               </>)}
-            <Button variant="primary" size="sm" onClick={() => navigate('/hr/leave/apply')} leftIcon={<CalendarPlus className="w-4 h-4"/>}>
-              Apply Leave
-            </Button>
           </div>}/>
 
       {/* Leave Balances Grid */}
@@ -87,11 +84,11 @@ export const LeaveDashboardPage = () => {
       </div>
 
       {/* Quick Access Tiles - Role-Adaptive */}
-      <div className={`grid grid-cols-2 ${isEmp ? 'sm:grid-cols-4' : 'sm:grid-cols-3 lg:grid-cols-5'} gap-2.5`}>
-        <button onClick={() => navigate('/hr/leave/apply')} className="p-2.5 sm:p-3 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] hover:border-blue-400 dark:hover:border-blue-500/60 hover:shadow-2xs transition-all text-left group">
-          <CalendarPlus className="w-4 h-4 text-blue-600 dark:text-blue-400 mb-1 group-hover:scale-110 transition-transform"/>
-          <p className="text-xs font-bold text-slate-900 dark:text-white">Apply Leave</p>
-          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Submit new request</p>
+      <div className={`grid grid-cols-2 ${isEmp ? 'sm:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4'} gap-2.5`}>
+        <button onClick={() => navigate('/hr/leave/balance')} className="p-2.5 sm:p-3 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] hover:border-blue-400 dark:hover:border-blue-500/60 hover:shadow-2xs transition-all text-left group">
+          <Scale className="w-4 h-4 text-blue-600 dark:text-blue-400 mb-1 group-hover:scale-110 transition-transform"/>
+          <p className="text-xs font-bold text-slate-900 dark:text-white">{isEmp ? 'My Quotas' : 'Quota Ledger'}</p>
+          <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Annual entitlement overview</p>
         </button>
 
         <button onClick={() => navigate('/hr/leave/requests')} className="p-2.5 sm:p-3 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] hover:border-blue-400 dark:hover:border-blue-500/60 hover:shadow-2xs transition-all text-left group">

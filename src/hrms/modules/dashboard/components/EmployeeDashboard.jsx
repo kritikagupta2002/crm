@@ -462,12 +462,6 @@ export const EmployeeDashboard = () => {
             : 'border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'}`} leftIcon={<Clock className="w-3.5 h-3.5 text-emerald-500"/>}>
               Punch Log
             </Button>
-
-            <Button variant="primary" size="sm" onClick={() => navigate('/hr/leave/apply')} className={`h-8 text-xs font-semibold shadow-xs ${bannerStyle === 'midnight'
-            ? '!bg-gradient-to-r !from-amber-500 !to-amber-600 hover:!from-amber-600 hover:!to-amber-700 !text-slate-950 font-bold'
-            : 'bg-gradient-to-r from-[#1F6F78] to-[#2A8089] hover:from-[#175960] hover:to-[#1F6F78] text-white'}`} leftIcon={<CalendarPlus className="w-3.5 h-3.5"/>}>
-              Apply Leave
-            </Button>
           </div>
         </div>
       </div>

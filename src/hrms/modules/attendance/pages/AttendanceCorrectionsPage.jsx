@@ -206,6 +206,19 @@ export const AttendanceCorrectionsPage = () => {
             Request Correction
           </Button>}/>
 
+      {/* Executive Authority Banner */}
+      <div className="p-3 bg-gradient-to-r from-amber-50 to-slate-50 dark:from-amber-950/40 dark:to-slate-900 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
+          <span className="text-slate-700 dark:text-slate-300">
+            Designated Regularization Approver: <strong className="text-slate-900 dark:text-white">Dharmendra Goyal (Executive Director)</strong>
+          </span>
+        </div>
+        <span className="text-slate-500 text-[11px] hidden sm:inline">
+          Master Oversight: <strong>Dr. Amit Kumar Bansal (Managing Director)</strong>
+        </span>
+      </div>
+
       <DataTable compact={true} columns={columns} data={filteredRequests} keyField="id" searchPlaceholder={isEmp ? 'Search my correction requests...' : 'Search correction requests...'} searchFields={isEmp ? ['reason', 'date'] : ['employeeName', 'employeeId', 'reason']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[130px]">
               <Select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} options={[

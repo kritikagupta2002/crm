@@ -45,9 +45,9 @@ const HR_TEAM = [
 ]
 
 export const ROLE_ACCESS = {
-  'Super Admin': {
-    brief: 'Full HR Administration',
-    note: 'Complete access to all employee records, attendance tracking, shift scheduling, approvals, and HR settings',
+  'Managing Director': {
+    brief: 'Master Executive Oversight',
+    note: 'Master oversight across all employee logs, attendance records, requests raised, approvals, and system outputs (Dr. Amit Kumar Bansal)',
     pages: 'all',
     masked: false,
     pnl: false,
@@ -55,8 +55,17 @@ export const ROLE_ACCESS = {
     home: '/',
   },
   Director: {
-    brief: 'Executive & Approvals',
-    note: 'Executive access across all employee records, attendance overview, team directory and approvals',
+    brief: 'Executive & Approvals Authority',
+    note: 'Designated authority: reviews and approves all employee leave requests, attendance corrections, and late/unmarked regularizations (Dharmendra Goyal)',
+    pages: 'all',
+    masked: false,
+    pnl: false,
+    bank: false,
+    home: '/',
+  },
+  'Super Admin': {
+    brief: 'Full HR Administration',
+    note: 'HR operations, employee directory, attendance tracking, shift assignments, and company settings (Kritika Gupta)',
     pages: 'all',
     masked: false,
     pnl: false,
@@ -65,7 +74,7 @@ export const ROLE_ACCESS = {
   },
   Manager: {
     brief: 'Team & Attendance',
-    note: 'Team attendance oversight, leave approvals, shifts management and self-service',
+    note: 'Team attendance oversight, field survey operations, shift management, and self-service (Inder Nogiya)',
     pages: HR_TEAM,
     masked: false,
     pnl: false,
@@ -88,8 +97,9 @@ export const MASKED = '₹ ••••'
 
 // Legacy role mappings so previously saved roles in localStorage resolve cleanly.
 export const OLD_ROLES = {
-  Admin: 'Super Admin',
+  Admin: 'Managing Director',
   HR: 'Super Admin',
+  'HR Admin': 'Super Admin',
   Accountant: 'Super Admin',
   'Team Lead': 'Manager',
   Management: 'Director',
@@ -98,16 +108,17 @@ export const OLD_ROLES = {
   Coordinator: 'Manager',
   Sales: 'Employee',
   'Field Member': 'Employee',
-  'Finance Master': 'Super Admin',
+  'Finance Master': 'Managing Director',
   'Accounts Executive': 'Manager',
 }
 
 /* Real company personnel for roles */
 export const ROLE_USERS = {
-  'Super Admin': { name: 'Kritika Gupta', title: 'HR & Operations Lead', email: 'kritika.gupta@bansalgeo.com' },
-  Director: { name: 'Dharmendra Goyal', title: 'Executive Director', email: 'dharmendra.goyal@bansalgeo.com' },
-  Manager: { name: 'Inder Nogiya', title: 'Manager (Survey)', email: 'inder.nogiya@bansalgeo.com' },
-  Employee: { name: 'Vikas Verma', title: 'Surveyor', email: 'vikas.verma@bansalgeo.com' },
+  'Managing Director': { name: 'Dr. Amit Kumar Bansal', title: 'Managing Director & Chief Geologist', email: 'amit.bansal@bansalgeo.com', id: 'BGS/DIR-01' },
+  Director: { name: 'Dharmendra Goyal', title: 'Executive Director', email: 'dharmendra.goyal@bansalgeo.com', id: 'BGS/DIR-03' },
+  'Super Admin': { name: 'Kritika Gupta', title: 'HR & Operations Lead', email: 'kritika.gupta@bansalgeo.com', id: 'BGS/ADM-01' },
+  Manager: { name: 'Inder Nogiya', title: 'Manager (Survey)', email: 'inder.nogiya@bansalgeo.com', id: 'BGS/01' },
+  Employee: { name: 'Vikas Verma', title: 'Surveyor', email: 'vikas.verma@bansalgeo.com', id: 'BGS/04' },
 }
 
 export const initialsOf = (name) =>
