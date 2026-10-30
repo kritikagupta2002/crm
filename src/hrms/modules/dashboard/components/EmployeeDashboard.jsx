@@ -1,7 +1,7 @@
 import { Avatar } from '@/components/common/Avatar';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Boxes, Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, } from 'lucide-react';
+import { Boxes, Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, ShieldAlert, Crosshair, Navigation, CheckCircle2, AlertTriangle, Eye, EyeOff, Layers, Map as MapIcon, } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -13,6 +13,9 @@ import { attendanceService } from '@/modules/attendance/services/attendance.serv
 import { parseClock, todayIso } from '@/modules/attendance/utils/punch';
 import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
 import { isWorkingDay, PUBLIC_HOLIDAYS_2026 } from '@/modules/leave/utils/workingDays';
+import { evaluateGeofence, OFFICE_CENTROID, OFFICE_INFO } from '@/modules/attendance/utils/geofence';
+import { GeofenceModal } from '@/modules/attendance/components/GeofenceModal';
+import { GeofenceMap } from '@/modules/attendance/components/GeofenceMap';
 export const EmployeeDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -110,6 +113,42 @@ export const EmployeeDashboard = () => {
     // Today's punch, from the attendance register.
     const [todayRecord, setTodayRecord] = useState(() => storage.getAttendance().find((a) => a.employeeId === user?.employeeId && a.date === todayIso()));
     const [isPunching, setIsPunching] = useState(false);
+
+    // Geofence GPS location & status (initialized to office polygon centroid)
+    const [userCoords, setUserCoords] = useState(() => ({
+        latitude: OFFICE_CENTROID[0],
+        longitude: OFFICE_CENTROID[1],
+        accuracy: 8,
+        simulated: true,
+    }));
+    const [isGeofenceModalOpen, setIsGeofenceModalOpen] = useState(false);
+    const [showInlineMap, setShowInlineMap] = useState(false);
+
+    const geofence = useMemo(() => {
+        return evaluateGeofence(userCoords?.latitude, userCoords?.longitude, userCoords?.accuracy || 10);
+    }, [userCoords]);
+    const isInsideGeofence = geofence.isInside;
+
+    // Detect browser GPS on mount if permission granted
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    setUserCoords({
+                        latitude: pos.coords.latitude,
+                        longitude: pos.coords.longitude,
+                        accuracy: Math.round(pos.coords.accuracy),
+                        simulated: false,
+                    });
+                },
+                () => {
+                    // Retain default simulated inside location if permission prompt dismissed or offline
+                },
+                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+            );
+        }
+    }, []);
+
     useEffect(() => {
         if (user?.employeeId) {
             setTodayRecord(storage.getAttendance().find((a) => a.employeeId === user.employeeId && a.date === todayIso()));
@@ -121,7 +160,7 @@ export const EmployeeDashboard = () => {
     const isClockedIn = punchedIn && !punchedOut;
     const clockInTime = punchedIn ? todayRecord.checkIn : null;
     const clockOutTime = punchedOut ? todayRecord.checkOut : null;
-    // Real-time Shift Countdown & Progress    // Real-time Shift Countdown & Progress (Format: HH:mm:ss e.g. 03:00:13)
+    // Real-time Shift Countdown & Progress (Format: HH:mm:ss e.g. 03:00:13)
     const shiftRemaining = useMemo(() => {
         const startDate = parseTimeToDate(empShift.startTime, now);
         let endDate = parseTimeToDate(empShift.endTime, now);
@@ -167,17 +206,30 @@ export const EmployeeDashboard = () => {
             };
         }
     }, [now, empShift.startTime, empShift.endTime, isClockedIn]);
+
     const handleTogglePunch = async () => {
         if (punchedOut || onLeaveToday || isPunching)
             return;
+
+        // Strict Geofence verification
+        if (!isInsideGeofence) {
+            toast.error(
+                `Attendance Locked: You are outside the office geofence (${Math.round(geofence.distanceMeters || 0)}m away). Move inside the office boundary to punch.`,
+                'Geofence Required'
+            );
+            setIsGeofenceModalOpen(true);
+            return;
+        }
+
         setIsPunching(true);
         try {
-            const rec = await attendanceService.recordPunch(user?.employeeId, isClockedIn ? 'checkOut' : 'checkIn', 'Web portal');
+            const punchSource = `Office Geofenced GPS (${isInsideGeofence ? 'Verified Inside' : 'Outside'})`;
+            const rec = await attendanceService.recordPunch(user?.employeeId, isClockedIn ? 'checkOut' : 'checkIn', punchSource, userCoords);
             setTodayRecord(rec);
             if (isClockedIn)
-                toast.success(`Punched out at ${rec.checkOut}. Worked ${rec.workingHours}.`, 'Punch Out Recorded');
+                toast.success(`Punched out at ${rec.checkOut}. Worked ${rec.workingHours}. · Geofence Verified`, 'Punch Out Recorded');
             else
-                toast.success(`Punched in at ${rec.checkIn}${rec.status === 'Late' ? ` (late by ${rec.lateBy})` : ''}.`, 'Punch In Recorded');
+                toast.success(`Punched in at ${rec.checkIn}${rec.status === 'Late' ? ` (late by ${rec.lateBy})` : ''} · Geofence Verified.`, 'Punch In Recorded');
         }
         catch (err) {
             toast.error(err.message, 'Punch not recorded');
@@ -502,17 +554,125 @@ export const EmployeeDashboard = () => {
                   <MapPin className="w-3 h-3 text-[#FEC13D]"/>
                   {empShift.location}
                 </span>
-                <span className="text-slate-500">{todayRecord?.punchSource || 'Web portal'}</span>
+                <span className="text-slate-500 font-medium">{todayRecord?.punchSource || (isInsideGeofence ? 'Geofenced GPS' : 'Web portal')}</span>
               </div>
+            </div>
+
+            {/* Geofence Live Location & Verification Card */}
+            <div className={`p-2.5 rounded-xl border text-xs transition-all ${
+              isInsideGeofence
+                ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                : 'bg-rose-50/90 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+            }`}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 overflow-hidden">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${isInsideGeofence ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                  <span className="font-bold truncate text-[11.5px]">
+                    {isInsideGeofence
+                      ? 'Inside Office Geofence (0m)'
+                      : `Outside Geofence (${Math.round(geofence.distanceMeters || 0)}m away)`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setShowInlineMap(!showInlineMap)}
+                    className="text-[10.5px] font-semibold text-slate-600 dark:text-slate-300 hover:text-teal-600 underline"
+                  >
+                    {showInlineMap ? 'Hide Map' : 'Mini Map'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsGeofenceModalOpen(true)}
+                    className="text-[10.5px] font-bold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-0.5"
+                  >
+                    <span>Full Map</span>
+                    <ArrowRight className="w-2.5 h-2.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Simulation test toggles */}
+              <div className="mt-2 pt-1.5 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
+                <span className="opacity-80">Test Location:</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setUserCoords({ latitude: OFFICE_CENTROID[0], longitude: OFFICE_CENTROID[1], accuracy: 8, simulated: true })}
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold transition ${
+                      isInsideGeofence
+                        ? 'bg-teal-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                    }`}
+                  >
+                    Inside (0m)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUserCoords({ latitude: 26.8552, longitude: 75.7682, accuracy: 12, simulated: true })}
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold transition ${
+                      !isInsideGeofence
+                        ? 'bg-rose-600 text-white shadow-xs'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                    }`}
+                  >
+                    Outside (150m)
+                  </button>
+                </div>
+              </div>
+
+              {/* Inline Collapsible Map */}
+              {showInlineMap && (
+                <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                  <GeofenceMap
+                    userCoords={userCoords}
+                    onCoordsChange={setUserCoords}
+                    compact={true}
+                    height="200px"
+                  />
+                </div>
+              )}
             </div>
           </div>
 
           <div className="mt-4">
-            <Button variant={isClockedIn ? 'outline' : 'primary'} size="md" onClick={handleTogglePunch} disabled={punchedOut || onLeaveToday || isPunching} className={`w-full font-bold ${isClockedIn
-            ? '!border-rose-300 !text-rose-700 hover:!bg-rose-50 dark:!border-rose-800 dark:!text-rose-400 dark:hover:!bg-rose-950/40'
-            : '!bg-emerald-600 hover:!bg-emerald-700'}`} leftIcon={isClockedIn ? <LogOut className="w-4 h-4 text-rose-500"/> : <LogIn className="w-4 h-4"/>}>
-              {isClockedIn ? 'Punch Out for the Day' : punchedOut ? 'Punched out for today' : onLeaveToday ? 'On approved leave today' : 'Punch In Now'}
+            <Button
+              variant={isClockedIn ? 'outline' : 'primary'}
+              size="md"
+              onClick={handleTogglePunch}
+              disabled={punchedOut || onLeaveToday || isPunching || !isInsideGeofence}
+              className={`w-full font-bold transition-all ${
+                !isInsideGeofence
+                  ? '!bg-slate-200 dark:!bg-slate-800 !text-slate-500 dark:!text-slate-400 !cursor-not-allowed !border-slate-300 dark:!border-slate-700 shadow-none'
+                  : isClockedIn
+                    ? '!border-rose-300 !text-rose-700 hover:!bg-rose-50 dark:!border-rose-800 dark:!text-rose-400 dark:hover:!bg-rose-950/40'
+                    : '!bg-emerald-600 hover:!bg-emerald-700 !text-white'
+              }`}
+              leftIcon={
+                !isInsideGeofence ? (
+                  <ShieldAlert className="w-4 h-4 text-slate-400" />
+                ) : isClockedIn ? (
+                  <LogOut className="w-4 h-4 text-rose-500"/>
+                ) : (
+                  <LogIn className="w-4 h-4"/>
+                )
+              }
+            >
+              {!isInsideGeofence
+                ? `Punch Locked (Outside by ${Math.round(geofence.distanceMeters || 0)}m)`
+                : isClockedIn
+                  ? 'Punch Out for the Day'
+                  : punchedOut
+                    ? 'Punched out for today'
+                    : onLeaveToday
+                      ? 'On approved leave today'
+                      : 'Punch In Now (Geofence Verified)'}
             </Button>
+            {!isInsideGeofence && (
+              <p className="text-[11px] text-rose-600 dark:text-rose-400 text-center mt-1.5 font-medium">
+                Attendance disabled: you must be inside the office polygon to punch.
+              </p>
+            )}
           </div>
         </Card>
 
@@ -816,6 +976,14 @@ export const EmployeeDashboard = () => {
           </div>
         )}
       </Card>
+
+      {/* Office Attendance Geofence Modal */}
+      <GeofenceModal
+        isOpen={isGeofenceModalOpen}
+        onClose={() => setIsGeofenceModalOpen(false)}
+        userCoords={userCoords}
+        onCoordsChange={setUserCoords}
+      />
 
     </div>);
 };

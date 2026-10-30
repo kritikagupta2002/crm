@@ -1,4 +1,5 @@
 import { db } from '../services/db.js';
+import { verifyGeofence, OFFICE_POLYGON, OFFICE_CENTROID } from '../services/geofence.js';
 
 function nowTime() {
   const d = new Date();
@@ -91,9 +92,22 @@ export const attendanceController = {
 
   recordPunch: async (req, res, next) => {
     try {
-      const { employeeId, punchType, source = 'Web Portal' } = req.body;
+      const { employeeId, punchType, source = 'Web Portal', latitude, longitude } = req.body;
       if (!employeeId) {
         return res.status(400).json({ success: false, error: 'Employee ID is required.' });
+      }
+
+      // Geofence boundary verification
+      if (typeof latitude === 'number' && typeof longitude === 'number') {
+        const geo = verifyGeofence(latitude, longitude);
+        if (!geo.isInside) {
+          const dist = Math.round(geo.distanceMeters || 0);
+          return res.status(403).json({
+            success: false,
+            error: `Attendance locked: You are outside the office geofence (${dist}m away). Move inside the office boundary to punch.`,
+            geofence: geo,
+          });
+        }
       }
 
       const today = new Date().toISOString().slice(0, 10);
@@ -296,6 +310,32 @@ export const attendanceController = {
       }
 
       res.json({ success: true, data: updated });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  getGeofenceConfig: async (req, res, next) => {
+    try {
+      res.json({
+        success: true,
+        data: {
+          name: 'Bansal Geo Solutions HQ',
+          polygon: OFFICE_POLYGON,
+          centroid: OFFICE_CENTROID,
+          rules: 'Attendance punch is enabled only within the designated 4-point polygon perimeter.',
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  verifyLocation: async (req, res, next) => {
+    try {
+      const { latitude, longitude } = req.body;
+      const result = verifyGeofence(Number(latitude), Number(longitude));
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }

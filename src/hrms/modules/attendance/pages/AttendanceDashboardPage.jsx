@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserCheck, UserX, ClockAlert, CalendarOff, Clock, Fingerprint, CalendarDays, FileEdit, Download, } from 'lucide-react';
+import { UserCheck, UserX, ClockAlert, CalendarOff, Clock, Fingerprint, CalendarDays, FileEdit, Download, MapPin } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -14,6 +14,8 @@ import { attendanceService } from '@/modules/attendance/services/attendance.serv
 import { storage } from '@/core/storage/storage';
 import { DAYS_OF_WEEK, getDayOfWeekFromIso } from '../utils/attendanceFilters';
 import { downloadCsv } from '../../../../shared/utils/exportCsv';
+import { GeofenceModal } from '../components/GeofenceModal';
+import { OFFICE_CENTROID } from '../utils/geofence';
 export const AttendanceDashboardPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
@@ -24,6 +26,13 @@ export const AttendanceDashboardPage = () => {
     const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
     const [selectedDay, setSelectedDay] = useState('Monday');
     const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().slice(0, 7));
+    const [isGeofenceModalOpen, setIsGeofenceModalOpen] = useState(false);
+    const [userCoords, setUserCoords] = useState(() => ({
+        latitude: OFFICE_CENTROID[0],
+        longitude: OFFICE_CENTROID[1],
+        accuracy: 8,
+        simulated: true,
+    }));
     const navigate = useNavigate();
     const toast = useToast();
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
@@ -169,6 +178,9 @@ export const AttendanceDashboardPage = () => {
             { label: 'Dashboard', path: '/hr' },
             { label: 'Attendance' },
         ]} actions={<div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setIsGeofenceModalOpen(true)} leftIcon={<MapPin className="w-4 h-4 text-teal-600"/>}>
+              Geofence Map
+            </Button>
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/attendance/monthly')} leftIcon={<CalendarDays className="w-4 h-4 text-blue-600"/>}>
               Monthly Matrix
             </Button>
@@ -465,6 +477,13 @@ export const AttendanceDashboardPage = () => {
             )}
           </div>
         }
+      />
+
+      <GeofenceModal
+        isOpen={isGeofenceModalOpen}
+        onClose={() => setIsGeofenceModalOpen(false)}
+        userCoords={userCoords}
+        onCoordsChange={setUserCoords}
       />
     </div>);
 };

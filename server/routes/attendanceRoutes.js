@@ -7,6 +7,8 @@ const router = Router();
 router.get('/', authenticate, attendanceController.getAll);
 router.get('/today', authenticate, attendanceController.getTodaySummary);
 router.get('/monthly', authenticate, attendanceController.getMonthly);
+router.get('/geofence', attendanceController.getGeofenceConfig);
+router.post('/geofence/verify', attendanceController.verifyLocation);
 router.post('/punch', authenticate, attendanceController.recordPunch);
 
 // Corrections

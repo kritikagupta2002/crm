@@ -1,5 +1,6 @@
 import { storage } from '@/core/storage/storage';
 import { evaluateDay, nowClock, parseClock, todayIso } from '@/modules/attendance/utils/punch';
+import { evaluateGeofence } from '@/modules/attendance/utils/geofence';
 
 const later = (value, ms = 80) => new Promise((resolve) => setTimeout(() => resolve(value), ms));
 
@@ -7,12 +8,21 @@ export const attendanceService = {
     getAttendance: async () => later(storage.getAttendance()),
 
     /*
-     * A punch from the web portal. Punch In opens today's entry (late or on time by the attendance
-     * settings); Punch Out closes it and works out the hours. The source says where it came from; the
-     * portal does not read the phone's location.
+     * A punch from the web portal with Geofence verification.
+     * Punch In / Punch Out is strictly authorized only when user GPS coordinates are inside the office polygon.
      */
-    recordPunch: async (employeeId, punchType, source = 'Web portal') => {
+    recordPunch: async (employeeId, punchType, source = 'Office Geofenced GPS', coords = null) => {
         if (!employeeId) throw new Error('Your HR record is not set up, so attendance cannot be recorded.');
+        
+        // Strict Geofence boundary verification
+        if (coords && typeof coords.latitude === 'number' && typeof coords.longitude === 'number') {
+            const geo = evaluateGeofence(coords.latitude, coords.longitude, coords.accuracy);
+            if (!geo.isInside) {
+                const dist = Math.round(geo.distanceMeters || 0);
+                throw new Error(`Attendance locked: You are outside the office geofence (${dist}m away). Move inside the office boundary to punch.`);
+            }
+        }
+
         const list = storage.getAttendance();
         const today = todayIso();
         const settings = storage.getAttendanceSettings();
@@ -47,6 +57,7 @@ export const attendanceService = {
             record.checkOut = time;
             record.workingHours = day.workingHours;
             record.overtime = day.overtime;
+            record.punchSource = source;
         }
         storage.setAttendance([...list]);
         return later({ ...record }, 100);
