@@ -1,0 +1,11 @@
+{
+  "annualCasualLeave": 12,
+  "annualSickLeave": 10,
+  "annualEarnedLeave": 18,
+  "annualCompOffLeave": 8,
+  "annualFieldDutyLeave": 15,
+  "carryForwardLimit": 30,
+  "approvalLevels": 2,
+  "probationaryLeaveAllowed": false,
+  "companyHolidays": []
+}

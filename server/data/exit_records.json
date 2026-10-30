@@ -1,0 +1,22 @@
+[
+  {
+    "id": "exit-1",
+    "employeeId": "BGS-019",
+    "employeeName": "Rajesh Sen",
+    "department": "Administration & Field Support",
+    "designation": "Field Assistant",
+    "resignationDate": "2026-01-10",
+    "lastWorkingDay": "2026-02-10",
+    "noticePeriodDays": 30,
+    "reason": "Relocation to hometown for family personal reasons.",
+    "status": "In Progress",
+    "exitInterviewStatus": "Scheduled",
+    "clearance": {
+      "admin": "Pending",
+      "it": "Approved",
+      "accounts": "Pending",
+      "hr": "Pending"
+    },
+    "fnfStatus": "Pending"
+  }
+]

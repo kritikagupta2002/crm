@@ -1,0 +1,32 @@
+[
+  {
+    "id": "perf-1",
+    "employeeId": "BGS-003",
+    "employeeName": "Dr. Sunita Meena",
+    "department": "Geology & Mineral Exploration",
+    "designation": "Senior Geologist & Exploration Lead",
+    "reviewPeriod": "FY 2025-26 Q3",
+    "reviewerName": "Dr. Amit Kumar Bansal",
+    "rating": 4.8,
+    "goalsAchieved": "Led Bhilwara base metal exploration ahead of schedule with 100% core recovery.",
+    "strengths": "Exceptional geological field mapping, proactive team leadership.",
+    "areasForImprovement": "Further exploration of automated GIS workflows.",
+    "status": "Completed",
+    "date": "2026-01-15"
+  },
+  {
+    "id": "perf-2",
+    "employeeId": "BGS-008",
+    "employeeName": "Ravi Gurjar",
+    "department": "Remote Sensing & GIS",
+    "designation": "Drone Operator & GIS Technician",
+    "reviewPeriod": "FY 2025-26 Q3",
+    "reviewerName": "Kavita Rawat",
+    "rating": 4.5,
+    "goalsAchieved": "Successfully mapped 45 sq km terrain with high resolution orthomosaics.",
+    "strengths": "Fast flight planning, meticulous equipment care.",
+    "areasForImprovement": "Expand skills in 3D point cloud classification.",
+    "status": "Completed",
+    "date": "2026-01-20"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "sh-1",
+    "name": "General Corporate Shift (HQ)",
+    "code": "HQ-GEN",
+    "startTime": "09:30 AM",
+    "endTime": "06:00 PM",
+    "breakDuration": "45 mins",
+    "gracePeriod": "15 mins",
+    "weeklyOff": "Saturday & Sunday",
+    "location": "Jaipur Corporate HQ",
+    "status": "Active",
+    "assignedEmployeesCount": 48,
+    "description": "Standard office hours for Corporate Management, HR, Finance, and GIS modeling teams."
+  },
+  {
+    "id": "sh-2",
+    "name": "Mining Site Morning Shift",
+    "code": "MINE-MORN",
+    "startTime": "06:00 AM",
+    "endTime": "02:30 PM",
+    "breakDuration": "30 mins",
+    "gracePeriod": "10 mins",
+    "weeklyOff": "Sunday",
+    "location": "Bhilwara & Udaipur Mine Sites",
+    "status": "Active",
+    "assignedEmployeesCount": 16,
+    "description": "Operational shift for blast monitoring, open-pit face mapping, and morning haulage surveys."
+  },
+  {
+    "id": "sh-3",
+    "name": "Mining Site Evening Shift",
+    "code": "MINE-EVE",
+    "startTime": "02:00 PM",
+    "endTime": "10:30 PM",
+    "breakDuration": "30 mins",
+    "gracePeriod": "10 mins",
+    "weeklyOff": "Sunday",
+    "location": "Bhilwara & Udaipur Mine Sites",
+    "status": "Active",
+    "assignedEmployeesCount": 12,
+    "description": "Afternoon face inspections, grade control sampling, and geotechnical slope monitoring."
+  },
+  {
+    "id": "sh-4",
+    "name": "Field Survey & Drone Flight Shift",
+    "code": "UAV-FLIGHT",
+    "startTime": "06:30 AM",
+    "endTime": "03:00 PM",
+    "breakDuration": "45 mins",
+    "gracePeriod": "15 mins",
+    "weeklyOff": "Rotational (1 day / week)",
+    "location": "Exploration Blocks / Field",
+    "status": "Active",
+    "assignedEmployeesCount": 10,
+    "description": "Early morning daylight flying window for optimal solar angle and minimal thermal atmospheric turbulence."
+  }
+]

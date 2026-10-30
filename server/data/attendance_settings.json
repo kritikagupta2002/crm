@@ -1,0 +1,10 @@
+{
+  "workStartTime": "09:30 AM",
+  "workEndTime": "06:00 PM",
+  "gracePeriodMinutes": 15,
+  "halfDayThresholdHours": 4.5,
+  "fullDayMinimumHours": 8,
+  "biometricSyncIntervalMinutes": 5,
+  "allowMobileGpsPunch": true,
+  "geofenceRadiusMeters": 500
+}

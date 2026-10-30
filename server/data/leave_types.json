@@ -1,0 +1,68 @@
+[
+  {
+    "id": "lt-1",
+    "name": "Casual Leave (CL)",
+    "code": "CL",
+    "annualQuota": 12,
+    "carryForwardMax": 0,
+    "encashable": false,
+    "minNoticeDays": 1,
+    "applicableTo": "All Permanent Employees",
+    "description": "Intended for short personal matters, family events and emergencies."
+  },
+  {
+    "id": "lt-2",
+    "name": "Sick Leave (SL)",
+    "code": "SL",
+    "annualQuota": 10,
+    "carryForwardMax": 5,
+    "encashable": false,
+    "minNoticeDays": 0,
+    "applicableTo": "All Employees",
+    "description": "For medical recovery, physician consultation, and illness."
+  },
+  {
+    "id": "lt-3",
+    "name": "Earned / Privilege Leave (EL)",
+    "code": "EL",
+    "annualQuota": 18,
+    "carryForwardMax": 30,
+    "encashable": true,
+    "minNoticeDays": 7,
+    "applicableTo": "Permanent Employees with > 1 Year Service",
+    "description": "Accrued annual vacation leave; can be encashed upon retirement or separation."
+  },
+  {
+    "id": "lt-4",
+    "name": "Compensatory Off (CO)",
+    "code": "CO",
+    "annualQuota": 8,
+    "carryForwardMax": 0,
+    "encashable": false,
+    "minNoticeDays": 2,
+    "applicableTo": "Technical & Site Operations Staff",
+    "description": "Earned by working on weekend shifts, site emergencies or government holidays."
+  },
+  {
+    "id": "lt-5",
+    "name": "Field Duty Leave (FDL)",
+    "code": "FDL",
+    "annualQuota": 15,
+    "carryForwardMax": 5,
+    "encashable": false,
+    "minNoticeDays": 3,
+    "applicableTo": "Exploration Geologists & Drone Survey Crews",
+    "description": "Rest and recuperation (R&R) granted following extended continuous camp tours."
+  },
+  {
+    "id": "lt-6",
+    "name": "Maternity / Paternity Leave",
+    "code": "ML",
+    "annualQuota": 180,
+    "carryForwardMax": 0,
+    "encashable": false,
+    "minNoticeDays": 30,
+    "applicableTo": "Eligible Female / Male Employees",
+    "description": "Statutory 26 weeks paid maternity leave under Indian Maternity Benefit Act."
+  }
+]

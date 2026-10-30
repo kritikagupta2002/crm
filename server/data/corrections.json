@@ -1,0 +1,46 @@
+[
+  {
+    "id": "cor-01",
+    "employeeId": "BGS-007",
+    "employeeName": "Ravi Gurjar",
+    "department": "GIS, Remote Sensing & UAV",
+    "date": "2026-09-16",
+    "currentCheckIn": "10:45 AM",
+    "currentCheckOut": "06:15 PM",
+    "requestedCheckIn": "09:00 AM",
+    "requestedCheckOut": "06:15 PM",
+    "reason": "Drone field takeoff in Bhilwara had poor cell reception; biometric couldn’t sync until 10:45 AM.",
+    "status": "Pending",
+    "appliedDate": "2026-09-17"
+  },
+  {
+    "id": "cor-02",
+    "employeeId": "BGS-006",
+    "employeeName": "Rohan Deshmukh",
+    "department": "Geology & Mineral Exploration",
+    "date": "2026-09-14",
+    "currentCheckIn": "08:50 AM",
+    "currentCheckOut": "-",
+    "requestedCheckIn": "08:50 AM",
+    "requestedCheckOut": "07:30 PM",
+    "reason": "Core logging deep drill hole at mine pit; missed out-punch due to emergency shift extension.",
+    "status": "Approved",
+    "appliedDate": "2026-09-15",
+    "reviewedBy": "Rajesh Sharma",
+    "reviewComment": "Verified with shift supervisor log."
+  },
+  {
+    "id": "cor-03",
+    "employeeId": "BGS-006",
+    "employeeName": "Rohan Deshmukh",
+    "department": "Geology & Mineral Exploration",
+    "date": "2026-09-17",
+    "currentCheckIn": "08:55 AM",
+    "currentCheckOut": "06:00 PM",
+    "requestedCheckIn": "08:55 AM",
+    "requestedCheckOut": "07:15 PM",
+    "reason": "Extended core box inspection and assay sample cataloging at mine warehouse.",
+    "status": "Pending",
+    "appliedDate": "2026-09-18"
+  }
+]

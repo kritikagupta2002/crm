@@ -1,0 +1,34 @@
+[
+  {
+    "id": "usr-1",
+    "name": "Kritika Gupta",
+    "email": "kritika.gupta@bansalgeo.com",
+    "password": "demo",
+    "role": "Super Admin",
+    "employeeId": "BGS-002"
+  },
+  {
+    "id": "usr-2",
+    "name": "Dr. Sunita Meena",
+    "email": "sunita.meena@bansalgeo.com",
+    "password": "demo",
+    "role": "Director",
+    "employeeId": "BGS-003"
+  },
+  {
+    "id": "usr-3",
+    "name": "Kavita Rawat",
+    "email": "kavita.rawat@bansalgeo.com",
+    "password": "demo",
+    "role": "Manager",
+    "employeeId": "BGS-005"
+  },
+  {
+    "id": "usr-4",
+    "name": "Ravi Gurjar",
+    "email": "ravi.gurjar@bansalgeo.com",
+    "password": "demo",
+    "role": "Employee",
+    "employeeId": "BGS-008"
+  }
+]
