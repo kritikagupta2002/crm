@@ -1,16 +1,14 @@
-import { Building2, FileText, FolderKanban, Search, Users, X } from 'lucide-react'
+import { Briefcase, CalendarCheck, Clock, Contact, LayoutDashboard, Search, Users, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { StagePill } from '../components/StagePill'
-import { useAccess, useCrm } from '../../core/permissions/crm'
-import { allProjects } from '../../modules/erm/utils/projects'
-import { quoteFor } from '../../modules/crm/utils/workflow'
+import { useAccess } from '../../core/permissions/crm'
+import { storage } from '@/core/storage/storage'
+import { NAV_ITEMS } from './navigation'
 
 const LIMIT = 5
 
-/* Searches enquiries, clients, quotations and projects; arrow keys + Enter to pick, "/" anywhere to focus. */
+/* Searches employees, designations, departments and HRMS pages. */
 export function GlobalSearch() {
-  const { leads, projectEdits } = useCrm()
   const navigate = useNavigate()
   const { can } = useAccess()
   const [query, setQuery] = useState('')
@@ -38,41 +36,53 @@ export function GlobalSearch() {
   }, [])
 
   const q = query.trim().toLowerCase()
-  const digits = q.replace(/\D/g, '')
-  const matches = (lead) =>
-    [lead.id, lead.company, lead.contactPerson, lead.email, lead.location].some((v) => v?.toLowerCase().includes(q)) || (digits.length >= 4 && lead.phone?.includes(digits))
+  const employees = storage.getEmployees()
 
-  const groups = q.length < 2 ? [] : [
-    {
-      label: 'Enquiries',
-      icon: Users,
-      items: leads.filter((l) => l.stage !== 'Won' && matches(l)).slice(0, LIMIT).map((l) => ({ key: l.id, title: l.company, sub: `${l.id} · ${l.serviceDetail}`, stage: l.stage, to: `/leads/${l.id}` })),
-    },
-    {
-      label: 'Clients',
-      icon: Building2,
-      items: leads.filter((l) => l.stage === 'Won' && matches(l)).slice(0, LIMIT).map((l) => ({ key: `c-${l.id}`, title: l.company, sub: `${l.contactPerson} · ${l.location ?? ''}`, to: `/leads/${l.id}` })),
-    },
-    {
-      label: 'Quotations',
-      icon: FileText,
-      items: leads
-        .map((l) => ({ lead: l, quote: quoteFor(l) }))
-        .filter(({ lead, quote }) => quote && (quote.number.toLowerCase().includes(q) || lead.company.toLowerCase().includes(q)))
-        .slice(0, LIMIT)
-        .map(({ lead, quote }) => ({ key: `q-${lead.id}`, title: quote.number, sub: `${lead.company} · ${quote.displayStatus}`, to: `/quotations?open=${lead.id}` })),
-    },
-    {
-      label: 'Projects',
-      icon: FolderKanban,
-      items: (can('/projects') ? allProjects(leads, projectEdits) : [])
-        .filter((p) => [p.id, p.name, p.lead.company, p.authority, p.site].some((v) => v?.toLowerCase().includes(q)))
-        .slice(0, LIMIT)
-        .map((p) => ({ key: `p-${p.id}`, title: p.name, sub: `${p.id} · ${p.lead.company} · ${p.status}`, to: `/projects/${p.id}` })),
-    },
-  ]
-    .map((g) => ({ ...g, items: g.items.filter((item) => can(item.to)) }))
-    .filter((g) => g.items.length)
+  const empMatches = (emp) =>
+    [
+      emp.name,
+      emp.employeeId,
+      emp.id,
+      emp.employment?.designation,
+      emp.employment?.department,
+      emp.contact?.workEmail,
+      emp.contact?.phone,
+    ].some((v) => v && String(v).toLowerCase().includes(q))
+
+  const pageMatches = (item) => item.label.toLowerCase().includes(q)
+
+  const groups =
+    q.length < 2
+      ? []
+      : [
+          {
+            label: 'Employees',
+            icon: Users,
+            items: employees
+              .filter(empMatches)
+              .slice(0, LIMIT)
+              .map((emp) => ({
+                key: `emp-${emp.id}`,
+                title: emp.name,
+                sub: `${emp.employeeId || emp.id} · ${emp.employment?.designation || ''} · ${emp.employment?.department || ''}`,
+                to: can('/hr/employees') ? `/hr/employees/${emp.id}` : '/hr/team',
+              })),
+          },
+          {
+            label: 'Quick Navigation',
+            icon: LayoutDashboard,
+            items: NAV_ITEMS.filter(pageMatches)
+              .slice(0, LIMIT)
+              .map((item) => ({
+                key: `nav-${item.path}`,
+                title: item.label,
+                sub: item.path,
+                to: item.path,
+              })),
+          },
+        ]
+          .map((g) => ({ ...g, items: g.items.filter((item) => can(item.to)) }))
+          .filter((g) => g.items.length)
 
   const flat = groups.flatMap((g) => g.items)
   const pick = (item) => {
@@ -124,7 +134,7 @@ export function GlobalSearch() {
             ref={inputRef}
             type="search"
             value={query}
-            placeholder="Search clients, enquiries, projects"
+            placeholder="Search employees, departments, attendance..."
             onChange={(e) => {
               setQuery(e.target.value)
               setActive(0)
@@ -179,7 +189,6 @@ export function GlobalSearch() {
                       <strong>{item.title}</strong>
                       <span className="muted">{item.sub}</span>
                     </span>
-                    {item.stage && <StagePill stage={item.stage} />}
                   </button>
                 )
               })}

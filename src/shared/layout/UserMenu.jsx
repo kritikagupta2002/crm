@@ -1,4 +1,4 @@
-import { Check, ChevronDown, History, LogOut, RotateCcw, Send, Settings } from 'lucide-react'
+import { Check, ChevronDown, LogOut, RotateCcw, Settings, UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ROLE_ACCESS, ROLE_USERS, ROLES, canOpen, initialsOf, useCrm } from '../../core/permissions/crm'
@@ -8,9 +8,7 @@ import { FIELD_MEMBERS } from '../../modules/erm/data/staff'
 import { NAV_ITEMS } from './navigation'
 
 /*
- * Profile menu. "Switch role" lets the demo show role-based access (e.g. Coordinators don't see amounts); each role
- * has its demo person, so the audit log shows who did what. What a role can open is in its row's tooltip.
- * Employee opens the staff list: each employee signs in as themselves and sees only their own tasks.
+ * Profile menu with role switching and HR settings.
  */
 export function UserMenu() {
   const { role, user, fieldMember, setRole, changeCount, resetDemoData, signOut } = useCrm()
@@ -23,9 +21,10 @@ export function UserMenu() {
     setRole(r, person)
     setOpen(false)
     setTeamOpen(false)
-    // A page the new role can't open, or one that isn't in its menu, gives way to that role's home page.
     const item = NAV_ITEMS.find((i) => i.path === pathname)
-    if (!canOpen(r, pathname) || (item?.only && !item.only.includes(r))) navigate(ROLE_ACCESS[r].home)
+    if (!canOpen(r, pathname) || (item?.only && !item.only.includes(r))) {
+      navigate(ROLE_ACCESS[r]?.home ?? '/')
+    }
   }
 
   return (
@@ -47,13 +46,13 @@ export function UserMenu() {
                 <div key={r} className="role-group">
                   <button
                     className={`role-row ${role === r ? 'is-selected' : ''}`}
-                    title={ROLE_ACCESS[r].note}
+                    title={ROLE_ACCESS[r]?.note}
                     aria-expanded={teamOpen}
                     onClick={() => setTeamOpen(!teamOpen)}
                   >
                     <span className="role-row-text">
                       <span className="role-row-name">{r}</span>
-                      <span className="role-row-brief">{ROLE_ACCESS[r].brief}</span>
+                      <span className="role-row-brief">{ROLE_ACCESS[r]?.brief}</span>
                     </span>
                     <span className="role-row-person">{role === r ? fieldMember : `${FIELD_MEMBERS.length} people`}</span>
                     <ChevronDown size={15} className="role-row-toggle" aria-hidden="true" />
@@ -85,14 +84,14 @@ export function UserMenu() {
                   role="menuitemradio"
                   aria-checked={role === r}
                   className={`role-row ${role === r ? 'is-selected' : ''}`}
-                  title={ROLE_ACCESS[r].note}
+                  title={ROLE_ACCESS[r]?.note}
                   onClick={() => switchTo(r)}
                 >
                   <span className="role-row-text">
                     <span className="role-row-name">{r}</span>
-                    <span className="role-row-brief">{ROLE_ACCESS[r].brief}</span>
+                    <span className="role-row-brief">{ROLE_ACCESS[r]?.brief}</span>
                   </span>
-                  <span className="role-row-person">{ROLE_USERS[r].name}</span>
+                  <span className="role-row-person">{ROLE_USERS[r]?.name}</span>
                   <Check size={15} className="role-row-check" aria-hidden="true" />
                 </button>
               ),
@@ -100,14 +99,11 @@ export function UserMenu() {
           </div>
 
           <div className="popover-divider" />
-          <RoleLink to="/settings" className="menu-action" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
-            <Settings size={16} /> Settings
+          <RoleLink to="/hr/settings/profile" className="menu-action" role="menuitem" onClick={() => setOpen(false)}>
+            <UserRound size={16} /> My Profile
           </RoleLink>
-          <RoleLink to="/audit-log" className="menu-action" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
-            <History size={16} /> Audit log
-          </RoleLink>
-          <RoleLink to="/messages" className="menu-action" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
-            <Send size={16} /> Sent messages
+          <RoleLink to="/hr/settings" className="menu-action" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
+            <Settings size={16} /> HR Settings
           </RoleLink>
           <button
             className="menu-action"

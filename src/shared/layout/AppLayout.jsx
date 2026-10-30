@@ -20,10 +20,9 @@ function readCollapsed() {
 }
 
 function pageTitle(pathname) {
-  if (pathname.startsWith('/leads/')) return `${pathname.split('/')[2]} · Enquiry`
-  if (pathname.startsWith('/projects/')) return `${pathname.split('/')[2]} · Project`
+  if (pathname.startsWith('/hr/employees/')) return 'Employee Details'
   const item = NAV_ITEMS.find((i) => i.path === pathname)
-  return item ? item.label : 'Page not found'
+  return item ? item.label : 'HRMS'
 }
 
 /*
@@ -38,7 +37,7 @@ export function AppLayout() {
 
   // On route change: close mobile drawer, scroll to top, update document title
   useEffect(() => {
-    document.title = `${pageTitle(pathname)} · Bansal Geo CRM`
+    document.title = `${pageTitle(pathname)} · Bansal Geo HRMS`
     window.scrollTo(0, 0)
     setMobileOpen(false)
   }, [pathname])

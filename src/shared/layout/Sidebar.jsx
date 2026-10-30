@@ -2,41 +2,29 @@ import { ChevronDown, X } from 'lucide-react'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAccess, useCrm } from '../../core/permissions/crm'
-import { countFollowUpsDue } from '../../modules/reports/utils/dashboardStats'
-import { questionsFor } from '../../modules/crm/utils/questions'
-import { tenderPhase } from '../../modules/vendors/utils/tenders'
+import { storage } from '@/core/storage/storage'
 import { Logo } from '../components/Logo'
 import { Mountains } from '../components/Mountains'
 import { NAV_GROUPS } from './navigation'
 
 /*
- * The CRM's menu; the vendor portal passes its own (nav: groups of items, counts: its badges) in the same design.
- * expanded: every group stays open (a short menu, like eProc's) instead of one at a time. footer: shown on the
- * mountain in place of the motto; both step aside when less than footerRoom pixels are left under the menu.
- * An item's badgeTone colours its count (e.g. tone-urgent for something waiting).
+ * The HRMS sidebar menu with attendance and employee navigation.
  */
 export function Sidebar({ onNavigate, onClose, nav, counts, expanded = false, footer, footerRoom = 200 }) {
-  const { followUps, leads, user, projectEdits, vendorApplications, tenders, bids, clarifications, documents, scanInbox } = useCrm()
-  const { can, role, may } = useAccess()
+  const { user } = useCrm()
+  const { can, role } = useAccess()
   const badges = counts ?? {
-    followUpsDue: countFollowUpsDue(followUps).due,
-    // Questions this person answers that are still waiting.
-    questionsOpen: questionsFor({ role, userName: user.name, projectEdits }, leads).filter((q) => q.status === 'Open').length,
-    // Registrations waiting for the Admin's decision.
-    vendorAppsNew: vendorApplications.filter((a) => a.status === 'New').length,
-    // Tenders whose bidding has closed with bids still to decide, and vendors' questions still to answer.
-    tendersToDecide:
-      tenders.filter((t) => tenderPhase(t) === 'Evaluation' && bids.some((b) => b.tenderId === t.id && ['Submitted', 'Shortlisted'].includes(b.status))).length + clarifications.filter((c) => !c.answer).length,
-    // Documents waiting for whoever runs them: to verify (not their own filing), set access, share; scans to file; originals to send.
-    docsToAct: may('documents') ? documents.filter((d) => ['To verify', 'To authorize', 'To share'].includes(d.stage) && !(d.stage === 'To verify' && !d.rescan && d.record.filedBy === user.name)).length : 0,
-    scansToFile: may('documents') ? scanInbox.length : 0,
-    originalsToSend: may('documents') ? documents.filter((d) => d.stage === 'To dispatch').length : 0,
+    correctionsPending: ['Super Admin', 'Director'].includes(role)
+      ? storage.getAttendanceCorrections().filter((c) => c.status === 'Pending').length
+      : 0,
+    leavesPending: ['Super Admin', 'Director'].includes(role)
+      ? storage.getLeaveRequests().filter((l) => l.status === 'Pending').length
+      : 0,
   }
   const { pathname } = useLocation()
   const groups = nav ?? NAV_GROUPS.map((group) => ({ ...group, items: group.items.filter((item) => can(item.path) && (!item.only || item.only.includes(role))) })).filter((group) => group.items.length)
 
   // The module holding the current page opens by itself; a header click opens another one instead.
-  // The closest match wins: /hr/expenses belongs to Expenses, not to the HR Dashboard at /hr.
   const matches = (item) => (item.path === '/' ? pathname === '/' : pathname === item.path || pathname.startsWith(`${item.path}/`))
   const activeGroup = groups
     .flatMap((group) => group.items.filter(matches).map((item) => ({ title: group.title, length: item.path.length })))
@@ -45,26 +33,24 @@ export function Sidebar({ onNavigate, onClose, nav, counts, expanded = false, fo
   const open = choice.path === pathname ? choice.title : (activeGroup ?? groups[0]?.title)
   const setChosen = (title) => setChoice({ path: pathname, title })
 
-  // A long open menu (HR has a dozen pages) would run into the mountain at the bottom: then the mountain steps aside.
   const navRef = useRef(null)
   const [crowded, setCrowded] = useState(false)
   useLayoutEffect(() => {
-    const nav = navRef.current
-    if (!nav) return
+    const navEl = navRef.current
+    if (!navEl) return
     const check = () => {
-      // The bottom of the whole menu: the last module, with its pages if it is open.
-      const last = nav.lastElementChild
+      const last = navEl.lastElementChild
       const room = last ? window.innerHeight - last.getBoundingClientRect().bottom : window.innerHeight
       setCrowded(room < footerRoom)
-      // The room under the menu, for a mountain that sizes itself to it (the vendor portal's).
-      nav.parentElement.style.setProperty('--sidebar-room', `${Math.round(room)}px`)
+      if (navEl.parentElement) {
+        navEl.parentElement.style.setProperty('--sidebar-room', `${Math.round(room)}px`)
+      }
     }
     check()
-    // Menus slide open and shut: measure again when they have.
-    nav.addEventListener('transitionend', check)
+    navEl.addEventListener('transitionend', check)
     window.addEventListener('resize', check)
     return () => {
-      nav.removeEventListener('transitionend', check)
+      navEl.removeEventListener('transitionend', check)
       window.removeEventListener('resize', check)
     }
   }, [open, groups.length, footerRoom])
@@ -72,7 +58,7 @@ export function Sidebar({ onNavigate, onClose, nav, counts, expanded = false, fo
   return (
     <aside className={`sidebar ${crowded ? 'is-crowded' : ''}`}>
       <div className="sidebar-brand">
-        <Link to="/" onClick={onNavigate} className="sidebar-brand-link" aria-label="Go to homepage">
+        <Link to="/" onClick={onNavigate} className="sidebar-brand-link" aria-label="Go to HRMS homepage">
           <Logo />
         </Link>
         {onClose && (
@@ -129,11 +115,11 @@ export function Sidebar({ onNavigate, onClose, nav, counts, expanded = false, fo
       <div className={`sidebar-footer ${footer ? 'has-card' : ''}`}>
         {footer ?? (
           <p className="sidebar-motto">
-            Geology
+            Bansal Geo
             <br />
-            for a Better
+            HRMS &amp;
             <br />
-            Tomorrow
+            Attendance
           </p>
         )}
         <Mountains className="sidebar-mountains" />
