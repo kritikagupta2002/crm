@@ -15,10 +15,10 @@ export function Sidebar({ onNavigate, onClose, nav, counts, expanded = false, fo
   const { can, role } = useAccess()
   const badges = counts ?? {
     correctionsPending: ['Super Admin', 'Director'].includes(role)
-      ? storage.getAttendanceCorrections().filter((c) => c.status === 'Pending').length
+      ? (storage.getCorrections?.() || []).filter((c) => c?.status === 'Pending').length
       : 0,
     leavesPending: ['Super Admin', 'Director'].includes(role)
-      ? storage.getLeaveRequests().filter((l) => l.status === 'Pending').length
+      ? (storage.getLeaveRequests?.() || []).filter((l) => l?.status === 'Pending').length
       : 0,
   }
   const { pathname } = useLocation()

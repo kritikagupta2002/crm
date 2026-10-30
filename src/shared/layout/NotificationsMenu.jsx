@@ -25,9 +25,8 @@ export function NotificationsMenu() {
 
   // Pending attendance corrections
   const corrections = isHrAdmin
-    ? storage
-        .getAttendanceCorrections()
-        .filter((c) => c.status === 'Pending')
+    ? (storage.getCorrections?.() || [])
+        .filter((c) => c?.status === 'Pending')
         .map((c) => ({
           id: `corr-${c.id}`,
           tone: 'tone-attention',
@@ -40,9 +39,8 @@ export function NotificationsMenu() {
 
   // Pending leave requests
   const leaves = isHrAdmin
-    ? storage
-        .getLeaveRequests()
-        .filter((l) => l.status === 'Pending')
+    ? (storage.getLeaveRequests?.() || [])
+        .filter((l) => l?.status === 'Pending')
         .map((l) => ({
           id: `leave-${l.id}`,
           tone: 'tone-attention',
@@ -54,8 +52,7 @@ export function NotificationsMenu() {
     : []
 
   // System notifications
-  const sysNotifs = storage
-    .getNotifications()
+  const sysNotifs = (storage.getNotifications?.() || [])
     .slice(0, 10)
     .map((n) => ({
       id: `sys-${n.id}`,

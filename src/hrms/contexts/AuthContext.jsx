@@ -10,16 +10,17 @@ import { hrRoleOf } from '../bridge';
 const AuthContext = createContext(undefined);
 
 function hrUserOf(crmUser, role) {
-    const employee = storage.getEmployees().find((e) => e.name === crmUser.name);
+    const employees = storage.getEmployees?.() || [];
+    const employee = employees.find((e) => e?.name === crmUser?.name);
     return {
         id: employee?.id ?? null,
-        name: crmUser.name,
+        name: crmUser?.name || 'Staff Member',
         email: employee?.contact?.workEmail ?? '',
         role: hrRoleOf(role),
         employeeId: employee?.employeeId ?? null,
         avatarUrl: '',
         department: employee?.employment?.department ?? '',
-        designation: employee?.employment?.designation ?? crmUser.title,
+        designation: employee?.employment?.designation ?? crmUser?.title ?? 'Employee',
     };
 }
 

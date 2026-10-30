@@ -36,9 +36,10 @@ export function GlobalSearch() {
   }, [])
 
   const q = query.trim().toLowerCase()
-  const employees = storage.getEmployees()
+  const employees = storage.getEmployees?.() || []
 
   const empMatches = (emp) =>
+    emp &&
     [
       emp.name,
       emp.employeeId,

@@ -6,8 +6,14 @@ import { useCrm } from '../context/crm';
 import { hrRoleOf } from './bridge';
 
 const HrmsShell = lazy(() => import('./HrmsShell'));
+const LoadingFallback = () => (
+  <div style={{ padding: '48px 24px', textAlign: 'center', color: '#64748b' }}>
+    <p style={{ fontSize: '15px', fontWeight: 500 }}>Loading HRMS portal...</p>
+  </div>
+);
+
 const Shell = () => (
-  <Suspense fallback={null}>
+  <Suspense fallback={<LoadingFallback />}>
     <HrmsShell />
   </Suspense>
 );
