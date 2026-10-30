@@ -250,8 +250,8 @@ export const LeaveHistoryPage = () => {
               Back
             </Button>
             {!isEmployee && (
-              <Button variant="outline" size="sm" onClick={() => navigate('/hr/reports', { state: { tab: 'leave' } })} className="text-emerald-700 dark:text-emerald-300 border-emerald-300">
-                Leave MIS Report
+              <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave/balance')} className="text-emerald-700 dark:text-emerald-300 border-emerald-300">
+                Leave Balances & Quotas
               </Button>
             )}
             <Button variant="primary" size="sm" onClick={handleExportLeaveHistory} leftIcon={<Download className="w-4 h-4"/>}>

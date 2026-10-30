@@ -599,3 +599,4 @@ export function ProfileCompletionModal({ user, role, onComplete }) {
     </div>
   );
 }
+

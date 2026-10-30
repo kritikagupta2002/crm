@@ -15,6 +15,7 @@ const HR_SELF = [
   '/hr',
   '/hr/team',
   '/hr/organization',
+  '/hr/employees',
   '/hr/attendance',
   '/hr/attendance/monthly',
   '/hr/attendance/corrections',
@@ -25,13 +26,13 @@ const HR_SELF = [
   '/hr/leave/history',
   '/hr/shifts',
   '/hr/documents',
-  '/hr/settings',
   '/hr/settings/profile',
   '/hr/notifications',
 ]
 
 const HR_TEAM = [
   ...HR_SELF,
+  '/hr/settings',
   '/hr/employees',
   '/hr/employees/new',
   '/hr/performance',
@@ -147,7 +148,13 @@ export const canOpen = (role, path) => {
   const cleanPath = path.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/'
   if (cleanPath === '/' || cleanPath === '/hr') return true
 
-  return access.pages.includes(cleanPath) || access.pages.includes(pageOf(cleanPath))
+  if (!Array.isArray(access.pages)) return false
+
+  return access.pages.some((allowed) => {
+    if (allowed === cleanPath) return true
+    if (cleanPath.startsWith(allowed + '/')) return true
+    return false
+  }) || access.pages.includes(pageOf(cleanPath))
 }
 
 export const PERMISSIONS = {

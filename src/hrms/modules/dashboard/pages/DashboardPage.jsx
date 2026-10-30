@@ -947,49 +947,41 @@ const AdminDashboard = () => {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                        Leave approved for Rajesh Sharma
+                        Leave approved for Vishal Kumawat
                       </p>
                       <p className="text-[10px] text-slate-400 mt-0.5">2 hours ago</p>
                     </div>
                   </div>
 
-                  {/* Item 2: Live Expense Activity */}
+                  {/* Item 2: Document Verification Activity */}
                   <div 
                     className="flex items-start gap-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 p-1 -m-1 rounded-xl transition-colors"
-                    onClick={() => navigate('/hr/expenses/approvals')}
+                    onClick={() => navigate('/hr/documents')}
                   >
                     <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-[#C8943A] dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200/50 dark:border-amber-800/40">
-                      <CreditCard className="w-4 h-4"/>
+                      <FileCheck className="w-4 h-4"/>
                     </div>
                     <div className="min-w-0 flex-1">
-                      {latestExpenseActivity ? (
-                        <>
-                          <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                            {latestExpenseActivity.employeeName} filed claim ({latestExpenseActivity.expenseNumber})
-                          </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">
-                            {latestExpenseActivity.category} • ₹{Number(latestExpenseActivity.requestedAmount || latestExpenseActivity.amount || 0).toLocaleString('en-IN')}
-                          </p>
-                        </>
-                      ) : (
-                        <>
-                          <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                            No pending expense claims
-                          </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">Expense queue cleared</p>
-                        </>
-                      )}
+                      <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
+                        Personal Document Verification
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">
+                        Aadhaar & Degree Certificates • Review queue
+                      </p>
                     </div>
                   </div>
 
                   {/* Item 3 */}
-                  <div className="flex items-start gap-2.5">
+                  <div 
+                    className="flex items-start gap-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 p-1 -m-1 rounded-xl transition-colors"
+                    onClick={() => navigate('/hr/documents')}
+                  >
                     <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#31485A] dark:text-slate-300 flex items-center justify-center shrink-0 border border-slate-200/60 dark:border-slate-700/50">
                       <FileCheck2 className="w-4 h-4"/>
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                        Ravi Gurjar uploaded a document
+                        Pradeep Chand uploaded document
                       </p>
                       <p className="text-[10px] text-slate-400 mt-0.5">6 hours ago</p>
                     </div>

@@ -5,6 +5,6 @@
  * Super Admin, Director, and Finance Master have full HR management access ('hr').
  * Manager, Employee, and Accounts Executive have self-service access ('employee').
  */
-const HR_TEAM = ['Managing Director', 'Super Admin', 'Director', 'Finance Master']
+const HR_TEAM = ['Managing Director', 'Super Admin', 'Director', 'Manager', 'Finance Master']
 
 export const hrRoleOf = (role) => (HR_TEAM.includes(role) ? 'hr' : 'employee')

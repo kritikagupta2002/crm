@@ -632,8 +632,8 @@ export const EmployeeDetailPage = () => {
             <Card className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-bold text-slate-900 dark:text-white">Available Payslips</h4>
-                <Button variant="outline" size="sm" onClick={() => navigate('/hr/payroll/payslips')}>
-                  All Payslips
+                <Button variant="outline" size="sm" onClick={() => navigate('/hr/documents')}>
+                  Documents &amp; Slips
                 </Button>
               </div>
 
@@ -643,8 +643,8 @@ export const EmployeeDetailPage = () => {
                         <FileText className="w-4 h-4 text-[#1F6F78]"/>
                         <span className="font-semibold text-slate-800 dark:text-slate-200">{ps.month} Payslip</span>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => navigate('/hr/payroll/payslips')}>
-                        View / Print
+                      <Button variant="outline" size="sm" onClick={() => navigate('/hr/documents')}>
+                        View Document
                       </Button>
                     </div>))}
                 </div>) : (<div className="text-xs text-slate-400 py-3 text-center">
@@ -751,11 +751,8 @@ export const EmployeeDetailPage = () => {
                                 </p>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm" onClick={() => navigate('/hr/expenses')}>
-                                    Expenses
-                                </Button>
-                                <Button variant="outline" size="sm" onClick={() => navigate('/hr/reimbursement')}>
-                                    Reimbursements
+                                <Button variant="outline" size="sm" onClick={() => navigate('/hr/documents')}>
+                                    Verified Documents
                                 </Button>
                             </div>
                         </div>
@@ -838,7 +835,7 @@ export const EmployeeDetailPage = () => {
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 Verified Credentials & Document Dossier
               </h3>
-              <Button variant="outline" size="sm" onClick={() => navigate('/hr/documents/employee')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/hr/documents')}>
                 Manage Documents
               </Button>
             </div>

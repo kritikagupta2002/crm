@@ -70,10 +70,10 @@ export const hrmsRoutes = (
     </Route>
 
     {/* Employee Management */}
+    <Route path="hr/employees/:id" element={<EmployeeDetailPage />} />
     <Route element={<HrOnly />}>
       <Route path="hr/employees" element={<EmployeeListPage />} />
       <Route path="hr/employees/new" element={<AddEmployeePage />} />
-      <Route path="hr/employees/:id" element={<EmployeeDetailPage />} />
       <Route path="hr/employees/:id/edit" element={<EditEmployeePage />} />
       <Route path="hr/performance" element={<PerformanceRecordsPage />} />
       <Route path="hr/exit" element={<EmployeeExitPage />} />

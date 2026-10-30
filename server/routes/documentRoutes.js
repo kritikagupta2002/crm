@@ -17,3 +17,4 @@ router.put('/:id/review', authenticate, documentController.review);
 router.put('/:id/reupload', authenticate, documentController.reupload);
 
 export default router;
+

@@ -49,8 +49,8 @@ export const LeaveDashboardPage = () => {
             { label: 'Leave Management' },
         ]} actions={<div className="flex items-center gap-2">
             {!isEmp && (<>
-                <Button variant="outline" size="sm" onClick={() => navigate('/hr/reports', { state: { tab: 'leave' } })} leftIcon={<BarChart3 className="w-4 h-4 text-emerald-600"/>}>
-                  Leave MIS Report
+                <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave/history')} leftIcon={<History className="w-4 h-4 text-emerald-600"/>}>
+                  Leave History & Log
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave/approvals')} leftIcon={<FileCheck2 className="w-4 h-4 text-blue-600"/>}>
                   Approvals ({pendingRequests.length})
@@ -117,7 +117,7 @@ export const LeaveDashboardPage = () => {
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Quotas & encashment</p>
           </button>)}
 
-        {!isEmp && (<button onClick={() => navigate('/hr/reports', { state: { tab: 'leave' } })} className="p-2.5 sm:p-3 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] hover:border-emerald-400 dark:hover:border-emerald-500/60 hover:shadow-2xs transition-all text-left group">
+        {!isEmp && (<button onClick={() => navigate('/hr/leave/history')} className="p-2.5 sm:p-3 bg-white dark:bg-[#1A2430] rounded-xl border border-slate-200 dark:border-[#253344] hover:border-emerald-400 dark:hover:border-emerald-500/60 hover:shadow-2xs transition-all text-left group">
             <BarChart3 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 mb-1 group-hover:scale-110 transition-transform"/>
             <p className="text-xs font-bold text-slate-900 dark:text-white">Leave MIS & Audit</p>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Utilization & analytics</p>

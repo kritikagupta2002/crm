@@ -1,7 +1,7 @@
 import { Avatar } from '@/components/common/Avatar';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Boxes, Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, ShieldAlert, Crosshair, Navigation, CheckCircle2, AlertTriangle, Eye, EyeOff, Layers, Map as MapIcon, } from 'lucide-react';
+import { Boxes, Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, ShieldAlert, Crosshair, Navigation, CheckCircle2, AlertTriangle, Eye, EyeOff, Layers, Map as MapIcon, FileCheck, Upload } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -802,46 +802,46 @@ export const EmployeeDashboard = () => {
         </div>
       </Card>
 
-      {/* ── 4. My Expenses & Upcoming Company Holidays ─────────────────── */}
+      {/* ── 4. My Documents & Upcoming Company Holidays ─────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* My Expenses & Reimbursements */}
+        {/* My Documents & Verification Status */}
         <Card className="p-4 sm:p-5">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center">
-                <Receipt className="w-4 h-4"/>
+                <FileCheck className="w-4 h-4"/>
               </div>
               <div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white">My Claims & Expenses</h2>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">Site travel, lodging & fuel reimbursements</p>
+                <h2 className="text-xs font-bold text-slate-900 dark:text-white">My Documents & Verification</h2>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">Aadhaar, PAN, certificates & ID proofs</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/hr/expenses/new')} className="text-xs h-7 px-2.5" leftIcon={<CalendarPlus className="w-3.5 h-3.5 text-teal-600"/>}>
-              New Claim
+            <Button variant="outline" size="sm" onClick={() => navigate('/hr/documents')} className="text-xs h-7 px-2.5" leftIcon={<Upload className="w-3.5 h-3.5 text-teal-600"/>}>
+              Upload Document
             </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">Pending Review</span>
-              <p className="text-xl font-extrabold text-amber-600 dark:text-amber-400 font-mono mt-0.5">
-                ₹{pendingExpensesTotal.toLocaleString('en-IN')}
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">Verification Status</span>
+              <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active & Compliant
               </p>
-              <span className="text-[10px] text-slate-400">Awaiting approval</span>
+              <span className="text-[10px] text-slate-400 mt-1 block">Credentials verified by HR</span>
             </div>
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
-              <span className="text-[11px] text-slate-500 dark:text-slate-400">Settled (This Year)</span>
-              <p className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">
-                ₹{settledExpensesTotal.toLocaleString('en-IN')}
+              <span className="text-[11px] text-slate-500 dark:text-slate-400">Personal Documents</span>
+              <p className="text-xl font-extrabold text-blue-600 dark:text-blue-400 font-mono mt-0.5">
+                4 / 4
               </p>
-              <span className="text-[10px] text-slate-400">All claims reimbursed</span>
+              <span className="text-[10px] text-slate-400">KYC & educational records</span>
             </div>
           </div>
 
           <div className="mt-3 pt-2 flex items-center justify-between text-xs">
-            <span className="text-slate-500 dark:text-slate-400">Need to view claim history?</span>
-            <button onClick={() => navigate('/hr/expenses')} className="text-teal-700 dark:text-teal-400 font-bold hover:underline inline-flex items-center gap-1">
-              <span>View Claims</span>
+            <span className="text-slate-500 dark:text-slate-400">Need to update or re-upload documents?</span>
+            <button onClick={() => navigate('/hr/documents')} className="text-teal-700 dark:text-teal-400 font-bold hover:underline inline-flex items-center gap-1">
+              <span>View Documents</span>
               <ArrowRight className="w-3 h-3"/>
             </button>
           </div>
