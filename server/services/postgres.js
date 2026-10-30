@@ -71,3 +71,4 @@ class PostgresService {
 }
 
 export const postgres = new PostgresService();
+

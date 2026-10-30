@@ -25,6 +25,7 @@ const EmployeeDetailPage = lazy(() => import('@/modules/employees/pages/Employee
 const EditEmployeePage = lazy(() => import('@/modules/employees/pages/EditEmployeePage').then((m) => ({ default: m.EditEmployeePage })));
 const PerformanceRecordsPage = lazy(() => import('@/modules/employees/pages/PerformanceRecordsPage').then((m) => ({ default: m.PerformanceRecordsPage })));
 const EmployeeExitPage = lazy(() => import('@/modules/employees/pages/EmployeeExitPage').then((m) => ({ default: m.EmployeeExitPage })));
+const EmployeeDocumentsPage = lazy(() => import('@/modules/documents/pages/EmployeeDocumentsPage').then((m) => ({ default: m.EmployeeDocumentsPage })));
 const TeamPage = lazy(() => import('@/modules/employees/pages/TeamPage').then((m) => ({ default: m.TeamPage })));
 const OrgChartPage = lazy(() => import('@/modules/organization/pages/OrgChartPage').then((m) => ({ default: m.OrgChartPage })));
 const DepartmentsPage = lazy(() => import('@/modules/organization/pages/DepartmentsPage').then((m) => ({ default: m.DepartmentsPage })));
@@ -81,6 +82,7 @@ export const hrmsRoutes = (
     </Route>
     <Route path="hr/team" element={<TeamPage />} />
     <Route path="hr/organization" element={<OrgChartPage />} />
+    <Route path="hr/documents" element={<EmployeeDocumentsPage />} />
 
     {/* Leave Management */}
     <Route path="hr/leave" element={<LeaveDashboardPage />} />

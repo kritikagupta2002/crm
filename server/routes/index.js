@@ -7,6 +7,7 @@ import shiftRoutes from './shiftRoutes.js';
 import organizationRoutes from './organizationRoutes.js';
 import notificationRoutes from './notificationRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
+import documentRoutes from './documentRoutes.js';
 
 const api = Router();
 
@@ -27,6 +28,7 @@ api.use('/shifts', shiftRoutes);
 api.use('/organization', organizationRoutes);
 api.use('/notifications', notificationRoutes);
 api.use('/settings', settingsRoutes);
+api.use('/documents', documentRoutes);
 
 export default api;
 

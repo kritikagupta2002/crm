@@ -6,6 +6,7 @@ import {
   ClipboardList,
   Clock,
   Contact,
+  FileCheck,
   LayoutDashboard,
   Network,
   PlusCircle,
@@ -43,6 +44,7 @@ export const NAV_GROUPS = [
     title: 'Employee Management',
     items: [
       { label: 'Employee Directory', path: '/hr/employees', icon: Users, only: HR_ADMIN_ROLES },
+      { label: 'Document Verification', path: '/hr/documents', icon: FileCheck },
       { label: 'Performance Records', path: '/hr/performance', icon: UserCheck, only: HR_ADMIN_ROLES },
       { label: 'Employee Exit', path: '/hr/exit', icon: UserMinus, only: HR_ADMIN_ROLES },
     ],

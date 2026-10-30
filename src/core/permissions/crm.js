@@ -24,6 +24,7 @@ const HR_SELF = [
   '/hr/leave/requests',
   '/hr/leave/history',
   '/hr/shifts',
+  '/hr/documents',
   '/hr/settings',
   '/hr/settings/profile',
   '/hr/notifications',

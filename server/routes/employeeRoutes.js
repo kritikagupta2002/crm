@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { employeeController } from '../controllers/employeeController.js';
-import { authenticate, requireHr } from '../middleware/auth.js';
+import { authenticate, requireHr, requireSelfOrHr } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -14,7 +14,7 @@ router.put('/exit/records/:id', authenticate, requireHr, employeeController.upda
 
 router.get('/:id', authenticate, employeeController.getById);
 router.post('/', authenticate, requireHr, employeeController.create);
-router.put('/:id', authenticate, requireHr, employeeController.update);
+router.put('/:id', authenticate, requireSelfOrHr, employeeController.update);
 router.delete('/:id', authenticate, requireHr, employeeController.delete);
 
 export default router;

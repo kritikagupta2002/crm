@@ -5,6 +5,7 @@ import { ROLE_ACCESS, canOpen, useCrm } from '../../core/permissions/crm'
 import { NAV_ITEMS } from './navigation'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
+import { ProfileCompletionModal } from '../components/ProfileCompletionModal'
 import './layout.css'
 
 const isSmallScreen = () => window.matchMedia('(max-width: 1023px)').matches
@@ -32,7 +33,7 @@ function pageTitle(pathname) {
 export function AppLayout() {
   const [desktopCollapsed, setDesktopCollapsed] = useState(readCollapsed)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { changeCount, resetDemoData, teamSignedIn, role } = useCrm()
+  const { changeCount, resetDemoData, teamSignedIn, role, user } = useCrm()
   const { pathname } = useLocation()
 
   // On route change: close mobile drawer, scroll to top, update document title
@@ -122,6 +123,8 @@ export function AppLayout() {
           )}
         </footer>
       </div>
+
+      <ProfileCompletionModal user={user} role={role} />
     </div>
   )
 }

@@ -41,9 +41,19 @@ export function requireRole(...allowedRoles) {
 }
 
 export function requireHr(req, res, next) {
-  const hrRoles = ['Super Admin', 'Director', 'Manager'];
+  const hrRoles = ['Super Admin', 'Director', 'Manager', 'Managing Director'];
   if (!req.user || !hrRoles.includes(req.user.role)) {
     return res.status(403).json({ error: 'HR administrative access required.' });
+  }
+  next();
+}
+
+export function requireSelfOrHr(req, res, next) {
+  const hrRoles = ['Super Admin', 'Director', 'Manager', 'Managing Director'];
+  const isHr = req.user && hrRoles.includes(req.user.role);
+  const isSelf = req.user && (req.user.employeeId === req.params.id || req.user.id === req.params.id);
+  if (!isHr && !isSelf) {
+    return res.status(403).json({ error: 'Permission denied: You can only edit your own profile.' });
   }
   next();
 }

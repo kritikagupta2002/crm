@@ -32,3 +32,4 @@ export const ALL_STAFF = [
 
 export const titleOf = (name) =>
   [...COORDINATORS, ...TEAM_LEADS, ...FIELD_MEMBERS].find((p) => p.name === name)?.title ?? '';
+
