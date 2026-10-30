@@ -91,8 +91,8 @@ export const ExpenseApprovalsPage = () => {
         try {
             const updated = await expenseService.reviewExpense(selectedExp.id, {
                 approvedAmount: appr,
-                reviewerName: user?.name || 'Dr. Amit Kumar Bansal',
-                remarks: remarks.trim() || 'Reviewed by Management',
+                reviewerName: user?.name ?? '',
+                remarks: remarks.trim(),
             });
             toast.success(`Claim ${selectedExp.expenseNumber} verified as '${updated.status}' and forwarded to Finance.`, `Claim Adjudicated`);
             setIsReviewModalOpen(false);
@@ -237,6 +237,9 @@ export const ExpenseApprovalsPage = () => {
             className: 'text-right whitespace-nowrap min-w-[150px]',
             render: (e) => {
                 if (e.status === 'Pending') {
+                    if (e.employeeId === user?.employeeId || (user?.name && e.employeeName?.trim().toLowerCase() === user.name.trim().toLowerCase())) {
+                        return (<span className="text-[11px] text-slate-400 italic whitespace-nowrap">Your claim: another approver reviews it</span>);
+                    }
                     return (
                         <div className="flex items-center justify-end gap-1.5">
                             <Button 

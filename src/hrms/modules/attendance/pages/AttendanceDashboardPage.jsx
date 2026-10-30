@@ -13,6 +13,7 @@ import { useRole } from '@/contexts/RoleContext';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { storage } from '@/core/storage/storage';
 import { DAYS_OF_WEEK, getDayOfWeekFromIso } from '../utils/attendanceFilters';
+import { downloadCsv } from '../../../../shared/utils/exportCsv';
 export const AttendanceDashboardPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
@@ -52,8 +53,47 @@ export const AttendanceDashboardPage = () => {
             return false;
         return true;
     });
+
+    const empStats = React.useMemo(() => {
+        if (!isEmp) return null;
+        const todayIso = new Date().toLocaleDateString('en-CA');
+        const monthPrefix = selectedMonth || todayIso.slice(0, 7);
+        const monthRecs = records.filter((r) => r.date && r.date.startsWith(monthPrefix));
+        const todayRec = records.find((r) => r.date === todayIso);
+
+        const present = monthRecs.filter((r) => r.status === 'Present' || r.status === 'Late').length;
+        const late = monthRecs.filter((r) => r.status === 'Late').length;
+        const leave = monthRecs.filter((r) => r.status === 'On Leave').length;
+        const total = monthRecs.length || 1;
+        const rate = Math.round((present / total) * 100);
+
+        return {
+            todayIn: todayRec?.checkIn || 'Not Punched',
+            todayBadge: todayRec ? (todayRec.status === 'Late' ? 'Late' : 'On Time') : 'Pending',
+            todayBadgeColor: todayRec ? (todayRec.status === 'Late' ? 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400' : 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-400') : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400',
+            presentStr: `${present} / ${total}`,
+            rateStr: `${rate}%`,
+            lateStr: String(late),
+            leaveStr: String(leave),
+        };
+    }, [isEmp, records, selectedMonth]);
     const handleExport = () => {
-        toast.success('Biometric attendance records exported for September 2026.', 'Export Ready');
+        if (!filteredRecords.length) {
+            toast.error('No attendance records in this view.', 'Nothing to export');
+            return;
+        }
+        downloadCsv(`Attendance_${new Date().toLocaleDateString('en-CA')}.csv`, [
+        { label: 'Date', value: (r) => r.date },
+        { label: 'Employee ID', value: (r) => r.employeeId },
+        { label: 'Name', value: (r) => r.employeeName },
+        { label: 'Department', value: (r) => r.department },
+        { label: 'Punch in', value: (r) => r.checkIn },
+        { label: 'Punch out', value: (r) => r.checkOut },
+        { label: 'Hours', value: (r) => r.workingHours },
+        { label: 'Late by', value: (r) => r.lateBy },
+        { label: 'Status', value: (r) => r.status },
+        { label: 'Source', value: (r) => r.punchSource },
+    ], filteredRecords);
     };
     const columns = [
         ...(!isEmp
@@ -146,37 +186,37 @@ export const AttendanceDashboardPage = () => {
             ? [
                 {
                     title: 'Punch In Today',
-                    value: '09:14 AM',
-                    badge: 'On Time',
-                    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60',
-                    subtitle: 'General Shift 09:00',
+                    value: empStats?.todayIn || 'Not Punched',
+                    badge: empStats?.todayBadge || 'Pending',
+                    badgeColor: empStats?.todayBadgeColor || 'bg-slate-50 text-slate-600',
+                    subtitle: 'Shift Attendance',
                     icon: <UserCheck className="w-3.5 h-3.5"/>,
                     iconBg: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400',
                 },
                 {
                     title: 'Present Days',
-                    value: '21 / 24',
-                    badge: '87.5%',
+                    value: empStats?.presentStr || '0 / 0',
+                    badge: empStats?.rateStr || '0%',
                     badgeColor: 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800/60',
-                    subtitle: 'September 2026',
+                    subtitle: 'This Month',
                     icon: <CalendarDays className="w-3.5 h-3.5"/>,
                     iconBg: 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400',
                 },
                 {
                     title: 'Late Marks',
-                    value: '1',
-                    badge: 'Grace',
+                    value: empStats?.lateStr || '0',
+                    badge: Number(empStats?.lateStr) > 0 ? 'Review' : 'None',
                     badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60',
-                    subtitle: 'In grace window',
+                    subtitle: 'Late arrivals',
                     icon: <ClockAlert className="w-3.5 h-3.5"/>,
                     iconBg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400',
                 },
                 {
                     title: 'Leave Days',
-                    value: '2',
-                    badge: 'Approved',
+                    value: empStats?.leaveStr || '0',
+                    badge: Number(empStats?.leaveStr) > 0 ? 'Approved' : 'None',
                     badgeColor: 'bg-purple-50 text-purple-700 border-purple-200/80 dark:bg-purple-950/60 dark:text-purple-400 dark:border-purple-800/60',
-                    subtitle: 'CL & SL taken',
+                    subtitle: 'Approved leave',
                     icon: <CalendarOff className="w-3.5 h-3.5"/>,
                     iconBg: 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400',
                 },

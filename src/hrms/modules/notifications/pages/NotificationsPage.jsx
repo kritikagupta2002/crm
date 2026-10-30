@@ -21,7 +21,7 @@ export const NotificationsPage = () => {
         load();
     }, [currentRole]);
     const handleMarkAllRead = async () => {
-        await notificationService.markAllAsRead();
+        await notificationService.markAllAsRead(currentRole);
         toast.success('All notifications marked as read.', 'Updated');
         load();
     };

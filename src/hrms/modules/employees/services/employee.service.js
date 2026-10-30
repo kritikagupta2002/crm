@@ -49,17 +49,17 @@ export const employeeService = {
             const salaryList = storage.getSalaryStructures();
             const existingSal = salaryList.some((s) => s.employeeId === newEmployee.employeeId);
             if (!existingSal) {
-                const baseMonthly = Number(newEmployee.baseSalary) || 55000;
+                const baseMonthly = Number(newEmployee.baseSalary) || 0;
                 const annual = baseMonthly * 12;
                 const basic = Math.round(baseMonthly * 0.5);
                 const hra = Math.round(baseMonthly * 0.25);
                 const special = Math.max(0, baseMonthly - basic - hra);
                 const pf = Math.round(basic * 0.12);
-                const pt = 200;
+                const pt = baseMonthly > 0 ? 200 : 0;
                 const tds = baseMonthly >= 50000 ? 1200 : 0;
-                const net = baseMonthly - pf - pt - tds;
+                const net = Math.max(0, baseMonthly - pf - pt - tds);
                 salaryList.unshift({
-                    id: `ss-${Date.now()}`,
+                    id: `ss-${newEmployee.employeeId}`,
                     employeeId: newEmployee.employeeId,
                     employeeName: newEmployee.name,
                     department: newEmployee.employment.department,
@@ -80,7 +80,7 @@ export const employeeService = {
                     grossPay: baseMonthly,
                     netPay: net,
                     effectiveDate: newEmployee.employment.joiningDate || new Date().toLocaleDateString('en-CA'),
-                    status: 'Active',
+                    status: baseMonthly > 0 ? 'Active' : 'Not set',
                 });
                 storage.setSalaryStructures(salaryList);
             }

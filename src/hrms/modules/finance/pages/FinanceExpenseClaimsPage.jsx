@@ -216,7 +216,7 @@ export const FinanceExpenseClaimsPage = () => {
         try {
             const svc = selectedClaim.claimType === 'Expense' ? expenseService : reimbursementService;
             await svc.financeApprove(selectedClaim.id, {
-                reviewerName: user?.name || 'Chhavi Bansal (Finance Head)',
+                reviewerName: user?.name ?? '',
                 remarks: approveRemarks.trim() || 'Verified and approved by Finance',
             });
             toast.success(`Claim ${selectedClaim.refNumber} verified and approved for settlement.`, 'Finance Approved');
@@ -239,7 +239,7 @@ export const FinanceExpenseClaimsPage = () => {
         try {
             const svc = selectedClaim.claimType === 'Expense' ? expenseService : reimbursementService;
             await svc.financeReject(selectedClaim.id, {
-                reviewerName: user?.name || 'Chhavi Bansal (Finance Head)',
+                reviewerName: user?.name ?? '',
                 remarks: rejectRemarks.trim() || 'Rejected during Finance audit',
             });
             toast.success(`Claim ${selectedClaim.refNumber} rejected by Finance.`, 'Finance Rejected');
@@ -262,7 +262,7 @@ export const FinanceExpenseClaimsPage = () => {
         try {
             const svc = selectedClaim.claimType === 'Expense' ? expenseService : reimbursementService;
             await svc.raiseQuery(selectedClaim.id, {
-                raisedBy: user?.name || 'Chhavi Bansal (Finance Head)',
+                raisedBy: user?.name ?? '',
                 message: queryMessage.trim(),
             });
             toast.success(`Clarification query raised on claim ${selectedClaim.refNumber}. Settlement blocked until resolved.`, 'Query Dispatched');
@@ -285,7 +285,7 @@ export const FinanceExpenseClaimsPage = () => {
         try {
             const svc = selectedClaim.claimType === 'Expense' ? expenseService : reimbursementService;
             await svc.resolveQuery(selectedClaim.id, {
-                resolvedBy: user?.name || 'Chhavi Bansal (Finance Head)',
+                resolvedBy: user?.name ?? '',
                 remarks: resolveRemarks.trim(),
             });
             toast.success(`Query on claim ${selectedClaim.refNumber} marked resolved.`, 'Query Resolved');
@@ -312,7 +312,7 @@ export const FinanceExpenseClaimsPage = () => {
             const svc = selectedClaim.claimType === 'Expense' ? expenseService : reimbursementService;
             if (selectedClaim.claimType === 'Expense') {
                 await svc.settleExpense(selectedClaim.id, {
-                    settledBy: user?.name || 'Chhavi Bansal (Finance Head)',
+                    settledBy: user?.name ?? '',
                     settlementReference: settlementRef.trim(),
                     paymentMode,
                     bankAccount,
@@ -320,7 +320,7 @@ export const FinanceExpenseClaimsPage = () => {
                 });
             } else {
                 await svc.settleClaim(selectedClaim.id, {
-                    settledBy: user?.name || 'Chhavi Bansal (Finance Head)',
+                    settledBy: user?.name ?? '',
                     settlementReference: settlementRef.trim(),
                     paymentMode,
                     bankAccount,

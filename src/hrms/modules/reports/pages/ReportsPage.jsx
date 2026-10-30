@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     BarChart3, Download, Calendar, Building2, Users, CreditCard,
     FileCheck2, TrendingUp, Award, UserMinus, CheckCircle2, Sliders,
@@ -22,10 +22,43 @@ import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
 import { STANDARD_PROJECTS, getEmployeeProjectById } from '@/core/constants/projects';
 import { EmployeeLeaveMisChart } from '@/modules/leave/components/EmployeeLeaveMisChart';
+import { performanceService } from '@/modules/employees/services/performance.service';
+import { exitService } from '@/modules/employees/services/exit.service';
+import { downloadCsv } from '../../../../shared/utils/exportCsv';
+
+const pad2 = (n) => String(n).padStart(2, '0');
+const isoOf = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const monthName = (d) => d.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+/* Report periods worked out from today: this and last month, the financial-year quarter and the year (April to March). */
+const buildPeriods = () => {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    const fyStart = m >= 3 ? y : y - 1;
+    const qStartMonth = m - ((m - 3 + 12) % 3);
+    const qStart = new Date(y, qStartMonth, 1);
+    const qEnd = new Date(qStart.getFullYear(), qStart.getMonth() + 3, 0);
+    const quarterNo = Math.floor(((qStart.getMonth() - 3 + 12) % 12) / 3) + 1;
+    const fyLabel = `${fyStart}-${String(fyStart + 1).slice(2)}`;
+    return {
+        this_month: { from: isoOf(new Date(y, m, 1)), to: isoOf(new Date(y, m + 1, 0)), label: `This month (${monthName(now)})` },
+        last_month: { from: isoOf(new Date(y, m - 1, 1)), to: isoOf(new Date(y, m, 0)), label: `Last month (${monthName(new Date(y, m - 1, 1))})` },
+        this_quarter: { from: isoOf(qStart), to: isoOf(qEnd), label: `Q${quarterNo} FY ${fyLabel} (${qStart.toLocaleDateString('en-IN', { month: 'short' })} - ${qEnd.toLocaleDateString('en-IN', { month: 'short' })})` },
+        this_financial_year: { from: `${fyStart}-04-01`, to: `${fyStart + 1}-03-31`, label: `Financial year ${fyLabel}` },
+    };
+};
 
 export const ReportsPage = () => {
     const toast = useToast();
     const location = useLocation();
+    const PERIODS = React.useMemo(buildPeriods, []);
+    // Appraisals and exit requests live in their own services.
+    const [appraisals, setAppraisals] = useState([]);
+    const [exits, setExits] = useState([]);
+    useEffect(() => {
+        performanceService.getAppraisals().then(setAppraisals);
+        exitService.getExits().then(setExits);
+    }, []);
     const [activeReportTab, setActiveReportTab] = useState(() => location.state?.tab || location.state?.defaultTab || 'attendance');
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
@@ -115,7 +148,7 @@ export const ReportsPage = () => {
             { id: 'department', label: 'Department' },
             { id: 'resignationDate', label: 'Resignation Date' },
             { id: 'lwd', label: 'Last Working Day' },
-            { id: 'clearanceStatus', label: '4-Dept Clearances' },
+            { id: 'clearanceStatus', label: 'Clearances' },
             { id: 'fnfAmount', label: 'Net F&F Payable' },
         ],
     };
@@ -126,19 +159,13 @@ export const ReportsPage = () => {
     const allExpenses = storage.getExpenses();
     const allReimbursements = storage.getReimbursements();
     const allAttendance = storage.getAttendance();
-    const _allPayslips = storage.getPayslips();
-    const _allPayrollRuns = storage.getPayrollRuns();
+    const allPayslips = storage.getPayslips();
 
     // Date Range Matching Helper
     const matchesDateRange = (dateStr, range) => {
         if (!dateStr || range === 'all') return true;
-        if (range === 'this_month') return dateStr >= '2026-09-01';
-        if (range === 'oct_2026') return dateStr >= '2026-10-01' && dateStr <= '2026-10-31';
-        if (range === 'sep_2026' || range === 'last_month') return dateStr >= '2026-09-01' && dateStr <= '2026-09-30';
-        if (range === 'aug_2026') return dateStr >= '2026-08-01' && dateStr <= '2026-08-31';
-        if (range === 'this_quarter') return dateStr >= '2026-07-01' && dateStr <= '2026-09-30';
-        if (range === 'this_financial_year') return dateStr >= '2026-04-01' && dateStr <= '2027-03-31';
-        return true;
+        const period = PERIODS[range];
+        return period ? dateStr >= period.from && dateStr <= period.to : true;
     };
 
     // Unified Expense & Reimbursement Records
@@ -301,15 +328,7 @@ export const ReportsPage = () => {
         if (selectedDept !== 'all') {
             list = list.filter((r) => r.department === selectedDept);
         }
-        if (dateRange === 'this_month') {
-            list = list.filter((r) => (r.startDate || r.appliedOn) >= '2026-09-01');
-        }
-        else if (dateRange === 'last_month') {
-            list = list.filter((r) => {
-                const d = r.startDate || r.appliedOn;
-                return d >= '2026-08-01' && d <= '2026-08-31';
-            });
-        }
+        list = list.filter((r) => matchesDateRange(r.startDate || r.appliedOn, dateRange));
         return list.map((r) => {
             const empBals = storage.getBalancesForEmployee(r.employeeId, r.employeeName);
             const b = empBals.find((bal) => bal.leaveType === r.leaveType);
@@ -374,60 +393,6 @@ export const ReportsPage = () => {
             };
         });
     }, [misLeaveRecords]);
-    const customDataset = {
-        employees: allEmployees.map((e) => ({
-            employeeId: e.employeeId,
-            name: e.name,
-            department: e.employment?.department || 'General',
-            designation: e.employment?.designation || 'Staff',
-            joiningDate: e.employment?.joiningDate || '2026-04-01',
-            status: e.employment?.status || 'Active',
-            workLocation: e.employment?.workLocation || 'Jaipur Corporate HQ',
-        })),
-        payroll: allSalaries.map((s) => ({
-            employeeId: s.employeeId,
-            name: s.employeeName,
-            department: s.department,
-            gross: `₹${(s.monthlyGross || s.basic + s.hra + s.specialAllowance).toLocaleString('en-IN')}`,
-            netDisbursed: `₹${(s.monthlyNet || s.netPay || Math.round(s.monthlyGross * 0.88)).toLocaleString('en-IN')}`,
-            pfDeduction: `₹${(s.providentFund || s.pf || 3600).toLocaleString('en-IN')}`,
-            paymentStatus: 'Disbursed',
-        })),
-        leave: misLeaveRecords.map((r) => ({
-            employeeId: r.employeeId,
-            name: r.employeeName,
-            department: r.department,
-            leaveType: r.leaveType,
-            requestedDays: `${r.requestedDays}d`,
-            approvedDays: `${r.approvedDays}d`,
-            rejectedDays: `${r.rejectedDays}d`,
-            status: r.status,
-        })),
-        expenses: unifiedExpenseRecords.map(r => ({
-            referenceId: r.referenceId,
-            employeeId: r.employeeId,
-            name: r.employeeName,
-            type: r.type,
-            category: r.category,
-            requestedAmount: `₹${r.requestedAmount.toLocaleString('en-IN')}`,
-            approvedAmount: `₹${r.approvedAmount.toLocaleString('en-IN')}`,
-            rejectedAmount: `₹${r.rejectedAmount.toLocaleString('en-IN')}`,
-            status: r.status,
-        })),
-        performance: allEmployees.map((e) => ({
-            employeeId: e.employeeId,
-            name: e.name,
-            cycle: 'Annual Appraisal FY 2025-26',
-            overallScore: '4.8 / 5.0',
-            rating: 'Outstanding',
-            evaluator: e.employment?.managerName || 'Dr. Amit Kumar Bansal',
-            status: 'Completed',
-        })),
-        exit: [
-            { employeeId: 'BGS-005', name: 'Vikram Singh Shekhawat', department: 'Mining Operations', resignationDate: '2026-08-15', lwd: '2026-09-30', clearanceStatus: '4/4 Cleared', fnfAmount: '₹75,000' },
-            { employeeId: 'BGS-006', name: 'Rohan Deshmukh', department: 'Geology & Mineral Exploration', resignationDate: '2026-08-28', lwd: '2026-10-15', clearanceStatus: '3/4 Cleared', fnfAmount: '₹1,24,000' },
-        ],
-    };
     const handleModuleSwitch = (mod) => {
         setCustomModule(mod);
         const defaultCols = moduleFieldMap[mod].slice(0, 5).map(f => f.id);
@@ -536,6 +501,7 @@ export const ReportsPage = () => {
     // Filtered Payroll / Compensation Data
     const filteredPayrollEmployees = React.useMemo(() => {
         return (allSalaries || []).filter((s) => {
+            if (s.status === 'Not set' || !(Number(s.monthlyGross) > 0)) return false;
             if (selectedDept !== 'all' && s.department !== selectedDept) return false;
             if (selectedProject !== 'all') {
                 const empProj = getEmployeeProjectById(s.employeeId);
@@ -546,54 +512,47 @@ export const ReportsPage = () => {
         });
     }, [allSalaries, selectedDept, selectedProject, selectedEmployee]);
 
+    // Payslips of the people in view, in the chosen period
+    const payslipsInView = React.useMemo(() => {
+        const ids = new Set(filteredPayrollEmployees.map((s) => s.employeeId));
+        return allPayslips.filter((p) => ids.has(p.employeeId) && matchesDateRange(`${p.monthKey}-01`, dateRange));
+    }, [allPayslips, filteredPayrollEmployees, dateRange]);
+
     // Dynamic Payroll Metrics
     const payrollMetrics = React.useMemo(() => {
+        const lakh = (n) => `₹${(n / 100000).toFixed(1)} Lakhs`;
         const count = filteredPayrollEmployees.length;
-        if (count === 0) {
-            return {
-                totalDisbursed: '₹0.0 Lakhs',
-                statutoryRemittances: '₹0.0 Lakhs',
-                avgCtc: '₹0.0 LPA',
-                employeeCount: 0,
-            };
-        }
-        const totalGrossMonthly = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0)), 0);
-        const totalNetMonthly = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyNet || Math.round(s.monthlyGross * 0.88)), 0);
-        const totalPfTaxesMonthly = filteredPayrollEmployees.reduce((sum, s) => {
-            return sum + (s.providentFund || 0) + (s.professionalTax || 200) + (s.tds || 0);
-        }, 0);
-
-        const monthsMultiplier = dateRange === 'this_month' || dateRange === 'last_month' ? 1 : 5;
-        const totalDisbursedLakhs = ((totalNetMonthly * monthsMultiplier) / 100000).toFixed(1);
-        const totalTaxLakhs = ((totalPfTaxesMonthly * monthsMultiplier) / 100000).toFixed(1);
-        const avgCtcLpa = ((totalGrossMonthly * 12) / count / 100000).toFixed(1);
-
+        const net = payslipsInView.reduce((sum, p) => sum + (p.netSalary || 0), 0);
+        const statutory = payslipsInView.reduce((sum, p) => sum + (p.providentFund || 0) + (p.professionalTax || 0) + (p.esi || 0) + (p.tds || 0), 0);
+        const gross = filteredPayrollEmployees.reduce((sum, s) => sum + Number(s.monthlyGross), 0);
         return {
-            totalDisbursed: `₹${totalDisbursedLakhs} Lakhs`,
-            statutoryRemittances: `₹${totalTaxLakhs} Lakhs`,
-            avgCtc: `₹${avgCtcLpa} LPA`,
+            totalDisbursed: lakh(net),
+            statutoryRemittances: lakh(statutory),
+            avgCtc: count ? `₹${((gross * 12) / count / 100000).toFixed(1)} LPA` : '-',
             employeeCount: count,
+            payslipCount: payslipsInView.length,
         };
-    }, [filteredPayrollEmployees, dateRange]);
+    }, [filteredPayrollEmployees, payslipsInView]);
 
-    // Dynamic Payroll Cost Chart Data
+    // Payroll by month, from the processed payslips (latest six months)
     const payrollCostData = React.useMemo(() => {
-        if (filteredPayrollEmployees.length === 0) return [];
-        const totalGrossLakhs = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0)), 0) / 100000;
-        const totalNetLakhs = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyNet || Math.round(s.monthlyGross * 0.88)), 0) / 100000;
-        const totalTaxLakhs = filteredPayrollEmployees.reduce((sum, s) => sum + (s.providentFund || 0) + (s.professionalTax || 200) + (s.tds || 0), 0) / 100000;
-
-        const months = ['Apr', 'May', 'Jun', 'Jul', 'Aug'];
-        return months.map((month, idx) => {
-            const factor = 0.94 + idx * 0.015;
-            return {
-                month,
-                gross: +(totalGrossLakhs * factor).toFixed(1),
-                net: +(totalNetLakhs * factor).toFixed(1),
-                tax: +(totalTaxLakhs * factor).toFixed(1),
-            };
+        const byMonth = {};
+        payslipsInView.forEach((p) => {
+            const row = (byMonth[p.monthKey] = byMonth[p.monthKey] || { monthKey: p.monthKey, gross: 0, net: 0, tax: 0 });
+            row.gross += p.grossEarnings || 0;
+            row.net += p.netSalary || 0;
+            row.tax += (p.providentFund || 0) + (p.professionalTax || 0) + (p.esi || 0) + (p.tds || 0);
         });
-    }, [filteredPayrollEmployees]);
+        return Object.values(byMonth)
+            .sort((a, b) => a.monthKey.localeCompare(b.monthKey))
+            .slice(-6)
+            .map((r) => ({
+                month: new Date(`${r.monthKey}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }),
+                gross: +(r.gross / 100000).toFixed(2),
+                net: +(r.net / 100000).toFixed(2),
+                tax: +(r.tax / 100000).toFixed(2),
+            }));
+    }, [payslipsInView]);
 
     // 1. Attendance Punctuality Pie Data
     const attendancePunctualityPieData = React.useMemo(() => {
@@ -630,21 +589,18 @@ export const ReportsPage = () => {
         }));
     }, [filteredAttendance]);
 
-    // 3. Payroll Statutory & Net Breakdown Pie Data
+    // 3. Payroll Statutory & Net Breakdown Pie Data (monthly, from the salary structures)
     const payrollDistributionPieData = React.useMemo(() => {
         if (filteredPayrollEmployees.length === 0) return [];
-        const totalGross = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0)), 0);
-        const totalNet = filteredPayrollEmployees.reduce((sum, s) => sum + (s.monthlyNet || Math.round(s.monthlyGross * 0.88)), 0);
-        const totalPf = filteredPayrollEmployees.reduce((sum, s) => sum + (s.providentFund || s.pf || 3600), 0);
-        const totalTax = filteredPayrollEmployees.reduce((sum, s) => sum + (s.tds || 0) + (s.professionalTax || 200), 0);
-        const otherAllowances = Math.max(0, totalGross - totalNet - totalPf - totalTax);
-
+        const sum = (k) => filteredPayrollEmployees.reduce((t, s) => t + (Number(s[k]) || 0), 0);
+        const totalNet = sum('monthlyNet');
+        const totalPf = sum('providentFund');
+        const totalTax = sum('tds') + sum('professionalTax') + sum('esi');
         return [
             { name: 'Net Take-Home Salary', value: Math.round(totalNet / 1000), amount: totalNet, color: '#10B981' },
             { name: 'Provident Fund (PF)', value: Math.round(totalPf / 1000), amount: totalPf, color: '#3B82F6' },
-            { name: 'TDS & Taxes', value: Math.round((totalTax || 12000) / 1000), amount: totalTax || 12000, color: '#F59E0B' },
-            ...(otherAllowances > 0 ? [{ name: 'Allowances / Other', value: Math.round(otherAllowances / 1000), amount: otherAllowances, color: '#8B5CF6' }] : []),
-        ];
+            { name: 'TDS, PT & ESI', value: Math.round(totalTax / 1000), amount: totalTax, color: '#F59E0B' },
+        ].filter((d) => d.amount > 0);
     }, [filteredPayrollEmployees]);
 
     // 4. Payroll Department Share Pie Data
@@ -654,8 +610,7 @@ export const ReportsPage = () => {
         const colors = ['#2563EB', '#0D9488', '#8B5CF6', '#F59E0B', '#EC4899', '#06B6D4'];
         filteredPayrollEmployees.forEach((s) => {
             const dept = s.department ? s.department.split('&')[0].trim() : 'General';
-            const gross = s.monthlyGross || (s.basic || 0) + (s.hra || 0) + (s.specialAllowance || 0);
-            map[dept] = (map[dept] || 0) + gross;
+            map[dept] = (map[dept] || 0) + Number(s.monthlyGross);
         });
         const total = Object.values(map).reduce((a, b) => a + b, 0);
         return Object.entries(map).map(([name, amount], idx) => ({
@@ -722,15 +677,122 @@ export const ReportsPage = () => {
         ].filter(d => d.value > 0);
     }, [expenseMetrics]);
 
-    // 9. Division Headcount Pie Data
-    const divisionHeadcountPieData = React.useMemo(() => [
-        { name: 'Geology & Exploration', value: 18, color: '#2563EB', kpi: 4.6 },
-        { name: 'Mining Operations', value: 14, color: '#0D9488', kpi: 4.8 },
-        { name: 'GIS & Drone UAV', value: 12, color: '#8B5CF6', kpi: 4.5 },
-        { name: 'Hydrogeology Core', value: 8, color: '#06B6D4', kpi: 4.1 },
-        { name: 'Finance & Strategy', value: 6, color: '#F59E0B', kpi: 4.7 },
-        { name: 'HR & IT Administration', value: 5, color: '#EC4899', kpi: 4.4 },
-    ], []);
+    // 9. Headcount by department, with the average appraisal score where appraisals exist
+    const divisionHeadcountPieData = React.useMemo(() => {
+        const colors = ['#2563EB', '#0D9488', '#8B5CF6', '#06B6D4', '#F59E0B', '#EC4899', '#10B981', '#64748B'];
+        const map = {};
+        allEmployees.forEach((e) => {
+            const d = e.employment?.department || 'Not set';
+            map[d] = (map[d] || 0) + 1;
+        });
+        return Object.entries(map)
+            .sort((a, b) => b[1] - a[1])
+            .map(([name, value], i) => {
+                const scores = appraisals.filter((a) => a.department === name).map((a) => Number(a.overallScore)).filter(Number.isFinite);
+                return { name, value, color: colors[i % colors.length], kpi: scores.length ? (scores.reduce((t, x) => t + x, 0) / scores.length).toFixed(1) : '-' };
+            });
+    }, [allEmployees, appraisals]);
+
+    // The Insights tab: headcount, appraisals, exits and this month's attendance, by department
+    const insights = React.useMemo(() => {
+        const month = PERIODS.this_month;
+        const yearAgo = isoOf(new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate()));
+        const openExits = exits.filter((x) => x.status !== 'Completed' && x.status !== 'Withdrawn');
+        const leftInYear = exits.filter((x) => (x.approvedLWD || x.requestedLWD || '') >= yearAgo && (x.status === 'Completed' || (x.approvedLWD || '') < isoOf(new Date())));
+        const headcount = allEmployees.length;
+        const scores = appraisals.map((a) => Number(a.overallScore)).filter(Number.isFinite);
+        const monthAtt = allAttendance.filter((a) => a.date >= month.from && a.date <= month.to);
+        const presentShare = (rows) => {
+            const marked = rows.filter((a) => ['Present', 'Late', 'Absent'].includes(a.status));
+            return marked.length ? ((marked.filter((a) => a.status !== 'Absent').length / marked.length) * 100).toFixed(1) : '-';
+        };
+        const reasons = {};
+        exits.forEach((x) => {
+            const key = x.exitType || 'Not recorded';
+            reasons[key] = (reasons[key] || 0) + 1;
+        });
+        const departments = divisionHeadcountPieData.map((d) => ({
+            name: d.name,
+            headcount: d.value,
+            avgScore: d.kpi,
+            openExits: openExits.filter((x) => x.department === d.name),
+            attendance: presentShare(monthAtt.filter((a) => a.department === d.name)),
+        }));
+        return {
+            headcount,
+            retention: headcount ? (((headcount) / (headcount + leftInYear.length)) * 100).toFixed(1) : '-',
+            leftInYear: leftInYear.length,
+            avgScore: scores.length ? (scores.reduce((t, x) => t + x, 0) / scores.length).toFixed(2) : '-',
+            appraisalCount: scores.length,
+            openExits,
+            attendance: presentShare(monthAtt),
+            reasons: Object.entries(reasons).map(([name, value], i) => ({ name, value, fill: ['#1F6F78', '#C8943A', '#31485A', '#10B981', '#8B5CF6'][i % 5] })),
+            departments,
+        };
+    }, [PERIODS, exits, appraisals, allEmployees, allAttendance, divisionHeadcountPieData]);
+    // Rows for the custom report builder
+    const customDataset = {
+        employees: allEmployees.map((e) => ({
+            employeeId: e.employeeId,
+            name: e.name,
+            department: e.employment?.department || 'General',
+            designation: e.employment?.designation || 'Staff',
+            joiningDate: e.employment?.joiningDate || '-',
+            status: e.employment?.status || 'Active',
+            workLocation: e.employment?.workLocation || '-',
+        })),
+        payroll: filteredPayrollEmployees.map((s) => {
+            const latest = allPayslips.filter((p) => p.employeeId === s.employeeId).sort((a, b) => b.monthKey.localeCompare(a.monthKey))[0];
+            return {
+                employeeId: s.employeeId,
+                name: s.employeeName,
+                department: s.department,
+                gross: `₹${Number(s.monthlyGross).toLocaleString('en-IN')}`,
+                netDisbursed: `₹${(Number(s.monthlyNet) || 0).toLocaleString('en-IN')}`,
+                pfDeduction: `₹${(Number(s.providentFund) || 0).toLocaleString('en-IN')}`,
+                paymentStatus: latest ? `${latest.paymentStatus} (${latest.month})` : 'No payslip yet',
+            };
+        }),
+        leave: misLeaveRecords.map((r) => ({
+            employeeId: r.employeeId,
+            name: r.employeeName,
+            department: r.department,
+            leaveType: r.leaveType,
+            requestedDays: `${r.requestedDays}d`,
+            approvedDays: `${r.approvedDays}d`,
+            rejectedDays: `${r.rejectedDays}d`,
+            status: r.status,
+        })),
+        expenses: unifiedExpenseRecords.map(r => ({
+            referenceId: r.referenceId,
+            employeeId: r.employeeId,
+            name: r.employeeName,
+            type: r.type,
+            category: r.category,
+            requestedAmount: `₹${r.requestedAmount.toLocaleString('en-IN')}`,
+            approvedAmount: `₹${r.approvedAmount.toLocaleString('en-IN')}`,
+            rejectedAmount: `₹${r.rejectedAmount.toLocaleString('en-IN')}`,
+            status: r.status,
+        })),
+        performance: appraisals.map((a) => ({
+            employeeId: a.employeeId,
+            name: a.employeeName,
+            cycle: a.reviewCycle,
+            overallScore: `${a.overallScore} / 5.0`,
+            rating: a.rating,
+            evaluator: a.reviewerName,
+            status: a.status,
+        })),
+        exit: exits.map((x) => ({
+            employeeId: x.employeeId,
+            name: x.employeeName,
+            department: x.department,
+            resignationDate: x.resignationDate,
+            lwd: x.approvedLWD || x.requestedLWD || '-',
+            clearanceStatus: `${(x.clearances || []).filter((c) => c.status === 'Approved').length}/${(x.clearances || []).length} cleared`,
+            fnfAmount: x.fnf ? `₹${Number(x.fnf.netPayable || 0).toLocaleString('en-IN')}` : '-',
+        })),
+    };
     const handleExportReport = () => {
         try {
             if (activeReportTab === 'attendance') {
@@ -861,13 +923,8 @@ export const ReportsPage = () => {
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
             options={[
-              { label: 'All Records (Full History)', value: 'all' },
-              { label: 'Current Period (Sep - Oct 2026)', value: 'this_month' },
-              { label: 'Current Month (October 2026)', value: 'oct_2026' },
-              { label: 'Previous Month (September 2026)', value: 'sep_2026' },
-              { label: 'August 2026', value: 'aug_2026' },
-              { label: 'Q3 FY 2026-27 (Oct - Dec)', value: 'this_quarter' },
-              { label: 'Full Financial Year 2026-27', value: 'this_financial_year' },
+              { label: 'All records', value: 'all' },
+              ...Object.entries(PERIODS).map(([value, p]) => ({ value, label: p.label })),
             ]}
           />
 
@@ -1154,25 +1211,25 @@ export const ReportsPage = () => {
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <StatCard
-              title="YTD Total Disbursed"
+              title="Net Paid (payslips)"
               value={payrollMetrics.totalDisbursed}
               icon={<CreditCard className="w-5 h-5"/>}
               iconBgColor="bg-emerald-50 text-emerald-600"
-              caption={`${payrollMetrics.employeeCount} active payroll records`}
+              caption={`${payrollMetrics.payslipCount} payslips in this period`}
             />
             <StatCard
-              title="YTD Statutory Remittances"
+              title="PF, PT, ESI & TDS"
               value={payrollMetrics.statutoryRemittances}
               icon={<Building2 className="w-5 h-5"/>}
               iconBgColor="bg-blue-50 text-blue-600"
-              caption="PF, PT & Tax Withholding"
+              caption="Deducted in these payslips"
             />
             <StatCard
               title="Avg Employee CTC"
               value={payrollMetrics.avgCtc}
               icon={<Users className="w-5 h-5"/>}
               iconBgColor="bg-purple-50 text-purple-600"
-              caption="Technical consultancy benchmark"
+              caption={`${payrollMetrics.employeeCount} with a salary structure`}
             />
           </div>
 
@@ -2269,16 +2326,23 @@ export const ReportsPage = () => {
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Filtered by: {selectedDept === 'all' ? 'All Divisions' : selectedDept} • Fiscal: {dateRange.replace('_', ' ')}
+                  Filtered by: {selectedDept === 'all' ? 'All Divisions' : selectedDept} • Period: {dateRange === 'all' ? 'All records' : PERIODS[dateRange]?.label}
                 </p>
               </div>
 
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => toast.success(`Generated ${customModule}_export.csv ready for download.`, 'CSV Export Ready')} leftIcon={<FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600"/>}>
+                <Button variant="primary" size="sm" onClick={() => {
+                    const rows = customDataset[customModule] || [];
+                    if (!rows.length) {
+                        toast.error('No rows to export for this report.', 'Nothing to export');
+                        return;
+                    }
+                    downloadCsv(`${customModule}_report_${new Date().toLocaleDateString('en-CA')}.csv`, selectedFields.map((fieldId) => ({
+                        label: moduleFieldMap[customModule].find((f) => f.id === fieldId)?.label || fieldId,
+                        value: (row) => row[fieldId] ?? '',
+                    })), rows);
+                }} leftIcon={<FileSpreadsheet className="w-3.5 h-3.5"/>}>
                   Export CSV
-                </Button>
-                <Button variant="primary" size="sm" onClick={() => toast.success(`Executive Excel workbook for ${customModule} created.`, 'Excel Generated')} leftIcon={<Download className="w-3.5 h-3.5"/>}>
-                  Download Excel (.XLSX)
                 </Button>
               </div>
             </div>
@@ -2310,203 +2374,80 @@ export const ReportsPage = () => {
         </div>)}
 
       {activeReportTab === 'insights' && (<div className="space-y-6">
-          {/* Executive Stat Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="Workforce Retention Rate" value="94.8%" icon={<Users className="w-5 h-5"/>} iconBgColor="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" change="+1.6% QoQ" changeType="increase" caption="vs Q1 FY 2026-27"/>
-            <StatCard title="Avg Performance Index" value="4.31 / 5.0" icon={<Award className="w-5 h-5"/>} iconBgColor="bg-teal-50 text-[#1F6F78] dark:bg-teal-950/40 dark:text-teal-400" change="Top Quartile" changeType="increase" caption="Across all 6 Divisions"/>
-            <StatCard title="Separation Clearance SLA" value="4.1 Days" icon={<CheckCircle2 className="w-5 h-5"/>} iconBgColor="bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400" change="-1.2 Days Faster" changeType="increase" caption="Target: < 7.0 Days"/>
-            <StatCard title="Operational Cost Efficiency" value="92.4%" icon={<TrendingUp className="w-5 h-5"/>} iconBgColor="bg-amber-50 text-[#C8943A] dark:bg-amber-950/40 dark:text-amber-400" change="Optimal Budget ROI" changeType="increase" caption="Expenditure vs Output"/>
+            <StatCard title="Headcount" value={String(insights.headcount)} icon={<Users className="w-5 h-5"/>} iconBgColor="bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" caption={`Retention ${insights.retention}% · ${insights.leftInYear} left in the last 12 months`}/>
+            <StatCard title="Average Appraisal Score" value={insights.avgScore === '-' ? '-' : `${insights.avgScore} / 5.0`} icon={<Award className="w-5 h-5"/>} iconBgColor="bg-teal-50 text-[#1F6F78] dark:bg-teal-950/40 dark:text-teal-400" caption={`${insights.appraisalCount} appraisals on record`}/>
+            <StatCard title="Exits in Progress" value={String(insights.openExits.length)} icon={<UserMinus className="w-5 h-5"/>} iconBgColor="bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400" caption="Clearance or F&F still open"/>
+            <StatCard title="Attendance This Month" value={insights.attendance === '-' ? '-' : `${insights.attendance}%`} icon={<CheckCircle2 className="w-5 h-5"/>} iconBgColor="bg-amber-50 text-[#C8943A] dark:bg-amber-950/40 dark:text-amber-400" caption="Present or late, of the marked days"/>
           </div>
 
-          {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChartCard title="Division Workforce Allocation & KPI Distribution" subtitle="Headcount proportion and performance index rating by operating division">
+            <ChartCard title="Headcount by Department" subtitle="Average appraisal score in brackets, where appraisals exist">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[250px]">
                 <ResponsiveContainer width="100%" height={240}>
                   <PieChart>
-                    <Pie
-                      data={divisionHeadcountPieData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      paddingAngle={3}
-                      dataKey="value"
-                    >
-                      {divisionHeadcountPieData.map((entry, index) => (
-                        <Cell key={`div-head-${index}`} fill={entry.color} />
-                      ))}
+                    <Pie data={divisionHeadcountPieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
+                      {divisionHeadcountPieData.map((entry, index) => (<Cell key={`div-head-${index}`} fill={entry.color}/>))}
                     </Pie>
-                    <Tooltip
-                      formatter={(val, name, item) => [`${val} staff (Avg KPI: ${item.payload.kpi}/5.0)`, name]}
-                      contentStyle={{
-                        backgroundColor: '#1E293B',
-                        borderRadius: '8px',
-                        border: 'none',
-                        color: '#fff',
-                        fontSize: '11px',
-                      }}
-                    />
+                    <Tooltip formatter={(val, name, item) => [`${val} staff${item.payload.kpi !== '-' ? ` (avg score ${item.payload.kpi})` : ''}`, name]} contentStyle={{ backgroundColor: '#1E293B', borderRadius: '8px', border: 'none', color: '#fff', fontSize: '11px' }}/>
                   </PieChart>
                 </ResponsiveContainer>
-
-                <div className="w-full sm:w-56 space-y-2 text-xs">
-                  {divisionHeadcountPieData.map((d) => (
-                    <div key={d.name} className="flex items-center justify-between">
-                      <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-                        <span className="truncate max-w-[120px]">{d.name}</span>
+                <div className="w-full sm:w-auto space-y-1.5 text-xs">
+                  {divisionHeadcountPieData.map((d) => (<div key={d.name} className="flex items-center justify-between gap-4">
+                      <span className="flex items-center gap-2 text-slate-600 dark:text-slate-300 min-w-0">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: d.color }}/>
+                        <span className="truncate">{d.name}</span>
                       </span>
-                      <div className="font-bold text-slate-900 dark:text-white tabular-nums">
-                        {d.value} <span className="text-teal-600 dark:text-teal-400 font-semibold text-[10px]">({d.kpi}★)</span>
-                      </div>
-                    </div>
-                  ))}
+                      <span className="font-bold text-slate-900 dark:text-white tabular-nums whitespace-nowrap">{d.value}{d.kpi !== '-' ? ` (${d.kpi})` : ''}</span>
+                    </div>))}
                 </div>
               </div>
             </ChartCard>
-
-            <ChartCard title="Workforce Separation & Attrition Drivers" subtitle="Root causes documented across exit interviews">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full">
-                <ResponsiveContainer width="100%" height={240}>
-                  <PieChart>
-                    <Pie data={[
-                { name: 'Higher Studies & Certs', value: 38, fill: '#1F6F78' },
-                { name: 'Geographic Relocation', value: 28, fill: '#C8943A' },
-                { name: 'External Opportunity', value: 22, fill: '#31485A' },
-                { name: 'Personal / Family', value: 12, fill: '#10B981' },
-            ]} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
-                      <Cell fill="#1F6F78"/>
-                      <Cell fill="#C8943A"/>
-                      <Cell fill="#31485A"/>
-                      <Cell fill="#10B981"/>
-                    </Pie>
-                    <Tooltip formatter={(val) => [`${val}%`, 'Factor Share']} contentStyle={{
-                backgroundColor: '#1E293B',
-                border: 'none',
-                borderRadius: '8px',
-                color: '#fff',
-                fontSize: '11px',
-            }}/>
-                  </PieChart>
-                </ResponsiveContainer>
-
-                <div className="w-full sm:w-48 space-y-2 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#1F6F78]"></span>
-                      Higher Studies
-                    </span>
-                    <strong className="text-slate-900 dark:text-white">38%</strong>
+            <ChartCard title="Exits by Type" subtitle="From the exit requests on record">
+              {insights.reasons.length ? (<div className="flex flex-col sm:flex-row items-center justify-between gap-4 h-full min-h-[250px]">
+                  <ResponsiveContainer width="100%" height={240}>
+                    <PieChart>
+                      <Pie data={insights.reasons} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
+                        {insights.reasons.map((r) => (<Cell key={r.name} fill={r.fill}/>))}
+                      </Pie>
+                      <Tooltip formatter={(val) => [`${val} exit${val === 1 ? '' : 's'}`, 'Count']} contentStyle={{ backgroundColor: '#1E293B', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '11px' }}/>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="w-full sm:w-auto space-y-1.5 text-xs">
+                    {insights.reasons.map((r) => (<div key={r.name} className="flex items-center justify-between gap-4">
+                        <span className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: r.fill }}/>
+                          {r.name}
+                        </span>
+                        <strong className="text-slate-900 dark:text-white tabular-nums">{r.value}</strong>
+                      </div>))}
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#C8943A]"></span>
-                      Relocation
-                    </span>
-                    <strong className="text-slate-900 dark:text-white">28%</strong>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#31485A]"></span>
-                      Career Pivot
-                    </span>
-                    <strong className="text-slate-900 dark:text-white">22%</strong>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
-                      Personal
-                    </span>
-                    <strong className="text-slate-900 dark:text-white">12%</strong>
-                  </div>
-                </div>
-              </div>
+                </div>) : (<p className="text-xs text-slate-500 py-10 text-center">No exit requests on record.</p>)}
             </ChartCard>
           </div>
 
-          {/* Division Health Scorecard Table */}
-          <Card className="p-6 border border-slate-200 dark:border-slate-800">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">
-              Divisional Health & Operational Scorecard
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-              Comprehensive index benchmarking team stability, clearance turnaround, and output efficiency
-            </p>
-
-            <div className="overflow-x-auto custom-sidebar-scroll">
+          <Card className="p-4 sm:p-5">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Departments</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Headcount, appraisal score, open exits and this month's attendance</p>
+            <div className="overflow-x-auto">
               <table className="w-full text-left text-xs min-w-[620px]">
                 <thead>
-                  <tr className="bg-slate-50 dark:bg-[#111821] border-b border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-300 font-bold uppercase text-[11px]">
-                    <th className="py-2.5 px-3 whitespace-nowrap">Division</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">Headcount</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">Retention Rate</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">Average KPI</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">Open Clearances</th>
-                    <th className="py-2.5 px-3 whitespace-nowrap">Stability Tier</th>
+                  <tr className="bg-slate-50 dark:bg-[#121A24] border-b border-slate-200 dark:border-[#253344] text-slate-600 dark:text-slate-300 font-semibold uppercase text-[11px]">
+                    <th className="py-2.5 px-3">Department</th>
+                    <th className="py-2.5 px-3">Headcount</th>
+                    <th className="py-2.5 px-3">Avg Appraisal</th>
+                    <th className="py-2.5 px-3">Open Exits</th>
+                    <th className="py-2.5 px-3">Attendance (month)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Geology & Mineral Exploration</td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">18 Engineers</td>
-                    <td className="py-3 px-3 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">96.2%</td>
-                    <td className="py-3 px-3 font-bold text-[#1F6F78] dark:text-teal-400 whitespace-nowrap">4.6 / 5.0</td>
-                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">1 (Deepak C.)</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                        Exemplary
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Mining & Mine Planning</td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">14 Engineers</td>
-                    <td className="py-3 px-3 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">94.0%</td>
-                    <td className="py-3 px-3 font-bold text-[#1F6F78] dark:text-teal-400 whitespace-nowrap">4.8 / 5.0</td>
-                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">1 (Anil K.)</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                        Exemplary
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">GIS, Remote Sensing & UAV</td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">12 Specialists</td>
-                    <td className="py-3 px-3 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">95.0%</td>
-                    <td className="py-3 px-3 font-bold text-[#1F6F78] dark:text-teal-400 whitespace-nowrap">4.5 / 5.0</td>
-                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">1 (Mohit S.)</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                        Exemplary
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Hydrogeology & Groundwater</td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">8 Specialists</td>
-                    <td className="py-3 px-3 font-bold text-teal-600 dark:text-teal-400 whitespace-nowrap">92.5%</td>
-                    <td className="py-3 px-3 font-bold text-[#1F6F78] dark:text-teal-400 whitespace-nowrap">4.1 / 5.0</td>
-                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">0 Active</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400">
-                        Optimal
-                      </span>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
-                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Finance & Mineral Economics</td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">6 Analysts</td>
-                    <td className="py-3 px-3 font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">98.0%</td>
-                    <td className="py-3 px-3 font-bold text-[#1F6F78] dark:text-teal-400 whitespace-nowrap">4.7 / 5.0</td>
-                    <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">0 Active</td>
-                    <td className="py-3 px-3 whitespace-nowrap">
-                      <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                        Exemplary
-                      </span>
-                    </td>
-                  </tr>
+                  {insights.departments.map((d) => (<tr key={d.name} className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
+                      <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">{d.name}</td>
+                      <td className="py-3 px-3 text-slate-700 dark:text-slate-300 tabular-nums">{d.headcount}</td>
+                      <td className="py-3 px-3 text-slate-700 dark:text-slate-300 tabular-nums">{d.avgScore === '-' ? '-' : `${d.avgScore} / 5.0`}</td>
+                      <td className="py-3 px-3 text-slate-700 dark:text-slate-300">{d.openExits.length ? `${d.openExits.length} (${d.openExits.map((x) => x.employeeName).join(', ')})` : '0'}</td>
+                      <td className="py-3 px-3 text-slate-700 dark:text-slate-300 tabular-nums">{d.attendance === '-' ? '-' : `${d.attendance}%`}</td>
+                    </tr>))}
                 </tbody>
               </table>
             </div>

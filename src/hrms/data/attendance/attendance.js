@@ -1,8 +1,10 @@
 import { INITIAL_EMPLOYEES } from '../employees/employees.js';
+import { INITIAL_SHIFT_ASSIGNMENTS, INITIAL_SHIFTS } from '../shifts/shifts.js';
+import { offDaysFromLabel } from '../../modules/leave/utils/workingDays.js';
 
 /*
  * The biometric register for the last four weeks up to today, for everyone on the rolls, so the HR pages' "today"
- * is today (the register used to stop on a fixed date). Sundays are off. The same person and day always get the
+ * is today (the register used to stop on a fixed date). Each person's weekly off (from their shift) has no entry. The same person and day always get the
  * same entry, so the figures don't change between visits.
  */
 const pad = (n) => String(n).padStart(2, '0');
@@ -10,6 +12,11 @@ const isoOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDat
 const clock = (mins) => `${pad(((Math.floor(mins / 60) + 11) % 12) + 1)}:${pad(mins % 60)} ${mins >= 720 ? 'PM' : 'AM'}`;
 const duration = (mins) => `${Math.floor(mins / 60)}h ${pad(mins % 60)}m`;
 const IN_FIELD = /Geology|GIS|Hydro|Mining/;
+
+const offDaysOf = (employeeId) => {
+    const assignment = INITIAL_SHIFT_ASSIGNMENTS.find((a) => a.employeeId === employeeId);
+    return offDaysFromLabel(assignment?.weeklyOff ?? INITIAL_SHIFTS.find((s) => s.id === assignment?.shiftId)?.weeklyOff);
+};
 
 function buildRegister() {
     const records = [];
@@ -19,13 +26,13 @@ function buildRegister() {
     for (let back = 0; back < 28; back++) {
         const day = new Date(today);
         day.setDate(day.getDate() - back);
-        if (day.getDay() === 0)
-            continue;
         // Before 9 am nobody has punched in yet today.
         if (back === 0 && nowMins < 540)
             continue;
         const date = isoOf(day);
         INITIAL_EMPLOYEES.forEach((emp, i) => {
+            if (offDaysOf(emp.employeeId).includes(day.getDay()))
+                return;
             const n = (i * 37 + day.getDate() * 11 + day.getMonth() * 7) % 100;
             const field = IN_FIELD.test(emp.employment.department) && n % 3 === 0;
             const base = {

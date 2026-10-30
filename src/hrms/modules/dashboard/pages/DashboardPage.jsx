@@ -10,7 +10,6 @@ import { useToast } from '@/contexts/ToastContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { storage } from '@/core/storage/storage';
 import { leaveService } from '@/modules/leave/services/leave.service';
-import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { EmployeeDashboard } from '../components/EmployeeDashboard';
 import { getDailyQuote } from '@/data';
 // Live Digital Clock isolated component to prevent parent dashboard re-renders
@@ -50,8 +49,8 @@ const upcomingHolidaysList = [
     { title: 'Diwali', date: '08 Nov 2026', day: 'Sunday', badge: 'Gazetted' },
 ];
 const AdminDashboard = () => {
-    const { user, updateUser } = useAuth();
-    const { currentRole, setRole } = useRole();
+    const { user } = useAuth();
+    const { currentRole } = useRole();
     const { isDark } = useTheme();
     const toast = useToast();
     const navigate = useNavigate();
@@ -62,7 +61,6 @@ const AdminDashboard = () => {
     // State
     const [pendingLeaves, setPendingLeaves] = useState([]);
     const [greeting, setGreeting] = useState('');
-    const [hasClockedIn, setHasClockedIn] = useState(true);
     const [chartTab, setChartTab] = useState('attendance');
     // Dashboard Global Filters State
     const [selectedDept, setSelectedDept] = useState('all');
@@ -305,12 +303,6 @@ const AdminDashboard = () => {
             { type: 'Others', count: counts['Others'], color: colors['Others'] },
         ];
     }, [allLeaveRequests, leaveRange, isDark]);
-    // Interactive Quick Leave Modal
-    const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-    const [leaveType, setLeaveType] = useState('Casual Leave (CL)');
-    const [leaveStartDate, setLeaveStartDate] = useState('2026-09-22');
-    const [leaveEndDate, setLeaveEndDate] = useState('2026-09-23');
-    const [leaveReason, setLeaveReason] = useState('');
     const refreshData = () => {
         try {
             setAllEmployees(storage.getEmployees());
@@ -337,90 +329,26 @@ const AdminDashboard = () => {
         return () => window.removeEventListener('focus', refreshData);
     }, []);
     // Handlers for HR Actions
+    const reviewLeave = async (id, decision) => {
+        try {
+            await leaveService.reviewLeave(id, decision, user?.name ?? '', '', undefined, user?.employeeId);
+            return true;
+        }
+        catch (err) {
+            toast.error(err.message, 'Not allowed');
+            return false;
+        }
+        finally {
+            refreshData();
+        }
+    };
     const handleApproveLeave = async (id, empName) => {
-        await leaveService.reviewLeave(id, 'Approved', user?.name || 'Kritika Gupta', 'Approved via HR Command Center');
-        refreshData();
-        toast.success(`Leave request approved for ${empName}`, 'Approval Confirmed');
+        if (await reviewLeave(id, 'Approved'))
+            toast.success(`Leave request approved for ${empName}`, 'Approval Confirmed');
     };
     const handleRejectLeave = async (id, empName) => {
-        await leaveService.reviewLeave(id, 'Rejected', user?.name || 'Kritika Gupta', 'Rejected via HR Command Center');
-        refreshData();
-        toast.info(`Leave request rejected for ${empName}`, 'Status Updated');
-    };
-    // Employee Clock In/Out Toggle
-    const handleClockToggle = async () => {
-        try {
-            const type = hasClockedIn ? 'checkOut' : 'checkIn';
-            const empId = user?.employeeId || 'BGS-001';
-            await attendanceService.recordPunch(empId, type, 'Field GPS & Biometric - Bhilwara Exploration Camp');
-            setAllAttendance(storage.getAttendance());
-            setHasClockedIn(!hasClockedIn);
-            if (!hasClockedIn) {
-                toast.success('Punched in successfully at Bhilwara Exploration Project site.', 'Check-In Recorded');
-            }
-            else {
-                toast.info('Punched out successfully. Total shift duration logged: 08h 14m.', 'Check-Out Recorded');
-            }
-        }
-        catch {
-            toast.error('Could not connect to biometric sync node.', 'Error');
-        }
-    };
-    // Employee Quick Leave Submit
-    const handleQuickLeaveSubmit = async (e) => {
-        e.preventDefault();
-        if (!leaveReason.trim()) {
-            toast.error('Please specify a reason for leave.', 'Validation Error');
-            return;
-        }
-        try {
-            await leaveService.applyLeave({
-                employeeId: user?.employeeId || 'BGS-006',
-                employeeName: user?.name || 'Rohan Deshmukh',
-                department: user?.department || 'Geology & Mineral Exploration',
-                leaveType: leaveType,
-                startDate: leaveStartDate,
-                endDate: leaveEndDate,
-                days: 2,
-                reason: leaveReason,
-                contactDuringLeave: '+91 98290 12345',
-            });
-            setIsLeaveModalOpen(false);
-            setLeaveReason('');
-            toast.success('Leave application submitted for approval to HR & Manager.', 'Application Sent');
-        }
-        catch {
-            toast.error('Failed to submit leave.', 'Error');
-        }
-    };
-    // Role Switcher shortcut inside dashboard
-    const handleSwitchToEmployee = () => {
-        setRole('employee');
-        updateUser({
-            id: 'emp-006',
-            name: 'Rohan Deshmukh',
-            email: 'rohan.deshmukh@bansalgeo.com',
-            role: 'employee',
-            employeeId: 'BGS-006',
-            avatarUrl: '',
-            department: 'Geology & Mineral Exploration',
-            designation: 'Senior Exploration Geologist',
-        });
-        toast.info('Switched to Employee Self-Service View (Rohan Deshmukh)', 'View Switched');
-    };
-    const handleSwitchToHR = () => {
-        setRole('hr');
-        updateUser({
-            id: 'emp-004',
-            name: 'Kritika Gupta',
-            email: 'kritika.gupta@bansalgeo.com',
-            role: 'hr',
-            employeeId: 'BGS-004',
-            avatarUrl: '',
-            department: 'Human Resources & Admin',
-            designation: 'Head - HR & Administration',
-        });
-        toast.info('Switched to HR & Admin Command Center (Kritika Gupta)', 'View Switched');
+        if (await reviewLeave(id, 'Rejected'))
+            toast.info(`Leave request rejected for ${empName}`, 'Status Updated');
     };
     // 1. Stacked Attendance Trends (matching reference)
     // Tab for Celebrations widget
@@ -1233,45 +1161,6 @@ const AdminDashboard = () => {
           </div>
         </div>
 
-      {/* Quick Leave Application Modal for Employees */}
-      <Modal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} title="Apply for Employee Leave" maxWidth="md">
-        <form onSubmit={handleQuickLeaveSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Select Leave Category</label>
-            <select value={leaveType} onChange={(e) => setLeaveType(e.target.value)} className="w-full text-xs rounded-xl border border-slate-300 dark:border-[#253344] px-3 py-2 bg-white dark:bg-[#111821] text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-[#FEC13D]">
-              <option value="Casual Leave (CL)">Casual Leave (CL) - 4 Available</option>
-              <option value="Sick Leave (SL)">Sick Leave (SL) - 7 Available</option>
-              <option value="Earned Leave (EL)">Earned Leave (EL) - 12 Available</option>
-              <option value="Field Rest & Recuperation">Field R&R (Site Staff)</option>
-            </select>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">From Date</label>
-              <input type="date" value={leaveStartDate} onChange={(e) => setLeaveStartDate(e.target.value)} className="w-full text-xs rounded-xl border border-slate-300 dark:border-[#253344] px-3 py-2 bg-white dark:bg-[#111821] text-slate-800 dark:text-slate-200"/>
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">To Date</label>
-              <input type="date" value={leaveEndDate} onChange={(e) => setLeaveEndDate(e.target.value)} className="w-full text-xs rounded-xl border border-slate-300 dark:border-[#253344] px-3 py-2 bg-white dark:bg-[#111821] text-slate-800 dark:text-slate-200"/>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1">Reason for Leave</label>
-            <textarea rows={3} value={leaveReason} onChange={(e) => setLeaveReason(e.target.value)} placeholder="Provide reason for leave..." className="w-full text-xs rounded-xl border border-slate-300 dark:border-[#253344] p-3 bg-white dark:bg-[#111821] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500"/>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" size="sm" onClick={() => setIsLeaveModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" size="sm" type="submit" leftIcon={<Send className="w-3.5 h-3.5"/>}>
-              Submit Application
-            </Button>
-          </div>
-        </form>
-      </Modal>
 
       {/* Dynamic Add Location Master Modal */}
       <Modal isOpen={isAddLocationModalOpen} onClose={() => setIsAddLocationModalOpen(false)} title="Add New Location Master" maxWidth="sm">

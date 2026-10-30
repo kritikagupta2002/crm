@@ -1,5 +1,6 @@
 import { storage } from '@/core/storage/storage';
 import { countWorkingDays, getWorkingDates } from '@/modules/leave/utils/workingDays';
+import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
 /**
  * Shared helper to check if a proposed date range conflicts with an existing leave request.
  */
@@ -24,13 +25,17 @@ export function checkDateConflict(existingRequests, employeeId, startDateStr, en
 function syncAttendanceForLeave(req, action) {
     try {
         const holidays = storage.getLeaveSettings()?.companyHolidays || [];
-        const workingDates = getWorkingDates(req.startDate, req.endDate, holidays);
+        const workingDates = getWorkingDates(req.startDate, req.endDate, holidays, weeklyOffFor(req.employeeId));
         const approvedDates = workingDates.slice(0, req.approvedDays || req.requestedDays || 1);
         const attendanceList = storage.getAttendance();
         if (action === 'apply') {
             approvedDates.forEach((dateStr) => {
                 const existing = attendanceList.find((a) => a.employeeId === req.employeeId && a.date === dateStr);
                 if (existing) {
+                    if (existing.status !== 'On Leave' && !existing.beforeLeave) {
+                        const { beforeLeave, ...rest } = existing;
+                        existing.beforeLeave = rest;
+                    }
                     existing.status = 'On Leave';
                     existing.checkIn = '-';
                     existing.checkOut = '-';
@@ -51,7 +56,7 @@ function syncAttendanceForLeave(req, action) {
                         lateBy: '-',
                         overtime: '-',
                         status: 'On Leave',
-                        punchSource: 'Manual Correction',
+                        punchSource: 'Approved leave',
                     });
                 }
             });
@@ -61,15 +66,9 @@ function syncAttendanceForLeave(req, action) {
             approvedDates.forEach((dateStr) => {
                 const idx = attendanceList.findIndex((a) => a.employeeId === req.employeeId && a.date === dateStr && a.status === 'On Leave');
                 if (idx !== -1) {
-                    if (attendanceList[idx].id.startsWith('att-leave-')) {
-                        attendanceList.splice(idx, 1);
-                    }
-                    else {
-                        attendanceList[idx].status = 'Present';
-                        attendanceList[idx].checkIn = '09:00 AM';
-                        attendanceList[idx].checkOut = '06:00 PM';
-                        attendanceList[idx].workingHours = '9h 00m';
-                    }
+                    const entry = attendanceList[idx];
+                    if (entry.beforeLeave) attendanceList[idx] = entry.beforeLeave;
+                    else attendanceList.splice(idx, 1);
                 }
             });
         }
@@ -82,7 +81,7 @@ function syncAttendanceForLeave(req, action) {
 /**
  * Dispatch an in-app notification for leave lifecycle events
  */
-function dispatchLeaveNotification(title, message, targetRole = 'all', level = 'info') {
+function dispatchLeaveNotification(title, message, targetRole = 'all', level = 'info', targetEmployeeId = null) {
     try {
         const list = storage.getNotifications();
         list.unshift({
@@ -94,6 +93,7 @@ function dispatchLeaveNotification(title, message, targetRole = 'all', level = '
             priority: level === 'urgent' ? 'high' : level === 'warning' ? 'normal' : 'low',
             read: false,
             targetRole,
+            ...(targetEmployeeId ? { targetEmployeeId } : {}),
         });
         storage.setNotifications(list);
     }
@@ -107,7 +107,9 @@ export const leaveService = {
             return new Promise((resolve) => setTimeout(() => resolve(storage.getBalancesForEmployee(employeeId)), 50));
         }
         const active = storage.getActiveUser();
-        const targetEmpId = active?.employeeId || 'BGS-006';
+        const targetEmpId = active?.employeeId;
+        if (!targetEmpId)
+            return [];
         return new Promise((resolve) => setTimeout(() => resolve(storage.getBalancesForEmployee(targetEmpId, active?.name)), 50));
     },
     getAllBalances: async () => {
@@ -117,6 +119,9 @@ export const leaveService = {
         return new Promise((resolve) => setTimeout(() => resolve(storage.getLeaveRequests()), 50));
     },
     applyLeave: async (data) => {
+        if (!data.employeeId) {
+            throw new Error('Your HR record is not set up, so leave cannot be applied.');
+        }
         // 1. Date chronology validation
         const start = new Date(data.startDate);
         const end = new Date(data.endDate);
@@ -128,17 +133,9 @@ export const leaveService = {
         }
         // 2. Working days calculation (excluding weekends and public holidays)
         const holidays = storage.getLeaveSettings()?.companyHolidays || [];
-        const calculatedDays = countWorkingDays(data.startDate, data.endDate, holidays);
+        const calculatedDays = countWorkingDays(data.startDate, data.endDate, holidays, weeklyOffFor(data.employeeId));
         if (calculatedDays <= 0) {
             throw new Error('Selected date range contains 0 working days. Weekends and national holidays do not consume leave balance.');
-        }
-        // 3. Maximum single request limit (30 days unless Maternity/Paternity)
-        if (data.leaveType !== 'Maternity / Paternity Leave' && calculatedDays > 30) {
-            throw new Error('Single leave application cannot exceed 30 working days. Please submit in separate phases.');
-        }
-        // 4. Policy limits for specific leave types
-        if (data.leaveType === 'Casual Leave (CL)' && calculatedDays > 3) {
-            throw new Error('Casual Leave (CL) cannot exceed 3 consecutive working days per application as per BGSPL HR Policy. Please utilize Earned Leave (EL) for extended absences.');
         }
         // 5. Quota balance limit check (considering both used and pending commitments)
         const balances = storage.getBalancesForEmployee(data.employeeId, data.employeeName);
@@ -183,11 +180,15 @@ export const leaveService = {
         dispatchLeaveNotification('New Leave Request Submitted', `${data.employeeName} submitted a new request for ${calculatedDays} working day(s) of ${data.leaveType}.`, 'hr', 'info');
         return new Promise((resolve) => setTimeout(() => resolve(newReq), 80));
     },
-    reviewLeave: async (id, decision, approverName, approverComment, customApprovedDays) => {
+    reviewLeave: async (id, decision, approverName, approverComment, customApprovedDays, reviewerEmployeeId) => {
         const list = storage.getLeaveRequests();
         const req = list.find((r) => r.id === id);
         if (!req)
-            return false;
+            throw new Error('Leave request not found.');
+        if (req.status !== 'Pending')
+            throw new Error(`This request is already ${String(req.status).toLowerCase()}.`);
+        if (reviewerEmployeeId && reviewerEmployeeId === req.employeeId)
+            throw new Error('You cannot approve your own leave. Another approver must review it.');
         let finalStatus = decision;
         let finalApprovedDays = 0;
         let finalRejectedDays = 0;
@@ -232,24 +233,24 @@ export const leaveService = {
         // Recalculate balance for this employee
         storage.getBalancesForEmployee(req.employeeId, req.employeeName);
         // Sync Attendance
+        // A pending request never touched the register, so only an approval writes to it.
         if (finalStatus === 'Approved' || finalStatus === 'Partially Approved') {
             syncAttendanceForLeave(req, 'apply');
-        }
-        else {
-            syncAttendanceForLeave(req, 'remove');
         }
         // Dispatch notification to employee
         const statusText = finalStatus === 'Partially Approved'
             ? `partially approved (${finalApprovedDays} of ${requested} days approved, ${finalRejectedDays} days rejected)`
             : finalStatus.toLowerCase();
-        dispatchLeaveNotification(`Leave Request ${finalStatus}`, `Your request for ${req.leaveType} (${req.startDate} to ${req.endDate}) has been ${statusText} by ${approverName}.${approverComment ? ` Remark: "${approverComment}"` : ''}`, 'employee', finalStatus === 'Approved' ? 'success' : finalStatus === 'Partially Approved' ? 'warning' : 'urgent');
+        dispatchLeaveNotification(`Leave Request ${finalStatus}`, `Your request for ${req.leaveType} (${req.startDate} to ${req.endDate}) has been ${statusText} by ${approverName}.${approverComment ? ` Remark: "${approverComment}"` : ''}`, 'employee', finalStatus === 'Approved' ? 'success' : finalStatus === 'Partially Approved' ? 'warning' : 'urgent', req.employeeId);
         return new Promise((resolve) => setTimeout(() => resolve(true), 80));
     },
     cancelLeave: async (id) => {
         const list = storage.getLeaveRequests();
         const req = list.find((r) => r.id === id);
         if (!req)
-            return false;
+            throw new Error('Leave request not found.');
+        if (req.status === 'Cancelled' || req.status === 'Rejected')
+            throw new Error(`This request is already ${req.status.toLowerCase()}.`);
         const prevStatus = req.status;
         req.status = 'Cancelled';
         storage.setLeaveRequests([...list]);
@@ -259,7 +260,7 @@ export const leaveService = {
         if (prevStatus === 'Approved' || prevStatus === 'Partially Approved') {
             syncAttendanceForLeave(req, 'remove');
         }
-        dispatchLeaveNotification('Leave Application Cancelled', `Leave request for ${req.leaveType} (${req.startDate} to ${req.endDate}) has been cancelled. Any deducted quota has been refunded.`, 'employee', 'info');
+        dispatchLeaveNotification('Leave Application Cancelled', `Leave request for ${req.leaveType} (${req.startDate} to ${req.endDate}) has been cancelled. Any deducted quota has been refunded.`, 'employee', 'info', req.employeeId);
         return new Promise((resolve) => setTimeout(() => resolve(true), 80));
     },
     getLeaveTypes: async () => {

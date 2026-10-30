@@ -12,6 +12,7 @@ import { FileUpload } from '@/components/common/FileUpload';
 import { ConfirmationDialog } from '@/components/common/ConfirmationDialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
+import { attachmentStorage } from '@/core/storage/attachmentStorage';
 import { documentService } from '@/modules/documents/services/document.service';
 export const DocumentsListPage = () => {
     const { user } = useAuth();
@@ -38,13 +39,24 @@ export const DocumentsListPage = () => {
             toast.error('Document title is required.', 'Validation Error');
             return;
         }
+        if (!uploadedFile) {
+            toast.error('Choose the file to upload.', 'Validation Error');
+            return;
+        }
+        const fileKey = `cdoc-file-${Date.now()}`;
+        const saved = await attachmentStorage.saveFile(fileKey, uploadedFile);
+        if (!saved) {
+            toast.error('The file could not be saved in this browser.', 'Upload failed');
+            return;
+        }
         await documentService.uploadDocument({
             title: docTitle,
             category: docCategory,
-            fileName: uploadedFile ? uploadedFile.name : `${docTitle.replace(/\s+/g, '_')}.pdf`,
-            fileSize: uploadedFile ? `${(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB` : '2.4 MB',
-            fileType: 'PDF',
-            uploadedBy: user?.name || 'Dr. Amit Kumar Bansal',
+            fileName: uploadedFile.name,
+            fileSize: uploadedFile.size >= 1024 * 1024 ? `${(uploadedFile.size / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(uploadedFile.size / 1024))} KB`,
+            fileType: (uploadedFile.name.split('.').pop() || '').toUpperCase(),
+            fileKey,
+            uploadedBy: user?.name ?? '',
             description: docDesc,
             accessRole: 'all',
         });
@@ -63,8 +75,16 @@ export const DocumentsListPage = () => {
         setDocToDelete(null);
         load();
     };
-    const handleDownload = (doc) => {
-        toast.success(`Initiating download for ${doc.fileName}...`, 'Downloading');
+    const handleDownload = async (doc) => {
+        const file = doc.fileKey ? await attachmentStorage.getFile(doc.fileKey) : null;
+        if (!file?.rawDataUrl) {
+            toast.error(`No file is stored for "${doc.title}". Upload it again to make it downloadable.`, 'File not available');
+            return;
+        }
+        const link = document.createElement('a');
+        link.href = file.rawDataUrl;
+        link.download = doc.fileName || file.fileName || 'document';
+        link.click();
     };
     const filteredDocs = documents.filter((d) => {
         if (selectedCategory !== 'All' && d.category !== selectedCategory)

@@ -52,11 +52,7 @@ export const LeaveApprovalsPage = () => {
         const reqDays = Number(req.requestedDays || req.days) || 1;
         setReviewMode(initialMode);
         setApprovedDaysInput(initialMode === 'Partial' ? Math.max(1, Math.floor(reqDays / 2)) : reqDays);
-        setComment(initialMode === 'Full'
-            ? 'Approved in full. Project coverage confirmed.'
-            : initialMode === 'Partial'
-                ? 'Partially approved due to project sprint commitments.'
-                : 'Declined due to critical site campaign schedule.');
+        setComment('');
         setIsModalOpen(true);
     };
     const handleConfirmReview = async () => {
@@ -88,7 +84,13 @@ export const LeaveApprovalsPage = () => {
                 daysToApprove = parsedDays;
             }
         }
-        await leaveService.reviewLeave(selectedReq.id, decision, user?.name || 'Dr. Amit Kumar Bansal', comment, daysToApprove);
+        try {
+            await leaveService.reviewLeave(selectedReq.id, decision, user?.name ?? '', comment, daysToApprove, user?.employeeId);
+        }
+        catch (err) {
+            toast.error(err.message, 'Not allowed');
+            return;
+        }
         const statusMessage = decision === 'Partially Approved'
             ? `partially approved (${daysToApprove} of ${requested} days approved, ${requested - daysToApprove} days rejected)`
             : decision.toLowerCase();
@@ -184,6 +186,9 @@ export const LeaveApprovalsPage = () => {
                   {new Date(r.reviewedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                 </span>)}
             </div>);
+                }
+                if (r.employeeId === user?.employeeId) {
+                    return (<span className="text-[11px] text-slate-400 italic whitespace-nowrap">Your request: another approver reviews it</span>);
                 }
                 return (<div className="flex items-center justify-end gap-1.5">
             <button onClick={() => handleOpenReview(r, 'Reject')} className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 dark:hover:text-rose-400 rounded-lg transition-colors" title="Reject Application">

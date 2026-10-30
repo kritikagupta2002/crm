@@ -10,6 +10,7 @@ import { Input } from '@/components/common/Input';
 import { useToast } from '@/contexts/ToastContext';
 import { payrollService } from '@/modules/payroll/services/payroll.service';
 import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { storage } from '@/core/storage/storage';
 export const SalaryStructurePage = () => {
     const navigate = useNavigate();
     const toast = useToast();
@@ -25,8 +26,8 @@ export const SalaryStructurePage = () => {
     const [conveyance, setConveyance] = useState(0);
     const [specialAllowance, setSpecialAllowance] = useState(0);
     const [siteAllowance, setSiteAllowance] = useState(0);
-    const [pf, setPf] = useState(0);
-    const [pt, setPt] = useState(200);
+    const payrollSettings = storage.getPayrollSettings();
+    const [pt, setPt] = useState(Number(payrollSettings.professionalTaxMonthly ?? 0));
     const [tds, setTds] = useState(0);
     const load = async () => {
         const data = await payrollService.getSalaryStructures();
@@ -49,17 +50,30 @@ export const SalaryStructurePage = () => {
         setConveyance(s.conveyance);
         setSpecialAllowance(s.specialAllowance);
         setSiteAllowance(s.siteAllowance);
-        setPf(s.providentFund);
-        setPt(s.professionalTax);
+        setPt(s.status === 'Not set' ? Number(payrollSettings.professionalTaxMonthly ?? 0) : s.professionalTax);
         setTds(s.tds);
         setIsModalOpen(true);
     };
     const calculatedGross = basic + hra + conveyance + specialAllowance + siteAllowance;
+    // PF is the payroll-settings rate on the basic, the same way the payslips work it out.
+    const pf = Math.round((basic * Number(payrollSettings.pfDeductionPercentage ?? 12)) / 100);
     const calculatedDeductions = pf + pt + tds;
     const calculatedNet = calculatedGross - calculatedDeductions;
     const handleSave = async () => {
         if (!editingStruct)
             return;
+        if ([basic, hra, conveyance, specialAllowance, siteAllowance, pt, tds].some((v) => !Number.isFinite(v) || v < 0)) {
+            toast.error('Amounts cannot be negative.', 'Check the figures');
+            return;
+        }
+        if (basic <= 0) {
+            toast.error('Enter the basic salary.', 'Check the figures');
+            return;
+        }
+        if (calculatedNet < 0) {
+            toast.error('Deductions are more than the gross salary.', 'Check the figures');
+            return;
+        }
         await payrollService.updateSalaryStructure(editingStruct.id, {
             basic,
             hra,
@@ -112,7 +126,9 @@ export const SalaryStructurePage = () => {
             header: 'Annual CTC',
             sortable: true,
             className: 'whitespace-nowrap',
-            render: (s) => (<span className="font-bold text-slate-900 dark:text-white text-xs whitespace-nowrap">₹{(s.annualCtc / 100000).toFixed(1)} LPA</span>),
+            render: (s) => (s.status === 'Not set'
+                ? <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">Not set</span>
+                : <span className="font-bold text-slate-900 dark:text-white text-xs whitespace-nowrap">₹{(s.annualCtc / 100000).toFixed(1)} LPA</span>),
         },
         {
             key: 'monthlyGross',
@@ -154,7 +170,7 @@ export const SalaryStructurePage = () => {
             header: 'Actions',
             className: 'text-right',
             render: (s) => (<Button variant="ghost" size="sm" onClick={() => handleOpenEdit(s)} leftIcon={<Edit2 className="w-3.5 h-3.5"/>}>
-          Edit CTC
+          {s.status === 'Not set' ? 'Set salary' : 'Edit CTC'}
         </Button>),
         },
     ];
@@ -224,7 +240,7 @@ export const SalaryStructurePage = () => {
               Statutory Monthly Deductions (₹)
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <Input label="Provident Fund (12%)" type="number" value={pf} onChange={(e) => setPf(Number(e.target.value))}/>
+              <Input label={`Provident Fund (${payrollSettings.pfDeductionPercentage ?? 12}% of basic)`} type="number" value={pf} readOnly disabled/>
               <Input label="Professional Tax (PT)" type="number" value={pt} onChange={(e) => setPt(Number(e.target.value))}/>
               <Input label="TDS (Income Tax)" type="number" value={tds} onChange={(e) => setTds(Number(e.target.value))}/>
             </div>

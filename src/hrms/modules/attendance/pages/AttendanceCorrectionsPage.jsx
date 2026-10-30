@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Check, X, Plus, RotateCcw } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable } from '@/components/common/DataTable';
@@ -14,12 +14,14 @@ import { useRole } from '@/contexts/RoleContext';
 import { useToast } from '@/contexts/ToastContext';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { storage } from '@/core/storage/storage';
+import { todayIso } from '@/modules/attendance/utils/punch';
 export const AttendanceCorrectionsPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
     const toast = useToast();
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
-    const empId = user?.employeeId || (isEmp ? 'BGS-006' : 'BGS-001');
+    const empId = user?.employeeId ?? '';
     const [requests, setRequests] = useState([]);
     const [isApplyOpen, setIsApplyOpen] = useState(false);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -31,12 +33,12 @@ export const AttendanceCorrectionsPage = () => {
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
     // Form states
-    const [date, setDate] = useState('2026-09-17');
-    const [currentCheckIn, setCurrentCheckIn] = useState('10:15 AM');
-    const [currentCheckOut, setCurrentCheckOut] = useState('06:00 PM');
-    const [reqCheckIn, setReqCheckIn] = useState('09:15 AM');
-    const [reqCheckOut, setReqCheckOut] = useState('06:30 PM');
+    const [date, setDate] = useState(todayIso);
+    const [reqCheckIn, setReqCheckIn] = useState('');
+    const [reqCheckOut, setReqCheckOut] = useState('');
     const [reason, setReason] = useState('');
+    // What the register has for that day, shown next to the corrected times.
+    const logged = useMemo(() => storage.getAttendance().find((a) => a.employeeId === empId && a.date === date), [empId, date, isApplyOpen]);
     const loadData = async () => {
         const data = await attendanceService.getCorrections();
         setRequests(data);
@@ -56,37 +58,49 @@ export const AttendanceCorrectionsPage = () => {
         return true;
     });
     const handleApply = async () => {
-        if (!reason.trim()) {
-            toast.error('Please specify the reason for correction.', 'Validation Error');
+        try {
+            await attendanceService.submitCorrection({
+                employeeId: empId,
+                employeeName: user?.name ?? '',
+                department: user?.department ?? '',
+                date,
+                requestedCheckIn: reqCheckIn.trim().toUpperCase(),
+                requestedCheckOut: reqCheckOut.trim().toUpperCase(),
+                reason,
+            });
+        }
+        catch (err) {
+            toast.error(err.message, 'Cannot submit');
             return;
         }
-        await attendanceService.submitCorrection({
-            employeeId: user?.employeeId || (isEmp ? 'BGS-006' : 'BGS-001'),
-            employeeName: user?.name || (isEmp ? 'Rohan Deshmukh' : 'Dr. Amit Kumar Bansal'),
-            department: user?.department || 'Geology & Mineral Exploration',
-            date,
-            currentCheckIn,
-            currentCheckOut,
-            requestedCheckIn: reqCheckIn,
-            requestedCheckOut: reqCheckOut,
-            reason,
-        });
-        toast.success('Attendance correction request submitted to manager.', 'Request Submitted');
+        toast.success('Correction request sent for approval.', 'Request Submitted');
         setIsApplyOpen(false);
         setReason('');
+        setReqCheckIn('');
+        setReqCheckOut('');
         loadData();
     };
     const handleOpenReview = (req, action) => {
+        if (req.employeeId === empId) {
+            toast.error('You cannot approve your own correction request.', 'Not allowed');
+            return;
+        }
         setSelectedReq(req);
         setReviewAction(action);
-        setReviewComment(action === 'Approved' ? 'Verified with supervisor field log.' : 'Rejected due to insufficient justification.');
+        setReviewComment('');
         setIsReviewOpen(true);
     };
     const handleConfirmReview = async () => {
         if (!selectedReq)
             return;
-        await attendanceService.reviewCorrection(selectedReq.id, reviewAction, user?.name || 'Dr. Amit Kumar Bansal', reviewComment);
-        toast.success(`Correction request marked as ${reviewAction}.`, 'Review Submitted');
+        try {
+            await attendanceService.reviewCorrection(selectedReq.id, reviewAction, user?.name ?? '', reviewComment.trim(), empId);
+        }
+        catch (err) {
+            toast.error(err.message, 'Cannot review');
+            return;
+        }
+        toast.success(reviewAction === 'Approved' ? 'Correction approved and the attendance updated.' : 'Correction request rejected.', 'Review Submitted');
         setIsReviewOpen(false);
         loadData();
     };
@@ -165,9 +179,9 @@ export const AttendanceCorrectionsPage = () => {
             header: isEmp ? 'Sign-off' : 'Actions',
             className: 'text-right whitespace-nowrap',
             render: (r) => {
-                if (isEmp || r.status !== 'Pending') {
+                if (isEmp || r.status !== 'Pending' || r.employeeId === empId) {
                     return (<span className="text-[11px] text-slate-400 dark:text-slate-400 italic whitespace-nowrap">
-              {r.status === 'Pending' ? 'Pending Approval' : (r.reviewedBy ? `By ${r.reviewedBy}` : 'Processed')}
+              {r.status === 'Pending' ? (r.employeeId === empId && !isEmp ? 'Your request: another reviewer approves' : 'Pending Approval') : (r.reviewedBy ? `By ${r.reviewedBy}` : 'Processed')}
             </span>);
                 }
                 return (<div className="flex items-center justify-end gap-1.5">
@@ -240,11 +254,11 @@ export const AttendanceCorrectionsPage = () => {
             </Button>
           </>}>
         <div className="space-y-4">
-          <DatePicker label="Date of Incident" isRequired value={date} onChange={(e) => setDate(e.target.value)}/>
+          <DatePicker label="Date of Incident" isRequired value={date} max={todayIso()} onChange={(e) => setDate(e.target.value)}/>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="Currently Logged In" value={currentCheckIn} onChange={(e) => setCurrentCheckIn(e.target.value)} placeholder="10:15 AM"/>
-            <Input label="Currently Logged Out" value={currentCheckOut} onChange={(e) => setCurrentCheckOut(e.target.value)} placeholder="06:00 PM"/>
+            <Input label="Logged punch in" value={logged?.checkIn || '-'} readOnly disabled/>
+            <Input label="Logged punch out" value={logged?.checkOut || '-'} readOnly disabled/>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

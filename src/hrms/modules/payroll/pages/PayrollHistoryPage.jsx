@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { downloadCsv } from '../../../../shared/utils/exportCsv';
+import { Modal } from '@/components/common/Modal';
+import { Input } from '@/components/common/Input';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -11,13 +14,36 @@ export const PayrollHistoryPage = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const [runs, setRuns] = useState([]);
+    const [paying, setPaying] = useState(null);
+    const [reference, setReference] = useState('');
+    const load = async () => setRuns(await payrollService.getPayrollRuns());
     useEffect(() => {
-        const load = async () => {
-            const data = await payrollService.getPayrollRuns();
-            setRuns(data);
-        };
         load();
     }, []);
+    const confirmPaid = async () => {
+        try {
+            await payrollService.markRunPaid(paying.monthKey, reference);
+            toast.success(`${paying.month} salaries marked paid.`, 'Payment Recorded');
+            setPaying(null);
+            setReference('');
+            load();
+        }
+        catch (err) {
+            toast.error(err.message, 'Not saved');
+        }
+    };
+    const exportRuns = () => downloadCsv('Payroll_Runs.csv', [
+        { label: 'Month', value: (r) => r.month },
+        { label: 'Processed on', value: (r) => r.processedDate },
+        { label: 'Employees', value: (r) => r.totalEmployees },
+        { label: 'Gross (Rs)', value: (r) => r.totalGross },
+        { label: 'Deductions (Rs)', value: (r) => r.totalDeductions },
+        { label: 'Net (Rs)', value: (r) => r.totalNetDisbursed },
+        { label: 'Processed by', value: (r) => r.processedBy },
+        { label: 'Status', value: (r) => r.status },
+        { label: 'Paid on', value: (r) => r.paidDate || '' },
+        { label: 'Bank reference', value: (r) => r.transactionRef || '' },
+    ], runs);
     const columns = [
         {
             key: 'month',
@@ -75,6 +101,14 @@ export const PayrollHistoryPage = () => {
             className: 'whitespace-nowrap',
             render: (r) => <StatusBadge status={r.status} size="sm"/>,
         },
+        {
+            key: 'actions',
+            header: '',
+            className: 'text-right whitespace-nowrap',
+            render: (r) => (r.status === 'Processing'
+                ? <Button variant="primary" size="sm" onClick={() => setPaying(r)}>Mark paid</Button>
+                : <span className="text-[11px] text-slate-400">{r.transactionRef ? `Ref ${r.transactionRef}` : ''}</span>),
+        },
     ];
     return (<div className="space-y-6">
       <PageHeader title="Payroll Run History" description="Historical archive of all monthly compensation runs, bank batches, and tax filings." breadcrumbs={[
@@ -85,11 +119,18 @@ export const PayrollHistoryPage = () => {
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/payroll')} leftIcon={<ArrowLeft className="w-4 h-4"/>}>
               Payroll Overview
             </Button>
-            <Button variant="primary" size="sm" onClick={() => toast.success('Exporting fiscal year payroll audit ledger.', 'Export Ready')} leftIcon={<Download className="w-4 h-4"/>}>
-              Export FY Ledger
+            <Button variant="primary" size="sm" onClick={exportRuns} disabled={!runs.length} leftIcon={<Download className="w-4 h-4"/>}>
+              Export CSV
             </Button>
           </div>}/>
 
       <DataTable columns={columns} data={runs} keyField="id" searchPlaceholder="Search history..." searchFields={['month', 'processedBy']}/>
+
+      <Modal isOpen={!!paying} onClose={() => setPaying(null)} title={`Mark ${paying?.month ?? ''} salaries paid`} description="Enter the bank reference of the salary transfer." footer={<>
+            <Button variant="outline" size="sm" onClick={() => setPaying(null)}>Cancel</Button>
+            <Button variant="primary" size="sm" onClick={confirmPaid}>Mark paid</Button>
+          </>}>
+        <Input label="Bank transfer reference" isRequired value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. NEFT / UTR number"/>
+      </Modal>
     </div>);
 };

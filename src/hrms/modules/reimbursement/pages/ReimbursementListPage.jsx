@@ -205,8 +205,8 @@ export const ReimbursementListPage = () => {
         try {
             const updated = await reimbursementService.reviewClaim(selectedClaimForReview.id, {
                 approvedAmount: appr,
-                reviewerName: user?.name || 'Kritika Gupta (Head HR)',
-                remarks: reviewRemarksInput.trim() || 'Reviewed by HR',
+                reviewerName: user?.name ?? '',
+                remarks: reviewRemarksInput.trim(),
             });
             toast.success(`Claim ${selectedClaimForReview.claimId} recorded as '${updated.status}' and forwarded to Finance.`, 'Claim Adjudicated');
             setIsReviewModalOpen(false);

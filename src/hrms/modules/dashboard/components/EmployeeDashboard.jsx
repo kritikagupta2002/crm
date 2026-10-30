@@ -6,13 +6,15 @@ import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { useAuth } from '@/contexts/AuthContext';
-import { useRole } from '@/contexts/RoleContext';
 import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
 import { useCrm } from '../../../../context/crm';
+import { attendanceService } from '@/modules/attendance/services/attendance.service';
+import { parseClock, todayIso } from '@/modules/attendance/utils/punch';
+import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
+import { isWorkingDay, PUBLIC_HOLIDAYS_2026 } from '@/modules/leave/utils/workingDays';
 export const EmployeeDashboard = () => {
-    const { user, switchRole } = useAuth();
-    const { setRole } = useRole();
+    const { user } = useAuth();
     const navigate = useNavigate();
     const toast = useToast();
     // Real-time ticking date & clock
@@ -43,7 +45,7 @@ export const EmployeeDashboard = () => {
     // Current logged in / active employee profile
     const empProfile = useMemo(() => {
         const emps = storage.getEmployees();
-        const empId = user?.employeeId || 'BGS-006';
+        const empId = user?.employeeId ?? '';
         return emps.find((e) => e.employeeId === empId || (user?.name && e.name.toLowerCase() === user.name.toLowerCase()));
     }, [user?.employeeId, user?.name]);
 
@@ -68,23 +70,22 @@ export const EmployeeDashboard = () => {
             return Boolean(matchId || matchName);
         });
     }, [inventoryAssignments, empProfile, user]);
-    // Current shift assignment dynamically resolved
+    // The shift assigned to this person, else the company working hours from the attendance settings.
     const empShift = useMemo(() => {
         const assignments = storage.getShiftAssignments ? storage.getShiftAssignments() : [];
-        const empId = user?.employeeId || 'BGS-006';
+        const empId = user?.employeeId ?? '';
         const assign = assignments.find((a) => a.employeeId === empId);
         const shifts = storage.getShifts ? storage.getShifts() : [];
         const matched = shifts.find((s) => s.id === assign?.shiftId || s.name === assign?.shiftName);
-        const shiftLoc = matched?.location || empProfile?.employment?.workLocation || 'Bhilwara Site Office';
-        const startTime = matched?.startTime || '06:00 AM';
-        const endTime = matched?.endTime || '02:30 PM';
+        const settings = storage.getAttendanceSettings();
+        const startTime = matched?.startTime || settings.workStartTime;
+        const endTime = matched?.endTime || settings.workEndTime;
         return {
-            name: matched?.name || assign?.shiftName || 'Mining Site Morning Shift',
+            name: matched?.name || assign?.shiftName || 'General shift',
             startTime,
             endTime,
-            timings: matched ? `${matched.startTime} - ${matched.endTime}` : '06:00 AM - 02:30 PM',
-            location: shiftLoc,
-            geofence: `${empProfile?.employment?.workLocation || 'Bhilwara Site Office'} Geofence`,
+            timings: `${startTime} - ${endTime}`,
+            location: matched?.location || empProfile?.employment?.workLocation || '-',
         };
     }, [user?.employeeId, empProfile]);
     // Parse any time string (e.g. "02:30 PM") into Date relative to a reference day
@@ -106,17 +107,21 @@ export const EmployeeDashboard = () => {
         d.setHours(h, m, s, 0);
         return d;
     };
-    // Biometric punch state - dynamically initialize based on current hour and shift
-    const [isClockedIn, setIsClockedIn] = useState(() => {
-        const hour = new Date().getHours();
-        return hour >= 6 && hour < 15;
-    });
-    const [clockInTime, setClockInTime] = useState('05:55 AM');
-    const [clockOutTime, setClockOutTime] = useState(() => {
-        const hour = new Date().getHours();
-        return hour >= 15 || hour < 6 ? '02:30 PM' : null;
-    });
-    // Real-time Shift Countdown & Progress (Format: HH:mm:ss e.g. 03:00:13)
+    // Today's punch, from the attendance register.
+    const [todayRecord, setTodayRecord] = useState(() => storage.getAttendance().find((a) => a.employeeId === user?.employeeId && a.date === todayIso()));
+    const [isPunching, setIsPunching] = useState(false);
+    useEffect(() => {
+        if (user?.employeeId) {
+            setTodayRecord(storage.getAttendance().find((a) => a.employeeId === user.employeeId && a.date === todayIso()));
+        }
+    }, [user?.employeeId]);
+    const punchedIn = Boolean(todayRecord?.checkIn && todayRecord.checkIn !== '-');
+    const punchedOut = Boolean(todayRecord?.checkOut && todayRecord.checkOut !== '-');
+    const onLeaveToday = todayRecord?.status === 'On Leave';
+    const isClockedIn = punchedIn && !punchedOut;
+    const clockInTime = punchedIn ? todayRecord.checkIn : null;
+    const clockOutTime = punchedOut ? todayRecord.checkOut : null;
+    // Real-time Shift Countdown & Progress    // Real-time Shift Countdown & Progress (Format: HH:mm:ss e.g. 03:00:13)
     const shiftRemaining = useMemo(() => {
         const startDate = parseTimeToDate(empShift.startTime, now);
         let endDate = parseTimeToDate(empShift.endTime, now);
@@ -162,52 +167,89 @@ export const EmployeeDashboard = () => {
             };
         }
     }, [now, empShift.startTime, empShift.endTime, isClockedIn]);
-    const handleTogglePunch = () => {
-        const now = new Date().toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-        });
-        const workLoc = empProfile?.employment?.workLocation || 'Bhilwara Site Office';
-        if (isClockedIn) {
-            setIsClockedIn(false);
-            setClockOutTime(now);
-            toast.success(`Clocked out at ${now}. Today's shift session recorded.`, 'Punch Out Successful');
+    const handleTogglePunch = async () => {
+        if (punchedOut || onLeaveToday || isPunching)
+            return;
+        setIsPunching(true);
+        try {
+            const rec = await attendanceService.recordPunch(user?.employeeId, isClockedIn ? 'checkOut' : 'checkIn', 'Web portal');
+            setTodayRecord(rec);
+            if (isClockedIn)
+                toast.success(`Punched out at ${rec.checkOut}. Worked ${rec.workingHours}.`, 'Punch Out Recorded');
+            else
+                toast.success(`Punched in at ${rec.checkIn}${rec.status === 'Late' ? ` (late by ${rec.lateBy})` : ''}.`, 'Punch In Recorded');
         }
-        else {
-            setIsClockedIn(true);
-            setClockInTime(now);
-            setClockOutTime(null);
-            toast.success(`Clocked in at ${now}. GPS Geofence verified at ${workLoc}.`, 'Punch In Recorded');
+        catch (err) {
+            toast.error(err.message, 'Punch not recorded');
+        }
+        finally {
+            setIsPunching(false);
         }
     };
+    // This month's attendance for the summary cards.
+    const monthStats = useMemo(() => {
+        const empId = user?.employeeId ?? '';
+        const today = todayIso();
+        const month = today.slice(0, 7);
+        const companyHolidays = storage.getLeaveSettings()?.companyHolidays || [];
+        const offDays = weeklyOffFor(empId);
+        let workingDays = 0;
+        for (let day = 1; day <= Number(today.slice(8)); day++) {
+            if (isWorkingDay(`${month}-${String(day).padStart(2, '0')}`, companyHolidays, offDays)) workingDays += 1;
+        }
+        const rows = storage.getAttendance().filter((a) => a.employeeId === empId && a.date.startsWith(month));
+        const present = rows.filter((a) => a.status === 'Present' || a.status === 'Late').length;
+        const late = rows.filter((a) => a.status === 'Late').length;
+        const leaveDays = rows.filter((a) => a.status === 'On Leave').length;
+        let workedMins = 0;
+        let overtimeMins = 0;
+        rows.forEach((a) => {
+            const inAt = parseClock(a.checkIn);
+            const outAt = parseClock(a.checkOut);
+            if (inAt !== null && outAt !== null && outAt > inAt) workedMins += outAt - inAt;
+            const ot = String(a.overtime || '').match(/^(\d+)m$/);
+            if (ot) overtimeMins += Number(ot[1]);
+        });
+        const pendingLeave = storage.getLeaveRequests().filter((r) => r.employeeId === empId && r.status === 'Pending').length;
+        return {
+            workingDays,
+            present,
+            late,
+            leaveDays,
+            pendingLeave,
+            hours: Math.round(workedMins / 60),
+            overtimeHours: Math.round((overtimeMins / 60) * 10) / 10,
+            rate: workingDays ? Math.round((present / workingDays) * 1000) / 10 : 0,
+            monthLabel: new Date(`${month}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
+        };
+    }, [user?.employeeId, todayRecord]);
+    // The next three holidays: public holidays and the company holidays in the leave settings.
+    const upcomingHolidays = useMemo(() => {
+        const today = todayIso();
+        const company = (storage.getLeaveSettings()?.companyHolidays || []).map((h) => (typeof h === 'string' ? { date: h, name: 'Company holiday', kind: 'Company Holiday' } : { kind: 'Company Holiday', ...h }));
+        return [...PUBLIC_HOLIDAYS_2026, ...company]
+            .filter((h) => h.date >= today)
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .slice(0, 3)
+            .map((h) => {
+                const d = new Date(`${h.date}T00:00:00`);
+                return { title: h.name, date: d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }), day: d.toLocaleDateString('en-IN', { weekday: 'long' }), badge: h.kind };
+            });
+    }, []);
+    // Live dynamic leave balances (Zero Fake Numbers)
     // Live dynamic leave balances (Zero Fake Numbers)
     const userLeaveBalances = useMemo(() => {
-        const empId = user?.employeeId || 'BGS-006';
+        const empId = user?.employeeId ?? '';
         const balances = storage.getBalancesForEmployee(empId, user?.name);
-        const cl = balances.find((b) => b.leaveType?.includes('Casual') || b.code === 'CL') || {
-            leaveType: 'Casual Leave (CL)',
-            totalAllocated: 12,
-            used: 2,
-            available: 10,
-        };
-        const sl = balances.find((b) => b.leaveType?.includes('Sick') || b.code === 'SL') || {
-            leaveType: 'Sick Leave (SL)',
-            totalAllocated: 10,
-            used: 1,
-            available: 9,
-        };
-        const el = balances.find((b) => b.leaveType?.includes('Earned') || b.code === 'EL') || {
-            leaveType: 'Earned Leave (EL)',
-            totalAllocated: 18,
-            used: 0,
-            available: 18,
-        };
+        const none = (leaveType) => ({ leaveType, totalAllocated: 0, used: 0, available: 0 });
+        const cl = balances.find((b) => b.leaveType?.includes('Casual') || b.code === 'CL') || none('Casual Leave (CL)');
+        const sl = balances.find((b) => b.leaveType?.includes('Sick') || b.code === 'SL') || none('Sick Leave (SL)');
+        const el = balances.find((b) => b.leaveType?.includes('Earned') || b.code === 'EL') || none('Earned Leave (EL)');
         return { cl, sl, el };
     }, [user?.employeeId, user?.name]);
     // Live leave requests for employee
     const personalLeaves = useMemo(() => {
-        const empId = user?.employeeId || 'BGS-006';
+        const empId = user?.employeeId ?? '';
         const allReqs = storage.getLeaveRequests();
         const userReqs = allReqs
             .filter((r) => r.employeeId === empId || (user?.name && r.employeeName?.toLowerCase() === user.name.toLowerCase()))
@@ -225,30 +267,11 @@ export const EmployeeDashboard = () => {
                     days: daysLabel,
                     reason: r.reason,
                     status: r.status,
-                    approvedBy: r.approverName || r.approvedBy || 'HR Admin',
+                    approvedBy: r.approverName || r.approvedBy || '-',
                 };
             });
         }
-        return [
-            {
-                id: 'lv-01',
-                type: 'Casual Leave (CL)',
-                dates: '08 Sep 2026 - 09 Sep 2026',
-                days: '2 Days',
-                reason: 'Family personal work in Bhilwara',
-                status: 'Approved',
-                approvedBy: 'Kritika Gupta (Head HR)',
-            },
-            {
-                id: 'lv-02',
-                type: 'Sick Leave (SL)',
-                dates: '28 Aug 2026',
-                days: '1 Day',
-                reason: 'Seasonal viral fever - medical prescribed rest',
-                status: 'Approved',
-                approvedBy: 'Kritika Gupta (Head HR)',
-            },
-        ];
+        return [];
     }, [user?.employeeId, user?.name]);
     // Live expense & reimbursement metrics for employee (zero fake numbers)
     const { pendingExpensesTotal, settledExpensesTotal } = useMemo(() => {
@@ -328,7 +351,7 @@ export const EmployeeDashboard = () => {
               {/* Row 1: Name + Role Chip + ID + ESS */}
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white truncate">
-                  {user?.name || empProfile?.name || 'Rohan Deshmukh'}
+                  {user?.name || empProfile?.name || ''}
                 </h1>
 
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold ${bannerStyle === 'midnight'
@@ -341,7 +364,7 @@ export const EmployeeDashboard = () => {
                 <span className={`font-mono text-[11px] font-bold px-1.5 py-0.5 rounded ${bannerStyle === 'midnight'
             ? 'bg-white/10 text-slate-200 border border-white/15'
             : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700'}`}>
-                  {user?.employeeId || empProfile?.employeeId || 'BGS-006'}
+                  {user?.employeeId || empProfile?.employeeId || '-'}
                 </span>
 
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${bannerStyle === 'midnight'
@@ -356,12 +379,12 @@ export const EmployeeDashboard = () => {
               <div className={`flex flex-wrap items-center gap-2 text-[11px] ${bannerStyle === 'midnight' ? 'text-slate-300' : 'text-slate-500 dark:text-slate-400'}`}>
                 <span className="inline-flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-[#C8943A]"/>
-                  <span>{empProfile?.employment?.workLocation || 'Jaipur HQ'}</span>
+                  <span>{empProfile?.employment?.workLocation || 'Location not set'}</span>
                 </span>
                 <span className="opacity-40">•</span>
                 <span className="inline-flex items-center gap-1">
                   <UserCheck className="w-3 h-3 text-teal-600 dark:text-teal-400"/>
-                  <span>{empProfile?.employment?.managerName ? `${empProfile.employment.managerName}` : 'Dr. Amit Kumar Bansal'}</span>
+                  <span>{empProfile?.employment?.managerName || 'Manager not set'}</span>
                 </span>
                 <span className="opacity-40">•</span>
                 <span className="inline-flex items-center gap-1">
@@ -379,16 +402,8 @@ export const EmployeeDashboard = () => {
             ? 'bg-slate-900/90 border-[#25424D] text-slate-200'
             : 'bg-white/90 dark:bg-slate-900/90 border-slate-200/90 dark:border-slate-800 text-slate-700 dark:text-slate-200'}`}>
               <span className={`w-2 h-2 rounded-full ${isClockedIn ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}/>
-              <span>{isClockedIn ? `In: ${clockInTime} • ${shiftRemaining.formatted} Left` : 'Clocked Out'}</span>
+              <span>{isClockedIn ? `In: ${clockInTime}` : punchedOut ? `Out: ${clockOutTime}` : onLeaveToday ? 'On leave today' : 'Not punched in'}</span>
             </div>
-
-            {user?.role === 'hr' && (<Button variant="outline" size="sm" onClick={() => {
-                setRole('hr');
-                switchRole('hr');
-                navigate('/hr');
-            }} className="h-8 text-xs !border-amber-400/80 !text-amber-700 dark:!text-amber-300 font-bold" leftIcon={<Building2 className="w-3.5 h-3.5 text-amber-500"/>}>
-                Admin
-              </Button>)}
 
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/attendance')} className={`h-8 text-xs font-semibold ${bannerStyle === 'midnight'
             ? '!border-slate-600 !text-slate-200 hover:!bg-slate-800'
@@ -420,7 +435,7 @@ export const EmployeeDashboard = () => {
                 ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/40'
                 : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${isClockedIn ? 'bg-emerald-500 animate-pulse' : clockOutTime ? 'bg-blue-500' : 'bg-slate-400'}`}/>
-                {isClockedIn ? 'Currently Clocked In' : clockOutTime ? 'Shift Completed (Clocked Out)' : 'Clocked Out'}
+                {isClockedIn ? 'Punched in' : clockOutTime ? 'Day complete' : onLeaveToday ? 'On leave' : 'Not punched in'}
               </span>
             </div>
 
@@ -466,130 +481,66 @@ export const EmployeeDashboard = () => {
               </div>
             </div>
 
-            {/* Shift & Geofence Details */}
+            {/* Shift and today's punches */}
             <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800 space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
-              <div className="flex justify-between items-center">
-                <span>Shift Timings:</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-200">{empShift.timings} ({empShift.name.includes('Morning') ? 'Mining Site' : empShift.name})</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Shift Remaining:</span>
-                <span className="font-mono font-bold text-teal-700 dark:text-teal-300 tabular-nums bg-teal-50 dark:bg-teal-950/60 px-1.5 py-0.5 rounded border border-teal-200/60 dark:border-teal-800/40">
-                  {shiftRemaining.formatted}
-                </span>
+              <div className="flex justify-between items-center gap-3">
+                <span>Shift:</span>
+                <span className="font-semibold text-slate-900 dark:text-slate-200 text-right">{empShift.name} · {empShift.timings}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Punch In Today:</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">{clockInTime} (On Time)</span>
+                <span className={`font-semibold ${todayRecord?.status === 'Late' ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                  {clockInTime ? `${clockInTime}${todayRecord?.status === 'Late' ? ` (late by ${todayRecord.lateBy})` : ' (on time)'}` : '-'}
+                </span>
               </div>
-              {clockOutTime && (<div className="flex justify-between items-center">
-                  <span>Punch Out:</span>
-                  <span className="font-semibold text-blue-600 dark:text-blue-400">{clockOutTime} (Shift Completed)</span>
-                </div>)}
+              <div className="flex justify-between items-center">
+                <span>Punch Out:</span>
+                <span className="font-semibold text-blue-600 dark:text-blue-400">{clockOutTime ? `${clockOutTime} (${todayRecord.workingHours})` : '-'}</span>
+              </div>
               <div className="flex justify-between items-center pt-1 border-t border-slate-200/60 dark:border-slate-800 text-[11px]">
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-[#FEC13D]"/>
-                  {empShift.geofence}
+                  {empShift.location}
                 </span>
-                <span className="text-emerald-600 font-bold">Verified</span>
+                <span className="text-slate-500">{todayRecord?.punchSource || 'Web portal'}</span>
               </div>
             </div>
           </div>
 
           <div className="mt-4">
-            <Button variant={isClockedIn ? 'outline' : 'primary'} size="md" onClick={handleTogglePunch} className={`w-full font-bold ${isClockedIn
+            <Button variant={isClockedIn ? 'outline' : 'primary'} size="md" onClick={handleTogglePunch} disabled={punchedOut || onLeaveToday || isPunching} className={`w-full font-bold ${isClockedIn
             ? '!border-rose-300 !text-rose-700 hover:!bg-rose-50 dark:!border-rose-800 dark:!text-rose-400 dark:hover:!bg-rose-950/40'
             : '!bg-emerald-600 hover:!bg-emerald-700'}`} leftIcon={isClockedIn ? <LogOut className="w-4 h-4 text-rose-500"/> : <LogIn className="w-4 h-4"/>}>
-              {isClockedIn ? 'Punch Out for the Day' : (clockOutTime ? 'Punch In (Overtime / Night Duty)' : 'Punch In Now (Clock In)')}
+              {isClockedIn ? 'Punch Out for the Day' : punchedOut ? 'Punched out for today' : onLeaveToday ? 'On approved leave today' : 'Punch In Now'}
             </Button>
           </div>
         </Card>
 
-        {/* Attendance Summary 4-Grid Cards */}
+        {/* This month's attendance */}
         <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Card className="p-4 flex flex-col justify-between border-l-4 border-l-emerald-500">
+          {[
+            { title: 'Present This Month', value: monthStats.present, unit: `/ ${monthStats.workingDays} working days`, footLabel: 'Attendance rate', foot: `${monthStats.rate}%`, Icon: UserCheck, tone: 'emerald' },
+            { title: 'Leave Taken', value: monthStats.leaveDays, unit: `days (${monthStats.monthLabel})`, footLabel: 'Waiting for approval', foot: monthStats.pendingLeave ? `${monthStats.pendingLeave} request${monthStats.pendingLeave === 1 ? '' : 's'}` : 'None', Icon: CalendarCheck2, tone: 'amber' },
+            { title: 'Late Marks', value: monthStats.late, unit: 'this month', footLabel: 'Late after', foot: (() => { const st = storage.getAttendanceSettings(); return `${st.workStartTime} + ${st.gracePeriodMinutes} min`; })(), Icon: Clock, tone: 'blue' },
+            { title: 'Hours Worked', value: monthStats.hours, unit: 'hours this month', footLabel: 'Overtime', foot: `${monthStats.overtimeHours} hrs`, Icon: Sparkles, tone: 'purple' },
+          ].map((c) => (<Card key={c.title} className={`p-4 flex flex-col justify-between border-l-4 ${{ emerald: 'border-l-emerald-500', amber: 'border-l-amber-500', blue: 'border-l-blue-500', purple: 'border-l-purple-500' }[c.tone]}`}>
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Present This Month</span>
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-                  <UserCheck className="w-4 h-4"/>
+                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{c.title}</span>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${{ emerald: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400', amber: 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400', blue: 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400', purple: 'bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400' }[c.tone]}`}>
+                  <c.Icon className="w-4 h-4"/>
                 </div>
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
-                  21
-                </span>
-                <span className="text-xs font-semibold text-slate-400">/ 24 Working Days</span>
+                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">{c.value}</span>
+                <span className="text-xs font-semibold text-slate-400">{c.unit}</span>
               </div>
             </div>
             <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>Attendance Rate</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">87.5%</span>
+              <span>{c.footLabel}</span>
+              <span className="font-bold text-slate-700 dark:text-slate-200">{c.foot}</span>
             </div>
-          </Card>
-
-          <Card className="p-4 flex flex-col justify-between border-l-4 border-l-amber-500">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Leaves Taken</span>
-                <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                  <CalendarCheck2 className="w-4 h-4"/>
-                </div>
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
-                  2
-                </span>
-                <span className="text-xs font-semibold text-slate-400">Days (Sep 2026)</span>
-              </div>
-            </div>
-            <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>Status</span>
-              <span className="font-bold text-amber-600 dark:text-amber-400">Fully Approved</span>
-            </div>
-          </Card>
-
-          <Card className="p-4 flex flex-col justify-between border-l-4 border-l-blue-500">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Late Marks</span>
-                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                  <Clock className="w-4 h-4"/>
-                </div>
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
-                  1
-                </span>
-                <span className="text-xs font-semibold text-slate-400">Grace Applied</span>
-              </div>
-            </div>
-            <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>Penalty</span>
-              <span className="font-bold text-emerald-600 dark:text-emerald-400">₹0 (Within 15m Grace)</span>
-            </div>
-          </Card>
-
-          <Card className="p-4 flex flex-col justify-between border-l-4 border-l-purple-500">
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Field Exploration Hours</span>
-                <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4"/>
-                </div>
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">
-                  168
-                </span>
-                <span className="text-xs font-semibold text-slate-400">Total Hours</span>
-              </div>
-            </div>
-            <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>Site Extra Time</span>
-              <span className="font-bold text-purple-600 dark:text-purple-400">8.5 hrs Logged</span>
-            </div>
-          </Card>
+          </Card>))}
         </div>
       </div>
 
@@ -597,8 +548,8 @@ export const EmployeeDashboard = () => {
       <Card className="p-4 sm:p-5">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">My Leave Balances (2026)</h2>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Approved quota according to BGSPL HR Policy</p>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">My Leave Balances ({new Date().getFullYear()})</h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">Yearly quota from the leave settings</p>
           </div>
           <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave/balance')} className="text-xs h-7 px-2.5" rightIcon={<ChevronRight className="w-3.5 h-3.5"/>}>
             Leave Ledger
@@ -751,20 +702,16 @@ export const EmployeeDashboard = () => {
               </div>
               <div>
                 <h2 className="text-xs font-bold text-slate-900 dark:text-white">Upcoming Company Holidays</h2>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">Official BGSPL Rajasthan Calendar</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">Public and company holidays</p>
               </div>
             </div>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-              2026
+              {new Date().getFullYear()}
             </span>
           </div>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800 mt-2">
-            {[
-            { title: 'Gandhi Jayanti', date: '02 Oct 2026', day: 'Friday', badge: 'National Holiday' },
-            { title: 'Dussehra (Vijayadashami)', date: '20 Oct 2026', day: 'Tuesday', badge: 'Gazetted Holiday' },
-            { title: 'Diwali (Deepavali)', date: '08 Nov 2026', day: 'Sunday', badge: 'Gazetted Holiday' },
-        ].map((hol) => (<div key={hol.title} className="py-2.5 flex items-center justify-between">
+            {upcomingHolidays.map((hol) => (<div key={hol.title} className="py-2.5 flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-slate-900 dark:text-white">{hol.title}</p>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">{hol.date} • {hol.day}</p>
@@ -773,6 +720,7 @@ export const EmployeeDashboard = () => {
                   {hol.badge}
                 </span>
               </div>))}
+            {!upcomingHolidays.length && (<p className="py-3 text-xs text-slate-500">No more holidays this year.</p>)}
           </div>
         </Card>
       </div>

@@ -70,10 +70,8 @@ export const EmployeeLeaveMisChart = ({
         (e.name && user?.name && e.name.toLowerCase() === user.name.toLowerCase())
     );
     if (match) return match;
-    if (isManager) return allEmployees.find((e) => e.employeeId === 'BGS-003') || allEmployees[0];
-    if (isEmployee) return allEmployees.find((e) => e.employeeId === 'BGS-006') || allEmployees[0];
-    return allEmployees[0];
-  }, [allEmployees, empMap, user, isManager, isEmployee]);
+    return isSuperOrDirector ? allEmployees[0] : null;
+  }, [allEmployees, empMap, user, isSuperOrDirector]);
 
   // Permitted employees list respecting Phase 1 permissions
   const permittedEmployees = useMemo(() => {

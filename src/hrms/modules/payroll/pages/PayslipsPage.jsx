@@ -365,7 +365,7 @@ export const PayslipsPage = () => {
             <div className="p-4 bg-[#1A2430] border-2 border-[#FEC13D] rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-white shadow-sm">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-[#FEC13D]">
-                  Net Salary Transferred
+                  {selectedPayslip.paymentStatus === 'Paid' ? 'Net Salary Transferred' : 'Net Salary'}
                 </span>
                 <p className="text-xs text-slate-300 italic mt-0.5">
                   Amount in words: <strong className="text-white">{selectedPayslip.netSalaryInWords}</strong>
@@ -376,7 +376,7 @@ export const PayslipsPage = () => {
                   ₹{selectedPayslip.netSalary.toLocaleString('en-IN')}
                 </span>
                 <p className="text-[10px] text-slate-400 font-mono mt-0.5">
-                  Ref: {selectedPayslip.transactionRef || 'NEFT-COMPLETED'}
+                  {selectedPayslip.transactionRef ? `Ref: ${selectedPayslip.transactionRef}` : 'Payment pending'}
                 </p>
               </div>
             </div>
@@ -385,7 +385,7 @@ export const PayslipsPage = () => {
             <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-[#253344]">
               <div className="text-left">
                 <p className="font-semibold text-slate-800 dark:text-slate-200">Chhavi Bansal</p>
-                <p className="text-[11px] text-slate-400">Director - Finance & Administration</p>
+                <p className="text-[11px] text-slate-400">Director - Finance & Strategy</p>
                 <p className="text-[10px] text-slate-400 mt-0.5">Bansal Geo Solutions Pvt. Ltd.</p>
               </div>
 

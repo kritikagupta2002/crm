@@ -17,7 +17,7 @@ export const LeaveRequestsPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
     const isEmployee = currentRole === 'employee' || user?.role === 'employee';
-    const empId = user?.employeeId || 'BGS-006';
+    const empId = user?.employeeId ?? '';
     const [requests, setRequests] = useState([]);
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [selectedType, setSelectedType] = useState('all');

@@ -17,6 +17,14 @@ const dispatchNotification = (notif) => {
     }
 };
 
+/* Whoever is signed in reviews, approves and settles claims, but never their own. */
+const assertNotOwn = (item, action) => {
+    const me = storage.getActiveUser()?.employeeId;
+    if (me && me === item.employeeId) {
+        throw new Error(`You cannot ${action} your own claim. Another reviewer must do it.`);
+    }
+};
+
 export const reimbursementService = {
     getClaims: async () => {
         return new Promise(resolve => setTimeout(() => resolve(storage.getReimbursements()), 80));
@@ -160,6 +168,7 @@ export const reimbursementService = {
         if (!item) {
             throw new Error(`Reimbursement claim with ID ${id} not found.`);
         }
+        assertNotOwn(item, 'review');
 
         if (item.settlementStatus === 'Settled' || item.status === 'Settled') {
             throw new Error('Cannot modify a claim that has already been settled.');
@@ -261,6 +270,7 @@ export const reimbursementService = {
             dispatchNotification({
                 type: 'Reimbursement',
                 targetRole: 'employee',
+                targetEmployeeId: item.employeeId,
                 title: `Allowance Claim ${item.hrStatus}`,
                 message: `Claim ${item.claimId} was ${item.hrStatus.toLowerCase()} by HR for ₹${approvedAmount.toLocaleString('en-IN')}.`,
                 actionLink: '/hr/reimbursement',
@@ -294,6 +304,7 @@ export const reimbursementService = {
             dispatchNotification({
                 type: 'Reimbursement',
                 targetRole: 'employee',
+                targetEmployeeId: item.employeeId,
                 title: 'Allowance Claim Rejected',
                 message: `Claim ${item.claimId} was rejected by HR: ${remarks || 'Outside policy limits'}`,
                 actionLink: '/hr/reimbursement',
@@ -310,6 +321,7 @@ export const reimbursementService = {
         if (!item) {
             throw new Error(`Reimbursement claim with ID ${id} not found.`);
         }
+        assertNotOwn(item, 'approve');
 
         if (item.hrStatus !== 'Approved' && item.hrStatus !== 'Partially Approved') {
             throw new Error(`Cannot approve in Finance: Claim has not been approved by HR (Current HR status: ${item.hrStatus}).`);
@@ -353,6 +365,7 @@ export const reimbursementService = {
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
+                targetEmployeeId: item.employeeId,
             title: 'Finance Verification Approved',
             message: `Finance verified allowance claim ${item.claimId} for ₹${Number(item.hrApprovedAmount || item.approvedAmount).toLocaleString('en-IN')}. Ready for disbursement.`,
             actionLink: '/hr/reimbursement',
@@ -367,6 +380,7 @@ export const reimbursementService = {
         if (!item) {
             throw new Error(`Reimbursement claim with ID ${id} not found.`);
         }
+        assertNotOwn(item, 'reject');
 
         if (item.settlementStatus === 'Settled' || item.status === 'Settled') {
             throw new Error('Cannot reject a claim that has already been settled.');
@@ -403,6 +417,7 @@ export const reimbursementService = {
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
+                targetEmployeeId: item.employeeId,
             title: 'Allowance Claim Rejected by Finance',
             message: `Claim ${item.claimId} was rejected during Finance audit: ${remarks}`,
             actionLink: '/hr/reimbursement',
@@ -417,6 +432,7 @@ export const reimbursementService = {
         if (!item) {
             throw new Error(`Reimbursement claim with ID ${id} not found.`);
         }
+        assertNotOwn(item, 'raise a query on');
 
         if (!queryData.message || queryData.message.trim().length < 5) {
             throw new Error('Query message must be at least 5 characters explaining what clarification is required.');
@@ -459,6 +475,7 @@ export const reimbursementService = {
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
+                targetEmployeeId: item.employeeId,
             title: 'Clarification Required on Allowance Claim',
             message: `Finance raised a query on claim ${item.claimId}: "${queryData.message.trim()}"`,
             actionLink: '/hr/reimbursement',
@@ -526,6 +543,7 @@ export const reimbursementService = {
         if (!item) {
             throw new Error(`Reimbursement claim with ID ${id} not found.`);
         }
+        assertNotOwn(item, 'resolve a query on');
 
         if (item.queryStatus !== 'Employee Responded' && item.queryStatus !== 'Query Raised') {
             throw new Error(`Cannot resolve query: status is already '${item.queryStatus}'.`);
@@ -561,6 +579,7 @@ export const reimbursementService = {
         if (!item) {
             throw new Error(`Reimbursement claim with ID ${id} not found.`);
         }
+        assertNotOwn(item, 'settle');
 
         // Rule 1: HR Approval Check
         if (item.hrStatus !== 'Approved' && item.hrStatus !== 'Partially Approved') {
@@ -664,6 +683,7 @@ export const reimbursementService = {
         dispatchNotification({
             type: 'Finance',
             targetRole: 'employee',
+                targetEmployeeId: item.employeeId,
             title: 'Allowance Claim Settled',
             message: `Allowance claim ${item.claimId} has been settled. ₹${payableAmount.toLocaleString('en-IN')} disbursed via ${settlementRef}.`,
             actionLink: '/hr/reimbursement',

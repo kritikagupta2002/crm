@@ -108,7 +108,7 @@ export const EmployeeDetailPage = () => {
     const totalAvailableLeave = leaveBalances.reduce((sum, b) => sum + (b.available || 0), 0);
     const tenureYears = employee.employment.joiningDate
         ? Math.max(0.1, ((new Date().getTime() - new Date(employee.employment.joiningDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))).toFixed(1)
-        : '1.0';
+        : '-';
     return (<div className="space-y-6 pb-12">
       <PageHeader title={employee.name} description={`Emp ID: ${employee.employeeId} • ${employee.employment.designation} (${employee.employment.department})`} breadcrumbs={[
             { label: 'HRMS', path: '/hr' },
@@ -186,7 +186,7 @@ export const EmployeeDetailPage = () => {
       <Modal
         isOpen={isQrModalOpen}
         onClose={() => setIsQrModalOpen(false)}
-        title="Employee Digital ID & Biometric Verification Pass"
+        title="Employee ID Card"
       >
         <div className="p-4 flex flex-col items-center text-center space-y-4">
           <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-md">
@@ -199,8 +199,7 @@ export const EmployeeDetailPage = () => {
                 department: employee.employment.department,
                 workLocation: employee.employment.workLocation,
                 status: employee.employment.status,
-                issued: employee.employment.joiningDate,
-                validUntil: '2026-12-31',
+                joined: employee.employment.joiningDate,
               })}
               size={180}
             />
@@ -214,23 +213,8 @@ export const EmployeeDetailPage = () => {
               {employee.employeeId} • {employee.employment.designation}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Department: {employee.employment.department} | Site: {employee.employment.workLocation}
+              Department: {employee.employment.department} | Site: {employee.employment.workLocation || '-'}
             </p>
-          </div>
-
-          <div className="w-full bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-left text-xs text-slate-600 dark:text-slate-300 space-y-1.5">
-            <div className="flex justify-between">
-              <span>Security Token:</span>
-              <span className="font-mono font-semibold text-slate-800 dark:text-slate-200">SHA256-BGS-{employee.employeeId}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Biometric Punch Sync:</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Enabled (Jaipur HQ & Bhilwara Mine)</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Validity:</span>
-              <span className="font-semibold text-slate-800 dark:text-slate-200">31-Dec-2026</span>
-            </div>
           </div>
 
           <div className="flex items-center justify-end gap-2 w-full pt-2">
@@ -240,11 +224,18 @@ export const EmployeeDetailPage = () => {
             <Button
               size="sm"
               onClick={() => {
-                toast.success('Digital ID Badge printed / downloaded successfully.', 'Pass Exported');
-                setIsQrModalOpen(false);
+                const canvas = document.querySelector('.qr-code-canvas');
+                if (!canvas) {
+                  toast.error('The QR code is not ready yet.', 'Try again');
+                  return;
+                }
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `ID_QR_${employee.employeeId}.png`;
+                link.click();
               }}
             >
-              Print ID Pass
+              Download QR
             </Button>
           </div>
         </div>

@@ -21,6 +21,7 @@ import { DatePicker } from '@/components/common/DatePicker';
 import { Select } from '@/components/common/Select';
 import { useToast } from '@/contexts/ToastContext';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
+import { downloadCsv } from '../../../../shared/utils/exportCsv';
 import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
 import {
   DAYS_OF_WEEK,
@@ -107,7 +108,22 @@ export const DailyAttendancePage = () => {
         : filterMode === 'day'
         ? `${selectedDay}s`
         : selectedMonth;
-    toast.success(`Exporting attendance shift records for ${label}.`, 'Export Complete');
+    if (!filteredRecords.length) {
+      toast.error('No attendance records in this view.', 'Nothing to export');
+      return;
+    }
+    downloadCsv(`Attendance_${String(label).replace(/\s+/g, '_')}.csv`, [
+        { label: 'Date', value: (r) => r.date },
+        { label: 'Employee ID', value: (r) => r.employeeId },
+        { label: 'Name', value: (r) => r.employeeName },
+        { label: 'Department', value: (r) => r.department },
+        { label: 'Punch in', value: (r) => r.checkIn },
+        { label: 'Punch out', value: (r) => r.checkOut },
+        { label: 'Hours', value: (r) => r.workingHours },
+        { label: 'Late by', value: (r) => r.lateBy },
+        { label: 'Status', value: (r) => r.status },
+        { label: 'Source', value: (r) => r.punchSource },
+    ], filteredRecords);
   };
 
   const columns = [

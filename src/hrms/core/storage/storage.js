@@ -1,4 +1,6 @@
-import { INITIAL_EMPLOYEES, INITIAL_DEPARTMENTS, INITIAL_DESIGNATIONS, INITIAL_ATTENDANCE, INITIAL_CORRECTIONS, INITIAL_LEAVE_BALANCES, INITIAL_LEAVE_REQUESTS, INITIAL_LEAVE_TYPES, INITIAL_SHIFTS, INITIAL_SHIFT_ASSIGNMENTS, INITIAL_DOCUMENTS, INITIAL_SALARY_STRUCTURES, INITIAL_PAYSLIPS, INITIAL_PAYROLL_RUNS, INITIAL_EXPENSES, INITIAL_REIMBURSEMENTS, INITIAL_NOTIFICATIONS, INITIAL_COMPANY_SETTINGS, INITIAL_ATTENDANCE_SETTINGS, INITIAL_LEAVE_SETTINGS, INITIAL_PAYROLL_SETTINGS, INITIAL_ROLES, } from '../../data/index.js';
+import { evaluateDay } from '../../modules/attendance/utils/punch.js';
+import { offDaysFromLabel } from '../../modules/leave/utils/workingDays.js';
+import { INITIAL_EMPLOYEES,INITIAL_DEPARTMENTS, INITIAL_DESIGNATIONS, INITIAL_ATTENDANCE, INITIAL_CORRECTIONS, INITIAL_LEAVE_BALANCES, INITIAL_LEAVE_REQUESTS, INITIAL_LEAVE_TYPES, INITIAL_SHIFTS, INITIAL_SHIFT_ASSIGNMENTS, INITIAL_DOCUMENTS, INITIAL_SALARY_STRUCTURES, INITIAL_PAYSLIPS, INITIAL_PAYROLL_RUNS, INITIAL_EXPENSES, INITIAL_REIMBURSEMENTS, INITIAL_NOTIFICATIONS, INITIAL_COMPANY_SETTINGS, INITIAL_ATTENDANCE_SETTINGS, INITIAL_LEAVE_SETTINGS, INITIAL_PAYROLL_SETTINGS, INITIAL_ROLES, } from '../../data/index.js';
 const STORAGE_KEYS = {
     EMPLOYEES: 'bgspl_employees',
     DEPARTMENTS: 'bgspl_departments',
@@ -27,7 +29,10 @@ const STORAGE_KEYS = {
     EMPLOYEE_LEAVE_BALANCES: 'bgspl_emp_leave_balances',
     EMPLOYEE_DOCUMENTS: 'bgspl_employee_documents',
     LOCATIONS: 'bgspl_locations',
+    SEED_ADDED: 'bgspl_seed_added',
 };
+// Seed employees added after the first release of the demo data.
+const SEED_ADDITIONS = ['emp-019'];
 
 export const INITIAL_LOCATIONS = [
     { id: 'loc-jaipur', name: 'Jaipur', status: 'Active' },
@@ -135,47 +140,23 @@ function normalizeAndSyncAttendance(rawList) {
             return;
         }
 
-        // Fix missing check-in for 'Present' or 'Late'
-        if ((r.status === 'Present' || r.status === 'Late') && (!r.checkIn || r.checkIn === '-')) {
-            if (r.date < todayStr) {
-                r.checkIn = '09:05 AM';
-                r.checkOut = '06:15 PM';
-                r.workingHours = '9h 10m';
-                r.lateBy = r.status === 'Late' ? '25m' : '-';
+        // A day left open on an earlier date: a demo register entry (id att-<date>-<employee>) is closed at
+        // the work end; a real punch that was never closed is kept open and shown as a missed punch-out.
+        const open = r.checkIn && r.checkIn !== '-' && (!r.checkOut || r.checkOut === '-');
+        if (r.date < todayStr && open && r.workingHours !== 'Missed punch-out') {
+            if (r.id === `att-${r.date}-${r.employeeId}`) {
+                const day = evaluateDay(r.checkIn, '06:00 PM', getItem(STORAGE_KEYS.ATTENDANCE_SETTINGS, INITIAL_ATTENDANCE_SETTINGS));
+                r.checkOut = '06:00 PM';
+                r.workingHours = day.workingHours;
+                r.overtime = day.overtime;
             } else {
-                r.checkIn = '09:05 AM';
-                r.checkOut = '-';
-                r.workingHours = 'Working...';
-                r.lateBy = '-';
+                r.workingHours = 'Missed punch-out';
             }
             changed = true;
         }
 
-        // Fix identical check-in and check-out (e.g. both 06:54 PM)
-        if (r.checkIn && r.checkOut && r.checkIn !== '-' && r.checkIn === r.checkOut) {
-            r.checkIn = '09:15 AM';
-            r.checkOut = '06:54 PM';
-            r.workingHours = '9h 39m';
-            changed = true;
-        }
-
-        // Fix past dates stuck in "Just checked in" or open checkout
-        if (r.date < todayStr && (r.workingHours === 'Just checked in' || (r.status === 'Present' && (!r.checkOut || r.checkOut === '-')))) {
-            if (r.checkIn === '11:27 PM') {
-                r.checkIn = '08:50 AM';
-                r.checkOut = '05:45 PM';
-                r.workingHours = '8h 55m';
-            } else {
-                r.checkOut = '06:30 PM';
-                r.workingHours = '9h 15m';
-            }
-            changed = true;
-        }
-
-        // Fix punch source formatting
-        if (!r.punchSource || r.punchSource === 'Biometric') {
-            const isField = /Geology|GIS|Mining|Hydro/i.test(r.department || '');
-            r.punchSource = isField ? 'Biometric - Bhilwara Mine' : 'Biometric - Jaipur HQ';
+        if (!r.punchSource) {
+            r.punchSource = 'Not recorded';
             changed = true;
         }
 
@@ -183,8 +164,20 @@ function normalizeAndSyncAttendance(rawList) {
         cleaned.push(r);
     });
 
-    // 3. Sync today's attendance for all employees
-    if (today.getDay() !== 0) {
+    // 3. The signed-in person punches for themselves: a demo entry for them today is taken out, so their own
+    // Punch In is what the register shows.
+    const activeEmpId = getItem(STORAGE_KEYS.ACTIVE_USER, null)?.employeeId;
+    if (activeEmpId) {
+        const demoId = `att-${todayStr}-${activeEmpId}`;
+        const idx = cleaned.findIndex((a) => a.id === demoId && a.status !== 'On Leave');
+        if (idx !== -1) {
+            cleaned.splice(idx, 1);
+            changed = true;
+        }
+    }
+
+    // 4. The demo register for today, for everyone else on the rolls who is not on their weekly off
+    {
         const todayRecords = cleaned.filter((a) => a.date === todayStr);
         if (todayRecords.length < employees.length) {
             const recordedEmpIds = new Set(todayRecords.map((a) => a.employeeId));
@@ -206,6 +199,9 @@ function normalizeAndSyncAttendance(rawList) {
 
             employees.forEach((emp, i) => {
                 if (recordedEmpIds.has(emp.employeeId)) return;
+                if (emp.employeeId === activeEmpId && !onLeaveEmpIds.has(emp.employeeId)) return;
+                const assignment = getItem(STORAGE_KEYS.SHIFT_ASSIGNMENTS, INITIAL_SHIFT_ASSIGNMENTS).find((s) => s.employeeId === emp.employeeId);
+                if (offDaysFromLabel(assignment?.weeklyOff).includes(today.getDay())) return;
 
                 const n = (i * 37 + today.getDate() * 11 + (today.getMonth() + 1) * 7) % 100;
                 const field = /Geology|GIS|Hydro|Mining/i.test(emp.employment?.department || '') && n % 3 === 0;
@@ -219,7 +215,7 @@ function normalizeAndSyncAttendance(rawList) {
                     punchSource: field ? 'Mobile Punch (Field GPS)' : 'Biometric - Jaipur HQ',
                 };
 
-                if (onLeaveEmpIds.has(emp.employeeId) || (n < 6 && onLeaveEmpIds.size === 0 && i === 5)) {
+                if (onLeaveEmpIds.has(emp.employeeId)) {
                     cleaned.unshift({ ...base, checkIn: '-', checkOut: '-', workingHours: '-', lateBy: '-', status: 'On Leave', punchSource: 'Approved leave' });
                     changed = true;
                     return;
@@ -257,7 +253,31 @@ function normalizeAndSyncAttendance(rawList) {
 }
 
 export const storage = {
-    getEmployees: () => getItem(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES),
+    getEmployees: () => {
+        let list = getItem(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES);
+        let changed = false;
+        const added = getItem(STORAGE_KEYS.SEED_ADDED, []);
+        const missing = INITIAL_EMPLOYEES.filter((e) => SEED_ADDITIONS.includes(e.id) && !added.includes(e.id) && !list.some((x) => x.id === e.id || x.name === e.name));
+        if (missing.length) {
+            list = [...list, ...missing];
+            setItem(STORAGE_KEYS.SEED_ADDED, [...added, ...missing.map((e) => e.id)]);
+            changed = true;
+        }
+        list = list.map((emp) => {
+            if (emp.id === 'emp-019' && (!emp.contact?.workEmail || !emp.employment?.joiningDate)) {
+                const seedPooja = INITIAL_EMPLOYEES.find((e) => e.id === 'emp-019');
+                if (seedPooja) {
+                    changed = true;
+                    return { ...seedPooja, ...emp, contact: { ...seedPooja.contact, ...emp.contact }, employment: { ...seedPooja.employment, ...emp.employment } };
+                }
+            }
+            return emp;
+        });
+        if (changed) {
+            setItem(STORAGE_KEYS.EMPLOYEES, list);
+        }
+        return list;
+    },
     setEmployees: (val) => setItem(STORAGE_KEYS.EMPLOYEES, val),
     getDepartments: () => getItem(STORAGE_KEYS.DEPARTMENTS, INITIAL_DEPARTMENTS),
     setDepartments: (val) => setItem(STORAGE_KEYS.DEPARTMENTS, val),
@@ -482,8 +502,8 @@ export const storage = {
             {
                 id: 'doc-rec-4',
                 employeeId: 'BGS-005',
-                employeeName: 'Vikram Singh Shekhawat',
-                department: 'Mining Operations',
+                employeeName: 'Vikramaditya Rathore',
+                department: 'GIS, Remote Sensing & UAV',
                 documentType: 'DGMS Mining Competency',
                 fileName: 'Overman_Competency_Certificate.pdf',
                 fileSize: '3.1 MB',
@@ -494,8 +514,8 @@ export const storage = {
             {
                 id: 'doc-rec-5',
                 employeeId: 'BGS-007',
-                employeeName: 'Sunita Choudhary',
-                department: 'Human Resources & Admin',
+                employeeName: 'Ravi Gurjar',
+                department: 'GIS, Remote Sensing & UAV',
                 documentType: 'PAN Card',
                 fileName: 'PAN_Card_Sunita_Choudhary.pdf',
                 fileSize: '1.1 MB',
@@ -518,7 +538,16 @@ export const storage = {
     setEmployeeDocuments: (val) => setItem(STORAGE_KEYS.EMPLOYEE_DOCUMENTS, val),
     getDocuments: () => getItem(STORAGE_KEYS.DOCUMENTS, INITIAL_DOCUMENTS),
     setDocuments: (val) => setItem(STORAGE_KEYS.DOCUMENTS, val),
-    getSalaryStructures: () => getItem(STORAGE_KEYS.SALARY_STRUCTURES, INITIAL_SALARY_STRUCTURES),
+    getSalaryStructures: () => {
+        const list = getItem(STORAGE_KEYS.SALARY_STRUCTURES, INITIAL_SALARY_STRUCTURES);
+        const missing = INITIAL_SALARY_STRUCTURES.filter((s) => !list.some((x) => x.employeeId === s.employeeId));
+        if (missing.length) {
+            const next = [...list, ...missing];
+            setItem(STORAGE_KEYS.SALARY_STRUCTURES, next);
+            return next;
+        }
+        return list;
+    },
     setSalaryStructures: (val) => setItem(STORAGE_KEYS.SALARY_STRUCTURES, val),
     getPayslips: () => getItem(STORAGE_KEYS.PAYSLIPS, INITIAL_PAYSLIPS),
     setPayslips: (val) => setItem(STORAGE_KEYS.PAYSLIPS, val),

@@ -16,6 +16,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { leaveService, checkDateConflict } from '@/modules/leave/services/leave.service';
 import { storage } from '@/core/storage/storage';
 import { countWorkingDays, getNonWorkingDates } from '@/modules/leave/utils/workingDays';
+import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
 const applyLeaveSchema = z
     .object({
     leaveType: z.enum([
@@ -48,11 +49,28 @@ export const ApplyLeavePage = () => {
     const [balances, setBalances] = useState([]);
     const [existingRequests, setExistingRequests] = useState([]);
     const [isLoadingMeta, setIsLoadingMeta] = useState(true);
-    const empId = user?.employeeId || 'BGS-006';
-    const empName = user?.name || 'Rohan Deshmukh';
+    const empId = user?.employeeId ?? '';
+    const empName = user?.name ?? '';
+    const offDays = useMemo(() => weeklyOffFor(empId), [empId]);
     const companyHolidays = useMemo(() => {
         return storage.getLeaveSettings()?.companyHolidays || [];
     }, []);
+    const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting }, } = useForm({
+        resolver: zodResolver(applyLeaveSchema),
+        defaultValues: {
+            leaveType: 'Casual Leave (CL)',
+            startDate: new Date().toLocaleDateString('en-CA'),
+            endDate: new Date().toLocaleDateString('en-CA'),
+            contactDuringLeave: user?.email ? '+91 98876 95208' : '',
+            reason: '',
+        },
+        mode: 'onChange',
+    });
+    const watchedLeaveType = watch('leaveType');
+    const watchedStartDate = watch('startDate');
+    const watchedEndDate = watch('endDate');
+    const watchedReason = watch('reason') || '';
+
     // Load live balances and existing applications for validation and limit checks
     useEffect(() => {
         const fetchMetadata = async () => {
@@ -74,21 +92,14 @@ export const ApplyLeavePage = () => {
         };
         fetchMetadata();
     }, [empId]);
-    const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting }, } = useForm({
-        resolver: zodResolver(applyLeaveSchema),
-        defaultValues: {
-            leaveType: 'Casual Leave (CL)',
-            startDate: new Date().toLocaleDateString('en-CA'),
-            endDate: new Date().toLocaleDateString('en-CA'),
-            contactDuringLeave: user?.email ? '+91 98876 95208' : '',
-            reason: '',
-        },
-        mode: 'onChange',
-    });
-    const watchedLeaveType = watch('leaveType');
-    const watchedStartDate = watch('startDate');
-    const watchedEndDate = watch('endDate');
-    const watchedReason = watch('reason') || '';
+
+    useEffect(() => {
+        if (empId) {
+            const emp = storage.getEmployees().find((e) => e.employeeId === empId);
+            const phone = emp?.contact?.phone || emp?.emergency?.phone;
+            if (phone) setValue('contactDuringLeave', phone);
+        }
+    }, [empId, setValue]);
     // Current balance for selected category
     const activeBalance = useMemo(() => {
         return balances.find((b) => b.leaveType === watchedLeaveType) || {
@@ -114,14 +125,14 @@ export const ApplyLeavePage = () => {
     const calculatedDays = useMemo(() => {
         if (!watchedStartDate || !watchedEndDate)
             return 0;
-        return countWorkingDays(watchedStartDate, watchedEndDate, companyHolidays);
-    }, [watchedStartDate, watchedEndDate, companyHolidays]);
+        return countWorkingDays(watchedStartDate, watchedEndDate, companyHolidays, offDays);
+    }, [watchedStartDate, watchedEndDate, companyHolidays, offDays]);
     // Get list of non-working days (weekends + holidays) in the selected range
     const skippedDates = useMemo(() => {
         if (!watchedStartDate || !watchedEndDate)
             return [];
-        return getNonWorkingDates(watchedStartDate, watchedEndDate, companyHolidays);
-    }, [watchedStartDate, watchedEndDate, companyHolidays]);
+        return getNonWorkingDates(watchedStartDate, watchedEndDate, companyHolidays, offDays);
+    }, [watchedStartDate, watchedEndDate, companyHolidays, offDays]);
     // Projected remaining balance after this application (from unreserved quota)
     const projectedRemaining = useMemo(() => {
         if (calculatedDays <= 0)
@@ -131,8 +142,6 @@ export const ApplyLeavePage = () => {
     // Specific policy & limit validation rules
     const isInvertedDate = calculatedDays === -1;
     const isOverQuota = calculatedDays > 0 && calculatedDays > availableToApply;
-    const isClLimitExceeded = watchedLeaveType === 'Casual Leave (CL)' && calculatedDays > 3;
-    const isMaxDurationExceeded = watchedLeaveType !== 'Maternity / Paternity Leave' && calculatedDays > 30;
     // Overlap verification with existing pending/approved requests
     const overlappingRequest = useMemo(() => {
         if (calculatedDays <= 0)
@@ -185,8 +194,6 @@ export const ApplyLeavePage = () => {
     // Master blocking rule
     const isBlockedByValidation = isInvertedDate ||
         isOverQuota ||
-        isClLimitExceeded ||
-        isMaxDurationExceeded ||
         !!overlappingRequest ||
         calculatedDays <= 0;
     const onSubmit = async (data) => {
@@ -198,7 +205,7 @@ export const ApplyLeavePage = () => {
             await leaveService.applyLeave({
                 employeeId: empId,
                 employeeName: empName,
-                department: user?.department || 'Geology & Mineral Exploration',
+                department: user?.department || '-',
                 leaveType: data.leaveType,
                 startDate: data.startDate,
                 endDate: data.endDate,
@@ -259,7 +266,7 @@ export const ApplyLeavePage = () => {
                   Applicant: {empName}
                 </p>
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  ID: <span className="font-mono">{empId}</span> • {user?.department || 'Geology & Mineral Exploration'}
+                  ID: <span className="font-mono">{empId}</span> • {user?.department || '-'}
                 </p>
               </div>
             </div>
@@ -328,8 +335,8 @@ export const ApplyLeavePage = () => {
 
           {/* 3. Date Selection & Calculated Duration */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DatePicker label="Start Date" isRequired {...register('startDate')} error={errors.startDate?.message}/>
-            <DatePicker label="End Date" isRequired {...register('endDate')} error={errors.endDate?.message}/>
+            <DatePicker label="Start Date" isRequired value={watchedStartDate} {...register('startDate')} onChange={(e) => { const val = e?.target?.value ?? e; setValue('startDate', val, { shouldValidate: true }); }} error={errors.startDate?.message}/>
+            <DatePicker label="End Date" isRequired value={watchedEndDate} {...register('endDate')} onChange={(e) => { const val = e?.target?.value ?? e; setValue('endDate', val, { shouldValidate: true }); }} error={errors.endDate?.message}/>
           </div>
 
           {/* 4. Calculated Duration Banner (Working Days) */}
@@ -376,36 +383,8 @@ export const ApplyLeavePage = () => {
               </div>
             </div>)}
 
-          {/* Casual Leave 3-Day Limit Alert */}
-          {isClLimitExceeded && (<div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
-              <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"/>
-              <div>
-                <strong className="font-bold">Casual Leave Policy Limit (Max 3 Days):</strong> As
-                per BGSPL Service Regulations, Casual Leave cannot exceed{' '}
-                <strong>3 consecutive working days</strong> in a single request. For longer vacations,
-                please select <strong>Earned / Privilege Leave (EL)</strong>.
-              </div>
-            </div>)}
-
-          {/* Sick Leave > 2 Days Medical Proof Requirement */}
-          {watchedLeaveType === 'Sick Leave (SL)' && calculatedDays > 2 && (<div className="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 border border-blue-200 dark:border-blue-800/60 text-xs text-blue-800 dark:text-blue-200 flex items-start gap-2.5">
-              <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"/>
-              <div>
-                <strong className="font-bold">Medical Certificate Advisory:</strong> For medical leave
-                exceeding 2 continuous working days, a formal Registered Medical Practitioner (RMP) fitness
-                certificate should be presented to HR Administration upon resumption of duty.
-              </div>
-            </div>)}
 
           {/* Maximum Duration Warning */}
-          {isMaxDurationExceeded && (<div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/60 text-xs text-rose-800 dark:text-rose-200 flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5"/>
-              <div>
-                <strong className="font-bold">Maximum Duration Limit:</strong> A single continuous leave
-                request cannot exceed 30 working days. Please break down extended field leaves into separate
-                reviewable phases.
-              </div>
-            </div>)}
 
           {/* Overlapping Request Conflict Alert with 1-Click Resolution */}
           {overlappingRequest && (<div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-xs space-y-3">

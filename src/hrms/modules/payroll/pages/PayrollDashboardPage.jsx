@@ -26,10 +26,13 @@ export const PayrollDashboardPage = () => {
         };
         load();
     }, []);
-    const totalGross = structures.reduce((sum, s) => sum + (Number(s.monthlyGross) || (s.basic + s.hra + s.specialAllowance) || 0), 0);
-    const totalNet = structures.reduce((sum, s) => sum + (Number(s.monthlyNet) || Number(s.netPay) || Math.round(totalGross * 0.88)), 0);
+    // The monthly bill from the salary structures that are set; the latest run for what was paid.
+    const activeStructures = structures.filter((s) => s.status !== 'Not set' && Number(s.monthlyGross) > 0);
+    const totalGross = activeStructures.reduce((sum, s) => sum + Number(s.monthlyGross), 0);
+    const totalNet = activeStructures.reduce((sum, s) => sum + (Number(s.monthlyNet) || Number(s.netPay) || 0), 0);
     const totalDeductions = Math.max(0, totalGross - totalNet);
     const totalStaff = employees.length;
+    const latestRun = [...runs].sort((a, b) => String(b.monthKey).localeCompare(String(a.monthKey)))[0];
     return (<div className="space-y-3">
       <PageHeader title="Payroll & Compensation" description="Statutory payroll computation, TDS, PF remittances, and branded salary disbursals in INR (₹)." breadcrumbs={[
             { label: 'Dashboard', path: '/hr' },
@@ -45,10 +48,10 @@ export const PayrollDashboardPage = () => {
 
       {/* KPI Cards (INR) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-        <StatCard compact={true} title="Total Monthly Payroll" value={`₹${totalGross.toLocaleString('en-IN')}`} icon={<BadgeIndianRupee className="w-4 h-4"/>} iconBgColor="bg-blue-50 dark:bg-blue-950/50 text-blue-600 border border-blue-100 dark:border-blue-800/60" change="+4.2%" changeType="increase" caption="Gross compensation"/>
-        <StatCard compact={true} title="Net Disbursed" value={`₹${totalNet.toLocaleString('en-IN')}`} icon={<CheckCircle2 className="w-4 h-4"/>} iconBgColor="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 border border-emerald-100 dark:border-emerald-800/60" caption="August 2026 Disbursed"/>
+        <StatCard compact={true} title="Total Monthly Payroll" value={`₹${totalGross.toLocaleString('en-IN')}`} icon={<BadgeIndianRupee className="w-4 h-4"/>} iconBgColor="bg-blue-50 dark:bg-blue-950/50 text-blue-600 border border-blue-100 dark:border-blue-800/60" caption="Gross, from salary structures"/>
+        <StatCard compact={true} title="Net Pay (latest run)" value={latestRun ? `₹${latestRun.totalNetDisbursed.toLocaleString('en-IN')}` : '-'} icon={<CheckCircle2 className="w-4 h-4"/>} iconBgColor="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 border border-emerald-100 dark:border-emerald-800/60" caption={latestRun ? `${latestRun.month} · ${latestRun.status === 'Completed' ? 'paid' : 'not yet paid'}` : 'No run yet'}/>
         <StatCard compact={true} title="Total Statutory Deductions" value={`₹${totalDeductions.toLocaleString('en-IN')}`} icon={<Clock className="w-4 h-4"/>} iconBgColor="bg-purple-50 dark:bg-purple-950/50 text-purple-600 border border-purple-100 dark:border-purple-800/60" caption="PF, ESI, TDS & PT"/>
-        <StatCard compact={true} title="Employees On Payroll" value={String(totalStaff)} icon={<Users className="w-4 h-4"/>} iconBgColor="bg-amber-50 dark:bg-amber-950/50 text-amber-600 border border-amber-100 dark:border-amber-800/60" caption="100% compliant"/>
+        <StatCard compact={true} title="Employees On Payroll" value={String(totalStaff)} icon={<Users className="w-4 h-4"/>} iconBgColor="bg-amber-50 dark:bg-amber-950/50 text-amber-600 border border-amber-100 dark:border-amber-800/60" caption={`${activeStructures.length} with a salary structure`}/>
       </div>
 
       {/* Action Shortcut Tiles */}

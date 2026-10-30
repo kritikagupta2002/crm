@@ -1,3 +1,4 @@
+import { downloadCsv } from '../../../../shared/utils/exportCsv';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Award, TrendingUp, Star, Users, Search, Plus, CheckCircle2, Calendar, Eye, FileCheck, Download, Sparkles, ChevronDown, X, RotateCcw, } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
@@ -75,7 +76,7 @@ export const PerformanceRecordsPage = () => {
             department: formDepartment,
             designation: formDesignation,
             reviewCycle: formCycle,
-            reviewerName: user?.name || 'Kritika Gupta (HR Head)',
+            reviewerName: user?.name ?? '',
             reviewerDesignation: user?.designation || 'Head - HR & Administration',
             overallScore: Number(formScore),
             goalsAchievementPercent: Math.round((Number(formScore) / 5) * 100),
@@ -413,10 +414,19 @@ export const PerformanceRecordsPage = () => {
 
             {/* Actions */}
             <div className="flex justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-              <Button variant="outline" size="sm" onClick={() => {
-                toast.success(`Appraisal sheet downloaded for ${viewingAppraisal.employeeName}.`, 'Dossier Exported');
-            }} leftIcon={<Download className="w-3.5 h-3.5"/>}>
-                Download PDF Dossier
+              <Button variant="outline" size="sm" onClick={() => downloadCsv(`Appraisal_${viewingAppraisal.employeeId}_${viewingAppraisal.reviewCycle.replace(/\W+/g, '_')}.csv`, [
+                { label: 'Employee', value: () => `${viewingAppraisal.employeeName} (${viewingAppraisal.employeeId})` },
+                { label: 'Review cycle', value: () => viewingAppraisal.reviewCycle },
+                { label: 'Goal', value: (g) => g.title },
+                { label: 'Description', value: (g) => g.description },
+                { label: 'Weightage %', value: (g) => g.weightage },
+                { label: 'Target', value: (g) => g.targetScore },
+                { label: 'Achieved', value: (g) => g.achievedScore },
+                { label: 'Overall score', value: () => viewingAppraisal.overallScore },
+                { label: 'Rating', value: () => viewingAppraisal.rating },
+                { label: 'Reviewer', value: () => viewingAppraisal.reviewerName },
+              ], viewingAppraisal.goals || [])} leftIcon={<Download className="w-3.5 h-3.5"/>}>
+                Download CSV
               </Button>
               <Button variant="primary" size="sm" onClick={() => setViewingAppraisal(null)}>
                 Close

@@ -17,7 +17,7 @@ export const LeaveBalancePage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
     const isEmployee = currentRole === 'employee' || user?.role === 'employee';
-    const loggedInEmpId = user?.employeeId || 'BGS-006';
+    const loggedInEmpId = user?.employeeId ?? '';
     const [employees, setEmployees] = useState([]);
     const [selectedEmpId, setSelectedEmpId] = useState(isEmployee ? loggedInEmpId : 'all');
     const [balances, setBalances] = useState([]);
@@ -93,7 +93,7 @@ export const LeaveBalancePage = () => {
         if (isEmployee) {
             return employees.find((e) => e.employeeId === loggedInEmpId) || {
                 employeeId: loggedInEmpId,
-                name: user?.name || 'Rohan Deshmukh',
+                name: user?.name ?? '',
                 employment: {
                     department: user?.department || 'Geology & Mineral Exploration',
                     designation: user?.designation || 'Senior Exploration Geologist',
@@ -134,7 +134,7 @@ export const LeaveBalancePage = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                    {user?.name || 'Rohan Deshmukh'}
+                    {user?.name ?? ''}
                   </h2>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/30 text-blue-200 border border-blue-400/30 font-mono">
                     {loggedInEmpId}
