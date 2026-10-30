@@ -4,6 +4,8 @@ import { useCrm } from '../../../core/permissions/crm'
 import { toISODate } from '../../../shared/utils/date'
 import { allProjects } from '../../erm/utils/projects'
 import { validateFieldRecord } from '../data/fieldDatabase'
+import { formatOf } from '../data/fieldFormats'
+import { FormatRecordForm } from './FormatRecordForm'
 
 export function FieldRecordFormModal({ isOpen, onClose, section, record = null, onSaved }) {
   const { leads, projectEdits, user, createFieldRecord, updateFieldRecord } = useCrm()
@@ -70,6 +72,8 @@ export function FieldRecordFormModal({ isOpen, onClose, section, record = null, 
   }, [isOpen, record, user, projects])
 
   if (!isOpen || !section) return null
+  // Sections with the client's format get its own form; the rest keep the common one below.
+  if (formatOf(section.key)) return <FormatRecordForm section={section} record={record} onClose={onClose} onSaved={onSaved} />
 
   const handleProjectChange = (e) => {
     const pId = e.target.value

@@ -553,7 +553,17 @@
   color: #0f172a;
 }
 
+/* A form wrapping body + footer must shrink with the modal, so the body scrolls and the footer stays in view. */
+.fd-modal > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .fd-modal-body {
+  flex: 1;
+  min-height: 0;
   padding: 24px;
   overflow-y: auto;
   display: flex;

@@ -1,25 +1,18 @@
 import { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import {
-  Database,
-  Search,
-  Plus,
-  AlertCircle,
-  ArrowRight,
-  Eye,
-  Building,
-  User,
-  Truck,
-  Mountain,
-} from 'lucide-react'
+import { Search, Plus, ArrowRight, Eye, Mountain } from 'lucide-react'
 import { useAccess, useCrm } from '../../../core/permissions/crm'
 import { FIELD_SECTIONS, filterFieldRecordsByRole, getFieldSectionByKey } from '../data/fieldDatabase'
 import { FieldRecordDetailModal } from '../components/FieldRecordDetailModal'
 import { FieldRecordFormModal } from '../components/FieldRecordFormModal'
+import { FieldOverview } from '../components/FieldOverview'
+import { formatOf } from '../data/fieldFormats'
+import { allProjects } from '../../erm/utils/projects'
 import './fieldDatabase.css'
 
 export function FieldDatabaseDashboard() {
-  const { fieldRecords = [], role, user } = useCrm()
+  const { fieldRecords = [], role, user, leads = [], projectEdits = {} } = useCrm()
+  const projects = useMemo(() => allProjects(leads, projectEdits) || [], [leads, projectEdits])
   const { may } = useAccess()
   const canManageFieldData = may('fieldDatabase')
 
@@ -44,20 +37,6 @@ export function FieldDatabaseDashboard() {
       }
     })
     return counts
-  }, [roleFilteredRecords])
-
-  // 3. KPI metrics
-  const stats = useMemo(() => {
-    const totalRecords = roleFilteredRecords.length
-    const projectSet = new Set(roleFilteredRecords.map((r) => r.projectId).filter(Boolean))
-    const staffSet = new Set(roleFilteredRecords.map((r) => r.employeeName || r.createdBy).filter(Boolean))
-    const dispatchCount = roleFilteredRecords.filter((r) => r.section === 'dispatch-database').length
-    return {
-      totalRecords,
-      activeProjects: projectSet.size,
-      activeStaff: staffSet.size,
-      dispatchCount,
-    }
   }, [roleFilteredRecords])
 
   // 4. Recent records table (max 8)
@@ -87,10 +66,9 @@ export function FieldDatabaseDashboard() {
           <div className="fd-header-top">
             <h1 className="fd-header-title">Field Database</h1>
             <span className="fd-badge fd-badge-category">Geological & Drilling</span>
-            <span className="fd-badge fd-badge-pending">Final format awaited</span>
           </div>
           <p className="fd-header-subtitle">
-            Centralized portal for surface geological mapping, geochemical sampling, core/non-core drilling daily progress reports, core logging, and sample consignment dispatch tracking.
+            Mapping, sampling, drilling and lab dispatch in the client's own formats. Every section downloads as their Excel workbook.
           </p>
         </div>
 
@@ -107,56 +85,7 @@ export function FieldDatabaseDashboard() {
         </div>
       </div>
 
-      {/* Notice Banner */}
-      <div className="fd-notice-banner">
-        <AlertCircle size={18} />
-        <div>
-          <strong>Final format awaited:</strong> Official client-provided field formats for all 10 areas will be configured into these modular form shells upon delivery. Metadata, location tracking, and role-isolated record management are fully operational.
-        </div>
-      </div>
-
-      {/* KPI Stats */}
-      <div className="fd-stats">
-        <div className="fd-stat-card">
-          <div className="fd-stat-icon">
-            <Database size={22} />
-          </div>
-          <div className="fd-stat-info">
-            <span className="fd-stat-value">{stats.totalRecords}</span>
-            <span className="fd-stat-label">Total Observations Logged</span>
-          </div>
-        </div>
-
-        <div className="fd-stat-card">
-          <div className="fd-stat-icon" style={{ background: '#fef3c7', color: '#b45309' }}>
-            <Building size={22} />
-          </div>
-          <div className="fd-stat-info">
-            <span className="fd-stat-value">{stats.activeProjects}</span>
-            <span className="fd-stat-label">Active Exploration Projects</span>
-          </div>
-        </div>
-
-        <div className="fd-stat-card">
-          <div className="fd-stat-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
-            <User size={22} />
-          </div>
-          <div className="fd-stat-info">
-            <span className="fd-stat-value">{stats.activeStaff}</span>
-            <span className="fd-stat-label">Geologists & Field Staff</span>
-          </div>
-        </div>
-
-        <div className="fd-stat-card">
-          <div className="fd-stat-icon" style={{ background: '#f5f3ff', color: '#7c3aed' }}>
-            <Truck size={22} />
-          </div>
-          <div className="fd-stat-info">
-            <span className="fd-stat-value">{stats.dispatchCount}</span>
-            <span className="fd-stat-label">Field Dispatch Batches</span>
-          </div>
-        </div>
-      </div>
+      <FieldOverview records={roleFilteredRecords} allRecords={fieldRecords} projects={projects} />
 
       {/* Section Search Toolbar */}
       <div className="fd-toolbar">
@@ -164,7 +93,7 @@ export function FieldDatabaseDashboard() {
           <Search size={16} style={{ color: '#64748b' }} />
           <input
             type="text"
-            placeholder="Search recent field records across all 10 exploration sections..."
+            placeholder={`Search recent field records across all ${FIELD_SECTIONS.length} sections...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -174,7 +103,7 @@ export function FieldDatabaseDashboard() {
       {/* 10 Sections Grid */}
       <div style={{ marginTop: 4 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#1e293b', marginBottom: 12 }}>
-          Exploration & Drilling Data Modules (10 Sections)
+          Sections ({FIELD_SECTIONS.length})
         </h2>
         <div className="fd-sections-grid">
           {FIELD_SECTIONS.map((sec) => {
@@ -194,6 +123,11 @@ export function FieldDatabaseDashboard() {
                       <span className="fd-badge fd-badge-prefix" style={{ fontSize: 10.5 }}>
                         {sec.prefix}
                       </span>
+                      {!formatOf(sec.key) && (
+                        <span className="fd-badge fd-badge-pending" style={{ fontSize: 10.5 }}>
+                          Format awaited
+                        </span>
+                      )}
                     </div>
                   </div>
 

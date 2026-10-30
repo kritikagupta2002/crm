@@ -1,4 +1,5 @@
-import { Mountain, Shovel, FlaskConical, Waves, Layers, Drill, FileSpreadsheet, Hammer, ScrollText, Truck, Database } from 'lucide-react'
+import { Mountain, Shovel, FlaskConical, Waves, Layers, Drill, FileSpreadsheet, Hammer, ScrollText, Truck, Crosshair } from 'lucide-react'
+import { FORMAT_SEED_RECORDS } from './fieldSeeds'
 
 export const FIELD_SECTIONS = [
   {
@@ -67,10 +68,22 @@ export const FIELD_SECTIONS = [
     route: '/field-database/core-drilling-dpr',
     title: 'Core Drilling Data — Daily Progress Report',
     shortTitle: 'Core Drilling DPR',
-    description: 'Daily diamond drilling progress, shift runs, rig operation, drill depth, and run recovery progress',
+    description: 'Daily drilling report: rig, shift, core runs with recovery and RQD, and the activity time log',
     icon: Drill,
     prefix: 'FD-CDD',
     samplePlaceholder: 'BH-CD-01 / RIG-02',
+    category: 'Drilling & Subsurface',
+  },
+  {
+    key: 'collar-survey',
+    slug: 'collar-survey',
+    route: '/field-database/collar-survey',
+    title: 'Collar & Downhole Survey',
+    shortTitle: 'Collar & Survey',
+    description: 'Borehole collar position, planned azimuth and dip, depths by core size, and downhole survey readings',
+    icon: Crosshair,
+    prefix: 'FD-COL',
+    samplePlaceholder: 'AMB-BH-02',
     category: 'Drilling & Subsurface',
   },
   {
@@ -79,7 +92,7 @@ export const FIELD_SECTIONS = [
     route: '/field-database/drill-core-logging',
     title: 'Drill Core Logging',
     shortTitle: 'Drill Core Logging',
-    description: 'Core run depth intervals, RQD measurements, core photography, and stratigraphical logging',
+    description: 'Interval logging of the core (rock, structure, fractures, alteration, ore), core sampling and assay samples',
     icon: FileSpreadsheet,
     prefix: 'FD-DCL',
     samplePlaceholder: 'RUN-04 (12.5m - 15.5m)',
@@ -113,9 +126,9 @@ export const FIELD_SECTIONS = [
     key: 'dispatch-database',
     slug: 'dispatch-database',
     route: '/field-database/dispatch-database',
-    title: 'Dispatch Database',
-    shortTitle: 'Dispatch Database',
-    description: 'Field sample batch dispatches to analytical laboratories, core box couriers, and chain-of-custody transfer logs',
+    title: 'Sample Dispatch',
+    shortTitle: 'Sample Dispatch',
+    description: 'Lab batches with QC samples inserted, the dispatch letter, courier tracking and lab status',
     icon: Truck,
     prefix: 'FD-DISP',
     samplePlaceholder: 'BATCH-NABL-2026-09',
@@ -127,208 +140,16 @@ export const getFieldSectionByKey = (key) => {
   return FIELD_SECTIONS.find((s) => s.key === key || s.slug === key) || null
 }
 
-/* Realistic seed data referencing actual projects and personnel */
+/* Demo records: the client's formats (fieldSeeds.js), and the two non-core sections whose format is still awaited. */
 export const SEEDED_FIELD_RECORDS = [
-  // 1. Geological Mapping
-  {
-    id: 'FD-GM-2026-001',
-    section: 'geological-mapping',
-    projectId: 'PRJ-001',
-    projectName: 'Bhilwara Iron Ore Block',
-    date: '2026-09-20',
-    employeeId: 'BGS-014',
-    employeeName: 'Ajay Kumar',
-    metadata: {
-      location: 'South Ridge Sector B Outcrop 4',
-      sampleOrBoreholeId: 'WP-GM-014',
-      coordinates: { latitude: '25.3478° N', longitude: '74.6392° E', elevation: '420 m' },
-      remarks: 'Banded Magnetite Quartzite (BMQ) exposed with 65° strike dip towards SW.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-20T10:30:00Z',
-    updatedAt: '2026-09-20T11:15:00Z',
-    createdBy: 'Ajay Kumar',
-  },
-  {
-    id: 'FD-GM-2026-002',
-    section: 'geological-mapping',
-    projectId: 'PRJ-002',
-    projectName: 'Udaipur Rock Phosphate Block',
-    date: '2026-09-22',
-    employeeId: 'BGS-007',
-    employeeName: 'Ravi Gurjar',
-    metadata: {
-      location: 'Jhamarkotra West Escarpment',
-      sampleOrBoreholeId: 'WP-GM-022',
-      coordinates: { latitude: '24.5212° N', longitude: '73.8115° E', elevation: '510 m' },
-      remarks: 'Stromatolitic phosphorite horizon in dolomite unit, mapped using drone orthophoto reference.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-22T09:45:00Z',
-    updatedAt: '2026-09-22T09:45:00Z',
-    createdBy: 'Ravi Gurjar',
-  },
-
-  // 2. Trench Mapping
-  {
-    id: 'FD-TM-2026-001',
-    section: 'trench-mapping',
-    projectId: 'PRJ-001',
-    projectName: 'Bhilwara Iron Ore Block',
-    date: '2026-09-18',
-    employeeId: 'BGS-014',
-    employeeName: 'Ajay Kumar',
-    metadata: {
-      location: 'Trench TR-01 (15m x 1.5m x 2m)',
-      sampleOrBoreholeId: 'TR-BH-01',
-      coordinates: { latitude: '25.3485° N', longitude: '74.6380° E', elevation: '418 m' },
-      remarks: 'Cross-cutting pegmatite vein observed at 8.2m mark from trench origin. Samples bagged.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-18T14:20:00Z',
-    updatedAt: '2026-09-18T15:00:00Z',
-    createdBy: 'Ajay Kumar',
-  },
-
-  // 3. Soil Sampling
-  {
-    id: 'FD-SS-2026-001',
-    section: 'soil-sampling',
-    projectId: 'PRJ-004',
-    projectName: 'Nagaur Limestone Pre-Feasibility',
-    date: '2026-09-24',
-    employeeId: 'BGS-015',
-    employeeName: 'Deepak Soni',
-    metadata: {
-      location: 'Grid Line L-4, Station S-12',
-      sampleOrBoreholeId: 'SOIL-NG-12',
-      coordinates: { latitude: '27.2014° N', longitude: '73.7431° E', elevation: '330 m' },
-      remarks: 'Sample collected from B-horizon at 40cm depth. Calcareous sandy loam.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-24T11:00:00Z',
-    updatedAt: '2026-09-24T11:00:00Z',
-    createdBy: 'Deepak Soni',
-  },
-  {
-    id: 'FD-SS-2026-002',
-    section: 'soil-sampling',
-    projectId: 'PRJ-001',
-    projectName: 'Bhilwara Iron Ore Block',
-    date: '2026-09-25',
-    employeeId: 'BGS-007',
-    employeeName: 'Ravi Gurjar',
-    metadata: {
-      location: 'Anomalous geochemical zone East-2',
-      sampleOrBoreholeId: 'SOIL-BH-45',
-      coordinates: { latitude: '25.3510° N', longitude: '74.6415° E', elevation: '425 m' },
-      remarks: 'Reddish lateritic soil with high magnetic susceptibility.',
-    },
-    data: {},
-    status: 'Draft',
-    createdAt: '2026-09-25T16:15:00Z',
-    updatedAt: '2026-09-25T16:15:00Z',
-    createdBy: 'Ravi Gurjar',
-  },
-
-  // 4. Stream Sediment Sampling
-  {
-    id: 'FD-STR-2026-001',
-    section: 'stream-sediment',
-    projectId: 'PRJ-005',
-    projectName: 'Banswara Manganese Block',
-    date: '2026-09-19',
-    employeeId: 'BGS-018',
-    employeeName: 'Pooja Meena',
-    metadata: {
-      location: 'Confluence of Stream Alpha & Nullah-3',
-      sampleOrBoreholeId: 'STR-BW-03',
-      coordinates: { latitude: '23.5419° N', longitude: '74.4528° E', elevation: '280 m' },
-      remarks: '-80 mesh sieved sample collected from active bar. 3 kg composite stored in poly bag.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-19T13:40:00Z',
-    updatedAt: '2026-09-19T13:40:00Z',
-    createdBy: 'Pooja Meena',
-  },
-
-  // 5. Channel Sampling
-  {
-    id: 'FD-CS-2026-001',
-    section: 'channel-sampling',
-    projectId: 'PRJ-002',
-    projectName: 'Udaipur Rock Phosphate Block',
-    date: '2026-09-21',
-    employeeId: 'BGS-014',
-    employeeName: 'Ajay Kumar',
-    metadata: {
-      location: 'Quarry Face Cut 3',
-      sampleOrBoreholeId: 'CHN-UD-09',
-      coordinates: { latitude: '24.5205° N', longitude: '73.8130° E', elevation: '515 m' },
-      remarks: 'Continuous channel cut across 2.0m true thickness. Sample weight approx 4.5kg.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-21T15:10:00Z',
-    updatedAt: '2026-09-21T15:10:00Z',
-    createdBy: 'Ajay Kumar',
-  },
-
-  // 6. Core Drilling DPR
-  {
-    id: 'FD-CDD-2026-001',
-    section: 'core-drilling-dpr',
-    projectId: 'PRJ-003',
-    projectName: 'Sikar Deep Potash Drilling',
-    date: '2026-09-23',
-    employeeId: 'BGS-016',
-    employeeName: 'Imran Ali',
-    metadata: {
-      location: 'Borehole Location SK-BH-01',
-      sampleOrBoreholeId: 'BH-SK-01',
-      coordinates: { latitude: '27.6128° N', longitude: '75.1432° E', elevation: '435 m' },
-      remarks: 'Shift Day: Rig Atlas Copco CS14. Drilled 142.0m to 164.5m (22.5m meterage). Bentonite mud circulating normal.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-23T18:30:00Z',
-    updatedAt: '2026-09-23T18:30:00Z',
-    createdBy: 'Imran Ali',
-  },
-
-  // 7. Drill Core Logging
-  {
-    id: 'FD-DCL-2026-001',
-    section: 'drill-core-logging',
-    projectId: 'PRJ-003',
-    projectName: 'Sikar Deep Potash Drilling',
-    date: '2026-09-24',
-    employeeId: 'BGS-016',
-    employeeName: 'Imran Ali',
-    metadata: {
-      location: 'Core Shed SK-01',
-      sampleOrBoreholeId: 'SK-BH-01 (Run 18 to 22)',
-      coordinates: { latitude: '27.6128° N', longitude: '75.1432° E', elevation: '435 m' },
-      remarks: 'Interval 142.0m - 158.0m logged. Halite with sylvite layers. Average core recovery 96.2%, RQD 84%. Core boxes 24-27 cataloged.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-24T17:00:00Z',
-    updatedAt: '2026-09-24T17:00:00Z',
-    createdBy: 'Imran Ali',
-  },
+  ...FORMAT_SEED_RECORDS,
 
   // 8. Non-Core Drilling DPR
   {
     id: 'FD-NCD-2026-001',
     section: 'non-core-drilling-dpr',
-    projectId: 'PRJ-004',
-    projectName: 'Nagaur Limestone Pre-Feasibility',
+    projectId: 'PR-26-001',
+    projectName: 'Resource Estimation',
     date: '2026-09-22',
     employeeId: 'BGS-017',
     employeeName: 'Sunil Yadav',
@@ -344,13 +165,12 @@ export const SEEDED_FIELD_RECORDS = [
     updatedAt: '2026-09-22T19:00:00Z',
     createdBy: 'Sunil Yadav',
   },
-
   // 9. Non-Core Logging
   {
     id: 'FD-NCL-2026-001',
     section: 'non-core-logging',
-    projectId: 'PRJ-004',
-    projectName: 'Nagaur Limestone Pre-Feasibility',
+    projectId: 'PR-26-001',
+    projectName: 'Resource Estimation',
     date: '2026-09-23',
     employeeId: 'BGS-017',
     employeeName: 'Sunil Yadav',
@@ -365,28 +185,6 @@ export const SEEDED_FIELD_RECORDS = [
     createdAt: '2026-09-23T11:45:00Z',
     updatedAt: '2026-09-23T11:45:00Z',
     createdBy: 'Sunil Yadav',
-  },
-
-  // 10. Dispatch Database
-  {
-    id: 'FD-DISP-2026-001',
-    section: 'dispatch-database',
-    projectId: 'PRJ-001',
-    projectName: 'Bhilwara Iron Ore Block',
-    date: '2026-09-25',
-    employeeId: 'BGS-014',
-    employeeName: 'Ajay Kumar',
-    metadata: {
-      location: 'Site Camp to Shiva Analytical Lab, Bengaluru',
-      sampleOrBoreholeId: 'BATCH-BH-FE-01 (40 Samples)',
-      coordinates: { latitude: '25.3478° N', longitude: '74.6392° E', elevation: '420 m' },
-      remarks: 'Consignment of 40 pulverized iron ore core samples dispatched via BlueDart Air Waybill #849201934. Sample security seals intact.',
-    },
-    data: {},
-    status: 'Submitted',
-    createdAt: '2026-09-25T14:30:00Z',
-    updatedAt: '2026-09-25T14:30:00Z',
-    createdBy: 'Ajay Kumar',
   },
 ]
 

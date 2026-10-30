@@ -1,4 +1,4 @@
-import { ArrowLeftRight, BadgeIndianRupee, BarChart3, BookOpen, Boxes, Briefcase, Building2, CalendarCheck, CalendarClock, CalendarDays, ClipboardCheck, ClipboardList, Clock, Contact, Database, Drill, FileScan, FileSignature, Files, FileSpreadsheet, FileText, FlaskConical, FolderKanban, FolderLock, Gauge, Gavel, Hammer, HandCoins, Home, Landmark, LayoutDashboard, Layers, ListTodo, MessageCircleQuestion, Mountain, Network, Percent, PiggyBank, Receipt, Scale, ScrollText, Settings2, ShieldCheck, Shovel, Truck, UserPlus, UserRound, Users, UsersRound, Wallet, Waves } from 'lucide-react'
+import { ArrowLeftRight, BadgeIndianRupee, BarChart3, BookOpen, Boxes, Briefcase, Building2, CalendarCheck, CalendarClock, CalendarDays, ClipboardCheck, ClipboardList, Clock, Contact, Crosshair, Database, Drill, FileScan, FileSignature, Files, FileSpreadsheet, FileText, FlaskConical, FolderKanban, FolderLock, Gauge, Gavel, Hammer, HandCoins, Home, Landmark, LayoutDashboard, Layers, ListTodo, MessageCircleQuestion, Mountain, Network, Percent, PiggyBank, Receipt, Scale, ScrollText, Settings2, ShieldCheck, Shovel, Truck, UserPlus, UserRound, Users, UsersRound, Wallet, Waves } from 'lucide-react'
 
 // Roles that use the HRMS for themselves only (their own attendance, leave, pay, claims, documents).
 const SELF_SERVICE = ['Manager', 'Employee', 'Accounts Executive']
@@ -108,10 +108,12 @@ export const NAV_GROUPS = [
       { label: 'Stream Sediment Sampling', path: '/field-database/stream-sediment', icon: Waves, only: ['Super Admin', 'Manager', 'Employee'] },
       { label: 'Channel Sampling', path: '/field-database/channel-sampling', icon: Layers, only: ['Super Admin', 'Manager', 'Employee'] },
       { label: 'Core Drilling DPR', path: '/field-database/core-drilling-dpr', icon: Drill, only: ['Super Admin', 'Manager', 'Employee'] },
+      { label: 'Collar & Survey', path: '/field-database/collar-survey', icon: Crosshair, only: ['Super Admin', 'Manager', 'Employee'] },
       { label: 'Drill Core Logging', path: '/field-database/drill-core-logging', icon: FileSpreadsheet, only: ['Super Admin', 'Manager', 'Employee'] },
       { label: 'Non-Core DPR', path: '/field-database/non-core-drilling-dpr', icon: Hammer, only: ['Super Admin', 'Manager', 'Employee'] },
       { label: 'Non-Core Logging', path: '/field-database/non-core-logging', icon: ScrollText, only: ['Super Admin', 'Manager', 'Employee'] },
-      { label: 'Dispatch Database', path: '/field-database/dispatch-database', icon: Truck, only: ['Super Admin', 'Manager', 'Employee'] },
+      { label: 'Sample Dispatch', path: '/field-database/dispatch-database', icon: Truck, only: ['Super Admin', 'Manager', 'Employee'] },
+      { label: 'QAQC', path: '/field-database/qaqc', icon: ClipboardCheck, only: ['Super Admin', 'Manager', 'Employee'] },
     ],
   },
 ]

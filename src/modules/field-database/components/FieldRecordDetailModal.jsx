@@ -1,8 +1,11 @@
 import { X, Edit3 } from 'lucide-react'
+import { formatOf } from '../data/fieldFormats'
+import { FormatRecordDetail } from './FormatRecordDetail'
 
 
 export function FieldRecordDetailModal({ isOpen, onClose, record, section, onEdit, canEdit = true }) {
   if (!isOpen || !record || !section) return null
+  if (formatOf(section.key)) return <FormatRecordDetail record={record} section={section} onClose={onClose} onEdit={onEdit} canEdit={canEdit} />
 
   const isSubmitted = record.status === 'Submitted'
 

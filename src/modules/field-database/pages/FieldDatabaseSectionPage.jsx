@@ -12,18 +12,37 @@ import {
   Clock,
   RotateCcw,
   Building,
+  Download,
 } from 'lucide-react'
 import { useAccess, useCrm } from '../../../core/permissions/crm'
 import { getFieldSectionByKey, filterFieldRecordsByRole } from '../data/fieldDatabase'
+import { codeLabel, fieldsOf, formatOf, recordStat } from '../data/fieldFormats'
+import { downloadSectionWorkbook } from '../utils/fieldExcel'
 import { allProjects } from '../../erm/utils/projects'
 import { FieldRecordFormModal } from '../components/FieldRecordFormModal'
 import { FieldRecordDetailModal } from '../components/FieldRecordDetailModal'
 import './fieldDatabase.css'
 
+/* A list cell of a format section: a header value (code shown with its meaning on hover) or a total ('@metres'). */
+function listCell(sectionKey, record, id) {
+  if (id.startsWith('@')) {
+    const v = recordStat(sectionKey, record, id.slice(1))
+    return v === '' || v == null ? '—' : v
+  }
+  const fmt = formatOf(sectionKey)
+  const fld = fmt.header.find((f) => f.id === id)
+  const v = fieldsOf(record)[id]
+  if (v === '' || v == null) return '—'
+  if (fld?.type === 'code') return <span title={codeLabel(fld.list, v)}>{v}</span>
+  if (fld?.sample || id === fmt.summary?.id) return <span className="fd-mono">{v}</span>
+  return String(v)
+}
+
 export function FieldDatabaseSectionPage({ sectionKey: propSectionKey }) {
   const params = useParams()
   const activeSlug = propSectionKey || params.sectionSlug
   const section = getFieldSectionByKey(activeSlug)
+  const fmt = section ? formatOf(section.key) : null
 
   const { fieldRecords = [], leads = [], projectEdits = {}, role, user } = useCrm()
   const { may } = useAccess()
@@ -101,14 +120,16 @@ export function FieldDatabaseSectionPage({ sectionKey: propSectionKey }) {
         const locMatch = rec.metadata?.location?.toLowerCase().includes(q)
         const remarksMatch = rec.metadata?.remarks?.toLowerCase().includes(q)
         const geoMatch = rec.employeeName?.toLowerCase().includes(q) || rec.createdBy?.toLowerCase().includes(q)
-        if (!idMatch && !projMatch && !sampleMatch && !locMatch && !remarksMatch && !geoMatch) {
+        // Format sections: any value of the record (sample numbers, rock codes, BHID ...) and of its rows.
+        const dataMatch = fmt && JSON.stringify(rec.data ?? {}).toLowerCase().includes(q)
+        if (!idMatch && !projMatch && !sampleMatch && !locMatch && !remarksMatch && !geoMatch && !dataMatch) {
           return false
         }
       }
 
       return true
     })
-  }, [roleFilteredRecords, projectFilter, statusFilter, geologistFilter, searchQuery])
+  }, [roleFilteredRecords, projectFilter, statusFilter, geologistFilter, searchQuery, fmt])
 
   // KPI Calculations
   const stats = useMemo(() => {
@@ -193,12 +214,32 @@ export function FieldDatabaseSectionPage({ sectionKey: propSectionKey }) {
             <h1 className="fd-header-title">{section.title}</h1>
             <span className="fd-badge fd-badge-prefix">{section.prefix}</span>
             <span className="fd-badge fd-badge-category">{section.category}</span>
-            <span className="fd-badge fd-badge-pending">Final format awaited</span>
+            {!fmt && <span className="fd-badge fd-badge-pending">Final format awaited</span>}
           </div>
           <p className="fd-header-subtitle">{section.description}</p>
         </div>
 
         <div className="fd-header-actions">
+          {fmt && (
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={!displayedRecords.length}
+              title={`The client's ${fmt.workbook.replace(/_/g, ' ')} workbook, with the records shown below`}
+              onClick={() => {
+                // A workbook the app splits over sections (CORE DRILL_LOG_SAMPLE) comes whole, with the other sections' records.
+                const related = filterFieldRecordsByRole(
+                  fieldRecords.filter((r) => r.section !== section.key && formatOf(r.section)?.workbook === fmt.workbook && (projectFilter === 'ALL' || r.projectId === projectFilter)),
+                  role,
+                  user,
+                )
+                downloadSectionWorkbook(section, displayedRecords, related)
+                showToast(`Excel downloaded: ${displayedRecords.length} record${displayedRecords.length === 1 ? '' : 's'} in the client's format.`)
+              }}
+            >
+              <Download size={16} /> Download Excel
+            </button>
+          )}
           {canManageFieldData && (
             <button
               type="button"
@@ -214,13 +255,15 @@ export function FieldDatabaseSectionPage({ sectionKey: propSectionKey }) {
         </div>
       </div>
 
-      {/* Section Notice Banner */}
-      <div className="fd-notice-banner">
-        <AlertCircle size={18} />
-        <div>
-          <strong>Final format awaited:</strong> Official client-provided field formats for {section.title} will be inserted into this modular form shell without restructuring routing, storage, or permissions. Common project metadata and location logging are fully operational.
+      {/* Section Notice Banner: only where the client's format has not come yet */}
+      {!fmt && (
+        <div className="fd-notice-banner">
+          <AlertCircle size={18} />
+          <div>
+            <strong>Final format awaited:</strong> The client has not sent a format for {section.title} yet, so records keep the common fields (project, location, sample / borehole ID, coordinates, remarks).
+          </div>
         </div>
-      </div>
+      )}
 
       {/* KPI Stats */}
       <div className="fd-stats">
@@ -362,8 +405,14 @@ export function FieldDatabaseSectionPage({ sectionKey: propSectionKey }) {
                   <th>Project</th>
                   <th>Date</th>
                   <th>Geologist</th>
-                  <th>Location / Coordinates</th>
-                  <th>Sample / Borehole ID</th>
+                  {fmt ? (
+                    fmt.listColumns.map(([, label]) => <th key={label}>{label}</th>)
+                  ) : (
+                    <>
+                      <th>Location / Coordinates</th>
+                      <th>Sample / Borehole ID</th>
+                    </>
+                  )}
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -385,6 +434,10 @@ export function FieldDatabaseSectionPage({ sectionKey: propSectionKey }) {
                       </td>
                       <td style={{ whiteSpace: 'nowrap' }}>{record.date}</td>
                       <td>{record.employeeName || record.createdBy || '—'}</td>
+                      {fmt ? (
+                        fmt.listColumns.map(([id, label]) => <td key={label}>{listCell(section.key, record, id)}</td>)
+                      ) : (
+                      <>
                       <td>
                         <div style={{ display: 'flex', flexDirection: 'column', maxWidth: 260 }}>
                           <span style={{ fontSize: 13, color: '#1e293b' }}>{record.metadata?.location || '—'}</span>
@@ -404,6 +457,8 @@ export function FieldDatabaseSectionPage({ sectionKey: propSectionKey }) {
                           '—'
                         )}
                       </td>
+                      </>
+                      )}
                       <td>
                         <span className={`fd-status-pill ${isSubmitted ? 'fd-status-submitted' : 'fd-status-draft'}`}>
                           {record.status || 'Submitted'}

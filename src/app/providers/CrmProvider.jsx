@@ -17,6 +17,7 @@ import { CrmContext, DEFAULT_SETTINGS, OLD_ROLES, ROLE_ACCESS, ROLE_USERS, canDo
 import { DEFAULT_MINERALS, DEFAULT_SERVICES, DEFAULT_SERVICE_CATEGORIES } from '../../modules/crm/data/masters'
 import { SEEDED_INVENTORY_ITEMS, SEEDED_ASSIGNMENTS, calculateItemStock } from '../../modules/inventory/data/inventory'
 import { SEEDED_FIELD_RECORDS, generateFieldRecordId, validateFieldRecord } from '../../modules/field-database/data/fieldDatabase'
+import { codeList, listHasDesc, setAddedCodes } from '../../modules/field-database/data/fieldFormats'
 
 /*
  * Holds the demo's data in React state. Generated mock data is the base; everything done
@@ -59,6 +60,8 @@ const EMPTY = {
   inventory: [],
   inventoryAssignments: [],
   fieldRecords: [],
+  fieldCodes: [],
+  crmValues: {},
 }
 
 /* Keeps uploaded files for this session and returns their details for the record. */
@@ -2050,6 +2053,44 @@ export function CrmProvider({ children }) {
     [fieldRecords, role, user.name, setChanges],
   )
 
+  /* Options added from the Field Database dropdowns: a new rig, lab, rock code, geologist ... */
+  const fieldCodes = useMemo(() => {
+    const added = changes.fieldCodes || []
+    setAddedCodes(added) // the dropdowns, code labels and the Excel CODES sheet read them from the format helpers
+    return added
+  }, [changes.fieldCodes])
+
+  const addFieldCode = useCallback(
+    ({ list, code, desc }) => {
+      const currentRole = actorRef.current?.role || role
+      const currentName = actorRef.current?.name || user.name
+      if (!canDo(currentRole, 'fieldDatabase')) throw new Error('You do not have permission to add options.')
+      const value = code?.trim()
+      const meaning = desc?.trim()
+      if (!value) throw new Error('Enter the new option.')
+      if (listHasDesc(list) && !meaning) throw new Error('Enter what the code means.')
+      if (codeList(list).some((c) => c.code.toLowerCase() === value.toLowerCase())) throw new Error(`"${value}" is already in the list.`)
+      const entry = { list, code: value, ...(meaning ? { desc: meaning } : {}), addedBy: currentName, addedOn: toISODate(new Date()) }
+      setChanges((prev) => ({ ...prev, fieldCodes: [...(prev.fieldCodes || []), entry] }))
+      setAddedCodes([...fieldCodes, entry]) // so the field that added it can pick it (and fill its meaning) at once
+      return entry
+    },
+    [fieldCodes, role, user.name, setChanges],
+  )
+
+  /* Certified values of a CRM (standard) for the QAQC checks: { Zn: { value, sd }, ... } per CRM. */
+  const crmValues = useMemo(() => changes.crmValues || {}, [changes.crmValues])
+
+  const saveCrmValues = useCallback(
+    (crm, values) => {
+      const currentRole = actorRef.current?.role || role
+      if (!canDo(currentRole, 'fieldDatabase')) throw new Error('You do not have permission to change CRM values.')
+      if (!crm) throw new Error('Choose the CRM.')
+      setChanges((prev) => ({ ...prev, crmValues: { ...(prev.crmValues || {}), [crm]: values } }))
+    },
+    [role, setChanges],
+  )
+
   /* Tenders and bids (data/tenders.js): the demo's, with what was published, bid and decided in the app. */
   const tenders = useMemo(() => {
     // The seeded allotted tenders point at their seeded work orders.
@@ -2330,7 +2371,9 @@ export function CrmProvider({ children }) {
     (changes.dispatches?.length || 0) +
     (changes.inventory?.length || 0) +
     (changes.inventoryAssignments?.length || 0) +
-    (changes.fieldRecords?.length || 0)
+    (changes.fieldRecords?.length || 0) +
+    (changes.fieldCodes?.length || 0) +
+    Object.keys(changes.crmValues || {}).length
 
   return (
     <CrmContext.Provider
@@ -2451,6 +2494,10 @@ export function CrmProvider({ children }) {
         fieldRecords,
         createFieldRecord,
         updateFieldRecord,
+        fieldCodes,
+        addFieldCode,
+        crmValues,
+        saveCrmValues,
       }}
     >
       {children}
