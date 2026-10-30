@@ -45,7 +45,6 @@ export const NAV_GROUPS = [
       { label: 'Employee Directory', path: '/hr/employees', icon: Users, only: HR_ADMIN_ROLES },
       { label: 'Performance Records', path: '/hr/performance', icon: UserCheck, only: HR_ADMIN_ROLES },
       { label: 'Employee Exit', path: '/hr/exit', icon: UserMinus, only: HR_ADMIN_ROLES },
-      { label: 'My Profile', path: '/hr/settings/profile', icon: UserRound },
     ],
   },
   {
@@ -64,5 +63,6 @@ export const NAV_ITEMS = [
   { label: 'HR Dashboard', path: '/hr' },
   { label: 'Add Employee', path: '/hr/employees/new' },
   { label: 'Settings', path: '/hr/settings' },
+  { label: 'My Profile', path: '/hr/settings/profile' },
   { label: 'Notifications', path: '/hr/notifications' },
 ]

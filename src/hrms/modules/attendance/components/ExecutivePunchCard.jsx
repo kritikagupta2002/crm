@@ -297,3 +297,4 @@ export function ExecutivePunchCard({ className = '' }) {
     </>
   );
 }
+
