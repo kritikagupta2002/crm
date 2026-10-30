@@ -1,512 +1,512 @@
 [
   {
-    "id": "emp-001",
-    "employeeId": "BGS/DIR-01",
-    "name": "Dr. Amit Kumar Bansal",
-    "avatarUrl": "",
-    "role": "hr",
-    "personal": {
-      "firstName": "Amit Kumar",
-      "lastName": "Bansal",
-      "dob": "1980-04-12",
-      "gender": "Male",
-      "bloodGroup": "B+",
-      "maritalStatus": "Married",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "amit.bansal@bansalgeo.com",
-      "personalEmail": "amitkbansal80@gmail.com",
-      "phone": "+91 98876 95208",
-      "currentAddress": "Flat 402, Royal Palms, C-Scheme, Jaipur",
-      "permanentAddress": "604 Okay Plus Square, Madhyam Marg, Mansarovar, Jaipur",
-      "city": "Jaipur",
-      "state": "Rajasthan",
-      "pincode": "302020"
-    },
-    "employment": {
-      "employeeId": "BGS/DIR-01",
-      "department": "Mineral Exploration",
-      "designation": "Managing Director & Chief Geologist",
-      "joiningDate": "2021-01-01",
-      "employmentType": "Full-Time",
-      "managerId": "",
-      "managerName": "Board of Directors",
-      "workLocation": "Jaipur Corporate HQ",
-      "status": "Active",
-      "project": "Corporate Operations & Exploration Governance"
-    },
-    "emergency": {
-      "name": "Chhavi Bansal",
-      "relationship": "Spouse",
-      "phone": "+91 90010 85208"
-    },
-    "bank": {
-      "accountHolderName": "Amit Kumar Bansal",
-      "bankName": "HDFC Bank Ltd.",
-      "accountNumber": "50100239481923",
-      "ifscCode": "HDFC0001234",
-      "panNumber": "AAACB1234F",
-      "uanNumber": "100923847291"
-    }
-  },
-  {
-    "id": "emp-002",
-    "employeeId": "BGS/ADM-01",
-    "name": "Kritika Gupta",
-    "avatarUrl": "",
-    "role": "hr",
-    "personal": {
-      "firstName": "Kritika",
-      "lastName": "Gupta",
-      "dob": "1995-06-18",
-      "gender": "Female",
-      "bloodGroup": "O+",
-      "maritalStatus": "Single",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "kritika.gupta@bansalgeo.com",
-      "personalEmail": "kritika.gupta@gmail.com",
-      "phone": "+91 98290 11223",
-      "currentAddress": "C-Scheme, Jaipur",
-      "permanentAddress": "C-Scheme, Jaipur",
-      "city": "Jaipur",
-      "state": "Rajasthan",
-      "pincode": "302001"
-    },
-    "employment": {
-      "employeeId": "BGS/ADM-01",
-      "department": "HR & Administration",
-      "designation": "HR & Operations Lead",
-      "joiningDate": "2022-04-01",
-      "employmentType": "Full-Time",
-      "managerId": "emp-001",
-      "managerName": "Dr. Amit Kumar Bansal",
-      "workLocation": "Jaipur Corporate HQ",
-      "status": "Active",
-      "project": "Operations & HR Management"
-    },
-    "emergency": {
-      "name": "S. Gupta",
-      "relationship": "Parent",
-      "phone": "+91 98290 99887"
-    },
-    "bank": {
-      "accountHolderName": "Kritika Gupta",
-      "bankName": "ICICI Bank",
-      "accountNumber": "628501529841",
-      "ifscCode": "ICIC0006285",
-      "panNumber": "BGSKG9948D",
-      "uanNumber": "100928374619"
-    }
-  },
-  {
-    "id": "emp-003",
-    "employeeId": "BGS/DIR-03",
-    "name": "Dharmendra Goyal",
-    "avatarUrl": "/employees/dharmendra-goyal.png",
-    "role": "hr",
-    "personal": {
-      "firstName": "Dharmendra",
-      "lastName": "Goyal",
-      "dob": "1986-03-15",
-      "gender": "Male",
-      "bloodGroup": "B+",
-      "maritalStatus": "Married",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "dharmendra.goyal@bansalgeo.com",
-      "personalEmail": "dharmendra.goyal@gmail.com",
-      "phone": "9783111346",
-      "currentAddress": "Shivpuri Colony, Bonli, Dist-Sawai Madhopur (Rajasthan)-322023",
-      "permanentAddress": "Shivpuri Colony, Bonli, Dist-Sawai Madhopur (Rajasthan)-322023",
-      "city": "Sawai Madhopur",
-      "state": "Rajasthan",
-      "pincode": "322023"
-    },
-    "employment": {
-      "employeeId": "BGS/DIR-03",
-      "department": "Mineral Exploration",
-      "designation": "Executive Director",
-      "joiningDate": "2026-06-08",
-      "employmentType": "Full-Time",
-      "managerId": "emp-001",
-      "managerName": "Dr. Amit Kumar Bansal",
-      "workLocation": "Jaipur Corporate HQ",
-      "status": "Active",
-      "project": "Mineral Exploration & Project Leadership"
-    },
-    "emergency": {
-      "name": "Ramesh Chand Goyal",
-      "relationship": "Father",
-      "phone": "9530308980"
-    },
-    "bank": {
-      "accountHolderName": "Dharmendra Goyal",
-      "bankName": "State Bank of India",
-      "accountNumber": "31284950291",
-      "ifscCode": "SBIN0001234",
-      "panNumber": "ABCPG1234D",
-      "uanNumber": "100827364519"
-    }
-  },
-  {
     "id": "emp-004",
-    "employeeId": "BGS/01",
-    "name": "Inder Nogiya",
-    "avatarUrl": "/employees/inder-nogiya.jpg",
-    "role": "hr",
-    "personal": {
-      "firstName": "Inder",
-      "lastName": "Nogiya",
-      "dob": "1985-08-28",
-      "gender": "Male",
-      "bloodGroup": "A+",
-      "maritalStatus": "Married",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "inder.nogiya@bansalgeo.com",
-      "personalEmail": "inder.nogiya@gmail.com",
-      "phone": "9785589075",
-      "currentAddress": "Plot No.-A-1, Shyam Mitra Mandal Nagar, Opp. Road No. 5, Murlipura, Jaipur",
-      "permanentAddress": "Plot No.-A-1, Shyam Mitra Mandal Nagar, Opp. Road No. 5, Murlipura, Jaipur",
-      "city": "Jaipur",
-      "state": "Rajasthan",
-      "pincode": "302013"
-    },
-    "employment": {
-      "employeeId": "BGS/01",
-      "department": "Mining & Survey",
-      "designation": "Manager (Survey)",
-      "joiningDate": "2022-01-11",
-      "employmentType": "Full-Time",
-      "managerId": "emp-003",
-      "managerName": "Dharmendra Goyal",
-      "workLocation": "Jaipur HQ & Field Operations",
-      "status": "Active",
-      "project": "Mining Topographical Survey & DGPS"
-    },
-    "emergency": {
-      "name": "Shri Yadram Nogiya",
-      "relationship": "Father",
-      "phone": "9414991361"
-    },
     "bank": {
-      "accountHolderName": "Inder Nogiya",
       "bankName": "Bank of Baroda",
-      "accountNumber": "19480100028472",
       "ifscCode": "BARB0MURLIP",
       "panNumber": "BFGPN5829M",
-      "uanNumber": "100728194827"
+      "uanNumber": "100728194827",
+      "accountNumber": "19480100028472",
+      "accountHolderName": "Inder Nogiya"
+    },
+    "name": "Inder Nogiya",
+    "role": "hr",
+    "contact": {
+      "city": "Jaipur",
+      "phone": "9785589075",
+      "state": "Rajasthan",
+      "pincode": "302013",
+      "workEmail": "inder.nogiya@bansalgeo.com",
+      "personalEmail": "inder.nogiya@gmail.com",
+      "currentAddress": "Plot No.-A-1, Shyam Mitra Mandal Nagar, Opp. Road No. 5, Murlipura, Jaipur",
+      "permanentAddress": "Plot No.-A-1, Shyam Mitra Mandal Nagar, Opp. Road No. 5, Murlipura, Jaipur"
+    },
+    "personal": {
+      "dob": "1985-08-28",
+      "gender": "Male",
+      "lastName": "Nogiya",
+      "firstName": "Inder",
+      "bloodGroup": "A+",
+      "nationality": "Indian",
+      "maritalStatus": "Married"
+    },
+    "avatarUrl": "/employees/inder-nogiya.jpg",
+    "emergency": {
+      "name": "Shri Yadram Nogiya",
+      "phone": "9414991361",
+      "relationship": "Father"
+    },
+    "employeeId": "BGS/01",
+    "employment": {
+      "status": "Active",
+      "project": "Mining Topographical Survey & DGPS",
+      "managerId": "emp-003",
+      "department": "Mining & Survey",
+      "employeeId": "BGS/01",
+      "designation": "Manager (Survey)",
+      "joiningDate": "2022-01-11",
+      "managerName": "Dharmendra Goyal",
+      "workLocation": "Jaipur HQ & Field Operations",
+      "employmentType": "Full-Time"
     }
   },
   {
     "id": "emp-005",
-    "employeeId": "BGS/04",
-    "name": "Vikas Verma",
-    "avatarUrl": "/employees/vikas-verma.jpg",
-    "role": "employee",
-    "personal": {
-      "firstName": "Vikas",
-      "lastName": "Verma",
-      "dob": "2002-08-05",
-      "gender": "Male",
-      "bloodGroup": "B+",
-      "maritalStatus": "Single",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "vikas.verma@bansalgeo.com",
-      "personalEmail": "vikas.verma@gmail.com",
-      "phone": "7665252839",
-      "currentAddress": "Plot no, A-34, Mateshwari Colony, Dholatpura Road, Benad, Jaipur",
-      "permanentAddress": "Plot no, A-34, Mateshwari Colony, Dholatpura Road, Benad, Jaipur",
-      "city": "Jaipur",
-      "state": "Rajasthan",
-      "pincode": "302012"
-    },
-    "employment": {
-      "employeeId": "BGS/04",
-      "department": "Mining & Survey",
-      "designation": "Surveyor",
-      "joiningDate": "2024-02-07",
-      "employmentType": "Full-Time",
-      "managerId": "emp-004",
-      "managerName": "Inder Nogiya",
-      "workLocation": "Jaipur & Field Operations",
-      "status": "Active",
-      "project": "Cadastral Survey & DGPS Field Mapping"
-    },
-    "emergency": {
-      "name": "Shri Kamlesh Varma",
-      "relationship": "Father",
-      "phone": "8302827650"
-    },
     "bank": {
-      "accountHolderName": "Vikas Verma",
       "bankName": "State Bank of India",
-      "accountNumber": "39485720194",
       "ifscCode": "SBIN0031829",
       "panNumber": "CYIPV8392K",
-      "uanNumber": "100839485721"
+      "uanNumber": "100839485721",
+      "accountNumber": "39485720194",
+      "accountHolderName": "Vikas Verma"
+    },
+    "name": "Vikas Verma",
+    "role": "employee",
+    "contact": {
+      "city": "Jaipur",
+      "phone": "7665252839",
+      "state": "Rajasthan",
+      "pincode": "302012",
+      "workEmail": "vikas.verma@bansalgeo.com",
+      "personalEmail": "vikas.verma@gmail.com",
+      "currentAddress": "Plot no, A-34, Mateshwari Colony, Dholatpura Road, Benad, Jaipur",
+      "permanentAddress": "Plot no, A-34, Mateshwari Colony, Dholatpura Road, Benad, Jaipur"
+    },
+    "personal": {
+      "dob": "2002-08-05",
+      "gender": "Male",
+      "lastName": "Verma",
+      "firstName": "Vikas",
+      "bloodGroup": "B+",
+      "nationality": "Indian",
+      "maritalStatus": "Single"
+    },
+    "avatarUrl": "/employees/vikas-verma.jpg",
+    "emergency": {
+      "name": "Shri Kamlesh Varma",
+      "phone": "8302827650",
+      "relationship": "Father"
+    },
+    "employeeId": "BGS/04",
+    "employment": {
+      "status": "Active",
+      "project": "Cadastral Survey & DGPS Field Mapping",
+      "managerId": "emp-004",
+      "department": "Mining & Survey",
+      "employeeId": "BGS/04",
+      "designation": "Surveyor",
+      "joiningDate": "2024-02-07",
+      "managerName": "Inder Nogiya",
+      "workLocation": "Jaipur & Field Operations",
+      "employmentType": "Full-Time"
     }
   },
   {
     "id": "emp-006",
-    "employeeId": "BGS/05",
-    "name": "Kuldip Singh",
-    "avatarUrl": "/employees/kuldip-singh.jpg",
-    "role": "employee",
-    "personal": {
-      "firstName": "Kuldip",
-      "lastName": "Singh",
-      "dob": "1986-07-20",
-      "gender": "Male",
-      "bloodGroup": "O+",
-      "maritalStatus": "Married",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "kuldip.singh@bansalgeo.com",
-      "personalEmail": "kuldip.singh@gmail.com",
-      "phone": "9785990998",
-      "currentAddress": "456, Brijpuri, Lajpath Nagar, Jagatpura, Jaipur",
-      "permanentAddress": "456, Brijpuri, Lajpath Nagar, Jagatpura, Jaipur",
-      "city": "Jaipur",
-      "state": "Rajasthan",
-      "pincode": "302017"
-    },
-    "employment": {
-      "employeeId": "BGS/05",
-      "department": "Mining & Survey",
-      "designation": "Field Supervisor",
-      "joiningDate": "2025-04-24",
-      "employmentType": "Full-Time",
-      "managerId": "emp-004",
-      "managerName": "Inder Nogiya",
-      "workLocation": "Field Exploration Sites",
-      "status": "Active",
-      "project": "Field Team Logistics & Supervised Mapping"
-    },
-    "emergency": {
-      "name": "Chetan Singh",
-      "relationship": "Brother",
-      "phone": "9887611892"
-    },
     "bank": {
-      "accountHolderName": "Kuldip Singh",
       "bankName": "Punjab National Bank",
-      "accountNumber": "48291048291048",
       "ifscCode": "PUNB0482900",
       "panNumber": "ALOPS7291P",
-      "uanNumber": "100918273645"
+      "uanNumber": "100918273645",
+      "accountNumber": "48291048291048",
+      "accountHolderName": "Kuldip Singh"
+    },
+    "name": "Kuldip Singh",
+    "role": "employee",
+    "contact": {
+      "city": "Jaipur",
+      "phone": "9785990998",
+      "state": "Rajasthan",
+      "pincode": "302017",
+      "workEmail": "kuldip.singh@bansalgeo.com",
+      "personalEmail": "kuldip.singh@gmail.com",
+      "currentAddress": "456, Brijpuri, Lajpath Nagar, Jagatpura, Jaipur",
+      "permanentAddress": "456, Brijpuri, Lajpath Nagar, Jagatpura, Jaipur"
+    },
+    "personal": {
+      "dob": "1986-07-20",
+      "gender": "Male",
+      "lastName": "Singh",
+      "firstName": "Kuldip",
+      "bloodGroup": "O+",
+      "nationality": "Indian",
+      "maritalStatus": "Married"
+    },
+    "avatarUrl": "/employees/kuldip-singh.jpg",
+    "emergency": {
+      "name": "Chetan Singh",
+      "phone": "9887611892",
+      "relationship": "Brother"
+    },
+    "employeeId": "BGS/05",
+    "employment": {
+      "status": "Active",
+      "project": "Field Team Logistics & Supervised Mapping",
+      "managerId": "emp-004",
+      "department": "Mining & Survey",
+      "employeeId": "BGS/05",
+      "designation": "Field Supervisor",
+      "joiningDate": "2025-04-24",
+      "managerName": "Inder Nogiya",
+      "workLocation": "Field Exploration Sites",
+      "employmentType": "Full-Time"
     }
   },
   {
     "id": "emp-007",
-    "employeeId": "BGS/09",
-    "name": "Balveer Singh Yadav",
-    "avatarUrl": "/employees/balveer-singh.png",
-    "role": "employee",
-    "personal": {
-      "firstName": "Balveer",
-      "lastName": "Singh Yadav",
-      "dob": "1996-10-02",
-      "gender": "Male",
-      "bloodGroup": "B+",
-      "maritalStatus": "Single",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "balveer.singh@bansalgeo.com",
-      "personalEmail": "balveer.singh@gmail.com",
-      "phone": "9784867411",
-      "currentAddress": "1/234, Sector 1, Malviya Nagar, Jaipur (Rajasthan)-302017",
-      "permanentAddress": "1/234, Sector 1, Malviya Nagar, Jaipur (Rajasthan)-302017",
-      "city": "Jaipur",
-      "state": "Rajasthan",
-      "pincode": "302017"
-    },
-    "employment": {
-      "employeeId": "BGS/09",
-      "department": "Mineral Exploration",
-      "designation": "Jr. Geologist",
-      "joiningDate": "2026-03-18",
-      "employmentType": "Full-Time",
-      "managerId": "emp-003",
-      "managerName": "Dharmendra Goyal",
-      "workLocation": "Exploration Sites & Jaipur Lab",
-      "status": "Active",
-      "project": "Core Logging, Lithological Mapping & Sampling"
-    },
-    "emergency": {
-      "name": "Sultan Singh Yadav",
-      "relationship": "Father",
-      "phone": "9057564790"
-    },
     "bank": {
-      "accountHolderName": "Balveer Singh Yadav",
       "bankName": "State Bank of India",
-      "accountNumber": "38192039485",
       "ifscCode": "SBIN0008392",
       "panNumber": "BKPYA9182B",
-      "uanNumber": "100827163549"
+      "uanNumber": "100827163549",
+      "accountNumber": "38192039485",
+      "accountHolderName": "Balveer Singh Yadav"
+    },
+    "name": "Balveer Singh Yadav",
+    "role": "employee",
+    "contact": {
+      "city": "Jaipur",
+      "phone": "9784867411",
+      "state": "Rajasthan",
+      "pincode": "302017",
+      "workEmail": "balveer.singh@bansalgeo.com",
+      "personalEmail": "balveer.singh@gmail.com",
+      "currentAddress": "1/234, Sector 1, Malviya Nagar, Jaipur (Rajasthan)-302017",
+      "permanentAddress": "1/234, Sector 1, Malviya Nagar, Jaipur (Rajasthan)-302017"
+    },
+    "personal": {
+      "dob": "1996-10-02",
+      "gender": "Male",
+      "lastName": "Singh Yadav",
+      "firstName": "Balveer",
+      "bloodGroup": "B+",
+      "nationality": "Indian",
+      "maritalStatus": "Single"
+    },
+    "avatarUrl": "/employees/balveer-singh.png",
+    "emergency": {
+      "name": "Sultan Singh Yadav",
+      "phone": "9057564790",
+      "relationship": "Father"
+    },
+    "employeeId": "BGS/09",
+    "employment": {
+      "status": "Active",
+      "project": "Core Logging, Lithological Mapping & Sampling",
+      "managerId": "emp-003",
+      "department": "Mineral Exploration",
+      "employeeId": "BGS/09",
+      "designation": "Jr. Geologist",
+      "joiningDate": "2026-03-18",
+      "managerName": "Dharmendra Goyal",
+      "workLocation": "Exploration Sites & Jaipur Lab",
+      "employmentType": "Full-Time"
     }
   },
   {
     "id": "emp-008",
-    "employeeId": "BGS/10",
-    "name": "Vishal Kumawat",
-    "avatarUrl": "/employees/vishal-kumawat.jpg",
-    "role": "employee",
-    "personal": {
-      "firstName": "Vishal",
-      "lastName": "Kumawat",
-      "dob": "1991-05-25",
-      "gender": "Male",
-      "bloodGroup": "A+",
-      "maritalStatus": "Married",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "vishal.kumawat@bansalgeo.com",
-      "personalEmail": "vishal.kumawat@gmail.com",
-      "phone": "9166774427",
-      "currentAddress": "Panchwati Colony, Gayatri Nagar, Ajmer Road, Beawar- 305901",
-      "permanentAddress": "Panchwati Colony, Gayatri Nagar, Ajmer Road, Beawar- 305901",
-      "city": "Beawar",
-      "state": "Rajasthan",
-      "pincode": "305901"
-    },
-    "employment": {
-      "employeeId": "BGS/10",
-      "department": "Mineral Exploration",
-      "designation": "Sr. Surveyor",
-      "joiningDate": "2026-06-13",
-      "employmentType": "Full-Time",
-      "managerId": "emp-004",
-      "managerName": "Inder Nogiya",
-      "workLocation": "Field Projects & Beawar Region",
-      "status": "Active",
-      "project": "Advanced DGPS Survey, Drone Ground Control"
-    },
-    "emergency": {
-      "name": "Sagar Kumawat",
-      "relationship": "Father",
-      "phone": "9509481900"
-    },
     "bank": {
-      "accountHolderName": "Vishal Kumawat",
       "bankName": "Axis Bank Ltd.",
-      "accountNumber": "921010038491823",
       "ifscCode": "UTIB0001829",
       "panNumber": "CPYKV2819V",
-      "uanNumber": "100728194837"
+      "uanNumber": "100728194837",
+      "accountNumber": "921010038491823",
+      "accountHolderName": "Vishal Kumawat"
+    },
+    "name": "Vishal Kumawat",
+    "role": "employee",
+    "contact": {
+      "city": "Beawar",
+      "phone": "9166774427",
+      "state": "Rajasthan",
+      "pincode": "305901",
+      "workEmail": "vishal.kumawat@bansalgeo.com",
+      "personalEmail": "vishal.kumawat@gmail.com",
+      "currentAddress": "Panchwati Colony, Gayatri Nagar, Ajmer Road, Beawar- 305901",
+      "permanentAddress": "Panchwati Colony, Gayatri Nagar, Ajmer Road, Beawar- 305901"
+    },
+    "personal": {
+      "dob": "1991-05-25",
+      "gender": "Male",
+      "lastName": "Kumawat",
+      "firstName": "Vishal",
+      "bloodGroup": "A+",
+      "nationality": "Indian",
+      "maritalStatus": "Married"
+    },
+    "avatarUrl": "/employees/vishal-kumawat.jpg",
+    "emergency": {
+      "name": "Sagar Kumawat",
+      "phone": "9509481900",
+      "relationship": "Father"
+    },
+    "employeeId": "BGS/10",
+    "employment": {
+      "status": "Active",
+      "project": "Advanced DGPS Survey, Drone Ground Control",
+      "managerId": "emp-004",
+      "department": "Mineral Exploration",
+      "employeeId": "BGS/10",
+      "designation": "Sr. Surveyor",
+      "joiningDate": "2026-06-13",
+      "managerName": "Inder Nogiya",
+      "workLocation": "Field Projects & Beawar Region",
+      "employmentType": "Full-Time"
     }
   },
   {
     "id": "emp-009",
-    "employeeId": "BGS/11",
-    "name": "Pradeep Chand",
-    "avatarUrl": "/employees/pradeep-chand.jpg",
-    "role": "employee",
-    "personal": {
-      "firstName": "Pradeep",
-      "lastName": "Chand",
-      "dob": "1999-07-20",
-      "gender": "Male",
-      "bloodGroup": "B+",
-      "maritalStatus": "Single",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "pradeep.chand@bansalgeo.com",
-      "personalEmail": "pradeep.chand@gmail.com",
-      "phone": "6378170930",
-      "currentAddress": "Odel Gaddi, Roopwas, Bharatpur (Rajasthan)-321404",
-      "permanentAddress": "Odel Gaddi, Roopwas, Bharatpur (Rajasthan)-321404",
-      "city": "Bharatpur",
-      "state": "Rajasthan",
-      "pincode": "321404"
-    },
-    "employment": {
-      "employeeId": "BGS/11",
-      "department": "Mineral Exploration",
-      "designation": "Intern (Surveyor)",
-      "joiningDate": "2026-06-07",
-      "employmentType": "Internship",
-      "managerId": "emp-008",
-      "managerName": "Vishal Kumawat",
-      "workLocation": "Exploration Sites & Jaipur HQ",
-      "status": "Active",
-      "project": "Survey Trainee, GPS Boundary Demarcation"
-    },
-    "emergency": {
-      "name": "Pavan Kumar",
-      "relationship": "Father",
-      "phone": "7357256104"
-    },
     "bank": {
-      "accountHolderName": "Pradeep Chand",
       "bankName": "Punjab National Bank",
-      "accountNumber": "29381029381029",
       "ifscCode": "PUNB0293800",
       "panNumber": "CKYPC1928P",
-      "uanNumber": "100829104829"
+      "uanNumber": "100829104829",
+      "accountNumber": "29381029381029",
+      "accountHolderName": "Pradeep Chand"
+    },
+    "name": "Pradeep Chand",
+    "role": "employee",
+    "contact": {
+      "city": "Bharatpur",
+      "phone": "6378170930",
+      "state": "Rajasthan",
+      "pincode": "321404",
+      "workEmail": "pradeep.chand@bansalgeo.com",
+      "personalEmail": "pradeep.chand@gmail.com",
+      "currentAddress": "Odel Gaddi, Roopwas, Bharatpur (Rajasthan)-321404",
+      "permanentAddress": "Odel Gaddi, Roopwas, Bharatpur (Rajasthan)-321404"
+    },
+    "personal": {
+      "dob": "1999-07-20",
+      "gender": "Male",
+      "lastName": "Chand",
+      "firstName": "Pradeep",
+      "bloodGroup": "B+",
+      "nationality": "Indian",
+      "maritalStatus": "Single"
+    },
+    "avatarUrl": "/employees/pradeep-chand.jpg",
+    "emergency": {
+      "name": "Pavan Kumar",
+      "phone": "7357256104",
+      "relationship": "Father"
+    },
+    "employeeId": "BGS/11",
+    "employment": {
+      "status": "Active",
+      "project": "Survey Trainee, GPS Boundary Demarcation",
+      "managerId": "emp-008",
+      "department": "Mineral Exploration",
+      "employeeId": "BGS/11",
+      "designation": "Intern (Surveyor)",
+      "joiningDate": "2026-06-07",
+      "managerName": "Vishal Kumawat",
+      "workLocation": "Exploration Sites & Jaipur HQ",
+      "employmentType": "Internship"
     }
   },
   {
     "id": "emp-010",
-    "employeeId": "BGS/12",
-    "name": "Madhurika Saini",
-    "avatarUrl": "/employees/madhurika-saini.png",
-    "role": "employee",
-    "personal": {
-      "firstName": "Madhurika",
-      "lastName": "Saini",
-      "dob": "1998-05-17",
-      "gender": "Female",
-      "bloodGroup": "A+",
-      "maritalStatus": "Married",
-      "nationality": "Indian"
-    },
-    "contact": {
-      "workEmail": "madhurikasaini@bansalgeo.com",
-      "personalEmail": "madhurika.saini@gmail.com",
-      "phone": "9351349467",
-      "currentAddress": "Gate No. 2, Cantt Area, Nasirabad, Dist-Ajmer (Rajasthan)-305601",
-      "permanentAddress": "Gate No. 2, Cantt Area, Nasirabad, Dist-Ajmer (Rajasthan)-305601",
-      "city": "Ajmer",
-      "state": "Rajasthan",
-      "pincode": "305601"
-    },
-    "employment": {
-      "employeeId": "BGS/12",
-      "department": "Mineral Exploration",
-      "designation": "Sr. GIS Analyst",
-      "joiningDate": "2026-08-17",
-      "employmentType": "Full-Time",
-      "managerId": "emp-003",
-      "managerName": "Dharmendra Goyal",
-      "workLocation": "Jaipur Corporate HQ (GIS Lab)",
-      "status": "Active",
-      "project": "GIS Database Compilation, Spatial Modeling & Thematic Maps"
-    },
-    "emergency": {
-      "name": "Akash Singh",
-      "relationship": "Spouse",
-      "phone": "9587283632"
-    },
     "bank": {
-      "accountHolderName": "Madhurika Saini",
       "bankName": "HDFC Bank Ltd.",
-      "accountNumber": "50100482910394",
       "ifscCode": "HDFC0001829",
       "panNumber": "AWKPS3829M",
-      "uanNumber": "100829103847"
+      "uanNumber": "100829103847",
+      "accountNumber": "50100482910394",
+      "accountHolderName": "Madhurika Saini"
+    },
+    "name": "Madhurika Saini",
+    "role": "employee",
+    "contact": {
+      "city": "Ajmer",
+      "phone": "9351349467",
+      "state": "Rajasthan",
+      "pincode": "305601",
+      "workEmail": "madhurikasaini@bansalgeo.com",
+      "personalEmail": "madhurika.saini@gmail.com",
+      "currentAddress": "Gate No. 2, Cantt Area, Nasirabad, Dist-Ajmer (Rajasthan)-305601",
+      "permanentAddress": "Gate No. 2, Cantt Area, Nasirabad, Dist-Ajmer (Rajasthan)-305601"
+    },
+    "personal": {
+      "dob": "1998-05-17",
+      "gender": "Female",
+      "lastName": "Saini",
+      "firstName": "Madhurika",
+      "bloodGroup": "A+",
+      "nationality": "Indian",
+      "maritalStatus": "Married"
+    },
+    "avatarUrl": "/employees/madhurika-saini.png",
+    "emergency": {
+      "name": "Akash Singh",
+      "phone": "9587283632",
+      "relationship": "Spouse"
+    },
+    "employeeId": "BGS/12",
+    "employment": {
+      "status": "Active",
+      "project": "GIS Database Compilation, Spatial Modeling & Thematic Maps",
+      "managerId": "emp-003",
+      "department": "Mineral Exploration",
+      "employeeId": "BGS/12",
+      "designation": "Sr. GIS Analyst",
+      "joiningDate": "2026-08-17",
+      "managerName": "Dharmendra Goyal",
+      "workLocation": "Jaipur Corporate HQ (GIS Lab)",
+      "employmentType": "Full-Time"
+    }
+  },
+  {
+    "id": "emp-002",
+    "bank": {
+      "bankName": "ICICI Bank",
+      "ifscCode": "ICIC0006285",
+      "panNumber": "BGSKG9948D",
+      "uanNumber": "100928374619",
+      "accountNumber": "628501529841",
+      "accountHolderName": "Kritika Gupta"
+    },
+    "name": "Kritika Gupta",
+    "role": "hr",
+    "contact": {
+      "city": "Jaipur",
+      "phone": "+91 98290 11223",
+      "state": "Rajasthan",
+      "pincode": "302001",
+      "workEmail": "kritika.gupta@bansalgeo.com",
+      "personalEmail": "kritika.gupta@gmail.com",
+      "currentAddress": "C-Scheme, Jaipur",
+      "permanentAddress": "C-Scheme, Jaipur"
+    },
+    "personal": {
+      "dob": "1995-06-18",
+      "gender": "Female",
+      "lastName": "Gupta",
+      "firstName": "Kritika",
+      "bloodGroup": "O+",
+      "nationality": "Indian",
+      "maritalStatus": "Single"
+    },
+    "avatarUrl": "",
+    "emergency": {
+      "name": "S. Gupta",
+      "phone": "+91 98290 99887",
+      "relationship": "Parent"
+    },
+    "employeeId": "BGS/ADM-01",
+    "employment": {
+      "status": "Active",
+      "project": "Operations & HR Management",
+      "managerId": "emp-001",
+      "department": "HR & Administration",
+      "employeeId": "BGS/ADM-01",
+      "designation": "HR & Operations Lead",
+      "joiningDate": "2022-04-01",
+      "managerName": "Dr. Amit Kumar Bansal",
+      "workLocation": "Jaipur Corporate HQ",
+      "employmentType": "Full-Time"
+    }
+  },
+  {
+    "id": "emp-001",
+    "bank": {
+      "bankName": "HDFC Bank Ltd.",
+      "ifscCode": "HDFC0001234",
+      "panNumber": "AAACB1234F",
+      "uanNumber": "100923847291",
+      "accountNumber": "50100239481923",
+      "accountHolderName": "Amit Kumar Bansal"
+    },
+    "name": "Dr. Amit Kumar Bansal",
+    "role": "hr",
+    "contact": {
+      "city": "Jaipur",
+      "phone": "+91 98876 95208",
+      "state": "Rajasthan",
+      "pincode": "302020",
+      "workEmail": "amit.bansal@bansalgeo.com",
+      "personalEmail": "amitkbansal80@gmail.com",
+      "currentAddress": "Flat 402, Royal Palms, C-Scheme, Jaipur",
+      "permanentAddress": "604 Okay Plus Square, Madhyam Marg, Mansarovar, Jaipur"
+    },
+    "personal": {
+      "dob": "1980-04-12",
+      "gender": "Male",
+      "lastName": "Bansal",
+      "firstName": "Amit Kumar",
+      "bloodGroup": "B+",
+      "nationality": "Indian",
+      "maritalStatus": "Married"
+    },
+    "avatarUrl": "",
+    "emergency": {
+      "name": "Chhavi Bansal",
+      "phone": "+91 90010 85208",
+      "relationship": "Spouse"
+    },
+    "employeeId": "BGS/DIR-01",
+    "employment": {
+      "status": "Active",
+      "project": "Corporate Operations & Exploration Governance",
+      "managerId": "",
+      "department": "Mineral Exploration",
+      "employeeId": "BGS/DIR-01",
+      "designation": "Managing Director & Chief Geologist",
+      "joiningDate": "2021-01-01",
+      "managerName": "Board of Directors",
+      "workLocation": "Jaipur Corporate HQ",
+      "employmentType": "Full-Time"
+    }
+  },
+  {
+    "id": "emp-003",
+    "bank": {
+      "bankName": "State Bank of India",
+      "ifscCode": "SBIN0001234",
+      "panNumber": "ABCPG1234D",
+      "uanNumber": "100827364519",
+      "accountNumber": "31284950291",
+      "accountHolderName": "Dharmendra Goyal"
+    },
+    "name": "Dharmendra Goyal",
+    "role": "hr",
+    "contact": {
+      "city": "Sawai Madhopur",
+      "phone": "9783111346",
+      "state": "Rajasthan",
+      "pincode": "322023",
+      "workEmail": "dharmendra.goyal@bansalgeo.com",
+      "personalEmail": "dharmendra.goyal@gmail.com",
+      "currentAddress": "Shivpuri Colony, Bonli, Dist-Sawai Madhopur (Rajasthan)-322023",
+      "permanentAddress": "Shivpuri Colony, Bonli, Dist-Sawai Madhopur (Rajasthan)-322023"
+    },
+    "personal": {
+      "dob": "1986-03-15",
+      "gender": "Male",
+      "lastName": "Goyal",
+      "firstName": "Dharmendra",
+      "bloodGroup": "B+",
+      "nationality": "Indian",
+      "maritalStatus": "Married"
+    },
+    "avatarUrl": "/employees/dharmendra-goyal.png",
+    "emergency": {
+      "name": "Ramesh Chand Goyal",
+      "phone": "9530308980",
+      "relationship": "Father"
+    },
+    "employeeId": "BGS/DIR-03",
+    "employment": {
+      "status": "Active",
+      "project": "Mineral Exploration & Project Leadership",
+      "managerId": "emp-001",
+      "department": "Mineral Exploration",
+      "employeeId": "BGS/DIR-03",
+      "designation": "Executive Director",
+      "joiningDate": "2026-06-08",
+      "managerName": "Dr. Amit Kumar Bansal",
+      "workLocation": "Jaipur Corporate HQ",
+      "employmentType": "Full-Time"
     }
   }
 ]

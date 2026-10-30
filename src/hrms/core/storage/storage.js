@@ -103,15 +103,15 @@ function normalizeAndSyncAttendance(rawList) {
             r.employeeName = 'Nikhil Vyas';
         }
 
-        // Fix ID and Name inconsistencies (Dr. Bansal is BGS-001, Rohan Deshmukh is BGS-006)
+        // Standardize IDs for executive personnel
         if (r.employeeName && r.employeeName.includes('Amit Kumar Bansal')) {
-            if (r.employeeId !== 'BGS-001') {
-                r.employeeId = 'BGS-001';
+            if (r.employeeId !== 'BGS/DIR-01') {
+                r.employeeId = 'BGS/DIR-01';
                 changed = true;
             }
-        } else if (r.employeeName && r.employeeName.includes('Rohan Deshmukh')) {
-            if (r.employeeId !== 'BGS-006') {
-                r.employeeId = 'BGS-006';
+        } else if (r.employeeName && r.employeeName.includes('Dharmendra Goyal')) {
+            if (r.employeeId !== 'BGS/DIR-03') {
+                r.employeeId = 'BGS/DIR-03';
                 changed = true;
             }
         }
@@ -1017,9 +1017,9 @@ export const storage = {
         name: 'Kritika Gupta',
         email: 'kritika.gupta@bansalgeo.com',
         role: 'hr',
-        employeeId: 'BGS-004',
-        department: 'Human Resources & Admin',
-        designation: 'Head - HR & Administration',
+        employeeId: 'BGS/ADM-01',
+        department: 'Operations & Management',
+        designation: 'HR & Operations Lead',
     }),
     getLocations: () => {
         const raw = getItem(STORAGE_KEYS.LOCATIONS, INITIAL_LOCATIONS);

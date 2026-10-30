@@ -175,7 +175,26 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 12. General Settings
+-- 12. Employee Personal Documents Verification Table
+CREATE TABLE IF NOT EXISTS documents (
+  id VARCHAR(64) PRIMARY KEY,
+  employee_id VARCHAR(64) NOT NULL,
+  employee_name VARCHAR(255),
+  department VARCHAR(128),
+  document_type VARCHAR(128) NOT NULL,
+  file_name VARCHAR(255) NOT NULL,
+  file_url TEXT,
+  file_size VARCHAR(64),
+  uploaded_on DATE DEFAULT CURRENT_DATE,
+  status VARCHAR(64) DEFAULT 'Pending Verification',
+  rejection_reason TEXT,
+  reviewed_by VARCHAR(255),
+  reviewed_at TIMESTAMP WITH TIME ZONE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  data JSONB DEFAULT '{}'::jsonb
+);
+
+-- 13. General Settings
 CREATE TABLE IF NOT EXISTS settings (
   key VARCHAR(128) PRIMARY KEY,
   value JSONB NOT NULL,

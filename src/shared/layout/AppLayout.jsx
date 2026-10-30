@@ -6,6 +6,9 @@ import { NAV_ITEMS } from './navigation'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ProfileCompletionModal } from '../components/ProfileCompletionModal'
+import { employeeService } from '../../hrms/modules/employees/services/employee.service'
+import { attendanceService } from '../../hrms/modules/attendance/services/attendance.service'
+import { leaveService } from '../../hrms/modules/leave/services/leave.service'
 import './layout.css'
 
 const isSmallScreen = () => window.matchMedia('(max-width: 1023px)').matches
@@ -42,6 +45,13 @@ export function AppLayout() {
     window.scrollTo(0, 0)
     setMobileOpen(false)
   }, [pathname])
+
+  // Background sync with PostgreSQL backend on app launch
+  useEffect(() => {
+    employeeService.getAll().catch(() => {})
+    attendanceService.getAttendance().catch(() => {})
+    leaveService.getRequests().catch(() => {})
+  }, [])
 
   // Lock body scroll on small screens when mobile drawer is open
   useEffect(() => {

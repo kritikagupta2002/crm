@@ -1,34 +1,82 @@
 [
   {
     "id": "usr-1",
-    "name": "Kritika Gupta",
-    "email": "kritika.gupta@bansalgeo.com",
-    "password": "demo",
-    "role": "Super Admin",
-    "employeeId": "BGS-002"
+    "name": "Dr. Amit Kumar Bansal",
+    "email": "amit.bansal@bansalgeo.com",
+    "role": "Managing Director",
+    "employeeId": "BGS/DIR-01",
+    "password": "demo"
   },
   {
     "id": "usr-2",
-    "name": "Dr. Sunita Meena",
-    "email": "sunita.meena@bansalgeo.com",
-    "password": "demo",
+    "name": "Dharmendra Goyal",
+    "email": "dharmendra.goyal@bansalgeo.com",
     "role": "Director",
-    "employeeId": "BGS-003"
+    "employeeId": "BGS/DIR-03",
+    "password": "demo"
   },
   {
     "id": "usr-3",
-    "name": "Kavita Rawat",
-    "email": "kavita.rawat@bansalgeo.com",
-    "password": "demo",
-    "role": "Manager",
-    "employeeId": "BGS-005"
+    "name": "Kritika Gupta",
+    "email": "kritika.gupta@bansalgeo.com",
+    "role": "Super Admin",
+    "employeeId": "BGS/ADM-01",
+    "password": "demo"
   },
   {
     "id": "usr-4",
-    "name": "Ravi Gurjar",
-    "email": "ravi.gurjar@bansalgeo.com",
-    "password": "demo",
+    "name": "Inder Nogiya",
+    "email": "inder.nogiya@bansalgeo.com",
+    "role": "Manager",
+    "employeeId": "BGS/01",
+    "password": "demo"
+  },
+  {
+    "id": "usr-5",
+    "name": "Vikas Verma",
+    "email": "vikas.verma@bansalgeo.com",
     "role": "Employee",
-    "employeeId": "BGS-008"
+    "employeeId": "BGS/04",
+    "password": "demo"
+  },
+  {
+    "id": "usr-6",
+    "name": "Kuldip Singh",
+    "email": "kuldip.singh@bansalgeo.com",
+    "role": "Employee",
+    "employeeId": "BGS/05",
+    "password": "demo"
+  },
+  {
+    "id": "usr-7",
+    "name": "Balveer Singh Yadav",
+    "email": "balveer.singh@bansalgeo.com",
+    "role": "Employee",
+    "employeeId": "BGS/09",
+    "password": "demo"
+  },
+  {
+    "id": "usr-8",
+    "name": "Vishal Kumawat",
+    "email": "vishal.kumawat@bansalgeo.com",
+    "role": "Employee",
+    "employeeId": "BGS/10",
+    "password": "demo"
+  },
+  {
+    "id": "usr-9",
+    "name": "Pradeep Chand",
+    "email": "pradeep.chand@bansalgeo.com",
+    "role": "Employee",
+    "employeeId": "BGS/11",
+    "password": "demo"
+  },
+  {
+    "id": "usr-10",
+    "name": "Madhurika Saini",
+    "email": "madhurikasaini@bansalgeo.com",
+    "role": "Employee",
+    "employeeId": "BGS/12",
+    "password": "demo"
   }
 ]

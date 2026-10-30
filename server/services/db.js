@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/config.js';
+import { postgres } from './postgres.js';
 import {
   INITIAL_EMPLOYEES,
   INITIAL_DEPARTMENTS,
@@ -23,11 +24,11 @@ const SEED_DATA = {
   users: [
     {
       id: 'usr-1',
-      name: 'Kritika Gupta',
-      email: 'kritika.gupta@bansalgeo.com',
+      name: 'Dr. Amit Kumar Bansal',
+      email: 'amit.bansal@bansalgeo.com',
       password: 'demo',
-      role: 'Super Admin',
-      employeeId: 'BGS/ADM-01',
+      role: 'Managing Director',
+      employeeId: 'BGS/DIR-01',
     },
     {
       id: 'usr-2',
@@ -39,6 +40,14 @@ const SEED_DATA = {
     },
     {
       id: 'usr-3',
+      name: 'Kritika Gupta',
+      email: 'kritika.gupta@bansalgeo.com',
+      password: 'demo',
+      role: 'Super Admin',
+      employeeId: 'BGS/ADM-01',
+    },
+    {
+      id: 'usr-4',
       name: 'Inder Nogiya',
       email: 'inder.nogiya@bansalgeo.com',
       password: 'demo',
@@ -46,7 +55,7 @@ const SEED_DATA = {
       employeeId: 'BGS/01',
     },
     {
-      id: 'usr-4',
+      id: 'usr-5',
       name: 'Vikas Verma',
       email: 'vikas.verma@bansalgeo.com',
       password: 'demo',
@@ -54,12 +63,44 @@ const SEED_DATA = {
       employeeId: 'BGS/04',
     },
     {
-      id: 'usr-5',
-      name: 'Dr. Amit Kumar Bansal',
-      email: 'amit.bansal@bansalgeo.com',
+      id: 'usr-6',
+      name: 'Kuldip Singh',
+      email: 'kuldip.singh@bansalgeo.com',
       password: 'demo',
-      role: 'Director',
-      employeeId: 'BGS/DIR-01',
+      role: 'Employee',
+      employeeId: 'BGS/05',
+    },
+    {
+      id: 'usr-7',
+      name: 'Balveer Singh Yadav',
+      email: 'balveer.singh@bansalgeo.com',
+      password: 'demo',
+      role: 'Employee',
+      employeeId: 'BGS/09',
+    },
+    {
+      id: 'usr-8',
+      name: 'Vishal Kumawat',
+      email: 'vishal.kumawat@bansalgeo.com',
+      password: 'demo',
+      role: 'Employee',
+      employeeId: 'BGS/10',
+    },
+    {
+      id: 'usr-9',
+      name: 'Pradeep Chand',
+      email: 'pradeep.chand@bansalgeo.com',
+      password: 'demo',
+      role: 'Employee',
+      employeeId: 'BGS/11',
+    },
+    {
+      id: 'usr-10',
+      name: 'Madhurika Saini',
+      email: 'madhurikasaini@bansalgeo.com',
+      password: 'demo',
+      role: 'Employee',
+      employeeId: 'BGS/12',
     },
   ],
   employees: INITIAL_EMPLOYEES,
@@ -79,31 +120,31 @@ const SEED_DATA = {
   performance_records: [
     {
       id: 'perf-1',
-      employeeId: 'BGS-003',
-      employeeName: 'Dr. Sunita Meena',
-      department: 'Geology & Mineral Exploration',
-      designation: 'Senior Geologist & Exploration Lead',
+      employeeId: 'BGS/10',
+      employeeName: 'Vishal Kumawat',
+      department: 'Mineral Exploration',
+      designation: 'Sr. Surveyor',
       reviewPeriod: 'FY 2025-26 Q3',
-      reviewerName: 'Dr. Amit Kumar Bansal',
+      reviewerName: 'Inder Nogiya',
       rating: 4.8,
-      goalsAchieved: 'Led Bhilwara base metal exploration ahead of schedule with 100% core recovery.',
-      strengths: 'Exceptional geological field mapping, proactive team leadership.',
-      areasForImprovement: 'Further exploration of automated GIS workflows.',
+      goalsAchieved: 'Successfully completed high-precision DGPS topo survey of Bhilwara mining belt ahead of schedule.',
+      strengths: 'Fast baseline triangulation, Total Station proficiency, high field endurance.',
+      areasForImprovement: 'Advanced UAV flight planning certification.',
       status: 'Completed',
       date: '2026-01-15',
     },
     {
       id: 'perf-2',
-      employeeId: 'BGS-008',
-      employeeName: 'Ravi Gurjar',
-      department: 'Remote Sensing & GIS',
-      designation: 'Drone Operator & GIS Technician',
+      employeeId: 'BGS/09',
+      employeeName: 'Balveer Singh Yadav',
+      department: 'Mineral Exploration',
+      designation: 'Jr. Geologist',
       reviewPeriod: 'FY 2025-26 Q3',
-      reviewerName: 'Kavita Rawat',
-      rating: 4.5,
-      goalsAchieved: 'Successfully mapped 45 sq km terrain with high resolution orthomosaics.',
-      strengths: 'Fast flight planning, meticulous equipment care.',
-      areasForImprovement: 'Expand skills in 3D point cloud classification.',
+      reviewerName: 'Dr. Amit Kumar Bansal',
+      rating: 4.6,
+      goalsAchieved: 'Mapped 60 sq km mineralized zone with detailed core logging and lithological correlation.',
+      strengths: 'Precise lithology identification, rigorous sample custody.',
+      areasForImprovement: '3D block modeling in GIS.',
       status: 'Completed',
       date: '2026-01-20',
     },
@@ -111,21 +152,21 @@ const SEED_DATA = {
   exit_records: [
     {
       id: 'exit-1',
-      employeeId: 'BGS-019',
-      employeeName: 'Rajesh Sen',
-      department: 'Administration & Field Support',
-      designation: 'Field Assistant',
-      resignationDate: '2026-01-10',
-      lastWorkingDay: '2026-02-10',
+      employeeId: 'BGS/11',
+      employeeName: 'Pradeep Chand',
+      department: 'Mineral Exploration',
+      designation: 'Intern (Surveyor)',
+      resignationDate: '2026-03-01',
+      lastWorkingDay: '2026-03-31',
       noticePeriodDays: 30,
-      reason: 'Relocation to hometown for family personal reasons.',
+      reason: 'Completion of 6-month survey & mining field internship curriculum.',
       status: 'In Progress',
-      exitInterviewStatus: 'Scheduled',
+      exitInterviewStatus: 'Completed',
       clearance: {
-        admin: 'Pending',
+        admin: 'Approved',
         it: 'Approved',
         accounts: 'Pending',
-        hr: 'Pending',
+        hr: 'Approved',
       },
       fnfStatus: 'Pending',
     },
@@ -138,6 +179,7 @@ class JsonDb {
     this.cache = new Map();
     this.ensureDir();
     this.initSeed();
+    this.initPostgres();
   }
 
   ensureDir() {
@@ -156,9 +198,30 @@ class JsonDb {
       if (!fs.existsSync(file)) {
         this.writeSync(collection, data);
       } else {
-        // Read into memory cache
         this.readSync(collection);
       }
+    }
+  }
+
+  async initPostgres() {
+    try {
+      await postgres.initPromise;
+      if (postgres.isConnected()) {
+        await postgres.seedIfEmpty(SEED_DATA);
+
+        // Preload live tables from PostgreSQL
+        const tables = ['employees', 'attendance', 'leaves', 'attendance_corrections', 'documents', 'users'];
+        for (const t of tables) {
+          const rows = await postgres.loadFromDb(t);
+          if (Array.isArray(rows) && rows.length > 0) {
+            this.cache.set(t, rows);
+            this.writeSync(t, rows);
+          }
+        }
+        console.log('⚡ [PostgreSQL] In-memory cache synchronized with live PostgreSQL database.');
+      }
+    } catch (e) {
+      console.warn('[PostgreSQL Init Sync Notice]:', e.message);
     }
   }
 
@@ -220,6 +283,7 @@ class JsonDb {
     if (Array.isArray(all)) {
       const updated = [item, ...all];
       this.set(collection, updated);
+      postgres.persistItem(collection, item);
       return item;
     }
     return item;
@@ -238,6 +302,7 @@ class JsonDb {
     });
     if (found) {
       this.set(collection, updated);
+      postgres.persistItem(collection, found);
     }
     return found;
   }
