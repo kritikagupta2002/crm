@@ -14,3 +14,4 @@ router.get('/leave', authenticate, settingsController.getLeave);
 router.put('/leave', authenticate, requireHr, settingsController.updateLeave);
 
 export default router;
+

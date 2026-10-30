@@ -57,12 +57,14 @@ export const INITIAL_SHIFTS = [
     }
 ];
 export const INITIAL_SHIFT_ASSIGNMENTS = [
-    { id: 'sa-1', employeeId: 'BGS-001', employeeName: 'Dr. Amit Kumar Bansal', department: 'Geology & Mineral Exploration', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
-    { id: 'sa-2', employeeId: 'BGS-002', employeeName: 'Chhavi Bansal', department: 'Finance & Mineral Economics', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
-    { id: 'sa-3', employeeId: 'BGS-003', employeeName: 'Rajesh Sharma', department: 'Mining & Mine Planning', shiftId: 'sh-2', shiftName: 'Mining Site Morning Shift', effectiveFrom: '2026-08-01', weeklyOff: 'Sunday', status: 'Active' },
-    { id: 'sa-4', employeeId: 'BGS-004', employeeName: 'Kritika Gupta', department: 'Human Resources & Admin', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
-    { id: 'sa-5', employeeId: 'BGS-005', employeeName: 'Vikramaditya Rathore', department: 'GIS, Remote Sensing & UAV', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
-    { id: 'sa-6', employeeId: 'BGS-006', employeeName: 'Rohan Deshmukh', department: 'Geology & Mineral Exploration', shiftId: 'sh-2', shiftName: 'Mining Site Morning Shift', effectiveFrom: '2026-08-01', weeklyOff: 'Sunday', status: 'Active' },
-    { id: 'sa-7', employeeId: 'BGS-007', employeeName: 'Ravi Gurjar', department: 'GIS, Remote Sensing & UAV', shiftId: 'sh-4', shiftName: 'Field Survey & Drone Flight Shift', effectiveFrom: '2026-08-15', weeklyOff: 'Rotational (1 day / week)', status: 'Active' },
-    { id: 'sa-8', employeeId: 'BGS-008', employeeName: 'Dr. Sunita Meena', department: 'Hydrogeology & Groundwater', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
+    { id: 'sa-1', employeeId: 'BGS/DIR-01', employeeName: 'Dr. Amit Kumar Bansal', department: 'Mineral Exploration', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
+    { id: 'sa-2', employeeId: 'BGS/ADM-01', employeeName: 'Kritika Gupta', department: 'HR & Administration', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
+    { id: 'sa-3', employeeId: 'BGS/DIR-03', employeeName: 'Dharmendra Goyal', department: 'Mineral Exploration', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
+    { id: 'sa-4', employeeId: 'BGS/01', employeeName: 'Inder Nogiya', department: 'Mining & Survey', shiftId: 'sh-4', shiftName: 'Field Survey & Drone Flight Shift', effectiveFrom: '2026-01-01', weeklyOff: 'Sunday', status: 'Active' },
+    { id: 'sa-5', employeeId: 'BGS/04', employeeName: 'Vikas Verma', department: 'Mining & Survey', shiftId: 'sh-2', shiftName: 'Mining Site Morning Shift', effectiveFrom: '2026-01-01', weeklyOff: 'Sunday', status: 'Active' },
+    { id: 'sa-6', employeeId: 'BGS/05', employeeName: 'Kuldip Singh', department: 'Mining & Survey', shiftId: 'sh-2', shiftName: 'Mining Site Morning Shift', effectiveFrom: '2026-01-01', weeklyOff: 'Sunday', status: 'Active' },
+    { id: 'sa-7', employeeId: 'BGS/09', employeeName: 'Balveer Singh Yadav', department: 'Mineral Exploration', shiftId: 'sh-4', shiftName: 'Field Survey & Drone Flight Shift', effectiveFrom: '2026-01-01', weeklyOff: 'Sunday', status: 'Active' },
+    { id: 'sa-8', employeeId: 'BGS/10', employeeName: 'Vishal Kumawat', department: 'Mineral Exploration', shiftId: 'sh-4', shiftName: 'Field Survey & Drone Flight Shift', effectiveFrom: '2026-01-01', weeklyOff: 'Sunday', status: 'Active' },
+    { id: 'sa-9', employeeId: 'BGS/11', employeeName: 'Pradeep Chand', department: 'Mineral Exploration', shiftId: 'sh-2', shiftName: 'Mining Site Morning Shift', effectiveFrom: '2026-01-01', weeklyOff: 'Sunday', status: 'Active' },
+    { id: 'sa-10', employeeId: 'BGS/12', employeeName: 'Madhurika Saini', department: 'Mineral Exploration', shiftId: 'sh-1', shiftName: 'General Corporate Shift (HQ)', effectiveFrom: '2026-01-01', weeklyOff: 'Saturday & Sunday', status: 'Active' },
 ];

@@ -60,3 +60,4 @@ export const authController = {
     res.json({ success: true, message: 'Signed out successfully.' });
   },
 };
+

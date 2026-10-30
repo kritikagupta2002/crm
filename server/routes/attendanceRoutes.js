@@ -15,3 +15,4 @@ router.post('/corrections', authenticate, attendanceController.submitCorrection)
 router.put('/corrections/:id', authenticate, requireHr, attendanceController.reviewCorrection);
 
 export default router;
+

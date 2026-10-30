@@ -102,12 +102,12 @@ export const OLD_ROLES = {
   'Accounts Executive': 'Manager',
 }
 
-/* Demo personnel for roles */
+/* Real company personnel for roles */
 export const ROLE_USERS = {
-  'Super Admin': { name: 'Kritika Gupta', title: 'HR Admin' },
-  Director: { name: 'Dr. Sunita Meena', title: 'Director' },
-  Manager: { name: 'Kavita Rawat', title: 'Operations Manager' },
-  Employee: { name: 'Ravi Gurjar', title: 'Drone Operator' },
+  'Super Admin': { name: 'Kritika Gupta', title: 'HR & Operations Lead', email: 'kritika.gupta@bansalgeo.com' },
+  Director: { name: 'Dharmendra Goyal', title: 'Executive Director', email: 'dharmendra.goyal@bansalgeo.com' },
+  Manager: { name: 'Inder Nogiya', title: 'Manager (Survey)', email: 'inder.nogiya@bansalgeo.com' },
+  Employee: { name: 'Vikas Verma', title: 'Surveyor', email: 'vikas.verma@bansalgeo.com' },
 }
 
 export const initialsOf = (name) =>

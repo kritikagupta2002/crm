@@ -25,33 +25,41 @@ const SEED_DATA = {
       id: 'usr-1',
       name: 'Kritika Gupta',
       email: 'kritika.gupta@bansalgeo.com',
-      password: 'demo', // Plain demo password; will match any demo login or 'demo'
+      password: 'demo',
       role: 'Super Admin',
-      employeeId: 'BGS-002',
+      employeeId: 'BGS/ADM-01',
     },
     {
       id: 'usr-2',
-      name: 'Dr. Sunita Meena',
-      email: 'sunita.meena@bansalgeo.com',
+      name: 'Dharmendra Goyal',
+      email: 'dharmendra.goyal@bansalgeo.com',
       password: 'demo',
       role: 'Director',
-      employeeId: 'BGS-003',
+      employeeId: 'BGS/DIR-03',
     },
     {
       id: 'usr-3',
-      name: 'Kavita Rawat',
-      email: 'kavita.rawat@bansalgeo.com',
+      name: 'Inder Nogiya',
+      email: 'inder.nogiya@bansalgeo.com',
       password: 'demo',
       role: 'Manager',
-      employeeId: 'BGS-005',
+      employeeId: 'BGS/01',
     },
     {
       id: 'usr-4',
-      name: 'Ravi Gurjar',
-      email: 'ravi.gurjar@bansalgeo.com',
+      name: 'Vikas Verma',
+      email: 'vikas.verma@bansalgeo.com',
       password: 'demo',
       role: 'Employee',
-      employeeId: 'BGS-008',
+      employeeId: 'BGS/04',
+    },
+    {
+      id: 'usr-5',
+      name: 'Dr. Amit Kumar Bansal',
+      email: 'amit.bansal@bansalgeo.com',
+      password: 'demo',
+      role: 'Director',
+      employeeId: 'BGS/DIR-01',
     },
   ],
   employees: INITIAL_EMPLOYEES,
@@ -247,3 +255,4 @@ class JsonDb {
 }
 
 export const db = new JsonDb();
+

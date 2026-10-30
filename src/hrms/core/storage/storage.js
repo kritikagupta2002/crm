@@ -255,24 +255,19 @@ function normalizeAndSyncAttendance(rawList) {
 export const storage = {
     getEmployees: () => {
         let list = getItem(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES);
+        // Automatically sync real company employees if storage has legacy mock data
+        if (!list || !Array.isArray(list) || !list.some((e) => e.employeeId === 'BGS/DIR-01')) {
+            list = INITIAL_EMPLOYEES;
+            setItem(STORAGE_KEYS.EMPLOYEES, list);
+            return list;
+        }
         let changed = false;
         const added = getItem(STORAGE_KEYS.SEED_ADDED, []);
-        const missing = INITIAL_EMPLOYEES.filter((e) => SEED_ADDITIONS.includes(e.id) && !added.includes(e.id) && !list.some((x) => x.id === e.id || x.name === e.name));
+        const missing = INITIAL_EMPLOYEES.filter((e) => !list.some((x) => x.employeeId === e.employeeId || x.name === e.name));
         if (missing.length) {
             list = [...list, ...missing];
-            setItem(STORAGE_KEYS.SEED_ADDED, [...added, ...missing.map((e) => e.id)]);
             changed = true;
         }
-        list = list.map((emp) => {
-            if (emp.id === 'emp-019' && (!emp.contact?.workEmail || !emp.employment?.joiningDate)) {
-                const seedPooja = INITIAL_EMPLOYEES.find((e) => e.id === 'emp-019');
-                if (seedPooja) {
-                    changed = true;
-                    return { ...seedPooja, ...emp, contact: { ...seedPooja.contact, ...emp.contact }, employment: { ...seedPooja.employment, ...emp.employment } };
-                }
-            }
-            return emp;
-        });
         if (changed) {
             setItem(STORAGE_KEYS.EMPLOYEES, list);
         }

@@ -10,3 +10,4 @@ router.get('/assignments', authenticate, shiftController.getAssignments);
 router.post('/assignments', authenticate, requireHr, shiftController.assign);
 
 export default router;
+

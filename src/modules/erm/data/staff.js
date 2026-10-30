@@ -1,27 +1,26 @@
 /*
- * The project side of the team (the CRM's TEAM in mockData is the sales team).
- * Team leads are matched to the service line they lead; field members carry their field skills.
+ * Bansal Geo Solutions - Core Team & Field Personnel
+ * Generated from official company records
  */
 export const COORDINATORS = [
-  { name: 'A. Singh', title: 'Project Coordinator' },
-  { name: 'N. Rathore', title: 'Project Coordinator' },
+  { name: 'Kritika Gupta', title: 'HR & Operations Lead', phone: '9829011223' },
+  { name: 'Inder Nogiya', title: 'Manager (Survey)', phone: '9785589075' },
 ]
 
 export const TEAM_LEADS = [
-  { name: 'Dr. Sunita Meena', title: 'Senior Geologist', services: ['Mineral Exploration & Resources', 'Mineral Economics & Valuation'] },
-  { name: 'R. Bhati', title: 'Hydrogeologist', services: ['Hydrogeology & Groundwater', 'Geotechnical Services'] },
-  { name: 'S. Choudhary', title: 'Mining Engineer', services: ['Mine Planning & Prefeasibility Study', 'Remote Sensing, GIS & Aerial Mapping'] },
-  { name: 'M. Khan', title: 'Environment Specialist', services: ['Environment, Community & Permitting'] },
+  { name: 'Dr. Amit Kumar Bansal', title: 'Managing Director & Chief Geologist', services: ['Mineral Exploration & Resources', 'Mineral Economics & Valuation'] },
+  { name: 'Dharmendra Goyal', title: 'Executive Director', services: ['Mineral Exploration', 'Mine Planning & Prefeasibility Study'] },
+  { name: 'Inder Nogiya', title: 'Manager (Survey)', services: ['Mining & Survey', 'Remote Sensing, GIS & Aerial Mapping'] },
 ]
 
-/* phone: for task messages on WhatsApp (demo numbers). */
+/* Real company field members & technical staff */
 export const FIELD_MEMBERS = [
-  { name: 'Ajay Kumar', title: 'Field Geologist', skills: 'Mapping, sampling', phone: '9829022101' },
-  { name: 'Deepak Soni', title: 'Surveyor', skills: 'DGPS, total station', phone: '9829022102' },
-  { name: 'Ravi Gurjar', title: 'Drone Operator', skills: 'Aerial survey, GIS', phone: '9829022103' },
-  { name: 'Imran Ali', title: 'Field Technician', skills: 'Drilling logs, core sampling', phone: '9829022104' },
-  { name: 'Sunil Yadav', title: 'Field Technician', skills: 'Water level, pumping tests', phone: '9829022105' },
-  { name: 'Pooja Meena', title: 'Environment Surveyor', skills: 'Air, water & noise monitoring', phone: '9829022106' },
+  { name: 'Vikas Verma', title: 'Surveyor', department: 'Mining & Survey', email: 'vikas.verma@bansalgeo.com', phone: '7665252839', id: 'BGS/04' },
+  { name: 'Kuldip Singh', title: 'Field Supervisor', department: 'Mining & Survey', email: 'kuldip.singh@bansalgeo.com', phone: '9785990998', id: 'BGS/05' },
+  { name: 'Balveer Singh Yadav', title: 'Jr. Geologist', department: 'Mineral Exploration', email: 'balveer.singh@bansalgeo.com', phone: '9784867411', id: 'BGS/09' },
+  { name: 'Vishal Kumawat', title: 'Sr. Surveyor', department: 'Mineral Exploration', email: 'vishal.kumawat@bansalgeo.com', phone: '9166774427', id: 'BGS/10' },
+  { name: 'Pradeep Chand', title: 'Intern (Surveyor)', department: 'Mineral Exploration', email: 'pradeep.chand@bansalgeo.com', phone: '6378170930', id: 'BGS/11' },
+  { name: 'Madhurika Saini', title: 'Sr. GIS Analyst', department: 'Mineral Exploration', email: 'madhurikasaini@bansalgeo.com', phone: '9351349467', id: 'BGS/12' },
 ]
 
 export const teamLeadFor = (service, n) => {

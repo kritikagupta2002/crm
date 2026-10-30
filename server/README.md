@@ -206,3 +206,4 @@ To add real data to your system, you can choose any of the following methods:
 3. **Connecting a Production Database (MongoDB / PostgreSQL / MySQL)**:
    - The database layer is isolated in `server/services/db.js`.
    - Replace the file read/write methods in `server/services/db.js` with your preferred ORM (e.g., Mongoose, Prisma, or Sequelize) without changing any controller or route logic!
+

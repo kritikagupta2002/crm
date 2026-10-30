@@ -10,3 +10,4 @@ router.put('/read-all', authenticate, notificationController.markAllRead);
 router.delete('/:id', authenticate, notificationController.delete);
 
 export default router;
+

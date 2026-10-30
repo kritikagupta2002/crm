@@ -11,3 +11,4 @@ router.post('/designations', authenticate, requireHr, organizationController.cre
 router.get('/chart', authenticate, organizationController.getOrgChart);
 
 export default router;
+

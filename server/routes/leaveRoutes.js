@@ -11,3 +11,4 @@ router.post('/requests', authenticate, leaveController.apply);
 router.put('/requests/:id/status', authenticate, requireHr, leaveController.review);
 
 export default router;
+

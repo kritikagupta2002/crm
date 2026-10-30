@@ -18,3 +18,4 @@ router.put('/:id', authenticate, requireHr, employeeController.update);
 router.delete('/:id', authenticate, requireHr, employeeController.delete);
 
 export default router;
+

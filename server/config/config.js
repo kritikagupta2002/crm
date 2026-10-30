@@ -11,3 +11,4 @@ export const config = {
   dataDir: path.join(__dirname, '..', 'data'),
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
 };
+

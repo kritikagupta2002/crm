@@ -29,3 +29,4 @@ api.use('/notifications', notificationRoutes);
 api.use('/settings', settingsRoutes);
 
 export default api;
+
