@@ -236,14 +236,14 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
 
           <View style={styles.metaRow}>
             <View style={styles.metaCol}>
-              <MapPin size={12} color="#64748b" style={{ marginRight: 4 }} />
+              <MapPin size={12} color="#627079" style={{ marginRight: 4 }} />
               <Text style={styles.metaText} numberOfLines={1}>
                 {item.address.city}, {item.address.state}
               </Text>
             </View>
             <View style={styles.metaDivider} />
             <View style={styles.metaCol}>
-              <UserCheck size={12} color="#0f766e" style={{ marginRight: 4 }} />
+              <UserCheck size={12} color="#0e4a52" style={{ marginRight: 4 }} />
               <Text style={styles.metaText} numberOfLines={1}>
                 {item.contact.name} ({item.contact.mobile})
               </Text>
@@ -253,16 +253,16 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
           <View style={styles.complianceSummaryRow}>
             <View style={[styles.compliancePill, allPassed ? styles.pillGreen : styles.pillAmber]}>
               {allPassed ? (
-                <CheckCircle2 size={13} color="#15803d" />
+                <CheckCircle2 size={13} color="#237a53" />
               ) : (
-                <AlertCircle size={13} color="#b45309" />
+                <AlertCircle size={13} color="#9a5f0c" />
               )}
               <Text style={[styles.compliancePillText, allPassed ? styles.pillTextGreen : styles.pillTextAmber]}>
                 {passed} of {total} Automated Checks Passed
               </Text>
             </View>
             <View style={styles.arrowCircle}>
-              <ChevronRight size={15} color="#2563eb" strokeWidth={2.4} />
+              <ChevronRight size={15} color="#2f6fb3" strokeWidth={2.4} />
             </View>
           </View>
         </Card>
@@ -277,7 +277,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
       header={
         <AppHeader
           title="Vendor Applications"
-          subtitle="Statutory Verification & Empanelment"
+          subtitle="Check and approve new vendors"
           showBack
           onBack={() => navigation.goBack()}
         />
@@ -285,17 +285,17 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
     >
       <View style={styles.topControl}>
         <View style={styles.searchBar}>
-          <Search size={17} color="#64748b" style={{ marginRight: 8 }} />
+          <Search size={17} color="#627079" style={{ marginRight: 8 }} />
           <TextInput
             placeholder="Search vendor name, PAN, GSTIN, city..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor="#7c8b96"
             value={search}
             onChangeText={setSearch}
             style={styles.searchInput}
           />
           {search ? (
             <TouchableOpacity onPress={() => setSearch('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <X size={16} color="#64748b" />
+              <X size={16} color="#627079" />
             </TouchableOpacity>
           ) : null}
         </View>
@@ -341,7 +341,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
-                    <FileCheck2 size={16} color="#0284c7" strokeWidth={2.4} />
+                    <FileCheck2 size={16} color="#2f6fb3" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeTotal}>
                     <Text style={styles.kpiBadgeTextTotal}>KYC Dossiers</Text>
@@ -349,7 +349,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>{vendorApplications.length}</Text>
-                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2f6fb3" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Total Applications</Text>
                 <Text style={styles.kpiSubText}>Empanelment submissions</Text>
@@ -358,15 +358,15 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
-                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                    <Clock size={16} color="#b07d27" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePending}>
                     <Text style={styles.kpiBadgeTextPending}>Action Req</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>{newCount}</Text>
-                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                  <Text style={[styles.kpiValText, { color: '#b07d27' }]}>{newCount}</Text>
+                  <ArrowUpRight size={15} color="#b07d27" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Pending Review</Text>
                 <Text style={styles.kpiSubText}>Fresh onboarding dossiers</Text>
@@ -377,7 +377,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
-                    <RotateCcw size={16} color="#7c3aed" strokeWidth={2.4} />
+                    <RotateCcw size={16} color="#3d5a6c" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeActive}>
                     <Text style={styles.kpiBadgeTextActive}>Deficiencies</Text>
@@ -385,7 +385,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>{changesCount}</Text>
-                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#3d5a6c" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Changes Requested</Text>
                 <Text style={styles.kpiSubText}>Doc corrections resubmission</Text>
@@ -394,17 +394,17 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
-                    <CheckCircle2 size={16} color="#16a34a" strokeWidth={2.4} />
+                    <CheckCircle2 size={16} color="#2e9e6b" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePaid}>
                     <Text style={styles.kpiBadgeTextPaid}>Approved</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
-                    {approvedCount || vendors.length || 8}
+                  <Text style={[styles.kpiValText, { color: '#2e9e6b' }]}>
+                    {approvedCount || vendors.length}
                   </Text>
-                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2e9e6b" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Empanelled Vendors</Text>
                 <Text style={styles.kpiSubText}>Cleared for rig tenders & POs</Text>
@@ -430,7 +430,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   <Text style={styles.sheetTitle}>{selectedApp.firm.name}</Text>
                 </View>
                 <TouchableOpacity onPress={() => setSelectedApp(null)} style={styles.closeBtn}>
-                  <X size={20} color="#0f172a" />
+                  <X size={20} color="#0f2a3d" />
                 </TouchableOpacity>
               </View>
 
@@ -440,9 +440,9 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   {checksForSelected.map((chk, i) => (
                     <View key={i} style={styles.checkLine}>
                       {chk.ok ? (
-                        <CheckCircle2 size={16} color="#15803d" />
+                        <CheckCircle2 size={16} color="#237a53" />
                       ) : (
-                        <AlertCircle size={16} color="#dc2626" />
+                        <AlertCircle size={16} color="#d24c47" />
                       )}
                       <Text style={[styles.checkText, !chk.ok && styles.checkTextFail]}>
                         {chk.label}
@@ -452,7 +452,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                 </Card>
 
                 <Card style={styles.infoCard}>
-                  <Text style={styles.subHeading}>Enterprise Particulars</Text>
+                  <Text style={styles.subHeading}>Firm details</Text>
                   <View style={styles.detailRow}>
                     <Text style={styles.dLabel}>Company Type</Text>
                     <Text style={styles.dVal}>{selectedApp.firm.companyType}</Text>
@@ -519,7 +519,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   <Text style={styles.subHeading}>Submitted Documents ({selectedApp.documents?.length || 0})</Text>
                   {selectedApp.documents?.map((d) => (
                     <View key={d.id} style={styles.docRow}>
-                      <FileText size={16} color="#0d9488" />
+                      <FileText size={16} color="#1f6f78" />
                       <Text style={styles.docNameText} numberOfLines={1}>
                         {d.name} ({d.kind})
                       </Text>
@@ -603,7 +603,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   <TextInput
                     style={styles.modalTextInput}
                     placeholder="e.g. Please attach clear copy of cancelled cheque showing account holder name..."
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor="#7c8b96"
                     multiline
                     numberOfLines={3}
                     value={decisionNote}
@@ -631,7 +631,7 @@ export const VendorApplicationsScreen: React.FC<VendorApplicationsScreenProps> =
                   <TextInput
                     style={[styles.modalTextInput, { marginTop: 10 }]}
                     placeholder="Optional rejection commentary..."
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor="#7c8b96"
                     value={decisionNote}
                     onChangeText={setDecisionNote}
                   />
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   searchBar: {
     flexDirection: 'row',
@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     height: 42,
     marginBottom: 8,
   },
@@ -685,7 +685,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontSize: 13.5,
-    color: '#0f172a',
+    color: '#0f2a3d',
     paddingVertical: 0,
   },
   tabsList: {
@@ -698,15 +698,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#ffffff',
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   tabChipSelected: {
-    backgroundColor: '#0d9488',
-    borderColor: '#0d9488',
+    backgroundColor: '#1f6f78',
+    borderColor: '#1f6f78',
   },
   tabChipText: {
     fontSize: 13,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
   },
   tabChipTextSelected: {
@@ -727,7 +727,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1.2,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -736,20 +736,20 @@ const styles = StyleSheet.create({
     minHeight: 124,
   },
   kpiCardTotal: {
-    backgroundColor: '#f8fbff',
-    borderColor: '#dbeafe',
+    backgroundColor: '#f2f6fb',
+    borderColor: '#e6effa',
   },
   kpiCardPending: {
-    backgroundColor: '#fffaf5',
-    borderColor: '#fed7aa',
+    backgroundColor: '#fbf6ec',
+    borderColor: '#ecd6ae',
   },
   kpiCardPaid: {
-    backgroundColor: '#f5fdfb',
-    borderColor: '#ccfbf1',
+    backgroundColor: '#eef7f7',
+    borderColor: '#ddefef',
   },
   kpiCardActive: {
-    backgroundColor: '#faf7ff',
-    borderColor: '#f3e8ff',
+    backgroundColor: '#f1f5f7',
+    borderColor: '#e8eef1',
   },
   kpiHeaderRow: {
     flexDirection: 'row',
@@ -765,60 +765,60 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   kpiIconBoxTotal: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
   },
   kpiIconBoxPending: {
-    backgroundColor: '#fff7ed',
+    backgroundColor: '#f7ebd5',
   },
   kpiIconBoxPaid: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
   },
   kpiIconBoxActive: {
-    backgroundColor: '#f5f3ff',
+    backgroundColor: '#f1f5f7',
   },
   kpiBadgeTotal: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextTotal: {
-    color: '#0284c7',
+    color: '#2f6fb3',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePending: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPending: {
-    color: '#ea580c',
+    color: '#b07d27',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePaid: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPaid: {
-    color: '#16a34a',
+    color: '#2e9e6b',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgeActive: {
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e8eef1',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextActive: {
-    color: '#7c3aed',
+    color: '#3d5a6c',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiNumberRow: {
     flexDirection: 'row',
@@ -827,21 +827,21 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   kpiValText: {
+    fontFamily: 'Fraunces_700Bold',
     fontSize: 27,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.6,
   },
   kpiTitleText: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
     marginBottom: 2,
   },
   kpiSubText: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
 
@@ -856,7 +856,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 16,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     borderRadius: 18,
     ...shadows.xs,
   },
@@ -872,27 +872,27 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   appIdBadge: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#dbeafe',
+    borderColor: '#e6effa',
   },
   appId: {
     fontSize: 12.5,
-    fontWeight: '800',
-    color: '#1d4ed8',
+    fontWeight: '700',
+    color: '#245a93',
   },
   submittedDate: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
   firmName: {
     fontSize: 18.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginBottom: 6,
     letterSpacing: -0.3,
   },
@@ -903,9 +903,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   categoryChip: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     paddingHorizontal: 9,
     paddingVertical: 3.5,
     borderRadius: 6,
@@ -913,17 +913,17 @@ const styles = StyleSheet.create({
   categoryChipText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#334155',
+    color: '#34495a',
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#edf1f3',
   },
   metaCol: {
     flex: 1,
@@ -933,12 +933,12 @@ const styles = StyleSheet.create({
   metaDivider: {
     width: 1,
     height: 18,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     marginHorizontal: 8,
   },
   metaText: {
     fontSize: 13,
-    color: '#334155',
+    color: '#34495a',
     fontWeight: '600',
     flex: 1,
   },
@@ -959,26 +959,26 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   pillGreen: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
   },
   pillAmber: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
   },
   compliancePillText: {
     fontSize: 13,
     fontWeight: '700',
   },
   pillTextGreen: {
-    color: '#15803d',
+    color: '#237a53',
   },
   pillTextAmber: {
-    color: '#b45309',
+    color: '#9a5f0c',
   },
   arrowCircle: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1000,18 +1000,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   sheetAppId: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#0d9488',
+    fontWeight: '700',
+    color: '#1f6f78',
     textTransform: 'uppercase',
   },
   sheetTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginTop: 2,
   },
   closeBtn: {
@@ -1026,13 +1026,13 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#ffffff',
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     borderRadius: 16,
   },
   checksTitle: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -1043,29 +1043,29 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 7,
     borderBottomWidth: 1,
-    borderBottomColor: '#f8fafc',
+    borderBottomColor: '#f4f7f8',
   },
   checkText: {
     fontSize: 13,
-    color: '#334155',
+    color: '#34495a',
     fontWeight: '500',
     flex: 1,
   },
   checkTextFail: {
-    color: '#dc2626',
+    color: '#d24c47',
     fontWeight: '600',
   },
   infoCard: {
     padding: 16,
     backgroundColor: '#ffffff',
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     borderRadius: 16,
   },
   subHeading: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginBottom: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -1075,18 +1075,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 7,
     borderBottomWidth: 1,
-    borderBottomColor: '#f8fafc',
+    borderBottomColor: '#f4f7f8',
   },
   dLabel: {
     fontSize: 12.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     flex: 1,
   },
   dVal: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
     flex: 1.2,
     textAlign: 'right',
   },
@@ -1096,11 +1096,11 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#f8fafc',
+    borderBottomColor: '#f4f7f8',
   },
   docNameText: {
     fontSize: 12.5,
-    color: '#0f172a',
+    color: '#0f2a3d',
     fontWeight: '600',
   },
   actionSheetRow: {
@@ -1125,20 +1125,20 @@ const styles = StyleSheet.create({
   },
   decisionTitle: {
     fontSize: 17,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginBottom: 10,
   },
   decisionDesc: {
     fontSize: 13,
-    color: '#64748b',
+    color: '#627079',
     lineHeight: 18,
     marginBottom: 14,
   },
   inputLabel: {
     fontSize: 11,
-    fontWeight: '800',
-    color: '#475569',
+    fontWeight: '700',
+    color: '#4a5b68',
     letterSpacing: 0.5,
     marginBottom: 8,
   },
@@ -1150,20 +1150,20 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
-    backgroundColor: '#f8fafc',
+    borderColor: '#e1e8eb',
+    backgroundColor: '#f4f7f8',
   },
   tdsChipActive: {
-    borderColor: '#0d9488',
-    backgroundColor: '#f0fdfa',
+    borderColor: '#1f6f78',
+    backgroundColor: '#eef7f7',
   },
   tdsChipText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: '#4a5b68',
   },
   tdsChipTextActive: {
-    color: '#0d9488',
+    color: '#1f6f78',
     fontWeight: '700',
   },
   inputSection: {
@@ -1174,12 +1174,12 @@ const styles = StyleSheet.create({
   },
   modalTextInput: {
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     borderRadius: 12,
     padding: 12,
     fontSize: 13,
-    color: '#0f172a',
-    backgroundColor: '#f8fafc',
+    color: '#0f2a3d',
+    backgroundColor: '#f4f7f8',
     minHeight: 70,
     textAlignVertical: 'top',
   },
@@ -1195,15 +1195,15 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 2,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
   },
   radioDotActive: {
-    borderColor: '#dc2626',
-    backgroundColor: '#dc2626',
+    borderColor: '#d24c47',
+    backgroundColor: '#d24c47',
   },
   radioLabel: {
     fontSize: 13,
-    color: '#334155',
+    color: '#34495a',
     fontWeight: '500',
   },
   decisionBtnRow: {

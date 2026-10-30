@@ -28,7 +28,7 @@ export const LeaveHeader: React.FC<LeaveHeaderProps> = ({
     <>
       <AppHeader
         title="Leave Management"
-        subtitle="Quotas, working day engine & history"
+        subtitle="Balance, requests and history"
         showBack
         onBack={onBack}
         rightAction={

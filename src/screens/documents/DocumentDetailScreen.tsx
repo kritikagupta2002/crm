@@ -120,8 +120,8 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
   const handleVerify = async () => {
     if (blockedReason) {
       Alert.alert(
-        'Four-Eyes Principle Security Guard',
-        'Compliance Rule: The employee who uploaded or filed this scan cannot verify it. Another authorized officer or director must perform physical verification.'
+        'You cannot verify this',
+        'You filed this scan, so someone else must check it against the paper original.'
       );
       return;
     }
@@ -405,7 +405,7 @@ export const DocumentDetailScreen: React.FC<{ navigation: any; route: any }> = (
                 <View style={styles.fourEyesBlockBox}>
                   <ShieldAlert size={24} color={colors.semantic.danger} />
                   <View style={styles.fourEyesBlockTextWrap}>
-                    <Text style={styles.fourEyesBlockTitle}>4-Eyes Principle Violation Guard</Text>
+                    <Text style={styles.fourEyesBlockTitle}>You cannot verify this</Text>
                     <Text style={styles.fourEyesBlockDesc}>{blockedReason}</Text>
                   </View>
                 </View>

@@ -54,7 +54,7 @@ export const EmployeeDocumentsTab: React.FC<EmployeeDocumentsTabProps> = ({
                 <View key={doc.id} style={styles.docRowCard}>
                   <View style={styles.docRowIconWrap}>
                     {isLicense ? (
-                      <Award size={20} color="#4F46E5" />
+                      <Award size={20} color="#3d5a6c" />
                     ) : (
                       <FileText size={20} color={colors.primary} />
                     )}

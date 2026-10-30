@@ -255,10 +255,10 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
           <View style={styles.vaultNoticeCard}>
             <View style={styles.vaultNoticeHeader}>
               <Lock size={17} color={vendorTheme.colors.amberDark} />
-              <Text style={styles.vaultNoticeTitle}>Escrow Dual-Key Vault Protection</Text>
+              <Text style={styles.vaultNoticeTitle}>Your bid stays sealed</Text>
             </View>
             <Text style={styles.vaultNoticeText}>
-              Your submitted commercial quotations are encrypted. In compliance with strict fair-procurement rules, competitor bids and rankings remain confidential until the official opening date.
+              Your bid stays sealed until bidding closes, and you can revise it till then. Other vendors' bids are not shown.
             </Text>
           </View>
 
@@ -293,7 +293,7 @@ export const VendorWorkTab: React.FC<VendorWorkTabProps> = ({
                       <Text
                         style={isWithdrawn ? styles.statusWithdrawnText : styles.statusSealedText}
                       >
-                        {isWithdrawn ? 'Withdrawn' : bid.status || 'Sealed in Escrow'}
+                        {isWithdrawn ? 'Withdrawn' : bid.status || 'Sealed'}
                       </Text>
                     </View>
                   </View>
@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   },
   subNavBar: {
     flexDirection: 'row',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: vendorTheme.radius.lg,
     padding: 4,
     marginBottom: 16,
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
   },
   subNavTextActive: {
     color: vendorTheme.colors.navy,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   sectionBody: {
     gap: 14,
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 10,
   },
@@ -582,14 +582,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   woNumberBadge: {
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#e8eef1',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   woNumberText: {
     fontSize: 12.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   woProjectCode: {
@@ -604,22 +604,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   stageIssued: {
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#e8eef1',
   },
   stageStarted: {
-    backgroundColor: '#ccfbf1',
+    backgroundColor: '#ddefef',
   },
   stageDelivered: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
   },
   stagePillText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   woProjectTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginBottom: 4,
   },
@@ -637,7 +637,7 @@ const styles = StyleSheet.create({
   },
   lifecycleTitle: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textMuted,
     letterSpacing: 0.6,
     marginBottom: 8,
@@ -655,7 +655,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#cbd5e1',
+    backgroundColor: '#d3dce1',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
@@ -666,11 +666,11 @@ const styles = StyleSheet.create({
   stepDotCurrent: {
     backgroundColor: vendorTheme.colors.navy,
     borderWidth: 2,
-    borderColor: '#93c5fd',
+    borderColor: '#a9c6e6',
   },
   stepDotNum: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   stepDotNumCurrent: {
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
   },
   stepTextCurrent: {
     color: vendorTheme.colors.navy,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   stepTextDone: {
     color: vendorTheme.colors.emerald,
@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
   finStrip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
@@ -710,13 +710,13 @@ const styles = StyleSheet.create({
   },
   finLabel: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textMuted,
     textTransform: 'uppercase',
   },
   finVal: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 2,
   },
@@ -735,7 +735,7 @@ const styles = StyleSheet.create({
   },
   primaryActionBtnText: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   detailsBtn: {
@@ -754,11 +754,11 @@ const styles = StyleSheet.create({
     color: vendorTheme.colors.navy,
   },
   vaultNoticeCard: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
     borderRadius: vendorTheme.radius.lg,
     padding: 14,
     borderWidth: 1.5,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
   },
   vaultNoticeHeader: {
     flexDirection: 'row',
@@ -768,12 +768,12 @@ const styles = StyleSheet.create({
   },
   vaultNoticeTitle: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.amberDark,
   },
   vaultNoticeText: {
     fontSize: 12,
-    color: '#92400e',
+    color: '#9a5f0c',
     lineHeight: 17,
   },
   bidCard: {
@@ -791,14 +791,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   bidRefBox: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   bidRefText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   bidStatusBadge: {
@@ -812,24 +812,24 @@ const styles = StyleSheet.create({
   statusSealed: {
     backgroundColor: vendorTheme.colors.tealSubtle,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
   },
   statusSealedText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.tealDark,
   },
   statusWithdrawn: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
   },
   statusWithdrawnText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.crimson,
   },
   bidTenderTitle: {
     fontSize: 15.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginBottom: 3,
   },
@@ -852,12 +852,12 @@ const styles = StyleSheet.create({
   },
   bidDetailLabel: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textMuted,
   },
   bidDetailVal: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 2,
   },
@@ -873,11 +873,11 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 6,
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fbe5e4',
   },
   withdrawBtnText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.crimson,
   },
   viewTenderBtn: {
@@ -907,23 +907,23 @@ const styles = StyleSheet.create({
   },
   billingWoCode: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   billingStageBadge: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
     paddingHorizontal: 9,
     paddingVertical: 3,
     borderRadius: 12,
   },
   billingStageText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.amberDark,
   },
   billingProjectTitle: {
     fontSize: 15.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginBottom: 10,
   },
@@ -939,11 +939,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     padding: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: '#ddefef',
     marginBottom: 12,
   },
   existingBillLeft: {
@@ -952,7 +952,7 @@ const styles = StyleSheet.create({
   },
   existingBillNo: {
     fontSize: 12.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.tealDark,
   },
   existingBillDate: {
@@ -961,7 +961,7 @@ const styles = StyleSheet.create({
   },
   existingBillAmount: {
     fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
   },
   paidVoucherCard: {
@@ -979,15 +979,15 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   voucherBadge: {
-    backgroundColor: '#d1fae5',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   voucherBadgeText: {
     fontSize: 11,
-    fontWeight: '800',
-    color: '#065f46',
+    fontWeight: '700',
+    color: '#1d6646',
   },
   voucherDate: {
     fontSize: 11.5,
@@ -995,12 +995,12 @@ const styles = StyleSheet.create({
   },
   voucherWoText: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   voucherProjectTitle: {
     fontSize: 15.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginBottom: 10,
   },
@@ -1023,7 +1023,7 @@ const styles = StyleSheet.create({
   },
   voucherRowVal: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
   },
   voucherDivider: {
@@ -1033,27 +1033,27 @@ const styles = StyleSheet.create({
   },
   voucherTotalLabel: {
     fontSize: 13.5,
-    fontWeight: '900',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   voucherTotalVal: {
     fontSize: 15.5,
-    fontWeight: '900',
+    fontWeight: '700',
     color: vendorTheme.colors.emerald,
   },
   utrStrip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     padding: 10,
     borderRadius: 8,
     gap: 8,
   },
   utrText: {
     fontSize: 12,
-    color: '#065f46',
+    color: '#1d6646',
   },
   utrBold: {
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });

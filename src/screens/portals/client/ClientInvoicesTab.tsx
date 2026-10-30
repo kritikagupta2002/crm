@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
   },
   kpiLabel: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   kpiVal: {
     fontSize: clientTheme.typography.statNumber,
-    fontWeight: '900',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   kpiSub: {
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     marginTop: 12,
   },
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   },
   invNoText: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '900',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     letterSpacing: 0.2,
   },
@@ -332,17 +332,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: clientTheme.radius.sm,
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
   },
   statusBadgePaid: {
     backgroundColor: clientTheme.colors.emeraldSubtle,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   statusBadgeOverdue: {
     backgroundColor: clientTheme.colors.crimsonSubtle,
-    borderColor: '#fecaca',
+    borderColor: '#f2c4c2',
   },
   statusBadgeText: {
     fontSize: clientTheme.typography.badge,
@@ -396,12 +396,12 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: clientTheme.typography.bodyMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   totalVal: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '900',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   actionsRow: {
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: clientTheme.radius.md,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   settledText: {
     fontSize: clientTheme.typography.bodySm,

@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
   },
   avatarText: {
     ...typography.h3,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   heroInfo: {
@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
   },
   heroName: {
     ...typography.h4,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     flexShrink: 1,
   },
@@ -69,7 +69,7 @@ export const styles = StyleSheet.create({
   },
   kycVerifiedText: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.success,
   },
   heroDesig: {
@@ -168,7 +168,7 @@ export const styles = StyleSheet.create({
   },
   kpiValue: {
     ...typography.h4,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     marginTop: 4,
   },
@@ -184,7 +184,7 @@ export const styles = StyleSheet.create({
   },
   sectionHeading: {
     ...typography.bodyLarge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginBottom: spacing.md,
   },
@@ -303,7 +303,7 @@ export const styles = StyleSheet.create({
   },
   balanceAvailable: {
     ...typography.h3,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.success,
   },
   balanceSub: {
@@ -364,7 +364,7 @@ export const styles = StyleSheet.create({
   },
   totalSalaryVal: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   netSalaryRow: {
@@ -376,12 +376,12 @@ export const styles = StyleSheet.create({
   },
   netSalaryLabel: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.success,
   },
   netSalaryVal: {
     ...typography.h4,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.success,
   },
   payslipRow: {
@@ -425,7 +425,7 @@ export const styles = StyleSheet.create({
   },
   claimAmount: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   apprHeader: {
@@ -439,7 +439,7 @@ export const styles = StyleSheet.create({
   },
   apprCycle: {
     ...typography.bodyLarge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   apprReviewer: {
@@ -454,7 +454,7 @@ export const styles = StyleSheet.create({
   },
   scoreText: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   ratingsList: {
@@ -529,7 +529,7 @@ export const styles = StyleSheet.create({
   },
   fnfTitle: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginBottom: spacing.sm,
   },
@@ -553,7 +553,7 @@ export const styles = StyleSheet.create({
   },
   errorTitle: {
     ...typography.h3,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: spacing.md,
     marginBottom: spacing.xs,
@@ -568,7 +568,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: borderRadius.sm,
@@ -622,7 +622,7 @@ export const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: borderRadius.md,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -658,7 +658,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
   },
   docRowInspectText: {
     fontSize: 10,

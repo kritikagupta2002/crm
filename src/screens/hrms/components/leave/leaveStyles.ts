@@ -31,7 +31,7 @@ export const styles = StyleSheet.create({
   },
   pendingBadgeText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#FFFFFF',
   },
   tabContainer: {
@@ -80,7 +80,7 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     letterSpacing: 0.8,
   },
@@ -131,8 +131,8 @@ export const styles = StyleSheet.create({
     marginVertical: 2,
   },
   balAvailableNum: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 24,
-    fontWeight: '800',
     color: colors.text.primary,
   },
   balTotalNum: {
@@ -460,7 +460,7 @@ export const styles = StyleSheet.create({
   },
   engineTitle: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   projectedBalText: {
     ...typography.caption,
@@ -599,13 +599,13 @@ export const styles = StyleSheet.create({
   },
   partialCardValGreen: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.success,
     marginTop: 2,
   },
   partialCardValRed: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.danger,
     marginTop: 2,
   },
@@ -658,7 +658,7 @@ export const styles = StyleSheet.create({
   },
   rejectionHeaderTitle: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.danger,
   },
   rejectionDetailBody: {
@@ -687,7 +687,7 @@ export const styles = StyleSheet.create({
   },
   approvalHeaderTitle: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.success,
   },
   approvalDetailBody: {

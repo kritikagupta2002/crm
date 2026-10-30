@@ -92,15 +92,13 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
       scrollable
       header={
         <AppHeader
-          title={isHrOrAdmin ? 'HRMS Command Center' : 'My Workforce Portal'}
+          title={isHrOrAdmin ? 'HRMS' : 'My Workforce Portal'}
           subtitle={
             isHrOrAdmin
               ? 'Live biometric muster, field site compliance & payroll'
               : `Welcome back, ${activeEmpName}`
           }
           scenicBanner
-          badge="Workforce HRMS"
-          badgeIcon={<Users size={12} color="#0d9488" />}
           showBack
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
@@ -110,9 +108,9 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
     >
         <View style={styles.modePillContainer}>
           <View style={[styles.modePill, isHrOrAdmin ? styles.modePillHr : styles.modePillEmp]}>
-            <Sparkles size={12} color={isHrOrAdmin ? colors.primary : '#059669'} />
+            <Sparkles size={12} color={isHrOrAdmin ? colors.primary : '#2e9e6b'} />
             <Text style={[styles.modePillText, isHrOrAdmin ? styles.modePillTextHr : styles.modePillTextEmp]}>
-              {isHrOrAdmin ? 'HR & Corporate Governance Mode' : 'Employee Self-Service Mode'}
+              {isHrOrAdmin ? 'HR view' : 'My view'}
             </Text>
           </View>
         </View>
@@ -174,7 +172,7 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             onPress={() => navigation.navigate('LeaveApprovals')}
           >
             <Card style={styles.actionBanner}>
-              <View style={[styles.bannerIconWrap, { backgroundColor: '#EFF6FF' }]}>
+              <View style={[styles.bannerIconWrap, { backgroundColor: '#e6effa' }]}>
                 <ShieldCheck size={20} color={colors.primary} />
               </View>
               <View style={styles.bannerTextWrap}>
@@ -226,12 +224,12 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               </View>
               <View style={styles.metricDivider} />
               <View style={styles.metricItem}>
-                <Text style={[styles.metricVal, { color: '#0d9488' }]}>{metrics.fieldCount}</Text>
+                <Text style={[styles.metricVal, { color: '#1f6f78' }]}>{metrics.fieldCount}</Text>
                 <Text style={styles.metricLbl}>On Field</Text>
               </View>
               <View style={styles.metricDivider} />
               <View style={styles.metricItem}>
-                <Text style={[styles.metricVal, { color: metrics.pendingCorrections > 0 ? colors.semantic.warning : '#0f172a' }]}>
+                <Text style={[styles.metricVal, { color: metrics.pendingCorrections > 0 ? colors.semantic.warning : '#0f2a3d' }]}>
                   {metrics.pendingCorrections}
                 </Text>
                 <Text style={styles.metricLbl}>Corrections</Text>
@@ -250,12 +248,12 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               </View>
               <View style={styles.metricDivider} />
               <View style={styles.metricItem}>
-                <Text style={[styles.metricVal, { color: myLateCount > 0 ? colors.semantic.warning : '#0f172a' }]}>{myLateCount}</Text>
+                <Text style={[styles.metricVal, { color: myLateCount > 0 ? colors.semantic.warning : '#0f2a3d' }]}>{myLateCount}</Text>
                 <Text style={styles.metricLbl}>Late</Text>
               </View>
               <View style={styles.metricDivider} />
               <View style={styles.metricItem}>
-                <Text style={[styles.metricVal, { color: myPendingCorrections > 0 ? '#8b5cf6' : '#0f172a' }]}>{myPendingCorrections}</Text>
+                <Text style={[styles.metricVal, { color: myPendingCorrections > 0 ? '#5b7686' : '#0f2a3d' }]}>{myPendingCorrections}</Text>
                 <Text style={styles.metricLbl}>Regularize</Text>
               </View>
             </View>
@@ -270,8 +268,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               onPress={() => navigation.navigate('Attendance')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#EFF6FF' }]}>
-                <Clock size={22} color="#2563EB" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#e6effa' }]}>
+                <Clock size={22} color="#2f6fb3" />
               </View>
               <Text style={styles.actionTileTitle}>Attendance</Text>
               <Text style={styles.actionTileSub}>Daily Ledger</Text>
@@ -282,8 +280,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               onPress={() => navigation.navigate('MonthlyAttendance')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FAF5FF' }]}>
-                <CalendarDays size={22} color="#9333EA" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <CalendarDays size={22} color="#3d5a6c" />
               </View>
               <Text style={styles.actionTileTitle}>Monthly Muster</Text>
               <Text style={styles.actionTileSub}>30-Day Grid</Text>
@@ -294,8 +292,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               onPress={() => navigation.navigate('Leave')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDF4' }]}>
-                <CalendarCheck size={22} color="#16A34A" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#e3f4ec' }]}>
+                <CalendarCheck size={22} color="#2e9e6b" />
               </View>
               <Text style={styles.actionTileTitle}>Leaves</Text>
               <Text style={styles.actionTileSub}>Quotas & Apply</Text>
@@ -306,8 +304,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               onPress={() => navigation.navigate('AttendanceCorrections')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FFFBEB' }]}>
-                <FileEdit size={22} color="#D97706" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#fcf0dc' }]}>
+                <FileEdit size={22} color="#c27a12" />
               </View>
               <Text style={styles.actionTileTitle}>Corrections</Text>
               <Text style={styles.actionTileSub}>Missed Punches</Text>
@@ -318,8 +316,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               onPress={() => navigation.navigate('EmployeeDirectory')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FDF2F8' }]}>
-                <Users size={22} color="#DB2777" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <Users size={22} color="#3d5a6c" />
               </View>
               <Text style={styles.actionTileTitle}>Directory</Text>
               <Text style={styles.actionTileSub}>Staff Contacts</Text>
@@ -330,8 +328,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
               onPress={() => navigation.navigate('Payroll')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDFA' }]}>
-                <CreditCard size={22} color="#0D9488" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#eef7f7' }]}>
+                <CreditCard size={22} color="#1f6f78" />
               </View>
               <Text style={styles.actionTileTitle}>Payroll</Text>
               <Text style={styles.actionTileSub}>Salary Slips</Text>
@@ -346,8 +344,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             style={styles.moduleCard}
             onPress={() => navigation.navigate('Leave')}
           >
-            <View style={[styles.moduleIconCircle, { backgroundColor: '#EFF6FF' }]}>
-              <CalendarCheck size={20} color="#2563EB" />
+            <View style={[styles.moduleIconCircle, { backgroundColor: '#e6effa' }]}>
+              <CalendarCheck size={20} color="#2f6fb3" />
             </View>
             <View style={styles.moduleContent}>
               <Text style={styles.moduleTitle}>Leave Management</Text>
@@ -360,8 +358,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             style={styles.moduleCard}
             onPress={() => navigation.navigate('EmployeeDirectory')}
           >
-            <View style={[styles.moduleIconCircle, { backgroundColor: '#F3E8FF' }]}>
-              <Users size={20} color="#9333EA" />
+            <View style={[styles.moduleIconCircle, { backgroundColor: '#e8eef1' }]}>
+              <Users size={20} color="#3d5a6c" />
             </View>
             <View style={styles.moduleContent}>
               <Text style={styles.moduleTitle}>Employee Directory</Text>
@@ -374,8 +372,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             style={styles.moduleCard}
             onPress={() => navigation.navigate('Organization')}
           >
-            <View style={[styles.moduleIconCircle, { backgroundColor: '#FDF2F8' }]}>
-              <Building2 size={20} color="#DB2777" />
+            <View style={[styles.moduleIconCircle, { backgroundColor: '#f1f5f7' }]}>
+              <Building2 size={20} color="#3d5a6c" />
             </View>
             <View style={styles.moduleContent}>
               <Text style={styles.moduleTitle}>Organization Hierarchy</Text>
@@ -388,8 +386,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             style={styles.moduleCard}
             onPress={() => navigation.navigate('Shifts')}
           >
-            <View style={[styles.moduleIconCircle, { backgroundColor: '#FEF3C7' }]}>
-              <Calendar size={20} color="#D97706" />
+            <View style={[styles.moduleIconCircle, { backgroundColor: '#fcf0dc' }]}>
+              <Calendar size={20} color="#c27a12" />
             </View>
             <View style={styles.moduleContent}>
               <Text style={styles.moduleTitle}>Shifts & Rosters</Text>
@@ -402,11 +400,11 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             style={styles.moduleCard}
             onPress={() => navigation.navigate('HrDocuments')}
           >
-            <View style={[styles.moduleIconCircle, { backgroundColor: '#EFF6FF' }]}>
-              <FileText size={20} color="#2563EB" />
+            <View style={[styles.moduleIconCircle, { backgroundColor: '#e6effa' }]}>
+              <FileText size={20} color="#2f6fb3" />
             </View>
             <View style={styles.moduleContent}>
-              <Text style={styles.moduleTitle}>HR Policy Vault</Text>
+              <Text style={styles.moduleTitle}>HR policies</Text>
               <Text style={styles.moduleSubtitle}>Company circulars, safety guidelines & SOPs</Text>
             </View>
             <ChevronRight size={18} color={colors.text.tertiary} />
@@ -416,12 +414,12 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             style={styles.moduleCard}
             onPress={() => navigation.navigate('EmployeeDocuments')}
           >
-            <View style={[styles.moduleIconCircle, { backgroundColor: '#F0FDF4' }]}>
-              <FolderLock size={20} color="#059669" />
+            <View style={[styles.moduleIconCircle, { backgroundColor: '#e3f4ec' }]}>
+              <FolderLock size={20} color="#2e9e6b" />
             </View>
             <View style={styles.moduleContent}>
               <Text style={styles.moduleTitle}>
-                {isHrOrAdmin ? 'Staff Document KYC Vault' : 'My Certificates & ID Cards'}
+                {isHrOrAdmin ? 'Staff documents' : 'My Certificates & ID Cards'}
               </Text>
               <Text style={styles.moduleSubtitle}>Aadhaar, PAN, degrees & statutory DGMS credentials</Text>
             </View>
@@ -432,8 +430,8 @@ export const HrmsOverviewScreen: React.FC<{ navigation: any }> = ({ navigation }
             style={styles.moduleCard}
             onPress={() => navigation.navigate('MisReports')}
           >
-            <View style={[styles.moduleIconCircle, { backgroundColor: '#F0FDFA' }]}>
-              <BarChart3 size={20} color="#0D9488" />
+            <View style={[styles.moduleIconCircle, { backgroundColor: '#eef7f7' }]}>
+              <BarChart3 size={20} color="#1f6f78" />
             </View>
             <View style={styles.moduleContent}>
               <Text style={styles.moduleTitle}>MIS Analytics & Workforce BI</Text>
@@ -465,12 +463,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   modePillHr: {
-    backgroundColor: '#EFF6FF',
-    borderColor: '#BFDBFE',
+    backgroundColor: '#e6effa',
+    borderColor: '#c9dcf1',
   },
   modePillEmp: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
+    backgroundColor: '#e3f4ec',
+    borderColor: '#bfe3d0',
   },
   modePillText: {
     fontSize: typography.fontSizes.xs,
@@ -480,14 +478,14 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   modePillTextEmp: {
-    color: '#15803D',
+    color: '#237a53',
   },
   biometricCard: {
     padding: spacing.md,
     backgroundColor: '#FFFFFF',
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     marginBottom: spacing.md,
     ...shadows.sm,
   },
@@ -501,11 +499,11 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: radius.lg,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
   },
   biometricInfo: {
     flex: 1,
@@ -531,7 +529,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: spacing.xs,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
   },
   punchDetails: {
     flex: 1,
@@ -564,10 +562,10 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   punchButtonIn: {
-    backgroundColor: '#0D9488',
+    backgroundColor: '#1f6f78',
   },
   punchButtonOut: {
-    backgroundColor: '#EF4444',
+    backgroundColor: '#d24c47',
   },
   punchButtonText: {
     fontSize: typography.fontSizes.sm,
@@ -578,8 +576,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
-    backgroundColor: '#FFFBEB',
-    borderColor: '#FDE68A',
+    backgroundColor: '#fcf0dc',
+    borderColor: '#ecd6ae',
     borderWidth: 1,
     borderRadius: radius.lg,
     marginBottom: spacing.md,
@@ -587,7 +585,7 @@ const styles = StyleSheet.create({
   },
   bannerIconWrap: {
     padding: spacing.xs,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: '#fcf0dc',
     borderRadius: radius.md,
   },
   bannerTextWrap: {
@@ -596,11 +594,11 @@ const styles = StyleSheet.create({
   bannerTitle: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
-    color: '#92400E',
+    color: '#9a5f0c',
   },
   bannerSubtitle: {
     fontSize: typography.fontSizes.xs,
-    color: '#B45309',
+    color: '#9a5f0c',
     marginTop: 2,
   },
   sectionHeader: {
@@ -631,14 +629,14 @@ const styles = StyleSheet.create({
   },
   metricVal: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   metricLbl: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   metricDivider: {
@@ -661,7 +659,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   actionSquircle: {
@@ -695,7 +693,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     gap: spacing.md,
     ...shadows.xs,
   },
@@ -711,7 +709,7 @@ const styles = StyleSheet.create({
   },
   moduleTitle: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   moduleSubtitle: {

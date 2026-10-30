@@ -283,7 +283,7 @@ export const DispatchRegisterScreen: React.FC<{ navigation: any; route?: any }> 
     <View style={styles.container}>
       <AppHeader
         title="Dispatch Register"
-        subtitle="Physical Consignments & Waybill Tracking"
+        subtitle="Originals sent by post or courier"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={

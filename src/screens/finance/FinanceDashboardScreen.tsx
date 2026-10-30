@@ -22,6 +22,9 @@ import {
   Lock,
   BarChart3,
   Building2,
+  Wallet,
+  ArrowLeftRight,
+  PiggyBank,
 } from 'lucide-react-native';
 import { FinanceOverviewMetrics } from '../../types';
 
@@ -69,7 +72,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
       <ScreenContainer>
         <AppHeader
           title="Finance & Accounting"
-          subtitle="Commercial Ledger & Statutory Compliance"
+          subtitle="Money in, money out and tax"
           showBack
           onBack={() => navigation.goBack()}
         />
@@ -113,40 +116,40 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
     {
       title: 'Client Tax Invoices (AR)',
       desc: `${invoices.length} invoices issued • GST & TDS withholding`,
-      icon: <Receipt size={22} color="#0D9488" />,
-      bg: '#F0FDFA',
+      icon: <Receipt size={22} color="#1f6f78" />,
+      bg: '#eef7f7',
       route: 'Invoices',
       badge: receivables > 0 ? `₹${(receivables / 100000).toFixed(1)}L Due` : 'All Settled',
     },
     {
       title: 'Inward Vendor Bills (AP)',
       desc: `${vendorBills.length} contractor bills • ITC & Sec 194C/194J`,
-      icon: <FileSpreadsheet size={22} color="#D97706" />,
-      bg: '#FFFBEB',
+      icon: <FileSpreadsheet size={22} color="#c27a12" />,
+      bg: '#fcf0dc',
       route: 'VendorBills',
       badge: pendingBillsCount > 0 ? `${pendingBillsCount} Pending` : undefined,
     },
     {
       title: 'Double-Entry Vouchers',
       desc: `${vouchers.length} balanced journal, payment & receipt vouchers`,
-      icon: <Scale size={22} color="#2563EB" />,
-      bg: '#EFF6FF',
+      icon: <Scale size={22} color="#2f6fb3" />,
+      bg: '#e6effa',
       route: 'Vouchers',
       badge: 'Balanced',
     },
     {
       title: 'Statutory TDS Register',
       desc: 'Sections 194C, 194J, 194I & 192 challan deposits',
-      icon: <FileText size={22} color="#9333EA" />,
-      bg: '#FAF5FF',
+      icon: <FileText size={22} color="#3d5a6c" />,
+      bg: '#f1f5f7',
       route: 'TdsRegister',
       badge: tdsPayable > 0 ? `₹${(tdsPayable / 1000).toFixed(1)}k Due` : 'Deposited',
     },
     {
       title: 'GST Overview & Compliance',
       desc: 'Output GST minus ITC claimed = Net GST Liability',
-      icon: <ShieldCheck size={22} color="#16A34A" />,
-      bg: '#F0FDF4',
+      icon: <ShieldCheck size={22} color="#2e9e6b" />,
+      bg: '#e3f4ec',
       route: 'GstOverview',
       badge: `₹${(netGstPayable / 100000).toFixed(1)}L Net`,
     },
@@ -160,10 +163,8 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
       header={
         <AppHeader
           title="Finance & Accounting"
-          subtitle="Commercial Ledger & Statutory Compliance"
+          subtitle="Money in, money out and tax"
           scenicBanner
-          badge="Finance & Treasury"
-          badgeIcon={<IndianRupee size={12} color="#0d9488" />}
           showBack
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
@@ -177,7 +178,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.metricsStrip}>
             <View style={styles.metricCard}>
               <View style={styles.metricIconWrap}>
-                <TrendingUp size={14} color="#0D9488" />
+                <TrendingUp size={14} color="#1f6f78" />
               </View>
               <Text style={styles.metricValue}>₹{(totalInvoiced / 100000).toFixed(1)}L</Text>
               <Text style={styles.metricLabel}>GROSS INVOICED</Text>
@@ -186,7 +187,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
 
             <View style={styles.metricCard}>
               <View style={styles.metricIconWrap}>
-                <IndianRupee size={14} color={receivables > 0 ? "#D97706" : "#16A34A"} />
+                <IndianRupee size={14} color={receivables > 0 ? "#c27a12" : "#2e9e6b"} />
               </View>
               <Text style={styles.metricValue}>₹{(receivables / 100000).toFixed(1)}L</Text>
               <Text style={styles.metricLabel}>OUTSTANDING AR</Text>
@@ -195,7 +196,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
 
             <View style={styles.metricCard}>
               <View style={styles.metricIconWrap}>
-                <TrendingDown size={14} color="#D97706" />
+                <TrendingDown size={14} color="#c27a12" />
               </View>
               <Text style={styles.metricValue}>₹{(totalPayables / 100000).toFixed(1)}L</Text>
               <Text style={styles.metricLabel}>VENDOR BILLS (AP)</Text>
@@ -204,9 +205,9 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
 
             <View style={styles.metricCard}>
               <View style={styles.metricIconWrap}>
-                <TrendingUp size={14} color={netCashFlow >= 0 ? "#16A34A" : "#EF4444"} />
+                <TrendingUp size={14} color={netCashFlow >= 0 ? "#2e9e6b" : "#d24c47"} />
               </View>
-              <Text style={[styles.metricValue, { color: netCashFlow >= 0 ? '#16A34A' : '#EF4444' }]}>
+              <Text style={[styles.metricValue, { color: netCashFlow >= 0 ? '#2e9e6b' : '#d24c47' }]}>
                 {netCashFlow >= 0 ? '+' : ''}₹{(netCashFlow / 100000).toFixed(1)}L
               </Text>
               <Text style={styles.metricLabel}>NET CASH FLOW</Text>
@@ -223,8 +224,8 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
               onPress={() => navigation.navigate('Invoices')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDFA' }]}>
-                <Receipt size={22} color="#0D9488" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#eef7f7' }]}>
+                <Receipt size={22} color="#1f6f78" />
               </View>
               <Text style={styles.actionTileTitle}>Invoices</Text>
               <Text style={styles.actionTileSub}>AR Billing</Text>
@@ -235,8 +236,8 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
               onPress={() => navigation.navigate('VendorBills')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FFFBEB' }]}>
-                <FileSpreadsheet size={22} color="#D97706" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#fcf0dc' }]}>
+                <FileSpreadsheet size={22} color="#c27a12" />
               </View>
               <Text style={styles.actionTileTitle}>Vendor Bills</Text>
               <Text style={styles.actionTileSub}>AP Expenses</Text>
@@ -247,8 +248,8 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
               onPress={() => navigation.navigate('Vouchers')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#EFF6FF' }]}>
-                <Scale size={22} color="#2563EB" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#e6effa' }]}>
+                <Scale size={22} color="#2f6fb3" />
               </View>
               <Text style={styles.actionTileTitle}>Vouchers</Text>
               <Text style={styles.actionTileSub}>Double Entry</Text>
@@ -256,11 +257,59 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
 
             <TouchableOpacity
               style={styles.actionTile}
+              onPress={() => navigation.navigate('Receivables')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#e3f4ec' }]}>
+                <Wallet size={22} color="#2e9e6b" />
+              </View>
+              <Text style={styles.actionTileTitle}>Receivables</Text>
+              <Text style={styles.actionTileSub}>Aging & collections</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('PaymentsReceipts')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#e6effa' }]}>
+                <ArrowLeftRight size={22} color="#2f6fb3" />
+              </View>
+              <Text style={styles.actionTileTitle}>Payments</Text>
+              <Text style={styles.actionTileSub}>Cash in & out</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('FinancialReports')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#eef7f7' }]}>
+                <BarChart3 size={22} color="#1f6f78" />
+              </View>
+              <Text style={styles.actionTileTitle}>Reports</Text>
+              <Text style={styles.actionTileSub}>P&L, GST, TDS</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
+              onPress={() => navigation.navigate('BudgetCost')}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.actionSquircle, { backgroundColor: '#f7ebd5' }]}>
+                <PiggyBank size={22} color="#b07d27" />
+              </View>
+              <Text style={styles.actionTileTitle}>Budget & Cost</Text>
+              <Text style={styles.actionTileSub}>By project</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionTile}
               onPress={() => navigation.navigate('GstOverview')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDF4' }]}>
-                <ShieldCheck size={22} color="#16A34A" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#e3f4ec' }]}>
+                <ShieldCheck size={22} color="#2e9e6b" />
               </View>
               <Text style={styles.actionTileTitle}>GST Portal</Text>
               <Text style={styles.actionTileSub}>ITC & Net Tax</Text>
@@ -271,8 +320,8 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
               onPress={() => navigation.navigate('TdsRegister')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FAF5FF' }]}>
-                <FileText size={22} color="#9333EA" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <FileText size={22} color="#3d5a6c" />
               </View>
               <Text style={styles.actionTileTitle}>TDS Register</Text>
               <Text style={styles.actionTileSub}>Challans & 194C</Text>
@@ -283,8 +332,8 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
               onPress={() => navigation.navigate('MisReports')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FDF2F8' }]}>
-                <BarChart3 size={22} color="#DB2777" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <BarChart3 size={22} color="#3d5a6c" />
               </View>
               <Text style={styles.actionTileTitle}>Financial MIS</Text>
               <Text style={styles.actionTileSub}>Board Analytics</Text>
@@ -295,7 +344,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
         <Card style={styles.taxSummaryCard} onPress={() => navigation.navigate('GstOverview')}>
           <View style={styles.taxCardHeader}>
             <View style={styles.taxCardTitleWrap}>
-              <ShieldCheck size={20} color="#0D9488" />
+              <ShieldCheck size={20} color="#1f6f78" />
               <Text style={styles.taxCardTitle}>Statutory GST & TDS Summary</Text>
             </View>
             <ChevronRight size={18} color={colors.text.secondary} />
@@ -310,7 +359,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
             <View style={styles.taxDivider} />
             <View style={styles.taxMetric}>
               <Text style={styles.taxMetricLabel}>Input Credit (ITC)</Text>
-              <Text style={[styles.taxMetricValue, { color: '#16A34A' }]}>
+              <Text style={[styles.taxMetricValue, { color: '#2e9e6b' }]}>
                 ₹{(inputTaxCredit / 100000).toFixed(2)}L
               </Text>
               <Text style={styles.taxMetricSub}>From bills & claims</Text>
@@ -318,7 +367,7 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
             <View style={styles.taxDivider} />
             <View style={styles.taxMetric}>
               <Text style={styles.taxMetricLabel}>Net GST Payable</Text>
-              <Text style={[styles.taxMetricValue, { color: '#0D9488' }]}>
+              <Text style={[styles.taxMetricValue, { color: '#1f6f78' }]}>
                 ₹{(netGstPayable / 100000).toFixed(2)}L
               </Text>
               <Text style={styles.taxMetricSub}>GSTR-3B Liability</Text>
@@ -336,11 +385,11 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
                 onPress={() => navigation.navigate('VendorBills')}
                 activeOpacity={0.7}
               >
-                <AlertCircle size={16} color="#D97706" />
+                <AlertCircle size={16} color="#c27a12" />
                 <Text style={styles.alertText}>
                   <Text style={{ fontWeight: '700' }}>{pendingBillsCount} Vendor Bill(s)</Text> awaiting finance verification & approval.
                 </Text>
-                <ChevronRight size={16} color="#D97706" />
+                <ChevronRight size={16} color="#c27a12" />
               </TouchableOpacity>
             )}
 
@@ -350,11 +399,11 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
                 onPress={() => navigation.navigate('TdsRegister')}
                 activeOpacity={0.7}
               >
-                <Clock size={16} color="#9333EA" />
+                <Clock size={16} color="#3d5a6c" />
                 <Text style={styles.alertText}>
                   <Text style={{ fontWeight: '700' }}>{pendingTdsCount} TDS Deduction(s)</Text> pending statutory challan deposit (₹{(tdsPayable / 1000).toFixed(1)}k).
                 </Text>
-                <ChevronRight size={16} color="#9333EA" />
+                <ChevronRight size={16} color="#3d5a6c" />
               </TouchableOpacity>
             )}
 
@@ -364,11 +413,11 @@ export const FinanceDashboardScreen: React.FC<{ navigation: any }> = ({ navigati
                 onPress={() => navigation.navigate('Invoices')}
                 activeOpacity={0.7}
               >
-                <AlertCircle size={16} color="#EF4444" />
+                <AlertCircle size={16} color="#d24c47" />
                 <Text style={styles.alertText}>
                   <Text style={{ fontWeight: '700' }}>{overdueInvoicesCount} Client Invoice(s)</Text> overdue for collection.
                 </Text>
-                <ChevronRight size={16} color="#EF4444" />
+                <ChevronRight size={16} color="#d24c47" />
               </TouchableOpacity>
             )}
           </View>
@@ -429,7 +478,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     padding: 12,
     minWidth: 140,
     ...shadows.xs,
@@ -438,14 +487,14 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: radius.md,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.xs,
   },
   metricValue: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   metricLabel: {
@@ -475,7 +524,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   actionSquircle: {
@@ -503,7 +552,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     marginBottom: spacing.md,
     ...shadows.xs,
   },
@@ -514,7 +563,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
+    borderBottomColor: '#edf1f3',
   },
   taxCardTitleWrap: {
     flexDirection: 'row',
@@ -538,7 +587,7 @@ const styles = StyleSheet.create({
   taxDivider: {
     width: 1,
     height: 36,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#e1e8eb',
   },
   taxMetricLabel: {
     fontSize: 10,
@@ -548,7 +597,7 @@ const styles = StyleSheet.create({
   },
   taxMetricValue: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: 2,
   },
@@ -564,17 +613,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#fcf0dc',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#ecd6ae',
     marginBottom: spacing.xs,
     gap: spacing.xs,
   },
   alertText: {
     flex: 1,
     fontSize: 12.5,
-    color: '#92400E',
+    color: '#9a5f0c',
   },
   menuContainer: {
     gap: 10,
@@ -586,7 +635,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     gap: spacing.md,
     ...shadows.xs,
   },
@@ -612,17 +661,17 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   moduleBadge: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
   },
   moduleBadgeText: {
     fontSize: 10.5,
     fontWeight: '700',
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   menuDesc: {
     fontSize: 12,
@@ -639,7 +688,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#fbe5e4',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,

@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     borderRadius: clientTheme.radius.md,
     padding: 14,
     borderWidth: 1.2,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
     gap: 10,
   },
   noticeBannerText: {
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     marginTop: 12,
   },
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
   },
   projectPillText: {
     fontSize: clientTheme.typography.badge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   statusBadge: {
@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
   },
   delivTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     lineHeight: 22,
     marginBottom: 4,
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   },
   metaLabel: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     letterSpacing: 0.5,
   },
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: clientTheme.radius.md,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   actionBtnApprovedText: {
     fontSize: clientTheme.typography.bodySm,
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: clientTheme.radius.md,
     borderWidth: 1,
-    borderColor: '#fecaca',
+    borderColor: '#f2c4c2',
   },
   actionBtnRevisionText: {
     fontSize: clientTheme.typography.bodySm,

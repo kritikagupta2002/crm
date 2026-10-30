@@ -127,7 +127,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
         serviceDetail,
         mineral,
         priority,
-        estimatedValue: Number(estimatedValue) || 1500000,
+        estimatedValue: Number(estimatedValue) || 0,
         stage: 'New Enquiry' as LeadStage,
         assignedTo,
         description: description.trim() || 'Exploration lead created via mobile app.',
@@ -442,7 +442,7 @@ export const LeadsScreen: React.FC<LeadsScreenProps> = ({ navigation }) => {
           header={
             <AppHeader
               title="Add New Enquiry"
-              subtitle="Register prospecting exploration lead"
+              subtitle="Add a new enquiry"
               showBack
               onBack={() => setShowAddModal(false)}
             />
@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     padding: spacing.md + 2,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   cardHeader: {
@@ -685,26 +685,26 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontSize: 15.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     lineHeight: 20,
   },
   leadIdText: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 3,
     fontWeight: '500',
   },
   leadTitle: {
     fontSize: 13,
-    color: '#334155',
+    color: '#34495a',
     fontWeight: '600',
     lineHeight: 18,
     marginBottom: 3,
   },
   serviceText: {
     fontSize: 12,
-    color: '#2563eb',
+    color: '#2f6fb3',
     fontWeight: '700',
     marginBottom: 10,
   },
@@ -712,12 +712,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     paddingHorizontal: 12,
     paddingVertical: 9,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#edf1f3',
     marginBottom: 10,
   },
   contactCol: {
@@ -726,11 +726,11 @@ const styles = StyleSheet.create({
   contactPerson: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   phoneText: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
   },
   contactActionButtons: {
@@ -741,7 +741,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: radius.md,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -751,19 +751,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#edf1f3',
   },
   valLabel: {
     fontSize: 9.5,
-    color: '#94a3b8',
-    fontWeight: '800',
+    color: '#7c8b96',
+    fontWeight: '700',
     letterSpacing: 0.5,
     marginBottom: 1,
   },
   valAmount: {
     fontSize: 14.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   footerActions: {
     flexDirection: 'row',
@@ -791,7 +791,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.full,

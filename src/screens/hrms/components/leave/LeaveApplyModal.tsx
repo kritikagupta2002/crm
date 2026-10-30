@@ -77,7 +77,7 @@ export const LeaveApplyModal: React.FC<LeaveApplyModalProps> = ({
           <View style={styles.modalHeader}>
             <View>
               <Text style={styles.modalTitle}>Apply for Leave</Text>
-              <Text style={styles.modalSubtitle}>Statutory working-day engine & quota validation</Text>
+              <Text style={styles.modalSubtitle}>Working days are counted for you</Text>
             </View>
             <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
               <X size={20} color={colors.text.secondary} />

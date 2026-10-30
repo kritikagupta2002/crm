@@ -41,11 +41,11 @@ export const ShiftMasterList: React.FC<ShiftMasterListProps> = ({
 }) => {
   const getShiftIcon = (code: string) => {
     if (code.includes('MORN') || code.includes('AM'))
-      return <Sunrise size={18} color="#D97706" />;
+      return <Sunrise size={18} color="#c27a12" />;
     if (code.includes('EVE') || code.includes('PM'))
-      return <Sun size={18} color="#2563EB" />;
+      return <Sun size={18} color="#2f6fb3" />;
     if (code.includes('FLIGHT') || code.includes('UAV'))
-      return <Clock size={18} color="#059669" />;
+      return <Clock size={18} color="#2e9e6b" />;
     return <Clock size={18} color={colors.primary} />;
   };
 

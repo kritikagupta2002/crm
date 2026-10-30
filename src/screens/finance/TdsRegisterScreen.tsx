@@ -207,7 +207,7 @@ export const TdsRegisterScreen: React.FC<{ navigation: any }> = ({ navigation })
     <View style={styles.container}>
       <AppHeader
         title="TDS Register & Tax"
-        subtitle="Sections 194C, 194J, 194I & 192 statutory schedules"
+        subtitle="TDS deducted, by section"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
   statLabel: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     letterSpacing: 0.5,
   },
@@ -773,8 +773,8 @@ const styles = StyleSheet.create({
   sectionBadgeText: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
-    color: '#7C3AED',
+    fontWeight: '700',
+    color: '#3d5a6c',
   },
   challanNo: {
     ...typography.caption,
@@ -821,8 +821,8 @@ const styles = StyleSheet.create({
     fontVariant: ['tabular-nums'],
   },
   tdsWithheldVal: {
-    color: '#7C3AED',
-    fontWeight: '800',
+    color: '#3d5a6c',
+    fontWeight: '700',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -946,7 +946,7 @@ const styles = StyleSheet.create({
   },
   detailValBold: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     fontFamily: 'monospace',
   },
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
   detailCalcHead: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     marginBottom: 4,
   },
@@ -977,8 +977,8 @@ const styles = StyleSheet.create({
   },
   detailTotalVal: {
     ...typography.bodySmall,
-    fontWeight: '800',
-    color: '#7C3AED',
+    fontWeight: '700',
+    color: '#3d5a6c',
   },
   sectionInfoBox: {
     backgroundColor: '#8B5CF610',
@@ -991,8 +991,8 @@ const styles = StyleSheet.create({
   },
   sectionInfoTitle: {
     ...typography.caption,
-    fontWeight: '800',
-    color: '#7C3AED',
+    fontWeight: '700',
+    color: '#3d5a6c',
   },
   sectionInfoDesc: {
     ...typography.caption,
@@ -1065,7 +1065,7 @@ const styles = StyleSheet.create({
   },
   certCompanyTitle: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   certCompanyAddr: {
@@ -1095,7 +1095,7 @@ const styles = StyleSheet.create({
   certSectionHead: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     marginBottom: 2,
   },
@@ -1132,7 +1132,7 @@ const styles = StyleSheet.create({
   certTableHead: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
   },
   certTableBody: {
@@ -1152,13 +1152,13 @@ const styles = StyleSheet.create({
   },
   certHighlightText: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     flex: 1,
   },
   certHighlightAmount: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.success,
   },
   certFooterBox: {

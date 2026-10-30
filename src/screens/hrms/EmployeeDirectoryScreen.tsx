@@ -147,7 +147,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
       <View style={styles.container}>
         <AppHeader
           title="Staff Directory"
-          subtitle="Organization Staff & Profiles"
+          subtitle="Staff and profiles"
           showBack
           onBack={() => navigation.goBack()}
         />
@@ -286,7 +286,7 @@ export const EmployeeDirectoryScreen: React.FC<{ navigation: any }> = ({ navigat
     <View style={styles.container}>
       <AppHeader
         title="Employee Directory"
-        subtitle="Staff Master, KYC & 360° Profiles"
+        subtitle="Staff and profiles"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -434,8 +434,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: 16,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
-    shadowColor: '#0f172a',
+    borderColor: '#e1e8eb',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -446,14 +446,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 24,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.4,
   },
   statLabel: {
     fontSize: 10.5,
-    color: '#64748b',
+    color: '#627079',
     textTransform: 'uppercase',
     fontWeight: '700',
     marginTop: 3,
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   statDivider: {
     width: 1,
     height: 32,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
   },
   searchContainer: {
     paddingHorizontal: spacing.lg,
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   nameBlock: {
@@ -582,7 +582,7 @@ const styles = StyleSheet.create({
   },
   kycVerifiedText: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.success,
   },
   metaRow: {
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
   },
   restrictedTitle: {
     ...typography.h3,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginBottom: spacing.sm,
   },

@@ -12,7 +12,7 @@ export class DocumentsService {
     if (!doc) throw new Error('Document not found.');
 
     if (doc.uploadedBy === verifierId) {
-      throw new Error('Four-Eyes Security Violation: The user who uploaded this document cannot verify it. Another officer must inspect and verify.');
+      throw new Error('You filed this scan, so someone else must verify it.');
     }
 
     doc.isVerified = true;

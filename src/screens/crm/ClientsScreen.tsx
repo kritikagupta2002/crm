@@ -56,9 +56,9 @@ const getCompanyInitials = (name: string) => {
 
 const getAvatarColor = (name: string) => {
   const themes = [
-    { bg: '#0F172A', text: '#FFFFFF', border: '#334155' },
-    { bg: '#0D9488', text: '#FFFFFF', border: '#0F766E' },
-    { bg: '#1E3A8A', text: '#FFFFFF', border: '#1D4ED8' },
+    { bg: '#0f2a3d', text: '#FFFFFF', border: '#34495a' },
+    { bg: '#1f6f78', text: '#FFFFFF', border: '#0e4a52' },
+    { bg: '#1E3A8A', text: '#FFFFFF', border: '#245a93' },
     { bg: '#701A75', text: '#FFFFFF', border: '#86198F' },
   ];
   let hash = 0;
@@ -349,7 +349,7 @@ export const ClientsScreen: React.FC<ClientsScreenProps> = ({ navigation }) => {
                     <MapPin size={12} color={colors.textMuted} />
                     <Text style={styles.infoText}>{item.location}</Text>
                     <View style={styles.projectPill}>
-                      <Layers size={10} color="#0D9488" style={{ marginRight: 2 }} />
+                      <Layers size={10} color="#1f6f78" style={{ marginRight: 2 }} />
                       <Text style={styles.projectPillText}>
                         {item.activeProjectsCount} {item.activeProjectsCount === 1 ? 'Project' : 'Projects'}
                       </Text>
@@ -419,18 +419,18 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   metricItemActive: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
   },
   metricVal: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   metricLbl: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#64748B',
+    color: '#627079',
     marginTop: 1,
   },
   metricDivider: {
@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
   },
   companyAvatarText: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     letterSpacing: 0.5,
   },
   titleCol: {
@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
   },
   clientName: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.textPrimary,
     lineHeight: 19,
   },
@@ -541,13 +541,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   scopeBox: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     borderRadius: radius.md,
     padding: 9,
     gap: 5,
     marginBottom: 9,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#edf1f3',
   },
   infoRow: {
     flexDirection: 'row',
@@ -562,17 +562,17 @@ const styles = StyleSheet.create({
   projectPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
   },
   projectPillText: {
     fontSize: 9.5,
     fontWeight: '700',
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -580,17 +580,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
   },
   label: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.textTertiary,
     letterSpacing: 0.5,
   },
   valText: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     marginTop: 1,
     fontVariant: ['tabular-nums'],
@@ -598,7 +598,7 @@ const styles = StyleSheet.create({
   ownerBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 7,
     paddingVertical: 3,
     borderRadius: radius.sm,
@@ -612,13 +612,13 @@ const styles = StyleSheet.create({
   ownerVal: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#0f2a3d',
   },
   linkRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: radius.sm,

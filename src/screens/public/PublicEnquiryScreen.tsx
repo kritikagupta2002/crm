@@ -35,7 +35,7 @@ export const PublicEnquiryScreen: React.FC<PublicEnquiryScreenProps> = ({ naviga
         contactName: contactName.trim(),
         email: email.trim() || 'contact@client.com',
         phone: phone.trim(),
-        estimatedValue: Number(estimatedValue) || 1000000,
+        estimatedValue: Number(estimatedValue) || 0,
         stage: 'New',
         notes: notes.trim() || 'Public web exploration enquiry submission.',
         assignedTo: 'Unassigned',
@@ -72,7 +72,7 @@ export const PublicEnquiryScreen: React.FC<PublicEnquiryScreenProps> = ({ naviga
     <ScreenContainer scrollable>
       <AppHeader
         title="Public Geological Enquiry"
-        subtitle="Submit exploration project requirements"
+        subtitle="Tell us about your project"
         showBack
         onBack={() => navigation.goBack()}
       />

@@ -102,7 +102,7 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
         service: newService,
         location: newLocation,
         site: newLocation,
-        baselineBudget: Number(newBudget) || 2500000,
+        baselineBudget: Number(newBudget) || 0,
       });
       setCreateModalVisible(false);
       setNewTitle('');
@@ -190,17 +190,17 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
       <View style={styles.toolbar}>
         <View style={styles.searchRow}>
           <View style={styles.searchBar}>
-            <Search size={18} color="#64748b" />
+            <Search size={18} color="#627079" />
             <TextInput
               style={styles.searchInput}
               value={search}
               onChangeText={setSearch}
               placeholder="Search block, client, authority, site..."
-              placeholderTextColor="#94a3b8"
+              placeholderTextColor="#7c8b96"
             />
             {search ? (
               <TouchableOpacity onPress={() => setSearch('')}>
-                <X size={18} color="#64748b" />
+                <X size={18} color="#627079" />
               </TouchableOpacity>
             ) : null}
           </View>
@@ -211,14 +211,14 @@ export const ProjectsScreen: React.FC<ProjectsScreenProps> = ({ route, navigatio
               style={[styles.viewToggleBtn, viewMode === 'list' && styles.viewToggleBtnActive]}
               onPress={() => setViewMode('list')}
             >
-              <List size={18} color={viewMode === 'list' ? colors.primary : '#64748b'} strokeWidth={2.3} />
+              <List size={18} color={viewMode === 'list' ? colors.primary : '#627079'} strokeWidth={2.3} />
             </TouchableOpacity>
             <TouchableOpacity
               activeOpacity={0.75}
               style={[styles.viewToggleBtn, viewMode === 'timeline' && styles.viewToggleBtnActive]}
               onPress={() => setViewMode('timeline')}
             >
-              <GanttChart size={18} color={viewMode === 'timeline' ? colors.primary : '#64748b'} strokeWidth={2.3} />
+              <GanttChart size={18} color={viewMode === 'timeline' ? colors.primary : '#627079'} strokeWidth={2.3} />
             </TouchableOpacity>
           </View>
         </View>
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: spacing.xs,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   metricItem: {
@@ -542,15 +542,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   metricVal: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 24,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.5,
   },
   metricLbl: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1.2,
     height: 38,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
   },
   toolbar: {
     marginVertical: 8,
@@ -578,24 +578,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 12,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     gap: 8,
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#0f172a',
+    color: '#0f2a3d',
     paddingVertical: 0,
   },
   viewToggle: {
     height: 44,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: 12,
     padding: 3,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   viewToggleBtn: {
     height: 36,
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#ffffff',
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   tabBtnActive: {
     backgroundColor: colors.primary,
@@ -652,7 +652,7 @@ const styles = StyleSheet.create({
   tabBtnText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#475569',
+    color: '#4a5b68',
   },
   tabBtnTextActive: {
     color: '#ffffff',
@@ -662,15 +662,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
   },
   tabBadgeActive: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   tabBadgeText: {
     fontSize: 11,
-    color: '#64748b',
-    fontWeight: '800',
+    color: '#627079',
+    fontWeight: '700',
   },
   tabBadgeTextActive: {
     color: '#ffffff',
@@ -683,7 +683,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     padding: spacing.md,
     ...shadows.xs,
   },
@@ -701,32 +701,32 @@ const styles = StyleSheet.create({
   },
   codeText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#1d4ed8',
-    backgroundColor: '#eff6ff',
+    fontWeight: '700',
+    color: '#245a93',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#dbeafe',
+    borderColor: '#e6effa',
   },
   stageTag: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   stageTagText: {
     fontSize: 11,
-    color: '#475569',
+    color: '#4a5b68',
     fontWeight: '600',
   },
   projectTitle: {
     fontSize: 15.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     lineHeight: 21,
     marginBottom: 4,
   },
@@ -740,42 +740,42 @@ const styles = StyleSheet.create({
   clientName: {
     fontSize: 12.5,
     fontWeight: '600',
-    color: '#334155',
+    color: '#34495a',
   },
   clientText: {
     fontSize: 12.5,
-    color: '#334155',
+    color: '#34495a',
   },
   dotDivider: {
-    color: '#94a3b8',
+    color: '#7c8b96',
     fontSize: 12,
   },
   siteText: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     flex: 1,
   },
   nowAtRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: '#edf1f3',
     marginVertical: 6,
   },
   nowAtLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
   },
   nowAtValue: {
     fontSize: 11.5,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
     flex: 1,
   },
   progressContainer: {
@@ -790,17 +790,17 @@ const styles = StyleSheet.create({
   },
   progressLabel: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
   },
   progressPercent: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   progressBarBg: {
     height: 7,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: radius.full,
     overflow: 'hidden',
   },
@@ -814,7 +814,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#edf1f3',
     marginTop: 4,
   },
   budgetCol: {
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
   },
   budgetLabel: {
     fontSize: 9.5,
-    color: '#94a3b8',
+    color: '#7c8b96',
     textTransform: 'uppercase',
     fontWeight: '700',
     letterSpacing: 0.4,
@@ -830,8 +830,8 @@ const styles = StyleSheet.create({
   },
   budgetVal: {
     fontSize: 13.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   teamCol: {
     flex: 1.2,
@@ -841,14 +841,14 @@ const styles = StyleSheet.create({
   },
   teamText: {
     fontSize: 11.5,
-    color: '#475569',
+    color: '#4a5b68',
     fontWeight: '500',
   },
   actionCol: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: radius.full,

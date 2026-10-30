@@ -14,3 +14,6 @@ export * from './PayslipQrCode';
 export * from './NativeCharts';
 export * from './SectionHeader';
 export * from './ListRow';
+export * from './HomeHeader';
+export * from './HeroBanner';
+export * from './Avatar';

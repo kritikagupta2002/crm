@@ -92,7 +92,7 @@ export const EditEmployeeScreen: React.FC<{ route: any; navigation: any }> = ({
         bankName: emp.bank?.bankName || emp.kyc?.bankName || 'HDFC Bank',
         accountNumber: emp.bank?.accountNumber || emp.kyc?.bankAccount || '',
         ifscCode: emp.bank?.ifscCode || emp.kyc?.ifscCode || 'HDFC0001234',
-        baseSalary: String(emp.baseSalary || 50000),
+        baseSalary: emp.baseSalary ? String(emp.baseSalary) : '',
         emergencyName: emp.emergency?.name || '',
         emergencyRelation: emp.emergency?.relationship || '',
         emergencyPhone: emp.emergency?.phone || '',
@@ -449,7 +449,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     ...typography.h4,
     color: colors.text.primary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   label: {
     ...typography.caption,

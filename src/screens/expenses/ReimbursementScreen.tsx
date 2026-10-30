@@ -458,7 +458,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
     <View style={styles.container}>
       <AppHeader
         title={isPrivileged ? 'Field Reimbursements' : 'My Reimbursements'}
-        subtitle="Vehicle mileage, daily allowances & hardship claims"
+        subtitle="Travel, daily allowance and field claims"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -822,7 +822,7 @@ export const ReimbursementScreen: React.FC<{ navigation: any }> = ({ navigation 
 
             <Input
               label="Reviewer Remarks / Policy Notes"
-              placeholder="e.g. Approved per remote field exploration rate matrix..."
+              placeholder="e.g. Approved as per field rates"
               value={reviewRemarks}
               onChangeText={setReviewRemarks}
               multiline
@@ -1103,7 +1103,7 @@ const styles = StyleSheet.create({
   },
   amtValue: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: 2,
   },
@@ -1215,7 +1215,7 @@ const styles = StyleSheet.create({
   },
   calcTitle: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginBottom: spacing.xs,
   },
@@ -1293,7 +1293,7 @@ const styles = StyleSheet.create({
   },
   calcPreviewResult: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   policyNotice: {
@@ -1391,7 +1391,7 @@ const styles = StyleSheet.create({
   },
   ledgerNoticeHeading: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.secondary,
     letterSpacing: 0.5,
   },

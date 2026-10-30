@@ -148,7 +148,7 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
             {item.stage === 'To verify' && isFiler && (
               <View style={styles.guardTag}>
                 <ShieldAlert size={12} color={colors.semantic.danger} />
-                <Text style={styles.guardTagText}>4-Eyes Guard: Your filing</Text>
+                <Text style={styles.guardTagText}>Your filing</Text>
               </View>
             )}
           </View>
@@ -237,14 +237,14 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
       </View>
 
       <View style={styles.searchBar}>
-        <Search size={16} color="#94a3b8" />
+        <Search size={16} color="#7c8b96" />
         <TextInput
           placeholder={
             activeView === 'Government documents'
               ? 'Search letter title, ref, client, or lease...'
               : 'Search files, projects...'
           }
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor="#7c8b96"
           value={search}
           onChangeText={setSearch}
           style={styles.searchInput}
@@ -253,7 +253,7 @@ export const DocumentsScreen: React.FC<{ navigation: any; route?: any }> = ({
         />
         {search.length > 0 && (
           <TouchableOpacity onPress={() => setSearch('')}>
-            <X size={16} color="#94a3b8" />
+            <X size={16} color="#7c8b96" />
           </TouchableOpacity>
         )}
       </View>
@@ -458,14 +458,14 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     gap: 8,
   },
   searchInput: {
     flex: 1,
     height: 42,
     fontSize: 13,
-    color: '#0F172A',
+    color: '#0f2a3d',
     paddingVertical: 0,
   },
   stageTabsContainer: {
@@ -483,24 +483,24 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     minHeight: 32,
   },
   stagePillActive: {
-    backgroundColor: '#0D9488',
-    borderColor: '#0D9488',
+    backgroundColor: '#1f6f78',
+    borderColor: '#1f6f78',
   },
   stagePillText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#475569',
+    color: '#4a5b68',
   },
   stagePillTextActive: {
     color: '#FFFFFF',
     fontWeight: '700',
   },
   stagePillBadge: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     borderRadius: radius.full,
     paddingHorizontal: 6,
     paddingVertical: 1,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   stagePillBadgeText: {
     fontSize: 10.5,
     fontWeight: '700',
-    color: '#64748B',
+    color: '#627079',
   },
   stagePillBadgeTextActive: {
     color: '#FFFFFF',
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     padding: spacing.md + 2,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
   },
   cardHeader: {
     flexDirection: 'row',
@@ -544,14 +544,14 @@ const styles = StyleSheet.create({
   },
   refText: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#1D4ED8',
-    backgroundColor: '#EFF6FF',
+    fontWeight: '700',
+    color: '#245a93',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: borderRadius.sm,
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: '#e6effa',
   },
   kindText: {
     fontSize: 11.5,
@@ -560,7 +560,7 @@ const styles = StyleSheet.create({
   },
   docTitle: {
     fontSize: 15.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginBottom: 4,
     lineHeight: 20,
@@ -596,7 +596,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingVertical: 8,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
     marginTop: 4,
   },
   custodyText: {
@@ -608,32 +608,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: borderRadius.sm,
     borderWidth: 1,
-    borderColor: '#DCFCE7',
+    borderColor: '#e3f4ec',
   },
   verifiedTagText: {
     fontSize: 10.5,
-    color: '#15803D',
+    color: '#237a53',
     fontWeight: '700',
   },
   guardTag: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: borderRadius.sm,
     borderWidth: 1,
-    borderColor: '#FEE2E2',
+    borderColor: '#fbe5e4',
   },
   guardTagText: {
     fontSize: 10.5,
-    color: '#B91C1C',
+    color: '#a83a36',
     fontWeight: '700',
   },
   cardFooter: {
@@ -643,7 +643,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
   },
   accessBadge: {
     flexDirection: 'row',
@@ -659,16 +659,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: borderRadius.sm,
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: '#e6effa',
   },
   dispatchPillText: {
     fontSize: 10.5,
-    color: '#2563EB',
+    color: '#2f6fb3',
     fontWeight: '700',
   },
   modalOverlay: {

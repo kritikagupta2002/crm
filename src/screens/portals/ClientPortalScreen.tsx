@@ -111,7 +111,7 @@ export const ClientPortalScreen: React.FC<{ navigation: any }> = ({ navigation }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
       <View style={styles.container}>
         <ClientPortalHeader
           clientCompanyName={clientCompanyName}

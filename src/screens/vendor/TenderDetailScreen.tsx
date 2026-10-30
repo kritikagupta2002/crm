@@ -160,7 +160,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       setShowBidModal(false);
       setBidAmount('');
       setTechSpecs('');
-      Alert.alert('Sealed Bid Lodged', 'Your quotation has been encrypted and placed into the dual-key sealed chamber.');
+      Alert.alert('Bid received', 'Your bid stays sealed until bidding closes.');
     } catch (e: any) {
       Alert.alert('Bid Submission Error', e.message || 'Unable to submit sealed bid.');
     } finally {
@@ -248,7 +248,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
 
           {phase === 'Evaluation' && isTenderManager && (
             <Button
-              title="Open Dual-Key Chamber"
+              title="Open bids"
               variant="primary"
               size="small"
               style={{ flex: 1 }}
@@ -310,7 +310,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
       {activeTab === 'spec' && (
         <View style={styles.tabSection}>
           <Card style={styles.contentCard}>
-            <Text style={styles.cardHeading}>Key Procurement Dates & Protocol</Text>
+            <Text style={styles.cardHeading}>Key dates</Text>
             <View style={styles.specRow}>
               <Text style={styles.specLabel}>Published On</Text>
               <Text style={styles.specVal}>{formatDateTime(tender.publishedAt || '')}</Text>
@@ -320,7 +320,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
               <Text style={styles.specVal}>{formatDateTime(tender.closesAt || tender.submissionDeadline || '')}</Text>
             </View>
             <View style={styles.specRow}>
-              <Text style={styles.specLabel}>Dual-Key Opening Date</Text>
+              <Text style={styles.specLabel}>Bids open on</Text>
               <Text style={styles.specVal}>{formatDateTime(tender.openingDate || tender.opensAt || '')}</Text>
             </View>
             <View style={styles.specRow}>
@@ -366,7 +366,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
 
                 <View style={styles.sealedMaskBadge}>
                   <Lock size={12} color={colors.accent} />
-                  <Text style={styles.sealedMaskText}>SEALED ENCRYPTED IN DUAL-KEY ESCROW</Text>
+                  <Text style={styles.sealedMaskText}>SEALED UNTIL BIDDING CLOSES</Text>
                 </View>
 
                 <View style={styles.bidFooter}>
@@ -425,14 +425,14 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
                 <Card style={styles.chamberWarningCard}>
                   <View style={styles.chamberWarningHeader}>
                     <Lock size={20} color={colors.accent} />
-                    <Text style={styles.chamberWarningTitle}>Dual-Key Cryptographic Vault</Text>
+                    <Text style={styles.chamberWarningTitle}>Bids are sealed</Text>
                   </View>
                   <Text style={styles.chamberWarningDesc}>
-                    In accordance with sealed bidding protocols, vendor quotation amounts remain masked and strictly inaccessible to all staff until the official closing date and dual-key ceremony.
+                    Bid amounts stay hidden from everyone until bidding closes and the bids are opened.
                   </Text>
                   {isTenderManager && (
                     <Button
-                      title="Go to Dual-Key Unsealing Ceremony"
+                      title="Open bids"
                       variant="primary"
                       size="small"
                       style={{ alignSelf: 'flex-start', marginTop: spacing.xs }}
@@ -587,7 +587,7 @@ export const TenderDetailScreen: React.FC<TenderDetailScreenProps> = ({ route, n
               <ScrollView contentContainerStyle={styles.sheetContent}>
                 <Text style={styles.fieldLabel}>BIDDING FIRM *</Text>
                 {isVendorUser ? (
-                  <View style={[styles.textInput, { justifyContent: 'center', backgroundColor: '#f1f5f9', paddingVertical: 12 }]}>
+                  <View style={[styles.textInput, { justifyContent: 'center', backgroundColor: '#edf1f3', paddingVertical: 12 }]}>
                     <Text style={{ fontSize: 13, fontWeight: '700', color: colors.textPrimary }}>
                       {currentVendorName} ({currentVendorId})
                     </Text>
@@ -767,17 +767,17 @@ const styles = StyleSheet.create({
   },
   tenderIdBadge: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#0d9488',
-    backgroundColor: '#ccfbf1',
+    fontWeight: '700',
+    color: '#1f6f78',
+    backgroundColor: '#ddefef',
     paddingHorizontal: 9,
     paddingVertical: 3.5,
     borderRadius: radius.sm,
   },
   tenderMainTitle: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 21,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     lineHeight: 27,
     marginBottom: 4,
     letterSpacing: -0.3,
@@ -785,7 +785,7 @@ const styles = StyleSheet.create({
   categorySub: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
     marginBottom: spacing.sm,
   },
   kpiRow: {
@@ -794,7 +794,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1.2,
     borderBottomWidth: 1.2,
-    borderColor: '#f1f5f9',
+    borderColor: '#edf1f3',
     marginBottom: spacing.sm,
   },
   kpiCol: {
@@ -803,15 +803,15 @@ const styles = StyleSheet.create({
   kpiLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
     letterSpacing: 0.3,
     marginBottom: 4,
     textTransform: 'uppercase',
   },
   kpiVal: {
     fontSize: 17,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   headerActionRow: {

@@ -35,8 +35,8 @@ export const DocumentVerificationModal: React.FC<DocumentVerificationModalProps>
   const handleVerify = async () => {
     if (isSelfUpload) {
       Alert.alert(
-        'Four-Eyes Principle Violation',
-        'Corporate compliance prohibits employees from verifying documents they uploaded themselves. Another authorized team member or Director must verify this document.'
+        'You cannot verify this',
+        'You uploaded this document, so someone else must verify it.'
       );
       return;
     }
@@ -80,7 +80,7 @@ export const DocumentVerificationModal: React.FC<DocumentVerificationModalProps>
             <View style={styles.errorBox}>
               <ShieldAlert size={20} color={colors.semantic.danger} />
               <View style={styles.errorTextWrap}>
-                <Text style={styles.errorTitle}>Four-Eyes Principle Safeguard</Text>
+                <Text style={styles.errorTitle}>You cannot verify this</Text>
                 <Text style={styles.errorDesc}>
                   You cannot verify this record because you are recorded as the original uploader ({document.uploaderName}).
                 </Text>

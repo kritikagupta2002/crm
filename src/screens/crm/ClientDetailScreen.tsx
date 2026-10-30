@@ -75,7 +75,7 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
   const contactPerson = matchedLead?.contactPerson || 'Authorized Representative';
   const location = matchedLead?.location || matchedClient?.billingAddress || 'Rajasthan, India';
   const owner = matchedLead?.assignedTo || 'Senior Geologist';
-  const businessVal = matchedLead?.quoteValue || matchedLead?.estimatedValue || matchedClient?.totalValue || 4500000;
+  const businessVal = matchedLead?.quoteValue || matchedLead?.estimatedValue || matchedClient?.totalValue || 0;
   const clientSince = matchedLead?.wonOn || matchedClient?.createdAt || '2026-02-15';
 
   const onboardingStepsDone = ONBOARDING_STEPS.filter(
@@ -281,7 +281,7 @@ export const ClientDetailScreen: React.FC<ClientDetailScreenProps> = ({ route, n
       <Card>
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>
-            Active Geological Projects ({linkedProjects.length || 1})
+            Active Geological Projects ({linkedProjects.length})
           </Text>
           <FolderKanban size={18} color={colors.primary} />
         </View>

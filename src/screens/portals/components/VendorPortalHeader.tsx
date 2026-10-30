@@ -39,7 +39,7 @@ export const VendorPortalHeader: React.FC<VendorPortalHeaderProps> = ({
         <View style={styles.leftBrandCol}>
           <View style={styles.brandBadgeRow}>
             <View style={styles.brandIconBox}>
-              <Building2 size={20} color="#0284c7" strokeWidth={2.4} />
+              <Building2 size={20} color="#2f6fb3" strokeWidth={2.4} />
             </View>
             <View>
               <Text style={styles.brandSuperText}>BANSAL GEO</Text>
@@ -128,15 +128,15 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     borderWidth: 1,
-    borderColor: '#bfdbfe',
+    borderColor: '#c9dcf1',
     alignItems: 'center',
     justifyContent: 'center',
   },
   brandSuperText: {
     fontSize: 14,
-    fontWeight: '900',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
     letterSpacing: 0.8,
   },
@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   logoutBtn: {
-    backgroundColor: '#fef2f2',
-    borderColor: '#fecaca',
+    backgroundColor: '#fbe5e4',
+    borderColor: '#f2c4c2',
   },
   notificationDot: {
     position: 'absolute',
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   notificationDotText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   identityBar: {
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   vendorNameText: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     letterSpacing: -0.2,
   },
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   },
   codeText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   dotSeparator: {
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: vendorTheme.colors.tealSubtle,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
     borderRadius: 10,
     paddingHorizontal: 9,
     paddingVertical: 5,

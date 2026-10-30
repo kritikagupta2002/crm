@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: clientTheme.typography.titleLg,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   headerSubtitle: {
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   notifCardUnread: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderColor: clientTheme.colors.teal,
   },
   cardIconWrap: {

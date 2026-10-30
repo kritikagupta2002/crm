@@ -75,11 +75,11 @@ export const VendorNotificationsModal: React.FC<VendorNotificationsModalProps> =
     notifications.push({
       id: `notif-bid-${bid.id}`,
       type: 'bid',
-      title: bid.status === 'Allotted' ? 'Tender Allotted To Your Firm' : 'Sealed Bid Escrow Confirmation',
+      title: bid.status === 'Allotted' ? 'Tender Allotted To Your Firm' : 'Bid received',
       message:
         bid.status === 'Allotted'
           ? `Congratulations! Your bid ${bid.id} for ${tender.title} has been accepted.`
-          : `Bid ${bid.id} is encrypted in dual-key escrow. Opening scheduled on tender opening date.`,
+          : `Bid ${bid.id} is sealed until bidding closes.`,
       time: bid.submissionDate || 'Recently',
       read: true,
       targetScreen: 'TenderDetail',
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
     letterSpacing: -0.2,
   },
@@ -359,7 +359,7 @@ const styles = StyleSheet.create({
   },
   notifTitle: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     flex: 1,
     marginRight: 8,
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 6,
   },

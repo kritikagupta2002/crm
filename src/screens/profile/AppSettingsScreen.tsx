@@ -87,7 +87,7 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
@@ -97,7 +97,7 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <ArrowLeft size={20} color="#0f172a" strokeWidth={2.4} />
+            <ArrowLeft size={20} color="#0f2a3d" strokeWidth={2.4} />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle} numberOfLines={1}>App Settings</Text>
@@ -108,7 +108,7 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 
       {cacheToast && (
         <View style={styles.toastCard}>
-          <CheckCircle2 size={18} color="#059669" strokeWidth={2.4} />
+          <CheckCircle2 size={18} color="#2e9e6b" strokeWidth={2.4} />
           <Text style={styles.toastText}>Cache cleared successfully! 38.7 MB reclaimed.</Text>
         </View>
       )}
@@ -119,8 +119,8 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
       >
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
-            <Sun size={18} color="#d97706" strokeWidth={2.4} />
-            <Text style={styles.sectionTitle}>APPLICATION THEME (100% LIGHT PALETTE)</Text>
+            <Sun size={18} color="#c27a12" strokeWidth={2.4} />
+            <Text style={styles.sectionTitle}>APP THEME</Text>
           </View>
 
           <TouchableOpacity
@@ -132,10 +132,10 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
               {selectedTheme === 'system' && <View style={styles.themeRadioDot} />}
             </View>
             <View style={styles.themeTextCol}>
-              <Text style={styles.themeTitle}>Enterprise Pure Light (Default)</Text>
+              <Text style={styles.themeTitle}>Light (default)</Text>
               <Text style={styles.themeSub}>Crisp white canvas, slate text & Bansal Geo blue accents</Text>
             </View>
-            <View style={[styles.colorPreviewBox, { backgroundColor: '#ffffff', borderColor: '#0284c7' }]} />
+            <View style={[styles.colorPreviewBox, { backgroundColor: '#ffffff', borderColor: '#2f6fb3' }]} />
           </TouchableOpacity>
 
           <View style={styles.divider} />
@@ -152,7 +152,7 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
               <Text style={styles.themeTitle}>Mineral Clean Light</Text>
               <Text style={styles.themeSub}>Subtle cool tint with geological teal highlights</Text>
             </View>
-            <View style={[styles.colorPreviewBox, { backgroundColor: '#f0fdfa', borderColor: '#0d9488' }]} />
+            <View style={[styles.colorPreviewBox, { backgroundColor: '#eef7f7', borderColor: '#1f6f78' }]} />
           </TouchableOpacity>
 
           <View style={styles.divider} />
@@ -169,13 +169,13 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
               <Text style={styles.themeTitle}>Sandstone Warm Light</Text>
               <Text style={styles.themeSub}>Warm earthy tones for comfortable outdoor readability</Text>
             </View>
-            <View style={[styles.colorPreviewBox, { backgroundColor: '#faf8f5', borderColor: '#d97706' }]} />
+            <View style={[styles.colorPreviewBox, { backgroundColor: '#faf8f5', borderColor: '#c27a12' }]} />
           </TouchableOpacity>
         </View>
 
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
-            <Wifi size={18} color="#0284c7" strokeWidth={2.4} />
+            <Wifi size={18} color="#2f6fb3" strokeWidth={2.4} />
             <Text style={styles.sectionTitle}>OFFLINE SYNCHRONIZATION</Text>
           </View>
 
@@ -187,8 +187,8 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             <Switch
               value={offlineSyncEnabled}
               onValueChange={setOfflineSyncEnabled}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={offlineSyncEnabled ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={offlineSyncEnabled ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
 
@@ -202,8 +202,8 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             <Switch
               value={wifiOnly}
               onValueChange={setWifiOnly}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={wifiOnly ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={wifiOnly ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
 
@@ -229,7 +229,7 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderBetween}>
             <View style={styles.cardHeaderRow}>
-              <HardDrive size={18} color="#059669" strokeWidth={2.4} />
+              <HardDrive size={18} color="#2e9e6b" strokeWidth={2.4} />
               <Text style={styles.sectionTitle}>STORAGE & CACHE LIMIT</Text>
             </View>
             <Text style={styles.storageFractionText}>
@@ -246,15 +246,15 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 
           <View style={styles.storageBreakdown}>
             <View style={styles.breakdownItem}>
-              <View style={[styles.breakdownDot, { backgroundColor: '#0284c7' }]} />
+              <View style={[styles.breakdownDot, { backgroundColor: '#2f6fb3' }]} />
               <Text style={styles.breakdownLabel}>Offline Maps (18.2 MB)</Text>
             </View>
             <View style={styles.breakdownItem}>
-              <View style={[styles.breakdownDot, { backgroundColor: '#059669' }]} />
+              <View style={[styles.breakdownDot, { backgroundColor: '#2e9e6b' }]} />
               <Text style={styles.breakdownLabel}>Core Scans (16.4 MB)</Text>
             </View>
             <View style={styles.breakdownItem}>
-              <View style={[styles.breakdownDot, { backgroundColor: '#d97706' }]} />
+              <View style={[styles.breakdownDot, { backgroundColor: '#c27a12' }]} />
               <Text style={styles.breakdownLabel}>Reports & Invoices (8.2 MB)</Text>
             </View>
           </View>
@@ -265,7 +265,7 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             disabled={clearingCache}
             activeOpacity={0.8}
           >
-            <Trash2 size={16} color="#dc2626" strokeWidth={2.2} />
+            <Trash2 size={16} color="#d24c47" strokeWidth={2.2} />
             <Text style={styles.clearCacheBtnText}>
               {clearingCache ? 'Clearing Cache...' : 'Clear Cached Maps & Scans'}
             </Text>
@@ -283,8 +283,8 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             <Switch
               value={lowDataMode}
               onValueChange={setLowDataMode}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={lowDataMode ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={lowDataMode ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
 
@@ -298,16 +298,16 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
             <Switch
               value={autoDownloadReports}
               onValueChange={setAutoDownloadReports}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={autoDownloadReports ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={autoDownloadReports ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
         </View>
 
         <View style={styles.buildInfoCard}>
-          <Text style={styles.buildTitle}>Bansal Geo Mobile Suite</Text>
-          <Text style={styles.buildVersion}>Enterprise Production Build v2.4.0</Text>
-          <Text style={styles.buildMeta}>Environment: Production • Architecture: Universal Native</Text>
+          <Text style={styles.buildTitle}>Bansal Geo</Text>
+          <Text style={styles.buildVersion}>Version 1.0.0</Text>
+          <Text style={styles.buildMeta}>Bansal Geo Solutions Pvt Ltd</Text>
         </View>
       </ScrollView>
     </View>
@@ -317,14 +317,14 @@ export const AppSettingsScreen: React.FC<AppSettingsScreenProps> = ({ navigation
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: '#e1e8eb',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -340,21 +340,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   headerSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     marginTop: 1,
   },
@@ -362,19 +362,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     marginHorizontal: 16,
     marginTop: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   toastText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#047857',
+    color: '#237a53',
     flex: 1,
   },
   scrollContent: {
@@ -386,9 +386,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     marginBottom: 16,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 1.5 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -408,8 +408,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.8,
   },
   themeOptionRow: {
@@ -421,14 +421,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   themeOptionSelected: {
-    backgroundColor: '#f0f9ff',
+    backgroundColor: '#e6effa',
   },
   themeRadioCircle: {
     width: 20,
     height: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: '#0284c7',
+    borderColor: '#2f6fb3',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -436,7 +436,7 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#0284c7',
+    backgroundColor: '#2f6fb3',
   },
   themeTextCol: {
     flex: 1,
@@ -444,11 +444,11 @@ const styles = StyleSheet.create({
   themeTitle: {
     fontSize: 13.5,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   themeSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
   },
   colorPreviewBox: {
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     marginVertical: 10,
   },
   toggleRow: {
@@ -475,17 +475,17 @@ const styles = StyleSheet.create({
   toggleTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   toggleSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
   },
   subOptionHeader: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
     letterSpacing: 0.5,
     marginTop: 8,
     marginBottom: 8,
@@ -499,52 +499,52 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     alignItems: 'center',
     borderRadius: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   freqBtnSelected: {
-    backgroundColor: '#0284c7',
-    borderColor: '#0284c7',
+    backgroundColor: '#2f6fb3',
+    borderColor: '#2f6fb3',
   },
   freqBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
+    color: '#4a5b68',
   },
   freqBtnTextSelected: {
     color: '#ffffff',
   },
   storageFractionText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#059669',
+    fontWeight: '700',
+    color: '#2e9e6b',
   },
   storageBarBg: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     overflow: 'hidden',
     marginBottom: 6,
   },
   storageBarFill: {
     height: '100%',
-    backgroundColor: '#059669',
+    backgroundColor: '#2e9e6b',
     borderRadius: 4,
   },
   storageNoticeText: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginBottom: 10,
   },
   storageBreakdown: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderRadius: 10,
     padding: 10,
     gap: 6,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   breakdownItem: {
     flexDirection: 'row',
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   },
   breakdownLabel: {
     fontSize: 11.5,
-    color: '#475569',
+    color: '#4a5b68',
     fontWeight: '600',
   },
   clearCacheBtn: {
@@ -568,14 +568,14 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fbe5e4',
     borderWidth: 1,
-    borderColor: '#fecaca',
+    borderColor: '#f2c4c2',
   },
   clearCacheBtnText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#dc2626',
+    color: '#d24c47',
   },
   buildInfoCard: {
     alignItems: 'center',
@@ -583,18 +583,18 @@ const styles = StyleSheet.create({
   },
   buildTitle: {
     fontSize: 13.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   buildVersion: {
     fontSize: 12,
-    color: '#0284c7',
+    color: '#2f6fb3',
     fontWeight: '700',
     marginTop: 2,
   },
   buildMeta: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#7c8b96',
     marginTop: 2,
   },
 });

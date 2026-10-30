@@ -87,21 +87,21 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
 
   const getDayStatus = (empIndex: number, day: number) => {
     if (day % 7 === 6) {
-      return { code: 'WO', label: 'Weekly Off', bg: '#F1F5F9', text: '#64748B' };
+      return { code: 'WO', label: 'Weekly Off', bg: '#edf1f3', text: '#627079' };
     }
     if (empIndex === 1 && (day === 18 || day === 19)) {
-      return { code: 'LV', label: 'Approved Leave', bg: '#F3E8FF', text: '#7E22CE' };
+      return { code: 'LV', label: 'Approved Leave', bg: '#e8eef1', text: '#34495a' };
     }
     if (empIndex === 2 && day === 18) {
-      return { code: 'A', label: 'Absent', bg: '#FFE4E6', text: '#BE123C' };
+      return { code: 'A', label: 'Absent', bg: '#fbe5e4', text: '#a83a36' };
     }
     if (empIndex === 0 && day === 18) {
-      return { code: 'L', label: 'Late', bg: '#FEF3C7', text: '#B45309' };
+      return { code: 'L', label: 'Late', bg: '#fcf0dc', text: '#9a5f0c' };
     }
     if (day > 18 && currentMonth.includes('September')) {
-      return { code: '-', label: 'Unrecorded', bg: '#F8FAFC', text: '#CBD5E1' };
+      return { code: '-', label: 'Unrecorded', bg: '#f4f7f8', text: '#d3dce1' };
     }
-    return { code: 'P', label: 'Present', bg: '#DCFCE7', text: '#15803D' };
+    return { code: 'P', label: 'Present', bg: '#e3f4ec', text: '#237a53' };
   };
 
   const handleExport = () => {
@@ -109,18 +109,18 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
       'Export Complete',
       isEmployee
         ? 'Your monthly attendance statement has been exported to Excel (.xlsx).'
-        : `Comprehensive biometric attendance matrix for ${currentMonth} exported to Excel (.xlsx).`
+        : `Attendance for ${currentMonth} exported to Excel.`
     );
   };
 
   return (
     <View style={styles.container}>
       <AppHeader
-        title={isEmployee ? 'My Monthly Attendance Matrix' : 'Monthly Attendance Matrix'}
+        title={isEmployee ? 'My monthly attendance' : 'Monthly attendance'}
         subtitle={
           isEmployee
             ? `Your personal monthly presence & shifts for ${currentMonth}`
-            : `Comprehensive workforce muster matrix across all personnel`
+            : `Everyone's attendance for the month`
         }
         showBack
         onBack={() => navigation.goBack()}
@@ -136,8 +136,8 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
         {isEmployee && (
           <View style={styles.summaryGrid}>
             <Card style={styles.summaryCard}>
-              <View style={[styles.summaryIconWrap, { backgroundColor: '#ECFDF5' }]}>
-                <UserCheck size={18} color="#059669" />
+              <View style={[styles.summaryIconWrap, { backgroundColor: '#e3f4ec' }]}>
+                <UserCheck size={18} color="#2e9e6b" />
               </View>
               <View>
                 <Text style={styles.summaryLabel}>PRESENT DAYS</Text>
@@ -146,8 +146,8 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
             </Card>
 
             <Card style={styles.summaryCard}>
-              <View style={[styles.summaryIconWrap, { backgroundColor: '#FFFBEB' }]}>
-                <Clock size={18} color="#D97706" />
+              <View style={[styles.summaryIconWrap, { backgroundColor: '#fcf0dc' }]}>
+                <Clock size={18} color="#c27a12" />
               </View>
               <View>
                 <Text style={styles.summaryLabel}>LATE MARKS</Text>
@@ -156,8 +156,8 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
             </Card>
 
             <Card style={styles.summaryCard}>
-              <View style={[styles.summaryIconWrap, { backgroundColor: '#FAF5FF' }]}>
-                <CalendarOff size={18} color="#7C3AED" />
+              <View style={[styles.summaryIconWrap, { backgroundColor: '#f1f5f7' }]}>
+                <CalendarOff size={18} color="#3d5a6c" />
               </View>
               <View>
                 <Text style={styles.summaryLabel}>LEAVES TAKEN</Text>
@@ -166,8 +166,8 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
             </Card>
 
             <Card style={styles.summaryCard}>
-              <View style={[styles.summaryIconWrap, { backgroundColor: '#F1F5F9' }]}>
-                <Building2 size={18} color="#475569" />
+              <View style={[styles.summaryIconWrap, { backgroundColor: '#edf1f3' }]}>
+                <Building2 size={18} color="#4a5b68" />
               </View>
               <View>
                 <Text style={styles.summaryLabel}>WEEKLY OFFS</Text>
@@ -201,36 +201,36 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
 
           <View style={styles.legendRow}>
             <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#DCFCE7' }]}>
-                <Text style={[styles.legendCode, { color: '#15803D' }]}>P</Text>
+              <View style={[styles.legendBox, { backgroundColor: '#e3f4ec' }]}>
+                <Text style={[styles.legendCode, { color: '#237a53' }]}>P</Text>
               </View>
               <Text style={styles.legendLabel}>Present</Text>
             </View>
 
             <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={[styles.legendCode, { color: '#B45309' }]}>L</Text>
+              <View style={[styles.legendBox, { backgroundColor: '#fcf0dc' }]}>
+                <Text style={[styles.legendCode, { color: '#9a5f0c' }]}>L</Text>
               </View>
               <Text style={styles.legendLabel}>Late</Text>
             </View>
 
             <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#FFE4E6' }]}>
-                <Text style={[styles.legendCode, { color: '#BE123C' }]}>A</Text>
+              <View style={[styles.legendBox, { backgroundColor: '#fbe5e4' }]}>
+                <Text style={[styles.legendCode, { color: '#a83a36' }]}>A</Text>
               </View>
               <Text style={styles.legendLabel}>Absent</Text>
             </View>
 
             <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#F3E8FF' }]}>
-                <Text style={[styles.legendCode, { color: '#7E22CE' }]}>LV</Text>
+              <View style={[styles.legendBox, { backgroundColor: '#e8eef1' }]}>
+                <Text style={[styles.legendCode, { color: '#34495a' }]}>LV</Text>
               </View>
               <Text style={styles.legendLabel}>Leave</Text>
             </View>
 
             <View style={styles.legendItem}>
-              <View style={[styles.legendBox, { backgroundColor: '#F1F5F9' }]}>
-                <Text style={[styles.legendCode, { color: '#64748B' }]}>WO</Text>
+              <View style={[styles.legendBox, { backgroundColor: '#edf1f3' }]}>
+                <Text style={[styles.legendCode, { color: '#627079' }]}>WO</Text>
               </View>
               <Text style={styles.legendLabel}>Off</Text>
             </View>
@@ -306,14 +306,14 @@ export const MonthlyAttendanceScreen: React.FC<{ navigation: any }> = ({ navigat
                     </View>
 
                     <View style={styles.totalsRow}>
-                      <View style={[styles.totalPill, { backgroundColor: '#DCFCE7' }]}>
-                        <Text style={[styles.totalPillText, { color: '#15803D' }]}>P: 21</Text>
+                      <View style={[styles.totalPill, { backgroundColor: '#e3f4ec' }]}>
+                        <Text style={[styles.totalPillText, { color: '#237a53' }]}>P: 21</Text>
                       </View>
-                      <View style={[styles.totalPill, { backgroundColor: '#FFE4E6' }]}>
-                        <Text style={[styles.totalPillText, { color: '#BE123C' }]}>A: 1</Text>
+                      <View style={[styles.totalPill, { backgroundColor: '#fbe5e4' }]}>
+                        <Text style={[styles.totalPillText, { color: '#a83a36' }]}>A: 1</Text>
                       </View>
-                      <View style={[styles.totalPill, { backgroundColor: '#F3E8FF' }]}>
-                        <Text style={[styles.totalPillText, { color: '#7E22CE' }]}>LV: 2</Text>
+                      <View style={[styles.totalPill, { backgroundColor: '#e8eef1' }]}>
+                        <Text style={[styles.totalPillText, { color: '#34495a' }]}>LV: 2</Text>
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -359,10 +359,10 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#c9dcf1',
   },
   exportBtnText: {
     fontSize: typography.fontSizes.xs,
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
   },
   legendCode: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   legendLabel: {
     fontSize: typography.fontSizes.xxs,
@@ -595,6 +595,6 @@ const styles = StyleSheet.create({
   },
   dayCode: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });

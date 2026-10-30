@@ -24,6 +24,7 @@ import {
   QuoteBuilderScreen,
   QuoteApprovalsScreen,
   ClientApprovalsScreen,
+  ClientQuestionsScreen,
   ClientOnboardingScreen,
   ClientsScreen,
   ClientDetailScreen,
@@ -35,14 +36,17 @@ import {
   ErmDashboardScreen,
   ProjectsScreen,
   ProjectDetailScreen,
+  InventoryScreen,
 } from '../screens/erm';
 
 import {
   FieldDatabaseHomeScreen,
-  GeologicalMappingScreen,
-  SamplingActivityScreen,
-  DrillingDprScreen,
-  DispatchDatabaseScreen,
+  FieldSectionScreen,
+  FieldRecordFormScreen,
+  FieldRecordDetailScreen,
+  DispatchLetterScreen,
+  QaqcScreen,
+  QaqcResultsScreen,
 } from '../screens/field';
 
 import {
@@ -102,6 +106,10 @@ import {
   InvoicesScreen,
   VendorBillsScreen,
   VouchersScreen,
+  ReceivablesScreen,
+  PaymentsReceiptsScreen,
+  FinancialReportsScreen,
+  BudgetCostScreen,
   TaxComplianceScreen,
   TdsRegisterScreen,
   GstOverviewScreen,
@@ -134,7 +142,7 @@ export const RootNavigator: React.FC = () => {
   if (isLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#041527', alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color="#f59e0b" />
+        <ActivityIndicator size="large" color="#c27a12" />
       </View>
     );
   }
@@ -152,7 +160,8 @@ export const RootNavigator: React.FC = () => {
   const canAccessCrm = isSuperAdmin || isDirector;
   const canAccessErm = isSuperAdmin || isDirector || isManager;
   const canAccessVendor = isSuperAdmin || isDirector || isFinanceMaster;
-  const canAccessField = isSuperAdmin || isDirector || isManager;
+  // Field Database as on the web: Super Admin, Manager and Employee.
+  const canAccessField = isSuperAdmin || isManager || isEmployee;
   const canAccessDocs = isSuperAdmin || isDirector || isManager;
   const canManageHrms = isSuperAdmin || isDirector || isManager;
   const canAccessMis = isSuperAdmin || isDirector || isManager || isFinanceMaster;
@@ -192,6 +201,10 @@ export const RootNavigator: React.FC = () => {
           <Stack.Screen name="AuditLog" component={AuditLogScreen} />
           <Stack.Screen name="SentMessages" component={SentMessagesScreen} />
           <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+          {/* Inventory as on the web: Super Admin, Director, Manager and Finance Master. */}
+          {(isSuperAdmin || isDirector || isManager || isFinanceMaster) && <Stack.Screen name="Inventory" component={InventoryScreen} />}
+          {/* Every team role answers some client questions (billing, project, documents). */}
+          <Stack.Screen name="ClientQuestions" component={ClientQuestionsScreen} />
 
           {canAccessCrm && (
             <>
@@ -223,10 +236,12 @@ export const RootNavigator: React.FC = () => {
           {canAccessField && (
             <>
               <Stack.Screen name="FieldDatabaseHome" component={FieldDatabaseHomeScreen} />
-              <Stack.Screen name="GeologicalMapping" component={GeologicalMappingScreen} />
-              <Stack.Screen name="SamplingActivity" component={SamplingActivityScreen} />
-              <Stack.Screen name="DrillingDpr" component={DrillingDprScreen} />
-              <Stack.Screen name="DispatchDatabase" component={DispatchDatabaseScreen} />
+              <Stack.Screen name="FieldSection" component={FieldSectionScreen} />
+              <Stack.Screen name="FieldRecordForm" component={FieldRecordFormScreen} />
+              <Stack.Screen name="FieldRecordDetail" component={FieldRecordDetailScreen} />
+              <Stack.Screen name="DispatchLetter" component={DispatchLetterScreen} />
+              <Stack.Screen name="Qaqc" component={QaqcScreen} />
+              <Stack.Screen name="QaqcResults" component={QaqcResultsScreen} />
             </>
           )}
 
@@ -300,6 +315,10 @@ export const RootNavigator: React.FC = () => {
               <Stack.Screen name="Invoices" component={InvoicesScreen} />
               <Stack.Screen name="VendorBills" component={VendorBillsScreen} />
               <Stack.Screen name="Vouchers" component={VouchersScreen} />
+              <Stack.Screen name="Receivables" component={ReceivablesScreen} />
+              <Stack.Screen name="PaymentsReceipts" component={PaymentsReceiptsScreen} />
+              <Stack.Screen name="FinancialReports" component={FinancialReportsScreen} />
+              <Stack.Screen name="BudgetCost" component={BudgetCostScreen} />
               <Stack.Screen name="TaxCompliance" component={TaxComplianceScreen} />
               <Stack.Screen name="TdsRegister" component={TdsRegisterScreen} />
               <Stack.Screen name="GstOverview" component={GstOverviewScreen} />

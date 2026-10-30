@@ -91,10 +91,8 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
       header={
         <AppHeader
           title="Vendor Workspace"
-          subtitle="Procurement, Tenders, Sealed Bids & Subcontracts"
+          subtitle="Vendors, tenders and work orders"
           scenicBanner
-          badge="Vendor & Subcontract Gate"
-          badgeIcon={<Building2 size={12} color="#0d9488" />}
           showBack
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
@@ -103,58 +101,58 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
       contentContainerStyle={styles.content}
     >
         <View style={styles.roleBanner}>
-          <ShieldCheck size={18} color="#0D9488" />
+          <ShieldCheck size={18} color="#1f6f78" />
           <View style={styles.roleBannerTextContainer}>
             <Text style={styles.roleBannerTitle}>
-              Active Clearance: <Text style={styles.roleBannerHighlight}>{String(role).toUpperCase().replace('_', ' ')}</Text>
+              Your role: <Text style={styles.roleBannerHighlight}>{String(role).replace(/_/g, ' ')}</Text>
             </Text>
             <Text style={styles.roleBannerSub}>
               {isDirector
-                ? 'Authorized for Dual-Key Cryptographic Unsealing Ceremony & Tender Allotment'
+                ? 'You open the bids and award tenders'
                 : isTenderManager
-                ? 'Authorized for Notice Management & Dual-Key Bidding Participation'
+                ? 'You publish tenders and manage notices'
                 : isAccountant
-                ? 'Authorized for 3-Way Reconciliation & Subcontract Disbursements'
-                : 'Authorized for Operational Work Order Oversight'}
+                ? 'You check vendor bills and release payments'
+                : 'You follow the work orders'}
             </Text>
           </View>
         </View>
 
         <View style={styles.metricsStrip}>
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: '#0d9488' }]}>{metrics.totalVendors}</Text>
+            <Text style={[styles.metricVal, { color: '#1f6f78' }]}>{metrics.totalVendors}</Text>
             <Text style={styles.metricLbl}>Empanelled</Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: metrics.pendingApps > 0 ? '#d97706' : '#16a34a' }]}>{metrics.pendingApps}</Text>
-            <Text style={styles.metricLbl}>KYC Apps</Text>
+            <Text style={[styles.metricVal, { color: metrics.pendingApps > 0 ? '#c27a12' : '#2e9e6b' }]}>{metrics.pendingApps}</Text>
+            <Text style={styles.metricLbl}>Applications</Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: '#2563eb' }]}>{metrics.openTendersCount}</Text>
+            <Text style={[styles.metricVal, { color: '#2f6fb3' }]}>{metrics.openTendersCount}</Text>
             <Text style={styles.metricLbl}>Tenders</Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: '#9333ea' }]}>{metrics.totalSealedBids}</Text>
+            <Text style={[styles.metricVal, { color: '#3d5a6c' }]}>{metrics.totalSealedBids}</Text>
             <Text style={styles.metricLbl}>Sealed Bids</Text>
           </View>
         </View>
 
         <View style={styles.launchpadSection}>
-          <Text style={styles.sectionHeader}>QUICK VENDOR ACTIONS</Text>
+          <Text style={styles.sectionHeader}>QUICK ACTIONS</Text>
           <View style={styles.actionGrid}>
             <TouchableOpacity
               style={styles.actionTile}
               onPress={() => navigation.navigate('Tenders')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDFA' }]}>
-                <Layers size={22} color="#0D9488" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#eef7f7' }]}>
+                <Layers size={22} color="#1f6f78" />
               </View>
               <Text style={styles.actionTileTitle}>Tenders</Text>
-              <Text style={styles.actionTileSub}>Notice Board</Text>
+              <Text style={styles.actionTileSub}>Notices</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -169,11 +167,11 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
               }}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FAF5FF' }]}>
-                <Lock size={22} color="#9333EA" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <Lock size={22} color="#3d5a6c" />
               </View>
-              <Text style={styles.actionTileTitle}>Dual-Key Vault</Text>
-              <Text style={styles.actionTileSub}>Unseal Ceremony</Text>
+              <Text style={styles.actionTileTitle}>Open bids</Text>
+              <Text style={styles.actionTileSub}>After bidding closes</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -181,8 +179,8 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
               onPress={() => navigation.navigate('WorkOrders')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#EFF6FF' }]}>
-                <Briefcase size={22} color="#2563EB" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#e6effa' }]}>
+                <Briefcase size={22} color="#2f6fb3" />
               </View>
               <Text style={styles.actionTileTitle}>Work Orders</Text>
               <Text style={styles.actionTileSub}>Subcontracts</Text>
@@ -193,11 +191,11 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
               onPress={() => navigation.navigate('Vendors')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDF4' }]}>
-                <Building2 size={22} color="#16A34A" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#e3f4ec' }]}>
+                <Building2 size={22} color="#2e9e6b" />
               </View>
-              <Text style={styles.actionTileTitle}>Vendors Master</Text>
-              <Text style={styles.actionTileSub}>Contractor KYC</Text>
+              <Text style={styles.actionTileTitle}>Vendors</Text>
+              <Text style={styles.actionTileSub}>All vendors</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -205,11 +203,11 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
               onPress={() => navigation.navigate('VendorApplications')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FFFBEB' }]}>
-                <FileCheck2 size={22} color="#D97706" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#fcf0dc' }]}>
+                <FileCheck2 size={22} color="#c27a12" />
               </View>
               <Text style={styles.actionTileTitle}>Applications</Text>
-              <Text style={styles.actionTileSub}>New Regs</Text>
+              <Text style={styles.actionTileSub}>New vendors</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -217,10 +215,10 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
               onPress={() => navigation.navigate('MisReports')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FDF2F8' }]}>
-                <TrendingUp size={22} color="#DB2777" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <TrendingUp size={22} color="#3d5a6c" />
               </View>
-              <Text style={styles.actionTileTitle}>Vendor BI</Text>
+              <Text style={styles.actionTileTitle}>Reports</Text>
               <Text style={styles.actionTileSub}>Analytics</Text>
             </TouchableOpacity>
           </View>
@@ -229,8 +227,8 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
         <Card style={styles.funnelCard}>
           <View style={styles.funnelHeader}>
             <View>
-              <Text style={styles.funnelTitle}>Subcontract Lifecycle Funnel</Text>
-              <Text style={styles.funnelSubtitle}>Field verification through final disbursement</Text>
+              <Text style={styles.funnelTitle}>Work orders by stage</Text>
+              <Text style={styles.funnelSubtitle}>From issue to payment</Text>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('WorkOrders')}>
               <Text style={styles.sectionLink}>View All ({workOrders.length})</Text>
@@ -240,66 +238,66 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
           <View style={styles.funnelRow}>
             <View style={styles.funnelStep}>
               <Text style={styles.funnelCount}>{metrics.stageCounts.Issued}</Text>
-              <View style={[styles.funnelBadge, { backgroundColor: '#FEF3C7' }]}>
-                <Text style={[styles.funnelBadgeText, { color: '#B45309' }]}>Issued</Text>
+              <View style={[styles.funnelBadge, { backgroundColor: '#fcf0dc' }]}>
+                <Text style={[styles.funnelBadgeText, { color: '#9a5f0c' }]}>Issued</Text>
               </View>
             </View>
             <Text style={styles.funnelArrow}>→</Text>
 
             <View style={styles.funnelStep}>
               <Text style={styles.funnelCount}>{metrics.stageCounts.Started}</Text>
-              <View style={[styles.funnelBadge, { backgroundColor: '#EFF6FF' }]}>
-                <Text style={[styles.funnelBadgeText, { color: '#1D4ED8' }]}>Started</Text>
+              <View style={[styles.funnelBadge, { backgroundColor: '#e6effa' }]}>
+                <Text style={[styles.funnelBadgeText, { color: '#245a93' }]}>Started</Text>
               </View>
             </View>
             <Text style={styles.funnelArrow}>→</Text>
 
             <View style={styles.funnelStep}>
               <Text style={styles.funnelCount}>{metrics.stageCounts.Delivered}</Text>
-              <View style={[styles.funnelBadge, { backgroundColor: '#F3E8FF' }]}>
-                <Text style={[styles.funnelBadgeText, { color: '#7E22CE' }]}>Delivered</Text>
+              <View style={[styles.funnelBadge, { backgroundColor: '#e8eef1' }]}>
+                <Text style={[styles.funnelBadgeText, { color: '#34495a' }]}>Delivered</Text>
               </View>
             </View>
             <Text style={styles.funnelArrow}>→</Text>
 
             <View style={styles.funnelStep}>
               <Text style={styles.funnelCount}>{metrics.stageCounts.Billed}</Text>
-              <View style={[styles.funnelBadge, { backgroundColor: '#FEE2E2' }]}>
-                <Text style={[styles.funnelBadgeText, { color: '#B91C1C' }]}>Billed</Text>
+              <View style={[styles.funnelBadge, { backgroundColor: '#fbe5e4' }]}>
+                <Text style={[styles.funnelBadgeText, { color: '#a83a36' }]}>Billed</Text>
               </View>
             </View>
             <Text style={styles.funnelArrow}>→</Text>
 
             <View style={styles.funnelStep}>
               <Text style={styles.funnelCount}>{metrics.stageCounts.Verified}</Text>
-              <View style={[styles.funnelBadge, { backgroundColor: '#F1F5F9' }]}>
-                <Text style={[styles.funnelBadgeText, { color: '#475569' }]}>Verified</Text>
+              <View style={[styles.funnelBadge, { backgroundColor: '#edf1f3' }]}>
+                <Text style={[styles.funnelBadgeText, { color: '#4a5b68' }]}>Verified</Text>
               </View>
             </View>
             <Text style={styles.funnelArrow}>→</Text>
 
             <View style={styles.funnelStep}>
               <Text style={styles.funnelCount}>{metrics.stageCounts.Paid}</Text>
-              <View style={[styles.funnelBadge, { backgroundColor: '#DCFCE7' }]}>
-                <Text style={[styles.funnelBadgeText, { color: '#15803D' }]}>Paid</Text>
+              <View style={[styles.funnelBadge, { backgroundColor: '#e3f4ec' }]}>
+                <Text style={[styles.funnelBadgeText, { color: '#237a53' }]}>Paid</Text>
               </View>
             </View>
           </View>
 
           <View style={styles.financialSummary}>
             <View style={styles.financialCol}>
-              <Text style={styles.financialLabel}>Contract Ceiling</Text>
+              <Text style={styles.financialLabel}>Order value</Text>
               <Text style={styles.financialValue}>{formatCurrency(metrics.totalContractValue)}</Text>
             </View>
             <View style={styles.financialDivider} />
             <View style={styles.financialCol}>
-              <Text style={styles.financialLabel}>Total Invoiced</Text>
+              <Text style={styles.financialLabel}>Billed</Text>
               <Text style={styles.financialValue}>{formatCurrency(metrics.totalBilledValue)}</Text>
             </View>
             <View style={styles.financialDivider} />
             <View style={styles.financialCol}>
-              <Text style={styles.financialLabel}>Total Disbursed</Text>
-              <Text style={[styles.financialValue, { color: '#16A34A' }]}>
+              <Text style={styles.financialLabel}>Paid</Text>
+              <Text style={[styles.financialValue, { color: '#2e9e6b' }]}>
                 {formatCurrency(metrics.totalPaidValue)}
               </Text>
             </View>
@@ -307,21 +305,21 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
         </Card>
 
         <View style={styles.radarSection}>
-          <Text style={styles.sectionHeader}>OPERATIONAL RADAR</Text>
+          <Text style={styles.sectionHeader}>NEEDS ATTENTION</Text>
 
           {metrics.billsToCheck.length > 0 && (
             <Card style={styles.alertCard}>
               <View style={styles.alertCardHeader}>
-                <AlertCircle size={20} color="#EF4444" />
+                <AlertCircle size={20} color="#d24c47" />
                 <Text style={styles.alertCardTitle}>
-                  {metrics.billsToCheck.length} Bill(s) Awaiting 3-Way Reconciliation
+                  {metrics.billsToCheck.length} bill(s) to check
                 </Text>
               </View>
               <Text style={styles.alertCardDesc}>
-                Contractor completion logs and field sheets must be cross-verified before finance clearance.
+                Check each bill against the work order and the site record before it goes for payment.
               </Text>
               <Button
-                title="Inspect & Check Bills"
+                title="Check bills"
                 variant="outline"
                 size="small"
                 style={styles.alertCardBtn}
@@ -333,16 +331,16 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
           {metrics.billsToPay.length > 0 && (
             <Card style={styles.alertCard}>
               <View style={styles.alertCardHeader}>
-                <DollarSign size={20} color="#16A34A" />
+                <DollarSign size={20} color="#2e9e6b" />
                 <Text style={styles.alertCardTitle}>
-                  {metrics.billsToPay.length} Verified Subcontract Bill(s) Ready for Payment
+                  {metrics.billsToPay.length} checked bill(s) ready to pay
                 </Text>
               </View>
               <Text style={styles.alertCardDesc}>
-                Reconciliation verified. Ready for TDS calculation (194C / 194J) and bank disbursement.
+                Deduct TDS and pay.
               </Text>
               <Button
-                title="Disburse Payments"
+                title="Pay"
                 variant="primary"
                 size="small"
                 style={styles.alertCardBtn}
@@ -354,13 +352,13 @@ export const VendorWorkspaceHomeScreen: React.FC<VendorWorkspaceHomeScreenProps>
           {metrics.pendingApps > 0 && (
             <Card style={styles.alertCard}>
               <View style={styles.alertCardHeader}>
-                <UserCheck size={20} color="#D97706" />
+                <UserCheck size={20} color="#c27a12" />
                 <Text style={styles.alertCardTitle}>
-                  {metrics.pendingApps} Vendor Registration(s) Needing Empanelment
+                  {metrics.pendingApps} vendor application(s) to review
                 </Text>
               </View>
               <Text style={styles.alertCardDesc}>
-                Verify GSTIN, PAN, Bank Details, and Statutory Compliance documents before admitting to bidding.
+                Check GSTIN, PAN, bank details and documents before the vendor can bid.
               </Text>
               <Button
                 title="Review Applications"
@@ -385,11 +383,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     padding: spacing.md,
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
     marginBottom: spacing.md,
     ...shadows.sm,
   },
@@ -399,15 +397,15 @@ const styles = StyleSheet.create({
   roleBannerTitle: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
-    color: '#0F172A',
+    color: '#0f2a3d',
   },
   roleBannerHighlight: {
-    color: '#0D9488',
+    color: '#1f6f78',
     fontWeight: typography.fontWeights.heavy,
   },
   roleBannerSub: {
     fontSize: typography.fontSizes.xs,
-    color: '#475569',
+    color: '#4a5b68',
     marginTop: 2,
     lineHeight: 16,
   },
@@ -428,7 +426,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: spacing.md,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   metricItem: {
@@ -436,15 +434,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   metricVal: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 24,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.5,
   },
   metricLbl: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
@@ -452,7 +450,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1.2,
     height: 38,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
   },
   launchpadSection: {
     marginBottom: spacing.md,
@@ -469,7 +467,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.sm,
   },
   actionSquircle: {
@@ -497,7 +495,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     marginBottom: spacing.md,
     ...shadows.sm,
   },
@@ -520,17 +518,17 @@ const styles = StyleSheet.create({
   sectionLink: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   funnelRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     padding: spacing.sm,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     marginBottom: spacing.md,
   },
   funnelStep: {
@@ -561,7 +559,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
   },
   financialCol: {
     flex: 1,
@@ -570,7 +568,7 @@ const styles = StyleSheet.create({
   financialDivider: {
     width: 1,
     height: 30,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#e1e8eb',
   },
   financialLabel: {
     fontSize: 10,
@@ -592,7 +590,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     marginBottom: spacing.xs,
     ...shadows.sm,
   },

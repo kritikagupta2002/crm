@@ -213,7 +213,7 @@ export class LeaveService {
     if (!req) throw new Error('Leave request not found.');
 
     if (approverEmployeeId && approverEmployeeId === req.employeeId) {
-      throw new Error('4-Eyes Principle Violation: You cannot adjudicate your own leave application.');
+      throw new Error('You cannot approve your own leave.');
     }
 
     if (decision === 'Rejected' && (!approverComment || !approverComment.trim())) {

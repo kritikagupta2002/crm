@@ -185,7 +185,7 @@ export const styles = StyleSheet.create({
   },
   woCode: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
   },
   woTitle: {
@@ -537,7 +537,7 @@ export const styles = StyleSheet.create({
   },
   netPayVal: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.success,
   },
   utrTag: {
@@ -590,7 +590,7 @@ export const styles = StyleSheet.create({
   },
   profileSectionTitle: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     fontSize: 10,
     marginBottom: 4,

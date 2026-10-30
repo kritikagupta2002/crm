@@ -90,7 +90,7 @@ export const ShiftsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     <View style={styles.container}>
       <AppHeader
         title="Shift Management"
-        subtitle="Shift rosters for Jaipur HQ, Bhilwara mine, & drone field campaigns"
+        subtitle="Shift timings and rosters"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={

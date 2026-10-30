@@ -258,7 +258,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
       if (!ok) {
         Alert.alert(
           'Document Preview',
-          `Credential "${doc.fileName}" (${doc.fileSize}) is verified in the employee vault.`
+          `Credential "${doc.fileName}" (${doc.fileSize}) is verified.`
         );
       }
     } else {
@@ -316,7 +316,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
               title="VERIFIED"
               value={String(verifiedCount)}
               caption="Compliant"
-              icon={<CheckCircle size={18} color="#059669" />}
+              icon={<CheckCircle size={18} color="#2e9e6b" />}
             />
           </View>
           <View style={styles.kpiCol}>
@@ -324,7 +324,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
               title="PENDING REVIEW"
               value={String(pendingCount)}
               caption="HR Verification"
-              icon={<Clock size={18} color="#D97706" />}
+              icon={<Clock size={18} color="#c27a12" />}
             />
           </View>
           <View style={styles.kpiCol}>
@@ -332,7 +332,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
               title="DGMS / DRONE"
               value={String(statutoryLicenseCount)}
               caption="Statutory Licenses"
-              icon={<Award size={18} color="#4F46E5" />}
+              icon={<Award size={18} color="#3d5a6c" />}
             />
           </View>
         </View>
@@ -384,7 +384,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
               searchQuery.length > 0 ||
               targetEmpId) && (
               <TouchableOpacity style={styles.resetBtn} onPress={resetFilters}>
-                <RotateCcw size={14} color="#DC2626" />
+                <RotateCcw size={14} color="#d24c47" />
                 <Text style={styles.resetBtnText}>Reset</Text>
               </TouchableOpacity>
             )}
@@ -419,7 +419,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
                     ]}
                   >
                     {isLicense ? (
-                      <Award size={22} color="#4F46E5" />
+                      <Award size={22} color="#3d5a6c" />
                     ) : (
                       <FileText size={22} color={colors.primary} />
                     )}
@@ -490,8 +490,8 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
                     onPress={() => handleOpenAttachment(item)}
                     activeOpacity={0.7}
                   >
-                    <Download size={16} color="#059669" />
-                    <Text style={[styles.actionIconBtnText, { color: '#059669' }]}>
+                    <Download size={16} color="#2e9e6b" />
+                    <Text style={[styles.actionIconBtnText, { color: '#2e9e6b' }]}>
                       Open
                     </Text>
                   </TouchableOpacity>
@@ -592,7 +592,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
                   onPress={handlePickPhoto}
                   activeOpacity={0.8}
                 >
-                  <ImageIcon size={18} color="#059669" />
+                  <ImageIcon size={18} color="#2e9e6b" />
                   <Text style={styles.attachBtnText}>Gallery</Text>
                 </TouchableOpacity>
 
@@ -601,7 +601,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
                   onPress={handleTakePhoto}
                   activeOpacity={0.8}
                 >
-                  <Upload size={18} color="#D97706" />
+                  <Upload size={18} color="#c27a12" />
                   <Text style={styles.attachBtnText}>Camera</Text>
                 </TouchableOpacity>
               </View>
@@ -618,7 +618,7 @@ export const EmployeeDocumentsScreen: React.FC<{ route?: any; navigation: any }>
                     </Text>
                   </View>
                   <TouchableOpacity onPress={() => setSelectedAttachment(null)}>
-                    <X size={16} color="#DC2626" />
+                    <X size={16} color="#d24c47" />
                   </TouchableOpacity>
                 </View>
               )}
@@ -973,7 +973,7 @@ const styles = StyleSheet.create({
   },
   resetBtnText: {
     fontSize: typography.fontSizes.xs,
-    color: '#DC2626',
+    color: '#d24c47',
     fontWeight: typography.fontWeights.bold,
   },
   docItemCard: {
@@ -993,10 +993,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconWrapNormal: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
   },
   iconWrapLicense: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#f1f5f7',
   },
   itemTitleBlock: {
     flex: 1,
@@ -1057,7 +1057,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   expiryActive: {
-    color: '#D97706',
+    color: '#c27a12',
     fontWeight: typography.fontWeights.bold,
   },
   expiryLifetime: {
@@ -1090,7 +1090,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#059669',
+    backgroundColor: '#2e9e6b',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
     borderRadius: radius.sm,
@@ -1143,11 +1143,11 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.sm,
   },
   selfUploadBanner: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     borderRadius: radius.md,
     padding: spacing.sm,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#c9dcf1',
     marginBottom: spacing.xs,
   },
   selfUploadLabel: {
@@ -1228,9 +1228,9 @@ const styles = StyleSheet.create({
   fileSelectedBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#e3f4ec',
     borderWidth: 1,
-    borderColor: '#BBF7D0',
+    borderColor: '#bfe3d0',
     borderRadius: radius.md,
     padding: spacing.xs,
     marginTop: spacing.xs,
@@ -1322,7 +1322,7 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border.subtle,
   },
   pickerPopupOptionActive: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     borderRadius: radius.sm,
   },
   pickerPopupOptionText: {

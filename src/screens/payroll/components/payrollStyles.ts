@@ -50,14 +50,14 @@ export const styles = StyleSheet.create({
     width: 26,
     height: 26,
     borderRadius: borderRadius.sm,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.xs,
   },
   metricValue: {
     ...typography.bodyMedium,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   metricLabel: {
@@ -81,7 +81,7 @@ export const styles = StyleSheet.create({
   },
   sectionHeader: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     letterSpacing: 0.5,
     marginTop: spacing.xs,
@@ -265,7 +265,7 @@ export const styles = StyleSheet.create({
   },
   structEmpId: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   structEmpName: {
@@ -292,7 +292,7 @@ export const styles = StyleSheet.create({
   },
   structCtcVal: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   compGrid: {
@@ -337,7 +337,7 @@ export const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   netHighlight: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: spacing.sm,
     paddingVertical: 2,
     borderRadius: borderRadius.sm,
@@ -346,12 +346,12 @@ export const styles = StyleSheet.create({
     ...typography.caption,
     fontSize: 8,
     fontWeight: '700',
-    color: '#059669',
+    color: '#2e9e6b',
   },
   netHighlightVal: {
     ...typography.bodySmall,
-    fontWeight: '800',
-    color: '#059669',
+    fontWeight: '700',
+    color: '#2e9e6b',
   },
   stepCard: {
     padding: spacing.md,
@@ -397,7 +397,7 @@ export const styles = StyleSheet.create({
   syncStatusText: {
     ...typography.caption,
     fontSize: 10,
-    color: '#059669',
+    color: '#2e9e6b',
     fontWeight: '600',
   },
   rosterCard: {
@@ -414,7 +414,7 @@ export const styles = StyleSheet.create({
   },
   rosterEmpId: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   rosterEmpName: {
@@ -472,13 +472,13 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.background.secondary,
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: '#bfe3d0',
   },
   successIconBox: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#e3f4ec',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.md,
@@ -566,7 +566,7 @@ export const styles = StyleSheet.create({
   },
   modalSectionTitle: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     letterSpacing: 0.5,
   },
@@ -601,7 +601,7 @@ export const styles = StyleSheet.create({
   computedTitle: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     letterSpacing: 0.5,
     marginBottom: 4,
@@ -627,13 +627,13 @@ export const styles = StyleSheet.create({
   },
   computedNetLabel: {
     ...typography.bodySmall,
-    fontWeight: '800',
-    color: '#059669',
+    fontWeight: '700',
+    color: '#2e9e6b',
   },
   computedNetVal: {
     ...typography.bodySmall,
-    fontWeight: '800',
-    color: '#059669',
+    fontWeight: '700',
+    color: '#2e9e6b',
   },
   modalFooter: {
     flexDirection: 'row',

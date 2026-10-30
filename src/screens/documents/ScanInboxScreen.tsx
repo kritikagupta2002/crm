@@ -226,7 +226,7 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
           <CheckCircle2 size={18} color={colors.semantic.success} />
           <View style={styles.filedSuccessTextWrap}>
             <Text style={styles.filedSuccessTitle}>{justFiledDoc.title} is filed</Text>
-            <Text style={styles.filedSuccessSub}>It has moved to Verification (4-Eyes Review)</Text>
+            <Text style={styles.filedSuccessSub}>It has moved to Verification</Text>
           </View>
           <TouchableOpacity
             style={styles.openFiledBtn}
@@ -276,7 +276,7 @@ export const ScanInboxScreen: React.FC<{ navigation: any }> = ({ navigation }) =
                 </TouchableOpacity>
               ))}
             </View>
-          ) : null
+          ) : undefined
         }
         ListEmptyComponent={
           <EmptyState

@@ -283,7 +283,7 @@ export const useVendorPortal = () => {
               await withdrawBid(tender.id, vendorCode, vendorName);
               Alert.alert(
                 'Bid Withdrawn',
-                'Your sealed bid has been safely withdrawn from the dual-key chamber.'
+                'Your bid has been withdrawn.'
               );
             } catch (err: any) {
               Alert.alert('Error', err.message || 'Failed to withdraw bid');

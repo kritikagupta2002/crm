@@ -174,7 +174,7 @@ export const verifyBlock = (doc: any, userName?: string): string | null => {
   if (!userName) return null;
   const filedBy = doc.record?.filedBy || doc.uploadedBy || doc.uploaderName;
   if (filedBy && filedBy.toLowerCase() === userName.toLowerCase()) {
-    return 'Four-Eyes Principle: You filed this scan — someone else must inspect and verify it against the physical original.';
+    return 'You filed this scan, so someone else must check it against the paper original.';
   }
   return null;
 };

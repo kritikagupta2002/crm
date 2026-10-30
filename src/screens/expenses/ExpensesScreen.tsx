@@ -146,7 +146,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             <StatusBadge status={item.status} size="sm" />
           </View>
           <View style={styles.dateWrap}>
-            <Clock size={11} color="#64748B" style={{ marginRight: 3 }} />
+            <Clock size={11} color="#627079" style={{ marginRight: 3 }} />
             <Text style={styles.dateText}>{formatDate(item.date)}</Text>
           </View>
         </View>
@@ -164,7 +164,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
         )}
 
         <View style={styles.projectRow}>
-          <MapPin size={12} color="#0D9488" style={{ marginRight: 4 }} />
+          <MapPin size={12} color="#1f6f78" style={{ marginRight: 4 }} />
           <Text style={styles.projectText} numberOfLines={1}>
             {item.project}
           </Text>
@@ -185,7 +185,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           {item.approvedAmount !== undefined && item.status !== 'Pending' && (
             <View style={styles.amountCol}>
               <Text style={styles.amountLabel}>APPROVED</Text>
-              <Text style={[styles.amountVal, { color: '#16A34A' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+              <Text style={[styles.amountVal, { color: '#2e9e6b' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                 ₹{Number(item.approvedAmount).toLocaleString('en-IN')}
               </Text>
             </View>
@@ -194,7 +194,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           {item.settledAmount !== undefined && (item.status === 'Settled' || item.settledAmount > 0) && (
             <View style={styles.amountCol}>
               <Text style={styles.amountLabel}>SETTLED</Text>
-              <Text style={[styles.amountVal, { color: '#0D9488' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
+              <Text style={[styles.amountVal, { color: '#1f6f78' }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                 ₹{Number(item.settledAmount).toLocaleString('en-IN')}
               </Text>
             </View>
@@ -207,11 +207,11 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             onPress={() => navigation.navigate('ExpenseQueries', { expenseId: item.id })}
             activeOpacity={0.8}
           >
-            <AlertTriangle size={14} color="#D97706" />
+            <AlertTriangle size={14} color="#c27a12" />
             <Text style={styles.queriedBannerText} numberOfLines={1}>
               Audit query raised. Click to view & respond.
             </Text>
-            <ChevronRight size={13} color="#D97706" />
+            <ChevronRight size={13} color="#c27a12" />
           </TouchableOpacity>
         )}
 
@@ -221,7 +221,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               style={styles.receiptBtn}
               onPress={() => setPreviewReceipt(item)}
             >
-              <Paperclip size={13} color="#0D9488" />
+              <Paperclip size={13} color="#1f6f78" />
               <Text style={styles.receiptBtnText}>Proof</Text>
             </TouchableOpacity>
           ) : (
@@ -250,7 +250,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
 
           {isSettled && (
             <View style={styles.settledCompletePill}>
-              <CheckCircle2 size={13} color="#0D9488" />
+              <CheckCircle2 size={13} color="#1f6f78" />
               <Text style={styles.settledCompleteText}>Disbursed & Settled</Text>
             </View>
           )}
@@ -268,7 +268,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           onPress={() => setSelectedStatus('All')}
         >
           <Text
-            style={[styles.metricVal, { color: '#0D9488' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            style={[styles.metricVal, { color: '#1f6f78' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.7}
@@ -288,7 +288,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           onPress={() => setSelectedStatus('Approved')}
         >
           <Text
-            style={[styles.metricVal, { color: '#16A34A' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            style={[styles.metricVal, { color: '#2e9e6b' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.7}
@@ -308,7 +308,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           onPress={() => setSelectedStatus('Settled')}
         >
           <Text
-            style={[styles.metricVal, { color: '#2563EB' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            style={[styles.metricVal, { color: '#2f6fb3' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.7}
@@ -328,7 +328,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
           onPress={() => setSelectedStatus('Queried')}
         >
           <Text
-            style={[styles.metricVal, { color: stats.underQuery > 0 ? '#D97706' : '#16A34A' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
+            style={[styles.metricVal, { color: stats.underQuery > 0 ? '#c27a12' : '#2e9e6b' }, isSmall && { fontSize: 16 }, isCompact && { fontSize: 18 }]}
             numberOfLines={1}
             adjustsFontSizeToFit
             minimumFontScale={0.7}
@@ -349,8 +349,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             onPress={() => navigation.navigate('ExpenseClaim')}
             activeOpacity={0.8}
           >
-            <View style={[styles.compactSquircle, { backgroundColor: '#F0FDFA' }, isSmall && { width: 30, height: 30 }]}>
-              <Plus size={isSmall ? 15 : 18} color="#0D9488" strokeWidth={2.5} />
+            <View style={[styles.compactSquircle, { backgroundColor: '#eef7f7' }, isSmall && { width: 30, height: 30 }]}>
+              <Plus size={isSmall ? 15 : 18} color="#1f6f78" strokeWidth={2.5} />
             </View>
             <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
               New Claim
@@ -365,8 +365,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             onPress={() => navigation.navigate('ExpenseQueries')}
             activeOpacity={0.8}
           >
-            <View style={[styles.compactSquircle, { backgroundColor: '#FFFBEB' }, isSmall && { width: 30, height: 30 }]}>
-              <MessageSquare size={isSmall ? 14 : 17} color="#D97706" />
+            <View style={[styles.compactSquircle, { backgroundColor: '#fcf0dc' }, isSmall && { width: 30, height: 30 }]}>
+              <MessageSquare size={isSmall ? 14 : 17} color="#c27a12" />
             </View>
             <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
               Queries ({openQueryCount})
@@ -382,8 +382,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               onPress={() => navigation.navigate('ExpenseReview')}
               activeOpacity={0.8}
             >
-              <View style={[styles.compactSquircle, { backgroundColor: '#EFF6FF' }, isSmall && { width: 30, height: 30 }]}>
-                <ShieldCheck size={isSmall ? 14 : 17} color="#2563EB" />
+              <View style={[styles.compactSquircle, { backgroundColor: '#e6effa' }, isSmall && { width: 30, height: 30 }]}>
+                <ShieldCheck size={isSmall ? 14 : 17} color="#2f6fb3" />
               </View>
               <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
                 Audit Queue
@@ -399,8 +399,8 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             onPress={() => navigation.navigate('Reimbursement')}
             activeOpacity={0.8}
           >
-            <View style={[styles.compactSquircle, { backgroundColor: '#FAF5FF' }, isSmall && { width: 30, height: 30 }]}>
-              <FileText size={isSmall ? 14 : 17} color="#9333EA" />
+            <View style={[styles.compactSquircle, { backgroundColor: '#f1f5f7' }, isSmall && { width: 30, height: 30 }]}>
+              <FileText size={isSmall ? 14 : 17} color="#3d5a6c" />
             </View>
             <Text style={[styles.compactActionTitle, isSmall && { fontSize: 9 }, isCompact && { fontSize: 9.5 }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
               Policy SOP
@@ -413,17 +413,17 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
       </View>
 
       <View style={styles.searchBox}>
-        <Search size={16} color="#64748B" />
+        <Search size={16} color="#627079" />
         <TextInput
           placeholder={isPrivileged ? 'Search staff, project, category, claim ID...' : 'Search my claims, project, category...'}
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor="#7c8b96"
           value={search}
           onChangeText={setSearch}
           style={styles.searchInput}
         />
         {search ? (
           <TouchableOpacity onPress={() => setSearch('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <X size={15} color="#64748B" />
+            <X size={15} color="#627079" />
           </TouchableOpacity>
         ) : null}
       </View>
@@ -470,8 +470,6 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               : 'Field travel, lodging & exploration vouchers'
           }
           scenicBanner
-          badge="Expenses & Claims"
-          badgeIcon={<Receipt size={12} color="#0D9488" />}
           showBack
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
@@ -541,7 +539,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               </View>
               <View style={styles.receiptMetaRow}>
                 <Text style={styles.receiptMetaLabel}>Claim Amount:</Text>
-                <Text style={[styles.receiptMetaVal, { fontWeight: '700', color: '#0D9488' }]}>
+                <Text style={[styles.receiptMetaVal, { fontWeight: '700', color: '#1f6f78' }]}>
                   ₹{Number(previewReceipt?.requestedAmount || previewReceipt?.amount || 0).toLocaleString('en-IN')}
                 </Text>
               </View>
@@ -552,7 +550,7 @@ export const ExpensesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
             </View>
 
             <View style={styles.receiptPreviewBox}>
-              <Receipt size={44} color="#0D9488" />
+              <Receipt size={44} color="#1f6f78" />
               <Text style={styles.previewBoxTitle}>Verified Proof of Purchase</Text>
               <Text style={styles.previewBoxSub}>
                 Digital voucher copy verified against corporate GST policy.
@@ -580,7 +578,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm + 4,
     paddingVertical: 6,
     borderRadius: radius.full,
-    backgroundColor: '#0D9488',
+    backgroundColor: '#1f6f78',
   },
   addClaimText: {
     fontSize: typography.fontSizes.xs,
@@ -613,7 +611,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 10,
     borderWidth: 1.2,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   metricItem: {
@@ -623,18 +621,18 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
   },
   metricItemActive: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
   },
   metricVal: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 24,
-    fontWeight: '800',
-    color: '#0F172A',
+    color: '#0f2a3d',
     letterSpacing: -0.5,
   },
   metricLbl: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#64748B',
+    color: '#627079',
     marginTop: 2,
     textTransform: 'uppercase',
     letterSpacing: 0.3,
@@ -642,7 +640,7 @@ const styles = StyleSheet.create({
   metricDivider: {
     width: 1.2,
     height: 38,
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#e1e8eb',
   },
 
   launchpadSection: {
@@ -660,7 +658,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   compactSquircle: {
@@ -689,7 +687,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1.2,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 42,
@@ -717,14 +715,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.2,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
   filterChipActive: {
-    backgroundColor: '#0D9488',
-    borderColor: '#0D9488',
-    shadowColor: '#0D9488',
+    backgroundColor: '#1f6f78',
+    borderColor: '#1f6f78',
+    shadowColor: '#1f6f78',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.18,
     shadowRadius: 3,
@@ -733,7 +731,7 @@ const styles = StyleSheet.create({
   filterChipText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#64748B',
+    color: '#627079',
   },
   filterChipTextActive: {
     color: '#FFFFFF',
@@ -750,7 +748,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   tabletCard: {
@@ -770,7 +768,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   claimNumberBadge: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: radius.xs,
@@ -778,7 +776,7 @@ const styles = StyleSheet.create({
   claimNumberText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#334155',
+    color: '#34495a',
     fontFamily: 'monospace',
   },
   dateWrap: {
@@ -788,7 +786,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#64748B',
+    color: '#627079',
   },
   empRow: {
     flexDirection: 'row',
@@ -800,14 +798,14 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#E0F2FE',
+    backgroundColor: '#e6effa',
     alignItems: 'center',
     justifyContent: 'center',
   },
   empAvatarText: {
     fontSize: 8.5,
-    fontWeight: '800',
-    color: '#0369A1',
+    fontWeight: '700',
+    color: '#245a93',
   },
   empName: {
     fontSize: 13,
@@ -815,7 +813,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   deptBadge: {
-    backgroundColor: '#E0F2FE',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 7,
     paddingVertical: 1.5,
     borderRadius: radius.xs,
@@ -823,7 +821,7 @@ const styles = StyleSheet.create({
   deptBadgeText: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#0369A1',
+    color: '#245a93',
   },
   projectRow: {
     flexDirection: 'row',
@@ -844,13 +842,13 @@ const styles = StyleSheet.create({
   },
   amountContainer: {
     flexDirection: 'row',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     borderRadius: radius.md,
     padding: 8,
     gap: spacing.md,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: '#edf1f3',
   },
   amountCol: {
     flex: 1,
@@ -871,17 +869,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#fcf0dc',
     padding: 7,
     borderRadius: radius.sm,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#ecd6ae',
   },
   queriedBannerText: {
     fontSize: 11,
     fontWeight: typography.fontWeights.semibold,
-    color: '#92400E',
+    color: '#9a5f0c',
     flex: 1,
   },
   cardActionsRow: {
@@ -891,23 +889,23 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     paddingTop: 7,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
   },
   receiptBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: spacing.sm + 2,
     paddingVertical: 5,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
   },
   receiptBtnText: {
     fontSize: 11,
     fontWeight: typography.fontWeights.bold,
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   noReceiptText: {
     fontSize: 10.5,
@@ -918,7 +916,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: radius.sm,
@@ -926,7 +924,7 @@ const styles = StyleSheet.create({
   settledCompleteText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#0D9488',
+    color: '#1f6f78',
   },
 
   modalBackdrop: {
@@ -955,7 +953,7 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   receiptDetails: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     borderRadius: radius.md,
     padding: spacing.md,
     gap: spacing.xs,
@@ -977,16 +975,16 @@ const styles = StyleSheet.create({
   receiptPreviewBox: {
     alignItems: 'center',
     padding: spacing.lg,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
     gap: spacing.xs,
   },
   previewBoxTitle: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   previewBoxSub: {
     fontSize: typography.fontSizes.xs,

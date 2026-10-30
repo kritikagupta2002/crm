@@ -96,39 +96,39 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
     const billedPct = contractVal > 0 ? Math.min(100, Math.round((billedVal / contractVal) * 100)) : 0;
     const paidPct = contractVal > 0 ? Math.min(100, Math.round((paidVal / contractVal) * 100)) : 0;
 
-    let stageBadgeBg = '#f1f5f9';
-    let stageBadgeColor = '#475569';
+    let stageBadgeBg = '#edf1f3';
+    let stageBadgeColor = '#4a5b68';
     let stageLabel: string = item.currentStage;
 
     switch (item.currentStage) {
       case 'Issued':
-        stageBadgeBg = '#fef3c7';
-        stageBadgeColor = '#b45309';
+        stageBadgeBg = '#fcf0dc';
+        stageBadgeColor = '#9a5f0c';
         stageLabel = 'ISSUED';
         break;
       case 'Started':
-        stageBadgeBg = '#dbeafe';
-        stageBadgeColor = '#1d4ed8';
+        stageBadgeBg = '#e6effa';
+        stageBadgeColor = '#245a93';
         stageLabel = 'IN PROGRESS';
         break;
       case 'Delivered':
-        stageBadgeBg = '#fef3c7';
-        stageBadgeColor = '#d97706';
+        stageBadgeBg = '#fcf0dc';
+        stageBadgeColor = '#c27a12';
         stageLabel = 'DELIVERED';
         break;
       case 'Billed':
-        stageBadgeBg = '#fee2e2';
-        stageBadgeColor = '#dc2626';
+        stageBadgeBg = '#fbe5e4';
+        stageBadgeColor = '#d24c47';
         stageLabel = 'BILLED';
         break;
       case 'Verified':
-        stageBadgeBg = '#f3e8ff';
-        stageBadgeColor = '#7e22ce';
+        stageBadgeBg = '#e8eef1';
+        stageBadgeColor = '#34495a';
         stageLabel = 'VERIFIED';
         break;
       case 'Paid':
-        stageBadgeBg = '#dcfce7';
-        stageBadgeColor = '#15803d';
+        stageBadgeBg = '#e3f4ec';
+        stageBadgeColor = '#237a53';
         stageLabel = 'PAID';
         break;
     }
@@ -149,7 +149,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
               </View>
               {formattedDueDate ? (
                 <View style={styles.dueBadge}>
-                  <Calendar size={11} color="#64748b" style={{ marginRight: 4 }} />
+                  <Calendar size={11} color="#627079" style={{ marginRight: 4 }} />
                   <Text style={styles.dueDateText}>Due: {formattedDueDate}</Text>
                 </View>
               ) : null}
@@ -165,7 +165,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
           <Text style={styles.vendorName}>{item.vendorName || item.vendor}</Text>
 
           <View style={styles.projectLine}>
-            <Building2 size={13} color="#0f766e" style={{ marginRight: 5 }} />
+            <Building2 size={13} color="#0e4a52" style={{ marginRight: 5 }} />
             <Text style={styles.projectTitle} numberOfLines={1}>
               {item.projectTitle}
             </Text>
@@ -189,10 +189,10 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </View>
             <View style={styles.finDivider} />
             <View style={styles.finCol}>
-              <Text style={[styles.finLabel, paidVal > 0 && { color: '#15803d' }]}>
+              <Text style={[styles.finLabel, paidVal > 0 && { color: '#237a53' }]}>
                 PAID ({paidPct}%)
               </Text>
-              <Text style={[styles.finValue, paidVal > 0 && { color: '#15803d' }]}>
+              <Text style={[styles.finValue, paidVal > 0 && { color: '#237a53' }]}>
                 {formatCurrency(paidVal)}
               </Text>
             </View>
@@ -205,7 +205,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
                   styles.progressFill,
                   {
                     width: `${Math.max(5, paidPct || billedPct || 10)}%`,
-                    backgroundColor: item.currentStage === 'Paid' ? '#16a34a' : '#2563eb',
+                    backgroundColor: item.currentStage === 'Paid' ? '#2e9e6b' : '#2f6fb3',
                   },
                 ]}
               />
@@ -216,48 +216,48 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             <View style={styles.statusNote}>
               {item.currentStage === 'Paid' && (
                 <View style={[styles.milestonePill, styles.milestonePillGreen]}>
-                  <CheckCircle2 size={13} color="#15803d" style={{ marginRight: 5 }} />
-                  <Text style={[styles.milestonePillText, { color: '#15803d' }]}>
+                  <CheckCircle2 size={13} color="#237a53" style={{ marginRight: 5 }} />
+                  <Text style={[styles.milestonePillText, { color: '#237a53' }]}>
                     Fully disbursed & closed
                   </Text>
                 </View>
               )}
               {item.currentStage === 'Started' && (
                 <View style={[styles.milestonePill, styles.milestonePillBlue]}>
-                  <Clock size={13} color="#1d4ed8" style={{ marginRight: 5 }} />
-                  <Text style={[styles.milestonePillText, { color: '#1d4ed8' }]}>
+                  <Clock size={13} color="#245a93" style={{ marginRight: 5 }} />
+                  <Text style={[styles.milestonePillText, { color: '#245a93' }]}>
                     Work in progress in field
                   </Text>
                 </View>
               )}
               {item.currentStage === 'Delivered' && (
                 <View style={[styles.milestonePill, styles.milestonePillAmber]}>
-                  <AlertTriangle size={13} color="#b45309" style={{ marginRight: 5 }} />
-                  <Text style={[styles.milestonePillText, { color: '#b45309' }]}>
+                  <AlertTriangle size={13} color="#9a5f0c" style={{ marginRight: 5 }} />
+                  <Text style={[styles.milestonePillText, { color: '#9a5f0c' }]}>
                     Delivered · Awaiting vendor bill
                   </Text>
                 </View>
               )}
               {item.currentStage === 'Billed' && (
                 <View style={[styles.milestonePill, styles.milestonePillRed]}>
-                  <AlertTriangle size={13} color="#dc2626" style={{ marginRight: 5 }} />
-                  <Text style={[styles.milestonePillText, { color: '#dc2626' }]}>
+                  <AlertTriangle size={13} color="#d24c47" style={{ marginRight: 5 }} />
+                  <Text style={[styles.milestonePillText, { color: '#d24c47' }]}>
                     Invoiced · Needs 3-way reconciliation
                   </Text>
                 </View>
               )}
               {item.currentStage === 'Verified' && (
                 <View style={[styles.milestonePill, styles.milestonePillGreen]}>
-                  <CheckCircle2 size={13} color="#15803d" style={{ marginRight: 5 }} />
-                  <Text style={[styles.milestonePillText, { color: '#15803d' }]}>
+                  <CheckCircle2 size={13} color="#237a53" style={{ marginRight: 5 }} />
+                  <Text style={[styles.milestonePillText, { color: '#237a53' }]}>
                     Verified · Ready for payment release
                   </Text>
                 </View>
               )}
               {item.currentStage === 'Issued' && (
                 <View style={[styles.milestonePill, styles.milestonePillMuted]}>
-                  <Clock size={13} color="#475569" style={{ marginRight: 5 }} />
-                  <Text style={[styles.milestonePillText, { color: '#475569' }]}>
+                  <Clock size={13} color="#4a5b68" style={{ marginRight: 5 }} />
+                  <Text style={[styles.milestonePillText, { color: '#4a5b68' }]}>
                     Issued · Awaiting contractor mobilization
                   </Text>
                 </View>
@@ -265,7 +265,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
             </View>
 
             <View style={styles.arrowCircle}>
-              <ChevronRight size={15} color="#2563eb" strokeWidth={2.4} />
+              <ChevronRight size={15} color="#2f6fb3" strokeWidth={2.4} />
             </View>
           </View>
         </View>
@@ -288,17 +288,17 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
     >
       <View style={styles.topControl}>
         <View style={styles.searchBar}>
-          <Search size={17} color="#64748b" style={{ marginRight: 8 }} />
+          <Search size={17} color="#627079" style={{ marginRight: 8 }} />
           <TextInput
             placeholder="Search by WO #, vendor, scope, project..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor="#7c8b96"
             value={search}
             onChangeText={setSearch}
             style={styles.searchInput}
           />
           {search ? (
             <TouchableOpacity onPress={() => setSearch('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <X size={16} color="#64748b" />
+              <X size={16} color="#627079" />
             </TouchableOpacity>
           ) : null}
         </View>
@@ -343,7 +343,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
-                    <Layers size={16} color="#0284c7" strokeWidth={2.4} />
+                    <Layers size={16} color="#2f6fb3" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeTotal}>
                     <Text style={styles.kpiBadgeTextTotal}>{workOrders.length} Orders</Text>
@@ -351,7 +351,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>₹{(totalContractVal / 100000).toFixed(2)} L</Text>
-                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2f6fb3" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Total Sanctioned</Text>
                 <Text style={styles.kpiSubText}>Gross contract allocation</Text>
@@ -360,17 +360,17 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
-                    <CheckCircle2 size={16} color="#16a34a" strokeWidth={2.4} />
+                    <CheckCircle2 size={16} color="#2e9e6b" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePaid}>
                     <Text style={styles.kpiBadgeTextPaid}>Settled</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                  <Text style={[styles.kpiValText, { color: '#2e9e6b' }]}>
                     ₹{(totalPaidVal / 100000).toFixed(2)} L
                   </Text>
-                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2e9e6b" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Disbursed Paid</Text>
                 <Text style={styles.kpiSubText}>Closed subcontract releases</Text>
@@ -381,15 +381,15 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
-                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                    <Clock size={16} color="#b07d27" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePending}>
                     <Text style={styles.kpiBadgeTextPending}>Live Work</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>{activeWorkCount}</Text>
-                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                  <Text style={[styles.kpiValText, { color: '#b07d27' }]}>{activeWorkCount}</Text>
+                  <ArrowUpRight size={15} color="#b07d27" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Active Field Sites</Text>
                 <Text style={styles.kpiSubText}>Drilling & pumping in progress</Text>
@@ -398,7 +398,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
-                    <FileText size={16} color="#7c3aed" strokeWidth={2.4} />
+                    <FileText size={16} color="#3d5a6c" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeActive}>
                     <Text style={styles.kpiBadgeTextActive}>Audit Req</Text>
@@ -406,7 +406,7 @@ export const WorkOrdersScreen: React.FC<WorkOrdersScreenProps> = ({ navigation }
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>{needsReviewCount}</Text>
-                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#3d5a6c" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Audit / 3-Way Match</Text>
                 <Text style={styles.kpiSubText}>Delivered reports & bills</Text>
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   searchBar: {
     flexDirection: 'row',
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     paddingHorizontal: 12,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     height: 42,
     marginBottom: 8,
   },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 40,
     fontSize: 13.5,
-    color: '#0f172a',
+    color: '#0f2a3d',
     paddingVertical: 0,
   },
   stageTabsList: {
@@ -467,15 +467,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#ffffff',
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   stageChipSelected: {
-    backgroundColor: '#0d9488',
-    borderColor: '#0d9488',
+    backgroundColor: '#1f6f78',
+    borderColor: '#1f6f78',
   },
   stageChipText: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
   },
   stageChipTextSelected: {
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1.2,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -505,20 +505,20 @@ const styles = StyleSheet.create({
     minHeight: 124,
   },
   kpiCardTotal: {
-    backgroundColor: '#f8fbff',
-    borderColor: '#dbeafe',
+    backgroundColor: '#f2f6fb',
+    borderColor: '#e6effa',
   },
   kpiCardPending: {
-    backgroundColor: '#fffaf5',
-    borderColor: '#fed7aa',
+    backgroundColor: '#fbf6ec',
+    borderColor: '#ecd6ae',
   },
   kpiCardPaid: {
-    backgroundColor: '#f5fdfb',
-    borderColor: '#ccfbf1',
+    backgroundColor: '#eef7f7',
+    borderColor: '#ddefef',
   },
   kpiCardActive: {
-    backgroundColor: '#faf7ff',
-    borderColor: '#f3e8ff',
+    backgroundColor: '#f1f5f7',
+    borderColor: '#e8eef1',
   },
   kpiHeaderRow: {
     flexDirection: 'row',
@@ -534,60 +534,60 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   kpiIconBoxTotal: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
   },
   kpiIconBoxPending: {
-    backgroundColor: '#fff7ed',
+    backgroundColor: '#f7ebd5',
   },
   kpiIconBoxPaid: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
   },
   kpiIconBoxActive: {
-    backgroundColor: '#f5f3ff',
+    backgroundColor: '#f1f5f7',
   },
   kpiBadgeTotal: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextTotal: {
-    color: '#0284c7',
+    color: '#2f6fb3',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePending: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPending: {
-    color: '#ea580c',
+    color: '#b07d27',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePaid: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPaid: {
-    color: '#16a34a',
+    color: '#2e9e6b',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgeActive: {
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e8eef1',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextActive: {
-    color: '#7c3aed',
+    color: '#3d5a6c',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiNumberRow: {
     flexDirection: 'row',
@@ -596,21 +596,21 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   kpiValText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 25,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.5,
   },
   kpiTitleText: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
     marginBottom: 1,
   },
   kpiSubText: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
 
@@ -626,7 +626,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 16,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     borderRadius: 18,
     ...shadows.xs,
   },
@@ -643,31 +643,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   woIdBadge: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: '#ddefef',
   },
   woIdText: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#0f766e',
+    fontWeight: '700',
+    color: '#0e4a52',
   },
   dueBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   dueDateText: {
     fontSize: 10.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
   },
   stageBadge: {
@@ -677,13 +677,13 @@ const styles = StyleSheet.create({
   },
   stageBadgeText: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
     letterSpacing: 0.3,
   },
   vendorName: {
     fontSize: 17,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginBottom: 4,
     letterSpacing: -0.2,
   },
@@ -695,12 +695,12 @@ const styles = StyleSheet.create({
   projectTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#0f766e',
+    color: '#0e4a52',
     flex: 1,
   },
   workScopeText: {
     fontSize: 12.5,
-    color: '#64748b',
+    color: '#627079',
     lineHeight: 17,
     marginBottom: 10,
   },
@@ -709,10 +709,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginBottom: 8,
@@ -724,11 +724,11 @@ const styles = StyleSheet.create({
   finDivider: {
     width: 1,
     height: 28,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
   },
   finLabel: {
     fontSize: 9.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
@@ -736,8 +736,8 @@ const styles = StyleSheet.create({
   },
   finValue: {
     fontSize: 15,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
 
@@ -746,7 +746,7 @@ const styles = StyleSheet.create({
   },
   progressTrack: {
     height: 5,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -773,19 +773,19 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   milestonePillGreen: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
   },
   milestonePillBlue: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
   },
   milestonePillAmber: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
   },
   milestonePillRed: {
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fbe5e4',
   },
   milestonePillMuted: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   milestonePillText: {
     fontSize: 11,
@@ -795,7 +795,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,

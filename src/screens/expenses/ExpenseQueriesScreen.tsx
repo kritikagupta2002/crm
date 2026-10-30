@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
   },
   claimRef: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   parentMeta: {
@@ -312,7 +312,7 @@ const styles = StyleSheet.create({
   },
   parentAmount: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   threadContainer: {

@@ -172,7 +172,7 @@ export const ClientOnboardingScreen: React.FC<ClientOnboardingScreenProps> = ({ 
       header={
         <AppHeader
           title="Client Onboarding"
-          subtitle="Transforming won commercial deals into active projects"
+          subtitle="Won deals that become projects"
           showBack
           onBack={() => navigation.goBack()}
         />

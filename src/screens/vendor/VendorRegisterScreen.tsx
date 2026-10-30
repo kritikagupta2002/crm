@@ -312,7 +312,7 @@ export const VendorRegisterScreen: React.FC<VendorRegisterScreenProps> = ({ navi
       header={
         <AppHeader
           title="Vendor Onboarding"
-          subtitle="Empanelment & Statutory Registration Wizard"
+          subtitle="Register as a vendor"
           showBack
           onBack={() => navigation.goBack()}
         />
@@ -1135,6 +1135,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
   },
   successTitle: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 20,
     fontWeight: typography.fontWeights.heavy,
     color: colors.textPrimary,
@@ -1164,6 +1165,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   appNumberVal: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 22,
     fontWeight: typography.fontWeights.heavy,
     color: colors.primary,

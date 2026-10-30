@@ -64,12 +64,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       timeAgo: '2 hours ago',
       category: 'HR',
       badges: [
-        { label: 'ACTION REQUIRED', bg: '#fee2e2', text: '#ef4444' },
-        { label: 'HR', bg: '#f1f5f9', text: '#64748b' },
+        { label: 'ACTION REQUIRED', bg: '#fbe5e4', text: '#d24c47' },
+        { label: 'HR', bg: '#edf1f3', text: '#627079' },
       ],
       iconType: 'leave',
-      iconBg: '#ecfdf5',
-      iconColor: '#16a34a',
+      iconBg: '#e3f4ec',
+      iconColor: '#2e9e6b',
       read: false,
       actionRequired: true,
       actionLabel: 'Authorize',
@@ -84,12 +84,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       timeAgo: '5 hours ago',
       category: 'Finance',
       badges: [
-        { label: 'APPROVED', bg: '#ecfdf5', text: '#059669' },
-        { label: 'FINANCE', bg: '#f1f5f9', text: '#64748b' },
+        { label: 'APPROVED', bg: '#e3f4ec', text: '#2e9e6b' },
+        { label: 'FINANCE', bg: '#edf1f3', text: '#627079' },
       ],
       iconType: 'quote',
-      iconBg: '#eff6ff',
-      iconColor: '#2563eb',
+      iconBg: '#e6effa',
+      iconColor: '#2f6fb3',
       read: false,
       actionRequired: false,
       actionLabel: 'View Details',
@@ -104,12 +104,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       timeAgo: '6 hours ago',
       category: 'Vendor',
       badges: [
-        { label: 'NEW', bg: '#eff6ff', text: '#2563eb' },
-        { label: 'VENDOR', bg: '#fff7ed', text: '#ea580c' },
+        { label: 'NEW', bg: '#e6effa', text: '#2f6fb3' },
+        { label: 'VENDOR', bg: '#f7ebd5', text: '#b07d27' },
       ],
       iconType: 'vendor',
-      iconBg: '#fefce8',
-      iconColor: '#d97706',
+      iconBg: '#fcf0dc',
+      iconColor: '#c27a12',
       read: true,
       actionRequired: false,
       actionLabel: 'Review',
@@ -125,12 +125,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       timeAgo: '1 day ago',
       category: 'Documents',
       badges: [
-        { label: 'UPDATED', bg: '#faf5ff', text: '#9333ea' },
-        { label: 'DOCUMENTS', bg: '#f1f5f9', text: '#64748b' },
+        { label: 'UPDATED', bg: '#f1f5f7', text: '#3d5a6c' },
+        { label: 'DOCUMENTS', bg: '#edf1f3', text: '#627079' },
       ],
       iconType: 'doc',
-      iconBg: '#faf5ff',
-      iconColor: '#9333ea',
+      iconBg: '#f1f5f7',
+      iconColor: '#3d5a6c',
       read: true,
       actionRequired: false,
       actionLabel: 'View',
@@ -145,12 +145,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       timeAgo: '1 day ago',
       category: 'Projects',
       badges: [
-        { label: 'TASK ASSIGNED', bg: '#eff6ff', text: '#0284c7' },
-        { label: 'PROJECTS', bg: '#f1f5f9', text: '#64748b' },
+        { label: 'TASK ASSIGNED', bg: '#e6effa', text: '#2f6fb3' },
+        { label: 'PROJECTS', bg: '#edf1f3', text: '#627079' },
       ],
       iconType: 'task',
-      iconBg: '#fff7ed',
-      iconColor: '#ea580c',
+      iconBg: '#f7ebd5',
+      iconColor: '#b07d27',
       read: true,
       actionRequired: false,
       actionLabel: 'Open Task',
@@ -165,12 +165,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       timeAgo: '1 day ago',
       category: 'Approvals',
       badges: [
-        { label: 'PENDING', bg: '#fefce8', text: '#d97706' },
-        { label: 'EXPENSES', bg: '#f1f5f9', text: '#64748b' },
+        { label: 'PENDING', bg: '#fcf0dc', text: '#c27a12' },
+        { label: 'EXPENSES', bg: '#edf1f3', text: '#627079' },
       ],
       iconType: 'expense',
-      iconBg: '#ecfdf5',
-      iconColor: '#059669',
+      iconBg: '#e3f4ec',
+      iconColor: '#2e9e6b',
       read: true,
       actionRequired: false,
       actionLabel: 'Review',
@@ -185,12 +185,12 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
       timeAgo: '2 days ago',
       category: 'HR',
       badges: [
-        { label: 'INFO', bg: '#eff6ff', text: '#2563eb' },
-        { label: 'HR', bg: '#f1f5f9', text: '#64748b' },
+        { label: 'INFO', bg: '#e6effa', text: '#2f6fb3' },
+        { label: 'HR', bg: '#edf1f3', text: '#627079' },
       ],
       iconType: 'employee',
-      iconBg: '#eff6ff',
-      iconColor: '#2563eb',
+      iconBg: '#e6effa',
+      iconColor: '#2f6fb3',
       read: true,
       actionRequired: false,
       actionLabel: 'View Profile',
@@ -258,43 +258,43 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
         id: 'Approvals',
         label: 'Approvals',
         count: approvalsCount > 0 ? approvalsCount : undefined,
-        countBg: '#fee2e2',
-        countColor: '#ef4444',
+        countBg: '#fbe5e4',
+        countColor: '#d24c47',
       },
       {
         id: 'Tasks',
         label: 'Tasks',
         count: tasksCount > 0 ? tasksCount : undefined,
-        countBg: '#e0f2fe',
-        countColor: '#0284c7',
+        countBg: '#e6effa',
+        countColor: '#2f6fb3',
       },
       {
         id: 'Finance',
         label: 'Finance',
         count: financeCount > 0 ? financeCount : undefined,
-        countBg: '#dcfce7',
-        countColor: '#16a34a',
+        countBg: '#e3f4ec',
+        countColor: '#2e9e6b',
       },
       {
         id: 'HR',
         label: 'HR',
         count: hrCount > 0 ? hrCount : undefined,
-        countBg: '#f3e8ff',
-        countColor: '#7c3aed',
+        countBg: '#e8eef1',
+        countColor: '#3d5a6c',
       },
       {
         id: 'Vendor',
         label: 'Vendor',
         count: vendorCount > 0 ? vendorCount : undefined,
-        countBg: '#fff7ed',
-        countColor: '#ea580c',
+        countBg: '#f7ebd5',
+        countColor: '#b07d27',
       },
       {
         id: 'Documents',
         label: 'Documents',
         count: docCount > 0 ? docCount : undefined,
-        countBg: '#f1f5f9',
-        countColor: '#64748b',
+        countBg: '#edf1f3',
+        countColor: '#627079',
       },
     ];
   }, [alertsList, unreadAlertsCount]);
@@ -379,7 +379,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
                   <Text style={[styles.pillBadgeText, { color: b.text }]}>{b.label}</Text>
                 </View>
               ))}
-              <ChevronRight size={17} color="#94a3b8" style={{ marginLeft: 'auto' }} />
+              <ChevronRight size={17} color="#7c8b96" style={{ marginLeft: 'auto' }} />
             </View>
 
             <Text style={styles.cardTitle}>{item.title}</Text>
@@ -388,7 +388,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
 
             <View style={styles.metaRow}>
               <View style={styles.dateRow}>
-                <Calendar size={13} color="#94a3b8" style={{ marginRight: 5 }} />
+                <Calendar size={13} color="#7c8b96" style={{ marginRight: 5 }} />
                 <Text style={styles.dateText}>
                   {item.dateStr} • {item.timeAgo}
                 </Text>
@@ -422,7 +422,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={styles.headerLeft}>
@@ -432,7 +432,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
             style={styles.backBtn}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <ChevronLeft size={22} color="#0f172a" strokeWidth={2.4} />
+            <ChevronLeft size={22} color="#0f2a3d" strokeWidth={2.4} />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>Notifications</Text>
@@ -449,7 +449,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
           onPress={handleMarkAllRead}
           style={styles.markAllBtn}
         >
-          <Check size={13} color="#0f172a" strokeWidth={2.4} />
+          <Check size={13} color="#0f2a3d" strokeWidth={2.4} />
           <Text style={styles.markAllText}>Mark All Read</Text>
         </TouchableOpacity>
       </View>
@@ -545,7 +545,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ naviga
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   header: {
     backgroundColor: '#ffffff',
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   headerLeft: {
     flex: 1,
@@ -567,21 +567,21 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
+    fontFamily: 'Fraunces_700Bold',
     fontSize: 26,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.4,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
     fontWeight: '600',
   },
@@ -594,18 +594,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   markAllText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   tabsWrapper: {
     backgroundColor: '#ffffff',
     paddingVertical: 9,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   tabsRow: {
     paddingHorizontal: 12,
@@ -619,16 +619,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   tabChipActive: {
-    backgroundColor: '#0b2545',
-    borderColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
+    borderColor: '#0f2a3d',
   },
   tabChipText: {
     fontSize: 12.5,
     fontWeight: '600',
-    color: '#475569',
+    color: '#4a5b68',
   },
   tabChipTextActive: {
     color: '#ffffff',
@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
   },
   tabCountText: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   scrollContent: {
     paddingHorizontal: 10,
@@ -669,24 +669,24 @@ const styles = StyleSheet.create({
   },
   sectionTitleText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.8,
   },
   sectionBadge: {
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.full,
   },
   sectionBadgeText: {
     fontSize: 10.5,
-    fontWeight: '800',
-    color: '#475569',
+    fontWeight: '700',
+    color: '#4a5b68',
   },
   sectionDateText: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
 
@@ -694,13 +694,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 16,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     padding: 14,
     marginBottom: 12,
     ...shadows.xs,
   },
   alertCardActionRequired: {
-    borderColor: '#fecaca',
+    borderColor: '#f2c4c2',
   },
   cardHeaderRow: {
     flexDirection: 'row',
@@ -717,13 +717,13 @@ const styles = StyleSheet.create({
     borderRadius: 3.5,
   },
   dotRed: {
-    backgroundColor: '#ef4444',
+    backgroundColor: '#d24c47',
   },
   dotBlue: {
-    backgroundColor: '#2563eb',
+    backgroundColor: '#2f6fb3',
   },
   dotGrey: {
-    backgroundColor: '#94a3b8',
+    backgroundColor: '#7c8b96',
   },
   iconBox: {
     width: 46,
@@ -750,19 +750,19 @@ const styles = StyleSheet.create({
   },
   pillBadgeText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     letterSpacing: 0.5,
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginBottom: 3,
     letterSpacing: -0.2,
   },
   cardMessage: {
     fontSize: 13,
-    color: '#475569',
+    color: '#4a5b68',
     lineHeight: 18,
     marginBottom: 10,
     fontWeight: '500',
@@ -778,7 +778,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 11.5,
-    color: '#94a3b8',
+    color: '#7c8b96',
     fontWeight: '500',
   },
   actionButton: {
@@ -787,12 +787,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   actionButtonPrimary: {
-    backgroundColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
   },
   actionButtonSecondary: {
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   actionButtonText: {
     fontSize: 12,
@@ -802,6 +802,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   actionButtonTextSecondary: {
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
 });

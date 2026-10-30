@@ -44,7 +44,7 @@ export const ShiftSelfServiceView: React.FC<ShiftSelfServiceViewProps> = ({
     <View style={styles.container}>
       <AppHeader
         title="My Shift Schedule & Roster"
-        subtitle="Your active assigned shift, timing rules, and weekly roster"
+        subtitle="Your shift and weekly roster"
         showBack
         onBack={() => navigation.goBack()}
       />

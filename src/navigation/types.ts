@@ -15,12 +15,14 @@ export type RootStackParamList = {
   QuoteBuilder: { initialQuoteId?: string } | undefined;
   QuoteApprovals: undefined;
   ClientApprovals: undefined;
+  ClientQuestions: undefined;
   ClientOnboarding: undefined;
   Clients: undefined;
   ClientDetail: { clientId: string };
 
   ErmDashboard: undefined;
   Projects: { stageKey?: string; view?: 'list' | 'timeline' } | undefined;
+  Inventory: undefined;
   ProjectDetail: { projectId: string; initialTab?: string };
 
   VendorWorkspaceHome: undefined;
@@ -72,6 +74,10 @@ export type RootStackParamList = {
   Invoices: undefined;
   VendorBills: undefined;
   Vouchers: undefined;
+  Receivables: undefined;
+  PaymentsReceipts: undefined;
+  FinancialReports: undefined;
+  BudgetCost: undefined;
   TaxCompliance: undefined;
   TdsRegister: undefined;
   GstOverview: undefined;
@@ -88,10 +94,12 @@ export type RootStackParamList = {
   ErmWorkspaceHome: undefined;
 
   FieldDatabaseHome: undefined;
-  GeologicalMapping: undefined;
-  SamplingActivity: { type?: string } | undefined;
-  DrillingDpr: { type?: 'core' | 'non-core' } | undefined;
-  DispatchDatabase: undefined;
+  FieldSection: { sectionKey: string };
+  FieldRecordForm: { sectionKey: string; recordId?: string };
+  FieldRecordDetail: { recordId: string };
+  DispatchLetter: { recordId: string };
+  Qaqc: { batchId?: string } | undefined;
+  QaqcResults: { batchId: string };
 
   // Profile Sub-pages
   PersonalInfo: undefined;

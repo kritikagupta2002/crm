@@ -845,7 +845,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     ...typography.h4,
     color: colors.text.primary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   fieldLabel: {
     ...typography.caption,

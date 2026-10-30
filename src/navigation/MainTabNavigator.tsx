@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text, Platform } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
@@ -7,8 +7,22 @@ import { HomeScreen, WorkspacesScreen, NotificationsScreen, ProfileScreen, Tasks
 import { useNotifications } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import { Home, LayoutGrid, Bell, User, CheckSquare } from 'lucide-react-native';
+import { colors } from '../theme';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+
+/* As on the web sidebar: the active item is teal with a gold edge. */
+const TabIcon: React.FC<{ Icon: typeof Home; focused: boolean; badge?: number }> = ({ Icon, focused, badge = 0 }) => (
+  <View style={styles.iconBox}>
+    {focused && <View style={styles.activeEdge} />}
+    <Icon size={22} color={focused ? colors.primary : colors.textMuted} strokeWidth={focused ? 2.3 : 1.8} />
+    {badge > 0 ? (
+      <View style={styles.badgeContainer}>
+        <Text style={styles.badgeText}>{badge > 9 ? '9+' : badge}</Text>
+      </View>
+    ) : null}
+  </View>
+);
 
 export const MainTabNavigator: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -22,77 +36,38 @@ export const MainTabNavigator: React.FC = () => {
       backBehavior="history"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0b2545',
-        tabBarInactiveTintColor: '#64748b',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: styles.tabLabel,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopColor: '#f1f5f9',
+          backgroundColor: colors.surface,
+          borderTopColor: colors.borderMedium,
           borderTopWidth: 1,
-          height: 56 + bottomInset,
-          paddingTop: 5,
-          paddingBottom: bottomInset > 0 ? bottomInset : 5,
-          shadowColor: '#0b2545',
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.05,
-          shadowRadius: 8,
-          elevation: 8,
+          height: 64 + bottomInset,
+          paddingTop: 0,
+          paddingBottom: bottomInset > 0 ? bottomInset : 6,
+          elevation: 0,
+          shadowOpacity: 0,
         },
       }}
     >
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.iconBox}>
-              {focused && <View style={styles.activeCircle} />}
-              <Home
-                size={21}
-                color={focused ? '#0b2545' : '#64748b'}
-                strokeWidth={focused ? 2.5 : 1.9}
-              />
-            </View>
-          ),
-        }}
+        options={{ tabBarLabel: 'Home', tabBarIcon: ({ focused }) => <TabIcon Icon={Home} focused={focused} /> }}
       />
       {/* For employee, show My Tasks as the primary action tab. For others, show Workspaces */}
       {isEmployee ? (
         <Tab.Screen
           name="TasksTab"
           component={TasksScreen}
-          options={{
-            tabBarLabel: 'My Tasks',
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconBox}>
-                {focused && <View style={styles.activeCircle} />}
-                <CheckSquare
-                  size={21}
-                  color={focused ? '#0b2545' : '#64748b'}
-                  strokeWidth={focused ? 2.5 : 1.9}
-                />
-              </View>
-            ),
-          }}
+          options={{ tabBarLabel: 'My Tasks', tabBarIcon: ({ focused }) => <TabIcon Icon={CheckSquare} focused={focused} /> }}
         />
       ) : (
         <Tab.Screen
           name="WorkspacesTab"
           component={WorkspacesScreen}
-          options={{
-            tabBarLabel: 'Workspaces',
-            tabBarIcon: ({ focused }) => (
-              <View style={styles.iconBox}>
-                {focused && <View style={styles.activeCircle} />}
-                <LayoutGrid
-                  size={21}
-                  color={focused ? '#0b2545' : '#64748b'}
-                  strokeWidth={focused ? 2.5 : 1.9}
-                />
-              </View>
-            ),
-          }}
+          options={{ tabBarLabel: 'Workspaces', tabBarIcon: ({ focused }) => <TabIcon Icon={LayoutGrid} focused={focused} /> }}
         />
       )}
       <Tab.Screen
@@ -100,60 +75,20 @@ export const MainTabNavigator: React.FC = () => {
         component={NotificationsScreen}
         options={{
           tabBarLabel: 'Alerts',
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.iconBox}>
-              {focused && <View style={styles.activeCircle} />}
-              <Bell
-                size={21}
-                color={focused ? '#0b2545' : '#64748b'}
-                strokeWidth={focused ? 2.5 : 1.9}
-              />
-              {unreadCount > 0 ? (
-                <View style={styles.badgeContainer}>
-                  <Text style={styles.badgeText}>
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-          ),
+          tabBarIcon: ({ focused }) => <TabIcon Icon={Bell} focused={focused} badge={unreadCount} />,
         }}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileScreen}
-        options={{
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ focused }) => (
-            <View style={styles.iconBox}>
-              {focused && <View style={styles.activeCircle} />}
-              <User
-                size={21}
-                color={focused ? '#0b2545' : '#64748b'}
-                strokeWidth={focused ? 2.5 : 1.9}
-              />
-            </View>
-          ),
-        }}
+        options={{ tabBarLabel: 'Profile', tabBarIcon: ({ focused }) => <TabIcon Icon={User} focused={focused} /> }}
       />
       {/* Hidden tabs kept in navigator stack for navigation consistency */}
       {isEmployee && (
-        <Tab.Screen
-          name="WorkspacesTab"
-          component={WorkspacesScreen}
-          options={{
-            tabBarItemStyle: { display: 'none' },
-          }}
-        />
+        <Tab.Screen name="WorkspacesTab" component={WorkspacesScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
       )}
       {!isEmployee && (
-        <Tab.Screen
-          name="TasksTab"
-          component={TasksScreen}
-          options={{
-            tabBarItemStyle: { display: 'none' },
-          }}
-        />
+        <Tab.Screen name="TasksTab" component={TasksScreen} options={{ tabBarItemStyle: { display: 'none' } }} />
       )}
     </Tab.Navigator>
   );
@@ -161,31 +96,30 @@ export const MainTabNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   iconBox: {
-    width: 42,
-    height: 42,
+    width: 44,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
-    backgroundColor: 'transparent',
   },
-  activeCircle: {
+  activeEdge: {
     position: 'absolute',
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#e6f0fa',
-    overflow: 'hidden',
+    top: -5,
+    width: 28,
+    height: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    backgroundColor: colors.gold,
   },
   tabLabel: {
     fontSize: 11,
-    fontWeight: '700',
-    marginTop: 2,
+    lineHeight: 14,
+    fontWeight: '600',
   },
   badgeContainer: {
     position: 'absolute',
-    top: 0,
-    right: 2,
-    backgroundColor: '#ef4444',
+    top: -2,
+    right: 4,
+    backgroundColor: colors.danger,
     borderRadius: 8,
     minWidth: 16,
     height: 16,
@@ -193,12 +127,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 3,
     borderWidth: 1.5,
-    borderColor: '#ffffff',
-    zIndex: 10,
+    borderColor: colors.surface,
   },
   badgeText: {
-    color: '#ffffff',
+    color: colors.textInverse,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });

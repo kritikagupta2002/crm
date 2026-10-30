@@ -569,7 +569,7 @@ export class MisService {
         pendingReviewKycRecords: empDocs.filter((d) => d.status === 'Pending Review').length,
         rejectedKycRecords: empDocs.filter((d) => d.status === 'Rejected').length,
       },
-      isolationNote: 'CRM EDMS (NAS government letters) and HRMS KYC (statutory staff certificates) operate in mutually isolated storage and business domains.',
+      isolationNote: 'Government letters are kept with the projects; staff certificates are kept with HR. Each is seen only by the people who handle it.',
     };
   }
 

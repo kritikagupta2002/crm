@@ -98,7 +98,7 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
         </View>
 
         <Text style={styles.welcomeDesc}>
-          Welcome to your Bansal Geo Executive Command Center. Inspect drilling footage, review certified reports, and approve technical deliverables.
+          Your projects, reports to review, invoices and questions to Bansal Geo.
         </Text>
       </View>
 
@@ -159,10 +159,10 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
           onPress={() => onNavigateTab('invoices')}
         >
           <View style={styles.kpiTopRow}>
-            <View style={[styles.kpiIconWrap, { backgroundColor: '#fee2e2' }]}>
+            <View style={[styles.kpiIconWrap, { backgroundColor: '#fbe5e4' }]}>
               <Receipt size={19} color={clientTheme.colors.crimson} />
             </View>
-            <View style={[styles.kpiMiniPill, { backgroundColor: '#fee2e2' }]}>
+            <View style={[styles.kpiMiniPill, { backgroundColor: '#fbe5e4' }]}>
               <Text style={[styles.kpiMiniPillText, { color: clientTheme.colors.crimson }]}>Due</Text>
             </View>
           </View>
@@ -329,12 +329,16 @@ export const ClientHomeTab: React.FC<ClientHomeTabProps> = ({
                 </Text>
               </View>
               <View style={styles.techCol}>
-                <Text style={styles.techColLabel}>CORING TARGET</Text>
-                <Text style={styles.techColVal}>HQ Diamond Coring</Text>
+                <Text style={styles.techColLabel}>STATUS</Text>
+                <Text style={styles.techColVal}>{featuredProject.status || featuredProject.stageName}</Text>
               </View>
               <View style={styles.techCol}>
-                <Text style={styles.techColLabel}>CORE RECOVERY</Text>
-                <Text style={[styles.techColVal, { color: clientTheme.colors.emerald }]}>~94% High</Text>
+                <Text style={styles.techColLabel}>DUE</Text>
+                <Text style={styles.techColVal}>
+                  {featuredProject.dueOn || featuredProject.endDate
+                    ? new Date((featuredProject.dueOn || featuredProject.endDate) as string).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : '—'}
+                </Text>
               </View>
             </View>
 
@@ -416,14 +420,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: clientTheme.radius.full,
     alignSelf: 'flex-start',
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   livePulseDot: {
     width: 6,
@@ -438,7 +442,7 @@ const styles = StyleSheet.create({
   },
   contactNameText: {
     fontSize: clientTheme.typography.titleXl,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     letterSpacing: -0.3,
   },
@@ -458,8 +462,8 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   clientAvatarText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 20,
-    fontWeight: '900',
     color: '#ffffff',
     letterSpacing: 1,
   },
@@ -490,11 +494,11 @@ const styles = StyleSheet.create({
     padding: 11,
   },
   kpiCardHighlightGold: {
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
     backgroundColor: '#fffdf5',
   },
   kpiCardHighlightCrimson: {
-    borderColor: '#fecaca',
+    borderColor: '#f2c4c2',
     backgroundColor: '#fffbfa',
   },
   kpiTopRow: {
@@ -517,11 +521,11 @@ const styles = StyleSheet.create({
   },
   kpiMiniPillText: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiValueText: {
+    fontFamily: 'Fraunces_700Bold',
     fontSize: 26,
-    fontWeight: '900',
     color: clientTheme.colors.navy,
     letterSpacing: -0.5,
     marginBottom: 4,
@@ -538,16 +542,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   spotlightCard: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
     borderRadius: clientTheme.radius.lg,
     padding: 18,
     borderWidth: 1.2,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
     ...clientTheme.shadows.sm,
   },
   spotlightCardInvoice: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    backgroundColor: '#e6effa',
+    borderColor: '#c9dcf1',
   },
   spotlightTopRow: {
     flexDirection: 'row',
@@ -559,14 +563,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: clientTheme.radius.full,
   },
   spotlightTagTextGold: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.goldDark,
     letterSpacing: 0.4,
   },
@@ -574,14 +578,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: clientTheme.radius.full,
   },
   spotlightTagTextNavy: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     letterSpacing: 0.4,
   },
@@ -592,7 +596,7 @@ const styles = StyleSheet.create({
   },
   spotlightTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     lineHeight: 22,
     marginTop: 4,
@@ -633,7 +637,7 @@ const styles = StyleSheet.create({
   },
   blockTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     marginBottom: 12,
   },
@@ -674,7 +678,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   seeAllBtn: {
@@ -709,7 +713,7 @@ const styles = StyleSheet.create({
   },
   projectCodeText: {
     fontSize: clientTheme.typography.badge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   stagePill: {
@@ -725,7 +729,7 @@ const styles = StyleSheet.create({
   },
   projectCardTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     lineHeight: 22,
     marginBottom: 6,
@@ -756,7 +760,7 @@ const styles = StyleSheet.create({
   },
   progressValue: {
     fontSize: clientTheme.typography.bodySm,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.tealDark,
   },
   progressBarTrack: {
@@ -784,14 +788,14 @@ const styles = StyleSheet.create({
   },
   techColLabel: {
     fontSize: 9.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   techColVal: {
     fontSize: clientTheme.typography.bodySm,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   projectCardFooter: {

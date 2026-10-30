@@ -66,7 +66,7 @@ export class TendersService {
     tender.closedEarlyAt = now;
     tender.status = 'Under Evaluation';
     tender.history = tender.history || [];
-    tender.history.push({ at: now, action: 'Bidding closed early · bids unsealed chamber enabled', by: actorName || 'Admin' });
+    tender.history.push({ at: now, action: 'Bidding closed early · bids opened', by: actorName || 'Admin' });
     await mobileStorage.setTenders(tenders);
     return tender;
   }
@@ -152,7 +152,7 @@ export class TendersService {
 
   async unsealTenderBids(tenderId: string, directorKeyConfirmed: boolean, tenderManagerKeyConfirmed: boolean): Promise<Tender> {
     if (!directorKeyConfirmed || !tenderManagerKeyConfirmed) {
-      throw new Error('Dual-Key Authentication required: Both Director and Tender Manager keys must confirm to unseal bids.');
+      throw new Error('Both the Director and the Tender Manager must confirm before the bids are opened.');
     }
 
     const tenders = await mobileStorage.getTenders();
@@ -173,7 +173,7 @@ export class TendersService {
 
     tender.status = 'Under Evaluation';
     tender.history = tender.history || [];
-    tender.history.push({ at: now, action: 'Dual-key unsealing ceremony executed. Comparative matrix generated.', by: 'Director & Tender Manager' });
+    tender.history.push({ at: now, action: 'Bids opened', by: 'Director & Tender Manager' });
     await mobileStorage.setTenders(tenders);
     return tender;
   }

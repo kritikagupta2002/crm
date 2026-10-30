@@ -20,6 +20,9 @@ import {
 } from 'lucide-react-native';
 import { colors, spacing, radius, shadows } from '../../theme';
 import { useCrm } from '../../context/CrmContext';
+import { useHrms } from '../../context/HrmsContext';
+import { useFieldDatabase } from '../../context/FieldDatabaseContext';
+import { recordStat } from '../../fieldDatabase/data/fieldFormats';
 
 interface ErmWorkspaceHomeScreenProps {
   navigation: any;
@@ -28,6 +31,16 @@ interface ErmWorkspaceHomeScreenProps {
 export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { projects } = useCrm();
+  const { employees } = useHrms();
+  const { fieldRecords } = useFieldDatabase();
+  const running = projects.filter((p) => p.status !== 'Completed').length;
+  const tasks = projects.flatMap((p) => p.tasks || []);
+  const openTasks = tasks.filter((t) => t.status !== 'Completed');
+  const today = new Date().toISOString().slice(0, 10);
+  const lateTasks = openTasks.filter((t) => (t.dueDate || t.due || '9999') < today).length;
+  // Metres drilled, from the daily drilling reports in the Field Database.
+  const dprs = fieldRecords.filter((r: any) => r.section === 'core-drilling-dpr');
+  const metres = dprs.reduce((s: number, r: any) => s + (Number(recordStat('core-drilling-dpr', r, 'metres')) || 0), 0);
 
   const totalTasks = projects.reduce((sum, p) => sum + (p.tasks?.length || 0), 0);
   const activeProjectsCount = projects.filter((p) => p.status === 'In progress').length;
@@ -36,54 +49,54 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
     {
       id: 'dashboard',
       title: 'ERM Dashboard',
-      subtitle: '7-Stage exploration milestones & telemetry',
-      icon: <LayoutDashboard size={20} color="#0d9488" />,
+      subtitle: 'Projects by stage, tasks and team',
+      icon: <LayoutDashboard size={20} color="#1f6f78" />,
       route: 'ErmDashboard',
     },
     {
       id: 'projects',
       title: 'Projects',
-      subtitle: `${projects.length} total mining & drilling blocks`,
+      subtitle: `${projects.length} projects`,
       badge: `${activeProjectsCount}`,
-      badgeColor: '#0d9488',
-      icon: <FolderKanban size={20} color="#0d9488" />,
+      badgeColor: '#1f6f78',
+      icon: <FolderKanban size={20} color="#1f6f78" />,
       route: 'Projects',
     },
     {
       id: 'tasks',
       title: 'Tasks',
-      subtitle: 'Universal WBS & operational tasks',
+      subtitle: 'Every task across projects',
       badge: `${totalTasks}`,
-      badgeColor: '#0284c7',
-      icon: <CheckSquare size={20} color="#0d9488" />,
+      badgeColor: '#2f6fb3',
+      icon: <CheckSquare size={20} color="#1f6f78" />,
       route: 'Tasks',
     },
     {
       id: 'my_tasks',
       title: 'My Tasks',
-      subtitle: 'Personal field assignments & reviews',
-      icon: <UserCheck size={20} color="#0d9488" />,
+      subtitle: 'Tasks given to you',
+      icon: <UserCheck size={20} color="#1f6f78" />,
       route: 'Tasks',
     },
     {
       id: 'team',
       title: 'Team',
-      subtitle: 'Geoscientists, coordinators & field drillers',
-      icon: <Users size={20} color="#0d9488" />,
+      subtitle: 'Who works on which project',
+      icon: <Users size={20} color="#1f6f78" />,
       route: 'EmployeeDirectory',
     },
     {
       id: 'inventory',
       title: 'Inventory / Stock',
-      subtitle: 'Drill rigs, core boxes & sampling consumables',
-      icon: <Boxes size={20} color="#0d9488" />,
-      route: 'Projects',
+      subtitle: 'Equipment, tools and consumables',
+      icon: <Boxes size={20} color="#1f6f78" />,
+      route: 'Inventory',
     },
   ];
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
@@ -92,11 +105,11 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
           style={styles.backBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <ChevronLeft size={22} color="#0f172a" strokeWidth={2.2} />
+          <ChevronLeft size={22} color="#0f2a3d" strokeWidth={2.2} />
           <Text style={styles.headerTitle}>ERM Workspace</Text>
         </TouchableOpacity>
         <View style={styles.tag}>
-          <Text style={styles.tagText}>FIELD OPERATIONS</Text>
+          <Text style={styles.tagText}>PROJECTS</Text>
         </View>
       </View>
 
@@ -106,28 +119,26 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
       >
         <View style={styles.kpiHeroCard}>
           <View style={styles.kpiTopRow}>
-            <Text style={styles.kpiHeroTitle}>Exploration & Mining Blocks Telemetry</Text>
-            <View style={styles.liveBadge}>
-              <Text style={styles.liveBadgeText}>68% EXECUTION</Text>
-            </View>
+            <Text style={styles.kpiHeroTitle}>Projects</Text>
+
           </View>
           <View style={styles.kpiMetricsGrid}>
             <View style={styles.kpiMetricBox}>
-              <Text style={styles.kpiMetricLabel}>Active Blocks</Text>
-              <Text style={styles.kpiMetricVal}>{projects.length || 5}</Text>
-              <Text style={styles.kpiMetricTrend}>5 Live Sites</Text>
+              <Text style={styles.kpiMetricLabel}>Running</Text>
+              <Text style={styles.kpiMetricVal}>{running}</Text>
+              <Text style={styles.kpiMetricTrend}>{projects.length} in all</Text>
             </View>
             <View style={styles.kpiDivider} />
             <View style={styles.kpiMetricBox}>
-              <Text style={styles.kpiMetricLabel}>Core Drilled</Text>
-              <Text style={styles.kpiMetricVal}>1,420 M</Text>
-              <Text style={styles.kpiMetricTrend}>Target 2,000 M</Text>
+              <Text style={styles.kpiMetricLabel}>Open tasks</Text>
+              <Text style={styles.kpiMetricVal}>{openTasks.length}</Text>
+              <Text style={styles.kpiMetricTrend}>{lateTasks ? `${lateTasks} late` : 'None late'}</Text>
             </View>
             <View style={styles.kpiDivider} />
             <View style={styles.kpiMetricBox}>
-              <Text style={styles.kpiMetricLabel}>Field Team</Text>
-              <Text style={styles.kpiMetricVal}>12 Staff</Text>
-              <Text style={styles.kpiMetricTrend}>6 Geologists</Text>
+              <Text style={styles.kpiMetricLabel}>Core drilled</Text>
+              <Text style={styles.kpiMetricVal}>{Number(metres.toFixed(1))} m</Text>
+              <Text style={styles.kpiMetricTrend}>{dprs.length} daily reports · {employees.length} staff</Text>
             </View>
           </View>
         </View>
@@ -136,28 +147,28 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Projects')}
-            style={[styles.quickActionBtn, { backgroundColor: '#f0fdfa', borderColor: '#ccfbf1' }]}
+            style={[styles.quickActionBtn, { backgroundColor: '#eef7f7', borderColor: '#ddefef' }]}
           >
-            <Text style={[styles.quickActionText, { color: '#0f766e' }]}>All Projects</Text>
+            <Text style={[styles.quickActionText, { color: '#0e4a52' }]}>All Projects</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Tasks')}
-            style={[styles.quickActionBtn, { backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }]}
+            style={[styles.quickActionBtn, { backgroundColor: '#e6effa', borderColor: '#c9dcf1' }]}
           >
-            <Text style={[styles.quickActionText, { color: '#1d4ed8' }]}>Tasks Board ({totalTasks})</Text>
+            <Text style={[styles.quickActionText, { color: '#245a93' }]}>Tasks Board ({totalTasks})</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('EmployeeDirectory')}
-            style={[styles.quickActionBtn, { backgroundColor: '#fef3c7', borderColor: '#fde68a' }]}
+            style={[styles.quickActionBtn, { backgroundColor: '#fcf0dc', borderColor: '#ecd6ae' }]}
           >
-            <Text style={[styles.quickActionText, { color: '#b45309' }]}>Field Roster</Text>
+            <Text style={[styles.quickActionText, { color: '#9a5f0c' }]}>Field Roster</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.sectionTitleRow}>
-          <Text style={styles.sectionTitle}>Project & Operations Submodules</Text>
+          <Text style={styles.sectionTitle}>Modules</Text>
           <Text style={styles.sectionCount}>{ermModules.length} Modules</Text>
         </View>
 
@@ -184,7 +195,7 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
               </View>
 
               <View style={styles.moduleArrowCircle}>
-                <ChevronRight size={15} color="#0d9488" strokeWidth={2.4} />
+                <ChevronRight size={15} color="#1f6f78" strokeWidth={2.4} />
               </View>
             </TouchableOpacity>
           ))}
@@ -197,14 +208,14 @@ export const ErmWorkspaceHomeScreen: React.FC<ErmWorkspaceHomeScreenProps> = ({ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -217,20 +228,20 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   tag: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 9,
     paddingVertical: 3.5,
     borderRadius: 8,
   },
   tagText: {
     fontSize: 10,
-    fontWeight: '800',
-    color: '#0d9488',
+    fontWeight: '700',
+    color: '#1f6f78',
     letterSpacing: 0.5,
   },
   scrollContent: {
@@ -244,7 +255,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     marginBottom: 12,
     ...shadows.xs,
   },
@@ -256,19 +267,19 @@ const styles = StyleSheet.create({
   },
   kpiHeroTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   liveBadge: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 8,
     paddingVertical: 2.5,
     borderRadius: 6,
   },
   liveBadgeText: {
     fontSize: 10,
-    fontWeight: '800',
-    color: '#0d9488',
+    fontWeight: '700',
+    color: '#1f6f78',
   },
   kpiMetricsGrid: {
     flexDirection: 'row',
@@ -280,28 +291,28 @@ const styles = StyleSheet.create({
   },
   kpiMetricLabel: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
   kpiMetricVal: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 25,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     marginTop: 3,
     letterSpacing: -0.5,
   },
   kpiMetricTrend: {
     fontSize: 11,
-    color: '#0f766e',
+    color: '#0e4a52',
     fontWeight: '700',
     marginTop: 2,
   },
   kpiDivider: {
     width: 1.2,
     height: 42,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     marginHorizontal: 10,
   },
 
@@ -321,7 +332,7 @@ const styles = StyleSheet.create({
   },
   quickActionText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 
   sectionTitleRow: {
@@ -333,13 +344,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   sectionCount: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
 
@@ -353,14 +364,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   moduleIconBox: {
     width: 44,
     height: 44,
     borderRadius: 13,
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -377,13 +388,13 @@ const styles = StyleSheet.create({
   },
   moduleItemTitle: {
     fontSize: 15,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   moduleItemSubtitle: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     lineHeight: 16,
   },
@@ -395,13 +406,13 @@ const styles = StyleSheet.create({
   moduleBadgeText: {
     color: '#ffffff',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   moduleArrowCircle: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
   },

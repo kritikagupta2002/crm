@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   tabLabelActive: {
     color: clientTheme.colors.navy,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   badgePill: {
     position: 'absolute',
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 10,
-    fontWeight: '900',
+    fontWeight: '700',
     color: '#ffffff',
   },
 });

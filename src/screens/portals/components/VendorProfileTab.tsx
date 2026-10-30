@@ -300,7 +300,7 @@ export const VendorProfileTab: React.FC<VendorProfileTabProps> = ({
         style={styles.trackApplicationCard}
       >
         <View style={styles.trackIconWrap}>
-          <ShieldCheck size={22} color="#0d9488" />
+          <ShieldCheck size={22} color="#1f6f78" />
         </View>
         <View style={styles.trackInfo}>
           <Text style={styles.trackTitle}>Track Registration / Update Application</Text>
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#e8eef1',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
   },
   vendorNameText: {
     fontSize: 18.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
     letterSpacing: -0.2,
   },
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3.5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
     gap: 5,
   },
   empanelledBadgeText: {
@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3.5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
     gap: 5,
   },
   kycBadgeText: {
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
     letterSpacing: 0.1,
   },
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 11,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   fieldLabel: {
     fontSize: 13.5,
@@ -456,7 +456,7 @@ const styles = StyleSheet.create({
   },
   ratingVal: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.amberDark,
   },
   ratingMuted: {
@@ -465,12 +465,12 @@ const styles = StyleSheet.create({
     color: vendorTheme.colors.textMuted,
   },
   tdsPill: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
     paddingHorizontal: 9,
     paddingVertical: 3.5,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
   },
   tdsPillText: {
     fontSize: 12,
@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 11,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   docLeft: {
     flex: 1,
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   docDownloadBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 6,
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     borderRadius: vendorTheme.radius.lg,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
     marginBottom: 14,
     ...vendorTheme.shadows.sm,
   },
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#ccfbf1',
+    backgroundColor: '#ddefef',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -543,12 +543,12 @@ const styles = StyleSheet.create({
   },
   trackTitle: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.tealDark,
   },
   trackSub: {
     fontSize: 11.5,
-    color: '#0f766e',
+    color: '#0e4a52',
     marginTop: 2,
     lineHeight: 16,
   },
@@ -556,16 +556,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
     height: 48,
     borderRadius: vendorTheme.radius.md,
     gap: 8,
     borderWidth: 1,
-    borderColor: '#fca5a5',
+    borderColor: '#f2c4c2',
   },
   signOutText: {
     fontSize: 14.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.crimson,
   },
 });

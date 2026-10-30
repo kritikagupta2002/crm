@@ -155,7 +155,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
     if (doc.attachmentUri) {
       const ok = await attachmentStorage.openOrShareAttachment(doc.attachmentUri, doc.fileName);
       if (!ok) {
-        Alert.alert('File View', `Attachment "${doc.fileName}" (${doc.fileSize}) is verified and archived in vault.`);
+        Alert.alert('File View', `Attachment "${doc.fileName}" (${doc.fileSize}) is saved.`);
       }
     } else {
       Alert.alert('Document Archived', `"${doc.fileName}" (${doc.fileSize}) is available in corporate repository.\nFormat: ${doc.fileType}`);
@@ -165,8 +165,8 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
   return (
     <View style={styles.container}>
       <AppHeader
-        title="Corporate Document Vault"
-        subtitle="SOPs, compliance guidelines, licenses & policies"
+        title="HR Documents"
+        subtitle="Policies, SOPs and licences"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -261,12 +261,12 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                     </View>
                     {isHrOnly ? (
                       <View style={styles.hrOnlyBadge}>
-                        <Shield size={12} color="#DC2626" />
+                        <Shield size={12} color="#d24c47" />
                         <Text style={styles.hrOnlyText}>HR Confidential</Text>
                       </View>
                     ) : (
                       <View style={styles.allAccessBadge}>
-                        <FileCheck2 size={12} color="#059669" />
+                        <FileCheck2 size={12} color="#2e9e6b" />
                         <Text style={styles.allAccessText}>Company Wide</Text>
                       </View>
                     )}
@@ -298,7 +298,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                         onPress={() => handleOpenAttachment(doc)}
                         activeOpacity={0.7}
                       >
-                        <Download size={18} color="#059669" />
+                        <Download size={18} color="#2e9e6b" />
                       </TouchableOpacity>
 
                       {isHrOrAdmin && (
@@ -307,7 +307,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                           onPress={() => setDocToDelete(doc)}
                           activeOpacity={0.7}
                         >
-                          <Trash2 size={18} color="#DC2626" />
+                          <Trash2 size={18} color="#d24c47" />
                         </TouchableOpacity>
                       )}
                     </View>
@@ -375,7 +375,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                   onPress={handlePickPhoto}
                   activeOpacity={0.8}
                 >
-                  <ImageIcon size={18} color="#059669" />
+                  <ImageIcon size={18} color="#2e9e6b" />
                   <Text style={styles.attachOptionText}>Photo Library</Text>
                 </TouchableOpacity>
 
@@ -384,7 +384,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                   onPress={handleTakePhoto}
                   activeOpacity={0.8}
                 >
-                  <Upload size={18} color="#D97706" />
+                  <Upload size={18} color="#c27a12" />
                   <Text style={styles.attachOptionText}>Take Photo</Text>
                 </TouchableOpacity>
               </View>
@@ -401,7 +401,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                     </Text>
                   </View>
                   <TouchableOpacity onPress={() => setSelectedAttachment(null)}>
-                    <X size={16} color="#DC2626" />
+                    <X size={16} color="#d24c47" />
                   </TouchableOpacity>
                 </View>
               )}
@@ -426,7 +426,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                 style={{ flex: 1, marginRight: spacing.sm }}
               />
               <Button
-                title="Upload to Vault"
+                title="Upload"
                 variant="primary"
                 onPress={handleUploadSubmit}
                 loading={isUploading}
@@ -469,7 +469,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
                   <FileText size={48} color={colors.primary} />
                   <Text style={styles.previewFileName}>{previewDoc?.fileName}</Text>
                   <Text style={styles.previewFileSize}>
-                    Size: {previewDoc?.fileSize} • Encrypted Format
+                    Size: {previewDoc?.fileSize}
                   </Text>
                 </View>
               )}
@@ -516,7 +516,7 @@ export const HrDocumentsScreen: React.FC<{ navigation: any }> = ({ navigation })
       <ConfirmationModal
         visible={!!docToDelete}
         title="Delete Corporate Document"
-        message={`Are you sure you want to permanently remove "${docToDelete?.title}" from the corporate document vault?`}
+        message={`Are you sure you want to permanently remove "${docToDelete?.title}" from HR documents?`}
         confirmText="Yes, Delete Document"
         confirmVariant="danger"
         loading={isDeleting}
@@ -612,7 +612,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.md,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -651,49 +651,49 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   catBadge: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#c9dcf1',
   },
   catBadgeText: {
     fontSize: typography.fontSizes.xxs,
     fontWeight: typography.fontWeights.bold,
-    color: '#1D4ED8',
+    color: '#245a93',
   },
   hrOnlyBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
     borderRadius: radius.sm,
     gap: 3,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: '#f2c4c2',
   },
   hrOnlyText: {
     fontSize: typography.fontSizes.xxs,
     fontWeight: typography.fontWeights.bold,
-    color: '#DC2626',
+    color: '#d24c47',
   },
   allAccessBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xxs,
     borderRadius: radius.sm,
     gap: 3,
     borderWidth: 1,
-    borderColor: '#BBF7D0',
+    borderColor: '#bfe3d0',
   },
   allAccessText: {
     fontSize: typography.fontSizes.xxs,
     fontWeight: typography.fontWeights.bold,
-    color: '#059669',
+    color: '#2e9e6b',
   },
   docDesc: {
     fontSize: typography.fontSizes.xs,
@@ -809,7 +809,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border.default,
   },
   catPickBtnActive: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     borderColor: colors.primary,
   },
   catPickBtnText: {
@@ -846,9 +846,9 @@ const styles = StyleSheet.create({
   selectedFilePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#e3f4ec',
     borderWidth: 1,
-    borderColor: '#BBF7D0',
+    borderColor: '#bfe3d0',
     borderRadius: radius.md,
     padding: spacing.xs,
     marginTop: spacing.xs,

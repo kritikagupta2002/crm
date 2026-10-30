@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
   kpiValue: {
     ...typography.h4,
     color: colors.text.primary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiLabel: {
     ...typography.caption,
@@ -167,7 +167,7 @@ export const styles = StyleSheet.create({
   },
   shiftCardCode: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     fontSize: 11,
   },
@@ -388,7 +388,7 @@ export const styles = StyleSheet.create({
   heroBadgeText: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   heroShiftTitle: {
@@ -423,7 +423,7 @@ export const styles = StyleSheet.create({
   },
   heroTimeValue: {
     ...typography.bodyLarge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   heroDetailsGrid: {
@@ -537,7 +537,7 @@ export const styles = StyleSheet.create({
   },
   textHighlight: {
     color: colors.primary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   textMuted: {
     color: colors.text.tertiary,

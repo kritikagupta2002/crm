@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   placeholder: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: 12,
   },
 });

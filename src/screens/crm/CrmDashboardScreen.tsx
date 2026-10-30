@@ -36,7 +36,7 @@ type PeriodType = 'month' | 'quarter' | 'year' | 'all';
 
 const DonutMini: React.FC<{ percentage: number; color?: string }> = ({
   percentage,
-  color = '#059669',
+  color = '#2e9e6b',
 }) => {
   const size = 48;
   const strokeWidth = 4.5;
@@ -47,7 +47,7 @@ const DonutMini: React.FC<{ percentage: number; color?: string }> = ({
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
       <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <Circle cx={size / 2} cy={size / 2} r={radiusVal} stroke="#e2e8f0" strokeWidth={strokeWidth} fill="none" />
+        <Circle cx={size / 2} cy={size / 2} r={radiusVal} stroke="#e1e8eb" strokeWidth={strokeWidth} fill="none" />
         <Circle
           cx={size / 2}
           cy={size / 2}
@@ -60,7 +60,7 @@ const DonutMini: React.FC<{ percentage: number; color?: string }> = ({
           strokeLinecap="round"
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
-        <SvgText x={size / 2} y={size / 2 + 4} fontSize="10" fontWeight="bold" fill="#0f172a" textAnchor="middle">
+        <SvgText x={size / 2} y={size / 2 + 4} fontSize="10" fontWeight="bold" fill="#0f2a3d" textAnchor="middle">
           {`${Math.round(percentage)}%`}
         </SvgText>
       </Svg>
@@ -69,7 +69,7 @@ const DonutMini: React.FC<{ percentage: number; color?: string }> = ({
 };
 
 const MiniBarsChart: React.FC<{ color?: string; heights?: number[] }> = ({
-  color = '#38bdf8',
+  color = '#6f9fd3',
   heights = [10, 16, 22, 28],
 }) => {
   const width = 38;
@@ -147,13 +147,13 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
   }, [leads, followUps, quotes]);
 
   const STAGES_LIST = [
-    { key: 'New Enquiry', color: '#0284c7' },
-    { key: 'Contacted', color: '#6366f1' },
-    { key: 'Qualified', color: '#f59e0b' },
-    { key: 'Proposal Sent', color: '#d97706' },
-    { key: 'Negotiation', color: '#ec4899' },
-    { key: 'Won', color: '#059669' },
-    { key: 'Lost', color: '#dc2626' },
+    { key: 'New Enquiry', color: '#2f6fb3' },
+    { key: 'Contacted', color: '#5b7686' },
+    { key: 'Qualified', color: '#c27a12' },
+    { key: 'Proposal Sent', color: '#c27a12' },
+    { key: 'Negotiation', color: '#5b7686' },
+    { key: 'Won', color: '#2e9e6b' },
+    { key: 'Lost', color: '#d24c47' },
   ];
 
   return (
@@ -162,9 +162,8 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
       header={
         <AppHeader
           title="Commercial CRM"
-          subtitle="Exploration Enquiries & Pipeline Oversight"
+          subtitle="Enquiries and pipeline"
           showBack
-          badge="Commercial Workspace"
           onBack={() => navigation.goBack()}
           rightAction={
             can('manage', 'crm') ? (
@@ -190,15 +189,15 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
       <View style={styles.statGrid}>
         <View style={styles.metricCard}>
           <View style={styles.metricCardLeft}>
-            <View style={[styles.metricIconBox, { backgroundColor: '#f0f9ff' }]}>
-              <Inbox size={17} color="#0284c7" strokeWidth={2.2} />
+            <View style={[styles.metricIconBox, { backgroundColor: '#e6effa' }]}>
+              <Inbox size={17} color="#2f6fb3" strokeWidth={2.2} />
             </View>
             <Text style={styles.metricLabel}>ENQUIRIES</Text>
-            <Text style={[styles.metricValue, { color: '#0284c7' }]}>{summary.totalLeads}</Text>
+            <Text style={[styles.metricValue, { color: '#2f6fb3' }]}>{summary.totalLeads}</Text>
             <Text style={styles.metricSubtext}>Total incoming leads</Text>
           </View>
           <View style={styles.metricChartCol}>
-            <MiniBarsChart color="#38bdf8" heights={[10, 16, 22, 28]} />
+            <MiniBarsChart color="#6f9fd3" heights={[10, 16, 22, 28]} />
           </View>
         </View>
 
@@ -207,12 +206,12 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
             <View
               style={[
                 styles.metricIconBox,
-                { backgroundColor: summary.overdueFollowUpsCount > 0 ? '#fef2f2' : '#fffbeb' },
+                { backgroundColor: summary.overdueFollowUpsCount > 0 ? '#fbe5e4' : '#fcf0dc' },
               ]}
             >
               <CalendarClock
                 size={17}
-                color={summary.overdueFollowUpsCount > 0 ? '#dc2626' : '#d97706'}
+                color={summary.overdueFollowUpsCount > 0 ? '#d24c47' : '#c27a12'}
                 strokeWidth={2.2}
               />
             </View>
@@ -220,7 +219,7 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
             <Text
               style={[
                 styles.metricValue,
-                { color: summary.overdueFollowUpsCount > 0 ? '#dc2626' : '#d97706' },
+                { color: summary.overdueFollowUpsCount > 0 ? '#d24c47' : '#c27a12' },
               ]}
             >
               {summary.dueFollowUpsCount}
@@ -231,7 +230,7 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
           </View>
           <View style={styles.metricChartCol}>
             <MiniBarsChart
-              color={summary.overdueFollowUpsCount > 0 ? '#f87171' : '#f59e0b'}
+              color={summary.overdueFollowUpsCount > 0 ? '#f87171' : '#c27a12'}
               heights={[14, 18, 24, 26]}
             />
           </View>
@@ -241,29 +240,29 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
       <View style={styles.statGrid}>
         <View style={styles.metricCard}>
           <View style={styles.metricCardLeft}>
-            <View style={[styles.metricIconBox, { backgroundColor: '#fffbeb' }]}>
-              <FileText size={17} color="#d97706" strokeWidth={2.2} />
+            <View style={[styles.metricIconBox, { backgroundColor: '#fcf0dc' }]}>
+              <FileText size={17} color="#c27a12" strokeWidth={2.2} />
             </View>
             <Text style={styles.metricLabel}>QUOTES PENDING</Text>
-            <Text style={[styles.metricValue, { color: '#d97706' }]}>{summary.awaitingQuotesCount}</Text>
+            <Text style={[styles.metricValue, { color: '#c27a12' }]}>{summary.awaitingQuotesCount}</Text>
             <Text style={styles.metricSubtext}>{formatCurrency(summary.awaitingValue)} value</Text>
           </View>
           <View style={styles.metricChartCol}>
-            <MiniBarsChart color="#f59e0b" heights={[8, 14, 20, 26]} />
+            <MiniBarsChart color="#c27a12" heights={[8, 14, 20, 26]} />
           </View>
         </View>
 
         <View style={styles.metricCard}>
           <View style={styles.metricCardLeft}>
-            <View style={[styles.metricIconBox, { backgroundColor: '#ecfdf5' }]}>
-              <UserCheck size={17} color="#059669" strokeWidth={2.2} />
+            <View style={[styles.metricIconBox, { backgroundColor: '#e3f4ec' }]}>
+              <UserCheck size={17} color="#2e9e6b" strokeWidth={2.2} />
             </View>
             <Text style={styles.metricLabel}>CLIENTS WON</Text>
-            <Text style={[styles.metricValue, { color: '#059669' }]}>{summary.wonCount}</Text>
+            <Text style={[styles.metricValue, { color: '#2e9e6b' }]}>{summary.wonCount}</Text>
             <Text style={styles.metricSubtext}>{formatCurrency(summary.wonAmount)} closed</Text>
           </View>
           <View style={styles.metricChartCol}>
-            <DonutMini percentage={summary.conversionRate || 0} color="#059669" />
+            <DonutMini percentage={summary.conversionRate || 0} color="#2e9e6b" />
           </View>
         </View>
       </View>
@@ -278,8 +277,8 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
           onPress={() => navigation.navigate('Leads')}
           style={styles.qaItem}
         >
-          <View style={[styles.qaIconWrap, { backgroundColor: '#ecfdf5' }]}>
-            <Users size={22} color="#059669" strokeWidth={2} />
+          <View style={[styles.qaIconWrap, { backgroundColor: '#e3f4ec' }]}>
+            <Users size={22} color="#2e9e6b" strokeWidth={2} />
           </View>
           <Text style={styles.qaLabel}>Leads</Text>
         </TouchableOpacity>
@@ -289,8 +288,8 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
           onPress={() => navigation.navigate('FollowUps')}
           style={styles.qaItem}
         >
-          <View style={[styles.qaIconWrap, { backgroundColor: '#fffbeb' }]}>
-            <CalendarClock size={22} color="#d97706" strokeWidth={2} />
+          <View style={[styles.qaIconWrap, { backgroundColor: '#fcf0dc' }]}>
+            <CalendarClock size={22} color="#c27a12" strokeWidth={2} />
           </View>
           <Text style={styles.qaLabel}>Follow-ups</Text>
         </TouchableOpacity>
@@ -300,8 +299,8 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
           onPress={() => navigation.navigate('Quotes')}
           style={styles.qaItem}
         >
-          <View style={[styles.qaIconWrap, { backgroundColor: '#f0f9ff' }]}>
-            <FileText size={22} color="#0284c7" strokeWidth={2} />
+          <View style={[styles.qaIconWrap, { backgroundColor: '#e6effa' }]}>
+            <FileText size={22} color="#2f6fb3" strokeWidth={2} />
           </View>
           <Text style={styles.qaLabel}>Quotations</Text>
         </TouchableOpacity>
@@ -311,8 +310,8 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
           onPress={() => navigation.navigate('QuoteApprovals')}
           style={styles.qaItem}
         >
-          <View style={[styles.qaIconWrap, { backgroundColor: '#fef2f2' }]}>
-            <ShieldCheck size={22} color="#dc2626" strokeWidth={2} />
+          <View style={[styles.qaIconWrap, { backgroundColor: '#fbe5e4' }]}>
+            <ShieldCheck size={22} color="#d24c47" strokeWidth={2} />
           </View>
           <Text style={styles.qaLabel}>Approvals</Text>
         </TouchableOpacity>
@@ -322,8 +321,8 @@ export const CrmDashboardScreen: React.FC<CrmDashboardScreenProps> = ({ navigati
           onPress={() => navigation.navigate('Clients')}
           style={styles.qaItem}
         >
-          <View style={[styles.qaIconWrap, { backgroundColor: '#f5f3ff' }]}>
-            <Building size={22} color="#7c3aed" strokeWidth={2} />
+          <View style={[styles.qaIconWrap, { backgroundColor: '#f1f5f7' }]}>
+            <Building size={22} color="#3d5a6c" strokeWidth={2} />
           </View>
           <Text style={styles.qaLabel}>Clients</Text>
         </TouchableOpacity>
@@ -445,19 +444,19 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     fontSize: 9,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.5,
   },
   metricValue: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 20,
-    fontWeight: '800',
     marginTop: 2,
     letterSpacing: -0.3,
   },
   metricSubtext: {
     fontSize: 10,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
     fontWeight: '500',
   },
@@ -475,14 +474,14 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   sectionLink: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0d9488',
+    color: '#1f6f78',
   },
   qaScroll: {
     flexDirection: 'row',
@@ -506,7 +505,7 @@ const styles = StyleSheet.create({
   qaLabel: {
     fontSize: 10.5,
     fontWeight: '600',
-    color: '#334155',
+    color: '#34495a',
     textAlign: 'center',
   },
   conversionCard: {
@@ -527,13 +526,13 @@ const styles = StyleSheet.create({
   conversionLabel: {
     fontSize: 9.5,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
     letterSpacing: 0.4,
   },
   conversionRate: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 22,
-    fontWeight: '800',
-    color: '#059669',
+    color: '#2e9e6b',
     marginTop: 2,
   },
   conversionMeta: {
@@ -541,22 +540,22 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     marginBottom: 2,
   },
   metaBold: {
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   progressTrack: {
     height: 6,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#059669',
+    backgroundColor: '#2e9e6b',
     borderRadius: 3,
   },
   pipelineCard: {
@@ -584,23 +583,23 @@ const styles = StyleSheet.create({
   },
   stageName: {
     fontSize: 12,
-    color: '#0f172a',
+    color: '#0f2a3d',
     fontWeight: '600',
     flex: 1,
   },
   stageCountText: {
     fontSize: 12,
-    color: '#0f172a',
+    color: '#0f2a3d',
     fontWeight: '700',
   },
   stagePctText: {
     fontSize: 10,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
   },
   stageTrack: {
     height: 5,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: 3,
     overflow: 'hidden',
   },
@@ -626,16 +625,16 @@ const styles = StyleSheet.create({
   approvalCompany: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   approvalService: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     marginBottom: 4,
   },
   approvalValue: {
     fontSize: 12,
-    color: '#0d9488',
+    color: '#1f6f78',
     fontWeight: '700',
   },
 });

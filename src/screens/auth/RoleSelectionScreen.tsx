@@ -70,7 +70,7 @@ export const RoleSelectionScreen: React.FC<RoleSelectionScreenProps> = ({ naviga
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
@@ -180,12 +180,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: radius.md,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1.5,
     borderColor: colors.border.default,
   },
   roleCardSelected: {
-    backgroundColor: '#f0f9ff',
+    backgroundColor: '#e6effa',
     borderColor: colors.geo.darkBlue,
   },
   iconBox: {

@@ -154,18 +154,18 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
   const getLevelColor = (lvl?: string) => {
     switch (lvl) {
       case 'L6':
-        return { bg: '#FEF3C7', text: '#92400E', border: '#FCD34D' };
+        return { bg: '#fcf0dc', text: '#9a5f0c', border: '#e3c48e' };
       case 'L5':
-        return { bg: '#F3E8FF', text: '#6B21A8', border: '#D8B4FE' };
+        return { bg: '#e8eef1', text: '#6B21A8', border: '#c3d0d7' };
       case 'L4':
-        return { bg: '#E0E7FF', text: '#3730A3', border: '#A5B4FC' };
+        return { bg: '#e8eef1', text: '#3730A3', border: '#A5B4FC' };
       case 'L3':
-        return { bg: '#DBEAFE', text: '#1E40AF', border: '#93C5FD' };
+        return { bg: '#e6effa', text: '#245a93', border: '#a9c6e6' };
       case 'L2':
-        return { bg: '#CCFBF1', text: '#115E59', border: '#5EEAD4' };
+        return { bg: '#ddefef', text: '#0e4a52', border: '#5fa9ae' };
       case 'L1':
       default:
-        return { bg: '#F1F5F9', text: '#334155', border: '#CBD5E1' };
+        return { bg: '#edf1f3', text: '#34495a', border: '#d3dce1' };
     }
   };
 
@@ -435,8 +435,7 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
           <ShieldAlert size={56} color={colors.warning} />
           <Text style={styles.restrictedTitle}>Access Restricted</Text>
           <Text style={styles.restrictedMessage}>
-            Organization Master, Department configuration, and Designation governance are reserved
-            for HR and Senior Management.
+            Departments and designations are set up by HR and senior management.
           </Text>
           <Button
             title="Return to Home"
@@ -453,7 +452,7 @@ export const OrganizationScreen: React.FC<{ navigation: any }> = ({ navigation }
     <View style={styles.container}>
       <AppHeader
         title="Organization"
-        subtitle="Departments, Designations & Hierarchy"
+        subtitle="Departments and designations"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -1110,7 +1109,7 @@ const styles = StyleSheet.create({
   },
   levelPillText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   desigDept: {
     ...typography.caption,
@@ -1172,7 +1171,7 @@ const styles = StyleSheet.create({
   },
   deptName: {
     ...typography.bodyLarge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   deptHead: {
@@ -1227,7 +1226,7 @@ const styles = StyleSheet.create({
   },
   companyApexTitle: {
     ...typography.h4,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     marginTop: 4,
   },
@@ -1372,7 +1371,7 @@ const styles = StyleSheet.create({
   },
   staffMiniAvatarText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   staffName: {
@@ -1407,7 +1406,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     ...typography.h4,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   modalClose: {
@@ -1456,7 +1455,7 @@ const styles = StyleSheet.create({
   },
   restrictedTitle: {
     ...typography.h3,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: spacing.md,
   },

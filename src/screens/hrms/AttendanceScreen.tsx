@@ -159,7 +159,7 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
 
       <View style={styles.cardFooter}>
         <View style={styles.metaRow}>
-          <Fingerprint size={13} color="#2563EB" />
+          <Fingerprint size={13} color="#2f6fb3" />
           <Text style={styles.metaText}>{item.punchSource || 'Biometric - Jaipur HQ'}</Text>
         </View>
         {item.lateBy && item.lateBy !== '-' && (
@@ -222,7 +222,7 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
               <View style={styles.selfReviewNotice}>
                 <AlertCircle size={14} color={colors.semantic.warning} />
                 <Text style={styles.selfReviewText}>
-                  4-Eyes Rule: You cannot approve your own regularization request.
+                  You cannot approve your own correction request.
                 </Text>
               </View>
             ) : (
@@ -255,7 +255,7 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
     <View style={styles.container}>
       <AppHeader
         title="Attendance & Biometric Muster"
-        subtitle="Live site punches, duration & regularization"
+        subtitle="Check-in, check-out and corrections"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -340,7 +340,7 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           <View style={styles.heroActionWrap}>
             {isCheckedOut ? (
               <View style={styles.shiftDoneBanner}>
-                <CheckCircle2 size={18} color="#16A34A" />
+                <CheckCircle2 size={18} color="#2e9e6b" />
                 <Text style={styles.shiftDoneText}>
                   Today's shift complete ({todayRecord?.workingHours}). Punch ledger finalized.
                 </Text>
@@ -350,7 +350,7 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                 title={isPunching ? 'Recording Punch Out...' : 'Punch Out (Check-Out)'}
                 variant="primary"
                 size="large"
-                style={{ ...styles.punchBtn, backgroundColor: '#D97706' }}
+                style={{ ...styles.punchBtn, backgroundColor: '#c27a12' }}
                 leftIcon={<Clock size={20} color="#fff" />}
                 onPress={handlePunchToggle}
                 disabled={isPunching}
@@ -383,14 +383,14 @@ export const AttendanceScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             style={styles.quickLink}
             onPress={() => navigation.navigate('MonthlyAttendance')}
           >
-            <CalendarDays size={16} color="#9333EA" />
-            <Text style={styles.quickLinkText}>Monthly Matrix</Text>
+            <CalendarDays size={16} color="#3d5a6c" />
+            <Text style={styles.quickLinkText}>Monthly view</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.quickLink}
             onPress={() => navigation.navigate('NewCorrectionRequest')}
           >
-            <FileEdit size={16} color="#D97706" />
+            <FileEdit size={16} color="#c27a12" />
             <Text style={styles.quickLinkText}>Regularize Punch</Text>
           </TouchableOpacity>
         </View>
@@ -496,10 +496,10 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#c9dcf1',
   },
   addBtnText: {
     fontSize: typography.fontSizes.xs,
@@ -545,14 +545,14 @@ const styles = StyleSheet.create({
   heroTimeLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   heroTimeValue: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 22,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     marginTop: 4,
     letterSpacing: -0.4,
   },
@@ -603,8 +603,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
+    backgroundColor: '#e3f4ec',
+    borderColor: '#bfe3d0',
     borderWidth: 1,
     padding: spacing.md,
     borderRadius: radius.lg,
@@ -613,7 +613,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    color: '#15803D',
+    color: '#237a53',
   },
   quickLinksRow: {
     flexDirection: 'row',
@@ -688,13 +688,13 @@ const styles = StyleSheet.create({
   timeLabel: {
     fontSize: 10.5,
     fontWeight: '700',
-    color: '#64748b',
+    color: '#627079',
     letterSpacing: 0.3,
   },
   timeValue: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginTop: 2,
     letterSpacing: -0.2,
   },
@@ -715,13 +715,13 @@ const styles = StyleSheet.create({
   lateTag: {
     paddingHorizontal: spacing.xs + 2,
     paddingVertical: 2,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: '#fcf0dc',
     borderRadius: radius.xs,
   },
   lateText: {
     fontSize: typography.fontSizes.xxs,
     fontWeight: typography.fontWeights.bold,
-    color: '#B45309',
+    color: '#9a5f0c',
   },
   correctionCard: {
     padding: spacing.md,
@@ -789,15 +789,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     padding: spacing.sm,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#fcf0dc',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#ecd6ae',
   },
   selfReviewText: {
     flex: 1,
     fontSize: typography.fontSizes.xs,
-    color: '#92400E',
+    color: '#9a5f0c',
     fontWeight: typography.fontWeights.semibold,
   },
 });

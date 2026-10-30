@@ -847,7 +847,7 @@ const styles = StyleSheet.create({
   },
   finVal: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.textPrimary,
     letterSpacing: -0.3,
   },

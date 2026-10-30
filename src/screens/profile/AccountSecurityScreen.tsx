@@ -115,7 +115,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
@@ -125,7 +125,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <ArrowLeft size={20} color="#0f172a" strokeWidth={2.4} />
+            <ArrowLeft size={20} color="#0f2a3d" strokeWidth={2.4} />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle} numberOfLines={1}>Account & Security</Text>
@@ -136,7 +136,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
 
       {passwordToast && (
         <View style={styles.toastCard}>
-          <CheckCircle2 size={18} color="#059669" strokeWidth={2.4} />
+          <CheckCircle2 size={18} color="#2e9e6b" strokeWidth={2.4} />
           <Text style={styles.toastText}>Password updated successfully! Next login will require new password.</Text>
         </View>
       )}
@@ -148,7 +148,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
       >
         <View style={styles.statusBanner}>
           <View style={styles.shieldIconWrap}>
-            <Shield size={22} color="#0284c7" strokeWidth={2.4} />
+            <Shield size={22} color="#2f6fb3" strokeWidth={2.4} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.statusBannerTitle}>Security Status: High</Text>
@@ -163,7 +163,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
 
           <View style={styles.toggleRow}>
             <View style={styles.toggleIconWrap}>
-              <Fingerprint size={20} color="#0284c7" strokeWidth={2.2} />
+              <Fingerprint size={20} color="#2f6fb3" strokeWidth={2.2} />
             </View>
             <View style={styles.toggleTextCol}>
               <Text style={styles.toggleTitle}>Biometric Unlock</Text>
@@ -172,8 +172,8 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             <Switch
               value={biometricsEnabled}
               onValueChange={setBiometricsEnabled}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={biometricsEnabled ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={biometricsEnabled ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
 
@@ -181,7 +181,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
 
           <View style={styles.toggleRow}>
             <View style={styles.toggleIconWrap}>
-              <Smartphone size={20} color="#059669" strokeWidth={2.2} />
+              <Smartphone size={20} color="#2e9e6b" strokeWidth={2.2} />
             </View>
             <View style={styles.toggleTextCol}>
               <Text style={styles.toggleTitle}>Two-Factor Authentication (2FA)</Text>
@@ -190,15 +190,15 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
             <Switch
               value={twoFactorEnabled}
               onValueChange={setTwoFactorEnabled}
-              trackColor={{ false: '#cbd5e1', true: '#a7f3d0' }}
-              thumbColor={twoFactorEnabled ? '#059669' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#bfe3d0' }}
+              thumbColor={twoFactorEnabled ? '#2e9e6b' : '#f4f7f8'}
             />
           </View>
         </View>
 
         <View style={styles.sectionCard}>
           <View style={styles.cardHeaderRow}>
-            <KeyRound size={18} color="#0f172a" strokeWidth={2.4} />
+            <KeyRound size={18} color="#0f2a3d" strokeWidth={2.4} />
             <Text style={styles.sectionTitle}>CHANGE ACCOUNT PASSWORD</Text>
           </View>
 
@@ -210,7 +210,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
                 placeholder="Enter current password"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#7c8b96"
                 secureTextEntry={!showCurrentPassword}
               />
               <TouchableOpacity
@@ -218,9 +218,9 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
                 style={styles.eyeBtn}
               >
                 {showCurrentPassword ? (
-                  <EyeOff size={18} color="#64748b" />
+                  <EyeOff size={18} color="#627079" />
                 ) : (
-                  <Eye size={18} color="#64748b" />
+                  <Eye size={18} color="#627079" />
                 )}
               </TouchableOpacity>
             </View>
@@ -234,7 +234,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
                 value={newPassword}
                 onChangeText={setNewPassword}
                 placeholder="Minimum 6 characters"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#7c8b96"
                 secureTextEntry={!showNewPassword}
               />
               <TouchableOpacity
@@ -242,9 +242,9 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
                 style={styles.eyeBtn}
               >
                 {showNewPassword ? (
-                  <EyeOff size={18} color="#64748b" />
+                  <EyeOff size={18} color="#627079" />
                 ) : (
-                  <Eye size={18} color="#64748b" />
+                  <Eye size={18} color="#627079" />
                 )}
               </TouchableOpacity>
             </View>
@@ -258,7 +258,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
                 placeholder="Re-enter new password"
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#7c8b96"
                 secureTextEntry={!showNewPassword}
               />
             </View>
@@ -285,8 +285,8 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
           </View>
 
           <View style={styles.sessionItem}>
-            <View style={[styles.sessionIconWrap, { backgroundColor: '#ecfdf5', borderColor: '#a7f3d0' }]}>
-              <Smartphone size={20} color="#059669" strokeWidth={2.2} />
+            <View style={[styles.sessionIconWrap, { backgroundColor: '#e3f4ec', borderColor: '#bfe3d0' }]}>
+              <Smartphone size={20} color="#2e9e6b" strokeWidth={2.2} />
             </View>
             <View style={styles.sessionTextCol}>
               <View style={styles.sessionTitleRow}>
@@ -305,7 +305,7 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
               <View style={styles.divider} />
               <View style={styles.sessionItem}>
                 <View style={styles.sessionIconWrap}>
-                  <Laptop size={20} color="#64748b" strokeWidth={2.2} />
+                  <Laptop size={20} color="#627079" strokeWidth={2.2} />
                 </View>
                 <View style={styles.sessionTextCol}>
                   <Text style={styles.sessionDeviceText}>{sess.device}</Text>
@@ -320,13 +320,13 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
         <View style={styles.sectionCard}>
           <Text style={styles.sectionTitle}>RECENT SECURITY EVENTS</Text>
           <View style={styles.eventRow}>
-            <Clock size={16} color="#64748b" strokeWidth={2.2} />
+            <Clock size={16} color="#627079" strokeWidth={2.2} />
             <Text style={styles.eventText}>
               Successful biometric login from Android device (Today, 08:32 AM)
             </Text>
           </View>
           <View style={styles.eventRow}>
-            <Clock size={16} color="#64748b" strokeWidth={2.2} />
+            <Clock size={16} color="#627079" strokeWidth={2.2} />
             <Text style={styles.eventText}>
               2FA verification code sent to registered number (Yesterday, 09:14 AM)
             </Text>
@@ -340,14 +340,14 @@ export const AccountSecurityScreen: React.FC<AccountSecurityScreenProps> = ({ na
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: '#e1e8eb',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -363,21 +363,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   headerSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     marginTop: 1,
   },
@@ -385,19 +385,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     marginHorizontal: 16,
     marginTop: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   toastText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#047857',
+    color: '#237a53',
     flex: 1,
   },
   scrollContent: {
@@ -409,12 +409,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
     marginBottom: 16,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 1.5 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
@@ -424,20 +424,20 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#f0f9ff',
+    backgroundColor: '#e6effa',
     borderWidth: 1,
-    borderColor: '#bae6fd',
+    borderColor: '#c9dcf1',
     alignItems: 'center',
     justifyContent: 'center',
   },
   statusBannerTitle: {
     fontSize: 15,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   statusBannerSub: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     marginTop: 2,
   },
@@ -446,9 +446,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     marginBottom: 16,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 1.5 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -456,8 +456,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.8,
   },
   cardHeaderRow: {
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
   revokeAllText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#dc2626',
+    color: '#d24c47',
   },
   toggleRow: {
     flexDirection: 'row',
@@ -487,9 +487,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -499,16 +499,16 @@ const styles = StyleSheet.create({
   toggleTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   toggleSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   divider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     marginVertical: 12,
   },
   inputGroup: {
@@ -517,15 +517,15 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
+    color: '#4a5b68',
     marginBottom: 6,
   },
   passwordInputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
     borderRadius: 10,
     paddingHorizontal: 12,
   },
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 44,
     fontSize: 14,
-    color: '#0f172a',
+    color: '#0f2a3d',
     fontWeight: '600',
   },
   eyeBtn: {
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#0284c7',
+    backgroundColor: '#2f6fb3',
     height: 44,
     borderRadius: 10,
     marginTop: 4,
@@ -563,9 +563,9 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -580,29 +580,29 @@ const styles = StyleSheet.create({
   sessionDeviceText: {
     fontSize: 13.5,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   activeNowBadge: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   activeNowText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#059669',
+    color: '#2e9e6b',
   },
   sessionMetaText: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
   },
   sessionTimeText: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#7c8b96',
     marginTop: 1,
     fontWeight: '500',
   },
@@ -614,7 +614,7 @@ const styles = StyleSheet.create({
   },
   eventText: {
     fontSize: 12,
-    color: '#475569',
+    color: '#4a5b68',
     lineHeight: 18,
     flex: 1,
   },

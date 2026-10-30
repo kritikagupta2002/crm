@@ -69,7 +69,7 @@ export const EmployeeSalaryTab: React.FC<EmployeeSalaryTabProps> = ({
           <Text style={styles.sectionHeading}>Salary Baseline</Text>
           <View style={styles.salaryRow}>
             <Text style={styles.salaryLabel}>Contract Base Salary</Text>
-            <Text style={styles.salaryVal}>₹{(emp.baseSalary || 50000).toLocaleString()}</Text>
+            <Text style={styles.salaryVal}>₹{(emp.baseSalary || 0).toLocaleString('en-IN')}</Text>
           </View>
           <Text style={styles.helperNotice}>
             Detailed salary structure will be processed when payroll cycles run.

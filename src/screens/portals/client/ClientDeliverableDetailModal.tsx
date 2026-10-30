@@ -167,7 +167,7 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <ShieldCheck size={18} color={clientTheme.colors.navy} />
-              <Text style={styles.sectionHeading}>Executive Geological Summary</Text>
+              <Text style={styles.sectionHeading}>Summary</Text>
             </View>
 
             <Text style={styles.summaryParagraph}>
@@ -218,7 +218,7 @@ export const ClientDeliverableDetailModal: React.FC<ClientDeliverableDetailModal
             <View style={styles.signOffCard}>
               <View style={styles.signOffHeader}>
                 <ShieldCheck size={20} color={clientTheme.colors.goldDark} />
-                <Text style={styles.signOffTitle}>Stage 5 Client Executive Sign-Off</Text>
+                <Text style={styles.signOffTitle}>Your sign-off</Text>
               </View>
 
               <Text style={styles.signOffDesc}>
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   statusBadge: {
@@ -356,18 +356,18 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   statusBadgeApproved: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   statusBadgeSubmitted: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
   },
   statusBadgeText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
   },
   statusBadgeTextApproved: {
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 17.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     letterSpacing: -0.2,
   },
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   },
   sectionHeading: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   detailRow: {
@@ -422,7 +422,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 9,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   detailLabel: {
     fontSize: 13,
@@ -464,27 +464,27 @@ const styles = StyleSheet.create({
   },
   specVal: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.graphite,
   },
   attestationStamp: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: '#ddefef',
     gap: 10,
   },
   stampTitle: {
     fontSize: 12.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.tealDark,
   },
   stampSub: {
     fontSize: 11,
-    color: '#0f766e',
+    color: '#0e4a52',
     marginTop: 2,
     lineHeight: 15,
   },
@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     borderRadius: clientTheme.radius.lg,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
     ...clientTheme.shadows.md,
   },
   signOffHeader: {
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   },
   signOffTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.goldDark,
   },
   signOffDesc: {
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#fef3c7',
+    borderColor: '#fcf0dc',
     marginBottom: 12,
     gap: 10,
   },
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
   },
   remarksLabel: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -575,7 +575,7 @@ const styles = StyleSheet.create({
   },
   approveBtnText: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   revisionTriggerBtn: {
@@ -595,12 +595,12 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#fecaca',
+    borderColor: '#f2c4c2',
     marginTop: 6,
   },
   revisionInputLabel: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.crimson,
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -627,48 +627,48 @@ const styles = StyleSheet.create({
   },
   submitRevisionText: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   approvedNoticeCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     padding: 16,
     borderRadius: clientTheme.radius.lg,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
     gap: 12,
   },
   approvedNoticeTitle: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.emeraldDark,
   },
   approvedNoticeDesc: {
     fontSize: 12.5,
-    color: '#065f46',
+    color: '#1d6646',
     marginTop: 2,
     lineHeight: 17,
   },
   revisionNoticeCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fbe5e4',
     padding: 16,
     borderRadius: clientTheme.radius.lg,
     borderWidth: 1,
-    borderColor: '#fca5a5',
+    borderColor: '#f2c4c2',
     gap: 12,
   },
   revisionNoticeTitle: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.crimson,
   },
   revisionNoticeDesc: {
     fontSize: 12.5,
-    color: '#991b1b',
+    color: '#a83a36',
     marginTop: 2,
     lineHeight: 17,
   },

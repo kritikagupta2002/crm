@@ -75,7 +75,7 @@ const DispatchCard = React.memo(({ item }: { item: BroadcastItem }) => (
   <View style={styles.dispatchCard}>
     <View style={styles.dispatchTopRow}>
       <View style={styles.idBadge}>
-        <RadioTower size={12} color="#0284c7" />
+        <RadioTower size={12} color="#2f6fb3" />
         <Text style={styles.idBadgeText}>{item.id}</Text>
       </View>
 
@@ -105,12 +105,12 @@ const DispatchCard = React.memo(({ item }: { item: BroadcastItem }) => (
 
     <View style={styles.dispatchFooter}>
       <View style={styles.metaRow}>
-        <Users size={13} color="#64748b" />
+        <Users size={13} color="#627079" />
         <Text style={styles.metaText}>{item.target}</Text>
       </View>
 
       <View style={styles.metaRow}>
-        <Clock size={13} color="#64748b" />
+        <Clock size={13} color="#627079" />
         <Text style={styles.metaText}>{item.timestamp}</Text>
       </View>
     </View>
@@ -166,7 +166,7 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
@@ -176,7 +176,7 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <ArrowLeft size={20} color="#0f172a" strokeWidth={2.4} />
+            <ArrowLeft size={20} color="#0f2a3d" strokeWidth={2.4} />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle} numberOfLines={1}>Sent Broadcasts</Text>
@@ -196,7 +196,7 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
 
       {sentToast && (
         <View style={styles.toastCard}>
-          <CheckCircle2 size={16} color="#059669" strokeWidth={2.4} />
+          <CheckCircle2 size={16} color="#2e9e6b" strokeWidth={2.4} />
           <Text style={styles.toastText}>Broadcast dispatched to 87 recipients successfully!</Text>
         </View>
       )}
@@ -233,7 +233,7 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
                 onPress={() => setComposeModalVisible(false)}
                 style={styles.closeModalBtn}
               >
-                <X size={20} color="#64748b" />
+                <X size={20} color="#627079" />
               </TouchableOpacity>
             </View>
 
@@ -297,7 +297,7 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
                 value={newTitle}
                 onChangeText={setNewTitle}
                 placeholder="Enter circular subject..."
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#7c8b96"
               />
 
               <Text style={styles.inputLabel}>MESSAGE BODY</Text>
@@ -306,7 +306,7 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
                 value={newBody}
                 onChangeText={setNewBody}
                 placeholder="Write instructions, advisory, or bulletin details..."
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#7c8b96"
                 multiline
                 numberOfLines={4}
                 textAlignVertical="top"
@@ -331,14 +331,14 @@ export const SentMessagesScreen: React.FC<SentMessagesScreenProps> = ({ navigati
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: '#e1e8eb',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -354,21 +354,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   headerSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     marginTop: 1,
   },
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#0284c7',
+    backgroundColor: '#2f6fb3',
     paddingHorizontal: 13,
     paddingVertical: 8,
     borderRadius: 10,
@@ -390,19 +390,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     marginHorizontal: 16,
     marginTop: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   toastText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#047857',
+    color: '#237a53',
     flex: 1,
   },
   scrollContent: {
@@ -411,8 +411,8 @@ const styles = StyleSheet.create({
   },
   sectionHeaderTitle: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.8,
     marginBottom: 12,
   },
@@ -421,9 +421,9 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     marginBottom: 12,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 1.5 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -439,56 +439,56 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: '#f0f9ff',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#bae6fd',
+    borderColor: '#c9dcf1',
   },
   idBadgeText: {
     fontSize: 11,
-    fontWeight: '800',
-    color: '#0284c7',
+    fontWeight: '700',
+    color: '#2f6fb3',
   },
   priorityPill: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 6,
   },
   priorityPillUrgent: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
   },
   priorityPillEmergency: {
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fbe5e4',
   },
   priorityText: {
     fontSize: 10.5,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
   },
   priorityTextUrgent: {
-    color: '#d97706',
+    color: '#c27a12',
   },
   priorityTextEmergency: {
-    color: '#dc2626',
+    color: '#d24c47',
   },
   dispatchTitle: {
     fontSize: 14.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     lineHeight: 20,
     marginBottom: 6,
   },
   dispatchBody: {
     fontSize: 13,
-    color: '#475569',
+    color: '#4a5b68',
     lineHeight: 18,
   },
   divider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     marginVertical: 10,
   },
   dispatchFooter: {
@@ -503,7 +503,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
   modalOverlay: {
@@ -526,26 +526,26 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 16.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   modalSub: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
   },
   closeModalBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
   },
   inputLabel: {
     fontSize: 11,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.5,
     marginBottom: 6,
     marginTop: 8,
@@ -560,31 +560,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 8,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   targetBtnSelected: {
-    backgroundColor: '#0284c7',
-    borderColor: '#0284c7',
+    backgroundColor: '#2f6fb3',
+    borderColor: '#2f6fb3',
   },
   targetBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#475569',
+    color: '#4a5b68',
   },
   targetBtnTextSelected: {
     color: '#ffffff',
   },
   inputField: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
     borderRadius: 10,
     paddingHorizontal: 12,
     height: 44,
     fontSize: 13.5,
-    color: '#0f172a',
+    color: '#0f2a3d',
     fontWeight: '600',
     marginBottom: 8,
   },
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#0284c7',
+    backgroundColor: '#2f6fb3',
     height: 48,
     borderRadius: 12,
     marginTop: 12,

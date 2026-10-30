@@ -150,10 +150,10 @@ export const ClientInvoiceDetailModal: React.FC<ClientInvoiceDetailModalProps> =
             {(invoice.items || [
               {
                 id: 'def-1',
-                description: 'Geological Field Investigation & Core Drilling',
+                description: invoice.projectTitle,
                 quantity: 1,
-                unitRate: invoice.baseAmount || 1000000,
-                amount: invoice.baseAmount || 1000000,
+                unitRate: invoice.baseAmount,
+                amount: invoice.baseAmount,
               },
             ]).map((item, idx) => (
               <View key={item.id || idx} style={styles.lineItemRow}>
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   },
   taxPillText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   statusBadge: {
@@ -334,18 +334,18 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   statusBadgePaid: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   statusBadgeUnpaid: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
   },
   statusBadgeText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   statusBadgeTextPaid: {
     color: clientTheme.colors.emerald,
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
   sectionHeading: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     marginBottom: 10,
     paddingBottom: 6,
@@ -402,14 +402,14 @@ const styles = StyleSheet.create({
   },
   partyRoleLabel: {
     fontSize: 9.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   partyName: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     marginBottom: 3,
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
   },
   metaStripLabel: {
     fontSize: 9.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     marginBottom: 3,
   },
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   itemDesc: {
     fontSize: 13.5,
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   },
   itemAmount: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   taxSummaryBox: {
@@ -493,12 +493,12 @@ const styles = StyleSheet.create({
   },
   grandTotalLabel: {
     fontSize: 13.5,
-    fontWeight: '900',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   grandTotalVal: {
     fontSize: 18,
-    fontWeight: '900',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   paymentSectionCard: {
@@ -506,7 +506,7 @@ const styles = StyleSheet.create({
     borderRadius: clientTheme.radius.lg,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
     ...clientTheme.shadows.md,
   },
   paymentSectionHeader: {
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
   },
   paymentSectionHeading: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   openUpiBtn: {
@@ -532,39 +532,39 @@ const styles = StyleSheet.create({
   },
   openUpiBtnText: {
     fontSize: 14.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   upiContainer: {
     gap: 12,
   },
   qrDisplayBox: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderRadius: clientTheme.radius.md,
     padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   qrPatternBox: {
     padding: 14,
     backgroundColor: '#ffffff',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
     alignItems: 'center',
     marginBottom: 8,
   },
   qrScanText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     marginTop: 6,
     letterSpacing: 0.5,
   },
   qrAmountText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 22,
-    fontWeight: '900',
     color: clientTheme.colors.navy,
   },
   vpaDetailsCard: {
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
   },
   vpaValMono: {
     fontSize: 12.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
@@ -607,7 +607,7 @@ const styles = StyleSheet.create({
   },
   utrInputLabel: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -635,27 +635,27 @@ const styles = StyleSheet.create({
   },
   confirmSettleBtnText: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   paidReceiptCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     padding: 16,
     borderRadius: clientTheme.radius.lg,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
     gap: 12,
   },
   paidReceiptTitle: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.emeraldDark,
   },
   paidReceiptDesc: {
     fontSize: 12.5,
-    color: '#065f46',
+    color: '#1d6646',
     marginTop: 2,
     lineHeight: 17,
   },

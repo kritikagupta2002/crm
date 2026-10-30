@@ -48,7 +48,7 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
     { num: 2, name: 'Planning', desc: 'Survey grid design, borehole siting, team allocation' },
     { num: 3, name: 'Task Execution', desc: 'Diamond core drilling, lithology logging, geochemical sampling' },
     { num: 4, name: 'Deliverable Submission', desc: 'Draft technical report compilation & QA scrutiny' },
-    { num: 5, name: 'Client Approval', desc: 'Executive client review, sign-off & technical acceptance' },
+    { num: 5, name: 'Client Approval', desc: 'You review and sign off the reports' },
     { num: 6, name: 'Invoicing', desc: 'Milestone tax invoicing, GST breakdown & payment reconciliation' },
     { num: 7, name: 'Project Closure', desc: 'Final DMG handover, certificate of completion, closure archiving' },
   ];
@@ -113,7 +113,7 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Baseline Budget</Text>
-              <Text style={[styles.detailVal, { color: clientTheme.colors.navy, fontWeight: '800' }]}>
+              <Text style={[styles.detailVal, { color: clientTheme.colors.navy, fontWeight: '700' }]}>
                 ₹{(project.baselineBudget || 0).toLocaleString('en-IN')}
               </Text>
             </View>
@@ -210,24 +210,10 @@ export const ClientProjectDetailModal: React.FC<ClientProjectDetailModalProps> =
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
               <FileText size={18} color={clientTheme.colors.navy} />
-              <Text style={styles.sectionHeading}>Geological & Drilling Status</Text>
+              <Text style={styles.sectionHeading}>Site visits</Text>
             </View>
 
-            <View style={styles.geologyGrid}>
-              <View style={styles.geologyCol}>
-                <Text style={styles.geologyLabel}>BOREHOLE CORING</Text>
-                <Text style={styles.geologyVal}>HQ Size (0-150m)</Text>
-              </View>
-              <View style={styles.geologyCol}>
-                <Text style={styles.geologyLabel}>CORE RECOVERY</Text>
-                <Text style={[styles.geologyVal, { color: clientTheme.colors.emerald }]}>92% Mineralized</Text>
-              </View>
-              <View style={styles.geologyCol}>
-                <Text style={styles.geologyLabel}>DRILL PAD</Text>
-                <Text style={styles.geologyVal}>Pad BH-04 Active</Text>
-              </View>
-            </View>
-
+            {!(project.fieldVisits || []).length ? <Text style={styles.emptyNotice}>No site visits recorded yet.</Text> : null}
             {(project.fieldVisits || []).map((fv) => (
               <View key={fv.id} style={styles.fieldVisitRow}>
                 <View style={styles.fieldVisitHeader}>
@@ -343,25 +329,25 @@ const styles = StyleSheet.create({
   },
   codeText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   stagePill: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: '#ddefef',
   },
   stagePillText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.tealDark,
   },
   projectTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     letterSpacing: -0.2,
   },
@@ -397,7 +383,7 @@ const styles = StyleSheet.create({
   },
   sectionHeading: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   detailRow: {
@@ -405,7 +391,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 9,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   detailLabel: {
     fontSize: 13,
@@ -451,7 +437,7 @@ const styles = StyleSheet.create({
   },
   stepNodeText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textSecondary,
   },
   stepNodeTextCurrent: {
@@ -483,7 +469,7 @@ const styles = StyleSheet.create({
   },
   stepNameCurrent: {
     color: clientTheme.colors.tealDark,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   stepNameDone: {
     color: clientTheme.colors.emeraldDark,
@@ -495,10 +481,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   stepStatusPillDone: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
   },
   stepStatusPillCurrent: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
   },
   stepStatusText: {
     fontSize: 10,
@@ -516,36 +502,13 @@ const styles = StyleSheet.create({
     color: clientTheme.colors.textMuted,
     lineHeight: 16,
   },
-  geologyGrid: {
-    flexDirection: 'row',
-    backgroundColor: clientTheme.colors.sandstone,
-    padding: 12,
-    borderRadius: clientTheme.radius.md,
-    borderWidth: 1,
-    borderColor: clientTheme.colors.sandstoneBorder,
-    marginBottom: 10,
-  },
-  geologyCol: {
-    flex: 1,
-  },
-  geologyLabel: {
-    fontSize: 9.5,
-    fontWeight: '800',
-    color: clientTheme.colors.textMuted,
-    marginBottom: 2,
-  },
-  geologyVal: {
-    fontSize: 12.5,
-    fontWeight: '800',
-    color: clientTheme.colors.graphite,
-  },
   fieldVisitRow: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     padding: 10,
     borderRadius: 8,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   fieldVisitHeader: {
     flexDirection: 'row',
@@ -559,7 +522,7 @@ const styles = StyleSheet.create({
   },
   fieldVisitActivity: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.tealDark,
   },
   fieldVisitNotes: {
@@ -576,7 +539,7 @@ const styles = StyleSheet.create({
   delivItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   delivHeader: {
     flexDirection: 'row',
@@ -586,7 +549,7 @@ const styles = StyleSheet.create({
   },
   delivTitle: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.graphite,
     flex: 1,
     marginRight: 8,
@@ -598,10 +561,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   delivStatusPillApproved: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
   },
   delivStatusPillSubmitted: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
   },
   delivStatusText: {
     fontSize: 10.5,

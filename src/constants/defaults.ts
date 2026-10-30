@@ -1,10 +1,10 @@
 export const LEAVE_TYPE_CONFIGS = [
-  { leaveType: 'Casual Leave (CL)', code: 'CL', totalAllocated: 12, allocated: 12, color: '#3B82F6', description: 'Intended for short personal matters, family events and emergencies.' },
-  { leaveType: 'Sick Leave (SL)', code: 'SL', totalAllocated: 10, allocated: 10, color: '#10B981', description: 'For medical recovery, physician consultation, and illness.' },
-  { leaveType: 'Earned / Privilege Leave (EL)', code: 'EL', totalAllocated: 18, allocated: 18, color: '#F59E0B', description: 'Accrued annual vacation leave; can be encashed upon retirement or separation.' },
-  { leaveType: 'Compensatory Off (CO)', code: 'CO', totalAllocated: 8, allocated: 8, color: '#8B5CF6', description: 'Earned by working on weekend shifts, site emergencies or government holidays.' },
+  { leaveType: 'Casual Leave (CL)', code: 'CL', totalAllocated: 12, allocated: 12, color: '#2f6fb3', description: 'Intended for short personal matters, family events and emergencies.' },
+  { leaveType: 'Sick Leave (SL)', code: 'SL', totalAllocated: 10, allocated: 10, color: '#2e9e6b', description: 'For medical recovery, physician consultation, and illness.' },
+  { leaveType: 'Earned / Privilege Leave (EL)', code: 'EL', totalAllocated: 18, allocated: 18, color: '#c27a12', description: 'Accrued annual vacation leave; can be encashed upon retirement or separation.' },
+  { leaveType: 'Compensatory Off (CO)', code: 'CO', totalAllocated: 8, allocated: 8, color: '#5b7686', description: 'Earned by working on weekend shifts, site emergencies or government holidays.' },
   { leaveType: 'Field Duty Leave (FDL)', code: 'FDL', totalAllocated: 15, allocated: 15, color: '#06B6D4', description: 'Rest and recuperation (R&R) granted following extended continuous camp tours.' },
-  { leaveType: 'Maternity / Paternity Leave', code: 'ML', totalAllocated: 180, allocated: 180, color: '#EC4899', description: 'Statutory paid parental leave under Indian Maternity Benefit Act.' },
+  { leaveType: 'Maternity / Paternity Leave', code: 'ML', totalAllocated: 180, allocated: 180, color: '#5b7686', description: 'Statutory paid parental leave under Indian Maternity Benefit Act.' },
 ];
 
 export const DEFAULT_LEAVE_TYPES = LEAVE_TYPE_CONFIGS.map(c => ({

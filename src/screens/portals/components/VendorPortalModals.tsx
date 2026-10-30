@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
   sheetTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
     letterSpacing: -0.2,
   },
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textSecondary,
     letterSpacing: 0.6,
   },
@@ -401,12 +401,12 @@ const styles = StyleSheet.create({
   fileItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     padding: 12,
     borderRadius: 8,
     gap: 10,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   fileName: {
     fontSize: 13.5,
@@ -431,16 +431,16 @@ const styles = StyleSheet.create({
     color: vendorTheme.colors.navy,
   },
   ceilingNotice: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#ccfbf1',
+    borderColor: '#ddefef',
     marginBottom: 4,
   },
   ceilingNoticeText: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.tealDark,
   },
   tdsPreviewCard: {
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
   },
   tdsPreviewTitle: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textMuted,
     letterSpacing: 0.6,
     marginBottom: 8,
@@ -480,24 +480,24 @@ const styles = StyleSheet.create({
   },
   tdsPreviewTotalLabel: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   tdsPreviewTotalVal: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.emerald,
   },
   infoHint: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     padding: 12,
     borderRadius: 8,
     gap: 10,
     marginTop: 4,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   infoHintText: {
     flex: 1,
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
   },
   submitBtnText: {
     fontSize: 14.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
 });

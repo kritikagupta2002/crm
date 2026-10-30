@@ -364,7 +364,7 @@ export const INITIAL_TENDERS: Tender[] = [
     ],
     history: [
       { at: '2026-09-20T10:30:00.000Z', action: 'Published · all approved vendors told', by: 'Kritika Gupta' },
-      { at: '2026-10-01T11:00:00.000Z', action: 'Bids opened via Dual-Key Protocol', by: 'Director & Tender Manager' },
+      { at: '2026-10-01T11:00:00.000Z', action: 'Bids opened', by: 'Director & Tender Manager' },
     ],
   },
   {
@@ -474,7 +474,7 @@ export const INITIAL_TENDERS: Tender[] = [
     ],
     history: [
       { at: '2026-08-31T10:00:00.000Z', action: 'Published · all approved vendors told', by: 'Kritika Gupta' },
-      { at: '2026-09-09T11:00:00.000Z', action: 'Bids opened via Dual-Key Protocol', by: 'Director & Tender Manager' },
+      { at: '2026-09-09T11:00:00.000Z', action: 'Bids opened', by: 'Director & Tender Manager' },
       { at: '2026-09-11T12:00:00.000Z', action: 'Allotted · work order SC-002-1 issued', by: 'Kritika Gupta' },
     ],
   },

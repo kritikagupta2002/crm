@@ -31,10 +31,9 @@ import {
 } from 'lucide-react-native';
 import { colors, radius, shadows } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
-import { ConfirmationModal } from '../../components/common';
+import { ConfirmationModal, Avatar } from '../../components/common';
 
 const heroBannerImg = require('../../../assets/hero-banner.jpg');
-const drRajeshImg = require('../../../assets/dr-rajesh-bansal.jpg');
 
 interface ProfileScreenProps {
   navigation: any;
@@ -62,7 +61,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
     [canonicalRole]
   );
   const userName = useMemo(
-    () => (session && 'name' in session ? session.name : 'Dr. Rajesh Bansal'),
+    () => (session && 'name' in session ? session.name : ''),
     [session]
   );
 
@@ -80,7 +79,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle="light-content" />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -95,7 +94,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
           <View style={styles.profileHeaderRow}>
             <View style={styles.avatarWrapper}>
-              <Image source={drRajeshImg} style={styles.avatarImage} />
+              <Avatar name={userName} size={68} />
               <View style={styles.avatarBadge}>
                 <Crown size={11} color="#ffffff" strokeWidth={2.4} />
               </View>
@@ -111,7 +110,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 
             <View style={styles.headerMetricsRow}>
               <View style={styles.headerMetricCol}>
-                <Briefcase size={16} color="#cbd5e1" strokeWidth={2.2} style={{ marginBottom: 2 }} />
+                <Briefcase size={16} color="#d3dce1" strokeWidth={2.2} style={{ marginBottom: 2 }} />
                 <Text style={styles.headerMetricVal}>5</Text>
                 <Text style={styles.headerMetricLabel}>Projects</Text>
               </View>
@@ -119,7 +118,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
               <View style={styles.headerMetricDivider} />
 
               <View style={styles.headerMetricCol}>
-                <Users size={16} color="#cbd5e1" strokeWidth={2.2} style={{ marginBottom: 2 }} />
+                <Users size={16} color="#d3dce1" strokeWidth={2.2} style={{ marginBottom: 2 }} />
                 <Text style={styles.headerMetricVal}>87</Text>
                 <Text style={styles.headerMetricLabel}>Employees</Text>
               </View>
@@ -132,7 +131,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
         <View style={[styles.bodyContent, isCompact && { paddingHorizontal: 8 }]}>
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
-              <User size={15} color="#64748b" strokeWidth={2.2} />
+              <User size={15} color="#627079" strokeWidth={2.2} />
               <Text style={styles.sectionHeaderText}>ACCOUNT</Text>
             </View>
 
@@ -142,14 +141,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToPersonalInfo}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <User size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <User size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Personal Information</Text>
                   <Text style={styles.menuSubtitle}>Contact details, profile photo, designation</Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
 
               <View style={styles.menuDivider} />
@@ -159,8 +158,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToAccountSecurity}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Shield size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <Shield size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Account & Security</Text>
@@ -168,14 +167,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                     Password, biometrics, 2FA, active sessions
                   </Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
-              <Settings size={16} color="#64748b" strokeWidth={2.3} />
+              <Settings size={16} color="#627079" strokeWidth={2.3} />
               <Text style={styles.sectionHeaderText}>APP PREFERENCES</Text>
             </View>
 
@@ -185,8 +184,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToAppSettings}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Settings size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <Settings size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>App Settings</Text>
@@ -194,7 +193,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                     Theme, offline sync, storage limit (250MB)
                   </Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
 
               <View style={styles.menuDivider} />
@@ -204,8 +203,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToNotificationPreferences}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Bell size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <Bell size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Notifications</Text>
@@ -213,7 +212,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                     Push alerts, email notifications, quiet hours
                   </Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
 
               <View style={styles.menuDivider} />
@@ -223,8 +222,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToLanguage}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Globe size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <Globe size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Language</Text>
@@ -233,14 +232,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 <View style={styles.badgePill}>
                   <Text style={styles.badgeText}>English</Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
-              <Crown size={16} color="#64748b" strokeWidth={2.3} />
+              <Crown size={16} color="#627079" strokeWidth={2.3} />
               <Text style={styles.sectionHeaderText}>ADMINISTRATION</Text>
             </View>
 
@@ -250,17 +249,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToRoleSelection}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#fefce8' }]}>
-                  <Users size={22} color="#d97706" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#fcf0dc' }]}>
+                  <Users size={22} color="#c27a12" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Switch Role</Text>
                   <Text style={styles.menuSubtitle}>Change operational perspective</Text>
                 </View>
-                <View style={[styles.badgePill, { backgroundColor: '#fef3c7' }]}>
-                  <Text style={[styles.badgeText, { color: '#92400e' }]}>{activeRoleBadge}</Text>
+                <View style={[styles.badgePill, { backgroundColor: '#fcf0dc' }]}>
+                  <Text style={[styles.badgeText, { color: '#9a5f0c' }]}>{activeRoleBadge}</Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
 
               <View style={styles.menuDivider} />
@@ -270,14 +269,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToAuditLog}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <FileText size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <FileText size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Audit Log</Text>
                   <Text style={styles.menuSubtitle}>System activities & compliance trail</Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
 
               <View style={styles.menuDivider} />
@@ -287,21 +286,21 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToSentMessages}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Send size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <Send size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Sent Messages</Text>
                   <Text style={styles.menuSubtitle}>Broadcast logs & operational dispatches</Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
-              <HelpCircle size={16} color="#64748b" strokeWidth={2.3} />
+              <HelpCircle size={16} color="#627079" strokeWidth={2.3} />
               <Text style={styles.sectionHeaderText}>SUPPORT</Text>
             </View>
 
@@ -311,22 +310,22 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={navigateToHelpSupport}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#eff6ff' }]}>
-                  <Headphones size={22} color="#0284c7" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+                  <Headphones size={22} color="#2f6fb3" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
                   <Text style={styles.menuTitle}>Help & Support</Text>
                   <Text style={styles.menuSubtitle}>Knowledge base, FAQs & IT helpdesk</Text>
                 </View>
-                <ChevronRight size={18} color="#94a3b8" />
+                <ChevronRight size={18} color="#7c8b96" />
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.sectionContainer}>
             <View style={styles.sectionHeaderRow}>
-              <AlertTriangle size={16} color="#dc2626" strokeWidth={2.3} />
-              <Text style={[styles.sectionHeaderText, { color: '#dc2626' }]}>DANGER ZONE</Text>
+              <AlertTriangle size={16} color="#d24c47" strokeWidth={2.3} />
+              <Text style={[styles.sectionHeaderText, { color: '#d24c47' }]}>DANGER ZONE</Text>
             </View>
 
             <View style={[styles.cardContainer, styles.dangerCardContainer]}>
@@ -335,14 +334,14 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
                 onPress={handleOpenLogout}
                 style={styles.menuRow}
               >
-                <View style={[styles.iconBox, { backgroundColor: '#fef2f2' }]}>
-                  <LogOut size={22} color="#dc2626" strokeWidth={2.3} />
+                <View style={[styles.iconBox, { backgroundColor: '#fbe5e4' }]}>
+                  <LogOut size={22} color="#d24c47" strokeWidth={2.3} />
                 </View>
                 <View style={styles.menuInfoCol}>
-                  <Text style={[styles.menuTitle, { color: '#dc2626' }]}>Sign Out</Text>
+                  <Text style={[styles.menuTitle, { color: '#d24c47' }]}>Sign Out</Text>
                   <Text style={styles.menuSubtitle}>Sign out from your account</Text>
                 </View>
-                <ChevronRight size={18} color="#ef4444" />
+                <ChevronRight size={18} color="#d24c47" />
               </TouchableOpacity>
             </View>
           </View>
@@ -368,7 +367,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   scrollContent: {
     paddingBottom: 110,
@@ -404,7 +403,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -1,
     right: -1,
-    backgroundColor: '#f59e0b',
+    backgroundColor: '#c27a12',
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -417,13 +416,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileName: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 21,
-    fontWeight: '900',
     color: '#ffffff',
     letterSpacing: -0.3,
   },
   roleTag: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -433,13 +432,13 @@ const styles = StyleSheet.create({
   },
   roleTagText: {
     fontSize: 10.5,
-    fontWeight: '800',
-    color: '#92400e',
+    fontWeight: '700',
+    color: '#9a5f0c',
     letterSpacing: 0.5,
   },
   companyName: {
     fontSize: 13,
-    color: '#cbd5e1',
+    color: '#d3dce1',
     fontWeight: '600',
   },
   headerMetricsRow: {
@@ -457,12 +456,12 @@ const styles = StyleSheet.create({
   },
   headerMetricVal: {
     fontSize: 18,
-    fontWeight: '900',
+    fontWeight: '700',
     color: '#ffffff',
   },
   headerMetricLabel: {
     fontSize: 11,
-    color: '#cbd5e1',
+    color: '#d3dce1',
     fontWeight: '700',
   },
   headerMetricDivider: {
@@ -474,7 +473,7 @@ const styles = StyleSheet.create({
   heroMotto: {
     fontSize: 14,
     fontStyle: 'italic',
-    color: '#e2e8f0',
+    color: '#e1e8eb',
     marginTop: 12,
     zIndex: 1,
   },
@@ -495,20 +494,20 @@ const styles = StyleSheet.create({
   },
   sectionHeaderText: {
     fontSize: 12.5,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.9,
   },
   cardContainer: {
     backgroundColor: '#ffffff',
     borderRadius: 18,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     overflow: 'hidden',
     ...shadows.xs,
   },
   dangerCardContainer: {
-    borderColor: '#fee2e2',
+    borderColor: '#fbe5e4',
   },
   menuRow: {
     flexDirection: 'row',
@@ -518,7 +517,7 @@ const styles = StyleSheet.create({
   },
   menuDivider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     marginLeft: 78,
   },
   iconBox: {
@@ -535,17 +534,17 @@ const styles = StyleSheet.create({
   },
   menuTitle: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   menuSubtitle: {
     fontSize: 13,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 3,
     lineHeight: 18,
   },
   badgePill: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 10,
     paddingVertical: 4.5,
     borderRadius: 12,
@@ -553,7 +552,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
 });

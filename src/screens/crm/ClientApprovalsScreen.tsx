@@ -394,14 +394,14 @@ const styles = StyleSheet.create({
   },
   metricVal: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   metricLbl: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   metricDivider: {

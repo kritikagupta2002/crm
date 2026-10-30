@@ -47,7 +47,7 @@ import {
   EMPLOYEE_MEMBERS,
   CanonicalRoleItem,
   EmployeeTeamMember,
-  WORKSPACE_ACCESS,
+  CANONICAL_ROLE_WORKSPACES,
 } from '../../constants';
 import { TeamRole, CanonicalRole, UserSession } from '../../types';
 
@@ -61,38 +61,38 @@ const ROLE_META_DATA: Record<CanonicalRole, {
 }> = {
   super_admin: {
     icon: Crown,
-    iconColor: '#d97706',
-    bgColor: '#fef3c7',
+    iconColor: '#c27a12',
+    bgColor: '#fcf0dc',
     badgeLabel: 'Board',
   },
   director: {
     icon: Briefcase,
-    iconColor: '#4f46e5',
-    bgColor: '#e0e7ff',
+    iconColor: '#3d5a6c',
+    bgColor: '#e8eef1',
     badgeLabel: 'Exec',
   },
   manager: {
     icon: Users,
-    iconColor: '#0d9488',
-    bgColor: '#ccfbf1',
+    iconColor: '#1f6f78',
+    bgColor: '#ddefef',
     badgeLabel: 'Ops & HR',
   },
   employee: {
     icon: UserCheck,
-    iconColor: '#059669',
-    bgColor: '#d1fae5',
+    iconColor: '#2e9e6b',
+    bgColor: '#e3f4ec',
     badgeLabel: 'Field Team',
   },
   finance_master: {
     icon: Landmark,
-    iconColor: '#7c3aed',
-    bgColor: '#ede9fe',
+    iconColor: '#3d5a6c',
+    bgColor: '#e8eef1',
     badgeLabel: 'Treasury',
   },
   accounts_executive: {
     icon: CreditCard,
-    iconColor: '#0284c7',
-    bgColor: '#e0f2fe',
+    iconColor: '#2f6fb3',
+    bgColor: '#e6effa',
     badgeLabel: 'Accounts',
   },
 };
@@ -190,7 +190,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               hrmsRole: 'employee',
               designation: selectedEmployee.designation,
               department: selectedEmployee.department,
-              workspaces: WORKSPACE_ACCESS.employee,
+              workspaces: CANONICAL_ROLE_WORKSPACES.employee,
             };
             await loginCanonical('employee', empUserSession);
           } else {
@@ -236,7 +236,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle="light-content" />
 
       <ScrollView
         style={styles.scroll}
@@ -284,7 +284,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             >
               <User
                 size={16}
-                color={activeTab === 'admin' ? '#ffffff' : '#475569'}
+                color={activeTab === 'admin' ? '#ffffff' : '#4a5b68'}
                 strokeWidth={2.2}
                 style={styles.tabIcon}
               />
@@ -326,7 +326,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             >
               <Users
                 size={16}
-                color={activeTab === 'client' ? '#ffffff' : '#475569'}
+                color={activeTab === 'client' ? '#ffffff' : '#4a5b68'}
                 strokeWidth={2.2}
                 style={styles.tabIcon}
               />
@@ -355,7 +355,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             >
               <Building2
                 size={16}
-                color={activeTab === 'vendor' ? '#ffffff' : '#475569'}
+                color={activeTab === 'vendor' ? '#ffffff' : '#4a5b68'}
                 strokeWidth={2.2}
                 style={styles.tabIcon}
               />
@@ -383,7 +383,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <View style={styles.adminPortalContainer}>
               <View style={styles.conciseHeaderBar}>
                 <View style={styles.conciseHeaderLeft}>
-                  <Sparkles size={13} color="#0b2545" strokeWidth={2.4} />
+                  <Sparkles size={13} color="#0f2a3d" strokeWidth={2.4} />
                   <Text style={styles.conciseHeaderTitle}>SELECT ROLE</Text>
                 </View>
 
@@ -474,7 +474,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                             <Check size={10} color="#ffffff" strokeWidth={3.5} />
                           </View>
                         ) : item.key === 'employee' ? (
-                          <ChevronDown size={12} color="#94a3b8" />
+                          <ChevronDown size={12} color="#7c8b96" />
                         ) : null}
                       </TouchableOpacity>
                     );
@@ -531,7 +531,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                             <Check size={10} color="#ffffff" strokeWidth={3.5} />
                           </View>
                         ) : item.key === 'employee' ? (
-                          <ChevronDown size={12} color="#94a3b8" style={{ marginLeft: 3 }} />
+                          <ChevronDown size={12} color="#7c8b96" style={{ marginLeft: 3 }} />
                         ) : null}
                       </TouchableOpacity>
                     );
@@ -557,7 +557,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                     style={styles.personaSwitchBtn}
                   >
                     <Text style={styles.personaSwitchBtnText}>Switch Member</Text>
-                    <ChevronDown size={11} color="#0b2545" />
+                    <ChevronDown size={11} color="#0f2a3d" />
                   </TouchableOpacity>
                 ) : (
                   <View style={styles.personaBadgePill}>
@@ -588,16 +588,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 </Text>
                 <ChevronDown
                   size={13}
-                  color="#64748b"
+                  color="#627079"
                   style={showManualLogin ? { transform: [{ rotate: '180deg' }] } : undefined}
                 />
               </TouchableOpacity>
 
               {!showManualLogin && (
                 <View style={styles.secureBottomBadge}>
-                  <Lock size={11} color="#94a3b8" />
+                  <Lock size={11} color="#7c8b96" />
                   <Text style={styles.secureBottomText}>
-                    Bansal Geo Solutions • Encrypted Enterprise Portal
+                    Bansal Geo Solutions Pvt Ltd
                   </Text>
                 </View>
               )}
@@ -605,11 +605,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
               {showManualLogin && (
                 <View style={styles.manualLoginForm}>
                   <View style={styles.inputContainer}>
-                    <Mail size={19} color="#64748b" style={styles.inputIcon} />
+                    <Mail size={19} color="#627079" style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
                       placeholder="Email or Mobile Number"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor="#7c8b96"
                       value={emailOrMobile}
                       onChangeText={setEmailOrMobile}
                       autoCapitalize="none"
@@ -618,11 +618,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   </View>
 
                   <View style={styles.inputContainer}>
-                    <Lock size={19} color="#64748b" style={styles.inputIcon} />
+                    <Lock size={19} color="#627079" style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
                       placeholder="Password"
-                      placeholderTextColor="#94a3b8"
+                      placeholderTextColor="#7c8b96"
                       value={password}
                       onChangeText={setPassword}
                       secureTextEntry={!showPassword}
@@ -633,9 +633,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                       style={styles.eyeBtn}
                     >
                       {showPassword ? (
-                        <EyeOff size={19} color="#64748b" />
+                        <EyeOff size={19} color="#627079" />
                       ) : (
-                        <Eye size={19} color="#64748b" />
+                        <Eye size={19} color="#627079" />
                       )}
                     </TouchableOpacity>
                   </View>
@@ -671,16 +671,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         paddingVertical: 6,
                         paddingHorizontal: 8,
                         borderRadius: 6,
-                        backgroundColor: portalId === 'VND-2026-014' ? '#e0f2fe' : '#f1f5f9',
+                        backgroundColor: portalId === 'VND-2026-014' ? '#e6effa' : '#edf1f3',
                         borderWidth: 1,
-                        borderColor: portalId === 'VND-2026-014' ? '#0284c7' : '#cbd5e1',
+                        borderColor: portalId === 'VND-2026-014' ? '#2f6fb3' : '#d3dce1',
                         alignItems: 'center',
                       }}
                     >
-                      <Text style={{ fontSize: 10, fontWeight: '700', color: portalId === 'VND-2026-014' ? '#0369a1' : '#475569' }}>
+                      <Text style={{ fontSize: 10, fontWeight: '700', color: portalId === 'VND-2026-014' ? '#245a93' : '#4a5b68' }}>
                         Apex Drilling
                       </Text>
-                      <Text style={{ fontSize: 9, color: '#64748b' }}>VND-2026-014</Text>
+                      <Text style={{ fontSize: 9, color: '#627079' }}>VND-2026-014</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -694,25 +694,25 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         paddingVertical: 6,
                         paddingHorizontal: 8,
                         borderRadius: 6,
-                        backgroundColor: portalId === 'VND-2026-022' ? '#e0f2fe' : '#f1f5f9',
+                        backgroundColor: portalId === 'VND-2026-022' ? '#e6effa' : '#edf1f3',
                         borderWidth: 1,
-                        borderColor: portalId === 'VND-2026-022' ? '#0284c7' : '#cbd5e1',
+                        borderColor: portalId === 'VND-2026-022' ? '#2f6fb3' : '#d3dce1',
                         alignItems: 'center',
                       }}
                     >
-                      <Text style={{ fontSize: 10, fontWeight: '700', color: portalId === 'VND-2026-022' ? '#0369a1' : '#475569' }}>
+                      <Text style={{ fontSize: 10, fontWeight: '700', color: portalId === 'VND-2026-022' ? '#245a93' : '#4a5b68' }}>
                         Geotech Assay
                       </Text>
-                      <Text style={{ fontSize: 9, color: '#64748b' }}>VND-2026-022</Text>
+                      <Text style={{ fontSize: 9, color: '#627079' }}>VND-2026-022</Text>
                     </TouchableOpacity>
                   </View>
                 )}
 
                 <View style={styles.inputContainer}>
                   {activeTab === 'client' ? (
-                    <FileText size={19} color="#64748b" style={styles.inputIcon} />
+                    <FileText size={19} color="#627079" style={styles.inputIcon} />
                   ) : (
-                    <Building2 size={19} color="#64748b" style={styles.inputIcon} />
+                    <Building2 size={19} color="#627079" style={styles.inputIcon} />
                   )}
                   <TextInput
                     style={styles.textInput}
@@ -721,7 +721,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         ? 'Enquiry ID / File No (e.g. ENQ-2026-088)'
                         : 'Vendor ID (e.g. VND-2026-014)'
                     }
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor="#7c8b96"
                     value={portalId}
                     onChangeText={setPortalId}
                     autoCapitalize="characters"
@@ -729,11 +729,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 </View>
 
                 <View style={styles.inputContainer}>
-                  <Phone size={19} color="#64748b" style={styles.inputIcon} />
+                  <Phone size={19} color="#627079" style={styles.inputIcon} />
                   <TextInput
                     style={styles.textInput}
                     placeholder="Registered Mobile Number"
-                    placeholderTextColor="#94a3b8"
+                    placeholderTextColor="#7c8b96"
                     value={portalMobile}
                     onChangeText={setPortalMobile}
                     keyboardType="phone-pad"
@@ -770,7 +770,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   style={styles.helperCard}
                 >
                   <View style={styles.helperIconBox}>
-                    <FileText size={19} color="#0284c7" strokeWidth={2.2} />
+                    <FileText size={19} color="#2f6fb3" strokeWidth={2.2} />
                   </View>
                   <View style={styles.helperTextCol}>
                     <Text style={styles.helperTitle}>Need a Geological Survey?</Text>
@@ -778,7 +778,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                       Submit a new exploration enquiry online
                     </Text>
                   </View>
-                  <ArrowRight size={18} color="#0284c7" strokeWidth={2.4} />
+                  <ArrowRight size={18} color="#2f6fb3" strokeWidth={2.4} />
                 </TouchableOpacity>
               )}
 
@@ -789,7 +789,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                   style={styles.helperCard}
                 >
                   <View style={styles.helperIconBox}>
-                    <Building2 size={19} color="#059669" strokeWidth={2.2} />
+                    <Building2 size={19} color="#2e9e6b" strokeWidth={2.2} />
                   </View>
                   <View style={styles.helperTextCol}>
                     <Text style={styles.helperTitle}>New Contractor / Firm?</Text>
@@ -797,7 +797,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                       Register firm or track vendor application
                     </Text>
                   </View>
-                  <ArrowRight size={18} color="#059669" strokeWidth={2.4} />
+                  <ArrowRight size={18} color="#2e9e6b" strokeWidth={2.4} />
                 </TouchableOpacity>
               )}
             </View>
@@ -828,7 +828,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                 onPress={() => setShowRoleModal(false)}
                 style={styles.modalCloseBtn}
               >
-                <X size={18} color="#64748b" />
+                <X size={18} color="#627079" />
               </TouchableOpacity>
             </View>
 
@@ -872,7 +872,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
                         <Check size={14} color="#ffffff" strokeWidth={3} />
                       </View>
                     ) : (
-                      <ChevronRight size={18} color="#cbd5e1" />
+                      <ChevronRight size={18} color="#d3dce1" />
                     )}
                   </TouchableOpacity>
                 );
@@ -899,13 +899,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
             <View style={styles.modalHeaderRow}>
               <View>
                 <Text style={styles.modalTitle}>Select Field Employee</Text>
-                <Text style={styles.modalSubtitle}>6 Active Team Members • Geology & Field Ops</Text>
+                <Text style={styles.modalSubtitle}>{EMPLOYEE_MEMBERS.length} team members</Text>
               </View>
               <TouchableOpacity
                 onPress={() => setShowEmployeeModal(false)}
                 style={styles.modalCloseBtn}
               >
-                <X size={18} color="#64748b" />
+                <X size={18} color="#627079" />
               </TouchableOpacity>
             </View>
 
@@ -955,7 +955,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#061a32',
+    backgroundColor: '#0b2230',
   },
   scroll: {
     flex: 1,
@@ -978,7 +978,7 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     position: 'relative',
     overflow: 'hidden',
-    shadowColor: '#0b2545',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.1,
     shadowRadius: 18,
@@ -995,7 +995,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 4.5,
     borderRadius: 2.5,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     alignSelf: 'center',
     marginBottom: 16,
   },
@@ -1003,12 +1003,12 @@ const styles = StyleSheet.create({
   portalTabsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: 16,
     padding: 3.5,
     marginBottom: 18,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   portalTab: {
     flex: 1,
@@ -1021,8 +1021,8 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   portalTabActive: {
-    backgroundColor: '#0b2545',
-    shadowColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -1040,7 +1040,7 @@ const styles = StyleSheet.create({
   },
   tabTitleText: {
     fontSize: 10.5,
-    fontWeight: '800',
+    fontWeight: '700',
     lineHeight: 12.5,
     letterSpacing: -0.2,
   },
@@ -1059,47 +1059,47 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   tabTextInactive: {
-    color: '#334155',
+    color: '#34495a',
   },
   tabSubActive: {
-    color: '#e2e8f0',
+    color: '#e1e8eb',
   },
   tabSubInactive: {
-    color: '#64748b',
+    color: '#627079',
   },
   tabDivider: {
     width: 1,
     height: 18,
-    backgroundColor: '#cbd5e1',
+    backgroundColor: '#d3dce1',
     marginHorizontal: 1,
   },
 
   welcomeTitle: {
+    fontFamily: 'Fraunces_700Bold',
     fontSize: 28,
-    fontWeight: '900',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.4,
     marginTop: 4,
   },
   welcomeSubtitle: {
     fontSize: 14,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     marginTop: 4,
     marginBottom: 18,
   },
 
   errorBox: {
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fbe5e4',
     borderWidth: 1,
-    borderColor: '#fecaca',
+    borderColor: '#f2c4c2',
     borderRadius: 14,
     padding: 12,
     marginBottom: 16,
   },
   errorText: {
     fontSize: 12.5,
-    color: '#b91c1c',
+    color: '#a83a36',
     fontWeight: '600',
   },
 
@@ -1110,10 +1110,10 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderRadius: 16,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     paddingHorizontal: 14,
     height: 52,
   },
@@ -1124,7 +1124,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14.5,
     fontWeight: '500',
-    color: '#0f172a',
+    color: '#0f2a3d',
     paddingVertical: 0,
   },
   eyeBtn: {
@@ -1139,18 +1139,18 @@ const styles = StyleSheet.create({
   forgotText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#1d4ed8',
+    color: '#245a93',
   },
 
   signInBtn: {
-    backgroundColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
     height: 54,
     borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    shadowColor: '#0b2545',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
@@ -1160,7 +1160,7 @@ const styles = StyleSheet.create({
   signInBtnText: {
     color: '#ffffff',
     fontSize: 15.5,
-    fontWeight: '800',
+    fontWeight: '700',
     letterSpacing: 0.2,
   },
 
@@ -1172,13 +1172,13 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
   },
   dividerText: {
     paddingHorizontal: 12,
     fontSize: 11.5,
     fontWeight: '700',
-    color: '#94a3b8',
+    color: '#7c8b96',
     letterSpacing: 0.8,
   },
 
@@ -1200,17 +1200,17 @@ const styles = StyleSheet.create({
   },
   conciseHeaderTitle: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#0b2545',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: 0.8,
   },
   conciseToggleGroup: {
     flexDirection: 'row',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: 8,
     padding: 2,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   conciseToggleBtn: {
     paddingVertical: 3,
@@ -1218,12 +1218,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   conciseToggleBtnActive: {
-    backgroundColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
   },
   conciseToggleText: {
     fontSize: 10.5,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
   },
   conciseToggleTextActive: {
     color: '#ffffff',
@@ -1247,17 +1247,17 @@ const styles = StyleSheet.create({
     borderWidth: 1.2,
   },
   conciseChipSelected: {
-    backgroundColor: '#0b2545',
-    borderColor: '#0b2545',
-    shadowColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
+    borderColor: '#0f2a3d',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2,
   },
   conciseChipUnselected: {
-    backgroundColor: '#f8fafc',
-    borderColor: '#e2e8f0',
+    backgroundColor: '#f4f7f8',
+    borderColor: '#e1e8eb',
   },
   conciseIconCircle: {
     width: 26,
@@ -1274,18 +1274,18 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#334155',
+    color: '#34495a',
     letterSpacing: -0.2,
   },
   conciseChipTextSelected: {
     color: '#ffffff',
-    fontWeight: '800',
+    fontWeight: '700',
   },
   conciseCheckBadge: {
     width: 17,
     height: 17,
     borderRadius: 8.5,
-    backgroundColor: '#10b981',
+    backgroundColor: '#2e9e6b',
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 3,
@@ -1306,40 +1306,40 @@ const styles = StyleSheet.create({
     borderWidth: 1.2,
   },
   concisePillSelected: {
-    backgroundColor: '#0b2545',
-    borderColor: '#0b2545',
-    shadowColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
+    borderColor: '#0f2a3d',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2,
   },
   concisePillUnselected: {
-    backgroundColor: '#f8fafc',
-    borderColor: '#e2e8f0',
+    backgroundColor: '#f4f7f8',
+    borderColor: '#e1e8eb',
   },
   concisePillText: {
     fontSize: 11.5,
     fontWeight: '700',
-    color: '#334155',
+    color: '#34495a',
     marginRight: 2,
   },
   concisePillTextSelected: {
     color: '#ffffff',
-    fontWeight: '800',
+    fontWeight: '700',
   },
 
   personaStrip: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: 10,
     paddingVertical: 5,
     paddingHorizontal: 9,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   personaStripLeft: {
     flex: 1,
@@ -1351,20 +1351,20 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#10b981',
+    backgroundColor: '#2e9e6b',
   },
   personaStripLabel: {
     fontSize: 10.5,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
   },
   personaStripName: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   personaBadgePill: {
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 5,
@@ -1372,7 +1372,7 @@ const styles = StyleSheet.create({
   personaBadgeText: {
     fontSize: 9.5,
     fontWeight: '700',
-    color: '#475569',
+    color: '#4a5b68',
   },
   personaSwitchBtn: {
     flexDirection: 'row',
@@ -1380,7 +1380,7 @@ const styles = StyleSheet.create({
     gap: 2,
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 6,
@@ -1389,7 +1389,7 @@ const styles = StyleSheet.create({
   personaSwitchBtnText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#0b2545',
+    color: '#0f2a3d',
   },
   secureBottomBadge: {
     flexDirection: 'row',
@@ -1402,7 +1402,7 @@ const styles = StyleSheet.create({
   secureBottomText: {
     fontSize: 10.5,
     fontWeight: '600',
-    color: '#94a3b8',
+    color: '#7c8b96',
     letterSpacing: 0.2,
   },
 
@@ -1431,7 +1431,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4.5,
     borderRadius: 2.5,
-    backgroundColor: '#cbd5e1',
+    backgroundColor: '#d3dce1',
     alignSelf: 'center',
     marginBottom: 14,
   },
@@ -1443,19 +1443,19 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   modalSubtitle: {
     fontSize: 12.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   modalCloseBtn: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1471,14 +1471,14 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   modalRoleItemSelected: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     borderWidth: 1.5,
-    borderColor: '#0d9488',
+    borderColor: '#1f6f78',
   },
   modalRoleItemUnselected: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   modalRoleIconBox: {
     width: 42,
@@ -1493,14 +1493,14 @@ const styles = StyleSheet.create({
   },
   modalRoleTitle: {
     fontSize: 15,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   modalRoleTitleSelected: {
-    color: '#0f766e',
+    color: '#0e4a52',
   },
   modalRolePill: {
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: 5,
@@ -1508,28 +1508,28 @@ const styles = StyleSheet.create({
   modalRolePillText: {
     fontSize: 9.5,
     fontWeight: '700',
-    color: '#475569',
+    color: '#4a5b68',
   },
   modalRoleSubtitle: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   modalRolePerson: {
     fontSize: 12.5,
     fontWeight: '600',
-    color: '#334155',
+    color: '#34495a',
     marginTop: 2,
   },
   modalRolePersonSelected: {
-    color: '#0f766e',
+    color: '#0e4a52',
     fontWeight: '700',
   },
   modalSelectedCheck: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#0d9488',
+    backgroundColor: '#1f6f78',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -1543,46 +1543,46 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   modalEmployeeRowSelected: {
-    backgroundColor: '#f0fdfa',
+    backgroundColor: '#eef7f7',
     borderWidth: 1.5,
-    borderColor: '#0d9488',
+    borderColor: '#1f6f78',
   },
   empAvatarCircle: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
   },
   empAvatarCircleSelected: {
-    backgroundColor: '#ccfbf1',
+    backgroundColor: '#ddefef',
   },
   empAvatarInitials: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#475569',
+    fontWeight: '700',
+    color: '#4a5b68',
   },
   empAvatarInitialsSelected: {
-    color: '#0f766e',
+    color: '#0e4a52',
   },
   modalEmpName: {
     fontSize: 14.5,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   modalEmpNameSelected: {
-    color: '#0f766e',
+    color: '#0e4a52',
   },
   modalEmpDesig: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#475569',
+    color: '#4a5b68',
     marginTop: 1,
   },
   modalEmpDept: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: '#7c8b96',
     marginTop: 1,
   },
   modalRadioUnchecked: {
@@ -1590,7 +1590,7 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 2,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
   },
 
   manualLoginToggle: {
@@ -1607,7 +1607,7 @@ const styles = StyleSheet.create({
   manualLoginToggleText: {
     fontSize: 12.5,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
   },
   manualLoginForm: {
     marginTop: 10,
@@ -1617,9 +1617,9 @@ const styles = StyleSheet.create({
   helperCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     borderRadius: 18,
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -1629,7 +1629,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 12,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -1639,12 +1639,12 @@ const styles = StyleSheet.create({
   },
   helperTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   helperSubtitle: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1.5,
   },
 });

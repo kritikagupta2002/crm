@@ -154,7 +154,7 @@ export const ExpenseClaimScreen: React.FC<{ navigation: any }> = ({ navigation }
     <View style={styles.container}>
       <AppHeader
         title="Lodge Expense Claim"
-        subtitle="Staff reimbursement & field receipts"
+        subtitle="Claim money spent on company work"
         showBack
         onBack={() => navigation.goBack()}
       />

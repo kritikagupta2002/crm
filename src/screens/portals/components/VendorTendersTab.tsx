@@ -419,7 +419,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 13,
     paddingVertical: 6,
     borderRadius: 14,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
   },
   filterPillActive: {
     backgroundColor: vendorTheme.colors.teal,
@@ -473,7 +473,7 @@ const styles = StyleSheet.create({
     color: vendorTheme.colors.textSecondary,
   },
   sortItemTextActive: {
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.teal,
   },
   countRow: {
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textMuted,
     letterSpacing: 0.6,
   },
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 12,
   },
@@ -516,7 +516,7 @@ const styles = StyleSheet.create({
   },
   resetFilterText: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   tenderList: {
@@ -543,14 +543,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tenderNoBadge: {
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#e8eef1',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   tenderNoBadgeText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   categoryBadgeText: {
@@ -564,7 +564,7 @@ const styles = StyleSheet.create({
   },
   tenderTitle: {
     fontSize: 15.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     lineHeight: 21,
     marginBottom: 10,
@@ -588,13 +588,13 @@ const styles = StyleSheet.create({
   },
   specLabel: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textMuted,
     letterSpacing: 0.5,
   },
   specValue: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 2,
   },
@@ -616,12 +616,12 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
     gap: 5,
   },
   bidSubmittedText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.tealDark,
   },
   deadlineMetaWrap: {
@@ -644,19 +644,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   phaseOpen: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#e3f4ec',
   },
   phaseClosed: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
   },
   phaseBadgeText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   phaseOpenText: {
-    color: '#15803d',
+    color: '#237a53',
   },
   phaseClosedText: {
-    color: '#64748b',
+    color: '#627079',
   },
 });

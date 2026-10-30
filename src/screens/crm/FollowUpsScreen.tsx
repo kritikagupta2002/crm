@@ -148,7 +148,7 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
       header={
         <AppHeader
           title="Client Follow-ups"
-          subtitle="Scheduled client interactions & communication logs"
+          subtitle="Calls, visits and meetings with clients"
           showBack
           onBack={() => navigation.goBack()}
           rightAction={
@@ -164,12 +164,12 @@ export const FollowUpsScreen: React.FC<FollowUpsScreenProps> = ({ navigation }) 
     >
       <View style={styles.metricsStrip}>
         <View style={styles.metricItem}>
-          <Text style={[styles.metricVal, { color: counts.overdue > 0 ? colors.danger : '#0f172a' }]}>{counts.overdue}</Text>
+          <Text style={[styles.metricVal, { color: counts.overdue > 0 ? colors.danger : '#0f2a3d' }]}>{counts.overdue}</Text>
           <Text style={styles.metricLbl}>Overdue</Text>
         </View>
         <View style={styles.metricDivider} />
         <View style={styles.metricItem}>
-          <Text style={[styles.metricVal, { color: counts.today > 0 ? colors.warning : '#0f172a' }]}>{counts.today}</Text>
+          <Text style={[styles.metricVal, { color: counts.today > 0 ? colors.warning : '#0f2a3d' }]}>{counts.today}</Text>
           <Text style={styles.metricLbl}>Today</Text>
         </View>
         <View style={styles.metricDivider} />
@@ -495,14 +495,14 @@ const styles = StyleSheet.create({
   },
   metricVal: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   metricLbl: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   metricDivider: {
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
   },
   outcomeLabel: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   outcomeText: {

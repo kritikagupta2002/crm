@@ -147,7 +147,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
               <Text
                 style={[
                   styles.taxVal,
-                  { color: isOutward ? colors.primary : colors.semantic.success, fontWeight: '800' },
+                  { color: isOutward ? colors.primary : colors.semantic.success, fontWeight: '700' },
                 ]}
               >
                 ₹{item.totalGst.toLocaleString('en-IN')}
@@ -216,7 +216,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
     <View style={styles.container}>
       <AppHeader
         title="GST Compliance & Ledger"
-        subtitle="GSTR-1, GSTR-3B liability & Input Tax Credit (ITC)"
+        subtitle="GST collected, GST paid and the balance"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -458,7 +458,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
                 </View>
 
                 <View style={styles.detailCalcBox}>
-                  <Text style={styles.detailCardHead}>TAX ALLOCATION MATRIX</Text>
+                  <Text style={styles.detailCardHead}>TAX SPLIT</Text>
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Taxable Base Value</Text>
                     <Text style={styles.detailVal}>
@@ -509,7 +509,7 @@ export const GstOverviewScreen: React.FC<{ navigation: any }> = ({ navigation })
                             selectedTransaction.itcEligibility === 'Eligible'
                               ? colors.semantic.success
                               : colors.text.tertiary,
-                          fontWeight: '800',
+                          fontWeight: '700',
                         },
                       ]}
                     >
@@ -644,7 +644,7 @@ const styles = StyleSheet.create({
   },
   formulaTitle: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     letterSpacing: 0.5,
   },
@@ -676,7 +676,7 @@ const styles = StyleSheet.create({
   kpiLabel: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     letterSpacing: 0.5,
   },
@@ -703,7 +703,7 @@ const styles = StyleSheet.create({
   matrixTitle: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     letterSpacing: 0.5,
     marginBottom: spacing.xs,
@@ -723,7 +723,7 @@ const styles = StyleSheet.create({
   matrixColHead: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
   },
   matrixRow: {
@@ -746,7 +746,7 @@ const styles = StyleSheet.create({
   matrixCellBold: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     textAlign: 'right',
     fontVariant: ['tabular-nums'],
@@ -760,7 +760,7 @@ const styles = StyleSheet.create({
   matrixNetHead: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   matrixNetCell: {
@@ -774,7 +774,7 @@ const styles = StyleSheet.create({
   matrixNetTotal: {
     ...typography.caption,
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     textAlign: 'right',
     fontVariant: ['tabular-nums'],
@@ -809,7 +809,7 @@ const styles = StyleSheet.create({
   },
   tabBtnTextActive: {
     color: colors.primary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   sectionWrap: {
     paddingTop: spacing.xs,
@@ -867,7 +867,7 @@ const styles = StyleSheet.create({
   },
   docNumber: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     fontFamily: 'monospace',
   },
@@ -1002,7 +1002,7 @@ const styles = StyleSheet.create({
   },
   returnTypeText: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   returnPeriod: {
@@ -1092,7 +1092,7 @@ const styles = StyleSheet.create({
   detailCardHead: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
     letterSpacing: 0.5,
     marginBottom: 4,
@@ -1137,7 +1137,7 @@ const styles = StyleSheet.create({
   },
   detailValBold: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   totalRow: {
@@ -1153,7 +1153,7 @@ const styles = StyleSheet.create({
   },
   detailTotalVal: {
     ...typography.bodySmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   detailItcBox: {

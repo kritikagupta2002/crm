@@ -1,10 +1,13 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, createNavigationContainerRef } from '@react-navigation/native';
+import { useFonts, Fraunces_400Regular, Fraunces_600SemiBold, Fraunces_700Bold } from '@expo-google-fonts/fraunces';
 import {
   AuthProvider,
   CrmProvider,
+  FieldDatabaseProvider,
+  InventoryProvider,
   FinanceProvider,
   HrmsProvider,
   NotificationProvider,
@@ -12,7 +15,12 @@ import {
 import { RootNavigator } from './src/navigation';
 import { colors } from './src/theme';
 
+// TEMP-PREVIEW: lets the web preview open any screen; remove before shipping.
+const navRef = createNavigationContainerRef<any>();
+if (__DEV__) (globalThis as any).__nav = navRef;
+
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({ Fraunces_400Regular, Fraunces_600SemiBold, Fraunces_700Bold });
   const navigationTheme = {
     ...DefaultTheme,
     colors: {
@@ -26,17 +34,24 @@ export default function App() {
     },
   };
 
+  // Titles use Fraunces; wait for it so they don't jump from the system font.
+  if (!fontsLoaded && !fontError) return null;
+
   return (
     <SafeAreaProvider>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <AuthProvider>
         <NotificationProvider>
           <CrmProvider>
             <HrmsProvider>
               <FinanceProvider>
-                <NavigationContainer theme={navigationTheme}>
+                <FieldDatabaseProvider>
+                <InventoryProvider>
+                <NavigationContainer ref={navRef} theme={navigationTheme}>
                   <RootNavigator />
                 </NavigationContainer>
+                </InventoryProvider>
+                </FieldDatabaseProvider>
               </FinanceProvider>
             </HrmsProvider>
           </CrmProvider>

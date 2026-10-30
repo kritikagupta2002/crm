@@ -20,7 +20,7 @@ export const HrDocumentsWorkspaceScreen: React.FC<{ route?: any; navigation: any
     <View style={styles.container}>
       <AppHeader
         title="HR Documents & KYC"
-        subtitle="Corporate compliance guidelines & employee credentials"
+        subtitle="Policies and staff documents"
         showBack
         onBack={() => navigation.goBack()}
         onNotificationPress={() => navigation.navigate('Notifications')}
@@ -62,7 +62,7 @@ export const HrDocumentsWorkspaceScreen: React.FC<{ route?: any; navigation: any
                 activeTab === 'kyc' && styles.tabTextActive,
               ]}
             >
-              {isHrOrAdmin ? 'Employee KYC Vault' : 'My Credentials'}
+              {isHrOrAdmin ? 'Employee documents' : 'My Credentials'}
             </Text>
           </TouchableOpacity>
         </View>

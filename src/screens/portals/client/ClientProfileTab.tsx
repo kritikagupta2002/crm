@@ -19,6 +19,7 @@ import {
   ChevronRight,
 } from 'lucide-react-native';
 import { clientTheme } from './clientTheme';
+import { ClientQuestionsCard } from './ClientQuestionsCard';
 import { Project } from '../../../types';
 
 interface ClientProfileTabProps {
@@ -173,6 +174,8 @@ export function ClientProfileTab({
         </View>
       </View>
 
+      <ClientQuestionsCard companyName={companyName} />
+
       <View style={styles.liaisonCard}>
         <View style={styles.liaisonHeader}>
           <View style={styles.liaisonIconWrap}>
@@ -214,7 +217,7 @@ export function ClientProfileTab({
       <View style={styles.securityBox}>
         <Lock size={18} color={clientTheme.colors.teal} />
         <Text style={styles.securityText}>
-          Enterprise Isolation: Your project data, borehole coordinates, and financial vouchers are strictly isolated and protected under corporate non-disclosure.
+          Only your company's projects, reports and invoices are shown here.
         </Text>
       </View>
 
@@ -266,8 +269,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 22,
-    fontWeight: '900',
     color: clientTheme.colors.surface,
     letterSpacing: 1,
   },
@@ -298,7 +301,7 @@ const styles = StyleSheet.create({
   },
   companyName: {
     fontSize: clientTheme.typography.titleLg,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     lineHeight: 24,
   },
@@ -329,7 +332,7 @@ const styles = StyleSheet.create({
   },
   identityStatValue: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     marginTop: 2,
   },
@@ -356,7 +359,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   infoRow: {
@@ -394,7 +397,7 @@ const styles = StyleSheet.create({
     borderRadius: clientTheme.radius.lg,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
     gap: 12,
   },
   liaisonHeader: {
@@ -415,7 +418,7 @@ const styles = StyleSheet.create({
   },
   liaisonTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.tealDark,
   },
   liaisonSubtitle: {
@@ -468,7 +471,7 @@ const styles = StyleSheet.create({
   },
   enquiryTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   enquirySubtitle: {
@@ -480,11 +483,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: clientTheme.radius.md,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
+    borderColor: '#d3dce1',
   },
   securityText: {
     flex: 1,
@@ -502,7 +505,7 @@ const styles = StyleSheet.create({
     borderRadius: clientTheme.radius.md,
     backgroundColor: clientTheme.colors.crimsonSubtle,
     borderWidth: 1,
-    borderColor: '#fca5a5',
+    borderColor: '#f2c4c2',
     marginTop: 8,
   },
   logoutBtnText: {

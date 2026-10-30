@@ -72,7 +72,7 @@ export const useLeave = () => {
         used: 0,
         pending: 0,
         available: 12,
-        color: '#3B82F6',
+        color: '#2f6fb3',
       }
     );
   }, [leaveBalances, selectedType]);

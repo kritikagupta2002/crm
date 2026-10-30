@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#e8eef1',
     overflow: 'hidden',
   },
   tabLabel: {
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   },
   tabLabelActive: {
     color: vendorTheme.colors.navy,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   tabLabelInactive: {
     color: vendorTheme.colors.textMuted,
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 9.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
 });

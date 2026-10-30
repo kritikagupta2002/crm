@@ -55,7 +55,8 @@ export interface Lead {
     portal?: boolean;
   };
   documents?: Array<{ id: string; name: string; size?: number; type?: string; addedOn?: string }>;
-  queries?: Array<{ id: string; query: string; answer?: string; status: 'Open' | 'Resolved'; createdAt: string }>;
+  /** Questions the client asked from the portal (utils/questions.ts). */
+  queries?: Array<{ id: string; topic: 'Project' | 'Documents' | 'Billing' | 'Other'; message: string; at: string; status: 'Open' | 'Answered'; reply?: string; repliedAt?: string; repliedBy?: string }>;
 }
 
 export interface Client {

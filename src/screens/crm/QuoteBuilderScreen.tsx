@@ -203,7 +203,7 @@ export const QuoteBuilderScreen: React.FC<QuoteBuilderScreenProps> = ({ navigati
       header={
         <AppHeader
           title={isRevision ? 'Revise Quotation' : 'New Quotation Builder'}
-          subtitle="Itemized pricing engine with automated GST & Director checks"
+          subtitle="Line items, GST and approval"
           showBack
           onBack={() => navigation.goBack()}
         />

@@ -73,7 +73,7 @@ export const PayrollScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
       header={
         <AppHeader
           title="Payroll & Compensation"
-          subtitle="Statutory computation, PF, ESI, PT, and salary disbursals"
+          subtitle="Salaries, PF, ESI and PT"
           showBack
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
@@ -82,7 +82,7 @@ export const PayrollScreen: React.FC<{ navigation: any }> = ({ navigation }) => 
               style={styles.headerBtn}
               onPress={() => navigation.navigate('Payslips')}
             >
-              <FileText size={16} color="#0D9488" />
+              <FileText size={16} color="#1f6f78" />
               <Text style={styles.headerBtnText}>Payslips</Text>
             </TouchableOpacity>
           }

@@ -51,16 +51,16 @@ export const LeaveRequestCard: React.FC<LeaveRequestCardProps> = ({
                   styles.typePillText,
                   {
                     color: item.leaveType.includes('Casual')
-                      ? '#2563EB'
+                      ? '#2f6fb3'
                       : item.leaveType.includes('Sick')
-                      ? '#059669'
+                      ? '#2e9e6b'
                       : item.leaveType.includes('Earned')
-                      ? '#D97706'
+                      ? '#c27a12'
                       : item.leaveType.includes('Compensatory')
-                      ? '#7C3AED'
+                      ? '#3d5a6c'
                       : item.leaveType.includes('Field')
                       ? '#0891B2'
-                      : '#DB2777',
+                      : '#3d5a6c',
                   },
                 ]}
               >

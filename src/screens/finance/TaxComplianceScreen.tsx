@@ -33,7 +33,7 @@ export const TaxComplianceScreen: React.FC<{ navigation: any }> = ({ navigation 
     <View style={styles.container}>
       <AppHeader
         title="Tax Compliance & GST"
-        subtitle="Statutory TDS returns & GSTR-1/3B reconciliation"
+        subtitle="GST and TDS"
         showBack
         onBack={() => navigation.goBack()}
       />
@@ -43,7 +43,7 @@ export const TaxComplianceScreen: React.FC<{ navigation: any }> = ({ navigation 
           <View style={styles.cardHeader}>
             <View style={styles.titleWrap}>
               <ShieldCheck size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>Goods & Services Tax (GST) Engine</Text>
+              <Text style={styles.sectionTitle}>GST</Text>
             </View>
             <View style={styles.activeTag}>
               <Text style={styles.activeTagText}>GSTR-3B Auto-Offset</Text>
@@ -75,14 +75,14 @@ export const TaxComplianceScreen: React.FC<{ navigation: any }> = ({ navigation 
             style={styles.navLinkBtn}
             onPress={() => navigation.navigate('GstOverview')}
           >
-            <Text style={styles.navLinkText}>Open Full GST Ledger & Returns Cockpit →</Text>
+            <Text style={styles.navLinkText}>GST details →</Text>
           </TouchableOpacity>
         </Card>
 
         <Card style={styles.card}>
           <View style={styles.cardHeader}>
             <View style={styles.titleWrap}>
-              <Percent size={20} color="#F59E0B" />
+              <Percent size={20} color="#c27a12" />
               <Text style={styles.sectionTitle}>TDS Deductions Register</Text>
             </View>
           </View>
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   tdsItemAmount: {
     ...typography.bodySmall,
     fontWeight: '700',
-    color: '#F59E0B',
+    color: '#c27a12',
   },
   tdsDescription: {
     ...typography.caption,
@@ -260,7 +260,7 @@ const styles = StyleSheet.create({
   },
   totalTdsValue: {
     ...typography.h4,
-    color: '#F59E0B',
+    color: '#c27a12',
   },
   navLinkBtn: {
     marginTop: spacing.md,

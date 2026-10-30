@@ -112,11 +112,11 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
               style={styles.quickTile}
             >
               <View style={styles.tileTopRow}>
-                <View style={[styles.tileIconWrap, { backgroundColor: '#e0f2fe' }]}>
-                  <Gavel size={19} color="#0284c7" strokeWidth={2.4} />
+                <View style={[styles.tileIconWrap, { backgroundColor: '#e6effa' }]}>
+                  <Gavel size={19} color="#2f6fb3" strokeWidth={2.4} />
                 </View>
-                <View style={[styles.tileMiniPill, { backgroundColor: '#e0f2fe' }]}>
-                  <Text style={[styles.tileMiniPillText, { color: '#0284c7' }]}>Live</Text>
+                <View style={[styles.tileMiniPill, { backgroundColor: '#e6effa' }]}>
+                  <Text style={[styles.tileMiniPillText, { color: '#2f6fb3' }]}>Live</Text>
                 </View>
               </View>
               <Text style={styles.tileCount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{freshTenders.length}</Text>
@@ -130,11 +130,11 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
               style={styles.quickTile}
             >
               <View style={styles.tileTopRow}>
-                <View style={[styles.tileIconWrap, { backgroundColor: '#fef3c7' }]}>
-                  <ShieldCheck size={19} color="#d97706" strokeWidth={2.4} />
+                <View style={[styles.tileIconWrap, { backgroundColor: '#fcf0dc' }]}>
+                  <ShieldCheck size={19} color="#c27a12" strokeWidth={2.4} />
                 </View>
-                <View style={[styles.tileMiniPill, { backgroundColor: '#fef3c7' }]}>
-                  <Text style={[styles.tileMiniPillText, { color: '#d97706' }]}>Bids</Text>
+                <View style={[styles.tileMiniPill, { backgroundColor: '#fcf0dc' }]}>
+                  <Text style={[styles.tileMiniPillText, { color: '#c27a12' }]}>Bids</Text>
                 </View>
               </View>
               <Text style={styles.tileCount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{myBids.length}</Text>
@@ -150,11 +150,11 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
               style={styles.quickTile}
             >
               <View style={styles.tileTopRow}>
-                <View style={[styles.tileIconWrap, { backgroundColor: '#ccfbf1' }]}>
-                  <Briefcase size={19} color="#0d9488" strokeWidth={2.4} />
+                <View style={[styles.tileIconWrap, { backgroundColor: '#ddefef' }]}>
+                  <Briefcase size={19} color="#1f6f78" strokeWidth={2.4} />
                 </View>
-                <View style={[styles.tileMiniPill, { backgroundColor: '#ccfbf1' }]}>
-                  <Text style={[styles.tileMiniPillText, { color: '#0d9488' }]}>Orders</Text>
+                <View style={[styles.tileMiniPill, { backgroundColor: '#ddefef' }]}>
+                  <Text style={[styles.tileMiniPillText, { color: '#1f6f78' }]}>Orders</Text>
                 </View>
               </View>
               <Text style={styles.tileCount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>{waitingOrders.length}</Text>
@@ -168,11 +168,11 @@ export const VendorHomeTab: React.FC<VendorHomeTabProps> = ({
               style={styles.quickTile}
             >
               <View style={styles.tileTopRow}>
-                <View style={[styles.tileIconWrap, { backgroundColor: '#ecfdf5' }]}>
-                  <FileSpreadsheet size={19} color="#059669" strokeWidth={2.4} />
+                <View style={[styles.tileIconWrap, { backgroundColor: '#e3f4ec' }]}>
+                  <FileSpreadsheet size={19} color="#2e9e6b" strokeWidth={2.4} />
                 </View>
-                <View style={[styles.tileMiniPill, { backgroundColor: '#ecfdf5' }]}>
-                  <Text style={[styles.tileMiniPillText, { color: '#059669' }]}>Billing</Text>
+                <View style={[styles.tileMiniPill, { backgroundColor: '#e3f4ec' }]}>
+                  <Text style={[styles.tileMiniPillText, { color: '#2e9e6b' }]}>Billing</Text>
                 </View>
               </View>
               <Text
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     width: 58,
     height: 58,
     borderRadius: 29,
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#e8eef1',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 14,
@@ -508,7 +508,7 @@ const styles = StyleSheet.create({
   },
   vendorTitle: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
     letterSpacing: -0.3,
   },
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
     gap: 5,
   },
   empanelledText: {
@@ -552,7 +552,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
     gap: 5,
   },
   kycText: {
@@ -571,7 +571,7 @@ const styles = StyleSheet.create({
   },
   sectionHeaderTitle: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -584,7 +584,7 @@ const styles = StyleSheet.create({
   },
   actionCountText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.amberDark,
   },
   seeAllBtn: {
@@ -634,13 +634,13 @@ const styles = StyleSheet.create({
   },
   tileMiniPillText: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
   tileCount: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 24,
-    fontWeight: '900',
     color: vendorTheme.colors.navy,
     letterSpacing: -0.5,
     marginBottom: 3,
@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
   },
   emptyActionTitle: {
     fontSize: 14.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
   },
   emptyActionSubtitle: {
@@ -685,7 +685,7 @@ const styles = StyleSheet.create({
     borderRadius: vendorTheme.radius.lg,
     padding: 16,
     borderWidth: 1.5,
-    borderColor: '#fed7aa',
+    borderColor: '#ecd6ae',
     ...vendorTheme.shadows.md,
   },
   actionRowTop: {
@@ -707,12 +707,12 @@ const styles = StyleSheet.create({
   },
   actionTypeText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.amberDark,
   },
   actionWoCode: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   stageBadge: {
@@ -721,22 +721,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   stageIssued: {
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#e8eef1',
   },
   stageStarted: {
-    backgroundColor: '#ccfbf1',
+    backgroundColor: '#ddefef',
   },
   stageDelivered: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
   },
   stageBadgeText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   actionTitle: {
     fontSize: 15,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginBottom: 4,
   },
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   },
   primaryActionBtnText: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
   },
   detailsBtn: {
@@ -811,14 +811,14 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   countdownBadge: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 12,
   },
   countdownText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.crimson,
   },
   compactList: {
@@ -834,7 +834,7 @@ const styles = StyleSheet.create({
   },
   emptyCardText: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 6,
   },
@@ -859,30 +859,30 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   woIdBox: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   woIdText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   woStagePill: {
-    backgroundColor: '#e0f2fe',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 9,
     paddingVertical: 3,
     borderRadius: 12,
   },
   woStagePillText: {
     fontSize: 11,
-    fontWeight: '800',
-    color: '#0369a1',
+    fontWeight: '700',
+    color: '#245a93',
   },
   woProjectTitle: {
     fontSize: 14.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginBottom: 10,
   },
@@ -910,7 +910,7 @@ const styles = StyleSheet.create({
   },
   finVal: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 2,
   },
@@ -930,7 +930,7 @@ const styles = StyleSheet.create({
   },
   tenderNoText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   tenderDeadlinePill: {
@@ -944,12 +944,12 @@ const styles = StyleSheet.create({
   },
   tenderDeadlineText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.amberDark,
   },
   tenderTitleText: {
     fontSize: 14.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginBottom: 8,
   },
@@ -966,7 +966,7 @@ const styles = StyleSheet.create({
   bidActionChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -974,7 +974,7 @@ const styles = StyleSheet.create({
   },
   bidActionChipText: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   paymentSummaryCard: {
@@ -995,13 +995,13 @@ const styles = StyleSheet.create({
   },
   paySummaryLabel: {
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.textMuted,
     letterSpacing: 0.5,
   },
   paySummaryValue: {
     fontSize: 16,
-    fontWeight: '900',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 3,
   },
@@ -1021,7 +1021,7 @@ const styles = StyleSheet.create({
   },
   tdsTitle: {
     fontSize: 12.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.navy,
   },
   tdsSubtitle: {
@@ -1046,7 +1046,7 @@ const styles = StyleSheet.create({
   },
   tdsAmountVal: {
     fontSize: 13.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: vendorTheme.colors.graphite,
     marginTop: 1,
   },

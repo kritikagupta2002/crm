@@ -66,12 +66,12 @@ const getInitials = (name?: string) => {
 
 const getAvatarTheme = (name?: string) => {
   const themes = [
-    { bg: '#E0F2FE', text: '#0369A1' },
-    { bg: '#EDE9FE', text: '#6D28D9' },
-    { bg: '#DCFCE7', text: '#15803D' },
-    { bg: '#FEF3C7', text: '#B45309' },
-    { bg: '#FCE7F3', text: '#BE185D' },
-    { bg: '#CCFBF1', text: '#0F766E' },
+    { bg: '#e6effa', text: '#245a93' },
+    { bg: '#e8eef1', text: '#34495a' },
+    { bg: '#e3f4ec', text: '#237a53' },
+    { bg: '#fcf0dc', text: '#9a5f0c' },
+    { bg: '#e8eef1', text: '#BE185D' },
+    { bg: '#ddefef', text: '#0e4a52' },
   ];
   if (!name) return themes[0];
   let hash = 0;
@@ -182,7 +182,6 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
         <AppHeader
           title="Field & Project Tasks"
           subtitle={`${pendingCount} pending • ${overdueCount > 0 ? `${overdueCount} overdue` : 'All on track'}`}
-          badge="Task Tracker"
           onNotificationPress={() => navigation.navigate('Notifications')}
         />
       }
@@ -253,7 +252,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
             <Text
               style={[
                 styles.kpiCount,
-                { color: '#0F766E' },
+                { color: '#0e4a52' },
                 filterTab === 'pending' && styles.kpiCountActive,
               ]}
             >
@@ -274,11 +273,11 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
             onPress={() => setFilterTab('overdue')}
           >
             <View style={styles.kpiOverdueRow}>
-              {overdueCount > 0 && <AlertTriangle size={12} color="#DC2626" />}
+              {overdueCount > 0 && <AlertTriangle size={12} color="#d24c47" />}
               <Text
                 style={[
                   styles.kpiCount,
-                  { color: overdueCount > 0 ? '#DC2626' : colors.textSecondary },
+                  { color: overdueCount > 0 ? '#d24c47' : colors.textSecondary },
                   filterTab === 'overdue' && styles.kpiCountActive,
                 ]}
               >
@@ -288,7 +287,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
             <Text
               style={[
                 styles.kpiLabel,
-                overdueCount > 0 && { color: '#B91C1C' },
+                overdueCount > 0 && { color: '#a83a36' },
                 filterTab === 'overdue' && styles.kpiLabelActive,
               ]}
             >
@@ -302,11 +301,11 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
             onPress={() => setFilterTab('completed')}
           >
             <View style={styles.kpiOverdueRow}>
-              <Check size={12} color="#059669" strokeWidth={2.8} />
+              <Check size={12} color="#2e9e6b" strokeWidth={2.8} />
               <Text
                 style={[
                   styles.kpiCount,
-                  { color: '#059669' },
+                  { color: '#2e9e6b' },
                   filterTab === 'completed' && styles.kpiCountActive,
                 ]}
               >
@@ -364,8 +363,8 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                   style={[
                     styles.priorityChipText,
                     isActive && styles.priorityChipTextActive,
-                    p === 'Urgent' && !isActive && { color: '#E11D48' },
-                    p === 'High' && !isActive && { color: '#D97706' },
+                    p === 'Urgent' && !isActive && { color: '#d24c47' },
+                    p === 'High' && !isActive && { color: '#c27a12' },
                   ]}
                 >
                   {p === 'All' ? 'All Priority' : p}
@@ -439,22 +438,22 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
 
                 {isOverdue ? (
                   <View style={styles.overdueBadge}>
-                    <AlertTriangle size={11} color="#DC2626" />
+                    <AlertTriangle size={11} color="#d24c47" />
                     <Text style={styles.overdueBadgeText}>OVERDUE</Text>
                   </View>
                 ) : isDone ? (
                   <View style={styles.completedBadge}>
-                    <Check size={11} color="#059669" strokeWidth={2.8} />
+                    <Check size={11} color="#2e9e6b" strokeWidth={2.8} />
                     <Text style={styles.completedBadgeText}>COMPLETED</Text>
                   </View>
                 ) : item.priority === 'Urgent' ? (
                   <View style={styles.urgentBadge}>
-                    <Flame size={11} color="#E11D48" />
+                    <Flame size={11} color="#d24c47" />
                     <Text style={styles.urgentBadgeText}>URGENT</Text>
                   </View>
                 ) : item.priority === 'High' ? (
                   <View style={styles.highBadge}>
-                    <Zap size={11} color="#D97706" />
+                    <Zap size={11} color="#c27a12" />
                     <Text style={styles.highBadgeText}>HIGH</Text>
                   </View>
                 ) : (
@@ -514,7 +513,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
                 <View style={styles.dueDateWrap}>
                   <Clock
                     size={12}
-                    color={isOverdue ? '#DC2626' : isDone ? '#059669' : colors.textTertiary}
+                    color={isOverdue ? '#d24c47' : isDone ? '#2e9e6b' : colors.textTertiary}
                   />
                   <Text
                     style={[
@@ -542,7 +541,7 @@ export const TasksScreen: React.FC<TasksScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   scopeSwitcherRow: {
     flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     borderRadius: radius.md,
     padding: 3,
     marginBottom: spacing.xs + 4,
@@ -566,7 +565,7 @@ const styles = StyleSheet.create({
   },
   scopeBtnTextActive: {
     color: colors.textPrimary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 
   heroCard: {
@@ -577,7 +576,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: spacing.xs,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.sm,
   },
   heroHeader: {
@@ -591,9 +590,9 @@ const styles = StyleSheet.create({
   },
   heroEyebrow: {
     fontSize: 9.5,
-    fontWeight: '800',
+    fontWeight: '700',
     letterSpacing: 0.6,
-    color: '#0D9488',
+    color: '#1f6f78',
     marginBottom: 2,
   },
   heroSubtitle: {
@@ -602,9 +601,9 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   progressPercentPill: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     borderWidth: 1,
-    borderColor: '#99F6E4',
+    borderColor: '#b7dadb',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radius.md,
@@ -612,25 +611,25 @@ const styles = StyleSheet.create({
   },
   progressPercentVal: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#0F766E',
+    fontWeight: '700',
+    color: '#0e4a52',
   },
   progressPercentLabel: {
     fontSize: 7.5,
     fontWeight: '700',
-    color: '#0D9488',
+    color: '#1f6f78',
     letterSpacing: 0.4,
   },
   progressBarTrack: {
     height: 7,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     borderRadius: radius.full,
     overflow: 'hidden',
     marginBottom: spacing.sm + 2,
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#0D9488',
+    backgroundColor: '#1f6f78',
     borderRadius: radius.full,
   },
   kpiRow: {
@@ -639,26 +638,26 @@ const styles = StyleSheet.create({
   },
   kpiPill: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     borderRadius: radius.md,
     paddingVertical: 7,
     paddingHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
   },
   kpiPillActive: {
-    backgroundColor: '#0D9488',
-    borderColor: '#0D9488',
+    backgroundColor: '#1f6f78',
+    borderColor: '#1f6f78',
   },
   kpiPillOverdueBorder: {
-    borderColor: '#FECACA',
-    backgroundColor: '#FEF2F2',
+    borderColor: '#f2c4c2',
+    backgroundColor: '#fbe5e4',
   },
   kpiPillOverdueActive: {
-    backgroundColor: '#DC2626',
-    borderColor: '#DC2626',
+    backgroundColor: '#d24c47',
+    borderColor: '#d24c47',
   },
   kpiOverdueRow: {
     flexDirection: 'row',
@@ -667,7 +666,7 @@ const styles = StyleSheet.create({
   },
   kpiCount: {
     fontSize: 14,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.textPrimary,
     lineHeight: 18,
   },
@@ -695,7 +694,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     borderWidth: 1.2,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     borderRadius: 12,
     paddingHorizontal: 12,
     height: 42,
@@ -724,19 +723,19 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
   },
   priorityChipActive: {
-    backgroundColor: '#0F172A',
-    borderColor: '#0F172A',
+    backgroundColor: '#0f2a3d',
+    borderColor: '#0f2a3d',
   },
   priorityChipUrgent: {
-    backgroundColor: '#FFF1F2',
-    borderColor: '#FECDD3',
+    backgroundColor: '#fbe5e4',
+    borderColor: '#f2c4c2',
   },
   priorityChipHigh: {
-    backgroundColor: '#FFFBEB',
-    borderColor: '#FDE68A',
+    backgroundColor: '#fcf0dc',
+    borderColor: '#ecd6ae',
   },
   priorityChipText: {
     fontSize: 10,
@@ -761,17 +760,17 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing.md,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   taskCardDone: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E2E8F0',
+    backgroundColor: '#f4f7f8',
+    borderColor: '#e1e8eb',
     opacity: 0.92,
   },
   taskCardOverdue: {
     backgroundColor: '#FFFBFB',
-    borderColor: '#FCA5A5',
+    borderColor: '#f2c4c2',
   },
 
   cardHeaderRow: {
@@ -788,17 +787,17 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   projectCodeBadge: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
     paddingHorizontal: 6,
     paddingVertical: 1.5,
     borderRadius: radius.sm,
   },
   projectCodeBadgeText: {
     fontSize: 9.5,
-    fontWeight: '800',
-    color: '#0F766E',
+    fontWeight: '700',
+    color: '#0e4a52',
     fontFamily: 'monospace',
   },
   projectBlockWrap: {
@@ -816,74 +815,74 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FEF2F2',
+    backgroundColor: '#fbe5e4',
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: '#f2c4c2',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.sm,
   },
   overdueBadgeText: {
     fontSize: 9,
-    fontWeight: '800',
-    color: '#DC2626',
+    fontWeight: '700',
+    color: '#d24c47',
     letterSpacing: 0.2,
   },
   completedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#e3f4ec',
     borderWidth: 1,
-    borderColor: '#A7F3D0',
+    borderColor: '#bfe3d0',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.sm,
   },
   completedBadgeText: {
     fontSize: 9,
-    fontWeight: '800',
-    color: '#059669',
+    fontWeight: '700',
+    color: '#2e9e6b',
     letterSpacing: 0.2,
   },
   urgentBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FFF1F2',
+    backgroundColor: '#fbe5e4',
     borderWidth: 1,
-    borderColor: '#FECDD3',
+    borderColor: '#f2c4c2',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.sm,
   },
   urgentBadgeText: {
     fontSize: 9,
-    fontWeight: '800',
-    color: '#E11D48',
+    fontWeight: '700',
+    color: '#d24c47',
     letterSpacing: 0.2,
   },
   highBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 3,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#fcf0dc',
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#ecd6ae',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.sm,
   },
   highBadgeText: {
     fontSize: 9,
-    fontWeight: '800',
-    color: '#D97706',
+    fontWeight: '700',
+    color: '#c27a12',
     letterSpacing: 0.2,
   },
   mediumBadge: {
-    backgroundColor: '#F0F9FF',
+    backgroundColor: '#e6effa',
     borderWidth: 1,
-    borderColor: '#BAE6FD',
+    borderColor: '#c9dcf1',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.sm,
@@ -891,7 +890,7 @@ const styles = StyleSheet.create({
   mediumBadgeText: {
     fontSize: 9,
     fontWeight: '700',
-    color: '#0284C7',
+    color: '#2f6fb3',
     textTransform: 'uppercase',
   },
 
@@ -910,7 +909,7 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: radius.full,
     borderWidth: 2,
-    borderColor: '#CBD5E1',
+    borderColor: '#d3dce1',
     backgroundColor: '#FFFFFF',
   },
   checkboxOverdue: {
@@ -918,8 +917,8 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: radius.full,
     borderWidth: 2,
-    borderColor: '#EF4444',
-    backgroundColor: '#FEF2F2',
+    borderColor: '#d24c47',
+    backgroundColor: '#fbe5e4',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -927,13 +926,13 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: radius.full,
-    backgroundColor: '#EF4444',
+    backgroundColor: '#d24c47',
   },
   checkboxDone: {
     width: 22,
     height: 22,
     borderRadius: radius.full,
-    backgroundColor: '#10B981',
+    backgroundColor: '#2e9e6b',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -943,13 +942,13 @@ const styles = StyleSheet.create({
   taskTitleText: {
     fontSize: 14.5,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#0f2a3d',
     lineHeight: 19,
   },
   taskTitleTextDone: {
-    color: '#64748B',
+    color: '#627079',
     textDecorationLine: 'line-through',
-    textDecorationColor: '#94A3B8',
+    textDecorationColor: '#7c8b96',
   },
 
   cardFooterRow: {
@@ -958,7 +957,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
   },
   assigneeChip: {
     flexDirection: 'row',
@@ -976,7 +975,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   assigneeName: {
     fontSize: 11,
@@ -995,11 +994,11 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   dueDateTextOverdue: {
-    color: '#DC2626',
+    color: '#d24c47',
     fontWeight: '700',
   },
   dueDateTextDone: {
-    color: '#059669',
+    color: '#2e9e6b',
     fontWeight: '600',
   },
 });

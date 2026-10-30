@@ -117,136 +117,150 @@ export const typography = {
 
 export const shadows = {
   xs: {
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
   },
   sm: {
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 1.5 },
+    shadowColor: '#0f2a3d',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
-    shadowRadius: 3,
+    shadowRadius: 6,
     elevation: 1.5,
   },
   md: {
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#0f2a3d',
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
-    shadowRadius: 6,
+    shadowRadius: 12,
     elevation: 2.5,
   },
   lg: {
-    shadowColor: '#0f172a',
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#0f2a3d',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
+    shadowRadius: 20,
     elevation: 4,
   },
 };
 
+/* Same palette as the web CRM: deep teal and gold on a cool grey ground, navy ink. */
 export const colors = {
   white: '#ffffff',
   black: '#000000',
 
-  primary: '#0d9488', // Teal 600
-  primaryLight: '#14b8a6', // Teal 500
-  primaryDark: '#0f766e', // Teal 700
-  primaryBg: '#f0fdfa', // Teal 50
-  primaryMuted: '#ccfbf1', // Teal 100
+  primary: '#1f6f78', // teal 700
+  primaryLight: '#2a8089', // teal 600
+  primaryDark: '#0e4a52', // teal 900
+  primaryBg: '#eef7f7', // teal 50
+  primaryMuted: '#ddefef', // teal 100
 
-  accent: '#0284c7', // Sky 600
-  accentLight: '#38bdf8', // Sky 400
-  accentDark: '#0369a1', // Sky 700
-  accentBg: '#f0f9ff', // Sky 50
+  gold: '#c8943a',
+  goldDark: '#b07d27',
+  goldBg: '#f7ebd5',
+  goldLight: '#ecd6ae',
 
-  success: '#059669', // Emerald 600
-  successLight: '#a7f3d0', // Emerald 200
-  successBg: '#ecfdf5', // Emerald 50
-  successText: '#047857', // Emerald 700
+  accent: '#c8943a', // gold
+  accentLight: '#ecd6ae',
+  accentDark: '#b07d27',
+  accentBg: '#f7ebd5',
 
-  warning: '#d97706', // Amber 600
-  warningLight: '#fde68a', // Amber 200
-  warningBg: '#fffbeb', // Amber 50
-  warningText: '#b45309', // Amber 700
+  success: '#2e9e6b',
+  successLight: '#bfe3d0',
+  successBg: '#e3f4ec',
+  successText: '#237a53',
 
-  danger: '#dc2626', // Red 600
-  dangerLight: '#fecaca', // Red 200
-  dangerBg: '#fef2f2', // Red 50
-  dangerText: '#b91c1c', // Red 700
+  warning: '#c27a12',
+  warningLight: '#ecd6ae',
+  warningBg: '#fcf0dc',
+  warningText: '#9a5f0c',
 
-  info: '#0284c7', // Sky 600
-  infoLight: '#bae6fd', // Sky 200
-  infoBg: '#f0f9ff', // Sky 50
-  infoText: '#0369a1', // Sky 700
+  danger: '#d24c47',
+  dangerLight: '#f2c4c2',
+  dangerBg: '#fbe5e4',
+  dangerText: '#a83a36',
+
+  info: '#2f6fb3',
+  infoLight: '#c9dcf1',
+  infoBg: '#e6effa',
+  infoText: '#245a93',
 
   surface: '#ffffff',
   surfaceCard: '#ffffff',
   surfaceElevated: '#ffffff',
-  surfaceMuted: '#f8fafc',
-  surfaceSubtle: '#f1f5f9',
+  surfaceMuted: '#f4f7f8',
+  surfaceSubtle: '#edf1f3',
 
-  borderLight: '#f1f5f9',
-  borderMedium: '#e2e8f0',
-  borderDark: '#cbd5e1',
+  borderLight: '#edf1f3',
+  borderMedium: '#e1e8eb',
+  borderDark: '#d3dce1',
 
-  textPrimary: '#0f172a', // Slate 900
-  textSecondary: '#475569', // Slate 600
-  textMuted: '#64748b', // Slate 500
-  textTertiary: '#94a3b8', // Slate 400
+  textPrimary: '#0f2a3d', // ink
+  textSecondary: '#4a5b68',
+  textMuted: '#627079',
+  textTertiary: '#7c8b96',
   textInverse: '#ffffff',
-  backdrop: 'rgba(15, 23, 42, 0.45)',
+  backdrop: 'rgba(15, 42, 61, 0.45)',
 
   background: {
-    primary: '#f8fafc', // Slate 50 clean light background
+    primary: '#f4f7f8',
     secondary: '#ffffff',
-    tertiary: '#f1f5f9',
+    tertiary: '#edf1f3',
     card: '#ffffff',
     light: '#ffffff',
   },
   border: {
-    default: '#e2e8f0', // Clean subtle border
-    subtle: '#f1f5f9',
-    highlight: '#0d9488',
-    light: '#f8fafc',
-    medium: '#e2e8f0',
+    default: '#e1e8eb',
+    subtle: '#edf1f3',
+    highlight: '#1f6f78',
+    light: '#f4f7f8',
+    medium: '#e1e8eb',
   },
   text: {
-    primary: '#0f172a',
-    secondary: '#475569',
-    tertiary: '#64748b',
+    primary: '#0f2a3d',
+    secondary: '#4a5b68',
+    tertiary: '#627079',
     inverse: '#ffffff',
   },
   semantic: {
-    success: '#059669',
-    warning: '#d97706',
-    danger: '#dc2626',
-    error: '#dc2626',
-    info: '#0284c7',
+    success: '#2e9e6b',
+    warning: '#c27a12',
+    danger: '#d24c47',
+    error: '#d24c47',
+    info: '#2f6fb3',
   },
   geo: {
-    darkBlue: '#0b2545',
-    navy: '#133a68',
-    slate: '#1e3a5f',
-    deep: '#0a1d37',
-    earth: '#c28b38',
-    sandstone: '#b45309',
-    ochre: '#d97706',
-    gold: '#f59e0b',
-    goldMuted: '#fef3c7',
-    warmWhite: '#fdfcfb',
-    contourBorder: '#cbd5e1',
+    darkBlue: '#0f2a3d',
+    navy: '#12303e',
+    slate: '#1f4555',
+    deep: '#0b2230',
+    earth: '#b07d27',
+    sandstone: '#9a5f0c',
+    ochre: '#c27a12',
+    gold: '#c8943a',
+    goldMuted: '#f7ebd5',
+    warmWhite: '#fbfaf7',
+    contourBorder: '#d3dce1',
   },
+  // One colour per workspace, kept inside the teal / gold / ink family.
   workspaces: {
-    crm: '#2563eb',
-    erm: '#0d9488',
-    vendor: '#d97706',
-    documents: '#7c3aed',
-    hrms: '#059669',
-    expenses: '#ea580c',
-    finance: '#0f766e',
-    mis: '#db2777',
-    field_database: '#9a3412',
+    crm: '#1f6f78',
+    erm: '#2a8089',
+    vendor: '#b07d27',
+    documents: '#3d5a6c',
+    hrms: '#2e9e6b',
+    expenses: '#c27a12',
+    finance: '#0e4a52',
+    mis: '#2f6fb3',
+    field_database: '#8a5a14',
   },
+};
+
+/* Fraunces for titles and figures, as on the web CRM; the system font for everything else. */
+export const fonts = {
+  serif: 'Fraunces_600SemiBold',
+  serifBold: 'Fraunces_700Bold',
+  serifRegular: 'Fraunces_400Regular',
 };

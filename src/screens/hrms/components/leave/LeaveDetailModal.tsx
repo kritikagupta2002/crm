@@ -128,7 +128,7 @@ export const LeaveDetailModal: React.FC<LeaveDetailModalProps> = ({
                 </Text>
                 {request.approverName && (
                   <Text style={styles.adjudicatorSign}>
-                    Adjudicated by: {request.approverName}
+                    Reviewed by: {request.approverName}
                   </Text>
                 )}
               </View>

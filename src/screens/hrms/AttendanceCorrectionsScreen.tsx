@@ -172,7 +172,7 @@ export const AttendanceCorrectionsScreen: React.FC<{ navigation: any }> = ({ nav
               <View style={styles.selfReviewNotice}>
                 <AlertCircle size={14} color={colors.semantic.warning} />
                 <Text style={styles.selfReviewText}>
-                  4-Eyes Rule: You cannot approve your own regularization request.
+                  You cannot approve your own correction request.
                 </Text>
               </View>
             ) : (
@@ -369,10 +369,10 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#c9dcf1',
   },
   addBtnText: {
     fontSize: typography.fontSizes.xs,
@@ -511,8 +511,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   reviewedBox: {
-    backgroundColor: '#F0FDF4',
-    borderColor: '#BBF7D0',
+    backgroundColor: '#e3f4ec',
+    borderColor: '#bfe3d0',
     borderWidth: 1,
     borderRadius: radius.md,
     padding: spacing.sm,
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
   },
   reviewedText: {
     fontSize: typography.fontSizes.xs,
-    color: '#15803D',
+    color: '#237a53',
   },
   actionFooter: {
     marginTop: spacing.xs,
@@ -541,15 +541,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.xs,
     padding: spacing.sm,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#fcf0dc',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#ecd6ae',
   },
   selfReviewText: {
     flex: 1,
     fontSize: typography.fontSizes.xs,
-    color: '#92400E',
+    color: '#9a5f0c',
     fontWeight: typography.fontWeights.semibold,
   },
   modalOverlay: {

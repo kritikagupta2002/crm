@@ -53,13 +53,13 @@ export const PayrollProcessTab: React.FC<PayrollProcessTabProps> = ({
       {processSuccess ? (
         <Card style={styles.successCard}>
           <View style={styles.successIconBox}>
-            <CheckCircle2 size={44} color="#059669" />
+            <CheckCircle2 size={44} color="#2e9e6b" />
           </View>
           <Text style={styles.successTitle}>
             {lastProcessedRun?.month || 'Monthly'} Payroll Finalized
           </Text>
           <Text style={styles.successDesc}>
-            All salaries, biometric attendance proration, statutory PF/ESI/PT/TDS remittances, and itemized payslips have been generated and archived in the employee vault.
+            Salaries, PF, ESI, PT and TDS are worked out and payslips are ready.
           </Text>
           <View style={styles.successSummaryBox}>
             <Text style={styles.successSummaryText}>
@@ -118,7 +118,7 @@ export const PayrollProcessTab: React.FC<PayrollProcessTabProps> = ({
             </View>
 
             <View style={styles.syncStatusRow}>
-              <ShieldCheck size={16} color="#059669" />
+              <ShieldCheck size={16} color="#2e9e6b" />
               <Text style={styles.syncStatusText}>
                 Biometric Attendance Synced • 2026 Statutory Tax Slabs Verified
               </Text>
@@ -131,7 +131,7 @@ export const PayrollProcessTab: React.FC<PayrollProcessTabProps> = ({
                 title="ELIGIBLE HEADCOUNT"
                 value={`${activeStaffCount} Staff`}
                 caption={`Working days: ${cycleWorkingDays}`}
-                icon={<Users size={18} color="#2563EB" />}
+                icon={<Users size={18} color="#2f6fb3" />}
               />
             </View>
             <View style={styles.kpiCol}>
@@ -139,7 +139,7 @@ export const PayrollProcessTab: React.FC<PayrollProcessTabProps> = ({
                 title="TOTAL GROSS DISBURSAL"
                 value={`₹${previewBatchGross.toLocaleString('en-IN')}`}
                 caption="Calculated gross"
-                icon={<BadgeIndianRupee size={18} color="#059669" />}
+                icon={<BadgeIndianRupee size={18} color="#2e9e6b" />}
               />
             </View>
           </View>
@@ -150,7 +150,7 @@ export const PayrollProcessTab: React.FC<PayrollProcessTabProps> = ({
                 title="STATUTORY DEDUCTIONS"
                 value={`-₹${previewBatchDeductions.toLocaleString('en-IN')}`}
                 caption="PF, ESI, PT & TDS"
-                icon={<Clock size={18} color="#E11D48" />}
+                icon={<Clock size={18} color="#d24c47" />}
               />
             </View>
             <View style={styles.kpiCol}>
@@ -158,7 +158,7 @@ export const PayrollProcessTab: React.FC<PayrollProcessTabProps> = ({
                 title="NET BANK DISBURSAL"
                 value={`₹${previewBatchNet.toLocaleString('en-IN')}`}
                 caption="Net take-home total"
-                icon={<CheckCircle2 size={18} color="#0D9488" />}
+                icon={<CheckCircle2 size={18} color="#1f6f78" />}
               />
             </View>
           </View>

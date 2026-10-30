@@ -31,6 +31,10 @@ interface CrmWorkspaceHomeScreenProps {
 export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const { leads, followUps, quotes, clients } = useCrm();
+  const open = leads.filter((l) => !['Won', 'Lost'].includes(l.stage)).length;
+  const pipeline = leads.filter((l) => !['Won', 'Lost'].includes(l.stage)).reduce((s, l) => s + (l.quoteValue || l.estimatedValue || 0), 0);
+  const decided = leads.filter((l) => l.stage === 'Won' || l.stage === 'Lost');
+  const winRate = decided.length ? `${Math.round((decided.filter((l) => l.stage === 'Won').length / decided.length) * 100)}% won` : 'None decided yet';
 
   const activeFollowUpsCount = followUps.filter((f) => f.status !== 'Completed').length;
   const pendingApprovalsCount = leads.filter((l) => l.quoteStatus === 'Accepted' && l.stage !== 'Won').length;
@@ -39,75 +43,75 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
     {
       id: 'dashboard',
       title: 'Dashboard',
-      subtitle: 'Overview & pipeline telemetry',
-      icon: <LayoutDashboard size={20} color="#2563eb" />,
+      subtitle: 'Pipeline and this month at a glance',
+      icon: <LayoutDashboard size={20} color="#2f6fb3" />,
       route: 'CrmDashboard',
     },
     {
       id: 'leads',
       title: 'Leads & Enquiries',
-      subtitle: `${leads.length} total active enquiries`,
-      icon: <Users size={20} color="#2563eb" />,
+      subtitle: `${leads.length} enquiries`,
+      icon: <Users size={20} color="#2f6fb3" />,
       route: 'Leads',
     },
     {
       id: 'followups',
       title: 'Follow-ups',
-      subtitle: 'Client site visits, calls & meetings',
+      subtitle: 'Calls, visits and meetings',
       badge: `${activeFollowUpsCount}`,
-      badgeColor: '#2563eb',
-      icon: <CalendarClock size={20} color="#2563eb" />,
+      badgeColor: '#2f6fb3',
+      icon: <CalendarClock size={20} color="#2f6fb3" />,
       route: 'FollowUps',
     },
     {
       id: 'quotes',
       title: 'Quotations & Proposals',
-      subtitle: `${quotes.length} exploration rate proposals`,
-      icon: <FileSpreadsheet size={20} color="#2563eb" />,
+      subtitle: `${quotes.length} quotations`,
+      icon: <FileSpreadsheet size={20} color="#2f6fb3" />,
       route: 'Quotes',
     },
     {
       id: 'approvals',
       title: 'Client Approval',
-      subtitle: '4-stage PO & advance approval pipeline',
+      subtitle: 'PO, advance and agreement after a quote is accepted',
       badge: `${pendingApprovalsCount}`,
-      badgeColor: '#dc2626',
-      icon: <CheckCircle2 size={20} color="#2563eb" />,
+      badgeColor: '#d24c47',
+      icon: <CheckCircle2 size={20} color="#2f6fb3" />,
       route: 'ClientApprovals',
     },
     {
       id: 'onboarding',
       title: 'Client Onboarding',
-      subtitle: 'KYC, agreement signing & site access',
-      icon: <UserCheck size={20} color="#2563eb" />,
+      subtitle: 'Won deals that become projects',
+      icon: <UserCheck size={20} color="#2f6fb3" />,
       route: 'ClientOnboarding',
     },
     {
       id: 'master',
       title: 'Client Master',
-      subtitle: `${clients.length} verified enterprise accounts`,
-      icon: <Building size={20} color="#2563eb" />,
+      subtitle: `${clients.length} clients`,
+      icon: <Building size={20} color="#2f6fb3" />,
       route: 'Clients',
     },
     {
       id: 'questions',
       title: 'Client Questions',
-      subtitle: 'Public enquiries & tender requests',
-      icon: <HelpCircle size={20} color="#2563eb" />,
-      route: 'PublicEnquiry',
+      subtitle: 'Asked by clients on the portal',
+      icon: <HelpCircle size={20} color="#2f6fb3" />,
+      route: 'ClientQuestions',
     },
     {
       id: 'mis',
       title: 'MIS Reports',
-      subtitle: 'Commercial conversion & pipeline analytics',
-      icon: <BarChart3 size={20} color="#2563eb" />,
+      subtitle: 'Sales, projects, HR and finance figures',
+      icon: <BarChart3 size={20} color="#2f6fb3" />,
       route: 'MisReports',
     },
   ];
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <TouchableOpacity
@@ -116,11 +120,11 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
           style={styles.backBtn}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <ChevronLeft size={22} color="#0f172a" strokeWidth={2.2} />
+          <ChevronLeft size={22} color="#0f2a3d" strokeWidth={2.2} />
           <Text style={styles.headerTitle}>CRM Workspace</Text>
         </TouchableOpacity>
         <View style={styles.clientTag}>
-          <Text style={styles.clientTagText}>CLIENT PIPELINE</Text>
+          <Text style={styles.clientTagText}>SALES</Text>
         </View>
       </View>
 
@@ -130,28 +134,25 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
       >
         <View style={styles.kpiHeroCard}>
           <View style={styles.kpiTopRow}>
-            <Text style={styles.kpiHeroTitle}>Commercial Pipeline Overview</Text>
-            <View style={styles.liveBadge}>
-              <Text style={styles.liveBadgeText}>FY 2026</Text>
-            </View>
+            <Text style={styles.kpiHeroTitle}>Sales pipeline</Text>
           </View>
           <View style={styles.kpiMetricsGrid}>
             <View style={styles.kpiMetricBox}>
               <Text style={styles.kpiMetricLabel}>Total Enquiries</Text>
-              <Text style={styles.kpiMetricVal}>{leads.length || 3}</Text>
-              <Text style={styles.kpiMetricTrend}>↑ 14% vs Q2</Text>
+              <Text style={styles.kpiMetricVal}>{leads.length}</Text>
+              <Text style={styles.kpiMetricTrend}>{open} open</Text>
             </View>
             <View style={styles.kpiDivider} />
             <View style={styles.kpiMetricBox}>
-              <Text style={styles.kpiMetricLabel}>Rate Proposals</Text>
-              <Text style={styles.kpiMetricVal}>{quotes.length || 4}</Text>
-              <Text style={styles.kpiMetricTrend}>₹1.85 Cr Pipeline</Text>
+              <Text style={styles.kpiMetricLabel}>Quotations</Text>
+              <Text style={styles.kpiMetricVal}>{quotes.length}</Text>
+              <Text style={styles.kpiMetricTrend}>₹{(pipeline / 1e5).toFixed(1)} L open</Text>
             </View>
             <View style={styles.kpiDivider} />
             <View style={styles.kpiMetricBox}>
-              <Text style={styles.kpiMetricLabel}>Active Accounts</Text>
-              <Text style={styles.kpiMetricVal}>{clients.length || 5}</Text>
-              <Text style={styles.kpiMetricTrend}>68% Win Rate</Text>
+              <Text style={styles.kpiMetricLabel}>Clients</Text>
+              <Text style={styles.kpiMetricVal}>{clients.length}</Text>
+              <Text style={styles.kpiMetricTrend}>{winRate}</Text>
             </View>
           </View>
         </View>
@@ -160,28 +161,28 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Leads')}
-            style={[styles.quickActionBtn, { backgroundColor: '#eff6ff', borderColor: '#bfdbfe' }]}
+            style={[styles.quickActionBtn, { backgroundColor: '#e6effa', borderColor: '#c9dcf1' }]}
           >
-            <Text style={[styles.quickActionText, { color: '#1d4ed8' }]}>+ New Lead</Text>
+            <Text style={[styles.quickActionText, { color: '#245a93' }]}>+ New Lead</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('Quotes')}
-            style={[styles.quickActionBtn, { backgroundColor: '#f0fdf4', borderColor: '#bbf7d0' }]}
+            style={[styles.quickActionBtn, { backgroundColor: '#e3f4ec', borderColor: '#bfe3d0' }]}
           >
-            <Text style={[styles.quickActionText, { color: '#15803d' }]}>Draft Proposal</Text>
+            <Text style={[styles.quickActionText, { color: '#237a53' }]}>New quotation</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => navigation.navigate('ClientApprovals')}
-            style={[styles.quickActionBtn, { backgroundColor: '#fef3c7', borderColor: '#fde68a' }]}
+            style={[styles.quickActionBtn, { backgroundColor: '#fcf0dc', borderColor: '#ecd6ae' }]}
           >
-            <Text style={[styles.quickActionText, { color: '#b45309' }]}>Approvals ({pendingApprovalsCount})</Text>
+            <Text style={[styles.quickActionText, { color: '#9a5f0c' }]}>Approvals ({pendingApprovalsCount})</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.sectionTitleRow}>
-          <Text style={styles.sectionTitle}>Client Lifecycle Modules</Text>
+          <Text style={styles.sectionTitle}>Modules</Text>
           <Text style={styles.sectionCount}>{crmModules.length} Modules</Text>
         </View>
 
@@ -208,7 +209,7 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
               </View>
 
               <View style={styles.moduleArrowCircle}>
-                <ChevronRight size={15} color="#2563eb" strokeWidth={2.4} />
+                <ChevronRight size={15} color="#2f6fb3" strokeWidth={2.4} />
               </View>
             </TouchableOpacity>
           ))}
@@ -221,14 +222,14 @@ export const CrmWorkspaceHomeScreen: React.FC<CrmWorkspaceHomeScreenProps> = ({ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -241,20 +242,20 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   clientTag: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 9,
     paddingVertical: 3.5,
     borderRadius: 8,
   },
   clientTagText: {
     fontSize: 10,
-    fontWeight: '800',
-    color: '#2563eb',
+    fontWeight: '700',
+    color: '#2f6fb3',
     letterSpacing: 0.5,
   },
   scrollContent: {
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     marginBottom: 12,
     ...shadows.xs,
   },
@@ -280,19 +281,19 @@ const styles = StyleSheet.create({
   },
   kpiHeroTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   liveBadge: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 2.5,
     borderRadius: 6,
   },
   liveBadgeText: {
     fontSize: 10,
-    fontWeight: '800',
-    color: '#2563eb',
+    fontWeight: '700',
+    color: '#2f6fb3',
   },
   kpiMetricsGrid: {
     flexDirection: 'row',
@@ -304,28 +305,28 @@ const styles = StyleSheet.create({
   },
   kpiMetricLabel: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
   kpiMetricVal: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 25,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     marginTop: 3,
     letterSpacing: -0.5,
   },
   kpiMetricTrend: {
     fontSize: 11,
-    color: '#15803d',
+    color: '#237a53',
     fontWeight: '700',
     marginTop: 2,
   },
   kpiDivider: {
     width: 1.2,
     height: 42,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     marginHorizontal: 10,
   },
 
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
   },
   quickActionText: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 
   sectionTitleRow: {
@@ -357,13 +358,13 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   sectionCount: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
 
@@ -377,14 +378,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
   },
   moduleIconBox: {
     width: 44,
     height: 44,
     borderRadius: 13,
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -401,13 +402,13 @@ const styles = StyleSheet.create({
   },
   moduleItemTitle: {
     fontSize: 15,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   moduleItemSubtitle: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     lineHeight: 16,
   },
@@ -419,13 +420,13 @@ const styles = StyleSheet.create({
   moduleBadgeText: {
     color: '#ffffff',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   moduleArrowCircle: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
   },

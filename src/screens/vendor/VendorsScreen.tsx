@@ -208,7 +208,7 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
-                    <Building2 size={16} color="#0284c7" strokeWidth={2.4} />
+                    <Building2 size={16} color="#2f6fb3" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeTotal}>
                     <Text style={styles.kpiBadgeTextTotal}>Contractors</Text>
@@ -216,7 +216,7 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>{vendors.length}</Text>
-                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2f6fb3" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Empanelled Base</Text>
                 <Text style={styles.kpiSubText}>Verified rig & lab vendors</Text>
@@ -225,15 +225,15 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
-                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                    <Clock size={16} color="#b07d27" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePending}>
                     <Text style={styles.kpiBadgeTextPending}>Live Work</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>{liveOrdersCount}</Text>
-                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                  <Text style={[styles.kpiValText, { color: '#b07d27' }]}>{liveOrdersCount}</Text>
+                  <ArrowUpRight size={15} color="#b07d27" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Live Subcontracts</Text>
                 <Text style={styles.kpiSubText}>Active on exploration sites</Text>
@@ -244,17 +244,17 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
-                    <CheckCircle2 size={16} color="#16a34a" strokeWidth={2.4} />
+                    <CheckCircle2 size={16} color="#2e9e6b" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePaid}>
                     <Text style={styles.kpiBadgeTextPaid}>Allocated</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                  <Text style={[styles.kpiValText, { color: '#2e9e6b' }]}>
                     ₹{(totalAwardedAll / 100000).toFixed(1)} L
                   </Text>
-                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2e9e6b" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Awarded Contracts</Text>
                 <Text style={styles.kpiSubText}>Cumulative order sanction</Text>
@@ -263,7 +263,7 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
-                    <Layers size={16} color="#7c3aed" strokeWidth={2.4} />
+                    <Layers size={16} color="#3d5a6c" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeActive}>
                     <Text style={styles.kpiBadgeTextActive}>Capabilities</Text>
@@ -271,7 +271,7 @@ export const VendorsScreen: React.FC<VendorsScreenProps> = ({ navigation }) => {
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>{categories.length - 1}</Text>
-                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#3d5a6c" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Specializations</Text>
                 <Text style={styles.kpiSubText}>Drilling, assays & lease</Text>
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   vendorCard: {
     padding: spacing.md + 2,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     borderRadius: radius.xl,
     backgroundColor: '#FFFFFF',
     ...shadows.xs,
@@ -388,40 +388,40 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   idChip: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: '#e6effa',
   },
   idChipText: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#1D4ED8',
+    fontWeight: '700',
+    color: '#245a93',
   },
   msmeChip: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#DCFCE7',
+    borderColor: '#e3f4ec',
   },
   msmeChipText: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#15803D',
+    color: '#237a53',
   },
   vendorName: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginVertical: 3,
   },
   workText: {
     fontSize: 12.5,
-    color: '#475569',
+    color: '#4a5b68',
     lineHeight: 18,
     marginBottom: 6,
   },
@@ -439,11 +439,11 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 11.5,
-    color: '#64748B',
+    color: '#627079',
   },
   contactDivider: {
     height: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     marginVertical: 10,
   },
   cardFooter: {
@@ -458,11 +458,11 @@ const styles = StyleSheet.create({
   contactPersonName: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#0f2a3d',
   },
   contactPhone: {
     fontSize: 11.5,
-    color: '#64748B',
+    color: '#627079',
     marginTop: 1,
   },
   financialCol: {
@@ -471,15 +471,15 @@ const styles = StyleSheet.create({
   },
   financialLabel: {
     fontSize: 9.5,
-    color: '#94A3B8',
+    color: '#7c8b96',
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
   financialVal: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0F172A',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
 
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1.2,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -506,20 +506,20 @@ const styles = StyleSheet.create({
     minHeight: 124,
   },
   kpiCardTotal: {
-    backgroundColor: '#f8fbff',
-    borderColor: '#dbeafe',
+    backgroundColor: '#f2f6fb',
+    borderColor: '#e6effa',
   },
   kpiCardPending: {
-    backgroundColor: '#fffaf5',
-    borderColor: '#fed7aa',
+    backgroundColor: '#fbf6ec',
+    borderColor: '#ecd6ae',
   },
   kpiCardPaid: {
-    backgroundColor: '#f5fdfb',
-    borderColor: '#ccfbf1',
+    backgroundColor: '#eef7f7',
+    borderColor: '#ddefef',
   },
   kpiCardActive: {
-    backgroundColor: '#faf7ff',
-    borderColor: '#f3e8ff',
+    backgroundColor: '#f1f5f7',
+    borderColor: '#e8eef1',
   },
   kpiHeaderRow: {
     flexDirection: 'row',
@@ -535,60 +535,60 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   kpiIconBoxTotal: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
   },
   kpiIconBoxPending: {
-    backgroundColor: '#fff7ed',
+    backgroundColor: '#f7ebd5',
   },
   kpiIconBoxPaid: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
   },
   kpiIconBoxActive: {
-    backgroundColor: '#f5f3ff',
+    backgroundColor: '#f1f5f7',
   },
   kpiBadgeTotal: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextTotal: {
-    color: '#0284c7',
+    color: '#2f6fb3',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePending: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPending: {
-    color: '#ea580c',
+    color: '#b07d27',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePaid: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPaid: {
-    color: '#16a34a',
+    color: '#2e9e6b',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgeActive: {
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e8eef1',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextActive: {
-    color: '#7c3aed',
+    color: '#3d5a6c',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiNumberRow: {
     flexDirection: 'row',
@@ -597,21 +597,21 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   kpiValText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 25,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.5,
   },
   kpiTitleText: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
     marginBottom: 1,
   },
   kpiSubText: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
 });

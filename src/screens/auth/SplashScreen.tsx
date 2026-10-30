@@ -86,7 +86,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
       onPress={handleFinish}
       style={styles.container}
     >
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle="light-content" />
 
       <ImageBackground
         source={splashBgImg}
@@ -121,8 +121,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
             <Text
               style={[
                 styles.brandTitle,
-                isSmall && { fontSize: 26, letterSpacing: 2.8 },
-                isCompact && { fontSize: 28, letterSpacing: 3.2 },
+                isSmall && { fontFamily: 'Fraunces_600SemiBold', fontSize: 26, letterSpacing: 2.8 },
+                isCompact && { fontFamily: 'Fraunces_600SemiBold', fontSize: 28, letterSpacing: 3.2 },
               ]}
               numberOfLines={1}
               adjustsFontSizeToFit
@@ -164,7 +164,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
                   <Svg width={23} height={23} viewBox="0 0 24 24">
                     <Polygon
                       points="12,2 22,20 2,20"
-                      stroke="#f59e0b"
+                      stroke="#c27a12"
                       strokeWidth={2}
                       fill="none"
                       strokeLinejoin="round"
@@ -174,7 +174,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
                       y1="13"
                       x2="17"
                       y2="13"
-                      stroke="#f59e0b"
+                      stroke="#c27a12"
                       strokeWidth={2}
                     />
                   </Svg>
@@ -186,7 +186,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
-                  <Layers size={23} color="#f59e0b" strokeWidth={2} />
+                  <Layers size={23} color="#c27a12" strokeWidth={2} />
                 </View>
                 <Text style={[styles.pillarLabel, isSmall && { fontSize: 10 }]}>{'Resource\nManagement'}</Text>
               </View>
@@ -195,7 +195,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
-                  <Sprout size={23} color="#f59e0b" strokeWidth={2} />
+                  <Sprout size={23} color="#c27a12" strokeWidth={2} />
                 </View>
                 <Text style={[styles.pillarLabel, isSmall && { fontSize: 10 }]}>{'Sustainable\nSolutions'}</Text>
               </View>
@@ -204,7 +204,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
               <View style={styles.pillarItem}>
                 <View style={styles.pillarIconBox}>
-                  <BarChart3 size={23} color="#f59e0b" strokeWidth={2} />
+                  <BarChart3 size={23} color="#c27a12" strokeWidth={2} />
                 </View>
                 <Text style={[styles.pillarLabel, isSmall && { fontSize: 10 }]}>{'A Better\nTomorrow'}</Text>
               </View>
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontFamily: Platform.select({ ios: 'Georgia', android: 'serif' }),
     fontSize: 31,
-    fontWeight: '800',
+    fontWeight: '700',
     color: '#ffffff',
     letterSpacing: 3.6,
     textAlign: 'center',
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
   brandLegal: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#cbd5e1',
+    color: '#d3dce1',
     letterSpacing: 4.2,
     marginTop: 4,
     textAlign: 'center',
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   goldDivider: {
     width: 44,
     height: 2.5,
-    backgroundColor: '#f59e0b',
+    backgroundColor: '#c27a12',
     borderRadius: 1.5,
     marginTop: 12,
     marginBottom: 10,
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     fontFamily: Platform.select({ ios: 'Georgia', android: 'serif' }),
     fontSize: 16.5,
     fontStyle: 'italic',
-    color: '#f8fafc',
+    color: '#f4f7f8',
     textAlign: 'center',
     marginBottom: 22,
     letterSpacing: 0.2,
@@ -386,14 +386,14 @@ const styles = StyleSheet.create({
   loadingWorkspaceText: {
     fontSize: 9.5,
     fontWeight: '700',
-    color: '#cbd5e1',
+    color: '#d3dce1',
     letterSpacing: 2.2,
     flex: 1,
   },
   percentageText: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#f59e0b',
+    fontWeight: '700',
+    color: '#c27a12',
     marginLeft: 8,
   },
   progressBarTrack: {
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   },
   progressBarFill: {
     height: '100%',
-    backgroundColor: '#f59e0b',
+    backgroundColor: '#c27a12',
     borderRadius: 2.5,
   },
   tapToContinueHint: {

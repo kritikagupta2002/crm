@@ -80,8 +80,8 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
   const handleOpenReview = (req: LeaveRequest, initialMode: 'Full' | 'Partial' | 'Reject') => {
     if (req.employeeId === activeEmpId) {
       Alert.alert(
-        '4-Eyes Principle Guard',
-        'Company governance policy prohibits self-adjudication. Another authorized manager or HR administrator must review this application.'
+        'Not allowed',
+        'You cannot approve your own leave. Another manager or HR must review it.'
       );
       return;
     }
@@ -104,7 +104,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
     if (!selectedReq) return;
 
     if (selectedReq.employeeId === activeEmpId) {
-      Alert.alert('Policy Violation', 'You cannot adjudicate your own leave application.');
+      Alert.alert('Not allowed', 'You cannot approve your own leave.');
       return;
     }
 
@@ -142,7 +142,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
       await reviewLeave(
         selectedReq.id,
         decision,
-        approverComment.trim() || (decision === 'Approved' ? 'Approved in full' : 'Adjudicated'),
+        approverComment.trim() || (decision === 'Approved' ? 'Approved in full' : 'Reviewed'),
         daysToApprove
       );
 
@@ -155,11 +155,11 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           : decision.toLowerCase();
 
       Alert.alert(
-        'Adjudication Confirmed',
+        'Done',
         `Leave application for ${selectedReq.employeeName} has been ${statusMsg}. Attendance records updated accordingly.`
       );
     } catch (e: any) {
-      Alert.alert('Adjudication Error', e.message || 'Failed to adjudicate leave request.');
+      Alert.alert('Could not save', e.message || 'The leave request could not be saved.');
     } finally {
       setIsProcessing(false);
     }
@@ -188,15 +188,15 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
       <View style={styles.container}>
         <AppHeader
           title="Access Restricted"
-          subtitle="HR & Executive authorization required"
+          subtitle="For HR and managers"
           showBack
           onBack={() => navigation.goBack()}
         />
         <View style={styles.restrictedBox}>
           <ShieldCheck size={48} color={colors.text.tertiary} />
-          <Text style={styles.restrictedTitle}>Authorized Personnel Only</Text>
+          <Text style={styles.restrictedTitle}>Not available for your role</Text>
           <Text style={styles.restrictedText}>
-            Leave approvals and company muster adjustments are restricted to HR Administrators and Executive Directors.
+            Leave approvals and attendance changes are done by HR and managers.
           </Text>
           <Button
             title="Return to My Leaves"
@@ -235,7 +235,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           <View style={styles.selfReviewNotice}>
             <AlertTriangle size={16} color={colors.semantic.warning} />
             <Text style={styles.selfReviewText}>
-              4-Eyes Rule: You cannot adjudicate your own application.
+              You cannot approve your own leave.
             </Text>
           </View>
         )}
@@ -252,7 +252,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         </View>
 
         <View style={styles.dateSpanRow}>
-          <Calendar size={17} color="#475569" strokeWidth={2.2} />
+          <Calendar size={17} color="#4a5b68" strokeWidth={2.2} />
           <Text style={styles.dateSpanText}>
             {formatDate(item.startDate)} → {formatDate(item.endDate)}
           </Text>
@@ -267,13 +267,13 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
         )}
 
         <Text style={styles.reasonText}>
-          <Text style={{ fontWeight: '800', color: '#0f172a' }}>Reason: </Text>
+          <Text style={{ fontWeight: '700', color: '#0f2a3d' }}>Reason: </Text>
           "{item.reason}"
         </Text>
 
         {item.contactDuringLeave && (
           <View style={styles.contactRow}>
-            <Phone size={14} color="#64748b" strokeWidth={2} />
+            <Phone size={14} color="#627079" strokeWidth={2} />
             <Text style={styles.contactText}>Emergency Contact: {item.contactDuringLeave}</Text>
           </View>
         )}
@@ -317,11 +317,11 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                 isCompact && { height: 44, paddingHorizontal: 6 },
               ]}
             >
-              <X size={isSmall ? 13 : isCompact ? 14 : 17} color={isOwnRequest ? '#94a3b8' : '#dc2626'} strokeWidth={2.5} />
+              <X size={isSmall ? 13 : isCompact ? 14 : 17} color={isOwnRequest ? '#7c8b96' : '#d24c47'} strokeWidth={2.5} />
               <Text
                 style={[
                   styles.actionBtnText,
-                  { color: isOwnRequest ? '#94a3b8' : '#dc2626' },
+                  { color: isOwnRequest ? '#7c8b96' : '#d24c47' },
                   isSmall && { fontSize: 11 },
                   isCompact && { fontSize: 12.5 },
                 ]}
@@ -345,11 +345,11 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                 isCompact && { height: 44, paddingHorizontal: 6 },
               ]}
             >
-              <Clock size={isSmall ? 13 : isCompact ? 14 : 17} color={isOwnRequest ? '#94a3b8' : '#d97706'} strokeWidth={2.3} />
+              <Clock size={isSmall ? 13 : isCompact ? 14 : 17} color={isOwnRequest ? '#7c8b96' : '#c27a12'} strokeWidth={2.3} />
               <Text
                 style={[
                   styles.actionBtnText,
-                  { color: isOwnRequest ? '#94a3b8' : '#d97706' },
+                  { color: isOwnRequest ? '#7c8b96' : '#c27a12' },
                   isSmall && { fontSize: 11 },
                   isCompact && { fontSize: 12.5 },
                 ]}
@@ -377,7 +377,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
               <Text
                 style={[
                   styles.actionBtnText,
-                  { color: '#ffffff', fontWeight: '800' },
+                  { color: '#ffffff', fontWeight: '700' },
                   isSmall && { fontSize: 11 },
                   isCompact && { fontSize: 12.5 },
                 ]}
@@ -398,7 +398,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
     <View style={styles.container}>
       <AppHeader
         title="Leave Approvals Queue"
-        subtitle="Adjudication & attendance synchronization"
+        subtitle="Approve or reject leave"
         showBack
         onBack={() => navigation.goBack()}
       />
@@ -455,7 +455,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
             title="Queue Clear"
             message={
               selectedStatus === 'Pending'
-                ? 'No pending employee leave applications awaiting adjudication.'
+                ? 'No leave requests waiting.'
                 : 'No leave applications match the selected status filter.'
             }
             icon={<CheckCircle2 size={44} color={colors.semantic.success} />}
@@ -468,7 +468,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
           <View style={[styles.adjudicateModalBox, isTablet && styles.tabletModalBox]}>
             <View style={styles.modalHeader}>
               <View>
-                <Text style={styles.modalTitle}>Adjudicate Leave Request</Text>
+                <Text style={styles.modalTitle}>Review leave request</Text>
                 <Text style={styles.modalSubtitle}>
                   Decision review for {selectedReq?.employeeName} ({selectedReq?.employeeId})
                 </Text>
@@ -502,7 +502,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                   </Text>
                 </View>
 
-                <Text style={styles.inputLabel}>Adjudication Decision</Text>
+                <Text style={styles.inputLabel}>Decision</Text>
                 <View style={styles.decisionTabsRow}>
                   <TouchableOpacity
                     style={[styles.decisionTab, reviewMode === 'Full' && styles.decisionTabFullActive]}
@@ -645,7 +645,7 @@ export const LeaveApprovalsScreen: React.FC<{ navigation: any }> = ({ navigation
                             color: balanceImpact.isDeficit
                               ? colors.semantic.danger
                               : colors.semantic.success,
-                            fontWeight: '800',
+                            fontWeight: '700',
                           },
                         ]}
                       >
@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     gap: 10,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     backgroundColor: '#ffffff',
   },
   tabletCard: {
@@ -840,7 +840,7 @@ const styles = StyleSheet.create({
   },
   applicantName: {
     fontSize: 16.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     letterSpacing: -0.2,
   },
@@ -871,7 +871,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   leaveTypePill: {
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
@@ -889,7 +889,7 @@ const styles = StyleSheet.create({
   },
   durationBadgeText: {
     fontSize: 13,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   dateSpanRow: {
@@ -986,22 +986,22 @@ const styles = StyleSheet.create({
   actionBtnDecline: {
     backgroundColor: '#ffffff',
     borderWidth: 1.5,
-    borderColor: '#fca5a5',
+    borderColor: '#f2c4c2',
   },
   actionBtnPartial: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
     borderWidth: 1.5,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
   },
   actionBtnApprove: {
     flex: 1.3,
-    backgroundColor: '#059669',
+    backgroundColor: '#2e9e6b',
     borderWidth: 0,
   },
   actionBtnDisabled: {
     opacity: 0.45,
-    backgroundColor: '#f1f5f9',
-    borderColor: '#e2e8f0',
+    backgroundColor: '#edf1f3',
+    borderColor: '#e1e8eb',
   },
   actionBtnText: {
     fontSize: 14.5,
@@ -1104,15 +1104,15 @@ const styles = StyleSheet.create({
   },
   decisionTabTextFull: {
     color: colors.semantic.success,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   decisionTabTextPartial: {
     color: colors.semantic.warning,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   decisionTabTextReject: {
     color: colors.semantic.danger,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   partialStepperBox: {
     backgroundColor: `${colors.semantic.warning}12`,
@@ -1134,7 +1134,7 @@ const styles = StyleSheet.create({
   },
   partialDaysHighlight: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.warning,
   },
   stepperControls: {
@@ -1154,8 +1154,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border.default,
   },
   stepperBtnText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 20,
-    fontWeight: '800',
     color: colors.text.primary,
   },
   stepperValueBox: {
@@ -1163,8 +1163,8 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
   stepperValueText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 24,
-    fontWeight: '800',
     color: colors.text.primary,
   },
   stepperValueSub: {
@@ -1189,7 +1189,7 @@ const styles = StyleSheet.create({
   },
   partialStatNum: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: 2,
   },
@@ -1201,7 +1201,7 @@ const styles = StyleSheet.create({
   },
   quotaImpactTitle: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.secondary,
     marginBottom: 2,
   },

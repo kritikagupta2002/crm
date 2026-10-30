@@ -246,7 +246,7 @@ export const MonthlyRosterScreen: React.FC<{ navigation: any; route?: any }> = (
     <View style={styles.container}>
       <AppHeader
         title="Monthly Employee Roster"
-        subtitle="Operational shift planner & daily rotation calendar"
+        subtitle="Who works which shift"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -812,7 +812,7 @@ const styles = StyleSheet.create({
   },
   dayPillNum: {
     ...typography.bodyLarge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: 2,
   },
@@ -969,7 +969,7 @@ const styles = StyleSheet.create({
   },
   monthMetricVal: {
     ...typography.h4,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   monthMetricLabel: {
     ...typography.caption,
@@ -1077,6 +1077,6 @@ const styles = StyleSheet.create({
   },
   textHighlight: {
     color: colors.primary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });

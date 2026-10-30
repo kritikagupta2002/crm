@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 13,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     ...shadows.xs,
     flex: 1,
     minWidth: 110,
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
     flex: 1,
     textTransform: 'uppercase',
@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   value: {
+    fontFamily: 'Fraunces_700Bold',
     fontSize: 26,
-    fontWeight: '800',
     letterSpacing: -0.5,
   },
   arrowIcon: {
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
   },
   chartWrap: {
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   trendText: {
     fontSize: 10,
     color: colors.successText,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   trendTextNegative: {
     color: colors.dangerText,

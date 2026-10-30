@@ -32,7 +32,7 @@ interface ErmDashboardScreenProps {
 }
 
 const MiniBarsChart: React.FC<{ color?: string; heights?: number[] }> = ({
-  color = '#38bdf8',
+  color = '#6f9fd3',
   heights = [10, 16, 22, 28],
 }) => {
   const width = 38;
@@ -132,7 +132,6 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
           subtitle={`${activeProjects.length} active field blocks • Geological Project Delivery`}
           showBack
           scenicBanner
-          badge="Field Exploration ERM"
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
         />
@@ -203,7 +202,7 @@ export const ErmDashboardScreen: React.FC<ErmDashboardScreenProps> = ({ navigati
               {activeProjects[0].title}
             </Text>
             <View style={styles.projLocRow}>
-              <MapPin size={11} color="#64748b" style={{ marginRight: 2 }} />
+              <MapPin size={11} color="#627079" style={{ marginRight: 2 }} />
               <Text style={styles.projLocText} numberOfLines={1}>
                 {activeProjects[0].clientName} • {activeProjects[0].location}
               </Text>
@@ -430,14 +429,14 @@ const styles = StyleSheet.create({
   },
   metricVal: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   metricLbl: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   metricDivider: {
@@ -674,7 +673,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     overflow: 'hidden',
     marginBottom: spacing.md,
     ...shadows.sm,
@@ -694,44 +693,44 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   projCodePill: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     paddingHorizontal: spacing.xs + 2,
     paddingVertical: 2,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
   },
   projCodeText: {
     fontSize: 10,
     fontWeight: typography.fontWeights.bold,
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   projStagePill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     paddingHorizontal: spacing.xs + 2,
     paddingVertical: 2,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
   },
   projStageDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#0D9488',
+    backgroundColor: '#1f6f78',
   },
   projStageText: {
     fontSize: 10,
     fontWeight: typography.fontWeights.semibold,
-    color: '#475569',
+    color: '#4a5b68',
   },
   projTitle: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
-    color: '#0F172A',
+    color: '#0f2a3d',
     marginBottom: 4,
   },
   projLocRow: {
@@ -741,7 +740,7 @@ const styles = StyleSheet.create({
   },
   projLocText: {
     fontSize: typography.fontSizes.xs,
-    color: '#64748B',
+    color: '#627079',
   },
   projStatsRow: {
     flexDirection: 'row',
@@ -749,15 +748,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingTop: spacing.xs,
     borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
+    borderTopColor: '#edf1f3',
   },
   projBudgetVal: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   projTaskCount: {
     fontSize: typography.fontSizes.xs,
-    color: '#64748B',
+    color: '#627079',
   },
 });

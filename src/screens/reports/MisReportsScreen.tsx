@@ -206,8 +206,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
       noPadding
       header={
         <AppHeader
-          title="MIS Analytics & BI"
-          subtitle="Zero-Fake-Numbers Live Intelligence"
+          title="MIS Reports"
+          subtitle="Figures from the live records"
           showBack
           onBack={() => navigation.goBack()}
           rightAction={
@@ -262,7 +262,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
           { key: 'finance', label: 'Finance & Tax', Icon: DollarSign },
           { key: 'workforce', label: 'Workforce', Icon: Users },
           { key: 'controls', label: 'HR Controls', Icon: ShieldCheck },
-          { key: 'vault', label: 'Doc Vaults', Icon: FileText },
+          { key: 'vault', label: 'Documents', Icon: FileText },
         ].map((t) => {
           const active = activeTab === t.key;
           const IconComp = t.Icon;
@@ -302,8 +302,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="REVENUE PIPELINE"
                     value={`₹${(execData.totalPipeline / 100000).toFixed(1)} L`}
                     caption={`${execData.totalLeads} Total Enquiries`}
-                    icon={<TrendingUp size={18} color="#0D9488" />}
-                    chart={<MiniBarChart values={[30, 45, 60, 85]} color="#0D9488" height={26} barWidth={5} />}
+                    icon={<TrendingUp size={18} color="#1f6f78" />}
+                    chart={<MiniBarChart values={[30, 45, 60, 85]} color="#1f6f78" height={26} barWidth={5} />}
                   />
                 </TouchableOpacity>
 
@@ -316,8 +316,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="ACTIVE PROJECTS"
                     value={execData.activeProjects}
                     caption={`${execData.completedProjects} Closed / Delivered`}
-                    icon={<Compass size={18} color="#2563EB" />}
-                    chart={<MiniBarChart values={[4, 6, 8, Math.max(10, execData.activeProjects)]} color="#2563EB" height={26} barWidth={5} />}
+                    icon={<Compass size={18} color="#2f6fb3" />}
+                    chart={<MiniBarChart values={[4, 6, 8, Math.max(10, execData.activeProjects)]} color="#2f6fb3" height={26} barWidth={5} />}
                   />
                 </TouchableOpacity>
               </View>
@@ -332,8 +332,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="WIN CONVERSION"
                     value={`${execData.conversionRate}%`}
                     caption={`${execData.wonLeads} Leads Converted`}
-                    icon={<Briefcase size={18} color="#16A34A" />}
-                    chart={<DonutChart percentage={Number(execData.conversionRate)} color="#10B981" size={38} strokeWidth={5} />}
+                    icon={<Briefcase size={18} color="#2e9e6b" />}
+                    chart={<DonutChart percentage={Number(execData.conversionRate)} color="#2e9e6b" size={38} strokeWidth={5} />}
                   />
                 </TouchableOpacity>
 
@@ -346,7 +346,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="DIRECTOR APPROVALS"
                     value={execData.pendingApprovals}
                     caption="Pending Clearance"
-                    icon={<ShieldCheck size={18} color="#D97706" />}
+                    icon={<ShieldCheck size={18} color="#c27a12" />}
                     trend={{ value: execData.pendingApprovals > 0 ? 'Action Req' : 'Clear', isPositive: execData.pendingApprovals === 0 }}
                   />
                 </TouchableOpacity>
@@ -376,7 +376,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
 
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
-                  <DollarSign size={18} color="#10B981" />
+                  <DollarSign size={18} color="#2e9e6b" />
                   <Text style={styles.sectionTitle}>Board-Level Profitability & Margins</Text>
                 </View>
                 <View style={styles.boardMetricRow}>
@@ -436,15 +436,15 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="ACREAGE SURVEYED"
                     value={`${fieldOps.topographicalAcreage.toLocaleString()} Ha`}
                     caption="Topographical & Drone"
-                    icon={<Layers size={18} color="#3B82F6" />}
+                    icon={<Layers size={18} color="#2f6fb3" />}
                   />
                 </View>
               </View>
 
               <Card style={styles.card}>
-                <Text style={styles.sectionTitle}>7-Stage Exploration Lifecycle Funnel</Text>
+                <Text style={styles.sectionTitle}>Projects by stage</Text>
                 <Text style={styles.sectionSubtitle}>
-                  Real-time project distribution across geological operational stages
+                  Projects at each stage
                 </Text>
 
                 <View style={styles.stagesList}>
@@ -476,7 +476,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                   <View
                     style={[
                       styles.stageFill,
-                      { width: `${Math.min(100, Math.max(0, Number(fieldOps.deliverablesCompletionRate) || 0))}%` as any, backgroundColor: '#10B981' },
+                      { width: `${Math.min(100, Math.max(0, Number(fieldOps.deliverablesCompletionRate) || 0))}%` as any, backgroundColor: '#2e9e6b' },
                     ]}
                   />
                 </View>
@@ -496,7 +496,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     title="CLIENT INVOICED"
                     value={`₹${(finSummary.totalInvoiced / 100000).toFixed(1)} L`}
                     caption={`${finSummary.invoicesCount} Total Invoices`}
-                    icon={<DollarSign size={18} color="#10B981" />}
+                    icon={<DollarSign size={18} color="#2e9e6b" />}
                   />
                 </TouchableOpacity>
 
@@ -584,7 +584,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <Users size={18} color={colors.primary} />
-                  <Text style={styles.sectionTitle}>Daily Biometric Muster Engine</Text>
+                  <Text style={styles.sectionTitle}>Attendance today</Text>
                 </View>
                 <Text style={styles.sectionSubtitle}>
                   Dynamically derived: Absent = max(0, Staff - Present - Leave)
@@ -597,17 +597,17 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                     <Text style={styles.musterSub}>Active contracts</Text>
                   </View>
 
-                  <View style={[styles.musterBox, { borderColor: '#10B981' }]}>
-                    <Text style={[styles.musterLabel, { color: '#10B981' }]}>PRESENT TODAY</Text>
-                    <Text style={[styles.musterVal, { color: '#10B981' }]}>{attendance.presentToday}</Text>
+                  <View style={[styles.musterBox, { borderColor: '#2e9e6b' }]}>
+                    <Text style={[styles.musterLabel, { color: '#2e9e6b' }]}>PRESENT TODAY</Text>
+                    <Text style={[styles.musterVal, { color: '#2e9e6b' }]}>{attendance.presentToday}</Text>
                     <Text style={styles.musterSub}>{attendance.fieldDutyToday} on field duty</Text>
                   </View>
                 </View>
 
                 <View style={styles.musterGrid}>
-                  <View style={[styles.musterBox, { borderColor: '#F59E0B' }]}>
-                    <Text style={[styles.musterLabel, { color: '#F59E0B' }]}>ON LEAVE</Text>
-                    <Text style={[styles.musterVal, { color: '#F59E0B' }]}>{attendance.onLeaveToday}</Text>
+                  <View style={[styles.musterBox, { borderColor: '#c27a12' }]}>
+                    <Text style={[styles.musterLabel, { color: '#c27a12' }]}>ON LEAVE</Text>
+                    <Text style={[styles.musterVal, { color: '#c27a12' }]}>{attendance.onLeaveToday}</Text>
                     <Text style={styles.musterSub}>Approved leaves</Text>
                   </View>
 
@@ -645,29 +645,29 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
             <>
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
-                  <Clock size={18} color="#F59E0B" />
+                  <Clock size={18} color="#c27a12" />
                   <Text style={styles.sectionTitle}>Leave Quota & Approvals Summary</Text>
                 </View>
                 <View style={styles.kpiRow}>
                   <View style={styles.kpiItem}>
                     <Text style={styles.kpiLabel}>PENDING</Text>
-                    <Text style={[styles.kpiVal, { color: '#F59E0B' }]}>{leaves.pendingCount}</Text>
+                    <Text style={[styles.kpiVal, { color: '#c27a12' }]}>{leaves.pendingCount}</Text>
                   </View>
                   <View style={styles.kpiItem}>
                     <Text style={styles.kpiLabel}>APPROVED</Text>
-                    <Text style={[styles.kpiVal, { color: '#10B981' }]}>{leaves.approvedCount}</Text>
+                    <Text style={[styles.kpiVal, { color: '#2e9e6b' }]}>{leaves.approvedCount}</Text>
                   </View>
                   <View style={styles.kpiItem}>
                     <Text style={styles.kpiLabel}>DAYS UTILIZED</Text>
                     <Text style={styles.kpiVal}>{leaves.totalDaysUtilized}</Text>
                   </View>
                 </View>
-                <NativeDistributionList rows={leaves.typeDistribution} defaultColor="#F59E0B" />
+                <NativeDistributionList rows={leaves.typeDistribution} defaultColor="#c27a12" />
               </Card>
 
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
-                  <DollarSign size={18} color="#10B981" />
+                  <DollarSign size={18} color="#2e9e6b" />
                   <Text style={styles.sectionTitle}>Field Expenses Claim Audit</Text>
                 </View>
                 <View style={styles.boardMetricRow}>
@@ -677,7 +677,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                   </View>
                   <View style={styles.boardCol}>
                     <Text style={styles.boardLabel}>APPROVED</Text>
-                    <Text style={[styles.boardVal, { color: '#10B981' }]}>
+                    <Text style={[styles.boardVal, { color: '#2e9e6b' }]}>
                       ₹{expenses.totalApproved.toLocaleString()}
                     </Text>
                   </View>
@@ -691,15 +691,15 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                   </View>
                   <View style={styles.boardCol}>
                     <Text style={styles.boardLabel}>UNDER QUERY</Text>
-                    <Text style={[styles.boardVal, { color: '#F59E0B' }]}>{expenses.underQueryCount}</Text>
+                    <Text style={[styles.boardVal, { color: '#c27a12' }]}>{expenses.underQueryCount}</Text>
                   </View>
                 </View>
-                <NativeDistributionList rows={expenses.categoryDistribution.map(c => ({ label: c.label, count: c.amount, percentage: c.percentage }))} defaultColor="#10B981" />
+                <NativeDistributionList rows={expenses.categoryDistribution.map(c => ({ label: c.label, count: c.amount, percentage: c.percentage }))} defaultColor="#2e9e6b" />
               </Card>
 
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
-                  <Compass size={18} color="#3B82F6" />
+                  <Compass size={18} color="#2f6fb3" />
                   <Text style={styles.sectionTitle}>Travel & Mileage Reimbursements</Text>
                 </View>
                 <View style={styles.kpiRow}>
@@ -709,7 +709,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                   </View>
                   <View style={styles.kpiItem}>
                     <Text style={styles.kpiLabel}>APPROVED</Text>
-                    <Text style={[styles.kpiVal, { color: '#10B981' }]}>
+                    <Text style={[styles.kpiVal, { color: '#2e9e6b' }]}>
                       ₹{reimbursements.totalApproved.toLocaleString()}
                     </Text>
                   </View>
@@ -727,18 +727,18 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
                   <ShieldCheck size={18} color={colors.primary} />
-                  <Text style={styles.sectionTitle}>Dual Document Architecture</Text>
+                  <Text style={styles.sectionTitle}>Who sees what</Text>
                 </View>
                 <Text style={styles.isoNoteText}>{documents.isolationNote}</Text>
               </Card>
 
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
-                  <Briefcase size={18} color="#3B82F6" />
-                  <Text style={styles.sectionTitle}>1. CRM Project EDMS Vault</Text>
+                  <Briefcase size={18} color="#2f6fb3" />
+                  <Text style={styles.sectionTitle}>1. Documents</Text>
                 </View>
                 <Text style={styles.sectionSubtitle}>
-                  NAS physical scans, government dispatch register, 4-Eyes verification
+                  Scans, government letters and dispatch register
                 </Text>
 
                 <View style={styles.kpiRow}>
@@ -748,7 +748,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                   </View>
                   <View style={styles.kpiItem}>
                     <Text style={styles.kpiLabel}>PENDING VERIFY</Text>
-                    <Text style={[styles.kpiVal, { color: '#F59E0B' }]}>
+                    <Text style={[styles.kpiVal, { color: '#c27a12' }]}>
                       {documents.crmEdms.pendingVerification}
                     </Text>
                   </View>
@@ -761,8 +761,8 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
 
               <Card style={styles.card}>
                 <View style={styles.cardHeader}>
-                  <FileText size={18} color="#10B981" />
-                  <Text style={styles.sectionTitle}>2. HRMS KYC & Policy Vault</Text>
+                  <FileText size={18} color="#2e9e6b" />
+                  <Text style={styles.sectionTitle}>2. Staff documents</Text>
                 </View>
                 <Text style={styles.sectionSubtitle}>
                   Statutory staff credentials, DGMS licenses, corporate SOP manuals
@@ -779,7 +779,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                   </View>
                   <View style={styles.kpiItem}>
                     <Text style={styles.kpiLabel}>VERIFIED</Text>
-                    <Text style={[styles.kpiVal, { color: '#10B981' }]}>
+                    <Text style={[styles.kpiVal, { color: '#2e9e6b' }]}>
                       {documents.hrmsKyc.verifiedKycRecords}
                     </Text>
                   </View>
@@ -789,7 +789,7 @@ export const MisReportsScreen: React.FC<{ navigation: any }> = ({ navigation }) 
                   style={styles.deepLinkRow}
                   onPress={() => navigation.navigate('EmployeeDocuments')}
                 >
-                  <Text style={styles.deepLinkText}>Open Full Employee KYC Vault</Text>
+                  <Text style={styles.deepLinkText}>Open staff documents</Text>
                   <ChevronRight size={16} color={colors.primary} />
                 </TouchableOpacity>
               </Card>
@@ -830,7 +830,7 @@ const styles = StyleSheet.create({
   },
   periodBar: {
     flexDirection: 'row',
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     borderRadius: borderRadius.md,
     padding: 3,
     gap: 3,
@@ -875,9 +875,9 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: borderRadius.full,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     gap: 5,
   },
   tabActive: {
@@ -973,7 +973,7 @@ const styles = StyleSheet.create({
   ebitdaLabel: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    color: '#10B981',
+    color: '#2e9e6b',
   },
   ebitdaSub: {
     fontSize: typography.fontSizes.xs,
@@ -983,7 +983,7 @@ const styles = StyleSheet.create({
   ebitdaVal: {
     fontSize: typography.fontSizes.xl,
     fontWeight: typography.fontWeights.bold,
-    color: '#10B981',
+    color: '#2e9e6b',
   },
   projectionNotice: {
     backgroundColor: '#F8FAFB',
@@ -1047,7 +1047,7 @@ const styles = StyleSheet.create({
   progressPctText: {
     fontSize: typography.fontSizes.xxl,
     fontWeight: typography.fontWeights.bold,
-    color: '#10B981',
+    color: '#2e9e6b',
   },
   progressSub: {
     fontSize: typography.fontSizes.xs,

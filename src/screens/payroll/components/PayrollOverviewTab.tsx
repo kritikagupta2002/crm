@@ -46,7 +46,7 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.metricsStrip}>
         <View style={styles.metricCard}>
           <View style={styles.metricIconWrap}>
-            <BadgeIndianRupee size={14} color="#0D9488" />
+            <BadgeIndianRupee size={14} color="#1f6f78" />
           </View>
           <Text style={styles.metricValue}>
             {totalMonthlyGross > 0 ? `₹${(totalMonthlyGross / 100000).toFixed(1)}L` : '₹0'}
@@ -57,7 +57,7 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
 
         <View style={styles.metricCard}>
           <View style={styles.metricIconWrap}>
-            <CheckCircle2 size={14} color="#16A34A" />
+            <CheckCircle2 size={14} color="#2e9e6b" />
           </View>
           <Text style={styles.metricValue}>
             {totalNetTakeHome > 0 ? `₹${(totalNetTakeHome / 100000).toFixed(1)}L` : '₹0'}
@@ -68,7 +68,7 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
 
         <View style={styles.metricCard}>
           <View style={styles.metricIconWrap}>
-            <Clock size={14} color="#7C3AED" />
+            <Clock size={14} color="#3d5a6c" />
           </View>
           <Text style={styles.metricValue}>
             {totalMonthlyDeductions > 0 ? `₹${(totalMonthlyDeductions / 100000).toFixed(1)}L` : '₹0'}
@@ -79,7 +79,7 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
 
         <View style={styles.metricCard}>
           <View style={styles.metricIconWrap}>
-            <Users size={14} color="#D97706" />
+            <Users size={14} color="#c27a12" />
           </View>
           <Text style={styles.metricValue}>{activeStaffCount}</Text>
           <Text style={styles.metricLabel}>ON PAYROLL</Text>
@@ -94,16 +94,16 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
             style={styles.actionTile}
             onPress={onOpenProcessTab}
           >
-            <View style={[styles.tileIconBox, { backgroundColor: '#EFF6FF' }]}>
-              <FileSpreadsheet size={20} color="#2563EB" />
+            <View style={[styles.tileIconBox, { backgroundColor: '#e6effa' }]}>
+              <FileSpreadsheet size={20} color="#2f6fb3" />
             </View>
             <Text style={styles.tileTitle}>Process Monthly Payroll</Text>
             <Text style={styles.tileSub}>
               Calculate biometric attendance, LOP deductions, and execute disbursal.
             </Text>
             <View style={styles.tileFooter}>
-              <Text style={[styles.tileLink, { color: '#2563EB' }]}>Open Wizard</Text>
-              <ArrowRight size={14} color="#2563EB" />
+              <Text style={[styles.tileLink, { color: '#2f6fb3' }]}>Open Wizard</Text>
+              <ArrowRight size={14} color="#2f6fb3" />
             </View>
           </TouchableOpacity>
         )}
@@ -113,16 +113,16 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
             style={styles.actionTile}
             onPress={onOpenStructuresTab}
           >
-            <View style={[styles.tileIconBox, { backgroundColor: '#EEF2FF' }]}>
-              <SlidersHorizontal size={20} color="#4F46E5" />
+            <View style={[styles.tileIconBox, { backgroundColor: '#f1f5f7' }]}>
+              <SlidersHorizontal size={20} color="#3d5a6c" />
             </View>
             <Text style={styles.tileTitle}>CTC & Salary Structures</Text>
             <Text style={styles.tileSub}>
               Configure Basic, HRA, site allowances, PF, ESI, and PT for staff.
             </Text>
             <View style={styles.tileFooter}>
-              <Text style={[styles.tileLink, { color: '#4F46E5' }]}>Manage Structures</Text>
-              <ArrowRight size={14} color="#4F46E5" />
+              <Text style={[styles.tileLink, { color: '#3d5a6c' }]}>Manage Structures</Text>
+              <ArrowRight size={14} color="#3d5a6c" />
             </View>
           </TouchableOpacity>
         )}
@@ -131,16 +131,16 @@ export const PayrollOverviewTab: React.FC<PayrollOverviewTabProps> = ({
           style={styles.actionTile}
           onPress={onNavigatePayslips}
         >
-          <View style={[styles.tileIconBox, { backgroundColor: '#ECFDF5' }]}>
-            <FileText size={20} color="#059669" />
+          <View style={[styles.tileIconBox, { backgroundColor: '#e3f4ec' }]}>
+            <FileText size={20} color="#2e9e6b" />
           </View>
-          <Text style={styles.tileTitle}>Employee Payslip Vault</Text>
+          <Text style={styles.tileTitle}>Payslips</Text>
           <Text style={styles.tileSub}>
             View, export, and verify digitally certified Bansal Geo salary slips.
           </Text>
           <View style={styles.tileFooter}>
-            <Text style={[styles.tileLink, { color: '#059669' }]}>View Payslips</Text>
-            <ArrowRight size={14} color="#059669" />
+            <Text style={[styles.tileLink, { color: '#2e9e6b' }]}>View Payslips</Text>
+            <ArrowRight size={14} color="#2e9e6b" />
           </View>
         </TouchableOpacity>
       </View>

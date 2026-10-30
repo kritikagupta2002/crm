@@ -8,6 +8,8 @@ import {
   ScrollView,
   StatusBar,
 } from 'react-native';
+import { useFieldDatabase } from '../../context/FieldDatabaseContext';
+import { sampleRegister } from '../../fieldDatabase/utils/dispatch';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useResponsive } from '../../utils/responsive';
 import {
@@ -68,9 +70,9 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
   const { isSmall, isCompact, isTablet } = useResponsive();
 
   const { role, hasWorkspace, canonicalRole } = useAuth();
-  const { leads, projects, tenders, vendors, govtDocuments } = useCrm();
-  const { invoices } = useFinance();
-  const { employees, expenses } = useHrms();
+  const { leads, projects, tenders, vendors, govtDocuments, workOrders, dispatches } = useCrm();
+  const { invoices, vendorBills } = useFinance();
+  const { employees, expenses, leaves } = useHrms();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<'all' | 'field' | 'commercial' | 'corporate' | 'intelligence'>('all');
@@ -99,6 +101,35 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
     }
   };
 
+  const { fieldRecords, visible } = useFieldDatabase();
+  const fdStats = useMemo(() => {
+    const mine = visible(fieldRecords);
+    return { records: mine.length, samples: sampleRegister(mine).length, batches: mine.filter((r: any) => r.section === 'dispatch-database').length };
+  }, [fieldRecords, visible]);
+
+  // The figures on each card, from the live records.
+  const live = useMemo(() => {
+    const value = (stages: string[]) => leads.filter((l) => stages.includes(l.stage)).reduce((s, l) => s + (l.quoteValue || l.estimatedValue || 0), 0);
+    const lakh = (n: number) => (n >= 1e7 ? `₹${(n / 1e7).toFixed(2)} Cr` : `₹${(n / 1e5).toFixed(1)} L`);
+    const tasks = projects.flatMap((p) => p.tasks || []);
+    return {
+      running: projects.filter((p) => p.status !== 'Completed').length,
+      openTasks: tasks.filter((t) => t.status !== 'Completed').length,
+      quoted: leads.filter((l) => ['Proposal Sent', 'Negotiation'].includes(l.stage)).length,
+      pipeline: lakh(value(['New Enquiry', 'New', 'Contacted', 'Qualified', 'Proposal Sent', 'Negotiation'])),
+      openTenders: tenders.filter((t: any) => t.status === 'Open').length,
+      workOrders: (workOrders || []).length,
+      toReceive: lakh(invoices.filter((i) => i.status !== 'Paid').reduce((s, i) => s + i.totalAmount - (i.paidAmount || 0), 0)),
+      billsToPay: vendorBills.filter((b) => b.status !== 'Paid').length,
+      claimsPending: (expenses || []).filter((e) => e.status === 'Pending' || e.status === 'Queried').length,
+      settled: lakh((expenses || []).filter((e) => e.status === 'Settled').reduce((s, e) => s + (e.settledAmount || e.approvedAmount || 0), 0)),
+      leavePending: (leaves || []).filter((l) => l.status === 'Pending').length,
+      departments: new Set(employees.map((e: any) => e.department || e.employment?.department).filter(Boolean)).size,
+      toVerify: (govtDocuments || []).filter((d: any) => d.stage === 'To verify' || d.stage === 'To authorize').length,
+      dispatches: (dispatches || []).length,
+    };
+  }, [leads, projects, tenders, workOrders, invoices, vendorBills, expenses, leaves, employees, govtDocuments, dispatches]);
+
   const allWorkspaces: WorkspaceItemData[] = useMemo(() => [
     {
       id: 'field_database',
@@ -107,16 +138,16 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       breadcrumbs: 'Mapping  |  Sampling  |  Drilling  |  Dispatch',
       tags: ['Geological Mapping', 'Sampling Logs', 'Core Drilling', 'Assay Dispatch'],
       metrics: [
-        { label: 'Field Logs', value: '10 Logs' },
-        { label: 'Core Depth', value: '1,420 M' },
-        { label: 'Assay Labs', value: 'NABL Tracked' },
+        { label: 'Records', value: `${fdStats.records}` },
+        { label: 'Samples', value: `${fdStats.samples}` },
+        { label: 'Lab batches', value: `${fdStats.batches}` },
       ],
-      badge: '10 Logs',
-      badgeBg: '#fff7ed',
-      badgeTextColor: '#c2410c',
+      badge: `${fdStats.records} records`,
+      badgeBg: '#f7ebd5',
+      badgeTextColor: '#8a5a14',
       group: 'field',
-      iconColor: '#b45309',
-      iconBg: '#fef3c7',
+      iconColor: '#9a5f0c',
+      iconBg: '#fcf0dc',
       route: 'FieldDatabaseHome',
     },
     {
@@ -124,18 +155,18 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       title: 'ERM',
       subtitle: 'Projects & Field Operations',
       breadcrumbs: 'Projects  |  Tasks  |  Team  |  Inventory',
-      tags: ['Mining Projects', 'Universal Tasks', 'Field Team', 'Drill Rigs'],
+      tags: ['Projects', 'Tasks', 'Team', 'Inventory'],
       metrics: [
-        { label: 'Mining Blocks', value: `${projects.length > 0 ? projects.length : 5} Blocks` },
-        { label: 'Execution', value: '68% Live' },
-        { label: 'Field Staff', value: '12 Active' },
+        { label: 'Projects', value: `${projects.length}` },
+        { label: 'Running', value: `${live.running}` },
+        { label: 'Open tasks', value: `${live.openTasks}` },
       ],
-      badge: `${projects.length > 0 ? projects.length : 5} Projects`,
-      badgeBg: '#ecfdf5',
-      badgeTextColor: '#059669',
+      badge: `${projects.length} Projects`,
+      badgeBg: '#e3f4ec',
+      badgeTextColor: '#2e9e6b',
       group: 'field',
-      iconColor: '#059669',
-      iconBg: '#ecfdf5',
+      iconColor: '#2e9e6b',
+      iconBg: '#e3f4ec',
       route: 'ErmWorkspaceHome',
     },
 
@@ -146,16 +177,16 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       breadcrumbs: 'Leads  |  Follow-ups  |  Quotations  |  Client Approval',
       tags: ['Leads & Enquiries', 'Quotations', 'PO Approval', 'Client KYC'],
       metrics: [
-        { label: 'Active Leads', value: `${leads.length > 0 ? leads.length : 3} Enquiries` },
-        { label: 'Proposals', value: '4 Sent' },
-        { label: 'Pipeline', value: '₹1.85 Cr' },
+        { label: 'Enquiries', value: `${leads.length}` },
+        { label: 'Quoted', value: `${live.quoted}` },
+        { label: 'Pipeline', value: live.pipeline },
       ],
-      badge: `${leads.length > 0 ? leads.length : 3} Leads`,
-      badgeBg: '#eff6ff',
-      badgeTextColor: '#2563eb',
+      badge: `${leads.length} Leads`,
+      badgeBg: '#e6effa',
+      badgeTextColor: '#2f6fb3',
       group: 'commercial',
-      iconColor: '#2563eb',
-      iconBg: '#eff6ff',
+      iconColor: '#2f6fb3',
+      iconBg: '#e6effa',
       route: 'CrmWorkspaceHome',
     },
     {
@@ -163,18 +194,18 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       title: 'Vendor',
       subtitle: 'Vendors & Procurement',
       breadcrumbs: 'Vendor Applications  |  Tenders  |  Subcontracts',
-      tags: ['Contractor Gate', 'Live Tenders', 'Sealed Bids', 'Work Orders'],
+      tags: ['Vendor Applications', 'Tenders', 'Sealed Bids', 'Work Orders'],
       metrics: [
-        { label: 'Vendors', value: `${vendors.length || 8} Active` },
-        { label: 'Open Tenders', value: `${tenders.length || 3} Live` },
-        { label: 'Bidding Gate', value: 'Sealed & Safe' },
+        { label: 'Vendors', value: `${vendors.length}` },
+        { label: 'Open tenders', value: `${live.openTenders}` },
+        { label: 'Work orders', value: `${live.workOrders}` },
       ],
-      badge: `${vendors.length || tenders.length ? vendors.length || tenders.length : 8} Vendors`,
-      badgeBg: '#fffbeb',
-      badgeTextColor: '#b45309',
+      badge: `${vendors.length} Vendors`,
+      badgeBg: '#fcf0dc',
+      badgeTextColor: '#9a5f0c',
       group: 'commercial',
-      iconColor: '#d97706',
-      iconBg: '#fefce8',
+      iconColor: '#c27a12',
+      iconBg: '#fcf0dc',
       route: 'VendorWorkspaceHome',
     },
 
@@ -185,16 +216,16 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       breadcrumbs: 'Invoices  |  Receivables  |  Payments  |  GST & Tax',
       tags: ['Tax Invoices', 'Receivables', 'Vouchers', 'GST & TDS'],
       metrics: [
-        { label: 'Invoices', value: `${invoices.length > 0 ? invoices.length : 5} Invoices` },
-        { label: 'Receivables', value: '₹38.2 L' },
-        { label: 'Tax Filings', value: '100% Filed' },
+        { label: 'Invoices', value: `${invoices.length}` },
+        { label: 'To receive', value: live.toReceive },
+        { label: 'Bills to pay', value: `${live.billsToPay}` },
       ],
-      badge: `${invoices.length > 0 ? invoices.length : 5} Invoices`,
-      badgeBg: '#ecfdf5',
-      badgeTextColor: '#059669',
+      badge: `${invoices.length} Invoices`,
+      badgeBg: '#e3f4ec',
+      badgeTextColor: '#2e9e6b',
       group: 'corporate',
-      iconColor: '#059669',
-      iconBg: '#ecfdf5',
+      iconColor: '#2e9e6b',
+      iconBg: '#e3f4ec',
       route: 'FinanceDashboard',
     },
     {
@@ -204,16 +235,16 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       breadcrumbs: 'Expenses  |  Approvals  |  Reimbursements',
       tags: ['Field Claims', 'Manager Review', 'Settlement', 'Reimbursement'],
       metrics: [
-        { label: 'Pending Claims', value: `${expenses.length > 0 ? expenses.length : 2} Claims` },
-        { label: 'Reimbursed', value: '₹42,500' },
-        { label: 'Audit SLA', value: '24-Hour Gate' },
+        { label: 'Claims', value: `${expenses.length}` },
+        { label: 'Pending', value: `${live.claimsPending}` },
+        { label: 'Settled', value: live.settled },
       ],
-      badge: `${expenses.length > 0 ? expenses.length : 2} Claims`,
-      badgeBg: '#fff7ed',
-      badgeTextColor: '#ea580c',
+      badge: `${expenses.length} Claims`,
+      badgeBg: '#f7ebd5',
+      badgeTextColor: '#b07d27',
       group: 'corporate',
-      iconColor: '#ea580c',
-      iconBg: '#fff7ed',
+      iconColor: '#b07d27',
+      iconBg: '#f7ebd5',
       route: 'Expenses',
     },
     {
@@ -221,18 +252,18 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       title: 'HRMS',
       subtitle: 'People & Attendance',
       breadcrumbs: 'Employees  |  Attendance  |  Leave  |  Payroll',
-      tags: ['Staff Directory', 'Live Attendance', 'Leave Approvals', 'Monthly Payroll'],
+      tags: ['Employees', 'Attendance', 'Leave', 'Payroll'],
       metrics: [
-        { label: 'Total Staff', value: `${employees.length > 0 ? employees.length : 87} Active` },
-        { label: 'Present Today', value: '42 Present' },
-        { label: 'On Leave', value: '6 Staff' },
+        { label: 'Staff', value: `${employees.length}` },
+        { label: 'Departments', value: `${live.departments}` },
+        { label: 'Leave to approve', value: `${live.leavePending}` },
       ],
-      badge: `${employees.length > 0 ? employees.length : 5} Staff`,
-      badgeBg: '#eff6ff',
-      badgeTextColor: '#2563eb',
+      badge: `${employees.length} Staff`,
+      badgeBg: '#e6effa',
+      badgeTextColor: '#2f6fb3',
       group: 'corporate',
-      iconColor: '#2563eb',
-      iconBg: '#eff6ff',
+      iconColor: '#2f6fb3',
+      iconBg: '#e6effa',
       route: 'HrmsOverview',
     },
     {
@@ -240,38 +271,38 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       title: 'Documents',
       subtitle: 'Document Management',
       breadcrumbs: 'Documents  |  Scan Inbox  |  Dispatch Register',
-      tags: ['Govt Letters', 'Scan Verification', 'Dispatch Register', '4-Eyes Guard'],
+      tags: ['Govt Letters', 'Scan Inbox', 'Dispatch Register'],
       metrics: [
-        { label: 'Govt Records', value: `${govtDocuments.length > 0 ? govtDocuments.length : 14} Files` },
-        { label: 'Dispatches', value: '9 In Transit' },
-        { label: 'Verification', value: '4-Eyes Guard' },
+        { label: 'Govt letters', value: `${govtDocuments.length}` },
+        { label: 'To check', value: `${live.toVerify}` },
+        { label: 'Dispatches', value: `${live.dispatches}` },
       ],
-      badge: `${govtDocuments.length > 0 ? govtDocuments.length : 14} Docs`,
-      badgeBg: '#faf5ff',
-      badgeTextColor: '#9333ea',
+      badge: `${govtDocuments.length} Docs`,
+      badgeBg: '#f1f5f7',
+      badgeTextColor: '#3d5a6c',
       group: 'corporate',
-      iconColor: '#9333ea',
-      iconBg: '#faf5ff',
+      iconColor: '#3d5a6c',
+      iconBg: '#f1f5f7',
       route: 'DocumentWorkspaceHome',
     },
 
     {
       id: 'mis',
       title: 'MIS',
-      subtitle: 'Reports & Intelligence',
-      breadcrumbs: 'Executive Reports  |  HR Settings  |  Business Intelligence',
-      tags: ['Executive BI', 'Operational Telemetry', 'Financial P&L', 'HR Compliance'],
+      subtitle: 'Reports',
+      breadcrumbs: 'Sales  |  Projects  |  HR  |  Finance',
+      tags: ['Sales', 'Projects', 'HR', 'Finance'],
       metrics: [
-        { label: 'BI Cockpit', value: 'Live 2026' },
-        { label: 'Export Modes', value: 'PDF & Excel' },
-        { label: 'Audit Log', value: 'Immutable' },
+        { label: 'Pipeline', value: live.pipeline },
+        { label: 'Projects', value: `${projects.length}` },
+        { label: 'Staff', value: `${employees.length}` },
       ],
-      badge: 'BI',
-      badgeBg: '#fff1f2',
-      badgeTextColor: '#e11d48',
+      badge: 'Reports',
+      badgeBg: '#fbe5e4',
+      badgeTextColor: '#d24c47',
       group: 'intelligence',
-      iconColor: '#e11d48',
-      iconBg: '#fff1f2',
+      iconColor: '#d24c47',
+      iconBg: '#fbe5e4',
       route: 'MisReports',
     },
   ], [
@@ -283,6 +314,8 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
     expenses.length,
     employees.length,
     govtDocuments.length,
+    fdStats,
+    live,
   ]);
 
   const groupedWorkspaces = useMemo(() => {
@@ -315,28 +348,28 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
       {
         key: 'field',
         title: 'FIELD & GEOLOGICAL OPERATIONS',
-        icon: <Mountain size={15} color="#0f172a" strokeWidth={2.4} />,
+        icon: <Mountain size={15} color="#0f2a3d" strokeWidth={2.4} />,
         itemCountLabel: `${filtered.filter((w) => w.group === 'field').length} Modules`,
         items: filtered.filter((w) => w.group === 'field'),
       },
       {
         key: 'commercial',
         title: 'COMMERCIAL & SUPPLY CHAIN',
-        icon: <Users size={15} color="#0f172a" strokeWidth={2.4} />,
+        icon: <Users size={15} color="#0f2a3d" strokeWidth={2.4} />,
         itemCountLabel: `${filtered.filter((w) => w.group === 'commercial').length} Modules`,
         items: filtered.filter((w) => w.group === 'commercial'),
       },
       {
         key: 'corporate',
         title: 'CORPORATE & FINANCIAL MANAGEMENT',
-        icon: <Database size={15} color="#0f172a" strokeWidth={2.4} />,
+        icon: <Database size={15} color="#0f2a3d" strokeWidth={2.4} />,
         itemCountLabel: `${filtered.filter((w) => w.group === 'corporate').length} Modules`,
         items: filtered.filter((w) => w.group === 'corporate'),
       },
       {
         key: 'intelligence',
-        title: 'EXECUTIVE INTELLIGENCE & GOVERNANCE',
-        icon: <BarChart3 size={15} color="#0f172a" strokeWidth={2.4} />,
+        title: 'REPORTS',
+        icon: <BarChart3 size={15} color="#0f2a3d" strokeWidth={2.4} />,
         itemCountLabel: `${filtered.filter((w) => w.group === 'intelligence').length} Module`,
         items: filtered.filter((w) => w.group === 'intelligence'),
       },
@@ -373,7 +406,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 8, 16) }]}>
         <View style={[{ width: '100%' }, isTablet && styles.tabletContainer]}>
@@ -385,7 +418,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
               style={styles.backBtn}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <ChevronLeft size={22} color="#0f172a" strokeWidth={2.4} />
+              <ChevronLeft size={22} color="#0f2a3d" strokeWidth={2.4} />
             </TouchableOpacity>
           )}
           <View style={{ flex: 1, marginRight: 8 }}>
@@ -395,17 +428,17 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
             </Text>
           </View>
           <View style={styles.rolePill}>
-            <Crown size={12} color="#d97706" strokeWidth={2.4} style={{ marginRight: 4 }} />
+            <Crown size={12} color="#c27a12" strokeWidth={2.4} style={{ marginRight: 4 }} />
             <Text style={styles.rolePillText}>{roleBadgeLabel}</Text>
           </View>
         </View>
 
         <View style={styles.searchBar}>
-          <Search size={16} color="#94a3b8" style={styles.searchIcon} />
+          <Search size={16} color="#7c8b96" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Search workspaces & modules..."
-            placeholderTextColor="#94a3b8"
+            placeholderTextColor="#7c8b96"
             value={searchQuery}
             onChangeText={setSearchQuery}
             clearButtonMode="while-editing"
@@ -415,7 +448,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
               onPress={() => setSearchQuery('')}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <X size={15} color="#64748b" />
+              <X size={15} color="#627079" />
             </TouchableOpacity>
           ) : null}
         </View>
@@ -502,7 +535,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
                       </View>
 
                       <View style={styles.arrowCircle}>
-                        <ChevronRight size={16} color="#0b2545" strokeWidth={2.4} />
+                        <ChevronRight size={16} color="#0f2a3d" strokeWidth={2.4} />
                       </View>
                     </View>
 
@@ -543,7 +576,7 @@ export const WorkspacesScreen: React.FC<WorkspacesScreenProps> = ({ navigation }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   tabletContainer: {
     maxWidth: 720,
@@ -555,7 +588,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: '#edf1f3',
   },
   headerTitleRow: {
     flexDirection: 'row',
@@ -567,43 +600,43 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 8,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 8,
   },
   headerTitle: {
+    fontFamily: 'Fraunces_700Bold',
     fontSize: 26,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.4,
   },
   headerSubtitle: {
     fontSize: 13,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
     fontWeight: '600',
   },
   rolePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fef3c7',
+    backgroundColor: '#fcf0dc',
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: radius.full,
   },
   rolePillText: {
     fontSize: 10.5,
-    fontWeight: '800',
-    color: '#92400e',
+    fontWeight: '700',
+    color: '#9a5f0c',
     letterSpacing: 0.5,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     borderRadius: 10,
     paddingHorizontal: 12,
     height: 44,
@@ -615,7 +648,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#0f172a',
+    color: '#0f2a3d',
     paddingVertical: 0,
     fontWeight: '500',
   },
@@ -632,16 +665,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   catPillActive: {
-    backgroundColor: '#0b2545',
-    borderColor: '#0b2545',
+    backgroundColor: '#0f2a3d',
+    borderColor: '#0f2a3d',
   },
   catPillText: {
     fontSize: 12.5,
     fontWeight: '600',
-    color: '#475569',
+    color: '#4a5b68',
   },
   catPillTextActive: {
     color: '#ffffff',
@@ -669,13 +702,13 @@ const styles = StyleSheet.create({
   },
   groupHeaderTitle: {
     fontSize: 12,
-    fontWeight: '800',
-    color: '#1e293b',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: 0.7,
   },
   groupCountText: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
   },
   cardsList: {
@@ -685,7 +718,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 18,
     borderWidth: 1.2,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     padding: 15,
     ...shadows.xs,
   },
@@ -714,20 +747,20 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 17.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   descText: {
     fontSize: 13,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
   },
   arrowCircle: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -738,7 +771,7 @@ const styles = StyleSheet.create({
   },
   countBadgeText: {
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   tagsRow: {
     flexDirection: 'row',
@@ -747,9 +780,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   tagPill: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,
@@ -757,14 +790,14 @@ const styles = StyleSheet.create({
   tagPillText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#475569',
+    color: '#4a5b68',
   },
   metricsFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
+    borderTopColor: '#edf1f3',
     paddingTop: 10,
   },
   metricItem: {
@@ -772,21 +805,21 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     fontSize: 10.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },
   metricValue: {
     fontSize: 14.5,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     marginTop: 2,
   },
   metricDivider: {
     width: 1.2,
     height: 24,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#e1e8eb',
     marginHorizontal: 8,
   },
   emptyContainer: {
@@ -797,11 +830,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   emptyDesc: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 4,
   },
 });

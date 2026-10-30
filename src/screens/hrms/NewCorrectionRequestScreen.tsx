@@ -94,7 +94,7 @@ export const NewCorrectionRequestScreen: React.FC<{ navigation: any; route: any 
     >
       <AppHeader
         title="Apply for Punch Correction"
-        subtitle="Submit biometric attendance regularization for sign-off"
+        subtitle="Fix a missed or wrong punch"
         showBack
         onBack={() => navigation.goBack()}
       />
@@ -266,18 +266,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.sm,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     padding: spacing.md,
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#c9dcf1',
     marginBottom: spacing.lg,
   },
   applicantIcon: {
     width: 36,
     height: 36,
     borderRadius: radius.md,
-    backgroundColor: '#DBEAFE',
+    backgroundColor: '#e6effa',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
   },
   inputWrapActive: {
     borderColor: colors.primary,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
   },
   textInput: {
     flex: 1,

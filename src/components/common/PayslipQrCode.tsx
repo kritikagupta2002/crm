@@ -62,7 +62,7 @@ export const PayslipQrCode: React.FC<PayslipQrCodeProps> = ({
       {showVerificationBadge && (
         <View style={styles.badgeWrap}>
           <View style={styles.badgeHeader}>
-            <ShieldCheck size={14} color="#0D9488" />
+            <ShieldCheck size={14} color="#1f6f78" />
             <Text style={styles.badgeTitle}>Digitally Certified</Text>
           </View>
           <Text style={styles.badgeSubtitle}>Scan to verify payroll authenticity</Text>
@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     padding: 8,
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
   },
   qrBox: {
     backgroundColor: '#FFFFFF',
@@ -91,11 +91,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     padding: 2,
   },
   placeholder: {
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     borderRadius: borderRadius.sm,
   },
   badgeWrap: {
@@ -111,20 +111,20 @@ const styles = StyleSheet.create({
   badgeTitle: {
     ...typography.caption,
     fontWeight: '700',
-    color: '#0F172A',
+    color: '#0f2a3d',
     fontSize: 11,
   },
   badgeSubtitle: {
     ...typography.caption,
     fontSize: 9,
-    color: '#64748B',
+    color: '#627079',
   },
   slipIdText: {
     ...typography.caption,
     fontSize: 9,
     fontFamily: 'monospace',
     fontWeight: '600',
-    color: '#0D9488',
+    color: '#1f6f78',
     marginTop: 2,
   },
 });

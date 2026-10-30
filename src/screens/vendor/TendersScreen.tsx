@@ -221,7 +221,7 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
                 onPress={() => navigation.navigate('SealedBidding', { tenderId: item.id })}
               >
                 <Lock size={13} color={colors.surface} />
-                <Text style={styles.unsealActionText}>Dual-Key Chamber</Text>
+                <Text style={styles.unsealActionText}>Open bids</Text>
               </TouchableOpacity>
             ) : (
               <View style={styles.inspectRow}>
@@ -310,7 +310,7 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
-                    <Layers size={16} color="#0284c7" strokeWidth={2.4} />
+                    <Layers size={16} color="#2f6fb3" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeTotal}>
                     <Text style={styles.kpiBadgeTextTotal}>Procurement</Text>
@@ -318,7 +318,7 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>{tenders.length}</Text>
-                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2f6fb3" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Tender Packages</Text>
                 <Text style={styles.kpiSubText}>Active subcontract notices</Text>
@@ -327,15 +327,15 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
-                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                    <Clock size={16} color="#b07d27" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePending}>
                     <Text style={styles.kpiBadgeTextPending}>Live Bidding</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>{openBidsCount}</Text>
-                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                  <Text style={[styles.kpiValText, { color: '#b07d27' }]}>{openBidsCount}</Text>
+                  <ArrowUpRight size={15} color="#b07d27" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Open for Bidding</Text>
                 <Text style={styles.kpiSubText}>Accepting vendor proposals</Text>
@@ -346,17 +346,17 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
-                    <IndianRupee size={16} color="#16a34a" strokeWidth={2.4} />
+                    <IndianRupee size={16} color="#2e9e6b" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePaid}>
                     <Text style={styles.kpiBadgeTextPaid}>Budget</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                  <Text style={[styles.kpiValText, { color: '#2e9e6b' }]}>
                     ₹{(totalEstimatedVal / 100000).toFixed(1)} L
                   </Text>
-                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2e9e6b" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Estimated Value</Text>
                 <Text style={styles.kpiSubText}>Sanctioned tender outlay</Text>
@@ -365,17 +365,17 @@ export const TendersScreen: React.FC<TendersScreenProps> = ({ navigation }) => {
               <View style={[styles.kpiCard, styles.kpiCardActive]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxActive]}>
-                    <Lock size={16} color="#7c3aed" strokeWidth={2.4} />
+                    <Lock size={16} color="#3d5a6c" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeActive}>
-                    <Text style={styles.kpiBadgeTextActive}>Dual-Key</Text>
+                    <Text style={styles.kpiBadgeTextActive}>Sealed</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>{evaluationCount}</Text>
-                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#3d5a6c" strokeWidth={2.4} />
                 </View>
-                <Text style={styles.kpiTitleText}>Vault Unseal Queue</Text>
+                <Text style={styles.kpiTitleText}>Ready to open</Text>
                 <Text style={styles.kpiSubText}>Sealed bids awaiting unlock</Text>
               </View>
             </View>
@@ -822,7 +822,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1.2,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -831,20 +831,20 @@ const styles = StyleSheet.create({
     minHeight: 124,
   },
   kpiCardTotal: {
-    backgroundColor: '#f8fbff',
-    borderColor: '#dbeafe',
+    backgroundColor: '#f2f6fb',
+    borderColor: '#e6effa',
   },
   kpiCardPending: {
-    backgroundColor: '#fffaf5',
-    borderColor: '#fed7aa',
+    backgroundColor: '#fbf6ec',
+    borderColor: '#ecd6ae',
   },
   kpiCardPaid: {
-    backgroundColor: '#f5fdfb',
-    borderColor: '#ccfbf1',
+    backgroundColor: '#eef7f7',
+    borderColor: '#ddefef',
   },
   kpiCardActive: {
-    backgroundColor: '#faf7ff',
-    borderColor: '#f3e8ff',
+    backgroundColor: '#f1f5f7',
+    borderColor: '#e8eef1',
   },
   kpiHeaderRow: {
     flexDirection: 'row',
@@ -860,60 +860,60 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   kpiIconBoxTotal: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
   },
   kpiIconBoxPending: {
-    backgroundColor: '#fff7ed',
+    backgroundColor: '#f7ebd5',
   },
   kpiIconBoxPaid: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
   },
   kpiIconBoxActive: {
-    backgroundColor: '#f5f3ff',
+    backgroundColor: '#f1f5f7',
   },
   kpiBadgeTotal: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextTotal: {
-    color: '#0284c7',
+    color: '#2f6fb3',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePending: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPending: {
-    color: '#ea580c',
+    color: '#b07d27',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePaid: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextPaid: {
-    color: '#16a34a',
+    color: '#2e9e6b',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgeActive: {
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e8eef1',
     paddingHorizontal: 7,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   kpiBadgeTextActive: {
-    color: '#7c3aed',
+    color: '#3d5a6c',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiNumberRow: {
     flexDirection: 'row',
@@ -922,21 +922,21 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   kpiValText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 25,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.5,
   },
   kpiTitleText: {
     fontSize: 13,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
     marginBottom: 1,
   },
   kpiSubText: {
     fontSize: 11,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '600',
   },
 });

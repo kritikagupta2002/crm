@@ -382,7 +382,7 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     <View style={styles.container}>
       <AppHeader
         title="Client Tax Invoices"
-        subtitle="Accounts receivable, GST invoicing & remittance QR"
+        subtitle="Bills raised to clients"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -442,7 +442,7 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               <View style={[styles.kpiCard, styles.kpiCardTotal]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxTotal]}>
-                    <Receipt size={16} color="#0284c7" strokeWidth={2.4} />
+                    <Receipt size={16} color="#2f6fb3" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeTotal}>
                     <Text style={styles.kpiBadgeTextTotal}>18% GST</Text>
@@ -450,7 +450,7 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 </View>
                 <View style={styles.kpiNumberRow}>
                   <Text style={styles.kpiValText}>₹{(totalInvoicedAmount / 100000).toFixed(1)} L</Text>
-                  <ArrowUpRight size={15} color="#0284c7" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2f6fb3" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Total Invoiced</Text>
                 <Text style={styles.kpiSubText}>Gross sales ledger</Text>
@@ -459,17 +459,17 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               <View style={[styles.kpiCard, styles.kpiCardPending]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPending]}>
-                    <Clock size={16} color="#ea580c" strokeWidth={2.4} />
+                    <Clock size={16} color="#b07d27" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePending}>
                     <Text style={styles.kpiBadgeTextPending}>Urgent</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#ea580c' }]}>
+                  <Text style={[styles.kpiValText, { color: '#b07d27' }]}>
                     ₹{(pendingReceivablesAmount / 100000).toFixed(1)} L
                   </Text>
-                  <ArrowUpRight size={15} color="#ea580c" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#b07d27" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Receivables Due</Text>
                 <Text style={styles.kpiSubText}>Pending collections</Text>
@@ -480,17 +480,17 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               <View style={[styles.kpiCard, styles.kpiCardPaid]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxPaid]}>
-                    <CheckCircle2 size={16} color="#16a34a" strokeWidth={2.4} />
+                    <CheckCircle2 size={16} color="#2e9e6b" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgePaid}>
                     <Text style={styles.kpiBadgeTextPaid}>Received</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#16a34a' }]}>
+                  <Text style={[styles.kpiValText, { color: '#2e9e6b' }]}>
                     ₹{(clearedPaidAmount / 100000).toFixed(1)} L
                   </Text>
-                  <ArrowUpRight size={15} color="#16a34a" strokeWidth={2.4} />
+                  <ArrowUpRight size={15} color="#2e9e6b" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Cleared Remittance</Text>
                 <Text style={styles.kpiSubText}>Bank settled receipts</Text>
@@ -499,15 +499,15 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
               <View style={[styles.kpiCard, styles.kpiCardCount]}>
                 <View style={styles.kpiHeaderRow}>
                   <View style={[styles.kpiIconBox, styles.kpiIconBoxCount]}>
-                    <CreditCard size={16} color="#7c3aed" strokeWidth={2.4} />
+                    <CreditCard size={16} color="#3d5a6c" strokeWidth={2.4} />
                   </View>
                   <View style={styles.kpiBadgeCount}>
                     <Text style={styles.kpiBadgeTextCount}>Active</Text>
                   </View>
                 </View>
                 <View style={styles.kpiNumberRow}>
-                  <Text style={[styles.kpiValText, { color: '#7c3aed' }]}>{invoices.length}</Text>
-                  <ArrowUpRight size={15} color="#7c3aed" strokeWidth={2.4} />
+                  <Text style={[styles.kpiValText, { color: '#3d5a6c' }]}>{invoices.length}</Text>
+                  <ArrowUpRight size={15} color="#3d5a6c" strokeWidth={2.4} />
                 </View>
                 <Text style={styles.kpiTitleText}>Tax Invoices</Text>
                 <Text style={styles.kpiSubText}>All corporate ledgers</Text>
@@ -602,7 +602,7 @@ export const InvoicesScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
                 <Switch
                   value={isInterState}
                   onValueChange={setIsInterState}
-                  trackColor={{ false: '#CBD5E1', true: colors.primary }}
+                  trackColor={{ false: '#d3dce1', true: colors.primary }}
                 />
               </View>
 
@@ -910,7 +910,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     borderWidth: 1.2,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
     shadowRadius: 6,
@@ -919,20 +919,20 @@ const styles = StyleSheet.create({
     minHeight: 118,
   },
   kpiCardTotal: {
-    backgroundColor: '#f8fbff',
-    borderColor: '#dbeafe',
+    backgroundColor: '#f2f6fb',
+    borderColor: '#e6effa',
   },
   kpiCardPending: {
-    backgroundColor: '#fffaf5',
-    borderColor: '#fed7aa',
+    backgroundColor: '#fbf6ec',
+    borderColor: '#ecd6ae',
   },
   kpiCardPaid: {
-    backgroundColor: '#f5fdfb',
-    borderColor: '#ccfbf1',
+    backgroundColor: '#eef7f7',
+    borderColor: '#ddefef',
   },
   kpiCardCount: {
-    backgroundColor: '#faf7ff',
-    borderColor: '#f3e8ff',
+    backgroundColor: '#f1f5f7',
+    borderColor: '#e8eef1',
   },
   kpiHeaderRow: {
     flexDirection: 'row',
@@ -948,60 +948,60 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   kpiIconBoxTotal: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: '#e6effa',
   },
   kpiIconBoxPending: {
-    backgroundColor: '#fff7ed',
+    backgroundColor: '#f7ebd5',
   },
   kpiIconBoxPaid: {
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
   },
   kpiIconBoxCount: {
-    backgroundColor: '#f5f3ff',
+    backgroundColor: '#f1f5f7',
   },
   kpiBadgeTotal: {
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 7,
   },
   kpiBadgeTextTotal: {
-    color: '#0284c7',
+    color: '#2f6fb3',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePending: {
-    backgroundColor: '#fee2e2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 7,
   },
   kpiBadgeTextPending: {
-    color: '#ea580c',
+    color: '#b07d27',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgePaid: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 7,
   },
   kpiBadgeTextPaid: {
-    color: '#16a34a',
+    color: '#2e9e6b',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiBadgeCount: {
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e8eef1',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 7,
   },
   kpiBadgeTextCount: {
-    color: '#7c3aed',
+    color: '#3d5a6c',
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   kpiNumberRow: {
     flexDirection: 'row',
@@ -1010,20 +1010,20 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   kpiValText: {
+    fontFamily: 'Fraunces_600SemiBold',
     fontSize: 25,
-    fontWeight: '800',
-    color: '#0f172a',
+    color: '#0f2a3d',
     letterSpacing: -0.5,
   },
   kpiTitleText: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#1e293b',
+    color: '#0f2a3d',
   },
   kpiSubText: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   list: {
@@ -1051,7 +1051,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   interStateTag: {
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -1059,10 +1059,10 @@ const styles = StyleSheet.create({
   interStateText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#2563EB',
+    color: '#2f6fb3',
   },
   intraStateTag: {
-    backgroundColor: '#F0FDF4',
+    backgroundColor: '#e3f4ec',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -1070,7 +1070,7 @@ const styles = StyleSheet.create({
   intraStateText: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#16A34A',
+    color: '#2e9e6b',
   },
   clientName: {
     ...typography.bodyLarge,
@@ -1132,7 +1132,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     paddingVertical: 6,
     borderRadius: borderRadius.sm,
-    backgroundColor: '#E0F2FE',
+    backgroundColor: '#e6effa',
   },
   qrBtnText: {
     fontSize: 11,
@@ -1226,7 +1226,7 @@ const styles = StyleSheet.create({
     minWidth: 140,
   },
   clientChipActive: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     borderColor: colors.primary,
   },
   clientChipText: {
@@ -1305,11 +1305,11 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   computationBox: {
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     padding: spacing.md,
     borderRadius: borderRadius.md,
     borderWidth: 1,
-    borderColor: '#99F6E4',
+    borderColor: '#b7dadb',
     gap: spacing.xs,
   },
   compRow: {
@@ -1327,7 +1327,7 @@ const styles = StyleSheet.create({
   },
   compTotalRow: {
     borderTopWidth: 1,
-    borderTopColor: '#99F6E4',
+    borderTopColor: '#b7dadb',
     paddingTop: spacing.xs,
     marginTop: 2,
   },
@@ -1358,7 +1358,7 @@ const styles = StyleSheet.create({
   },
   docCompanyName: {
     ...typography.titleMedium,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   docCompanySub: {
@@ -1467,26 +1467,26 @@ const styles = StyleSheet.create({
   },
   grandTotalLabel: {
     ...typography.bodyMedium,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   grandTotalVal: {
     ...typography.titleSmall,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   qrSectionCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#f4f7f8',
     borderRadius: borderRadius.md,
     padding: spacing.md,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     gap: spacing.xs,
   },
   qrSectionTitle: {
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     letterSpacing: 0.8,
   },

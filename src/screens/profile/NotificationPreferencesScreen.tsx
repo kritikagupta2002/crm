@@ -65,7 +65,7 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
 
       <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
         <View style={styles.headerLeft}>
@@ -75,7 +75,7 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <ArrowLeft size={20} color="#0f172a" strokeWidth={2.4} />
+            <ArrowLeft size={20} color="#0f2a3d" strokeWidth={2.4} />
           </TouchableOpacity>
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle} numberOfLines={1}>Notification Preferences</Text>
@@ -86,7 +86,7 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
 
       {savedToast && (
         <View style={styles.toastCard}>
-          <CheckCircle2 size={16} color="#059669" strokeWidth={2.4} />
+          <CheckCircle2 size={16} color="#2e9e6b" strokeWidth={2.4} />
           <Text style={styles.toastText}>Preferences updated automatically</Text>
         </View>
       )}
@@ -98,7 +98,7 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
         <View style={styles.sectionCard}>
           <View style={styles.masterRow}>
             <View style={styles.masterIconBox}>
-              <Bell size={22} color="#0284c7" strokeWidth={2.4} />
+              <Bell size={22} color="#2f6fb3" strokeWidth={2.4} />
             </View>
             <View style={styles.masterTextCol}>
               <Text style={styles.masterTitle}>Push Notifications</Text>
@@ -107,8 +107,8 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
             <Switch
               value={pushEnabled}
               onValueChange={() => handleToggle(setPushEnabled, pushEnabled)}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={pushEnabled ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={pushEnabled ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
         </View>
@@ -117,8 +117,8 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
           <Text style={styles.sectionTitle}>NOTIFICATION CATEGORIES</Text>
 
           <View style={styles.channelRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#f0f9ff' }]}>
-              <FolderKanban size={18} color="#0284c7" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+              <FolderKanban size={18} color="#2f6fb3" strokeWidth={2.2} />
             </View>
             <View style={styles.channelTextCol}>
               <Text style={styles.channelTitle}>Project & Drilling Progress</Text>
@@ -128,16 +128,16 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
               disabled={!pushEnabled}
               value={projectMilestones}
               onValueChange={() => handleToggle(setProjectMilestones, projectMilestones)}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={projectMilestones ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={projectMilestones ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.channelRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#fefce8' }]}>
-              <FileCheck size={18} color="#d97706" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#fcf0dc' }]}>
+              <FileCheck size={18} color="#c27a12" strokeWidth={2.2} />
             </View>
             <View style={styles.channelTextCol}>
               <Text style={styles.channelTitle}>Stage 5 Technical Sign-Offs</Text>
@@ -147,16 +147,16 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
               disabled={!pushEnabled}
               value={stage5SignOffs}
               onValueChange={() => handleToggle(setStage5SignOffs, stage5SignOffs)}
-              trackColor={{ false: '#cbd5e1', true: '#fde68a' }}
-              thumbColor={stage5SignOffs ? '#d97706' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#ecd6ae' }}
+              thumbColor={stage5SignOffs ? '#c27a12' : '#f4f7f8'}
             />
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.channelRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#ecfdf5' }]}>
-              <Receipt size={18} color="#059669" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#e3f4ec' }]}>
+              <Receipt size={18} color="#2e9e6b" strokeWidth={2.2} />
             </View>
             <View style={styles.channelTextCol}>
               <Text style={styles.channelTitle}>Invoices & Treasury</Text>
@@ -166,16 +166,16 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
               disabled={!pushEnabled}
               value={financeInvoices}
               onValueChange={() => handleToggle(setFinanceInvoices, financeInvoices)}
-              trackColor={{ false: '#cbd5e1', true: '#a7f3d0' }}
-              thumbColor={financeInvoices ? '#059669' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#bfe3d0' }}
+              thumbColor={financeInvoices ? '#2e9e6b' : '#f4f7f8'}
             />
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.channelRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#f8fafc' }]}>
-              <Users size={18} color="#475569" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#f4f7f8' }]}>
+              <Users size={18} color="#4a5b68" strokeWidth={2.2} />
             </View>
             <View style={styles.channelTextCol}>
               <Text style={styles.channelTitle}>Attendance & Shift Roster</Text>
@@ -185,16 +185,16 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
               disabled={!pushEnabled}
               value={shiftAttendance}
               onValueChange={() => handleToggle(setShiftAttendance, shiftAttendance)}
-              trackColor={{ false: '#cbd5e1', true: '#cbd5e1' }}
-              thumbColor={shiftAttendance ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#d3dce1' }}
+              thumbColor={shiftAttendance ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.channelRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#fef2f2' }]}>
-              <ShieldAlert size={18} color="#dc2626" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#fbe5e4' }]}>
+              <ShieldAlert size={18} color="#d24c47" strokeWidth={2.2} />
             </View>
             <View style={styles.channelTextCol}>
               <Text style={styles.channelTitle}>Security & Account Alerts</Text>
@@ -204,8 +204,8 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
               disabled={!pushEnabled}
               value={securityAlerts}
               onValueChange={() => handleToggle(setSecurityAlerts, securityAlerts)}
-              trackColor={{ false: '#cbd5e1', true: '#fca5a5' }}
-              thumbColor={securityAlerts ? '#dc2626' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#f2c4c2' }}
+              thumbColor={securityAlerts ? '#d24c47' : '#f4f7f8'}
             />
           </View>
         </View>
@@ -214,26 +214,26 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
           <Text style={styles.sectionTitle}>EMAIL NOTIFICATIONS</Text>
 
           <View style={styles.channelRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#f0f9ff' }]}>
-              <Mail size={18} color="#0284c7" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+              <Mail size={18} color="#2f6fb3" strokeWidth={2.2} />
             </View>
             <View style={styles.channelTextCol}>
-              <Text style={styles.channelTitle}>Daily Morning Executive Digest</Text>
+              <Text style={styles.channelTitle}>Morning summary</Text>
               <Text style={styles.channelSub}>Consolidated summary sent at 08:00 AM IST</Text>
             </View>
             <Switch
               value={emailDigest}
               onValueChange={() => handleToggle(setEmailDigest, emailDigest)}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={emailDigest ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={emailDigest ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
 
           <View style={styles.divider} />
 
           <View style={styles.channelRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#f0f9ff' }]}>
-              <Volume2 size={18} color="#0284c7" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#e6effa' }]}>
+              <Volume2 size={18} color="#2f6fb3" strokeWidth={2.2} />
             </View>
             <View style={styles.channelTextCol}>
               <Text style={styles.channelTitle}>Instant High Priority Dispatches</Text>
@@ -242,16 +242,16 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
             <Switch
               value={instantUrgentEmail}
               onValueChange={() => handleToggle(setInstantUrgentEmail, instantUrgentEmail)}
-              trackColor={{ false: '#cbd5e1', true: '#bae6fd' }}
-              thumbColor={instantUrgentEmail ? '#0284c7' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#c9dcf1' }}
+              thumbColor={instantUrgentEmail ? '#2f6fb3' : '#f4f7f8'}
             />
           </View>
         </View>
 
         <View style={styles.sectionCard}>
           <View style={styles.masterRow}>
-            <View style={[styles.iconBox, { backgroundColor: '#fef3c7' }]}>
-              <Moon size={20} color="#d97706" strokeWidth={2.2} />
+            <View style={[styles.iconBox, { backgroundColor: '#fcf0dc' }]}>
+              <Moon size={20} color="#c27a12" strokeWidth={2.2} />
             </View>
             <View style={styles.masterTextCol}>
               <Text style={styles.masterTitle}>Quiet Hours (Do Not Disturb)</Text>
@@ -260,8 +260,8 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
             <Switch
               value={quietHoursEnabled}
               onValueChange={() => handleToggle(setQuietHoursEnabled, quietHoursEnabled)}
-              trackColor={{ false: '#cbd5e1', true: '#fde68a' }}
-              thumbColor={quietHoursEnabled ? '#d97706' : '#f8fafc'}
+              trackColor={{ false: '#d3dce1', true: '#ecd6ae' }}
+              thumbColor={quietHoursEnabled ? '#c27a12' : '#f4f7f8'}
             />
           </View>
 
@@ -284,14 +284,14 @@ export const NotificationPreferencesScreen: React.FC<NotificationPreferencesScre
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
   },
   header: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingBottom: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#e2e8f0',
+    borderBottomColor: '#e1e8eb',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -307,21 +307,21 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
   },
   headerTitle: {
     fontSize: 17,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.2,
   },
   headerSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     fontWeight: '500',
     marginTop: 1,
   },
@@ -329,19 +329,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: '#e3f4ec',
     marginHorizontal: 16,
     marginTop: 12,
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#bfe3d0',
   },
   toastText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#047857',
+    color: '#237a53',
     flex: 1,
   },
   scrollContent: {
@@ -353,9 +353,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     marginBottom: 16,
-    shadowColor: '#0f172a',
+    shadowColor: '#0f2a3d',
     shadowOffset: { width: 0, height: 1.5 },
     shadowOpacity: 0.04,
     shadowRadius: 4,
@@ -366,8 +366,8 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 11.5,
-    fontWeight: '800',
-    color: '#64748b',
+    fontWeight: '700',
+    color: '#627079',
     letterSpacing: 0.8,
     marginBottom: 12,
   },
@@ -380,9 +380,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#f0f9ff',
+    backgroundColor: '#e6effa',
     borderWidth: 1,
-    borderColor: '#bae6fd',
+    borderColor: '#c9dcf1',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -391,12 +391,12 @@ const styles = StyleSheet.create({
   },
   masterTitle: {
     fontSize: 15,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
   },
   masterSub: {
     fontSize: 12,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
   },
   channelRow: {
@@ -409,9 +409,9 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 10,
-    backgroundColor: '#f8fafc',
+    backgroundColor: '#f4f7f8',
     borderWidth: 1,
-    borderColor: '#e2e8f0',
+    borderColor: '#e1e8eb',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -421,34 +421,34 @@ const styles = StyleSheet.create({
   channelTitle: {
     fontSize: 13.5,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   channelSub: {
     fontSize: 11.5,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
   },
   divider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: '#edf1f3',
     marginVertical: 10,
   },
   quietHoursTimePill: {
     marginTop: 12,
-    backgroundColor: '#fffbeb',
+    backgroundColor: '#fcf0dc',
     borderWidth: 1,
-    borderColor: '#fde68a',
+    borderColor: '#ecd6ae',
     borderRadius: 10,
     padding: 12,
   },
   quietHoursTimeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#b45309',
+    color: '#9a5f0c',
   },
   quietHoursSubText: {
     fontSize: 11.5,
-    color: '#92400e',
+    color: '#9a5f0c',
     marginTop: 2,
   },
 });

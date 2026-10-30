@@ -33,9 +33,9 @@ export const VendorBidsTab: React.FC<VendorBidsTabProps> = ({
   return (
     <View style={{ gap: spacing.md }}>
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>My Bid Escrow Vault</Text>
+        <Text style={styles.sectionTitle}>My bids</Text>
         <Text style={styles.sectionSub}>
-          Bids remain cryptographically sealed until official committee opening
+          Bids stay sealed until bidding closes
         </Text>
       </View>
 
@@ -80,7 +80,7 @@ export const VendorBidsTab: React.FC<VendorBidsTabProps> = ({
                   </Text>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.bidBoxLabel}>ESCROW STATUS</Text>
+                  <Text style={styles.bidBoxLabel}>STATUS</Text>
                   <Text
                     style={[
                       styles.bidBoxVal,
@@ -92,7 +92,7 @@ export const VendorBidsTab: React.FC<VendorBidsTabProps> = ({
                     ]}
                   >
                     {bid.isSealed
-                      ? '🔒 Sealed in Chamber'
+                      ? 'Sealed'
                       : '🔓 Unsealed / Evaluated'}
                   </Text>
                 </View>

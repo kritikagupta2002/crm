@@ -150,12 +150,12 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
 
         <View style={styles.cardFooter}>
           <View style={styles.sourceTag}>
-            <Fingerprint size={12} color="#2563EB" />
+            <Fingerprint size={12} color="#2f6fb3" />
             <Text style={styles.sourceText}>{item.punchSource || 'Biometric - Jaipur HQ'}</Text>
           </View>
           {item.lateBy && item.lateBy !== '-' && (
             <View style={styles.lateTag}>
-              <Clock size={11} color="#B45309" />
+              <Clock size={11} color="#9a5f0c" />
               <Text style={styles.lateText}>Late: {item.lateBy}</Text>
             </View>
           )}
@@ -168,7 +168,7 @@ export const DailyAttendanceScreen: React.FC<{ navigation: any; route: any }> = 
     <View style={styles.container}>
       <AppHeader
         title="Daily Attendance Register"
-        subtitle="Day-specific biometric punch ledger & shift compliance"
+        subtitle="Who came in on the day"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -336,10 +336,10 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#e6effa',
     borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#c9dcf1',
   },
   exportBtnText: {
     fontSize: typography.fontSizes.xs,
@@ -527,8 +527,8 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: spacing.sm,
     paddingVertical: 3,
-    backgroundColor: '#FFFBEB',
-    borderColor: '#FDE68A',
+    backgroundColor: '#fcf0dc',
+    borderColor: '#ecd6ae',
     borderWidth: 1,
     borderRadius: radius.md,
     alignSelf: 'flex-start',
@@ -538,12 +538,12 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: radius.full,
-    backgroundColor: '#D97706',
+    backgroundColor: '#c27a12',
   },
   projectText: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.semibold,
-    color: '#92400E',
+    color: '#9a5f0c',
   },
   timesContainer: {
     flexDirection: 'row',
@@ -591,12 +591,12 @@ const styles = StyleSheet.create({
     gap: 3,
     paddingHorizontal: spacing.xs + 2,
     paddingVertical: 2,
-    backgroundColor: '#FEF3C7',
+    backgroundColor: '#fcf0dc',
     borderRadius: radius.xs,
   },
   lateText: {
     fontSize: typography.fontSizes.xxs,
     fontWeight: typography.fontWeights.bold,
-    color: '#B45309',
+    color: '#9a5f0c',
   },
 });

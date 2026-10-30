@@ -93,7 +93,7 @@ export const DocumentInboxScreen: React.FC<{ navigation: any }> = ({ navigation 
           >
             <ShieldCheck size={16} color={colors.primary} />
             <Text style={styles.verifyActionText}>
-              {item.isVerified ? 'View Compliance Stamp' : 'Four-Eyes Verification'}
+              {item.isVerified ? 'View check' : 'Verify'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -105,7 +105,7 @@ export const DocumentInboxScreen: React.FC<{ navigation: any }> = ({ navigation 
     <View style={styles.container}>
       <AppHeader
         title="Document Custody"
-        subtitle="Mineral deeds, assay tests & technical drafts"
+        subtitle="Files waiting to be filed"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={

@@ -64,10 +64,8 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
       header={
         <AppHeader
           title="Document Management"
-          subtitle="EDMS • Verification & Chain of Custody"
+          subtitle="Scans, verification and dispatch"
           scenicBanner
-          badge="EDMS & Chain of Custody"
-          badgeIcon={<FileText size={12} color="#0d9488" />}
           showBack
           onBack={() => navigation.goBack()}
           onNotificationPress={() => navigation.navigate('Notifications')}
@@ -77,48 +75,48 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
     >
         <View style={styles.complianceCard}>
           <View style={styles.complianceIconWrap}>
-            <ShieldCheck size={22} color="#0D9488" />
+            <ShieldCheck size={22} color="#1f6f78" />
           </View>
           <View style={styles.complianceBody}>
-            <Text style={styles.complianceTitle}>Enterprise 4-Eyes Verification Guard</Text>
+            <Text style={styles.complianceTitle}>A scan is verified by someone other than who filed it</Text>
             <Text style={styles.complianceDesc}>
-              Document filers are strictly restricted from verifying their own scans. Every incoming government letter requires independent secondary sign-off.
+              Every government letter is checked by a second person against the paper original.
             </Text>
           </View>
         </View>
 
         <View style={styles.metricsStrip}>
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: '#0d9488' }]}>{totalGovt}</Text>
-            <Text style={styles.metricLbl}>Total Records</Text>
+            <Text style={[styles.metricVal, { color: '#1f6f78' }]}>{totalGovt}</Text>
+            <Text style={styles.metricLbl}>All letters</Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: scanInbox.length > 0 ? '#d97706' : '#16a34a' }]}>{scanInbox.length}</Text>
+            <Text style={[styles.metricVal, { color: scanInbox.length > 0 ? '#c27a12' : '#2e9e6b' }]}>{scanInbox.length}</Text>
             <Text style={styles.metricLbl}>Scan Inbox</Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: toVerify.length > 0 ? '#dc2626' : '#16a34a' }]}>{toVerify.length}</Text>
+            <Text style={[styles.metricVal, { color: toVerify.length > 0 ? '#d24c47' : '#2e9e6b' }]}>{toVerify.length}</Text>
             <Text style={styles.metricLbl}>To Verify</Text>
           </View>
           <View style={styles.metricDivider} />
           <View style={styles.metricItem}>
-            <Text style={[styles.metricVal, { color: '#2563eb' }]}>{toDispatch.length + pendingDispatches.length}</Text>
+            <Text style={[styles.metricVal, { color: '#2f6fb3' }]}>{toDispatch.length + pendingDispatches.length}</Text>
             <Text style={styles.metricLbl}>Dispatches</Text>
           </View>
         </View>
 
         <View style={styles.launchpadSection}>
-          <Text style={styles.sectionHeader}>QUICK DOCUMENT ACTIONS</Text>
+          <Text style={styles.sectionHeader}>QUICK ACTIONS</Text>
           <View style={styles.actionGrid}>
             <TouchableOpacity
               style={styles.actionTile}
               onPress={() => navigation.navigate('Documents')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#F0FDFA' }]}>
-                <FileText size={22} color="#0D9488" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#eef7f7' }]}>
+                <FileText size={22} color="#1f6f78" />
               </View>
               <Text style={styles.actionTileTitle}>All Documents</Text>
               <Text style={styles.actionTileSub}>Govt Letters</Text>
@@ -129,11 +127,11 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
               onPress={() => navigation.navigate('ScanInbox')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FFFBEB' }]}>
-                <FileScan size={22} color="#D97706" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#fcf0dc' }]}>
+                <FileScan size={22} color="#c27a12" />
               </View>
               <Text style={styles.actionTileTitle}>Scan Inbox</Text>
-              <Text style={styles.actionTileSub}>Ingestion</Text>
+              <Text style={styles.actionTileSub}>To file</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -141,11 +139,11 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
               onPress={() => navigation.navigate('Documents', { step: 'To verify' })}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FEE2E2' }]}>
-                <ShieldCheck size={22} color="#DC2626" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#fbe5e4' }]}>
+                <ShieldCheck size={22} color="#d24c47" />
               </View>
               <Text style={styles.actionTileTitle}>To Verify</Text>
-              <Text style={styles.actionTileSub}>4-Eyes Guard</Text>
+              <Text style={styles.actionTileSub}>Not your own filing</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -153,8 +151,8 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
               onPress={() => navigation.navigate('DispatchRegister')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#EFF6FF' }]}>
-                <Truck size={22} color="#2563EB" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#e6effa' }]}>
+                <Truck size={22} color="#2f6fb3" />
               </View>
               <Text style={styles.actionTileTitle}>Dispatches</Text>
               <Text style={styles.actionTileSub}>Speed Post</Text>
@@ -165,10 +163,10 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
               onPress={() => navigation.navigate('Documents', { step: 'To authorize' })}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FAF5FF' }]}>
-                <FolderLock size={22} color="#9333EA" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <FolderLock size={22} color="#3d5a6c" />
               </View>
-              <Text style={styles.actionTileTitle}>Access Auth</Text>
+              <Text style={styles.actionTileTitle}>Set access</Text>
               <Text style={styles.actionTileSub}>Permissions</Text>
             </TouchableOpacity>
 
@@ -177,17 +175,17 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
               onPress={() => navigation.navigate('MisReports')}
               activeOpacity={0.8}
             >
-              <View style={[styles.actionSquircle, { backgroundColor: '#FDF2F8' }]}>
-                <TrendingUp size={22} color="#DB2777" />
+              <View style={[styles.actionSquircle, { backgroundColor: '#f1f5f7' }]}>
+                <TrendingUp size={22} color="#3d5a6c" />
               </View>
-              <Text style={styles.actionTileTitle}>EDMS BI</Text>
+              <Text style={styles.actionTileTitle}>Reports</Text>
               <Text style={styles.actionTileSub}>Analytics</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={styles.sectionHeaderWrap}>
-          <Text style={styles.sectionHeader}>EDMS CUSTODY PIPELINE</Text>
+          <Text style={styles.sectionHeader}>STEPS</Text>
           <TouchableOpacity onPress={() => navigation.navigate('Documents')}>
             <Text style={styles.seeAllText}>View All ({totalGovt})</Text>
           </TouchableOpacity>
@@ -199,12 +197,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('ScanInbox')}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: '#FFFBEB' }]}>
-              <Inbox size={18} color="#D97706" />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#fcf0dc' }]}>
+              <Inbox size={18} color="#c27a12" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>1. Scan Ingestion (To File)</Text>
-              <Text style={styles.stepDesc}>Raw scans in NAS folder awaiting project linkage</Text>
+              <Text style={styles.stepTitle}>1. File the scan</Text>
+              <Text style={styles.stepDesc}>Scans waiting to be linked to a project</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{scanInbox.length}</Text>
@@ -219,12 +217,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('Documents', { step: 'To verify' })}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: '#FEE2E2' }]}>
-              <ShieldCheck size={18} color="#DC2626" />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#fbe5e4' }]}>
+              <ShieldCheck size={18} color="#d24c47" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>2. 4-Eyes Physical Verification</Text>
-              <Text style={styles.stepDesc}>Secondary checker signs off scan authenticity</Text>
+              <Text style={styles.stepTitle}>2. Verify the scan</Text>
+              <Text style={styles.stepDesc}>Someone other than the filer checks it against the paper</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toVerify.length}</Text>
@@ -239,12 +237,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('Documents', { step: 'To authorize' })}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: '#F0FDFA' }]}>
-              <FolderLock size={18} color="#0D9488" />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#eef7f7' }]}>
+              <FolderLock size={18} color="#1f6f78" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>3. Authorization & Classification</Text>
-              <Text style={styles.stepDesc}>Client & contractor portal visibility flags</Text>
+              <Text style={styles.stepTitle}>3. Set access</Text>
+              <Text style={styles.stepDesc}>Choose if the client or vendor can see it</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toAuthorize.length}</Text>
@@ -259,12 +257,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('Documents', { step: 'To share' })}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: '#EFF6FF' }]}>
-              <Share2 size={18} color="#2563EB" />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#e6effa' }]}>
+              <Share2 size={18} color="#2f6fb3" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>4. Client & Stakeholder Sharing</Text>
-              <Text style={styles.stepDesc}>WhatsApp broadcast & registered email push</Text>
+              <Text style={styles.stepTitle}>4. Share</Text>
+              <Text style={styles.stepDesc}>Send by WhatsApp or email</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toShare.length}</Text>
@@ -279,12 +277,12 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
             onPress={() => navigation.navigate('DispatchRegister')}
             activeOpacity={0.7}
           >
-            <View style={[styles.stepIconWrap, { backgroundColor: '#F0FDF4' }]}>
-              <Truck size={18} color="#16A34A" />
+            <View style={[styles.stepIconWrap, { backgroundColor: '#e3f4ec' }]}>
+              <Truck size={18} color="#2e9e6b" />
             </View>
             <View style={styles.stepInfo}>
-              <Text style={styles.stepTitle}>5. Physical Original Dispatch</Text>
-              <Text style={styles.stepDesc}>Speed Post consignment & receipt tracking</Text>
+              <Text style={styles.stepTitle}>5. Send the original</Text>
+              <Text style={styles.stepDesc}>Speed Post or courier, and who received it</Text>
             </View>
             <View style={styles.badgeWrap}>
               <Text style={styles.badgeText}>{toDispatch.length}</Text>
@@ -296,8 +294,8 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
         {(rescans.length > 0 || toVerify.length > 0) && (
           <View style={styles.attentionSection}>
             <View style={styles.attentionHeader}>
-              <AlertTriangle size={16} color="#D97706" />
-              <Text style={styles.attentionTitle}>CUSTODY ATTENTION QUEUE</Text>
+              <AlertTriangle size={16} color="#c27a12" />
+              <Text style={styles.attentionTitle}>NEEDS ATTENTION</Text>
             </View>
 
             {rescans.map((d) => (
@@ -316,8 +314,8 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
                   style={styles.actionBtn}
                   onPress={() => navigation.navigate('DocumentDetail', { docId: d.id })}
                 >
-                  <Text style={styles.actionBtnText}>Resolve Rescan</Text>
-                  <ChevronRight size={14} color="#0D9488" />
+                  <Text style={styles.actionBtnText}>Rescan</Text>
+                  <ChevronRight size={14} color="#1f6f78" />
                 </TouchableOpacity>
               </Card>
             ))}
@@ -336,16 +334,16 @@ export const DocumentWorkspaceHomeScreen: React.FC<{ navigation: any }> = ({ nav
                   </Text>
                   {isSelfFiler && (
                     <View style={styles.selfFiledNotice}>
-                      <ShieldAlert size={12} color="#EF4444" />
-                      <Text style={styles.selfFiledText}>4-Eyes Rule: You filed this scan (Secondary verifier needed)</Text>
+                      <ShieldAlert size={12} color="#d24c47" />
+                      <Text style={styles.selfFiledText}>You filed this; someone else verifies it</Text>
                     </View>
                   )}
                   <TouchableOpacity
                     style={styles.actionBtn}
                     onPress={() => navigation.navigate('DocumentDetail', { docId: d.id })}
                   >
-                    <Text style={styles.actionBtnText}>Inspect Document</Text>
-                    <ChevronRight size={14} color="#0D9488" />
+                    <Text style={styles.actionBtnText}>Open</Text>
+                    <ChevronRight size={14} color="#1f6f78" />
                   </TouchableOpacity>
                 </Card>
               );
@@ -365,10 +363,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.md,
-    backgroundColor: '#F0FDFA',
+    backgroundColor: '#eef7f7',
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
     marginBottom: spacing.md,
     gap: spacing.sm,
     ...shadows.sm,
@@ -381,7 +379,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#CCFBF1',
+    borderColor: '#ddefef',
   },
   complianceBody: {
     flex: 1,
@@ -389,11 +387,11 @@ const styles = StyleSheet.create({
   complianceTitle: {
     fontSize: typography.fontSizes.sm,
     fontWeight: typography.fontWeights.bold,
-    color: '#0F172A',
+    color: '#0f2a3d',
   },
   complianceDesc: {
     fontSize: typography.fontSizes.xs,
-    color: '#475569',
+    color: '#4a5b68',
     marginTop: 2,
     lineHeight: 16,
   },
@@ -413,7 +411,7 @@ const styles = StyleSheet.create({
   seeAllText: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    color: '#0D9488',
+    color: '#1f6f78',
   },
   metricsStrip: {
     flexDirection: 'row',
@@ -432,14 +430,14 @@ const styles = StyleSheet.create({
   },
   metricVal: {
     fontSize: 16,
-    fontWeight: '800',
-    color: '#0f172a',
+    fontWeight: '700',
+    color: '#0f2a3d',
     letterSpacing: -0.3,
   },
   metricLbl: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#64748b',
+    color: '#627079',
     marginTop: 1,
   },
   metricDivider: {
@@ -463,7 +461,7 @@ const styles = StyleSheet.create({
     padding: spacing.sm,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     ...shadows.sm,
   },
   actionSquircle: {
@@ -491,7 +489,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
     marginBottom: spacing.md,
     ...shadows.sm,
   },
@@ -525,16 +523,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: radius.full,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
   },
   badgeText: {
     fontSize: 11,
     fontWeight: typography.fontWeights.bold,
-    color: '#0F172A',
+    color: '#0f2a3d',
   },
   pipeDivider: {
     height: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#edf1f3',
     marginHorizontal: spacing.sm,
   },
   attentionSection: {
@@ -550,15 +548,15 @@ const styles = StyleSheet.create({
   attentionTitle: {
     fontSize: 11,
     fontWeight: typography.fontWeights.bold,
-    color: '#D97706',
+    color: '#c27a12',
     letterSpacing: 0.8,
   },
   urgentCard: {
     padding: spacing.md,
-    backgroundColor: '#FFFBEB',
+    backgroundColor: '#fcf0dc',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#FDE68A',
+    borderColor: '#ecd6ae',
   },
   urgentHead: {
     flexDirection: 'row',
@@ -567,7 +565,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   urgentTag: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: '#fcf0dc',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.full,
@@ -575,7 +573,7 @@ const styles = StyleSheet.create({
   urgentTagText: {
     fontSize: 10,
     fontWeight: typography.fontWeights.bold,
-    color: '#B45309',
+    color: '#9a5f0c',
   },
   urgentDate: {
     fontSize: 10,
@@ -589,7 +587,7 @@ const styles = StyleSheet.create({
   },
   urgentReason: {
     fontSize: typography.fontSizes.xs,
-    color: '#B45309',
+    color: '#9a5f0c',
     marginBottom: spacing.sm,
   },
   verifyItemCard: {
@@ -597,7 +595,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#e1e8eb',
   },
   verifySub: {
     fontSize: typography.fontSizes.xs,
@@ -608,7 +606,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    backgroundColor: '#FEE2E2',
+    backgroundColor: '#fbe5e4',
     paddingHorizontal: spacing.sm,
     paddingVertical: 4,
     borderRadius: radius.md,
@@ -617,7 +615,7 @@ const styles = StyleSheet.create({
   selfFiledText: {
     fontSize: 11,
     fontWeight: typography.fontWeights.semibold,
-    color: '#B91C1C',
+    color: '#a83a36',
   },
   actionBtn: {
     flexDirection: 'row',
@@ -629,6 +627,6 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontSize: typography.fontSizes.xs,
     fontWeight: typography.fontWeights.bold,
-    color: '#0D9488',
+    color: '#1f6f78',
   },
 });

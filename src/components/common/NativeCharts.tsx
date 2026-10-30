@@ -12,7 +12,7 @@ export interface DonutChartProps {
 
 export const DonutChart: React.FC<DonutChartProps> = ({
   percentage,
-  color = '#0d9488',
+  color = '#1f6f78',
   size = 42,
   strokeWidth = 5,
 }) => {
@@ -26,7 +26,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({
         cx={size / 2}
         cy={size / 2}
         r={radius}
-        stroke="#E2E8F0"
+        stroke="#e1e8eb"
         strokeWidth={strokeWidth}
         fill="none"
       />
@@ -55,7 +55,7 @@ export interface MiniBarChartProps {
 
 export const MiniBarChart: React.FC<MiniBarChartProps> = ({
   values,
-  color = '#0d9488',
+  color = '#1f6f78',
   height = 28,
   barWidth = 6,
 }) => {
@@ -100,8 +100,8 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
   data,
   primaryLabel = 'Primary',
   secondaryLabel,
-  primaryColor = '#0d9488',
-  secondaryColor = '#0284c7',
+  primaryColor = '#1f6f78',
+  secondaryColor = '#2f6fb3',
   height = 180,
   formatValue = (v) => String(v),
 }) => {
@@ -146,7 +146,7 @@ export const NativeBarChart: React.FC<NativeBarChartProps> = ({
           const tickVal = Math.round(pct * maxValue);
           return (
             <G key={`grid-${i}`}>
-              <Line x1={leftOffset} y1={y} x2={totalWidth - 8} y2={y} stroke="#E2E8F0" strokeWidth="1" strokeDasharray="3,3" />
+              <Line x1={leftOffset} y1={y} x2={totalWidth - 8} y2={y} stroke="#e1e8eb" strokeWidth="1" strokeDasharray="3,3" />
               <SvgText
                 x={leftOffset - 6}
                 y={y + 3}
@@ -265,7 +265,7 @@ interface NativeDistributionListProps {
 
 export const NativeDistributionList: React.FC<NativeDistributionListProps> = ({
   rows,
-  defaultColor = '#0d9488',
+  defaultColor = '#1f6f78',
 }) => {
   if (!rows || rows.length === 0) {
     return <Text style={styles.emptyText}>No distribution data</Text>;

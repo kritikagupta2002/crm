@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     marginTop: 12,
   },
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
   },
   codeText: {
     fontSize: clientTheme.typography.badge,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   stageBadge: {
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
   },
   projectTitle: {
     fontSize: clientTheme.typography.titleMd,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
     lineHeight: 24,
     marginBottom: 4,
@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
   },
   progValue: {
     fontSize: clientTheme.typography.bodySm,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.tealDark,
   },
   progTrack: {
@@ -412,14 +412,14 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     fontSize: 9.5,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.textMuted,
     letterSpacing: 0.5,
     marginBottom: 2,
   },
   metricVal: {
     fontSize: clientTheme.typography.bodySm,
-    fontWeight: '800',
+    fontWeight: '700',
     color: clientTheme.colors.navy,
   },
   cardActionBtn: {

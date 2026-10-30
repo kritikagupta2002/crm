@@ -1,492 +1,212 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  StatusBar,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Compass,
-  Map,
-  Layers,
-  FlaskConical,
-  Pickaxe,
-  Send,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Sparkles,
-} from 'lucide-react-native';
-import { colors, spacing, radius, shadows } from '../../theme';
-import { useCrm } from '../../context/CrmContext';
+import React, { useMemo } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { TestTubes, Ruler, FlaskConical, Truck, ClipboardCheck, ChevronRight, CheckCircle2, Circle, Clock, XCircle } from 'lucide-react-native';
+import { AppHeader } from '../../components/common';
+import { StatGrid } from '../../components/home/HomeBlocks';
+import { colors, fonts, radius } from '../../theme';
+import { useFieldDatabase } from '../../context/FieldDatabaseContext';
+import { FIELD_SECTIONS, getFieldSectionByKey } from '../../fieldDatabase/data/fieldDatabase';
+import { fieldsOf, formatOf, recordStat, rowsOf } from '../../fieldDatabase/data/fieldFormats';
+import { fieldNumber, sampleRegister } from '../../fieldDatabase/utils/dispatch';
+import { formatDayMonth, formatDate } from '../../fieldDatabase/utils/date';
+import { SectionHead, StatusPill, Empty, fd, sectionIcon } from '../../fieldDatabase/components/ui';
 
-interface FieldDatabaseHomeScreenProps {
-  navigation: any;
+const LAB_DONE = ['QAQC passes', 'QAQC Failed', 'Partly accepted', 'Partly Rejected'];
+const LAB_BAD = ['QAQC Failed', 'Partly Rejected'];
+
+/* A horizontal bar per item, the value at its end (samples by format, metres per day). */
+function Bars({ items, unit = '' }: { items: { label: string; value: number; onPress?: () => void }[]; unit?: string }) {
+  const max = Math.max(1, ...items.map((i) => i.value));
+  return (
+    <View style={{ gap: 8 }}>
+      {items.map((i) => (
+        <TouchableOpacity key={i.label} disabled={!i.onPress} onPress={i.onPress} style={styles.barRow} activeOpacity={0.7}>
+          <Text style={styles.barLabel} numberOfLines={1}>
+            {i.label}
+          </Text>
+          <View style={styles.barTrack}>
+            <View style={[styles.bar, { width: `${Math.max(4, (i.value / max) * 100)}%` }]} />
+          </View>
+          <Text style={styles.barValue}>
+            {i.value}
+            {unit}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 }
 
-export const FieldDatabaseHomeScreen: React.FC<FieldDatabaseHomeScreenProps> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  const { projects } = useCrm();
+/*
+ * The Field Database: the picture of the field work (samples, metres drilled, lab batches), every
+ * section in the client's format, QAQC and the latest records, as on the web.
+ */
+export const FieldDatabaseHomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
+  const { fieldRecords, visible } = useFieldDatabase();
+  const records = useMemo(() => visible(fieldRecords), [fieldRecords, visible]);
+  const register = useMemo(() => sampleRegister(records), [records]);
 
-  const [selectedProjectId, setSelectedProjectId] = useState<string>(projects[0]?.id || 'p-1');
-  const activeProject = projects.find((p) => p.id === selectedProjectId) || projects[0];
+  const bySection = useMemo(() => {
+    const counts: Record<string, number> = {};
+    register.forEach((s: any) => (counts[s.section] = (counts[s.section] ?? 0) + 1));
+    return FIELD_SECTIONS.filter((s: any) => counts[s.key]).map((s: any) => ({
+      label: s.shortTitle,
+      value: counts[s.key],
+      onPress: () => navigation.navigate('FieldSection', { sectionKey: s.key }),
+    }));
+  }, [register, navigation]);
 
-  const fieldModules = [
-    {
-      id: 'geo_mapping',
-      title: 'Geological Mapping',
-      subtitle: 'Lithology, strike/dip & formation outcrop logs',
-      icon: <Map size={20} color="#9a3412" />,
-      badge: '1:5000',
-      onPress: () => navigation.navigate('GeologicalMapping'),
-    },
-    {
-      id: 'trench_mapping',
-      title: 'Trench Mapping',
-      subtitle: 'Pit profile, vein contacts & channel widths',
-      icon: <Pickaxe size={20} color="#9a3412" />,
-      badge: 'Active',
-      onPress: () => navigation.navigate('GeologicalMapping'),
-    },
-    {
-      id: 'soil_sampling',
-      title: 'Soil Sampling',
-      subtitle: 'Geochemical grid collection & B-horizon logs',
-      icon: <FlaskConical size={20} color="#9a3412" />,
-      badge: '320 Pts',
-      onPress: () => navigation.navigate('SamplingActivity', { type: 'soil' }),
-    },
-    {
-      id: 'stream_sampling',
-      title: 'Stream Sediment Sampling',
-      subtitle: 'Drainage catchment basin reconnaissance',
-      icon: <Layers size={20} color="#9a3412" />,
-      badge: '48 Pts',
-      onPress: () => navigation.navigate('SamplingActivity', { type: 'stream' }),
-    },
-    {
-      id: 'channel_sampling',
-      title: 'Channel Sampling',
-      subtitle: 'Mineralized bench & trench chip samples',
-      icon: <Pickaxe size={20} color="#9a3412" />,
-      badge: '94 Pts',
-      onPress: () => navigation.navigate('SamplingActivity', { type: 'channel' }),
-    },
-    {
-      id: 'core_dpr',
-      title: 'Core Drilling DPR',
-      subtitle: 'Diamond drill daily progress, run depth & RQD',
-      icon: <Compass size={20} color="#9a3412" />,
-      badge: 'BH-04 Live',
-      onPress: () => navigation.navigate('DrillingDpr', { type: 'core' }),
-    },
-    {
-      id: 'core_logging',
-      title: 'Drill Core Logging',
-      subtitle: 'Stratigraphy, mineral zone & core photo archive',
-      icon: <Layers size={20} color="#9a3412" />,
-      badge: '1,420 M',
-      onPress: () => navigation.navigate('DrillingDpr', { type: 'core' }),
-    },
-    {
-      id: 'non_core_dpr',
-      title: 'Non-Core DPR',
-      subtitle: 'Reverse circulation / DTH drilling logs',
-      icon: <Compass size={20} color="#9a3412" />,
-      badge: 'Standby',
-      onPress: () => navigation.navigate('DrillingDpr', { type: 'non-core' }),
-    },
-    {
-      id: 'dispatch_db',
-      title: 'Dispatch Database',
-      subtitle: 'Chain of custody to NABL accredited assay labs',
-      icon: <Send size={20} color="#9a3412" />,
-      badge: 'Batch #14',
-      onPress: () => navigation.navigate('DispatchDatabase'),
-    },
-  ];
+  const dprs = records.filter((r: any) => r.section === 'core-drilling-dpr');
+  const drilling = useMemo(() => {
+    const days = new Map<string, number>();
+    dprs.forEach((r: any) => days.set(r.date, (days.get(r.date) ?? 0) + (Number(recordStat('core-drilling-dpr', r, 'metres')) || 0)));
+    return [...days.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-10).map(([d, m]) => ({ label: formatDayMonth(d), value: Number(m.toFixed(1)) }));
+  }, [dprs]);
+  const metres = drilling.reduce((t, d) => t + d.value, 0);
+
+  const batches = records.filter((r: any) => r.section === 'dispatch-database').sort((a: any, b: any) => (b.date || '').localeCompare(a.date || ''));
+  const atLab = batches.filter((b: any) => !LAB_DONE.includes(fieldsOf(b).STATUS)).reduce((t: number, b: any) => t + rowsOf(b, 'samples').length, 0);
+  // Whoever sent it: an employee's sample in a colleague's batch has gone to the lab too.
+  const sentNumbers = new Set(fieldRecords.filter((r: any) => r.section === 'dispatch-database').flatMap((b: any) => rowsOf(b, 'samples').map(fieldNumber)));
+  const notSent = register.filter((s: any) => !sentNumbers.has(s.number) && (!s.cat || s.cat === 'ORD')).length;
+  const counts = useMemo(() => {
+    const c: Record<string, number> = {};
+    records.forEach((r: any) => (c[r.section] = (c[r.section] ?? 0) + 1));
+    return c;
+  }, [records]);
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+    <View style={fd.root}>
+      <AppHeader title="Field Database" subtitle="Mapping, sampling, drilling and lab dispatch in the client's formats" />
+      <ScrollView contentContainerStyle={fd.body}>
+        <StatGrid
+          items={[
+            { label: 'Samples recorded', value: register.length, sub: `across ${bySection.length} formats`, Icon: TestTubes, tone: 'blue' },
+            { label: 'Metres drilled', value: Number(metres.toFixed(1)), sub: `${dprs.length} daily reports`, Icon: Ruler, tone: 'green' },
+            { label: 'Samples at the lab', value: atLab, sub: 'waiting for results', Icon: FlaskConical, tone: 'amber' },
+            { label: 'Not yet dispatched', value: notSent, sub: 'ordinary samples', Icon: Truck, tone: 'slate' },
+          ]}
+        />
 
-      <View style={[styles.header, { paddingTop: Math.max(insets.top + 6, 16) }]}>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => (navigation.canGoBack() ? navigation.goBack() : navigation.navigate('MainTabs'))}
-          style={styles.backBtn}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <ChevronLeft size={22} color={colors.textPrimary} strokeWidth={2.2} />
-          <Text style={styles.headerTitle}>Field Database</Text>
+        <TouchableOpacity style={[fd.card, styles.qaqc]} activeOpacity={0.8} onPress={() => navigation.navigate('Qaqc', {})}>
+          <View style={styles.qaqcIcon}>
+            <ClipboardCheck size={20} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.qaqcTitle}>QAQC</Text>
+            <Text style={fd.muted}>Lab results checked against blanks, duplicates and CRMs</Text>
+          </View>
+          <ChevronRight size={18} color={colors.textTertiary} />
         </TouchableOpacity>
-        <View style={styles.geologyBadge}>
-          <Text style={styles.geologyBadgeText}>GEOLOGY OS</Text>
-        </View>
-      </View>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.projectContextCard}>
-          <View style={styles.telemetryTopRow}>
-            <View>
-              <Text style={styles.contextCardLabel}>ACTIVE EXPLORATION BLOCK</Text>
-              <Text style={styles.contextProjectName}>
-                {activeProject?.title || 'Bhilwara Lead-Zinc Exploration Block'}
+        <SectionHead title="Sections" count={FIELD_SECTIONS.length} />
+        {FIELD_SECTIONS.map((s: any) => {
+          const Icon = sectionIcon(s);
+          const hasFormat = !!formatOf(s.key);
+          return (
+            <TouchableOpacity key={s.key} style={[fd.card, styles.section]} activeOpacity={0.8} onPress={() => navigation.navigate('FieldSection', { sectionKey: s.key })}>
+              <View style={styles.sectionIcon}>
+                <Icon size={19} color={colors.goldDark} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sectionTitle}>{s.shortTitle}</Text>
+                <Text style={fd.muted} numberOfLines={1}>
+                  {hasFormat ? `Format: ${formatOf(s.key).workbook.replace(/_/g, ' ')}` : 'Format awaited from the client'}
+                </Text>
+              </View>
+              <Text style={styles.sectionCount}>{counts[s.key] || 0}</Text>
+              <ChevronRight size={17} color={colors.textTertiary} />
+            </TouchableOpacity>
+          );
+        })}
+
+        <SectionHead title="Samples by format" />
+        <View style={fd.card}>{bySection.length ? <Bars items={bySection} /> : <Empty text="No samples recorded yet." />}</View>
+
+        <SectionHead title="Metres drilled per day" />
+        <View style={fd.card}>{drilling.length ? <Bars items={drilling} unit=" m" /> : <Empty text="No drilling reports yet." />}</View>
+
+        <SectionHead
+          title="Lab batches"
+          right={
+            <TouchableOpacity onPress={() => navigation.navigate('FieldSection', { sectionKey: 'dispatch-database' })}>
+              <Text style={styles.link}>Sample dispatch</Text>
+            </TouchableOpacity>
+          }
+        />
+        {batches.length === 0 ? <Empty text="No batch sent to a lab yet." /> : null}
+        {batches.slice(0, 5).map((b: any) => {
+          const v = fieldsOf(b);
+          const status = v.STATUS || 'Pending';
+          const steps = [
+            { label: 'Dispatched', on: b.date, done: true, bad: false },
+            { label: 'At lab', on: v.LAB_RECEIVED, done: Boolean(v.LAB_RECEIVED) || status !== 'Pending', bad: false },
+            { label: LAB_DONE.includes(status) ? status : 'Results', on: v.RESULT_RECEIVED, done: LAB_DONE.includes(status), bad: LAB_BAD.includes(status) },
+          ];
+          return (
+            <TouchableOpacity key={b.id} style={[fd.card, { marginBottom: 8 }]} activeOpacity={0.8} onPress={() => navigation.navigate('FieldRecordDetail', { recordId: b.id })}>
+              <Text style={styles.batchId}>{v.BATCH_ID || b.id}</Text>
+              <Text style={fd.muted}>
+                {v.LAB} · {String(v.DATA_TYPE || '').toLowerCase()} · {rowsOf(b, 'samples').length} samples
               </Text>
-            </View>
-            <View style={styles.telemetryLiveBadge}>
-              <View style={styles.livePulseDot} />
-              <Text style={styles.livePulseText}>LIVE RIGS</Text>
-            </View>
-          </View>
-
-          <View style={styles.contextMetaRow}>
-            <Text style={styles.contextMetaText}>
-              Client: {activeProject?.clientName || 'Hindustan Zinc Ltd'}
-            </Text>
-            <Text style={styles.contextMetaDot}>•</Text>
-            <Text style={styles.contextMetaText}>
-              Location: {activeProject?.location || 'Rajasthan'}
-            </Text>
-          </View>
-
-          <View style={styles.telemetryGrid}>
-            <View style={styles.telemetryItem}>
-              <Text style={styles.telemetryItemLabel}>Active Rigs</Text>
-              <Text style={styles.telemetryItemValue}>4 Rigs</Text>
-              <Text style={styles.telemetryItemSub}>BH-01 to BH-04</Text>
-            </View>
-            <View style={styles.telemetryDivider} />
-            <View style={styles.telemetryItem}>
-              <Text style={styles.telemetryItemLabel}>Core Drilled</Text>
-              <Text style={styles.telemetryItemValue}>1,420 M</Text>
-              <Text style={styles.telemetryItemSub}>71% of 2,000 M</Text>
-            </View>
-            <View style={styles.telemetryDivider} />
-            <View style={styles.telemetryItem}>
-              <Text style={styles.telemetryItemLabel}>Samples Logged</Text>
-              <Text style={styles.telemetryItemValue}>462 Pts</Text>
-              <Text style={styles.telemetryItemSub}>Soil & Channel</Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.quickActionsContainer}>
-          <TouchableOpacity
-            style={styles.quickActionBtn}
-            onPress={() => navigation.navigate('GeologicalMapping')}
-            activeOpacity={0.8}
-          >
-            <Map size={16} color="#c2410c" />
-            <Text style={styles.quickActionText}>+ Geological Map</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.quickActionBtn}
-            onPress={() => navigation.navigate('SamplingActivity', { type: 'soil' })}
-            activeOpacity={0.8}
-          >
-            <FlaskConical size={16} color="#c2410c" />
-            <Text style={styles.quickActionText}>+ Soil Sample</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.quickActionBtn}
-            onPress={() => navigation.navigate('DrillingDpr', { type: 'core' })}
-            activeOpacity={0.8}
-          >
-            <Compass size={16} color="#c2410c" />
-            <Text style={styles.quickActionText}>+ Core DPR</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.sectionTitleRow}>
-          <Text style={styles.sectionTitle}>Field Activity Modules</Text>
-          <Text style={styles.sectionSubtitle}>Standardized Logging, Drilling & Dispatch OS</Text>
-        </View>
-
-        <View style={styles.modulesContainer}>
-          {fieldModules.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              activeOpacity={0.7}
-              onPress={item.onPress}
-              style={styles.expansiveModuleCard}
-            >
-              <View style={styles.moduleCardTop}>
-                <View style={styles.iconBox}>{item.icon}</View>
-
-                <View style={styles.infoCol}>
-                  <View style={styles.titleLine}>
-                    <Text style={styles.itemTitle}>{item.title}</Text>
-                    {item.badge && (
-                      <View style={styles.badgePill}>
-                        <Text style={styles.badgeText}>{item.badge}</Text>
+              <View style={styles.steps}>
+                {steps.map((s) => {
+                  const Icon = s.bad ? XCircle : s.done ? CheckCircle2 : s.label === 'Results' ? Clock : Circle;
+                  const tint = s.bad ? colors.danger : s.done ? colors.success : colors.textTertiary;
+                  return (
+                    <View key={s.label} style={styles.step}>
+                      <Icon size={15} color={tint} />
+                      <View>
+                        <Text style={[styles.stepLabel, { color: s.done || s.bad ? colors.textPrimary : colors.textMuted }]} numberOfLines={1}>
+                          {s.label}
+                        </Text>
+                        {s.on ? <Text style={styles.stepDate}>{formatDayMonth(s.on)}</Text> : null}
                       </View>
-                    )}
-                  </View>
-                  <Text style={styles.itemSubtitle}>{item.subtitle}</Text>
-                </View>
-
-                <View style={styles.arrowCircle}>
-                  <ChevronRight size={15} color="#64748b" />
-                </View>
+                    </View>
+                  );
+                })}
               </View>
             </TouchableOpacity>
-          ))}
-        </View>
+          );
+        })}
+
+        <SectionHead title="Recent records" />
+        {records.slice(0, 8).map((r: any) => (
+          <TouchableOpacity key={r.id} style={styles.recent} activeOpacity={0.75} onPress={() => navigation.navigate('FieldRecordDetail', { recordId: r.id })}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.recentId}>{r.id}</Text>
+              <Text style={fd.muted} numberOfLines={1}>
+                {getFieldSectionByKey(r.section)?.shortTitle} · {r.date ? formatDate(r.date) : ''} · {r.employeeName || r.createdBy}
+              </Text>
+            </View>
+            <StatusPill status={r.status} />
+          </TouchableOpacity>
+        ))}
+        {records.length === 0 ? <Empty text="No field records yet." /> : null}
       </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f8fafc',
-  },
-  header: {
-    backgroundColor: '#ffffff',
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border.default,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    ...shadows.xs,
-  },
-  backBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  geologyBadge: {
-    backgroundColor: '#fff7ed',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: '#ffedd5',
-  },
-  geologyBadgeText: {
-    fontSize: 9.5,
-    fontWeight: '800',
-    color: '#9a3412',
-    letterSpacing: 0.5,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.md,
-    paddingBottom: 40,
-  },
-  projectContextCard: {
-    backgroundColor: '#0f172a',
-    borderRadius: radius.xl,
-    padding: spacing.md + 2,
-    marginBottom: spacing.md,
-    ...shadows.sm,
-  },
-  telemetryTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 6,
-  },
-  contextCardLabel: {
-    fontSize: 9.5,
-    fontWeight: '800',
-    color: '#f59e0b',
-    letterSpacing: 0.8,
-    marginBottom: 4,
-  },
-  contextProjectName: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#ffffff',
-  },
-  telemetryLiveBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: 'rgba(234, 88, 12, 0.2)',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: 'rgba(234, 88, 12, 0.4)',
-  },
-  livePulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#ea580c',
-  },
-  livePulseText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#fed7aa',
-    letterSpacing: 0.4,
-  },
-  contextMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: spacing.md,
-  },
-  contextMetaText: {
-    fontSize: 11.5,
-    color: '#94a3b8',
-  },
-  contextMetaDot: {
-    color: '#64748b',
-  },
-  telemetryGrid: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-    borderRadius: radius.lg,
-    paddingVertical: spacing.sm + 2,
-    paddingHorizontal: spacing.sm,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  telemetryItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  telemetryDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  telemetryItemLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#94a3b8',
-    marginBottom: 2,
-  },
-  telemetryItemValue: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#ffffff',
-    marginBottom: 1,
-  },
-  telemetryItemSub: {
-    fontSize: 9.5,
-    fontWeight: '500',
-    color: '#ea580c',
-  },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: spacing.lg,
-  },
-  quickActionBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    backgroundColor: '#ffffff',
-    paddingVertical: 10,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    ...shadows.xs,
-  },
-  quickActionText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0f172a',
-  },
-  sectionTitleRow: {
-    marginBottom: spacing.sm,
-  },
-  sectionTitle: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: colors.textPrimary,
-  },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: colors.textMuted,
-  },
-  modulesContainer: {
-    gap: 10,
-  },
-  expansiveModuleCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: radius.xl,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-    ...shadows.xs,
-  },
-  moduleCardTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.lg,
-    backgroundColor: '#fff7ed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: spacing.md,
-    borderWidth: 1,
-    borderColor: '#ffedd5',
-  },
-  infoCol: {
-    flex: 1,
-    paddingRight: spacing.sm,
-  },
-  titleLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 3,
-  },
-  itemTitle: {
-    fontSize: 14.5,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  itemSubtitle: {
-    fontSize: 12,
-    color: colors.textMuted,
-    lineHeight: 16,
-  },
-  badgePill: {
-    backgroundColor: '#fff7ed',
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: '#ffedd5',
-  },
-  badgeText: {
-    color: '#9a3412',
-    fontSize: 10,
-    fontWeight: '700',
-  },
-  arrowCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: '#f1f5f9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  qaqc: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 12, borderLeftWidth: 4, borderLeftColor: colors.primary },
+  qaqcIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.primaryBg, alignItems: 'center', justifyContent: 'center' },
+  qaqcTitle: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary },
+  section: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 8, paddingVertical: 12 },
+  sectionIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: colors.goldBg, alignItems: 'center', justifyContent: 'center' },
+  sectionTitle: { fontSize: 14.5, fontWeight: '700', color: colors.textPrimary },
+  sectionCount: { fontFamily: fonts.serif, fontSize: 17, color: colors.textPrimary, minWidth: 22, textAlign: 'right' },
+  barRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  barLabel: { width: 110, fontSize: 12, color: colors.textSecondary },
+  barTrack: { flex: 1, height: 14, borderRadius: 4, backgroundColor: colors.surfaceMuted, overflow: 'hidden' },
+  bar: { height: 14, borderRadius: 4, backgroundColor: colors.primaryLight },
+  barValue: { minWidth: 44, textAlign: 'right', fontSize: 12.5, fontWeight: '700', color: colors.textPrimary },
+  link: { fontSize: 13, fontWeight: '700', color: colors.primary },
+  batchId: { fontFamily: 'monospace', fontSize: 14, fontWeight: '700', color: colors.primaryDark },
+  steps: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  step: { flex: 1, flexDirection: 'row', gap: 5, alignItems: 'flex-start' },
+  stepLabel: { fontSize: 12, fontWeight: '600' },
+  stepDate: { fontSize: 11, color: colors.textMuted },
+  recent: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: colors.borderLight },
+  recentId: { fontFamily: 'monospace', fontSize: 13, fontWeight: '700', color: colors.textPrimary },
 });

@@ -132,16 +132,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: '#e3f4ec',
     padding: 12,
     borderRadius: radius.md,
     marginBottom: spacing.sm,
     borderWidth: 1,
-    borderColor: '#bbf7d0',
+    borderColor: '#bfe3d0',
   },
   policyText: {
     fontSize: typography.fontSizes.xs,
-    color: '#166534',
+    color: '#1d6646',
     flex: 1,
     lineHeight: 18,
     fontWeight: '500',
@@ -165,17 +165,17 @@ const styles = StyleSheet.create({
   },
   quoteNo: {
     fontSize: typography.fontSizes.sm,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   clientName: {
     fontSize: typography.fontSizes.base,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   projectTitle: {
     fontSize: typography.fontSizes.xs,
-    color: '#64748b',
+    color: '#627079',
     marginTop: 2,
     marginBottom: spacing.sm,
   },
@@ -194,20 +194,20 @@ const styles = StyleSheet.create({
   },
   itemDesc: {
     fontSize: typography.fontSizes.xs,
-    color: '#334155',
+    color: '#34495a',
     flex: 2,
     fontWeight: '500',
   },
   itemQty: {
     fontSize: typography.fontSizes.xxs,
-    color: '#64748b',
+    color: '#627079',
     flex: 1,
     textAlign: 'center',
   },
   itemAmount: {
     fontSize: typography.fontSizes.xs,
     fontWeight: '600',
-    color: '#0f172a',
+    color: '#0f2a3d',
     flex: 1,
     textAlign: 'right',
   },
@@ -222,12 +222,12 @@ const styles = StyleSheet.create({
   },
   sumLabel: {
     fontSize: typography.fontSizes.xs,
-    color: '#64748b',
+    color: '#627079',
   },
   sumVal: {
     fontSize: typography.fontSizes.xs,
     fontWeight: '600',
-    color: '#1e293b',
+    color: '#0f2a3d',
   },
   totalRow: {
     borderTopWidth: 1,
@@ -238,11 +238,11 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: typography.fontSizes.sm,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#0f2a3d',
   },
   totalVal: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   btnRow: {

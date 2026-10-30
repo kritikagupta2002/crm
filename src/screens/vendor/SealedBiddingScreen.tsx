@@ -24,7 +24,7 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
   if (!tender) {
     return (
       <View style={styles.container}>
-        <AppHeader title="Dual-Key Unsealing" showBack onBack={() => navigation.goBack()} />
+        <AppHeader title="Open bids" showBack onBack={() => navigation.goBack()} />
         <Text style={styles.notFoundText}>Tender record not found.</Text>
       </View>
     );
@@ -40,14 +40,14 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
 
   const handleExecuteUnseal = async () => {
     if (!bothKeysEngaged) {
-      Alert.alert('Dual-Key Authentication Required', 'Both Director & Tender Manager must authorize the unsealing ceremony.');
+      Alert.alert('Both must confirm', 'The Director and the Tender Manager must both confirm before the bids are opened.');
       return;
     }
 
     try {
       setIsUnsealing(true);
       await unsealTenderBids(tender.id, dirKeyConfirmed, tmKeyConfirmed);
-      Alert.alert('Protocol Complete', 'All sealed bids have been successfully decrypted and ranked in the Comparative L1 Matrix.');
+      Alert.alert('Bids opened', 'The bids are open and listed lowest first.');
     } catch (err: any) {
       Alert.alert('Unsealing Failed', err.message || 'Error occurred while decrypting bids.');
     } finally {
@@ -88,8 +88,8 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
   return (
     <View style={styles.container}>
       <AppHeader
-        title="Dual-Key Sealed Bidding"
-        subtitle={`Protocol for ${tender.id}`}
+        title="Open bids"
+        subtitle={tender.refNo || tender.tenderNo || tender.id}
         showBack
         onBack={() => navigation.goBack()}
       />
@@ -115,7 +115,7 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
             <View style={styles.ceremonyHeader}>
               <ShieldCheck size={28} color={colors.primary} />
               <View style={styles.chamberTextWrap}>
-                <Text style={styles.chamberTitle}>Dual-Key Authorization Protocol</Text>
+                <Text style={styles.chamberTitle}>Both confirm to open the bids</Text>
                 <Text style={styles.chamberDesc}>
                   Under Government & Corporate Procurement guidelines, tender unsealing requires simultaneous electronic sign-off by two designated custodians.
                 </Text>
@@ -131,9 +131,9 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
                   <Key size={20} color={dirKeyConfirmed ? colors.primary : colors.text.tertiary} />
                 </View>
                 <View style={styles.keyDetails}>
-                  <Text style={styles.keyRole}>Key 1: Managing Director</Text>
+                  <Text style={styles.keyRole}>Director</Text>
                   <Text style={styles.keyStatus}>
-                    {dirKeyConfirmed ? 'Authenticated & Armed' : 'Awaiting Authorization'}
+                    {dirKeyConfirmed ? 'Confirmed' : 'Waiting'}
                   </Text>
                 </View>
                 {dirKeyConfirmed ? (
@@ -151,9 +151,9 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
                   <Key size={20} color={tmKeyConfirmed ? colors.primary : colors.text.tertiary} />
                 </View>
                 <View style={styles.keyDetails}>
-                  <Text style={styles.keyRole}>Key 2: Tender Officer / Head</Text>
+                  <Text style={styles.keyRole}>Tender Manager</Text>
                   <Text style={styles.keyStatus}>
-                    {tmKeyConfirmed ? 'Authenticated & Armed' : 'Awaiting Authorization'}
+                    {tmKeyConfirmed ? 'Confirmed' : 'Waiting'}
                   </Text>
                 </View>
                 {tmKeyConfirmed ? (
@@ -165,7 +165,7 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
             </View>
 
             <Button
-              title={bothKeysEngaged ? "Execute Dual-Key Unseal Protocol" : "Dual Keys Required to Unseal"}
+              title={bothKeysEngaged ? "Open the bids" : "Both must confirm first"}
               variant={bothKeysEngaged ? "primary" : "secondary"}
               disabled={!bothKeysEngaged}
               loading={isUnsealing}
@@ -179,7 +179,7 @@ export const SealedBiddingScreen: React.FC<{ route: any; navigation: any }> = ({
           <Card style={styles.matrixCard}>
             <View style={styles.matrixHeader}>
               <View>
-                <Text style={styles.matrixTitle}>Comparative L1 Evaluation Matrix</Text>
+                <Text style={styles.matrixTitle}>Bids, lowest first</Text>
                 <Text style={styles.matrixSubtitle}>Bids decrypted & ranked in ascending order of price</Text>
               </View>
               <FileCheck size={24} color={colors.primary} />
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
   },
   rankCircleText: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.secondary,
   },
   rankCircleTextL1: {
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
   },
   matrixVendorNameL1: {
     color: colors.primary,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   matrixVendorMeta: {
     ...typography.caption,
@@ -467,7 +467,7 @@ const styles = StyleSheet.create({
   },
   matrixAmountL1: {
     color: colors.primary,
-    fontWeight: '900',
+    fontWeight: '700',
   },
   winnerTag: {
     marginTop: 2,

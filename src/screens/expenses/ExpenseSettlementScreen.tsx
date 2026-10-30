@@ -320,7 +320,7 @@ const styles = StyleSheet.create({
   },
   finValue: {
     ...typography.body,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: 2,
   },
@@ -383,7 +383,7 @@ const styles = StyleSheet.create({
   },
   ledgerHeading: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.secondary,
     letterSpacing: 0.5,
   },
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   },
   drCrTag: {
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     paddingHorizontal: 5,
     paddingVertical: 2,
     borderRadius: 3,

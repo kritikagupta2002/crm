@@ -11,7 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ArrowLeft, Bell } from 'lucide-react-native';
-import { colors, spacing, typography, radius, shadows } from '../../theme';
+import { colors, fonts, spacing, typography, radius, shadows } from '../../theme';
 import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
 
@@ -68,8 +68,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     <View style={[styles.headerContainer, { paddingTop: Math.max(topInset + 4, 12), paddingHorizontal: headerPadding }]}>
       <StatusBar
         barStyle="dark-content"
-        translucent
-        backgroundColor="transparent"
       />
       
       <View style={[styles.contentRow, isTablet && styles.tabletContentRow]}>
@@ -94,7 +92,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             ) : null}
 
             <Text
-              style={[styles.screenTitle, isNarrow && { fontSize: 16 }]}
+              style={[styles.screenTitle, isNarrow && { fontSize: 17 }]}
               numberOfLines={1}
               adjustsFontSizeToFit
               minimumFontScale={0.8}
@@ -196,7 +194,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: '#99f6e4',
+    borderColor: '#b7dadb',
     marginBottom: 3,
   },
   badgeIconWrapper: {
@@ -209,10 +207,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   screenTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontFamily: fonts.serif,
+    fontSize: 19,
     color: colors.textPrimary,
-    letterSpacing: -0.3,
   },
   subtitle: {
     fontSize: typography.fontSizes.xs,
@@ -254,6 +251,6 @@ const styles = StyleSheet.create({
   bellDotText: {
     color: colors.white,
     fontSize: 8.5,
-    fontWeight: '800',
+    fontWeight: '700',
   },
 });

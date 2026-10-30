@@ -271,7 +271,7 @@ export const VouchersScreen: React.FC<{ navigation: any }> = ({ navigation }) =>
     <View style={styles.container}>
       <AppHeader
         title="Double-Entry Vouchers"
-        subtitle="General ledger, journal & payment vouchers"
+        subtitle="Payment, receipt and journal entries"
         showBack
         onBack={() => navigation.goBack()}
         rightAction={
@@ -841,7 +841,7 @@ const styles = StyleSheet.create({
   auditStatValue: {
     ...typography.caption,
     fontSize: 12,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     marginTop: 2,
   },
@@ -898,7 +898,7 @@ const styles = StyleSheet.create({
   },
   vNumber: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
   },
   typeBadge: {
@@ -949,13 +949,13 @@ const styles = StyleSheet.create({
   drTag: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.success,
   },
   crTag: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.warning,
   },
   accountText: {
@@ -1109,7 +1109,7 @@ const styles = StyleSheet.create({
   deFormTitle: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.primary,
     letterSpacing: 0.8,
     marginBottom: 4,
@@ -1194,7 +1194,7 @@ const styles = StyleSheet.create({
   },
   parityLiveAmount: {
     ...typography.caption,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
   },
   deRule: {
@@ -1267,7 +1267,7 @@ const styles = StyleSheet.create({
   detailTableColHead: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
   },
   detailLedgerLine: {
@@ -1276,11 +1276,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   drTagInline: {
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.success,
   },
   crTagInline: {
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.semantic.warning,
   },
   detailAccName: {
@@ -1305,13 +1305,13 @@ const styles = StyleSheet.create({
   detailTotalLabel: {
     ...typography.caption,
     fontSize: 10,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.secondary,
   },
   detailTotalAmount: {
     ...typography.caption,
     fontSize: 11,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.primary,
     fontVariant: ['tabular-nums'],
   },
@@ -1324,7 +1324,7 @@ const styles = StyleSheet.create({
   detailNarrationLabel: {
     ...typography.caption,
     fontSize: 9,
-    fontWeight: '800',
+    fontWeight: '700',
     color: colors.text.tertiary,
   },
   detailNarrationText: {

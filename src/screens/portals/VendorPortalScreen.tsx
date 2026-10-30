@@ -124,7 +124,7 @@ export const VendorPortalScreen: React.FC<{ navigation: any }> = ({
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" />
       <VendorPortalHeader
         vendorName={vendorName}
         vendorCode={vendorCode}
