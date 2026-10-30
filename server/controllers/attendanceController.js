@@ -92,22 +92,22 @@ export const attendanceController = {
 
   recordPunch: async (req, res, next) => {
     try {
-      const { employeeId, punchType, source = 'Web Portal', latitude, longitude } = req.body;
+      const { employeeId, punchType, source = 'Web Portal', latitude, longitude, accuracy } = req.body;
+      const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip;
+
       if (!employeeId) {
         return res.status(400).json({ success: false, error: 'Employee ID is required.' });
       }
 
-      // Geofence boundary verification
-      if (typeof latitude === 'number' && typeof longitude === 'number') {
-        const geo = verifyGeofence(latitude, longitude);
-        if (!geo.isInside) {
-          const dist = Math.round(geo.distanceMeters || 0);
-          return res.status(403).json({
-            success: false,
-            error: `Attendance locked: You are outside the office geofence (${dist}m away). Move inside the office boundary to punch.`,
-            geofence: geo,
-          });
-        }
+      // Geofence boundary verification with 15m buffer & office IP fallback
+      const geo = verifyGeofence(latitude, longitude, accuracy, clientIp);
+      if (!geo.isInside) {
+        const dist = Math.round(geo.distanceMeters || 0);
+        return res.status(403).json({
+          success: false,
+          error: `Attendance locked: You are outside the office geofence (${dist}m away). Move inside the office boundary to punch.`,
+          geofence: geo,
+        });
       }
 
       const today = new Date().toISOString().slice(0, 10);

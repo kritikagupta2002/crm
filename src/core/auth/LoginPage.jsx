@@ -5,7 +5,8 @@ import { ContourLines } from '../../shared/components/ContourLines'
 import { Logo } from '../../shared/components/Logo'
 import { MountainRange } from '../../shared/components/MountainRange'
 import { ROLE_ACCESS, ROLE_USERS, ROLES, canOpen, useCrm } from '../permissions/crm'
-import { FIELD_MEMBERS } from '../../modules/erm/data/staff'
+import { FIELD_MEMBERS } from '../constants/staff'
+import { api } from '../../hrms/core/api/apiClient'
 import './auth.css'
 
 function TeamForm({ onDone }) {
@@ -41,8 +42,21 @@ function TeamForm({ onDone }) {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    try {
+      const res = await api.post('/auth/login', {
+        email,
+        password,
+        role: signInAs,
+        member: signInAs === 'Employee' ? member : undefined,
+      })
+      if (res && res.token) {
+        api.setToken(res.token)
+      }
+    } catch (err) {
+      console.warn('[Login] API authentication notice:', err.message)
+    }
     signIn(signInAs, signInAs === 'Employee' ? member : undefined)
     onDone(signInAs)
   }

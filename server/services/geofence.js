@@ -6,6 +6,7 @@
  * 3: 26.853823, 75.767448
  * 4: 26.854029, 75.767214
  */
+import { config } from '../config/config.js';
 
 export const OFFICE_POLYGON = [
   [26.853858, 75.766749],
@@ -18,6 +19,9 @@ export const OFFICE_CENTROID = [
   (26.853858 + 26.853565 + 26.853823 + 26.854029) / 4,
   (75.766749 + 75.766882 + 75.767448 + 75.767214) / 4,
 ];
+
+// Production buffer tolerance (15 meters) to accommodate indoor GPS drift & concrete building attenuation
+export const BUFFER_TOLERANCE_METERS = 15;
 
 export function haversineDistanceMeters(lat1, lon1, lat2, lon2) {
   const R = 6371000;
@@ -72,16 +76,52 @@ export function getDistanceToPolygon(point, vs = OFFICE_POLYGON) {
   return Math.round(minDist * 10) / 10;
 }
 
-export function verifyGeofence(latitude, longitude) {
+/**
+ * Check if the client IP is on the trusted Office Network / Localhost
+ */
+export function isOfficeNetworkIp(clientIp) {
+  if (!clientIp) return false;
+  const cleanIp = clientIp.replace(/^::ffff:/, '');
+  return config.officeIps.some((trusted) => cleanIp === trusted || cleanIp.startsWith(trusted));
+}
+
+/**
+ * Full Production Geofence Evaluation
+ * Includes 15-meter buffer margin and accuracy threshold check
+ */
+export function verifyGeofence(latitude, longitude, accuracy = null, clientIp = null) {
+  // 1. Check office IP fallback for desktop workstations
+  if (isOfficeNetworkIp(clientIp)) {
+    return {
+      isInside: true,
+      distanceMeters: 0,
+      verifiedBy: 'Office Network / IP Whitelist',
+      centroid: OFFICE_CENTROID,
+      polygon: OFFICE_POLYGON,
+    };
+  }
+
   if (typeof latitude !== 'number' || typeof longitude !== 'number') {
     return { isInside: false, distanceMeters: null, error: 'GPS coordinates missing.' };
   }
+
   const point = [latitude, longitude];
-  const isInside = isPointInPolygon(point);
+  const rawInside = isPointInPolygon(point);
   const distanceMeters = getDistanceToPolygon(point);
+
+  // Apply 15m buffer tolerance: if user is within 15 meters of perimeter, grant access
+  const isInside = rawInside || distanceMeters <= BUFFER_TOLERANCE_METERS;
+
+  const isLowAccuracy = typeof accuracy === 'number' && accuracy > 50;
+
   return {
     isInside,
+    rawInside,
     distanceMeters,
+    accuracy: typeof accuracy === 'number' ? Math.round(accuracy) : null,
+    isLowAccuracy,
+    bufferApplied: !rawInside && isInside,
+    verifiedBy: 'Office Polygon GPS Geofence',
     centroid: OFFICE_CENTROID,
     polygon: OFFICE_POLYGON,
   };

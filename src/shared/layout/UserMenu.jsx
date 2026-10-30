@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ROLE_ACCESS, ROLE_USERS, ROLES, canOpen, initialsOf, useCrm } from '../../core/permissions/crm'
 import { RoleLink } from '../components/RoleLink'
 import { usePopover } from '../hooks/usePopover'
-import { FIELD_MEMBERS } from '../../modules/erm/data/staff'
+import { FIELD_MEMBERS } from '../../core/constants/staff'
 import { NAV_ITEMS } from './navigation'
 
 /*

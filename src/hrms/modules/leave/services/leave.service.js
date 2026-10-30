@@ -1,4 +1,5 @@
 import { storage } from '@/core/storage/storage';
+import { api } from '@/core/api/apiClient';
 import { countWorkingDays, getWorkingDates } from '@/modules/leave/utils/workingDays';
 import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
 /**
@@ -116,7 +117,16 @@ export const leaveService = {
         return new Promise((resolve) => setTimeout(() => resolve(storage.getAllEmployeeBalances()), 50));
     },
     getRequests: async () => {
-        return new Promise((resolve) => setTimeout(() => resolve(storage.getLeaveRequests()), 50));
+        try {
+            const res = await api.get('/leaves/requests');
+            if (res && res.success && Array.isArray(res.data)) {
+                storage.setLeaveRequests(res.data);
+                return res.data;
+            }
+        } catch (e) {
+            console.warn('[Leave Service] Remote API unavailable, using local cache:', e.message);
+        }
+        return storage.getLeaveRequests();
     },
     applyLeave: async (data) => {
         if (!data.employeeId) {
@@ -178,6 +188,9 @@ export const leaveService = {
         storage.getBalancesForEmployee(data.employeeId, data.employeeName);
         // Notify HR
         dispatchLeaveNotification('New Leave Request Submitted', `${data.employeeName} submitted a new request for ${calculatedDays} working day(s) of ${data.leaveType}.`, 'hr', 'info');
+        try {
+            api.post('/leaves/requests', newReq).catch((e) => console.warn('[Leave Service] Remote sync error:', e.message));
+        } catch {}
         return new Promise((resolve) => setTimeout(() => resolve(newReq), 80));
     },
     reviewLeave: async (id, decision, approverName, approverComment, customApprovedDays, reviewerEmployeeId) => {
@@ -242,6 +255,14 @@ export const leaveService = {
             ? `partially approved (${finalApprovedDays} of ${requested} days approved, ${finalRejectedDays} days rejected)`
             : finalStatus.toLowerCase();
         dispatchLeaveNotification(`Leave Request ${finalStatus}`, `Your request for ${req.leaveType} (${req.startDate} to ${req.endDate}) has been ${statusText} by ${approverName}.${approverComment ? ` Remark: "${approverComment}"` : ''}`, 'employee', finalStatus === 'Approved' ? 'success' : finalStatus === 'Partially Approved' ? 'warning' : 'urgent', req.employeeId);
+        try {
+            api.put(`/leaves/requests/${id}/status`, {
+                status: finalStatus,
+                approverName,
+                approverComment,
+                approvedDays: finalApprovedDays,
+            }).catch((e) => console.warn('[Leave Service] Remote review sync error:', e.message));
+        } catch {}
         return new Promise((resolve) => setTimeout(() => resolve(true), 80));
     },
     cancelLeave: async (id) => {

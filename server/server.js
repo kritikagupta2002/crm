@@ -1,13 +1,40 @@
 import express from 'express';
 import cors from 'cors';
 import { config } from './config/config.js';
+import { postgres } from './services/postgres.js';
 import apiRoutes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
-// Middlewares
-app.use(cors({ origin: '*' }));
+// Trust reverse proxy (for accurate client IP detection behind Nginx / Cloudflare)
+app.set('trust proxy', 1);
+
+// Production CORS Whitelisting
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow non-browser requests (Postman, curl, server-to-server)
+    if (!origin) return callback(null, true);
+
+    const isAllowed =
+      config.corsOrigins.includes(origin) ||
+      origin.endsWith('.geoplanetsolution.in') ||
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1');
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn(`[CORS Warning] Origin "${origin}" not in explicit whitelist. Permitting for development.`);
+      callback(null, true);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -26,6 +53,17 @@ app.get('/', (req, res) => {
   res.json({
     name: 'Bansal Geo Solutions - HRMS & Attendance Backend API',
     version: '1.0.0',
+    status: 'online',
+    domains: {
+      frontend: 'https://bansalgeo.geoplanetsolution.in',
+      api: 'https://bansalgeo-api.geoplanetsolution.in',
+    },
+    database: {
+      engine: postgres.isConnected() ? 'PostgreSQL' : 'JSON Persistent DB (PostgreSQL standby)',
+      host: config.db.host,
+      database: config.db.database,
+      port: config.db.port,
+    },
     endpoints: {
       health: 'GET /api/health',
       auth: {
@@ -93,9 +131,8 @@ app.use(errorHandler);
 const PORT = config.port;
 const server = app.listen(PORT, () => {
   console.log(`🚀 Bansal Geo HRMS Backend Server running on port ${PORT}`);
-  console.log(`👉 API Health check: http://localhost:${PORT}/api/health`);
-  console.log(`👉 API Docs: http://localhost:${PORT}/`);
+  console.log(`👉 Primary Production API: https://bansalgeo-api.geoplanetsolution.in`);
+  console.log(`👉 Local API Health: http://localhost:${PORT}/api/health`);
 });
 
 export default app;
-

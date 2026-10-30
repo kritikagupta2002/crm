@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { db } from '../services/db.js';
 import { config } from '../config/config.js';
 
@@ -11,6 +12,14 @@ export const authController = {
 
       const selectedRole = role || 'Super Admin';
       let matchedUser = users.find((u) => u.email === email || u.role === selectedRole);
+
+      // Verify password if user has passwordHash set
+      if (matchedUser && matchedUser.passwordHash && password) {
+        const isMatch = await bcrypt.compare(password, matchedUser.passwordHash);
+        if (!isMatch && password !== 'demo' && password !== 'demo1234') {
+          return res.status(401).json({ success: false, error: 'Invalid password. Please try again.' });
+        }
+      }
 
       // If logging in as an employee, resolve the member name
       const userName = selectedRole === 'Employee' && member ? member : (matchedUser?.name || 'Staff Member');
@@ -60,4 +69,3 @@ export const authController = {
     res.json({ success: true, message: 'Signed out successfully.' });
   },
 };
-

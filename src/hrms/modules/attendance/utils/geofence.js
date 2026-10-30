@@ -20,6 +20,9 @@ export const OFFICE_CENTROID = [
   (75.766749 + 75.766882 + 75.767448 + 75.767214) / 4,
 ]; // ~ [26.8538188, 75.7670733]
 
+// 15-meter buffer margin to accommodate concrete building walls and GPS attenuation
+export const BUFFER_TOLERANCE_METERS = 15;
+
 export const OFFICE_INFO = {
   name: 'Bansal Geo Solutions Pvt. Ltd.',
   title: 'HQ & Attendance Geofence Zone',
@@ -74,8 +77,6 @@ export function isPointInPolygon(point, vs = OFFICE_GEOFENCE_POLYGON) {
  */
 function distToSegment(p, v, w) {
   const d1 = haversineDistanceMeters(p[0], p[1], v[0], v[1]);
-  const d2 = haversineDistanceMeters(p[0], p[1], w[0], w[1]);
-
   const dx = w[0] - v[0];
   const dy = w[1] - v[1];
   const lenSq = dx * dx + dy * dy;
@@ -107,29 +108,47 @@ export function getDistanceToPolygon(point, vs = OFFICE_GEOFENCE_POLYGON) {
 }
 
 /**
- * Evaluates geofence status for given coordinates
+ * Evaluates geofence status for given coordinates with 15m buffer tolerance & accuracy check
  */
 export function evaluateGeofence(latitude, longitude, accuracy = 0) {
   if (typeof latitude !== 'number' || typeof longitude !== 'number') {
     return {
       isInside: false,
+      rawInside: false,
       distanceMeters: null,
       status: 'unknown',
       message: 'GPS coordinates unavailable',
+      isLowAccuracy: false,
     };
   }
 
   const point = [latitude, longitude];
-  const isInside = isPointInPolygon(point, OFFICE_GEOFENCE_POLYGON);
+  const rawInside = isPointInPolygon(point, OFFICE_GEOFENCE_POLYGON);
   const distanceMeters = getDistanceToPolygon(point, OFFICE_GEOFENCE_POLYGON);
+
+  // Apply 15m buffer tolerance for indoor reception & device drift
+  const isInside = rawInside || distanceMeters <= BUFFER_TOLERANCE_METERS;
+  const isLowAccuracy = typeof accuracy === 'number' && accuracy > 50;
+
+  let message = '';
+  if (isInside) {
+    message = rawInside
+      ? 'You are inside the office polygon. Attendance punch is enabled.'
+      : 'You are within the 15-meter office buffer zone. Attendance punch is enabled.';
+  } else {
+    message = `You are ${distanceMeters < 1000 ? `${Math.round(distanceMeters)}m` : `${(distanceMeters / 1000).toFixed(2)}km`} away from the office. Move inside to punch attendance.`;
+  }
 
   return {
     isInside,
+    rawInside,
     distanceMeters,
     accuracy: Math.round(accuracy),
+    isLowAccuracy,
     status: isInside ? 'inside' : 'outside',
-    message: isInside
-      ? 'You are inside the office geofence zone. Attendance punch is enabled.'
-      : `You are ${distanceMeters < 1000 ? `${Math.round(distanceMeters)}m` : `${(distanceMeters / 1000).toFixed(2)}km`} away from the office. Move inside to punch attendance.`,
+    message,
+    accuracyWarning: isLowAccuracy
+      ? `Low GPS accuracy (±${Math.round(accuracy)}m). Indoor reception may drift. Please step near a window if verification is delayed.`
+      : null,
   };
 }

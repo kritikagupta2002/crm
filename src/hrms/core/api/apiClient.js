@@ -1,6 +1,28 @@
-const API_BASE = '/api';
+/**
+ * Bansal Geo Solutions - HRMS API Client
+ * Production-ready HTTP client with automatic base URL detection,
+ * Bearer token authentication, and offline fallback resilience.
+ */
+
+function resolveApiBase() {
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // Production cloud domain
+    if (host.includes('bansalgeo.geoplanetsolution.in')) {
+      return 'https://bansalgeo-api.geoplanetsolution.in/api';
+    }
+  }
+  // Development / Local environment (Vite proxy forwards /api to localhost:5000)
+  return '/api';
+}
+
+const API_BASE = resolveApiBase();
 
 class ApiClient {
+  constructor() {
+    this.baseUrl = API_BASE;
+  }
+
   getToken() {
     try {
       return localStorage.getItem('bgspl_auth_token') || '';
@@ -22,7 +44,8 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
-    const url = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${cleanEndpoint}`;
     const token = this.getToken();
 
     const headers = {
@@ -89,4 +112,4 @@ class ApiClient {
 }
 
 export const api = new ApiClient();
-
+export const apiClient = api;
