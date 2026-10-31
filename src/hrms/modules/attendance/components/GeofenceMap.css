@@ -4,22 +4,64 @@
 .geofence-map-container {
   position: relative;
   width: 100%;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.9);
   background: #f8fafc;
 }
 
 .dark .geofence-map-container {
-  border-color: #1e293b;
+  border-color: rgba(30, 41, 59, 0.9);
   background: #0f172a;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
 .geofence-leaflet {
   width: 100%;
   height: 100%;
   z-index: 1;
+}
+
+/* Radar Scan Sweep Line Effect */
+.radar-scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 400;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.radar-sweep-beam {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 280px;
+  height: 280px;
+  margin-top: -140px;
+  margin-left: -140px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(13, 148, 136, 0.35);
+  box-shadow: 0 0 20px rgba(13, 148, 136, 0.15) inset, 0 0 15px rgba(13, 148, 136, 0.2);
+  animation: radar-sonar-ping 3s cubic-bezier(0.2, 0.8, 0.4, 1) infinite;
+}
+
+@keyframes radar-sonar-ping {
+  0% {
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 
 /* User Location Pulsing DivIcon */
@@ -31,69 +73,73 @@
 }
 
 .user-marker-pulse .pulse-core {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #0f766e;
-  border: 2.5px solid #ffffff;
-  box-shadow: 0 0 10px rgba(15, 118, 110, 0.6);
+  background: #0d9488;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 12px rgba(13, 148, 136, 0.8), 0 0 4px rgba(0, 0, 0, 0.3);
   z-index: 2;
+  transition: all 0.3s ease;
 }
 
 .user-marker-pulse.is-outside .pulse-core {
   background: #e11d48;
-  box-shadow: 0 0 10px rgba(225, 29, 72, 0.6);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.8), 0 0 4px rgba(0, 0, 0, 0.3);
 }
 
 .user-marker-pulse .pulse-ring {
   position: absolute;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(15, 118, 110, 0.3);
-  animation: pulse-animation 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  background: rgba(13, 148, 136, 0.25);
+  border: 1px solid rgba(13, 148, 136, 0.6);
+  animation: pulse-animation 2.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
   z-index: 1;
 }
 
 .user-marker-pulse.is-outside .pulse-ring {
-  background: rgba(225, 29, 72, 0.3);
-  animation: pulse-animation-outside 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  background: rgba(225, 29, 72, 0.25);
+  border-color: rgba(225, 29, 72, 0.6);
+  animation: pulse-animation-outside 2.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
 }
 
 @keyframes pulse-animation {
   0% {
-    transform: scale(0.4);
-    opacity: 0.9;
+    transform: scale(0.35);
+    opacity: 0.95;
   }
   100% {
-    transform: scale(1.6);
+    transform: scale(1.8);
     opacity: 0;
   }
 }
 
 @keyframes pulse-animation-outside {
   0% {
-    transform: scale(0.4);
-    opacity: 0.9;
+    transform: scale(0.35);
+    opacity: 0.95;
   }
   100% {
-    transform: scale(1.6);
+    transform: scale(1.8);
     opacity: 0;
   }
 }
 
 /* Custom polygon tooltip */
 .leaflet-tooltip.geofence-tooltip {
-  background: #0f172a;
+  background: rgba(15, 23, 42, 0.92);
   color: #ffffff;
-  border: none;
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
   font-size: 11px;
   font-weight: 600;
-  padding: 4px 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 5px 10px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
 }
 
 .leaflet-tooltip.geofence-tooltip::before {
-  border-top-color: #0f172a;
+  border-top-color: rgba(15, 23, 42, 0.92);
 }

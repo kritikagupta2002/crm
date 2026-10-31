@@ -62,14 +62,16 @@ export function GeofenceMap({
       maxZoom: 20,
     }).addTo(map);
 
-    // Office Geofence Polygon
+    // Office Geofence Polygon with high-tech glowing styling
     const polygon = L.polygon(OFFICE_GEOFENCE_POLYGON, {
-      color: '#0f766e',
-      weight: 2.5,
-      opacity: 0.9,
+      color: '#0d9488',
+      weight: 3,
+      opacity: 0.95,
       fillColor: '#14b8a6',
-      fillOpacity: 0.3,
-      dashArray: '5, 5',
+      fillOpacity: 0.28,
+      dashArray: '6, 6',
+      lineCap: 'round',
+      lineJoin: 'round',
     }).addTo(map);
 
     polygon.bindPopup(`
@@ -375,6 +377,9 @@ export function GeofenceMap({
         style={{ height }}
       >
         <div ref={mapContainerRef} className="geofence-leaflet" />
+        <div className="radar-scanner-overlay" aria-hidden="true">
+          <div className="radar-sweep-beam"></div>
+        </div>
 
         {/* Top-Right Quick Map Controls */}
         <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md">

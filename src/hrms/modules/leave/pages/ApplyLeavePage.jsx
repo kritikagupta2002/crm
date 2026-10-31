@@ -254,79 +254,93 @@ export const ApplyLeavePage = () => {
           </Button>}/>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card className="p-5 sm:p-6 space-y-5">
-          {/* Employee Demographic Header */}
-          <div className="flex flex-wrap items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800 gap-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-                <UserCheck className="w-5 h-5"/>
+        <Card className="p-6 sm:p-7 space-y-6 shadow-sm border-t-4 border-t-teal-600 dark:border-t-teal-500">
+          {/* Employee Demographic Header Card */}
+          <div className="flex flex-wrap items-center justify-between pb-5 border-b border-slate-100 dark:border-slate-800 gap-3">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+                {empName ? empName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'BGS'}
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-900 dark:text-white">
-                  Applicant: {empName}
-                </p>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  ID: <span className="font-mono">{empId}</span> • {user?.department || '-'}
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">
+                    {empName}
+                  </h3>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-950/50 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800">
+                    {empId}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                  Department: <strong className="text-slate-700 dark:text-slate-300">{user?.department || 'Operations'}</strong>
                 </p>
               </div>
             </div>
-            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-              Leave Year: 2026
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-2xs">
+                Calendar Year: 2026
+              </span>
+            </div>
           </div>
 
           {/* 1. Leave Type Selector with Live Quota */}
           <div>
-            <Select label="Leave Type Category" isRequired {...register('leaveType')} options={leaveTypeOptions} error={errors.leaveType?.message}/>
+            <Select
+              label="Leave Type Category"
+              isRequired
+              {...register('leaveType')}
+              options={leaveTypeOptions}
+              error={errors.leaveType?.message}
+            />
           </div>
 
           {/* 2. Real-Time Quota Ledger Card */}
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200/60 dark:border-slate-800">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                Quota Ledger for {watchedLeaveType}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-[#121A24] border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+            <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/60 dark:border-slate-800">
+              <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
+                Quota Balance Ledger: {watchedLeaveType}
               </span>
-              <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                BGSPL HR Policy Standard
+              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                Official HR Allotment Standard
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mt-3">
-              <div className="p-2 rounded-lg bg-white dark:bg-[#16202C] border border-slate-200/80 dark:border-slate-800 text-center">
-                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Annual Quota</span>
-                <p className="text-sm font-extrabold text-slate-800 dark:text-slate-200 mt-0.5">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3.5">
+              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-slate-400 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Annual Quota</span>
+                <p className="text-lg font-black text-slate-800 dark:text-slate-200 mt-1 tabular-nums">
                   {activeBalance.totalAllocated}d
                 </p>
               </div>
-              <div className="p-2 rounded-lg bg-white dark:bg-[#16202C] border border-slate-200/80 dark:border-slate-800 text-center">
-                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Approved Used</span>
-                <p className="text-sm font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">
+              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-slate-300 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Approved Used</span>
+                <p className="text-lg font-black text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
                   {activeBalance.used}d
                 </p>
               </div>
-              <div className="p-2 rounded-lg bg-white dark:bg-[#16202C] border border-slate-200/80 dark:border-slate-800 text-center">
-                <span className="text-[9px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider">Pending/Reserved</span>
-                <p className="text-sm font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">
+              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-amber-500 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
+                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider block">In Review / Pending</span>
+                <p className="text-lg font-black text-amber-600 dark:text-amber-400 mt-1 tabular-nums">
                   {pendingDays}d
                 </p>
               </div>
-              <div className="p-2 rounded-lg bg-white dark:bg-[#16202C] border border-slate-200/80 dark:border-slate-800 text-center">
-                <span className="text-[9px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider">Available to Apply</span>
-                <p className="text-sm font-extrabold text-blue-600 dark:text-blue-400 mt-0.5">
+              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-blue-500 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider block">Available to Apply</span>
+                <p className="text-lg font-black text-blue-600 dark:text-blue-400 mt-1 tabular-nums">
                   {availableToApply}d
                 </p>
               </div>
-              <div className={`p-2 rounded-lg border text-center transition-colors ${isOverQuota
-            ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300'
-            : 'bg-white dark:bg-[#16202C] border-slate-200/80 dark:border-slate-800'}`}>
-                <span className="text-[9px] font-bold uppercase tracking-wider block">
+              <div className={`p-3 rounded-xl border-t-2 border text-center transition-all shadow-2xs ${isOverQuota
+                ? 'bg-rose-50 dark:bg-rose-950/40 border-t-rose-500 border-rose-300 dark:border-rose-800'
+                : 'bg-white dark:bg-[#16202C] border-t-emerald-500 border-slate-200/80 dark:border-slate-800'}`}>
+                <span className={`text-[10px] font-bold uppercase tracking-wider block ${isOverQuota ? 'text-rose-600' : 'text-emerald-600'}`}>
                   {isOverQuota ? 'Limit Deficit' : 'Post-Leave Bal'}
                 </span>
-                <p className={`text-sm font-extrabold mt-0.5 ${isOverQuota
-            ? 'text-rose-600 dark:text-rose-400'
-            : projectedRemaining < 2
-                ? 'text-amber-600 dark:text-amber-400'
-                : 'text-emerald-600 dark:text-emerald-400'}`}>
+                <p className={`text-lg font-black mt-1 tabular-nums ${isOverQuota
+                  ? 'text-rose-600 dark:text-rose-400'
+                  : projectedRemaining < 2
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-emerald-600 dark:text-emerald-400'}`}>
                   {isOverQuota ? `${projectedRemaining}d (Deficit)` : `${projectedRemaining}d`}
                 </p>
               </div>
@@ -335,38 +349,54 @@ export const ApplyLeavePage = () => {
 
           {/* 3. Date Selection & Calculated Duration */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DatePicker label="Start Date" isRequired value={watchedStartDate} {...register('startDate')} onChange={(e) => { const val = e?.target?.value ?? e; setValue('startDate', val, { shouldValidate: true }); }} error={errors.startDate?.message}/>
-            <DatePicker label="End Date" isRequired value={watchedEndDate} {...register('endDate')} onChange={(e) => { const val = e?.target?.value ?? e; setValue('endDate', val, { shouldValidate: true }); }} error={errors.endDate?.message}/>
+            <DatePicker
+              label="Start Date"
+              isRequired
+              value={watchedStartDate}
+              {...register('startDate')}
+              onChange={(e) => { const val = e?.target?.value ?? e; setValue('startDate', val, { shouldValidate: true }); }}
+              error={errors.startDate?.message}
+            />
+            <DatePicker
+              label="End Date"
+              isRequired
+              value={watchedEndDate}
+              {...register('endDate')}
+              onChange={(e) => { const val = e?.target?.value ?? e; setValue('endDate', val, { shouldValidate: true }); }}
+              error={errors.endDate?.message}
+            />
           </div>
 
           {/* 4. Calculated Duration Banner (Working Days) */}
-          <div className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2 transition-colors ${isInvertedDate || calculatedDays === 0
+          <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-3 transition-colors shadow-2xs ${isInvertedDate || calculatedDays === 0
             ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300'
-            : 'bg-blue-50/70 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/60'}`}>
-            <div className="flex items-center gap-2">
-              <Calendar className={`w-4 h-4 shrink-0 ${isInvertedDate || calculatedDays === 0
-            ? 'text-rose-600 dark:text-rose-400'
-            : 'text-blue-600 dark:text-blue-400'}`}/>
-              <span className="font-medium">
+            : 'bg-gradient-to-r from-blue-50/90 to-teal-50/70 dark:from-blue-950/40 dark:to-teal-950/40 border-blue-200 dark:border-blue-800/60 text-slate-800 dark:text-slate-200'}`}>
+            <div className="flex items-center gap-2.5">
+              <Calendar className={`w-5 h-5 shrink-0 ${isInvertedDate || calculatedDays === 0
+                ? 'text-rose-600 dark:text-rose-400'
+                : 'text-teal-600 dark:text-teal-400'}`}/>
+              <span className="font-semibold">
                 {isInvertedDate
-            ? 'Error: End date cannot be prior to start date'
-            : calculatedDays === 0
-                ? 'Notice: Selected date range falls entirely on non-working days (weekends / holidays)'
-                : 'Total Working Days (excluding weekends & holidays):'}
+                  ? 'Error: End date cannot be prior to start date'
+                  : calculatedDays === 0
+                    ? 'Notice: Selected date range falls entirely on non-working days (weekends / holidays)'
+                    : 'Total Working Days Calculation (excluding off-days & statutory holidays):'}
               </span>
             </div>
             <div className="flex items-center gap-2">
-              {skippedDates.length > 0 && calculatedDays > 0 && (<span className="px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200">
+              {skippedDates.length > 0 && calculatedDays > 0 && (
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-800">
                   {skippedDates.length} non-working day(s) excluded
-                </span>)}
-              <span className={`font-extrabold text-sm ${isInvertedDate || calculatedDays === 0
-            ? 'text-rose-700 dark:text-rose-300'
-            : 'text-blue-800 dark:text-blue-300'}`}>
+                </span>
+              )}
+              <span className={`font-black text-sm px-3 py-1 rounded-lg ${isInvertedDate || calculatedDays === 0
+                ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/60 dark:text-rose-200'
+                : 'bg-white dark:bg-slate-900 text-teal-800 dark:text-teal-300 border border-teal-200 dark:border-teal-800 shadow-2xs'}`}>
                 {isInvertedDate
-            ? 'Invalid Range'
-            : calculatedDays === 0
-                ? '0 Working Days'
-                : `${calculatedDays} ${calculatedDays === 1 ? 'Working Day' : 'Working Days'}`}
+                  ? 'Invalid Range'
+                  : calculatedDays === 0
+                    ? '0 Working Days'
+                    : `${calculatedDays} ${calculatedDays === 1 ? 'Working Day' : 'Working Days'}`}
               </span>
             </div>
           </div>
@@ -432,12 +462,19 @@ export const ApplyLeavePage = () => {
               <span>Normal turnaround: Approvals processed within 24 working hours</span>
             </div>
 
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-              <Button type="button" variant="outline" size="sm" onClick={() => navigate('/hr/leave')}>
+            <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+              <Button type="button" variant="outline" size="md" onClick={() => navigate('/hr/leave')}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" size="sm" isLoading={isSubmitting} disabled={isBlockedByValidation}>
-                Submit Leave Request
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                isLoading={isSubmitting}
+                disabled={isBlockedByValidation}
+                className="!bg-gradient-to-r !from-teal-600 !to-emerald-600 hover:!from-teal-700 hover:!to-emerald-700 !text-white font-bold shadow-md"
+              >
+                Submit Leave Application
               </Button>
             </div>
           </div>

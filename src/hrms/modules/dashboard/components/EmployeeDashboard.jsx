@@ -466,137 +466,130 @@ export const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* ── 2. Live Punch Clock & Personal Attendance KPI Row ───────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Live Punch Clock Widget */}
-        <Card className="p-4 sm:p-5 flex flex-col justify-between border-t-2 border-t-emerald-500">
+      {/* ── 2. Live Punch Command Center with Adjacent Animated Geofence Map ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Console: Punch Station & Controls (6 Cols) */}
+        <Card className="lg:col-span-6 p-5 sm:p-6 flex flex-col justify-between border-t-4 border-t-teal-600 dark:border-t-teal-500 shadow-sm hover:shadow-md transition-shadow">
           <div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                Live Attendance Punch
-              </span>
-              <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full border ${isClockedIn
-            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/40'
-            : clockOutTime
-                ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800/40'
-                : 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${isClockedIn ? 'bg-emerald-500 animate-pulse' : clockOutTime ? 'bg-blue-500' : 'bg-slate-400'}`}/>
-                {isClockedIn ? 'Punched in' : clockOutTime ? 'Day complete' : onLeaveToday ? 'On leave' : 'Not punched in'}
+            {/* Header: Title and Live Status Badge */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse"></span>
+                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                  Live Attendance Console
+                </span>
+              </div>
+              <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border shadow-2xs ${isClockedIn
+                ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800'
+                : clockOutTime
+                  ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 border-blue-300 dark:border-blue-800'
+                  : 'text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700'}`}>
+                <span className={`w-2 h-2 rounded-full ${isClockedIn ? 'bg-emerald-500 animate-ping' : clockOutTime ? 'bg-blue-500' : 'bg-slate-400'}`}/>
+                {isClockedIn ? 'Currently Punched In' : clockOutTime ? 'Punch-Out Recorded' : onLeaveToday ? 'On Approved Leave' : 'Not Punched In Today'}
               </span>
             </div>
 
-            {/* Live Clock Display */}
-            <div className="my-3 text-center">
-              <div className="inline-flex items-baseline justify-center gap-1.5">
-                <span className="text-3xl sm:text-4xl font-extrabold font-mono text-slate-900 dark:text-white tracking-tight tabular-nums">
+            {/* Main Clock Display */}
+            <div className="my-4 text-center p-3 rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-slate-900/80 dark:to-slate-900 border border-slate-200/70 dark:border-slate-800">
+              <div className="inline-flex items-baseline justify-center gap-2">
+                <span className="text-4xl sm:text-5xl font-black font-mono text-slate-900 dark:text-white tracking-tight tabular-nums drop-shadow-xs">
                   {currentTimeParts.timeFormatted}
                 </span>
-                <span className="text-sm sm:text-base font-bold text-slate-500 dark:text-slate-400 font-sans tracking-normal">
+                <span className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400 font-sans tracking-normal uppercase">
                   {currentTimeParts.ampm}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
                 {now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
               </p>
             </div>
 
-            {/* Shift Remaining Countdown Banner */}
-            <div className="mb-3 p-2.5 rounded-xl bg-gradient-to-r from-teal-50 via-emerald-50/60 to-teal-50 dark:from-teal-950/40 dark:via-emerald-950/30 dark:to-teal-950/40 border border-teal-200/80 dark:border-teal-800/60 shadow-2xs">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-semibold text-teal-800 dark:text-teal-300 flex items-center gap-1.5">
-                  <Timer className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 animate-pulse"/>
-                  {shiftRemaining.isOvertime ? 'Overtime Active' : 'Shift Time Remaining'}
+            {/* Shift Countdown Tracker Banner */}
+            <div className="mb-4 p-3 rounded-xl bg-gradient-to-r from-teal-50/90 via-emerald-50/60 to-teal-50/90 dark:from-teal-950/50 dark:via-emerald-950/40 dark:to-teal-950/50 border border-teal-200/90 dark:border-teal-800/80 shadow-2xs">
+              <div className="flex items-center justify-between text-xs mb-1.5">
+                <span className="font-bold text-teal-900 dark:text-teal-200 flex items-center gap-1.5">
+                  <Timer className="w-4 h-4 text-teal-600 dark:text-teal-400 animate-pulse"/>
+                  {shiftRemaining.isOvertime ? 'Overtime In Progress' : 'Active Shift Countdown'}
                 </span>
-                <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 bg-teal-100/90 dark:bg-teal-900/60 px-2 py-0.5 rounded-full">
-                  {shiftRemaining.isOvertime ? 'OT Session' : `${shiftRemaining.progressPercent}% Elapsed`}
+                <span className="text-[11px] font-extrabold text-teal-800 dark:text-teal-200 bg-white/80 dark:bg-slate-900/80 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                  {shiftRemaining.isOvertime ? 'OT Active' : `${shiftRemaining.progressPercent}% Elapsed`}
                 </span>
               </div>
               <div className="flex items-baseline justify-between">
-                <div className="text-2xl sm:text-3xl font-extrabold font-mono text-teal-950 dark:text-teal-100 tabular-nums tracking-wider">
+                <div className="text-2xl sm:text-3xl font-black font-mono text-teal-950 dark:text-teal-100 tabular-nums tracking-wider">
                   {shiftRemaining.formatted}
                 </div>
-                <div className="text-right text-[11px] text-slate-500 dark:text-slate-400">
-                  {shiftRemaining.isOvertime ? (<span className="text-amber-600 dark:text-amber-400 font-semibold">Post Shift Time</span>) : (<span>Shift Ends <strong className="text-slate-700 dark:text-slate-200">{empShift.endTime}</strong></span>)}
+                <div className="text-right text-xs text-slate-600 dark:text-slate-400">
+                  {shiftRemaining.isOvertime ? (
+                    <span className="text-amber-600 dark:text-amber-400 font-bold">Overtime Duration</span>
+                  ) : (
+                    <span>Shift Ends at <strong className="text-slate-900 dark:text-white font-bold">{empShift.endTime}</strong></span>
+                  )}
                 </div>
               </div>
               {/* Progress bar */}
-              <div className="w-full bg-slate-200/80 dark:bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
-                <div className={`h-1.5 rounded-full transition-all duration-700 ease-out ${shiftRemaining.isOvertime
-            ? 'bg-amber-500'
-            : 'bg-gradient-to-r from-teal-600 to-emerald-500'}`} style={{ width: `${shiftRemaining.progressPercent}%` }}/>
+              <div className="w-full bg-slate-200/90 dark:bg-slate-800 rounded-full h-2 mt-2 overflow-hidden shadow-inner">
+                <div
+                  className={`h-2 rounded-full transition-all duration-700 ease-out ${shiftRemaining.isOvertime
+                    ? 'bg-amber-500'
+                    : 'bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500'}`}
+                  style={{ width: `${shiftRemaining.progressPercent}%` }}
+                />
               </div>
             </div>
 
-            {/* Shift and today's punches */}
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800 space-y-1.5 text-xs text-slate-600 dark:text-slate-400">
-              <div className="flex justify-between items-center gap-3">
-                <span>Shift:</span>
-                <span className="font-semibold text-slate-900 dark:text-slate-200 text-right">{empShift.name} · {empShift.timings}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Punch In Today:</span>
-                <span className={`font-semibold ${todayRecord?.status === 'Late' ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                  {clockInTime ? `${clockInTime}${todayRecord?.status === 'Late' ? ` (late by ${todayRecord.lateBy})` : ' (on time)'}` : '-'}
+            {/* Today's Punch In & Out Activity Cards */}
+            <div className="grid grid-cols-2 gap-2.5 mb-4 text-xs">
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
+                <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Punch In Today</span>
+                <p className={`text-sm font-extrabold mt-0.5 ${todayRecord?.status === 'Late' ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                  {clockInTime ? clockInTime : '—'}
+                </p>
+                <span className="text-[10px] text-slate-400 block mt-0.5">
+                  {todayRecord ? (todayRecord.status === 'Late' ? `Late by ${todayRecord.lateBy}` : 'On Time') : 'Pending clock-in'}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span>Punch Out:</span>
-                <span className="font-semibold text-blue-600 dark:text-blue-400">{clockOutTime ? `${clockOutTime} (${todayRecord.workingHours})` : '-'}</span>
-              </div>
-              <div className="flex justify-between items-center pt-1 border-t border-slate-200/60 dark:border-slate-800 text-[11px]">
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-[#FEC13D]"/>
-                  {empShift.location}
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
+                <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Punch Out Today</span>
+                <p className="text-sm font-extrabold mt-0.5 text-blue-600 dark:text-blue-400">
+                  {clockOutTime ? clockOutTime : '—'}
+                </p>
+                <span className="text-[10px] text-slate-400 block mt-0.5">
+                  {todayRecord?.workingHours && todayRecord.workingHours !== '-' ? todayRecord.workingHours : 'Pending clock-out'}
                 </span>
-                <span className="text-slate-500 font-medium">{todayRecord?.punchSource || (isInsideGeofence ? 'Geofenced GPS' : 'Web portal')}</span>
               </div>
             </div>
 
-            {/* Geofence Live Location & Verification Card */}
-            <div className={`p-2.5 rounded-xl border text-xs transition-all ${
+            {/* Geofence Live Location & Verification Bar */}
+            <div className={`p-3 rounded-xl border text-xs transition-all ${
               isInsideGeofence
-                ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-                : 'bg-rose-50/90 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200'
+                ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
+                : 'bg-rose-50/90 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
             }`}>
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 overflow-hidden">
-                  <span className={`w-2 h-2 rounded-full shrink-0 ${isInsideGeofence ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                  <span className="font-bold truncate text-[11.5px]">
-                    {isInsideGeofence
-                      ? 'Inside Office Geofence (0m)'
-                      : `Outside Geofence (${Math.round(geofence.distanceMeters || 0)}m away)`}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <span className={`w-3 h-3 rounded-full shrink-0 ${isInsideGeofence ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
+                  <div>
+                    <span className="font-extrabold text-xs block">
+                      {isInsideGeofence
+                        ? '🟢 Inside Office Geofence (0m)'
+                        : `🔴 Outside Geofence (${Math.round(geofence.distanceMeters || 0)}m away)`}
+                    </span>
+                    <span className="text-[10.5px] opacity-80 block">
+                      Jaipur HQ (4-Point Polygon Zone) • ±{Math.round(userCoords?.accuracy || 10)}m GPS accuracy
+                    </span>
+                  </div>
                 </div>
+
+                {/* Simulation Switchers */}
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     type="button"
-                    onClick={() => setShowInlineMap(!showInlineMap)}
-                    className="text-[10.5px] font-semibold text-slate-600 dark:text-slate-300 hover:text-teal-600 underline"
-                  >
-                    {showInlineMap ? 'Hide Map' : 'Mini Map'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsGeofenceModalOpen(true)}
-                    className="text-[10.5px] font-bold text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-0.5"
-                  >
-                    <span>Full Map</span>
-                    <ArrowRight className="w-2.5 h-2.5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Simulation test toggles */}
-              <div className="mt-2 pt-1.5 border-t border-slate-200/60 dark:border-slate-800/80 flex items-center justify-between text-[10.5px]">
-                <span className="opacity-80">Test Location:</span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
                     onClick={() => setUserCoords({ latitude: OFFICE_CENTROID[0], longitude: OFFICE_CENTROID[1], accuracy: 8, simulated: true })}
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold transition ${
+                    className={`px-2 py-1 rounded text-[10.5px] font-bold transition shadow-2xs ${
                       isInsideGeofence
-                        ? 'bg-teal-600 text-white shadow-xs'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                        ? 'bg-teal-700 text-white'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100'
                     }`}
                   >
                     Inside (0m)
@@ -604,51 +597,40 @@ export const EmployeeDashboard = () => {
                   <button
                     type="button"
                     onClick={() => setUserCoords({ latitude: 26.8552, longitude: 75.7682, accuracy: 12, simulated: true })}
-                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold transition ${
+                    className={`px-2 py-1 rounded text-[10.5px] font-bold transition shadow-2xs ${
                       !isInsideGeofence
-                        ? 'bg-rose-600 text-white shadow-xs'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
+                        ? 'bg-rose-700 text-white'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100'
                     }`}
                   >
                     Outside (150m)
                   </button>
                 </div>
               </div>
-
-              {/* Inline Collapsible Map */}
-              {showInlineMap && (
-                <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-800">
-                  <GeofenceMap
-                    userCoords={userCoords}
-                    onCoordsChange={setUserCoords}
-                    compact={true}
-                    height="200px"
-                  />
-                </div>
-              )}
             </div>
           </div>
 
-          <div className="mt-4">
+          {/* Master Punch Action Button */}
+          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
             <Button
               variant={isClockedIn ? 'outline' : 'primary'}
-              size="md"
+              size="lg"
               onClick={handleTogglePunch}
               disabled={punchedOut || onLeaveToday || isPunching || !isInsideGeofence}
-              className={`w-full font-bold transition-all ${
+              className={`w-full !py-3.5 font-black text-sm uppercase tracking-wide transition-all shadow-md ${
                 !isInsideGeofence
                   ? '!bg-slate-200 dark:!bg-slate-800 !text-slate-500 dark:!text-slate-400 !cursor-not-allowed !border-slate-300 dark:!border-slate-700 shadow-none'
                   : isClockedIn
-                    ? '!border-rose-300 !text-rose-700 hover:!bg-rose-50 dark:!border-rose-800 dark:!text-rose-400 dark:hover:!bg-rose-950/40'
-                    : '!bg-emerald-600 hover:!bg-emerald-700 !text-white'
+                    ? '!border-rose-400 !text-rose-700 hover:!bg-rose-50 dark:!border-rose-700 dark:!text-rose-300 dark:hover:!bg-rose-950/40'
+                    : '!bg-gradient-to-r !from-teal-600 !to-emerald-600 hover:!from-teal-700 hover:!to-emerald-700 !text-white !border-0'
               }`}
               leftIcon={
                 !isInsideGeofence ? (
-                  <ShieldAlert className="w-4 h-4 text-slate-400" />
+                  <ShieldAlert className="w-5 h-5 text-slate-400" />
                 ) : isClockedIn ? (
-                  <LogOut className="w-4 h-4 text-rose-500"/>
+                  <LogOut className="w-5 h-5 text-rose-500"/>
                 ) : (
-                  <LogIn className="w-4 h-4"/>
+                  <LogIn className="w-5 h-5 text-white"/>
                 )
               }
             >
@@ -657,27 +639,80 @@ export const EmployeeDashboard = () => {
                 : isClockedIn
                   ? 'Punch Out for the Day'
                   : punchedOut
-                    ? 'Punched out for today'
+                    ? 'Punched Out for Today'
                     : onLeaveToday
-                      ? 'On approved leave today'
+                      ? 'On Approved Leave Today'
                       : 'Punch In Now (Geofence Verified)'}
             </Button>
             {!isInsideGeofence && (
-              <p className="text-[11px] text-rose-600 dark:text-rose-400 text-center mt-1.5 font-medium">
-                Attendance disabled: you must be inside the office polygon to punch.
+              <p className="text-[11px] text-rose-600 dark:text-rose-400 text-center mt-2 font-medium">
+                Attendance punch is disabled: your device is outside the authorized Jaipur office polygon.
               </p>
             )}
           </div>
         </Card>
 
-        {/* This month's attendance */}
-        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {[
-            { title: 'Present This Month', value: monthStats.present, unit: `/ ${monthStats.workingDays} working days`, footLabel: 'Attendance rate', foot: `${monthStats.rate}%`, Icon: UserCheck, tone: 'emerald' },
-            { title: 'Leave Taken', value: monthStats.leaveDays, unit: `days (${monthStats.monthLabel})`, footLabel: 'Waiting for approval', foot: monthStats.pendingLeave ? `${monthStats.pendingLeave} request${monthStats.pendingLeave === 1 ? '' : 's'}` : 'None', Icon: CalendarCheck2, tone: 'amber' },
-            { title: 'Late Marks', value: monthStats.late, unit: 'this month', footLabel: 'Late after', foot: (() => { const st = storage.getAttendanceSettings(); return `${st.workStartTime} + ${st.gracePeriodMinutes} min`; })(), Icon: Clock, tone: 'blue' },
-            { title: 'Hours Worked', value: monthStats.hours, unit: 'hours this month', footLabel: 'Overtime', foot: `${monthStats.overtimeHours} hrs`, Icon: Sparkles, tone: 'purple' },
-          ].map((c) => (<Card key={c.title} className={`p-4 flex flex-col justify-between border-l-4 ${{ emerald: 'border-l-emerald-500', amber: 'border-l-amber-500', blue: 'border-l-blue-500', purple: 'border-l-purple-500' }[c.tone]}`}>
+        {/* Right Console: Live Animated Geofence Radar Map (6 Cols) */}
+        <Card className="lg:col-span-6 p-5 sm:p-6 flex flex-col justify-between border-t-4 border-t-emerald-600 dark:border-t-emerald-500 shadow-sm hover:shadow-md transition-shadow">
+          <div>
+            {/* Header: Map Title & Controls */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Compass className="w-4 h-4 text-emerald-600 animate-spin" style={{ animationDuration: '8s' }} />
+                <div>
+                  <h3 className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                    Office Geofence & Satellite Radar
+                  </h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Bansal Geo Solutions HQ • Real-Time GPS Tracking
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsGeofenceModalOpen(true)}
+                  className="px-2.5 py-1 text-xs font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 rounded-lg hover:bg-teal-100 transition flex items-center gap-1 shadow-2xs"
+                >
+                  <MapIcon className="w-3.5 h-3.5" />
+                  <span>Fullscreen</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Always-Visible Animated Geofence Map */}
+            <div className="mt-3 relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner">
+              <GeofenceMap
+                userCoords={userCoords}
+                onCoordsChange={setUserCoords}
+                compact={false}
+                height="320px"
+              />
+            </div>
+          </div>
+
+          {/* Map Footer Info Pill */}
+          <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 gap-2">
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-teal-600" />
+              <span>Office: <strong>26.853858, 75.766749</strong></span>
+            </span>
+            <span className="text-slate-400">
+              Click anywhere on map to simulate position
+            </span>
+          </div>
+        </Card>
+      </div>
+
+      {/* ── 3. Monthly Attendance KPI Performance Strip (4 Equal Cards) ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+        {[
+          { title: 'Present This Month', value: monthStats.present, unit: `/ ${monthStats.workingDays} days`, footLabel: 'Attendance rate', foot: `${monthStats.rate}%`, Icon: UserCheck, tone: 'emerald' },
+          { title: 'Leave Taken', value: monthStats.leaveDays, unit: `days (${monthStats.monthLabel})`, footLabel: 'Waiting approval', foot: monthStats.pendingLeave ? `${monthStats.pendingLeave} req` : 'None', Icon: CalendarCheck2, tone: 'amber' },
+          { title: 'Late Marks', value: monthStats.late, unit: 'this month', footLabel: 'Grace period', foot: (() => { const st = storage.getAttendanceSettings(); return `${st.workStartTime} + ${st.gracePeriodMinutes}m`; })(), Icon: Clock, tone: 'blue' },
+          { title: 'Hours Worked', value: monthStats.hours, unit: 'hrs this month', footLabel: 'Overtime', foot: `${monthStats.overtimeHours} hrs`, Icon: Sparkles, tone: 'purple' },
+        ].map((c) => (
+          <Card key={c.title} className={`p-4 flex flex-col justify-between border-l-4 shadow-2xs hover:shadow-sm transition-all ${{ emerald: 'border-l-emerald-500', amber: 'border-l-amber-500', blue: 'border-l-blue-500', purple: 'border-l-purple-500' }[c.tone]}`}>
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{c.title}</span>
@@ -694,8 +729,8 @@ export const EmployeeDashboard = () => {
               <span>{c.footLabel}</span>
               <span className="font-bold text-slate-700 dark:text-slate-200">{c.foot}</span>
             </div>
-          </Card>))}
-        </div>
+          </Card>
+        ))}
       </div>
 
       {/* ── 3. Leave Balances & Applications ─────────────────────── */}

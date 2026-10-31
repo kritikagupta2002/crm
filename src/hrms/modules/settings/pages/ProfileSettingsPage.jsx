@@ -20,6 +20,9 @@ import {
   Eye,
   Download,
   AlertTriangle,
+  UploadCloud,
+  X,
+  FileCheck2,
 } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
@@ -688,20 +691,60 @@ export const ProfileSettingsPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-              Attach Scanned Copy (PDF, PNG, JPG up to 10MB) <span className="text-red-500">*</span>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              Attach Scanned Copy <span className="text-rose-500">*</span>
             </label>
-            <input
-              type="file"
-              accept=".pdf, .png, .jpg, .jpeg"
-              onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-              className="w-full text-xs p-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-900"
-              required
-            />
-            {uploadFile && (
-              <p className="text-[11px] text-emerald-600 mt-1 font-medium">
-                Selected: {uploadFile.name} ({(uploadFile.size / (1024 * 1024)).toFixed(2)} MB)
-              </p>
+            
+            {!uploadFile ? (
+              <label className="relative flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 dark:hover:border-teal-400 rounded-2xl bg-slate-50/70 dark:bg-slate-900/60 hover:bg-teal-50/30 dark:hover:bg-teal-950/20 transition-all cursor-pointer group">
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform mb-2">
+                  <UploadCloud className="w-6 h-6" />
+                </div>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  Click to browse or drag & drop file here
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Supports PDF, PNG, JPG or JPEG up to 10MB
+                </p>
+                <div className="flex items-center gap-1.5 mt-2">
+                  {['PDF', 'PNG', 'JPG'].map((fmt) => (
+                    <span key={fmt} className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                      {fmt}
+                    </span>
+                  ))}
+                </div>
+                <input
+                  type="file"
+                  accept=".pdf, .png, .jpg, .jpeg"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  required
+                />
+              </label>
+            ) : (
+              <div className="p-3.5 rounded-2xl border-2 border-emerald-300 dark:border-emerald-800/80 bg-emerald-50/70 dark:bg-emerald-950/30 flex items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                    <FileCheck2 className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {uploadFile.name}
+                    </p>
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                      {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for submission
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setUploadFile(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition shrink-0"
+                  title="Remove file"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             )}
           </div>
 
