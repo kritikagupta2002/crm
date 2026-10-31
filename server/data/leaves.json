@@ -1,18 +1,5 @@
 [
   {
-    "id": "leave-1793426227666",
-    "employeeId": "BGS/DIR-01",
-    "employeeName": "Dr. Amit Kumar Bansal",
-    "department": "Mineral Exploration",
-    "leaveType": "Sick Leave (SL)",
-    "startDate": "2026-10-31",
-    "endDate": "2026-11-02",
-    "daysCount": 1,
-    "reason": "dhsfgudskgfvudskgcku",
-    "status": "Pending",
-    "appliedAt": "2026-10-31T05:57:07.666Z"
-  },
-  {
     "id": "lr-504",
     "employeeId": "BGS/10",
     "employeeName": "Vishal Kumawat",

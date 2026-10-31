@@ -1,24 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   Clock,
-  MapPin,
   LogIn,
   LogOut,
-  ShieldCheck,
-  User,
-  Compass,
   CheckCircle2,
   Crosshair,
-  Navigation,
-  Sparkles,
+  MapPin,
 } from 'lucide-react';
-import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
 import { attendanceService } from '../services/attendance.service';
-import { todayIso, nowClock } from '../utils/punch';
+import { todayIso } from '../utils/punch';
 import {
   evaluateGeofence,
   OFFICE_CENTROID,
@@ -44,10 +38,16 @@ export function ExecutivePunchCard({ className = '' }) {
     });
   }, [now]);
 
-  // Executive identity (Dr. Amit Bansal = BGS/DIR-01, Dharmendra Goyal = BGS/DIR-03, Kritika Gupta = BGS/ADM-01)
   const empId = user?.employeeId || (user?.name?.includes('Amit') ? 'BGS/DIR-01' : user?.name?.includes('Dharmendra') ? 'BGS/DIR-03' : 'BGS/ADM-01');
   const empName = user?.name || (empId === 'BGS/DIR-01' ? 'Dr. Amit Kumar Bansal' : empId === 'BGS/DIR-03' ? 'Dharmendra Goyal' : 'Kritika Gupta');
   const empRole = user?.designation || (empId === 'BGS/DIR-01' ? 'Managing Director' : empId === 'BGS/DIR-03' ? 'Executive Director' : 'Super Admin');
+
+  const initials = empName
+    .replace(/^Dr\.\s*/, '')
+    .split(' ')
+    .map((n) => n[0])
+    .slice(0, 2)
+    .join('');
 
   const [todayRecord, setTodayRecord] = useState(() =>
     storage.getAttendance().find((a) => a.employeeId === empId && a.date === todayIso())
@@ -55,7 +55,6 @@ export function ExecutivePunchCard({ className = '' }) {
   const [isPunching, setIsPunching] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
-  // Real GPS location
   const [userCoords, setUserCoords] = useState(() => ({
     latitude: OFFICE_CENTROID[0],
     longitude: OFFICE_CENTROID[1],
@@ -69,7 +68,6 @@ export function ExecutivePunchCard({ className = '' }) {
   }, [userCoords]);
   const isInsideGeofence = geofence.isInside;
 
-  // Real GPS acquisition
   const fetchRealGps = () => {
     if (!navigator.geolocation) {
       toast.warning('Geolocation is not supported by your browser.', 'GPS Unavailable');
@@ -86,21 +84,18 @@ export function ExecutivePunchCard({ className = '' }) {
           simulated: false,
         });
         toast.info(
-          `GPS Acquired: ${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)} (±${Math.round(pos.coords.accuracy)}m)`,
-          'Satellite Lock'
+          `GPS lock: ±${Math.round(pos.coords.accuracy)}m`,
+          'Satellite Fix'
         );
       },
-      (err) => {
+      () => {
         setIsLocating(false);
-        console.warn('Geolocation acquisition error:', err.message);
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
   };
 
-  useEffect(() => {
-    fetchRealGps();
-  }, []);
+  useEffect(() => { fetchRealGps(); }, []);
 
   useEffect(() => {
     if (empId) {
@@ -116,13 +111,11 @@ export function ExecutivePunchCard({ className = '' }) {
 
   const handleTogglePunch = async () => {
     if (punchedOut || isPunching) return;
-
     setIsPunching(true);
     try {
       const punchSource = isInsideGeofence
         ? 'Jaipur HQ Office (Geofence Verified)'
         : 'Executive Duty / Field Visit (GPS Verified)';
-
       const rec = await attendanceService.recordPunch(
         empId,
         isClockedIn ? 'checkOut' : 'checkIn',
@@ -131,18 +124,12 @@ export function ExecutivePunchCard({ className = '' }) {
       );
       setTodayRecord(rec);
       if (isClockedIn) {
-        toast.success(
-          `Punched out at ${rec.checkOut}. Total hours: ${rec.workingHours}.`,
-          'Attendance Recorded'
-        );
+        toast.success(`Punched out at ${rec.checkOut}. Total: ${rec.workingHours}.`, 'Attendance Recorded');
       } else {
-        toast.success(
-          `Punched in at ${rec.checkIn}${rec.status === 'Late' ? ` (late by ${rec.lateBy})` : ''} · ${punchSource}`,
-          'Attendance Marked'
-        );
+        toast.success(`Punched in at ${rec.checkIn}${rec.status === 'Late' ? ` (late by ${rec.lateBy})` : ''}.`, 'Attendance Marked');
       }
     } catch (err) {
-      toast.error(err.message, 'Punch not recorded');
+      toast.error(err.message, 'Punch failed');
     } finally {
       setIsPunching(false);
     }
@@ -150,122 +137,180 @@ export function ExecutivePunchCard({ className = '' }) {
 
   return (
     <>
-      <Card className={`p-4 sm:p-5 bg-gradient-to-r from-slate-900 via-slate-900 to-[#121f2d] text-white border border-slate-800 shadow-md rounded-2xl relative overflow-hidden ${className}`}>
-        {/* Subtle executive geometric background accent */}
-        <div className="absolute -right-16 -top-16 w-56 h-56 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute left-1/3 -bottom-10 w-44 h-44 rounded-full bg-amber-500/5 blur-2xl pointer-events-none" />
+      {/* Plain div instead of <Card> to avoid .card CSS overriding the dark gradient background */}
+      <div
+        className={`p-5 sm:p-6 rounded-2xl border border-slate-700/80 shadow-lg relative overflow-hidden ${className}`}
+        style={{
+          background: 'linear-gradient(135deg, #0f172a 0%, #131e2d 50%, #162032 100%)',
+          color: '#fff',
+        }}
+      >
+        {/* Subtle background accents */}
+        <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(20,184,166,0.08) 0%, transparent 70%)' }} />
+        <div className="absolute left-1/4 -bottom-12 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.04) 0%, transparent 70%)' }} />
 
-        <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-5">
-          {/* 1. Identity & Role */}
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500/20 to-teal-500/5 text-teal-300 flex items-center justify-center shrink-0 border border-teal-500/30 font-bold text-base shadow-inner">
-              {empName
-                .replace(/^Dr\.\s*/, '')
-                .split(' ')
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join('')}
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-5">
+
+          {/* ── 1. Identity ── */}
+          <div className="flex items-center gap-4 min-w-0 flex-1">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-base font-bold"
+              style={{
+                background: 'linear-gradient(135deg, rgba(20,184,166,0.18) 0%, rgba(20,184,166,0.06) 100%)',
+                border: '1px solid rgba(20,184,166,0.3)',
+                color: '#5eead4',
+              }}
+            >
+              {initials}
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-extrabold text-white text-base sm:text-lg tracking-tight">
+                <span className="font-extrabold text-lg tracking-tight truncate" style={{ color: '#fff' }}>
                   {empName}
                 </span>
-                <span className="text-[11px] px-2.5 py-0.5 rounded-full font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                <span
+                  className="text-[11px] px-2.5 py-0.5 rounded-full font-bold shrink-0"
+                  style={{
+                    background: 'rgba(20,184,166,0.15)',
+                    color: '#5eead4',
+                    border: '1px solid rgba(20,184,166,0.3)',
+                  }}
+                >
                   {empRole}
                 </span>
-                <span className="text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                <span
+                  className="text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold shrink-0"
+                  style={{
+                    background: 'rgba(30,41,59,0.9)',
+                    color: '#94a3b8',
+                    border: '1px solid rgba(51,65,85,0.8)',
+                  }}
+                >
                   {empId}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 flex-wrap">
+              <div className="flex items-center gap-3 mt-1.5 flex-wrap" style={{ color: '#94a3b8', fontSize: '12px' }}>
                 <span className="flex items-center gap-1.5 font-medium">
-                  <Clock className="w-3.5 h-3.5 text-teal-400" />
-                  <strong className="text-white tabular-nums tracking-wider">{timeFormatted}</strong>
+                  <Clock className="w-3.5 h-3.5" style={{ color: '#2dd4bf' }} />
+                  <strong className="tabular-nums tracking-wider" style={{ color: '#fff' }}>{timeFormatted}</strong>
                 </span>
-                <span className="text-slate-600">•</span>
-                <span>Shift: <strong className="text-slate-200">09:30 AM – 06:00 PM</strong> (HQ & Operations)</span>
+                <span style={{ color: '#334155' }}>•</span>
+                <span>Shift: <strong style={{ color: '#e2e8f0' }}>09:30 AM – 06:00 PM</strong></span>
               </div>
             </div>
           </div>
 
-          {/* 2. Today's Punch Summary Ledger */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 bg-slate-800/80 backdrop-blur-md p-3 px-4 rounded-xl border border-slate-700/80 text-xs">
+          {/* ── 2. Check In / Check Out / Duration Ledger ── */}
+          <div
+            className="grid grid-cols-3 rounded-xl text-xs shrink-0"
+            style={{
+              background: 'rgba(30,41,59,0.7)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(51,65,85,0.6)',
+              padding: '14px 18px',
+              minWidth: '260px',
+            }}
+          >
             <div>
-              <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+              <span className="block uppercase font-bold tracking-wider" style={{ fontSize: '10px', color: '#94a3b8' }}>
                 Check In
               </span>
-              <span className={`font-mono font-extrabold text-sm sm:text-base tabular-nums ${clockInTime ? 'text-emerald-400' : 'text-slate-500'}`}>
+              <span
+                className="font-mono font-extrabold tabular-nums"
+                style={{ fontSize: '15px', color: clockInTime ? '#34d399' : '#475569' }}
+              >
                 {clockInTime || '—'}
               </span>
             </div>
-            <div className="border-l border-slate-700/80 pl-3 sm:pl-4">
-              <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+            <div style={{ borderLeft: '1px solid rgba(51,65,85,0.6)', paddingLeft: '14px' }}>
+              <span className="block uppercase font-bold tracking-wider" style={{ fontSize: '10px', color: '#94a3b8' }}>
                 Check Out
               </span>
-              <span className={`font-mono font-extrabold text-sm sm:text-base tabular-nums ${clockOutTime ? 'text-blue-400' : 'text-slate-500'}`}>
+              <span
+                className="font-mono font-extrabold tabular-nums"
+                style={{ fontSize: '15px', color: clockOutTime ? '#60a5fa' : '#475569' }}
+              >
                 {clockOutTime || '—'}
               </span>
             </div>
-            <div className="border-l border-slate-700/80 pl-3 sm:pl-4">
-              <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+            <div style={{ borderLeft: '1px solid rgba(51,65,85,0.6)', paddingLeft: '14px' }}>
+              <span className="block uppercase font-bold tracking-wider" style={{ fontSize: '10px', color: '#94a3b8' }}>
                 Duration
               </span>
-              <span className="font-mono font-extrabold text-sm sm:text-base tabular-nums text-slate-200">
+              <span
+                className="font-mono font-extrabold tabular-nums"
+                style={{ fontSize: '15px', color: '#e2e8f0' }}
+              >
                 {todayRecord?.workingHours && todayRecord.workingHours !== '-'
                   ? todayRecord.workingHours
-                  : isClockedIn
-                    ? 'Active'
-                    : '—'}
+                  : isClockedIn ? 'Active' : '—'}
               </span>
             </div>
           </div>
 
-          {/* 3. Location Status & Clean Executive Punch Action */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-            {/* Geofence Status Badge */}
-            <div className="flex items-center gap-2 bg-slate-800/80 px-3 py-2 rounded-xl border border-slate-700/80 text-xs">
-              <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${isInsideGeofence ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
-              <div className="flex flex-col">
-                <span className="font-bold text-slate-200 text-xs">
-                  {isInsideGeofence ? 'Jaipur HQ (In Perimeter)' : 'Executive / Field Zone'}
+          {/* ── 3. Location + Punch Action ── */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            {/* Geofence chip */}
+            <div
+              className="flex items-center gap-2.5 rounded-xl text-xs"
+              style={{
+                background: 'rgba(30,41,59,0.7)',
+                border: '1px solid rgba(51,65,85,0.6)',
+                padding: '10px 14px',
+              }}
+            >
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0"
+                style={{
+                  background: isInsideGeofence ? '#34d399' : '#fbbf24',
+                  boxShadow: isInsideGeofence ? '0 0 6px rgba(52,211,153,0.5)' : 'none',
+                  animation: isInsideGeofence ? 'pulse 2s infinite' : 'none',
+                }}
+              />
+              <div className="flex flex-col min-w-0">
+                <span className="font-bold truncate" style={{ color: '#e2e8f0', fontSize: '12px' }}>
+                  {isInsideGeofence ? 'Jaipur HQ · In Perimeter' : 'Executive / Field Zone'}
                 </span>
-                <span className="text-[10.5px] text-slate-400">
-                  {isInsideGeofence ? 'Office Geofenced ±8m' : `Jaipur Region (${Math.round(geofence.distanceMeters || 0)}m)`}
+                <span className="truncate" style={{ color: '#64748b', fontSize: '10.5px' }}>
+                  {isInsideGeofence
+                    ? `Office Geofence ±${Math.round(userCoords?.accuracy || 10)}m`
+                    : `${Math.round(geofence.distanceMeters || 0)}m from HQ`}
                 </span>
               </div>
-              <div className="flex items-center gap-1 ml-auto sm:ml-2">
+              <div className="flex items-center gap-1 ml-2 shrink-0">
                 <button
                   type="button"
                   onClick={fetchRealGps}
                   disabled={isLocating}
-                  className="p-1 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white transition"
-                  title="Detect live GPS coordinates"
+                  className="p-1.5 rounded-lg transition"
+                  style={{ color: isLocating ? '#2dd4bf' : '#94a3b8' }}
+                  title="Refresh GPS"
                 >
-                  <Crosshair className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin text-teal-400' : ''}`} />
+                  <Crosshair className={`w-4 h-4 ${isLocating ? 'animate-spin' : ''}`} />
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsGeofenceModalOpen(true)}
-                  className="text-[11px] font-bold text-teal-400 hover:text-teal-300 hover:underline px-1"
+                  className="font-bold px-1.5 transition"
+                  style={{ color: '#2dd4bf', fontSize: '11px' }}
                 >
                   Map
                 </button>
               </div>
             </div>
 
-            {/* Executive Punch Button */}
+            {/* Punch button */}
             <Button
               variant={isClockedIn ? 'outline' : 'primary'}
               size="md"
               onClick={handleTogglePunch}
               disabled={punchedOut || isPunching}
-              className={`font-bold whitespace-nowrap min-w-[170px] shadow-sm transition-all ${
+              className={`font-bold whitespace-nowrap min-w-[180px] h-11 text-sm shadow-sm transition-all ${
                 punchedOut
                   ? '!bg-slate-800 !text-slate-400 !cursor-not-allowed !border-slate-700'
                   : isClockedIn
                     ? '!border-rose-500 !bg-rose-500/10 !text-rose-400 hover:!bg-rose-500/20'
-                    : '!bg-emerald-600 hover:!bg-emerald-500 !text-white !border-transparent shadow-emerald-950/50'
+                    : '!bg-emerald-600 hover:!bg-emerald-500 !text-white !border-transparent'
               }`}
               leftIcon={
                 punchedOut ? (
@@ -287,7 +332,7 @@ export function ExecutivePunchCard({ className = '' }) {
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
 
       <GeofenceModal
         isOpen={isGeofenceModalOpen}
