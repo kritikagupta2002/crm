@@ -761,7 +761,7 @@ export const FinanceExpenseClaimsPage = () => {
                 data={filteredClaims} 
                 keyField={(c) => `${c.claimType}-${c.id}`}
                 loading={isLoading} 
-                emptyMessage="No expense or reimbursement claims found matching the filter criteria." 
+                emptyTitle="No expense or reimbursement claims found matching the filter criteria." 
             />
 
             {/* 1. Finance Approval Modal */}

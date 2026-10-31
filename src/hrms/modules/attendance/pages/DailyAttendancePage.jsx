@@ -9,7 +9,6 @@ import {
   UserX,
   ClockAlert,
   CalendarOff,
-  Filter,
   RotateCcw,
   CalendarDays,
 } from 'lucide-react';
@@ -58,7 +57,6 @@ export const DailyAttendancePage = () => {
     const load = async () => {
       const data = await attendanceService.getAttendance();
       setRecords(data || []);
-      // If records exist and today has no records, sync to the latest recorded date
       if (data && data.length > 0) {
         const hasToday = data.some((r) => r.date === todayIso);
         if (!hasToday) {
@@ -71,7 +69,31 @@ export const DailyAttendancePage = () => {
     load();
   }, [todayIso]);
 
-  // Unified single source of truth for filtered records
+  // Base records for the current period (before status tab filtering) to power live tab counts and KPI cards
+  const basePeriodRecords = useMemo(() => {
+    return filterAttendanceRecords(records, {
+      mode: filterMode,
+      date: selectedDate,
+      day: selectedDay,
+      month: selectedMonth,
+      department: selectedDept,
+      project: selectedProject,
+      status: 'all',
+      punchSource: selectedSource,
+      getProjectFn: getEmployeeProjectById,
+    });
+  }, [
+    records,
+    filterMode,
+    selectedDate,
+    selectedDay,
+    selectedMonth,
+    selectedDept,
+    selectedProject,
+    selectedSource,
+  ]);
+
+  // Filtered records respecting both toolbar filters and the active status tab
   const filteredRecords = useMemo(() => {
     return filterAttendanceRecords(records, {
       mode: filterMode,
@@ -98,8 +120,24 @@ export const DailyAttendancePage = () => {
 
   // Unified metrics for counters and stat cards
   const metrics = useMemo(() => {
-    return computeAttendanceMetrics(filteredRecords);
-  }, [filteredRecords]);
+    return computeAttendanceMetrics(basePeriodRecords);
+  }, [basePeriodRecords]);
+
+  // CRM Stage Tabs for status navigation
+  const tabs = useMemo(() => [
+    { id: 'all', label: 'All Logs', count: metrics.totalLogs },
+    { id: 'Present', label: 'Present', count: metrics.presentCount },
+    { id: 'Late', label: 'Late Arrivals', count: metrics.lateCount },
+    { id: 'Absent', label: 'Absences', count: metrics.absentCount },
+    { id: 'On Leave', label: 'On Leave', count: metrics.onLeaveCount },
+  ], [metrics]);
+
+  const currentPeriodLabel = useMemo(() => {
+    if (filterMode === 'date') return selectedDate;
+    if (filterMode === 'day') return `Every ${selectedDay}`;
+    if (filterMode === 'month') return selectedMonth;
+    return '';
+  }, [filterMode, selectedDate, selectedDay, selectedMonth]);
 
   const handleExport = () => {
     const label =
@@ -113,17 +151,19 @@ export const DailyAttendancePage = () => {
       return;
     }
     downloadCsv(`Attendance_${String(label).replace(/\s+/g, '_')}.csv`, [
-        { label: 'Date', value: (r) => r.date },
-        { label: 'Employee ID', value: (r) => r.employeeId },
-        { label: 'Name', value: (r) => r.employeeName },
-        { label: 'Department', value: (r) => r.department },
-        { label: 'Punch in', value: (r) => r.checkIn },
-        { label: 'Punch out', value: (r) => r.checkOut },
-        { label: 'Hours', value: (r) => r.workingHours },
-        { label: 'Late by', value: (r) => r.lateBy },
-        { label: 'Status', value: (r) => r.status },
-        { label: 'Source', value: (r) => r.punchSource },
+      { label: 'Date', value: (r) => r.date },
+      { label: 'Employee ID', value: (r) => r.employeeId },
+      { label: 'Name', value: (r) => r.employeeName },
+      { label: 'Department', value: (r) => r.department },
+      { label: 'Project', value: (r) => getEmployeeProjectById(r.employeeId) },
+      { label: 'Punch in', value: (r) => r.checkIn },
+      { label: 'Punch out', value: (r) => r.checkOut },
+      { label: 'Hours', value: (r) => r.workingHours || r.workHours || '-' },
+      { label: 'Late by', value: (r) => r.lateBy || '-' },
+      { label: 'Status', value: (r) => r.status },
+      { label: 'Source', value: (r) => r.punchSource || 'Biometric' },
     ], filteredRecords);
+    toast.success(`Exported ${filteredRecords.length} records to CSV.`);
   };
 
   const columns = [
@@ -131,16 +171,17 @@ export const DailyAttendancePage = () => {
       key: 'employeeId',
       header: 'Emp ID',
       sortable: true,
-      className: 'w-24 font-mono font-bold text-blue-700 dark:text-blue-400',
+      className: 'w-24 font-mono font-bold text-teal-800 tabular-nums whitespace-nowrap',
     },
     {
       key: 'employeeName',
       header: 'Staff Member',
       sortable: true,
+      className: 'min-w-[190px]',
       render: (r) => (
         <div>
-          <span className="font-bold text-slate-900 dark:text-slate-100">{r.employeeName}</span>
-          <p className="text-[11px] text-slate-400">{r.department}</p>
+          <span className="font-bold text-ink text-xs">{r.employeeName}</span>
+          <p className="text-[11px] text-ink-3">{r.department}</p>
         </div>
       ),
     },
@@ -148,16 +189,27 @@ export const DailyAttendancePage = () => {
       key: 'date',
       header: 'Date',
       sortable: true,
-      className: 'font-mono text-xs text-slate-700 dark:text-slate-300',
+      className: 'font-mono text-xs text-ink-2 tabular-nums whitespace-nowrap',
+      render: (r) => {
+        const dayStr = new Date(r.date + 'T00:00:00').toLocaleDateString('en-US', {
+          weekday: 'short',
+        });
+        return (
+          <span>
+            {r.date} <span className="text-[10px] text-ink-3">({dayStr})</span>
+          </span>
+        );
+      },
     },
     {
       key: 'project',
       header: 'Project / Site',
       sortable: true,
+      className: 'whitespace-nowrap',
       render: (r) => {
         const proj = getEmployeeProjectById(r.employeeId);
         return (
-          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60 whitespace-nowrap">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/60 whitespace-nowrap">
             <span className="w-1.5 h-1.5 rounded-full bg-[#D5860B]" />
             {proj}
           </span>
@@ -167,17 +219,20 @@ export const DailyAttendancePage = () => {
     {
       key: 'checkIn',
       header: 'Check In',
-      className: 'font-mono text-xs font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap',
+      className: 'font-mono text-xs font-semibold text-ink tabular-nums whitespace-nowrap',
+      render: (r) => <span>{r.checkIn || '—'}</span>,
     },
     {
       key: 'checkOut',
       header: 'Check Out',
-      className: 'font-mono text-xs text-slate-600 dark:text-slate-400 whitespace-nowrap',
+      className: 'font-mono text-xs text-ink-2 tabular-nums whitespace-nowrap',
+      render: (r) => <span>{r.checkOut || '—'}</span>,
     },
     {
       key: 'workingHours',
       header: 'Duration',
-      className: 'font-semibold text-xs text-slate-800 dark:text-slate-200 whitespace-nowrap',
+      className: 'font-mono font-bold text-xs text-ink tabular-nums whitespace-nowrap',
+      render: (r) => <span>{r.workingHours || (r.workHours ? `${r.workHours}h` : '—')}</span>,
     },
     {
       key: 'lateBy',
@@ -185,22 +240,23 @@ export const DailyAttendancePage = () => {
       render: (r) => (
         <span
           className={
-            r.lateBy !== '-'
-              ? 'text-amber-600 dark:text-amber-400 font-bold text-xs whitespace-nowrap'
-              : 'text-slate-400 text-xs whitespace-nowrap'
+            r.lateBy && r.lateBy !== '-' && r.lateBy !== '0'
+              ? 'text-amber-700 font-bold text-xs tabular-nums whitespace-nowrap'
+              : 'text-ink-4 text-xs whitespace-nowrap'
           }
         >
-          {r.lateBy}
+          {r.lateBy || '-'}
         </span>
       ),
     },
     {
       key: 'punchSource',
       header: 'Punch Source',
+      className: 'whitespace-nowrap',
       render: (r) => (
-        <span className="inline-flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-300">
-          <Fingerprint className="w-3.5 h-3.5 text-blue-500" />
-          {r.punchSource}
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-ink-3">
+          <Fingerprint className="w-3.5 h-3.5 text-teal-600" />
+          {r.punchSource || 'Biometric'}
         </span>
       ),
     },
@@ -208,27 +264,163 @@ export const DailyAttendancePage = () => {
       key: 'status',
       header: 'Status',
       sortable: true,
+      className: 'whitespace-nowrap',
       render: (r) => <StatusBadge status={r.status} size="sm" />,
     },
   ];
 
-  const currentPeriodLabel =
-    filterMode === 'date'
-      ? selectedDate
-      : filterMode === 'day'
-      ? `${selectedDay} Logs`
-      : `${selectedMonth} Monthly Logs`;
+  const filterControls = (
+    <div className="flex items-center gap-2 flex-wrap">
+      {/* Mode Switcher Segmented Pills */}
+      <div className="inline-flex rounded-md p-0.5 bg-slate-100 border border-slate-200 text-xs font-semibold">
+        <button
+          type="button"
+          onClick={() => setFilterMode('date')}
+          className={`px-2.5 py-0.5 rounded transition-colors ${
+            filterMode === 'date'
+              ? 'bg-white text-teal-700 shadow-xs font-bold'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Date
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilterMode('day')}
+          className={`px-2.5 py-0.5 rounded transition-colors ${
+            filterMode === 'day'
+              ? 'bg-white text-teal-700 shadow-xs font-bold'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Day
+        </button>
+        <button
+          type="button"
+          onClick={() => setFilterMode('month')}
+          className={`px-2.5 py-0.5 rounded transition-colors ${
+            filterMode === 'month'
+              ? 'bg-white text-teal-700 shadow-xs font-bold'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Month
+        </button>
+      </div>
+
+      {/* Mode Input */}
+      {filterMode === 'date' && (
+        <div className="w-36">
+          <DatePicker
+            size="sm"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e?.target?.value ?? e)}
+          />
+        </div>
+      )}
+
+      {filterMode === 'day' && (
+        <div className="w-36">
+          <Select
+            size="sm"
+            options={DAYS_OF_WEEK.map((d) => ({ value: d, label: d }))}
+            value={selectedDay}
+            onChange={(e) => setSelectedDay(e.target.value)}
+          />
+        </div>
+      )}
+
+      {filterMode === 'month' && (
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="select select-sm w-36 font-semibold"
+        />
+      )}
+
+      {/* Department Filter */}
+      <div className="w-44 sm:w-48">
+        <Select
+          size="sm"
+          options={[
+            { value: 'all', label: 'All Departments' },
+            {
+              value: 'Geology & Mineral Exploration',
+              label: 'Geology & Exploration',
+            },
+            { value: 'Mining & Mine Planning', label: 'Mining & Planning' },
+            {
+              value: 'GIS, Remote Sensing & UAV',
+              label: 'GIS & Remote Sensing',
+            },
+            {
+              value: 'Hydrogeology & Groundwater',
+              label: 'Hydrogeology',
+            },
+            {
+              value: 'Finance & Mineral Economics',
+              label: 'Finance & Economics',
+            },
+            { value: 'Human Resources & Admin', label: 'HR & Admin' },
+          ]}
+          value={selectedDept}
+          onChange={(e) => setSelectedDept(e.target.value)}
+        />
+      </div>
+
+      {/* Project Filter */}
+      <div className="w-44 sm:w-52">
+        <Select
+          size="sm"
+          options={[
+            { value: 'all', label: 'All Projects / Sites' },
+            ...STANDARD_PROJECTS.map((p) => ({ value: p, label: p })),
+          ]}
+          value={selectedProject}
+          onChange={(e) => setSelectedProject(e.target.value)}
+        />
+      </div>
+
+      {/* Source Filter */}
+      <div className="w-40">
+        <Select
+          size="sm"
+          options={[
+            { value: 'all', label: 'All Punch Sources' },
+            { value: 'Biometric', label: 'Biometric Terminal' },
+            { value: 'GPS', label: 'Field GPS Mobile' },
+            { value: 'Approved leave', label: 'Approved Leave' },
+          ]}
+          value={selectedSource}
+          onChange={(e) => setSelectedSource(e.target.value)}
+        />
+      </div>
+
+      {(selectedDept !== 'all' ||
+        selectedProject !== 'all' ||
+        selectedSource !== 'all') && (
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedDept('all');
+            setSelectedProject('all');
+            setSelectedSource('all');
+          }}
+          className="link-button text-xs"
+        >
+          <RotateCcw size={13} /> Reset
+        </button>
+      )}
+    </div>
+  );
 
   return (
-    <div className="space-y-5 animate-fade-in pb-12">
+    <div className="space-y-4">
+      {/* CRM Page Header with Contour Lines */}
       <PageHeader
         title="Attendance Register & Shift Logs"
-        description="Biometric punch ledger, mobile field GPS logs, and shift compliance."
-        breadcrumbs={[
-          { label: 'Dashboard', path: '/hr' },
-          { label: 'Attendance', path: '/hr/attendance' },
-          { label: 'Register View' },
-        ]}
+        description={`Biometric punch ledger, mobile field GPS logs, and shift compliance for ${currentPeriodLabel}.`}
         actions={
           <div className="flex items-center gap-2">
             <Button
@@ -251,283 +443,93 @@ export const DailyAttendancePage = () => {
         }
       />
 
-      {/* KPI Counters Strip - Directly derived from filteredRecords */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
-            <CalendarDays className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">
-              Total Logs
-            </p>
-            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums">
-              {metrics.totalLogs}
-            </h3>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0">
-            <UserCheck className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">
-              Present
-            </p>
-            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums">
-              {metrics.presentCount}{' '}
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                ({metrics.presentPercent}%)
-              </span>
-            </h3>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0">
-            <ClockAlert className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">
-              Late Arrivals
-            </p>
-            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums">
-              {metrics.lateCount}
-            </h3>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-400 flex items-center justify-center shrink-0">
-            <UserX className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">
-              Absences
-            </p>
-            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums">
-              {metrics.absentCount}
-            </h3>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 flex items-center justify-center shrink-0">
-            <CalendarOff className="w-4 h-4" />
-          </div>
-          <div>
-            <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-semibold truncate">
-              On Leave
-            </p>
-            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tabular-nums">
-              {metrics.onLeaveCount}
-            </h3>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Filter Bar */}
-      <div className="bg-white dark:bg-[#1A2430] p-4 rounded-2xl border border-slate-200/90 dark:border-[#253344] shadow-xs space-y-3">
-        {/* Top Filter Row: Filter Mode Switcher (Date | Day | Month) + Mode specific picker */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 shrink-0">
-              <Filter className="w-4 h-4 text-teal-600" /> Filter Mode:
+      {/* CRM Stat Cards Strip */}
+      <section className="stat-grid">
+        <div className="card stat-card tone-info">
+          <div className="stat-top">
+            <span className="stat-icon">
+              <CalendarDays size={20} />
             </span>
-            <div className="inline-flex rounded-xl p-1 bg-slate-100 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => setFilterMode('date')}
-                className={`px-3 py-1 rounded-lg transition-colors ${
-                  filterMode === 'date'
-                    ? 'bg-white dark:bg-[#1A2430] text-teal-700 dark:text-teal-400 shadow-2xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                }`}
-              >
-                Date
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterMode('day')}
-                className={`px-3 py-1 rounded-lg transition-colors ${
-                  filterMode === 'day'
-                    ? 'bg-white dark:bg-[#1A2430] text-teal-700 dark:text-teal-400 shadow-2xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                }`}
-              >
-                Day
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilterMode('month')}
-                className={`px-3 py-1 rounded-lg transition-colors ${
-                  filterMode === 'month'
-                    ? 'bg-white dark:bg-[#1A2430] text-teal-700 dark:text-teal-400 shadow-2xs'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
-                }`}
-              >
-                Month
-              </button>
-            </div>
+            <h3>Total Logs</h3>
           </div>
-
-          {/* Dynamic Input based on Mode */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {filterMode === 'date' && (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0">
-                  Select Date:
-                </span>
-                <div className="w-full sm:w-44">
-                  <DatePicker
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {filterMode === 'day' && (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0">
-                  Select Day:
-                </span>
-                <div className="w-full sm:w-44">
-                  <Select
-                    options={DAYS_OF_WEEK.map((d) => ({ value: d, label: d }))}
-                    value={selectedDay}
-                    onChange={(e) => setSelectedDay(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {filterMode === 'month' && (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 shrink-0">
-                  Select Month:
-                </span>
-                <input
-                  type="month"
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 dark:border-[#253344] bg-slate-50 dark:bg-[#111821] text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-                />
-              </div>
-            )}
+          <strong className="stat-value">{metrics.totalLogs}</strong>
+          <div className="stat-meta">
+            <span className="muted">{currentPeriodLabel}</span>
           </div>
         </div>
 
-        {/* Secondary Filter Row: Department, Project, Status, Punch Source */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* Department Filter */}
-          <div className="w-full sm:w-48">
-            <Select
-              options={[
-                { value: 'all', label: 'All Departments' },
-                { value: 'Geology & Mineral Exploration', label: 'Geology & Exploration' },
-                { value: 'Mining & Mine Planning', label: 'Mining & Planning' },
-                { value: 'GIS, Remote Sensing & UAV', label: 'GIS & Remote Sensing' },
-                { value: 'Hydrogeology & Groundwater', label: 'Hydrogeology' },
-                { value: 'Finance & Mineral Economics', label: 'Finance & Economics' },
-                { value: 'Human Resources & Admin', label: 'HR & Admin' },
-              ]}
-              value={selectedDept}
-              onChange={(e) => setSelectedDept(e.target.value)}
-            />
+        <div className="card stat-card tone-good">
+          <div className="stat-top">
+            <span className="stat-icon">
+              <UserCheck size={20} />
+            </span>
+            <h3>Present</h3>
           </div>
-
-          {/* Project Filter */}
-          <div className="w-full sm:w-52">
-            <Select
-              options={[
-                { value: 'all', label: 'All Projects / Sites' },
-                ...STANDARD_PROJECTS.map((p) => ({ value: p, label: p })),
-              ]}
-              value={selectedProject}
-              onChange={(e) => setSelectedProject(e.target.value)}
-            />
+          <strong className="stat-value">
+            {metrics.presentCount}{' '}
+            <span className="text-sm font-semibold text-emerald-700">
+              ({metrics.presentPercent}%)
+            </span>
+          </strong>
+          <div className="stat-meta">
+            <span className="muted">On-duty staff</span>
           </div>
-
-          {/* Status Filter */}
-          <div className="w-full sm:w-36">
-            <Select
-              options={[
-                { value: 'all', label: 'All Statuses' },
-                { value: 'Present', label: 'Present' },
-                { value: 'Late', label: 'Late Arrival' },
-                { value: 'Absent', label: 'Absent' },
-                { value: 'On Leave', label: 'On Leave' },
-              ]}
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-            />
-          </div>
-
-          {/* Punch Source Filter */}
-          <div className="w-full sm:w-44">
-            <Select
-              options={[
-                { value: 'all', label: 'All Punch Sources' },
-                { value: 'Biometric', label: 'Biometric Terminal' },
-                { value: 'GPS', label: 'Field GPS Mobile' },
-                { value: 'Approved leave', label: 'Approved Leave' },
-              ]}
-              value={selectedSource}
-              onChange={(e) => setSelectedSource(e.target.value)}
-            />
-          </div>
-
-          {/* Reset Filters Button */}
-          {(selectedDept !== 'all' ||
-            selectedProject !== 'all' ||
-            selectedStatus !== 'all' ||
-            selectedSource !== 'all') && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setSelectedDept('all');
-                setSelectedProject('all');
-                setSelectedStatus('all');
-                setSelectedSource('all');
-              }}
-              className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs"
-              leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
-            >
-              Reset Filters
-            </Button>
-          )}
-
-          <span className="text-xs text-slate-500 dark:text-slate-400 ml-auto hidden lg:inline">
-            Showing <strong>{filteredRecords.length}</strong> logs for <strong>{currentPeriodLabel}</strong>
-          </span>
         </div>
-      </div>
 
-      {/* Main Table with Explicit Empty State Requirement */}
-      {filteredRecords.length === 0 ? (
-        <div className="bg-white dark:bg-[#1A2430] border border-slate-200/90 dark:border-[#253344] rounded-2xl p-12 text-center shadow-xs">
-          <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto mb-3">
-            <CalendarOff className="w-6 h-6" />
+        <div className="card stat-card tone-attention">
+          <div className="stat-top">
+            <span className="stat-icon">
+              <ClockAlert size={20} />
+            </span>
+            <h3>Late Arrivals</h3>
           </div>
-          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            No attendance records found for the selected period.
-          </h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
-            No punch or shift entries match the chosen {filterMode} ({currentPeriodLabel}). Try picking another date, weekday, or month.
-          </p>
+          <strong className="stat-value">{metrics.lateCount}</strong>
+          <div className="stat-meta">
+            <span className="muted">Punched after grace period</span>
+          </div>
         </div>
-      ) : (
-        <DataTable
-          columns={columns}
-          data={filteredRecords}
-          keyField="id"
-          searchPlaceholder="Search staff by name or code..."
-          emptyTitle="No attendance records found for the selected period."
-        />
-      )}
+
+        <div className="card stat-card tone-urgent">
+          <div className="stat-top">
+            <span className="stat-icon">
+              <UserX size={20} />
+            </span>
+            <h3>Absences</h3>
+          </div>
+          <strong className="stat-value">{metrics.absentCount}</strong>
+          <div className="stat-meta">
+            <span className="muted">Unaccounted absence</span>
+          </div>
+        </div>
+
+        <div className="card stat-card tone-info">
+          <div className="stat-top">
+            <span className="stat-icon">
+              <CalendarOff size={20} />
+            </span>
+            <h3>On Leave</h3>
+          </div>
+          <strong className="stat-value">{metrics.onLeaveCount}</strong>
+          <div className="stat-meta">
+            <span className="muted">Approved leave quota</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Single Unified CRM Card with Toolbar, Stage Tabs, Table & Pager */}
+      <DataTable
+        columns={columns}
+        data={filteredRecords}
+        keyField="id"
+        tabs={tabs}
+        activeTab={selectedStatus}
+        onTabChange={setSelectedStatus}
+        filterComponent={filterControls}
+        searchPlaceholder="Search staff by name or code..."
+        searchFields={['employeeName', 'employeeId', 'department']}
+        emptyTitle="No attendance records found for the selected period."
+        emptyDescription={`No punch or shift entries match the chosen ${filterMode} (${currentPeriodLabel}). Try picking another date, weekday, or month.`}
+      />
     </div>
   );
 };

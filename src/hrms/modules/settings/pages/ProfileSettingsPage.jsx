@@ -293,35 +293,15 @@ export const ProfileSettingsPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Tabs */}
-      <div className="flex border-b border-slate-200 dark:border-slate-800 space-x-6">
-        <button
-          type="button"
-          onClick={() => setActiveTab('profile')}
-          className={`pb-3 text-sm font-semibold transition-colors border-b-2 ${
-            activeTab === 'profile'
-              ? 'border-[#0f4c5c] text-[#0f4c5c] dark:text-teal-400'
-              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-          }`}
-        >
-          Personal &amp; Corporate Profile
+      <nav className="page-tabs">
+        <button type="button" onClick={() => setActiveTab('profile')} className={`page-tab ${activeTab === 'profile' ? 'is-active' : ''}`}>
+          Personal &amp; corporate profile
         </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab('documents')}
-          className={`pb-3 text-sm font-semibold transition-colors border-b-2 flex items-center gap-2 ${
-            activeTab === 'documents'
-              ? 'border-[#0f4c5c] text-[#0f4c5c] dark:text-teal-400'
-              : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-          }`}
-        >
-          <span>Personal Verification Documents</span>
-          {documents.some((d) => d.status === 'Rejected') && (
-            <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
-              Action Req.
-            </span>
-          )}
+        <button type="button" onClick={() => setActiveTab('documents')} className={`page-tab ${activeTab === 'documents' ? 'is-active' : ''}`}>
+          Verification documents
+          {documents.some((d) => d.status === 'Rejected') && <span className="pill tone-urgent">Action needed</span>}
         </button>
-      </div>
+      </nav>
 
       {/* TAB 1: Complete Personal Profile Form */}
       {activeTab === 'profile' && (

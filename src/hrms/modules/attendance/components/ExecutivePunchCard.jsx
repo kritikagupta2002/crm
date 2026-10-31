@@ -137,202 +137,64 @@ export function ExecutivePunchCard({ className = '' }) {
 
   return (
     <>
-      {/* Plain div instead of <Card> to avoid .card CSS overriding the dark gradient background */}
-      <div
-        className={`p-5 sm:p-6 rounded-2xl border border-slate-700/80 shadow-lg relative overflow-hidden ${className}`}
-        style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #131e2d 50%, #162032 100%)',
-          color: '#fff',
-        }}
-      >
-        {/* Subtle background accents */}
-        <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(20,184,166,0.08) 0%, transparent 70%)' }} />
-        <div className="absolute left-1/4 -bottom-12 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.04) 0%, transparent 70%)' }} />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-5">
-
-          {/* ── 1. Identity ── */}
-          <div className="flex items-center gap-4 min-w-0 flex-1">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-base font-bold"
-              style={{
-                background: 'linear-gradient(135deg, rgba(20,184,166,0.18) 0%, rgba(20,184,166,0.06) 100%)',
-                border: '1px solid rgba(20,184,166,0.3)',
-                color: '#5eead4',
-              }}
-            >
-              {initials}
+      {/* The CRM's light card: identity, today's punches, location and the punch button. */}
+      <section className={`card exec-punch ${className}`}>
+        <div className="exec-punch-who">
+          <span className="exec-punch-avatar">{initials}</span>
+          <div className="min-w-0">
+            <div className="exec-punch-name">
+              <strong>{empName}</strong>
+              <span className="pill tone-info">{empRole}</span>
+              <span className="pill tone-neutral">{empId}</span>
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-extrabold text-lg tracking-tight truncate" style={{ color: '#fff' }}>
-                  {empName}
-                </span>
-                <span
-                  className="text-[11px] px-2.5 py-0.5 rounded-full font-bold shrink-0"
-                  style={{
-                    background: 'rgba(20,184,166,0.15)',
-                    color: '#5eead4',
-                    border: '1px solid rgba(20,184,166,0.3)',
-                  }}
-                >
-                  {empRole}
-                </span>
-                <span
-                  className="text-[11px] px-2 py-0.5 rounded-full font-mono font-semibold shrink-0"
-                  style={{
-                    background: 'rgba(30,41,59,0.9)',
-                    color: '#94a3b8',
-                    border: '1px solid rgba(51,65,85,0.8)',
-                  }}
-                >
-                  {empId}
-                </span>
-              </div>
-              <div className="flex items-center gap-3 mt-1.5 flex-wrap" style={{ color: '#94a3b8', fontSize: '12px' }}>
-                <span className="flex items-center gap-1.5 font-medium">
-                  <Clock className="w-3.5 h-3.5" style={{ color: '#2dd4bf' }} />
-                  <strong className="tabular-nums tracking-wider" style={{ color: '#fff' }}>{timeFormatted}</strong>
-                </span>
-                <span style={{ color: '#334155' }}>•</span>
-                <span>Shift: <strong style={{ color: '#e2e8f0' }}>09:30 AM – 06:00 PM</strong></span>
-              </div>
-            </div>
-          </div>
-
-          {/* ── 2. Check In / Check Out / Duration Ledger ── */}
-          <div
-            className="grid grid-cols-3 rounded-xl text-xs shrink-0"
-            style={{
-              background: 'rgba(30,41,59,0.7)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(51,65,85,0.6)',
-              padding: '14px 18px',
-              minWidth: '260px',
-            }}
-          >
-            <div>
-              <span className="block uppercase font-bold tracking-wider" style={{ fontSize: '10px', color: '#94a3b8' }}>
-                Check In
-              </span>
-              <span
-                className="font-mono font-extrabold tabular-nums"
-                style={{ fontSize: '15px', color: clockInTime ? '#34d399' : '#475569' }}
-              >
-                {clockInTime || '—'}
-              </span>
-            </div>
-            <div style={{ borderLeft: '1px solid rgba(51,65,85,0.6)', paddingLeft: '14px' }}>
-              <span className="block uppercase font-bold tracking-wider" style={{ fontSize: '10px', color: '#94a3b8' }}>
-                Check Out
-              </span>
-              <span
-                className="font-mono font-extrabold tabular-nums"
-                style={{ fontSize: '15px', color: clockOutTime ? '#60a5fa' : '#475569' }}
-              >
-                {clockOutTime || '—'}
-              </span>
-            </div>
-            <div style={{ borderLeft: '1px solid rgba(51,65,85,0.6)', paddingLeft: '14px' }}>
-              <span className="block uppercase font-bold tracking-wider" style={{ fontSize: '10px', color: '#94a3b8' }}>
-                Duration
-              </span>
-              <span
-                className="font-mono font-extrabold tabular-nums"
-                style={{ fontSize: '15px', color: '#e2e8f0' }}
-              >
-                {todayRecord?.workingHours && todayRecord.workingHours !== '-'
-                  ? todayRecord.workingHours
-                  : isClockedIn ? 'Active' : '—'}
-              </span>
-            </div>
-          </div>
-
-          {/* ── 3. Location + Punch Action ── */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-            {/* Geofence chip */}
-            <div
-              className="flex items-center gap-2.5 rounded-xl text-xs"
-              style={{
-                background: 'rgba(30,41,59,0.7)',
-                border: '1px solid rgba(51,65,85,0.6)',
-                padding: '10px 14px',
-              }}
-            >
-              <span
-                className="w-2.5 h-2.5 rounded-full shrink-0"
-                style={{
-                  background: isInsideGeofence ? '#34d399' : '#fbbf24',
-                  boxShadow: isInsideGeofence ? '0 0 6px rgba(52,211,153,0.5)' : 'none',
-                  animation: isInsideGeofence ? 'pulse 2s infinite' : 'none',
-                }}
-              />
-              <div className="flex flex-col min-w-0">
-                <span className="font-bold truncate" style={{ color: '#e2e8f0', fontSize: '12px' }}>
-                  {isInsideGeofence ? 'Jaipur HQ · In Perimeter' : 'Executive / Field Zone'}
-                </span>
-                <span className="truncate" style={{ color: '#64748b', fontSize: '10.5px' }}>
-                  {isInsideGeofence
-                    ? `Office Geofence ±${Math.round(userCoords?.accuracy || 10)}m`
-                    : `${Math.round(geofence.distanceMeters || 0)}m from HQ`}
-                </span>
-              </div>
-              <div className="flex items-center gap-1 ml-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={fetchRealGps}
-                  disabled={isLocating}
-                  className="p-1.5 rounded-lg transition"
-                  style={{ color: isLocating ? '#2dd4bf' : '#94a3b8' }}
-                  title="Refresh GPS"
-                >
-                  <Crosshair className={`w-4 h-4 ${isLocating ? 'animate-spin' : ''}`} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsGeofenceModalOpen(true)}
-                  className="font-bold px-1.5 transition"
-                  style={{ color: '#2dd4bf', fontSize: '11px' }}
-                >
-                  Map
-                </button>
-              </div>
-            </div>
-
-            {/* Punch button */}
-            <Button
-              variant={isClockedIn ? 'outline' : 'primary'}
-              size="md"
-              onClick={handleTogglePunch}
-              disabled={punchedOut || isPunching}
-              className={`font-bold whitespace-nowrap min-w-[180px] h-11 text-sm shadow-sm transition-all ${
-                punchedOut
-                  ? '!bg-slate-800 !text-slate-400 !cursor-not-allowed !border-slate-700'
-                  : isClockedIn
-                    ? '!border-rose-500 !bg-rose-500/10 !text-rose-400 hover:!bg-rose-500/20'
-                    : '!bg-emerald-600 hover:!bg-emerald-500 !text-white !border-transparent'
-              }`}
-              leftIcon={
-                punchedOut ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                ) : isClockedIn ? (
-                  <LogOut className="w-4 h-4 text-rose-400" />
-                ) : (
-                  <LogIn className="w-4 h-4 text-white" />
-                )
-              }
-            >
-              {punchedOut
-                ? 'Punched Out Today'
-                : isClockedIn
-                  ? 'Punch Out Now'
-                  : isInsideGeofence
-                    ? 'Punch In (HQ)'
-                    : 'Punch In (Executive)'}
-            </Button>
+            <p className="exec-punch-meta">
+              <Clock size={14} /> <b>{timeFormatted}</b> · Shift 09:30 AM – 06:00 PM
+            </p>
           </div>
         </div>
-      </div>
+
+        <dl className="exec-punch-times">
+          <div><dt>Check in</dt><dd className={clockInTime ? 'is-in' : ''}>{clockInTime || '—'}</dd></div>
+          <div><dt>Check out</dt><dd>{clockOutTime || '—'}</dd></div>
+          <div>
+            <dt>Duration</dt>
+            <dd>{todayRecord?.workingHours && todayRecord.workingHours !== '-' ? todayRecord.workingHours : isClockedIn ? 'Active' : '—'}</dd>
+          </div>
+        </dl>
+
+        <div className="exec-punch-actions">
+          <div className={`exec-punch-place ${isInsideGeofence ? 'is-inside' : ''}`}>
+            <span className="exec-punch-dot" />
+            <div className="min-w-0">
+              <strong>{isInsideGeofence ? 'Jaipur HQ · In Perimeter' : 'Executive / Field Zone'}</strong>
+              <small>
+                {isInsideGeofence
+                  ? `Office Geofence ±${Math.round(userCoords?.accuracy || 10)}m`
+                  : `${Math.round(geofence.distanceMeters || 0)}m from HQ`}
+              </small>
+            </div>
+            <button type="button" className="icon-button" onClick={fetchRealGps} disabled={isLocating} title="Refresh GPS">
+              <Crosshair size={16} className={isLocating ? 'animate-spin' : ''} />
+            </button>
+            <button type="button" className="link-button" onClick={() => setIsGeofenceModalOpen(true)}>Map</button>
+          </div>
+
+          <Button
+            variant={punchedOut || isClockedIn ? 'secondary' : 'primary'}
+            onClick={handleTogglePunch}
+            disabled={punchedOut || isPunching}
+            leftIcon={punchedOut ? <CheckCircle2 size={16} /> : isClockedIn ? <LogOut size={16} /> : <LogIn size={16} />}
+          >
+            {punchedOut
+              ? 'Punched Out Today'
+              : isClockedIn
+                ? 'Punch Out Now'
+                : isInsideGeofence
+                  ? 'Punch In (HQ)'
+                  : 'Punch In (Executive)'}
+          </Button>
+        </div>
+      </section>
 
       <GeofenceModal
         isOpen={isGeofenceModalOpen}

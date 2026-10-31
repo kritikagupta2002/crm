@@ -3,11 +3,14 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Boxes, Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, ShieldAlert, Crosshair, Navigation, CheckCircle2, AlertTriangle, Eye, EyeOff, Layers, Map as MapIcon, FileCheck, Upload } from 'lucide-react';
 import { Card } from '@/components/common/Card';
+import { StatCard } from '@/components/common/StatCard';
+import { CardHeader } from '@/components/common/CardHeader';
 import { Button } from '@/components/common/Button';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
+import { formatNearDate } from '@shared/utils/date';
 import { useCrm } from '../../../../context/crm';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { parseClock, todayIso } from '@/modules/attendance/utils/punch';
@@ -326,7 +329,7 @@ export const EmployeeDashboard = () => {
                 return {
                     id: r.id,
                     type: r.leaveType,
-                    dates: `${r.startDate} - ${r.endDate}`,
+                    dates: r.startDate === r.endDate ? formatNearDate(r.startDate) : `${formatNearDate(r.startDate)} – ${formatNearDate(r.endDate)}`,
                     days: daysLabel,
                     reason: r.reason,
                     status: r.status,
@@ -497,14 +500,8 @@ export const EmployeeDashboard = () => {
         <Card className="lg:col-span-6 p-5 sm:p-6 flex flex-col justify-between border-t-4 border-t-teal-600 dark:border-t-teal-500 shadow-sm hover:shadow-md transition-shadow">
           <div>
             {/* Header: Title and Live Status Badge */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse"></span>
-                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                  Live Attendance Console
-                </span>
-              </div>
-              <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border shadow-2xs ${isClockedIn
+            <CardHeader inset icon={<Timer size={18}/>} title="Today's attendance">
+                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border shadow-2xs ${isClockedIn
                 ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800'
                 : clockOutTime
                   ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 border-blue-300 dark:border-blue-800'
@@ -512,7 +509,7 @@ export const EmployeeDashboard = () => {
                 <span className={`w-2 h-2 rounded-full ${isClockedIn ? 'bg-emerald-500 animate-ping' : clockOutTime ? 'bg-blue-500' : 'bg-slate-400'}`}/>
                 {isClockedIn ? 'Currently Punched In' : clockOutTime ? 'Punch-Out Recorded' : onLeaveToday ? 'On Approved Leave' : 'Not Punched In Today'}
               </span>
-            </div>
+              </CardHeader>
 
             {/* Main Clock Display */}
             <div className="my-4 text-center p-3 rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-slate-900/80 dark:to-slate-900 border border-slate-200/70 dark:border-slate-800">
@@ -588,7 +585,7 @@ export const EmployeeDashboard = () => {
             {/* Today's Punch In & Out Activity Cards */}
             <div className="grid grid-cols-2 gap-2.5 mb-4 text-xs">
               <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Punch In Today</span>
+                <span className="text-xs font-medium text-slate-500 block">Punch In Today</span>
                 <p className={`text-sm font-extrabold mt-0.5 ${todayRecord?.status === 'Late' ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                   {clockInTime ? clockInTime : '—'}
                 </p>
@@ -597,7 +594,7 @@ export const EmployeeDashboard = () => {
                 </span>
               </div>
               <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Punch Out Today</span>
+                <span className="text-xs font-medium text-slate-500 block">Punch Out Today</span>
                 <p className="text-sm font-extrabold mt-0.5 text-blue-600 dark:text-blue-400">
                   {clockOutTime ? clockOutTime : '—'}
                 </p>
@@ -652,7 +649,7 @@ export const EmployeeDashboard = () => {
               size="lg"
               onClick={handleTogglePunch}
               disabled={punchedOut || onLeaveToday || isPunching || !isInsideGeofence}
-              className={`w-full !py-3.5 font-black text-sm uppercase tracking-wide transition-all shadow-md ${
+              className={`w-full !py-3.5 font-semibold text-sm transition-all shadow-md ${
                 !isInsideGeofence
                   ? '!bg-slate-200 dark:!bg-slate-800 !text-slate-500 dark:!text-slate-400 !cursor-not-allowed !border-slate-300 dark:!border-slate-700 shadow-none'
                   : isClockedIn
@@ -698,29 +695,9 @@ export const EmployeeDashboard = () => {
         <Card className="lg:col-span-6 p-5 sm:p-6 flex flex-col justify-between border-t-4 border-t-emerald-600 dark:border-t-emerald-500 shadow-sm hover:shadow-md transition-shadow">
           <div>
             {/* Header: Map Title & Controls */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <Compass className="w-4 h-4 text-emerald-600 animate-spin" style={{ animationDuration: '8s' }} />
-                <div>
-                  <h3 className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                    Office Geofence & Satellite Radar
-                  </h3>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    Bansal Geo Solutions HQ • Real-Time GPS Tracking
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsGeofenceModalOpen(true)}
-                  className="px-2.5 py-1 text-xs font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 rounded-lg hover:bg-teal-100 transition flex items-center gap-1 shadow-2xs"
-                >
-                  <MapIcon className="w-3.5 h-3.5" />
-                  <span>Fullscreen</span>
-                </button>
-              </div>
-            </div>
+            <CardHeader inset icon={<Compass size={18}/>} title="Office geofence">
+              <Button variant="secondary" size="sm" onClick={() => setIsGeofenceModalOpen(true)} leftIcon={<MapIcon size={14}/>}>Fullscreen</Button>
+            </CardHeader>
 
             {/* Always-Visible Animated Geofence Map */}
             <div className="mt-3 relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner">
@@ -747,45 +724,20 @@ export const EmployeeDashboard = () => {
       </div>
 
       {/* ── 3. Monthly Attendance KPI Performance Strip (4 Equal Cards) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-5">
+      <div className="stat-grid mt-5">
         {[
-          { title: 'Present This Month', value: monthStats.present, unit: `/ ${monthStats.workingDays} days`, footLabel: 'Attendance rate', foot: `${monthStats.rate}%`, Icon: UserCheck, tone: 'emerald' },
-          { title: 'Leave Taken', value: monthStats.leaveDays, unit: `days (${monthStats.monthLabel})`, footLabel: 'Waiting approval', foot: monthStats.pendingLeave ? `${monthStats.pendingLeave} req` : 'None', Icon: CalendarCheck2, tone: 'amber' },
-          { title: 'Late Marks', value: monthStats.late, unit: 'this month', footLabel: 'Grace period', foot: (() => { const st = storage.getAttendanceSettings(); return `${st.workStartTime} + ${st.gracePeriodMinutes}m`; })(), Icon: Clock, tone: 'blue' },
-          { title: 'Hours Worked', value: monthStats.hours, unit: 'hrs this month', footLabel: 'Overtime', foot: `${monthStats.overtimeHours} hrs`, Icon: Sparkles, tone: 'purple' },
-        ].map((c) => (
-          <Card key={c.title} className={`p-4 flex flex-col justify-between border-l-4 shadow-2xs hover:shadow-sm transition-all ${{ emerald: 'border-l-emerald-500', amber: 'border-l-amber-500', blue: 'border-l-blue-500', purple: 'border-l-purple-500' }[c.tone]}`}>
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400">{c.title}</span>
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${{ emerald: 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400', amber: 'bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400', blue: 'bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400', purple: 'bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400' }[c.tone]}`}>
-                  <c.Icon className="w-4 h-4"/>
-                </div>
-              </div>
-              <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tabular-nums tracking-tight">{c.value}</span>
-                <span className="text-xs font-semibold text-slate-400">{c.unit}</span>
-              </div>
-            </div>
-            <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-              <span>{c.footLabel}</span>
-              <span className="font-bold text-slate-700 dark:text-slate-200">{c.foot}</span>
-            </div>
-          </Card>
-        ))}
+          { title: 'Present this month', value: monthStats.present, caption: `of ${monthStats.workingDays} days · ${monthStats.rate}% attendance`, Icon: UserCheck, tone: 'tone-good' },
+          { title: 'Leave taken', value: monthStats.leaveDays, caption: `days in ${monthStats.monthLabel} · ${monthStats.pendingLeave ? `${monthStats.pendingLeave} waiting approval` : 'none waiting'}`, Icon: CalendarCheck2, tone: 'tone-attention' },
+          { title: 'Late marks', value: monthStats.late, caption: (() => { const st = storage.getAttendanceSettings(); return `this month · grace ${st.workStartTime} + ${st.gracePeriodMinutes}m`; })(), Icon: Clock, tone: 'tone-info' },
+          { title: 'Hours worked', value: monthStats.hours, caption: `this month · ${monthStats.overtimeHours} hrs overtime`, Icon: Sparkles, tone: 'tone-neutral' },
+        ].map((c) => (<StatCard key={c.title} title={c.title} value={c.value} icon={<c.Icon />} tone={c.tone} caption={c.caption}/>))}
       </div>
 
       {/* ── 3. Leave Balances & Applications ─────────────────────── */}
       <Card className="p-4 sm:p-5">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">My Leave Balances ({new Date().getFullYear()})</h2>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">Yearly quota from the leave settings</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={() => navigate('/hr/leave/balance')} className="text-xs h-7 px-2.5" rightIcon={<ChevronRight className="w-3.5 h-3.5"/>}>
-            Leave Ledger
-          </Button>
-        </div>
+        <CardHeader inset icon={<CalendarDays size={18}/>} title={`My leave balances (${new Date().getFullYear()})`}>
+          <button type="button" className="link-button" onClick={() => navigate('/hr/leave/balance')}>Leave ledger <ChevronRight size={14}/></button>
+        </CardHeader>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
@@ -794,7 +746,7 @@ export const EmployeeDashboard = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-blue-500"/>
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 tabular-nums tracking-tight">
+              <span className="figure-sm">
                 {userLeaveBalances.cl.available}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
@@ -817,7 +769,7 @@ export const EmployeeDashboard = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500"/>
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-amber-600 dark:text-amber-400 tabular-nums tracking-tight">
+              <span className="figure-sm">
                 {userLeaveBalances.sl.available}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
@@ -840,7 +792,7 @@ export const EmployeeDashboard = () => {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"/>
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
-              <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums tracking-tight">
+              <span className="figure-sm">
                 {userLeaveBalances.el.available}
               </span>
               <span className="text-xs text-slate-400 font-semibold">
@@ -883,20 +835,9 @@ export const EmployeeDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* My Documents & Verification Status */}
         <Card className="p-4 sm:p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center">
-                <FileCheck className="w-4 h-4"/>
-              </div>
-              <div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white">My Documents & Verification</h2>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">Aadhaar, PAN, certificates & ID proofs</p>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate('/hr/documents')} className="text-xs h-7 px-2.5" leftIcon={<Upload className="w-3.5 h-3.5 text-teal-600"/>}>
-              Upload Document
-            </Button>
-          </div>
+          <CardHeader inset icon={<FileCheck size={18}/>} title="My documents">
+            <Button variant="secondary" size="sm" onClick={() => navigate('/hr/documents')} leftIcon={<Upload size={14}/>}>Upload document</Button>
+          </CardHeader>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
@@ -957,20 +898,7 @@ export const EmployeeDashboard = () => {
 
         {/* Company Holidays & Notice */}
         <Card className="p-4 sm:p-5">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                <CalendarDays className="w-4 h-4"/>
-              </div>
-              <div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white">Upcoming Company Holidays</h2>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400">Public and company holidays</p>
-              </div>
-            </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-              {new Date().getFullYear()}
-            </span>
-          </div>
+          <CardHeader inset icon={<CalendarDays size={18}/>} title="Upcoming holidays" count={new Date().getFullYear()}/>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800 mt-2">
             {upcomingHolidays.map((hol) => (<div key={hol.title} className="py-2.5 flex items-center justify-between">
@@ -978,7 +906,7 @@ export const EmployeeDashboard = () => {
                   <p className="text-xs font-bold text-slate-900 dark:text-white">{hol.title}</p>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">{hol.date} • {hol.day}</p>
                 </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200/60 dark:border-rose-800/40">
+                <span className="pill tone-neutral">
                   {hol.badge}
                 </span>
               </div>))}
@@ -989,24 +917,7 @@ export const EmployeeDashboard = () => {
 
       {/* ── 5. Assigned Inventory / Equipment ─────────────────────── */}
       <Card className="p-4 sm:p-5 mt-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              <Boxes className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-slate-900 dark:text-white">Assigned Inventory</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-400 border border-indigo-200/60 dark:border-indigo-800/40">
-                  {myAssignedInventory.length} {myAssignedInventory.length === 1 ? 'item' : 'items'}
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                Tools, survey instruments and equipment currently issued to you
-              </p>
-            </div>
-          </div>
-        </div>
+        <CardHeader inset icon={<Boxes size={18}/>} title="Assigned inventory" count={`${myAssignedInventory.length} ${myAssignedInventory.length === 1 ? 'item' : 'items'}`}/>
 
         {myAssignedInventory.length === 0 ? (
           <div className="py-8 text-center" id="assigned-inventory-empty">

@@ -22,11 +22,12 @@ import {
   TrendingUp,
   Award,
   Layers,
-  ShieldCheck,
   Search,
   ChevronDown,
+  Scale,
 } from 'lucide-react';
 import { Card } from '@/components/common/Card';
+import { StatCard } from '@/components/common/StatCard';
 import { ChartCard } from '@/components/common/ChartCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCrm } from '../../../../context/crm';
@@ -276,104 +277,12 @@ export const EmployeeLeaveMisChart = ({
 
       {selectedEmployee ? (
         <div className="space-y-4">
-          {/* Employee Profile Header & Executive Stat Chips */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {/* Card 1: Annual Quota */}
-            <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3.5 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                  Allocated Quota
-                </span>
-                <Calendar className="w-4 h-4 text-blue-500" />
-              </div>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-2xl font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
-                  {metrics.totalQuota}
-                </span>
-                <span className="text-xs text-slate-400">days/yr</span>
-              </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 truncate">
-                {selectedEmployee.name}
-              </p>
-            </div>
-
-            {/* Card 2: Utilized Days */}
-            <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3.5 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                  Utilized
-                </span>
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              </div>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 tabular-nums tracking-tight">
-                  {metrics.totalUtilized}
-                </span>
-                <span className="text-xs font-semibold text-slate-400">days</span>
-              </div>
-              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
-                {metrics.utilizationRate} quota consumed
-              </p>
-            </div>
-
-            {/* Card 3: Remaining Balance */}
-            <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3.5 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                  Remaining
-                </span>
-                <Award className="w-4 h-4 text-amber-500" />
-              </div>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-2xl font-black text-amber-600 dark:text-amber-400 tabular-nums tracking-tight">
-                  {metrics.totalRemaining}
-                </span>
-                <span className="text-xs font-semibold text-slate-400">days available</span>
-              </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">
-                Usable through FY26
-              </p>
-            </div>
-
-            {/* Card 4: Under Approval / Pending */}
-            <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3.5 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                  In Review
-                </span>
-                <Clock className="w-4 h-4 text-purple-500" />
-              </div>
-              <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-2xl font-black text-purple-600 dark:text-purple-400 tabular-nums tracking-tight">
-                  {metrics.totalPending}
-                </span>
-                <span className="text-xs font-semibold text-slate-400">days committed</span>
-              </div>
-              <p className="text-[10px] text-purple-600 dark:text-purple-400 mt-1">
-                {metrics.pendingCount} pending requests
-              </p>
-            </div>
-
-            {/* Card 5: Role & Department */}
-            <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3.5 shadow-2xs">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-bold text-slate-400 font-mono">
-                  Staff Role
-                </span>
-                <ShieldCheck className="w-4 h-4 text-teal-600" />
-              </div>
-              <div className="mt-1">
-                <h5 className="text-xs font-extrabold text-slate-900 dark:text-white truncate">
-                  {selectedEmployee.employment?.designation}
-                </h5>
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                  {selectedEmployee.employment?.department}
-                </p>
-              </div>
-              <p className="text-[10px] text-teal-700 dark:text-teal-400 font-mono font-bold mt-1">
-                {selectedEmployee.employeeId}
-              </p>
-            </div>
+          {/* Totals across all leave types, as the CRM's stat cards. */}
+          <div className="stat-grid">
+            <StatCard title="Allocated quota" value={metrics.totalQuota} icon={<Calendar />} tone="tone-info" caption="days a year" />
+            <StatCard title="Utilized" value={metrics.totalUtilized} icon={<CheckCircle2 />} tone="tone-good" caption={`${metrics.utilizationRate} of the quota`} />
+            <StatCard title="Remaining" value={metrics.totalRemaining} icon={<Award />} tone="tone-attention" caption="days available" />
+            <StatCard title="In review" value={metrics.totalPending} icon={<Clock />} tone="tone-neutral" caption={`${metrics.pendingCount} pending ${metrics.pendingCount === 1 ? 'request' : 'requests'}`} />
           </div>
 
           {/* Main Visualizations Row: Bar Chart + Category Breakdown */}
@@ -382,7 +291,7 @@ export const EmployeeLeaveMisChart = ({
             <div className="lg:col-span-2">
               <ChartCard
                 title={`${selectedEmployee.name} — Leave Quota & Utilization Share`}
-                subtitle="Allocated annual quota vs days consumed vs balance available by leave policy category"
+                subtitle={[selectedEmployee.employment?.designation, selectedEmployee.employment?.department, selectedEmployee.employeeId].filter(Boolean).join(' · ')}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full min-h-[270px] items-center">
                   {/* Donut 1: Quota Entitlement by Category */}
@@ -496,43 +405,22 @@ export const EmployeeLeaveMisChart = ({
 
             {/* Right Col: Category Quota Table */}
             <div>
-              <Card className="p-4 h-full flex flex-col justify-between">
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mb-1">
-                    Quota Ledger Breakdown
-                  </h4>
-                  <p className="text-[10px] text-slate-400 mb-3">
-                    Individual entitlement vs approved consumption
-                  </p>
-
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800 max-h-[220px] overflow-y-auto custom-sidebar-scroll pr-1">
-                    {employeeBalances.map((b) => (
-                      <div key={b.leaveType} className="py-2 flex items-center justify-between text-xs">
-                        <div className="min-w-0 pr-2">
-                          <span className="font-bold text-slate-800 dark:text-slate-200 block truncate">
-                            {b.leaveType.split('(')[0]}
-                          </span>
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            {b.used} used of {b.totalAllocated}d
-                          </span>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <span className="font-extrabold text-amber-600 dark:text-amber-400 tabular-nums">
-                            {b.available}
-                          </span>
-                          <span className="text-[10px] text-slate-400 block">left</span>
-                        </div>
+              <Card className="h-full flex flex-col">
+                <div className="card-header">
+                  <span className="card-icon"><Scale size={18} /></span>
+                  <h2>Quota ledger</h2>
+                </div>
+                <ul className="ledger-list">
+                  {employeeBalances.map((b) => (
+                    <li key={b.leaveType}>
+                      <div className="min-w-0">
+                        <span className="cell-strong">{b.leaveType.split('(')[0].trim()}</span>
+                        <span className="cell-sub">{b.used} used of {b.totalAllocated} days</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500">
-                  <span>Total Available Balance:</span>
-                  <span className="font-black text-slate-900 dark:text-white text-sm tabular-nums">
-                    {metrics.totalRemaining} Days
-                  </span>
-                </div>
+                      <strong>{b.available}<small>left</small></strong>
+                    </li>
+                  ))}
+                </ul>
               </Card>
             </div>
           </div>

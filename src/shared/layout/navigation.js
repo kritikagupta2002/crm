@@ -15,6 +15,11 @@ import {
   UserMinus,
   UserRound,
   Users,
+  BadgeIndianRupee,
+  SlidersHorizontal,
+  FileSpreadsheet,
+  Receipt,
+  History,
 } from 'lucide-react'
 
 // Roles that have access to full HR administrative controls
@@ -56,6 +61,16 @@ export const NAV_GROUPS = [
       { label: 'Apply Leave', path: '/hr/leave/apply', icon: PlusCircle },
       { label: 'Leave Requests', path: '/hr/leave/requests', icon: ClipboardList },
       { label: 'Leave Approvals', path: '/hr/leave/approvals', icon: ShieldCheck, only: HR_ADMIN_ROLES, badge: 'leavesPending' },
+    ],
+  },
+  {
+    title: 'Payroll & Compensation',
+    items: [
+      { label: 'Payroll Overview', path: '/hr/payroll', icon: BadgeIndianRupee, end: true, only: HR_MANAGEMENT_ROLES },
+      { label: 'Salary Structures', path: '/hr/payroll/salary-structure', icon: SlidersHorizontal, only: HR_ADMIN_ROLES },
+      { label: 'Process Payroll', path: '/hr/payroll/process', icon: FileSpreadsheet, only: HR_ADMIN_ROLES },
+      { label: 'Salary Slips (Payslips)', path: '/hr/payroll/payslips', icon: Receipt },
+      { label: 'Payroll History', path: '/hr/payroll/history', icon: History, only: HR_ADMIN_ROLES },
     ],
   },
 ]

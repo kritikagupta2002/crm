@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, ChevronLeft, ChevronRight, Search, Building2, UserCheck, CalendarOff, Clock } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
+import { StatCard } from '@/components/common/StatCard';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Select } from '@/components/common/Select';
@@ -115,21 +116,13 @@ export const MonthlyAttendancePage = () => {
             </Button>
           </div>}/>
 
-      {mine && (<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {mine && (<div className="stat-grid">
           {[
                 { title: 'Present Days', value: mine.present, Icon: UserCheck, tone: 'border-l-emerald-500', icon: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400' },
                 { title: 'Late Marks', value: mine.late, Icon: Clock, tone: 'border-l-amber-500', icon: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400' },
                 { title: 'Leave Days', value: mine.leave, Icon: CalendarOff, tone: 'border-l-purple-500', icon: 'bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400' },
                 { title: 'Weekly Offs', value: mine.off, Icon: Building2, tone: 'border-l-slate-400', icon: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400' },
-            ].map((c) => (<Card key={c.title} className={`p-3.5 flex items-center gap-3 border-l-4 ${c.tone}`}>
-              <div className={`p-2 rounded-lg shrink-0 ${c.icon}`}>
-                <c.Icon className="w-4 h-4"/>
-              </div>
-              <div>
-                <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">{c.title}</p>
-                <p className="text-lg font-black text-slate-900 dark:text-white tabular-nums">{c.value}</p>
-              </div>
-            </Card>))}
+            ].map((c) => (<StatCard key={c.title} title={c.title} value={c.value} icon={<c.Icon />} iconBgColor={c.icon}/>))}
         </div>)}
 
       <Card className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">

@@ -263,6 +263,33 @@ export const storage = {
         }
         let changed = false;
         const added = getItem(STORAGE_KEYS.SEED_ADDED, []);
+        const validIds = new Set([...INITIAL_EMPLOYEES.map((e) => e.employeeId), ...added.map((e) => e.employeeId)]);
+        if (list.some((e) => !validIds.has(e.employeeId))) {
+            list = list.filter((e) => validIds.has(e.employeeId));
+            changed = true;
+        }
+        list = list.map((emp) => {
+            const canonical = INITIAL_EMPLOYEES.find((e) => e.employeeId === emp.employeeId);
+            if (!canonical) return emp;
+            const needsUpdate =
+                emp.contact?.phone !== canonical.contact?.phone ||
+                emp.emergency?.phone !== canonical.emergency?.phone ||
+                emp.employment?.joiningDate !== canonical.employment?.joiningDate ||
+                emp.personal?.dob !== canonical.personal?.dob ||
+                emp.contact?.currentAddress !== canonical.contact?.currentAddress;
+            if (needsUpdate) {
+                changed = true;
+                return {
+                    ...canonical,
+                    ...emp,
+                    personal: { ...canonical.personal, ...emp.personal, dob: canonical.personal.dob },
+                    contact: { ...canonical.contact, ...emp.contact, phone: canonical.contact.phone, workEmail: canonical.contact.workEmail, currentAddress: canonical.contact.currentAddress },
+                    emergency: { ...canonical.emergency, ...emp.emergency, name: canonical.emergency.name, phone: canonical.emergency.phone },
+                    employment: { ...canonical.employment, ...emp.employment, designation: canonical.employment.designation, department: canonical.employment.department, joiningDate: canonical.employment.joiningDate },
+                };
+            }
+            return emp;
+        });
         const missing = INITIAL_EMPLOYEES.filter((e) => !list.some((x) => x.employeeId === e.employeeId || x.name === e.name));
         if (missing.length) {
             list = [...list, ...missing];

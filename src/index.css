@@ -992,6 +992,61 @@ select.select-sm {
   color: var(--ink);
 }
 
+/* ---------- Pager (CRM Table Pagination) ---------- */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px 14px;
+  font-size: 13px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--line-soft);
+}
+
+.pager-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.page-button:hover:not(:disabled) {
+  border-color: var(--teal-400);
+  color: var(--ink);
+}
+
+.page-button.is-current {
+  background: var(--teal-700) !important;
+  border-color: var(--teal-700) !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+.page-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.page-gap {
+  padding: 0 4px;
+  color: var(--ink-3);
+}
+
 .check-step.is-done .check-box {
   background: var(--green);
   border-color: var(--green);

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, Search, Mail, Phone, Building2, MapPin, Clock, UserCheck, ChevronRight, Briefcase, Compass, LayoutGrid, RotateCcw, } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Card } from '@/components/common/Card';
+import { StatCard } from '@/components/common/StatCard';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Select } from '@/components/common/Select';
@@ -128,64 +129,11 @@ export const TeamPage = () => {
           </Button>}/>
 
       {/* ── TOP STAT SUMMARY ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        {/* Total Staff */}
-        <div className="bg-white dark:bg-[#1A2430] border border-slate-200 dark:border-[#253344] rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-shadow">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-[#1F6F78] dark:text-teal-400 flex items-center justify-center font-bold">
-              <Users className="w-5 h-5"/>
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Staff</p>
-              <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{employees.length}</h4>
-            </div>
-          </div>
-        </div>
-
-        {/* Operational Departments */}
-        <div onClick={() => setViewMode('department')} className={`bg-white dark:bg-[#1A2430] border rounded-2xl p-4 shadow-2xs hover:shadow-xs cursor-pointer transition-all ${viewMode === 'department'
-            ? 'border-[#1F6F78] ring-2 ring-teal-500/20'
-            : 'border-slate-200 dark:border-[#253344]'}`}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-              <Building2 className="w-5 h-5"/>
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Departments</p>
-              <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{departments.length}</h4>
-            </div>
-          </div>
-        </div>
-
-        {/* Active Projects */}
-        <div onClick={() => setViewMode('project')} className={`bg-white dark:bg-[#1A2430] border rounded-2xl p-4 shadow-2xs hover:shadow-xs cursor-pointer transition-all ${viewMode === 'project'
-            ? 'border-[#1F6F78] ring-2 ring-teal-500/20'
-            : 'border-slate-200 dark:border-[#253344]'}`}>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
-              <Compass className="w-5 h-5"/>
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Projects</p>
-              <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{projects.length}</h4>
-            </div>
-          </div>
-        </div>
-
-        {/* Duty & Field Deployments */}
-        <div className="bg-white dark:bg-[#1A2430] border border-slate-200 dark:border-[#253344] rounded-2xl p-4 shadow-2xs hover:shadow-xs transition-shadow">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
-              <UserCheck className="w-5 h-5"/>
-            </div>
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Duty & Field Staff</p>
-              <h4 className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">
-                {onDutyCount + fieldCount}
-              </h4>
-            </div>
-          </div>
-        </div>
+      <div className="stat-grid">
+        <StatCard title="Total staff" value={employees.length} icon={<Users />} tone="tone-info" />
+        <StatCard title="Departments" value={departments.length} icon={<Building2 />} tone="tone-neutral" onClick={() => setViewMode('department')} className={viewMode === 'department' ? 'is-selected' : ''} />
+        <StatCard title="Active projects" value={projects.length} icon={<Compass />} tone="tone-attention" onClick={() => setViewMode('project')} className={viewMode === 'project' ? 'is-selected' : ''} />
+        <StatCard title="On duty & in the field" value={onDutyCount + fieldCount} icon={<UserCheck />} tone="tone-good" />
       </div>
 
       {/* ── VIEW SWITCHER TABS & FILTER BAR ── */}

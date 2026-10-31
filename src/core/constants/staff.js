@@ -10,7 +10,7 @@ export const COORDINATORS = [
 
 export const TEAM_LEADS = [
   { name: 'Dr. Amit Kumar Bansal', title: 'Managing Director & Chief Geologist', phone: '9887695208', email: 'amit.bansal@bansalgeo.com', id: 'BGS/DIR-01' },
-  { name: 'Dharmendra Goyal', title: 'Executive Director', phone: '9829055443', email: 'dharmendra.goyal@bansalgeo.com', id: 'BGS/DIR-03' },
+  { name: 'Dharmendra Goyal', title: 'Executive Director', phone: '9783111346', email: 'dharmendra.goyal@bansalgeo.com', id: 'BGS/DIR-03' },
   { name: 'Inder Nogiya', title: 'Manager (Survey)', phone: '9785589075', email: 'inder.nogiya@bansalgeo.com', id: 'BGS/01' },
 ];
 

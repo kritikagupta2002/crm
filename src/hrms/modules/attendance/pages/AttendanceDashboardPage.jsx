@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserCheck, UserX, ClockAlert, CalendarOff, Clock, Fingerprint, CalendarDays, FileEdit, Download, MapPin } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
+import { StatCard } from '@/components/common/StatCard';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { Button } from '@/components/common/Button';
@@ -205,7 +206,7 @@ export const AttendanceDashboardPage = () => {
           </div>}/>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      <div className="hr-stat-row">
         {(isEmp
             ? [
                 {
@@ -330,37 +331,10 @@ export const AttendanceDashboardPage = () => {
                         iconBg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400',
                     },
                 ];
-            })()).map((kpi, idx) => (
-            <div
-              key={idx}
-              className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] shadow-2xs hover:border-teal-500/40 hover:shadow-xs transition-all flex flex-col justify-between"
-            >
-              <div className="flex items-start justify-between gap-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
-                  {kpi.title}
-                </span>
-                <div className={`p-2 rounded-xl shrink-0 ${kpi.iconBg}`}>
-                  {kpi.icon}
-                </div>
-              </div>
-              <div className="my-2">
-                <div className="text-2xl sm:text-3xl font-extrabold text-[#1E293B] dark:text-white tabular-nums tracking-tight">
-                  {kpi.value}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-1 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px]">
-                <span className="text-slate-500 dark:text-slate-400 truncate font-medium">
-                  {kpi.subtitle}
-                </span>
-                {kpi.badge && (
-                  <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] shrink-0 ${kpi.badgeColor}`}>
-                    {kpi.badge}
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
+            })()).map((kpi) => {
+                const notPunched = kpi.value === 'Not Punched';
+                return (<StatCard key={kpi.title} title={kpi.title} value={notPunched ? '—' : kpi.value} icon={kpi.icon} iconBgColor={kpi.iconBg} caption={notPunched ? 'Not punched in yet' : [kpi.subtitle, kpi.badge].filter(Boolean).join(' · ')}/>);
+            })}
       </div>
 
       {/* Attendance Table with Filter Bar */}

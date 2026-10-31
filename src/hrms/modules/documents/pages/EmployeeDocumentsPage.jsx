@@ -6,7 +6,6 @@ import {
   Clock,
   Download,
   Eye,
-  Filter,
   ShieldCheck,
   Award,
   RotateCcw,
@@ -17,6 +16,7 @@ import {
   FileCheck2,
 } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
+import { StatCard } from '@/components/common/StatCard';
 import { Card } from '@/components/common/Card';
 import { DataTable } from '@/components/common/DataTable';
 import { Button } from '@/components/common/Button';
@@ -360,57 +360,20 @@ export const EmployeeDocumentsPage = () => {
       />
 
       {/* KPI Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card className="p-4 flex items-center gap-3">
-          <div className="p-2.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 rounded-lg shrink-0">
-            <FileText className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-medium">Total Documents</p>
-            <p className="text-xl font-bold text-slate-800 dark:text-slate-100">{kpiRecords.length}</p>
-          </div>
-        </Card>
-
-        <Card className="p-4 flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 rounded-lg shrink-0">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-medium">Verified &amp; Approved</p>
-            <p className="text-xl font-bold text-emerald-600">{totalVerified}</p>
-          </div>
-        </Card>
-
-        <Card className="p-4 flex items-center gap-3">
-          <div className="p-2.5 bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 rounded-lg shrink-0">
-            <Clock className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-medium">Pending Verification</p>
-            <p className="text-xl font-bold text-amber-600">{totalPending}</p>
-          </div>
-        </Card>
-
-        <Card className="p-4 flex items-center gap-3">
-          <div className="p-2.5 bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-400 rounded-lg shrink-0">
-            <XCircle className="w-5 h-5" />
-          </div>
-          <div>
-            <p className="text-xs text-slate-500 font-medium">Rejected (Requires Action)</p>
-            <p className="text-xl font-bold text-red-600">{totalRejected}</p>
-          </div>
-        </Card>
+      <div className="stat-grid">
+        <StatCard title="Total documents" value={kpiRecords.length} icon={<FileText />} tone="tone-info" />
+        <StatCard title="Verified" value={totalVerified} icon={<ShieldCheck />} tone="tone-good" />
+        <StatCard title="Pending verification" value={totalPending} icon={<Clock />} tone="tone-attention" />
+        <StatCard title="Rejected" value={totalRejected} icon={<XCircle />} tone="tone-urgent" caption="needs re-upload" />
       </div>
 
-      {/* Filter Toolbar */}
-      <Card className="p-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-slate-400" />
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Filter By:</span>
-            </div>
-
+      {/* Documents Data Table */}
+      <DataTable
+        columns={columns}
+        data={filteredRecords}
+        keyField="id"
+        emptyTitle="No documents found matching the filter criteria."
+        filterComponent={<>
             <Select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -436,23 +399,8 @@ export const EmployeeDocumentsPage = () => {
                 className="text-xs w-44"
               />
             )}
-          </div>
-
-          <span className="text-xs text-slate-400">
-            Showing {filteredRecords.length} of {kpiRecords.length} records
-          </span>
-        </div>
-      </Card>
-
-      {/* Documents Data Table */}
-      <Card>
-        <DataTable
-          columns={columns}
-          data={filteredRecords}
-          keyExtractor={(row) => row.id}
-          emptyMessage="No documents found matching the filter criteria."
-        />
-      </Card>
+        </>}
+      />
 
       {/* Upload / Re-upload Modal */}
       <Modal

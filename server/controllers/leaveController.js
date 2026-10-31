@@ -169,8 +169,10 @@ export const leaveController = {
       }
 
       // Only the person who applied (or the HR team) withdraws a request, and only while it is pending or approved.
-      const hrRoles = ['Super Admin', 'Director', 'Managing Director'];
-      if (req.user?.employeeId && req.user.employeeId !== item.employeeId && !hrRoles.includes(req.user.role)) {
+      const hrRoles = ['Super Admin', 'Director', 'Managing Director', 'Admin', 'HR Manager', 'HR Executive', 'Management'];
+      const normalize = (v) => String(v || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      const isOwner = (req.user?.employeeId && normalize(req.user.employeeId) === normalize(item.employeeId)) || (req.user?.name && String(req.user.name).trim().toLowerCase() === String(item.employeeName).trim().toLowerCase()) || (!req.user?.employeeId && !item.employeeId);
+      if (req.user?.employeeId && !isOwner && !hrRoles.includes(req.user.role)) {
         return res.status(403).json({ success: false, error: 'You can only withdraw your own leave request.' });
       }
       if (!['Pending', 'Approved', 'Partially Approved'].includes(item.status)) {

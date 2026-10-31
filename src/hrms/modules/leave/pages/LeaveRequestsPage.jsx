@@ -11,6 +11,7 @@ import { useRole } from '@/contexts/RoleContext';
 import { useToast } from '@/contexts/ToastContext';
 import { leaveService } from '@/modules/leave/services/leave.service';
 import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { formatNearDate } from '@shared/utils/date';
 export const LeaveRequestsPage = () => {
     const navigate = useNavigate();
     const toast = useToast();
@@ -68,6 +69,7 @@ export const LeaveRequestsPage = () => {
             key: 'appliedOn',
             header: 'Applied Date',
             sortable: true,
+            render: (r) => (r.appliedOn ? formatNearDate(r.appliedOn) : '—'),
             className: 'font-mono text-xs w-28 whitespace-nowrap tabular-nums text-slate-600 dark:text-slate-400',
         },
         {
@@ -84,8 +86,8 @@ export const LeaveRequestsPage = () => {
             render: (r) => {
                 const reqDays = r.requestedDays || r.days || 1;
                 return (<div className="text-xs whitespace-nowrap">
-            <div className="font-mono text-slate-700 dark:text-slate-300 tabular-nums">
-              {r.startDate} to {r.endDate}
+            <div className="text-slate-700 tabular-nums">
+              {r.startDate === r.endDate ? formatNearDate(r.startDate) : `${formatNearDate(r.startDate)} – ${formatNearDate(r.endDate)}`}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[10px]">
@@ -104,8 +106,7 @@ export const LeaveRequestsPage = () => {
         {
             key: 'reason',
             header: 'Reason',
-            className: 'max-w-xs truncate',
-            render: (r) => (<p className="text-xs text-slate-600 dark:text-slate-300 truncate max-w-xs" title={r.reason}>{r.reason}</p>),
+            render: (r) => (<span className="cell-clip text-xs text-slate-600" title={r.reason}>{r.reason}</span>),
         },
         {
             key: 'status',
@@ -125,8 +126,7 @@ export const LeaveRequestsPage = () => {
         {
             key: 'approverComment',
             header: 'Reviewer Remarks',
-            className: 'max-w-xs truncate',
-            render: (r) => (<span className="text-xs text-slate-500 dark:text-slate-400 italic truncate max-w-xs block" title={r.approverComment || '-'}>
+            render: (r) => (<span className="cell-clip text-xs text-slate-500 italic" title={r.approverComment || '-'}>
           {r.approverComment || '-'}
         </span>),
         },
@@ -151,6 +151,7 @@ export const LeaveRequestsPage = () => {
             key: 'appliedOn',
             header: 'Applied Date',
             sortable: true,
+            render: (r) => (r.appliedOn ? formatNearDate(r.appliedOn) : '—'),
             className: 'font-mono text-xs w-28 whitespace-nowrap tabular-nums text-slate-600 dark:text-slate-400',
         },
         {
@@ -190,8 +191,8 @@ export const LeaveRequestsPage = () => {
             render: (r) => {
                 const reqDays = r.requestedDays || r.days || 1;
                 return (<div className="text-xs whitespace-nowrap">
-            <div className="font-mono text-slate-700 dark:text-slate-300 tabular-nums">
-              {r.startDate} to {r.endDate}
+            <div className="text-slate-700 tabular-nums">
+              {r.startDate === r.endDate ? formatNearDate(r.startDate) : `${formatNearDate(r.startDate)} – ${formatNearDate(r.endDate)}`}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="px-1.5 py-0.2 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[10px]">
@@ -210,8 +211,7 @@ export const LeaveRequestsPage = () => {
         {
             key: 'reason',
             header: 'Reason',
-            className: 'max-w-xs truncate',
-            render: (r) => (<p className="text-xs text-slate-600 dark:text-slate-300 truncate max-w-xs" title={r.reason}>{r.reason}</p>),
+            render: (r) => (<span className="cell-clip text-xs text-slate-600" title={r.reason}>{r.reason}</span>),
         },
         {
             key: 'status',
@@ -257,9 +257,9 @@ export const LeaveRequestsPage = () => {
           </div>}/>
 
       {/* Filter Controls */}
-      <div className="flex flex-wrap items-center gap-3 bg-white dark:bg-[#1A2430] p-4 rounded-xl border border-slate-200 dark:border-[#253344] shadow-xs">
+      <div className="card p-3 sm:p-3.5 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 mr-1">
-          <Filter className="w-4 h-4 text-blue-600"/>
+          <Filter className="w-4 h-4 text-[#1f6f78]"/>
           <span>Filters:</span>
         </div>
 
@@ -315,12 +315,12 @@ export const LeaveRequestsPage = () => {
                 setSelectedType('all');
                 setSelectedDept('all');
                 setSelectedProject('all');
-            }} className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs flex items-center gap-1">
+            }} className="text-rose-600 hover:bg-rose-50 text-xs flex items-center gap-1">
             <RotateCcw className="w-3.5 h-3.5"/>
             <span>Reset</span>
           </Button>)}
 
-        <span className="text-xs text-slate-500 dark:text-slate-400 ml-auto hidden md:inline">
+        <span className="text-xs text-[#7c8b96] ml-auto hidden md:inline">
           Showing <strong>{filteredRequests.length}</strong> of <strong>{scopedRequests.length}</strong> applications
         </span>
       </div>

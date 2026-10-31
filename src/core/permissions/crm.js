@@ -26,6 +26,8 @@ const HR_SELF = [
   '/hr/leave/history',
   '/hr/shifts',
   '/hr/documents',
+  '/hr/payroll',
+  '/hr/payroll/payslips',
   '/hr/settings/profile',
   '/hr/notifications',
 ]
@@ -44,6 +46,9 @@ const HR_TEAM = [
   '/hr/leave/types',
   '/hr/shifts/new',
   '/hr/shifts/assignments',
+  '/hr/payroll/salary-structure',
+  '/hr/payroll/process',
+  '/hr/payroll/history',
 ]
 
 export const ROLE_ACCESS = {

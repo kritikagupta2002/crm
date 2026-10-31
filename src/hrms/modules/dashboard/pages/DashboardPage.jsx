@@ -3,6 +3,7 @@ import { Users, UserCheck, CalendarOff, FileCheck, FileCheck2, Calendar, Sparkle
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar, } from 'recharts';
 import { Button } from '@/components/common/Button';
+import { StatCard } from '@/components/common/StatCard';
 import { Modal } from '@/components/common/Modal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
@@ -446,7 +447,7 @@ const AdminDashboard = () => {
                 {(greeting || 'Good evening')},
               </p>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[#1E293B] dark:text-white tracking-tight mt-0.5">
-                {(user?.name?.split(' ')[0] || 'there')}!
+                {firstName(user?.name)}!
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-[11px] sm:text-sm mt-0.5 sm:mt-1 font-normal">
                 Let's make today productive.
@@ -585,127 +586,12 @@ const AdminDashboard = () => {
 
       {/* ── ROW OF 6 STAT CARDS ── */}
       <div className="hr-stat-row">
-        {/* Card 1: Total Employees */}
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
-          <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-[#C8943A] dark:text-amber-400 flex items-center justify-center shrink-0">
-              <Users className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">Total Employees</p>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.total}</h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
-            <span className="px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#FEF3C7] dark:bg-amber-900/30 text-[#B07D27] dark:text-amber-400">
-              ↑ +{currentStats.newJoiners}
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-slate-400 truncate">vs last month</span>
-          </div>
-        </div>
-
-        {/* Card 2: Present Today */}
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
-          <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
-              <UserCheck className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
-                {selectedPeriod === 'today' ? 'Present Today' : 'Present (Avg)'}
-              </p>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.present}</h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
-            <span className="text-[9px] sm:text-[10px] font-bold text-teal-700 dark:text-teal-400">
-              {currentStats.presentPercent}%
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-slate-400 truncate">of total workforce</span>
-          </div>
-        </div>
-
-        {/* Card 3: Absent Today */}
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
-          <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-[#D24C47] dark:text-rose-400 flex items-center justify-center shrink-0">
-              <CalendarOff className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
-                {selectedPeriod === 'today' ? 'Absent Today' : 'Absent (Avg)'}
-              </p>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.absent}</h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
-            <span className="text-[9px] sm:text-[10px] font-bold text-[#D24C47] dark:text-rose-400">
-              {currentStats.absentPercent}%
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-slate-400 truncate">of total workforce</span>
-          </div>
-        </div>
-
-        {/* Card 4: On Leave */}
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
-          <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-[#C8943A] dark:text-amber-400 flex items-center justify-center shrink-0">
-              <CalendarDays className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
-                {selectedPeriod === 'today' ? 'On Leave' : 'On Leave (Avg)'}
-              </p>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.leave}</h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
-            <span className="text-[9px] sm:text-[10px] font-bold text-[#C8943A] dark:text-amber-400">
-              {currentStats.leavePercent}%
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-slate-400 truncate">of total workforce</span>
-          </div>
-        </div>
-
-        {/* Card 5: Late Arrivals */}
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
-          <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800 text-[#4A5B68] dark:text-slate-300 flex items-center justify-center shrink-0">
-              <Clock className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">
-                {selectedPeriod === 'today' ? 'Late Arrivals' : 'Late Arrivals (Avg)'}
-              </p>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.late}</h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
-            <span className="text-[9px] sm:text-[10px] font-bold text-[#4A5B68] dark:text-slate-300">
-              {currentStats.latePercent}%
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-slate-400 truncate">of total workforce</span>
-          </div>
-        </div>
-
-        {/* Card 6: New Joiners */}
-        <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-5 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:border-teal-500/40 dark:hover:border-teal-500/40 hover:shadow-xs dark:hover:shadow-[0_6px_20px_rgba(0,0,0,0.35)] transition-all flex flex-col justify-between">
-          <div className="flex items-start gap-2.5 sm:gap-3">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0">
-              <UserPlus className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-300 truncate">New Joiners</p>
-              <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-[#1E293B] dark:text-white tracking-tight leading-tight mt-0.5">{currentStats.newJoiners}</h3>
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5 mt-2 sm:mt-3 pt-1">
-            <span className="px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold bg-[#CCFBF1] dark:bg-teal-900/30 text-teal-800 dark:text-teal-300">
-              ↑ +2
-            </span>
-            <span className="text-[9px] sm:text-[10px] text-slate-400 truncate">this month</span>
-          </div>
-        </div>
+        <StatCard title="Total employees" value={currentStats.total} icon={<Users />} tone="tone-info" caption={`+${currentStats.newJoiners} vs last month`} />
+        <StatCard title={selectedPeriod === 'today' ? 'Present today' : 'Present (avg)'} value={currentStats.present} icon={<UserCheck />} tone="tone-good" caption={`${currentStats.presentPercent}% of the workforce`} />
+        <StatCard title={selectedPeriod === 'today' ? 'Absent today' : 'Absent (avg)'} value={currentStats.absent} icon={<CalendarOff />} tone="tone-urgent" caption={`${currentStats.absentPercent}% of the workforce`} />
+        <StatCard title={selectedPeriod === 'today' ? 'On leave' : 'On leave (avg)'} value={currentStats.leave} icon={<CalendarDays />} tone="tone-attention" caption={`${currentStats.leavePercent}% of the workforce`} />
+        <StatCard title={selectedPeriod === 'today' ? 'Late arrivals' : 'Late arrivals (avg)'} value={currentStats.late} icon={<Clock />} tone="tone-neutral" caption={`${currentStats.latePercent}% of the workforce`} />
+        <StatCard title="New joiners" value={currentStats.newJoiners} icon={<UserPlus />} tone="tone-good" caption="this month" />
       </div>
 
       {/* ── MIDDLE ROW: 3 VISUAL CHARTS ── */}
@@ -1232,6 +1118,13 @@ const AdminDashboard = () => {
     </Modal>
   </div>);
 };
+/* First name for the greeting; a title such as "Dr." stays with the name after it. */
+const firstName = (name = '') => {
+  const parts = name.trim().split(/\s+/);
+  if (!parts[0]) return 'there';
+  return /^(dr|mr|mrs|ms|er|prof)\.?$/i.test(parts[0]) && parts[1] ? `${parts[0]} ${parts[1]}` : parts[0];
+};
+
 export const DashboardPage = () => {
   const { currentRole } = useRole();
   if (currentRole === 'employee') {

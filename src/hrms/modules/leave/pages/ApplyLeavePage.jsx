@@ -293,58 +293,19 @@ export const ApplyLeavePage = () => {
             />
           </div>
 
-          {/* 2. Real-Time Quota Ledger Card */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50/80 dark:bg-[#121A24] border border-slate-200/90 dark:border-slate-800 shadow-2xs">
-            <div className="flex items-center justify-between pb-2.5 border-b border-slate-200/60 dark:border-slate-800">
-              <span className="text-xs font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-                Quota Balance Ledger: {watchedLeaveType}
-              </span>
-              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                Official HR Allotment Standard
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-3.5">
-              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-slate-400 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Annual Quota</span>
-                <p className="text-lg font-black text-slate-800 dark:text-slate-200 mt-1 tabular-nums">
-                  {activeBalance.totalAllocated}d
-                </p>
+          {/* 2. Quota for the chosen leave type, as a plain figure strip */}
+          <div className="quota-strip">
+            <p className="quota-strip-title">{watchedLeaveType}</p>
+            <dl>
+              <div><dt>Annual quota</dt><dd>{activeBalance.totalAllocated}d</dd></div>
+              <div><dt>Used</dt><dd>{activeBalance.used}d</dd></div>
+              <div><dt>In review</dt><dd>{pendingDays}d</dd></div>
+              <div><dt>Available to apply</dt><dd>{availableToApply}d</dd></div>
+              <div className={isOverQuota ? 'is-urgent' : projectedRemaining < 2 ? 'is-attention' : 'is-after'}>
+                <dt>{isOverQuota ? 'Short by' : 'Left after this leave'}</dt>
+                <dd>{isOverQuota ? `${Math.abs(projectedRemaining)}d` : `${projectedRemaining}d`}</dd>
               </div>
-              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-slate-300 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Approved Used</span>
-                <p className="text-lg font-black text-slate-500 dark:text-slate-400 mt-1 tabular-nums">
-                  {activeBalance.used}d
-                </p>
-              </div>
-              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-amber-500 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
-                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider block">In Review / Pending</span>
-                <p className="text-lg font-black text-amber-600 dark:text-amber-400 mt-1 tabular-nums">
-                  {pendingDays}d
-                </p>
-              </div>
-              <div className="p-3 rounded-xl bg-white dark:bg-[#16202C] border-t-2 border-t-blue-500 border border-slate-200/80 dark:border-slate-800 text-center shadow-2xs">
-                <span className="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider block">Available to Apply</span>
-                <p className="text-lg font-black text-blue-600 dark:text-blue-400 mt-1 tabular-nums">
-                  {availableToApply}d
-                </p>
-              </div>
-              <div className={`p-3 rounded-xl border-t-2 border text-center transition-all shadow-2xs ${isOverQuota
-                ? 'bg-rose-50 dark:bg-rose-950/40 border-t-rose-500 border-rose-300 dark:border-rose-800'
-                : 'bg-white dark:bg-[#16202C] border-t-emerald-500 border-slate-200/80 dark:border-slate-800'}`}>
-                <span className={`text-[10px] font-bold uppercase tracking-wider block ${isOverQuota ? 'text-rose-600' : 'text-emerald-600'}`}>
-                  {isOverQuota ? 'Limit Deficit' : 'Post-Leave Bal'}
-                </span>
-                <p className={`text-lg font-black mt-1 tabular-nums ${isOverQuota
-                  ? 'text-rose-600 dark:text-rose-400'
-                  : projectedRemaining < 2
-                    ? 'text-amber-600 dark:text-amber-400'
-                    : 'text-emerald-600 dark:text-emerald-400'}`}>
-                  {isOverQuota ? `${projectedRemaining}d (Deficit)` : `${projectedRemaining}d`}
-                </p>
-              </div>
-            </div>
+            </dl>
           </div>
 
           {/* 3. Date Selection & Calculated Duration */}

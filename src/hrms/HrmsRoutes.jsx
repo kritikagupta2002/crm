@@ -44,6 +44,12 @@ const LeaveTypesPage = lazy(() => import('@/modules/leave/pages/LeaveTypesPage')
 const ShiftListPage = lazy(() => import('@/modules/shifts/pages/ShiftListPage').then((m) => ({ default: m.ShiftListPage })));
 const NewShiftPage = lazy(() => import('@/modules/shifts/pages/NewShiftPage').then((m) => ({ default: m.NewShiftPage })));
 const ShiftAssignmentsPage = lazy(() => import('@/modules/shifts/pages/ShiftAssignmentsPage').then((m) => ({ default: m.ShiftAssignmentsPage })));
+const PayrollDashboardPage = lazy(() => import('@/modules/payroll/pages/PayrollDashboardPage').then((m) => ({ default: m.PayrollDashboardPage })));
+const SalaryStructurePage = lazy(() => import('@/modules/payroll/pages/SalaryStructurePage').then((m) => ({ default: m.SalaryStructurePage })));
+const PayrollProcessingPage = lazy(() => import('@/modules/payroll/pages/PayrollProcessingPage').then((m) => ({ default: m.PayrollProcessingPage })));
+const PayslipsPage = lazy(() => import('@/modules/payroll/pages/PayslipsPage').then((m) => ({ default: m.PayslipsPage })));
+const PayrollHistoryPage = lazy(() => import('@/modules/payroll/pages/PayrollHistoryPage').then((m) => ({ default: m.PayrollHistoryPage })));
+const PayrollSettingsPage = lazy(() => import('@/modules/settings/pages/PayrollSettingsPage').then((m) => ({ default: m.PayrollSettingsPage })));
 const NotificationsPage = lazy(() => import('@/modules/notifications/pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage })));
 const SettingsLayout = lazy(() => import('@/modules/settings/components/SettingsLayout').then((m) => ({ default: m.SettingsLayout })));
 const CompanySettingsPage = lazy(() => import('@/modules/settings/pages/CompanySettingsPage').then((m) => ({ default: m.CompanySettingsPage })));
@@ -102,6 +108,15 @@ export const hrmsRoutes = (
       <Route path="hr/shifts/assignments" element={<ShiftAssignmentsPage />} />
     </Route>
 
+    {/* Payroll & Compensation */}
+    <Route path="hr/payroll" element={<PayrollDashboardPage />} />
+    <Route path="hr/payroll/payslips" element={<PayslipsPage />} />
+    <Route element={<HrOnly />}>
+      <Route path="hr/payroll/salary-structure" element={<SalaryStructurePage />} />
+      <Route path="hr/payroll/process" element={<PayrollProcessingPage />} />
+      <Route path="hr/payroll/history" element={<PayrollHistoryPage />} />
+    </Route>
+
     {/* Notifications & Settings */}
     <Route path="hr/notifications" element={<NotificationsPage />} />
     <Route path="hr/settings" element={<SettingsLayout />}>
@@ -113,6 +128,7 @@ export const hrmsRoutes = (
         <Route path="attendance" element={<AttendanceSettingsPage />} />
         <Route path="leave" element={<LeaveSettingsPage />} />
         <Route path="security" element={<SecuritySettingsPage />} />
+        <Route path="payroll" element={<PayrollSettingsPage />} />
       </Route>
     </Route>
   </Route>
