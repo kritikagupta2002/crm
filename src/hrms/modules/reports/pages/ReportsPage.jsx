@@ -2222,14 +2222,14 @@ export const ReportsPage = () => {
                   </tr>
                   <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
                     <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">Mining & Mine Planning</td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Rajesh Sharma</td>
-                    <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">14 Staff</td>
-                    <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹2,85,000</td>
+                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Inder Nogiya</td>
+                    <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">3 Staff</td>
+                    <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹1,85,000</td>
                     <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">30% HQ / 70% Site</td>
                   </tr>
                   <tr className="hover:bg-slate-50 dark:hover:bg-[#253344]/40">
                     <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">GIS, Remote Sensing & UAV</td>
-                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Vikramaditya Rathore</td>
+                    <td className="py-3 px-3 text-slate-700 dark:text-slate-300 font-medium whitespace-nowrap">Madhurika Saini</td>
                     <td className="py-3 px-3 font-bold text-blue-700 dark:text-blue-400 whitespace-nowrap">12 Staff</td>
                     <td className="py-3 px-3 font-bold tabular-nums whitespace-nowrap text-slate-900 dark:text-white">₹2,10,000</td>
                     <td className="py-3 px-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">70% HQ / 30% Flight</td>

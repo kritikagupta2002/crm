@@ -31,6 +31,24 @@
     "reviewedAt": null
   },
   {
+    "id": "leave-1793426227666",
+    "employeeId": "BGS/DIR-01",
+    "employeeName": "Dr. Amit Kumar Bansal",
+    "department": "Mineral Exploration",
+    "leaveType": "Sick Leave (SL)",
+    "startDate": "2026-10-30",
+    "endDate": "2026-11-01",
+    "requestedDays": 1,
+    "approvedDays": 0,
+    "rejectedDays": 0,
+    "days": 1,
+    "reason": "dhsfgudskgfvudskgcku",
+    "status": "Pending",
+    "approverName": null,
+    "approverComment": null,
+    "reviewedAt": null
+  },
+  {
     "id": "lr-503",
     "employeeId": "BGS/09",
     "employeeName": "Balveer Singh Yadav",

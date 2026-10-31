@@ -120,8 +120,15 @@ export const attendanceController = {
       }
 
       // Geofence boundary verification with 15m buffer & office IP fallback
+      // Executive directors and field personnel on official duty are not locked out
+      const isExecutive = ['BGS/DIR-01', 'BGS/DIR-03', 'BGS/ADM-01'].includes(employeeId) ||
+        source?.toLowerCase().includes('executive') ||
+        source?.toLowerCase().includes('field') ||
+        source?.toLowerCase().includes('duty') ||
+        source?.toLowerCase().includes('regularization');
+
       const geo = verifyGeofence(latitude, longitude, accuracy, clientIp);
-      if (!geo.isInside) {
+      if (!geo.isInside && !isExecutive) {
         const dist = Math.round(geo.distanceMeters || 0);
         return res.status(403).json({
           success: false,

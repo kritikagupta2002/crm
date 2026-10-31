@@ -123,14 +123,6 @@ export function AppLayout() {
         </main>
         <footer className="app-footer">
           <span>© {new Date().getFullYear()} Bansal Geo Solutions Pvt. Ltd.</span>
-          {changeCount > 0 && (
-              <button
-                className="footer-reset"
-                onClick={() => window.confirm(`Undo all ${changeCount} changes made in this demo?`) && resetDemoData()}
-              >
-                Reset demo data ({changeCount})
-              </button>
-          )}
         </footer>
       </div>
 

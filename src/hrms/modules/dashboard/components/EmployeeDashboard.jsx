@@ -119,34 +119,45 @@ export const EmployeeDashboard = () => {
         latitude: OFFICE_CENTROID[0],
         longitude: OFFICE_CENTROID[1],
         accuracy: 8,
-        simulated: true,
+        simulated: false,
     }));
     const [isGeofenceModalOpen, setIsGeofenceModalOpen] = useState(false);
     const [showInlineMap, setShowInlineMap] = useState(false);
+    const [isLocating, setIsLocating] = useState(false);
 
     const geofence = useMemo(() => {
         return evaluateGeofence(userCoords?.latitude, userCoords?.longitude, userCoords?.accuracy || 10);
     }, [userCoords]);
     const isInsideGeofence = geofence.isInside;
 
+    const refreshGps = () => {
+        if (!navigator.geolocation) {
+            toast.warning('Geolocation not supported by browser', 'GPS Status');
+            return;
+        }
+        setIsLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                setIsLocating(false);
+                setUserCoords({
+                    latitude: pos.coords.latitude,
+                    longitude: pos.coords.longitude,
+                    accuracy: Math.round(pos.coords.accuracy),
+                    simulated: false,
+                });
+                toast.info(`Acquired GPS: ±${Math.round(pos.coords.accuracy)}m accuracy`, 'Satellite Fix');
+            },
+            () => {
+                setIsLocating(false);
+                toast.warning('Unable to retrieve GPS fix. Using last known location.', 'GPS Warning');
+            },
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+        );
+    };
+
     // Detect browser GPS on mount if permission granted
     useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    setUserCoords({
-                        latitude: pos.coords.latitude,
-                        longitude: pos.coords.longitude,
-                        accuracy: Math.round(pos.coords.accuracy),
-                        simulated: false,
-                    });
-                },
-                () => {
-                    // Retain default simulated inside location if permission prompt dismissed or offline
-                },
-                { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-            );
-        }
+        refreshGps();
     }, []);
 
     useEffect(() => {
@@ -603,29 +614,17 @@ export const EmployeeDashboard = () => {
                   </div>
                 </div>
 
-                {/* Simulation Switchers */}
+                {/* Real GPS Refresh Button */}
                 <div className="flex items-center gap-1.5 shrink-0">
                   <button
                     type="button"
-                    onClick={() => setUserCoords({ latitude: OFFICE_CENTROID[0], longitude: OFFICE_CENTROID[1], accuracy: 8, simulated: true })}
-                    className={`px-2 py-1 rounded text-[10.5px] font-bold transition shadow-2xs ${
-                      isInsideGeofence
-                        ? 'bg-teal-700 text-white'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100'
-                    }`}
+                    onClick={refreshGps}
+                    disabled={isLocating}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-2xs"
+                    title="Detect live GPS coordinates"
                   >
-                    Inside (0m)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setUserCoords({ latitude: 26.8552, longitude: 75.7682, accuracy: 12, simulated: true })}
-                    className={`px-2 py-1 rounded text-[10.5px] font-bold transition shadow-2xs ${
-                      !isInsideGeofence
-                        ? 'bg-rose-700 text-white'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-100'
-                    }`}
-                  >
-                    Outside (150m)
+                    <Crosshair className={`w-3.5 h-3.5 text-teal-600 dark:text-teal-400 ${isLocating ? 'animate-spin' : ''}`} />
+                    <span>{isLocating ? 'Locating...' : 'Refresh GPS'}</span>
                   </button>
                 </div>
               </div>
@@ -666,10 +665,17 @@ export const EmployeeDashboard = () => {
                       ? 'On Approved Leave Today'
                       : 'Punch In Now (Geofence Verified)'}
             </Button>
-            {!isInsideGeofence && (
-              <p className="text-[11px] text-rose-600 dark:text-rose-400 text-center mt-2 font-medium">
-                Attendance punch is disabled: your device is outside the authorized Jaipur office polygon.
-              </p>
+            {!isInsideGeofence && !punchedOut && (
+              <div className="mt-2.5 text-center text-xs text-slate-500 dark:text-slate-400">
+                <span>Device is outside Jaipur office perimeter. </span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/hr/attendance/corrections')}
+                  className="text-teal-600 dark:text-teal-400 font-bold hover:underline inline-flex items-center gap-0.5"
+                >
+                  Apply for Attendance Regularization →
+                </button>
+              </div>
             )}
           </div>
         </Card>

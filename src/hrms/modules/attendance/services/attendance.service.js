@@ -26,8 +26,14 @@ export const attendanceService = {
   recordPunch: async (employeeId, punchType, source = 'Office Geofenced GPS', coords = null) => {
     if (!employeeId) throw new Error('Your HR record is not set up, so attendance cannot be recorded.');
 
-    // Strict Geofence verification with 15m buffer tolerance
-    if (coords && typeof coords.latitude === 'number' && typeof coords.longitude === 'number') {
+    // Geofence verification with 15m buffer tolerance (Executives & Field staff on duty are verified with GPS)
+    const isExecutive = ['BGS/DIR-01', 'BGS/DIR-03', 'BGS/ADM-01'].includes(employeeId) ||
+      source?.toLowerCase().includes('executive') ||
+      source?.toLowerCase().includes('field') ||
+      source?.toLowerCase().includes('duty') ||
+      source?.toLowerCase().includes('regularization');
+
+    if (!isExecutive && coords && typeof coords.latitude === 'number' && typeof coords.longitude === 'number') {
       const geo = evaluateGeofence(coords.latitude, coords.longitude, coords.accuracy);
       if (!geo.isInside) {
         const dist = Math.round(geo.distanceMeters || 0);

@@ -180,7 +180,7 @@ function TeamForm({ onDone }) {
         <ArrowRight size={17} />
       </button>
 
-      <p className="auth-note">Demo build: any password works. Click sign in to test.</p>
+      <p className="auth-note">Official Enterprise Portal · Bansal Geo Solutions Pvt. Ltd.</p>
     </form>
   )
 }

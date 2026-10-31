@@ -105,18 +105,6 @@ export function UserMenu() {
           <RoleLink to="/hr/settings" className="menu-action" role="menuitem" onClick={() => setOpen(false)} hideIfLocked>
             <Settings size={16} /> HR Settings
           </RoleLink>
-          {['Managing Director', 'Super Admin'].includes(role) && changeCount > 0 && (
-            <button
-              className="menu-action"
-              role="menuitem"
-              onClick={() => {
-                setOpen(false)
-                if (window.confirm('Undo every change made in this demo?')) resetDemoData()
-              }}
-            >
-              <RotateCcw size={16} /> Reset demo data
-            </button>
-          )}
 
           <div className="popover-divider" />
           <button className="menu-action menu-action-exit" role="menuitem" onClick={signOut}>

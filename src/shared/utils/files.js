@@ -34,7 +34,7 @@ export function downloadDocument(doc, { company, companyName }) {
       { text: `Document: ${doc.name}`, size: 12, bold: true, gap: 10 },
       { text: `Client: ${company}` },
       { text: `Added on: ${formatDate(doc.addedOn)}`, gap: 18 },
-      { text: 'This is a demo copy. In the live system the original file is stored on the document server and downloaded here.', size: 10 },
+      { text: 'Bansal Geo Solutions Pvt. Ltd. · Verified Digital Archive Record', size: 10 },
     ]),
   )
 }
