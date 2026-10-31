@@ -1,6 +1,26 @@
 import { db } from '../services/db.js';
 import { verifyGeofence, OFFICE_POLYGON, OFFICE_CENTROID } from '../services/geofence.js';
 
+/* Today's date on the server's own clock (not UTC), so an early-morning punch lands on the right day. */
+function localDate(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/* When the person's day starts and how many minutes of grace they get: their shift, else the attendance settings. */
+function shiftStartFor(employeeId) {
+  const assignment = db.get('shift_assignments').find((a) => a.employeeId === employeeId && a.status !== 'Inactive');
+  const shift = assignment ? db.get('shifts').find((s) => s.id === assignment.shiftId) : null;
+  const settings = db.get('attendance_settings') || {};
+  const start = parseMinutes(shift?.startTime || settings.workStartTime || '09:30 AM');
+  const grace = parseInt(shift?.gracePeriod ?? settings.gracePeriodMinutes ?? 15, 10) || 0;
+  return { start, grace };
+}
+
+function lateText(mins) {
+  if (mins >= 60) return `${Math.floor(mins / 60)}h ${mins % 60}m`;
+  return `${mins} mins`;
+}
+
 function nowTime() {
   const d = new Date();
   let hours = d.getHours();
@@ -58,7 +78,7 @@ export const attendanceController = {
 
   getTodaySummary: async (req, res, next) => {
     try {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = localDate();
       const employees = db.get('employees');
       const attendance = db.get('attendance');
       const leaves = db.get('leaves');
@@ -110,7 +130,7 @@ export const attendanceController = {
         });
       }
 
-      const today = new Date().toISOString().slice(0, 10);
+      const today = localDate();
       const attendanceList = db.get('attendance');
       const employees = db.get('employees');
       const employee = employees.find((e) => e.employeeId === employeeId);
@@ -126,7 +146,10 @@ export const attendanceController = {
           });
         }
 
-        const isLate = parseMinutes(time) > 9 * 60 + 30; // 9:30 AM threshold
+        // Late = after the shift start plus its grace; the late-by time counts from the shift start.
+        const { start, grace } = shiftStartFor(employeeId);
+        const lateMins = parseMinutes(time) - start;
+        const isLate = lateMins > grace;
         const fresh = {
           id: record?.id || `att-p-${Date.now()}`,
           employeeId,
@@ -136,7 +159,7 @@ export const attendanceController = {
           checkIn: time,
           checkOut: '-',
           workingHours: 'Working...',
-          lateBy: isLate ? '20 mins' : '-',
+          lateBy: isLate ? lateText(lateMins) : '-',
           overtime: '-',
           status: isLate ? 'Late' : 'Present',
           punchSource: source,
@@ -181,7 +204,7 @@ export const attendanceController = {
 
   getMonthly: async (req, res, next) => {
     try {
-      const { month = new Date().toISOString().slice(0, 7), employeeId } = req.query;
+      const { month = localDate().slice(0, 7), employeeId } = req.query;
       const attendance = db.get('attendance');
       const employees = db.get('employees');
 

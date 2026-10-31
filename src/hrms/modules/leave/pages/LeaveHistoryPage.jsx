@@ -32,10 +32,9 @@ export const LeaveHistoryPage = () => {
         try {
             await leaveService.cancelLeave(r.id);
             toast.success(`Leave request (${r.leaveType}: ${r.startDate} to ${r.endDate}) withdrawn successfully.`, 'Application Withdrawn');
-            loadData();
-        }
-        catch {
-            toast.error('Failed to withdraw leave request.', 'Error');
+            await loadData();
+        } catch (err) {
+            toast.error(err?.message || 'Failed to withdraw leave request.', 'Error');
         }
     };
     const handleExportLeaveHistory = () => {
@@ -154,7 +153,8 @@ export const LeaveHistoryPage = () => {
             header: 'Actions',
             className: 'text-right whitespace-nowrap',
             render: (r) => {
-                const canCancel = r.status === 'Pending' || r.status === 'Approved' || r.status === 'Partially Approved';
+                // Only the person who applied withdraws their own request.
+                const canCancel = r.employeeId === empId && (r.status === 'Pending' || r.status === 'Approved' || r.status === 'Partially Approved');
                 if (!canCancel)
                     return <span className="text-slate-400 text-xs">-</span>;
                 return (<Button variant="ghost" size="sm" onClick={() => handleCancelRequest(r)} className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold">
@@ -229,7 +229,8 @@ export const LeaveHistoryPage = () => {
             header: 'Actions',
             className: 'text-right whitespace-nowrap',
             render: (r) => {
-                const canCancel = r.status === 'Pending' || r.status === 'Approved' || r.status === 'Partially Approved';
+                // Only the person who applied withdraws their own request.
+                const canCancel = r.employeeId === empId && (r.status === 'Pending' || r.status === 'Approved' || r.status === 'Partially Approved');
                 if (!canCancel)
                     return <span className="text-slate-400 text-xs">-</span>;
                 return (<Button variant="ghost" size="sm" onClick={() => handleCancelRequest(r)} className="text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold">

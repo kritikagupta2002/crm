@@ -102,6 +102,27 @@ function dispatchLeaveNotification(title, message, targetRole = 'all', level = '
         console.error('Failed to dispatch notification:', err);
     }
 }
+/*
+ * Requests saved by the server before it stored the working days carry only daysCount (sometimes a wrong 1).
+ * Their working days are counted again from the dates, the person's weekly off and the holidays.
+ */
+function normalizeLeave(r) {
+    if (r.requestedDays)
+        return r;
+    const holidays = storage.getLeaveSettings()?.companyHolidays || [];
+    const counted = countWorkingDays(r.startDate, r.endDate, holidays, weeklyOffFor(r.employeeId));
+    const requested = counted > 0 ? counted : Number(r.daysCount) || 1;
+    const approved = r.approvedDays ?? (r.status === 'Approved' ? requested : 0);
+    return {
+        ...r,
+        requestedDays: requested,
+        days: requested,
+        approvedDays: approved,
+        rejectedDays: r.rejectedDays ?? (r.status === 'Rejected' ? requested : 0),
+        appliedOn: r.appliedOn || (r.appliedAt || '').slice(0, 10),
+        approverComment: r.approverComment ?? r.remarks,
+    };
+}
 export const leaveService = {
     getBalances: async (employeeId) => {
         if (employeeId) {
@@ -120,8 +141,16 @@ export const leaveService = {
         try {
             const res = await api.get('/leaves/requests');
             if (res && res.success && Array.isArray(res.data)) {
-                storage.setLeaveRequests(res.data);
-                return res.data;
+                const local = storage.getLeaveRequests();
+                const merged = res.data.map(normalizeLeave).map((serverItem) => {
+                    const localMatch = local.find((l) => l.id === serverItem.id);
+                    if (localMatch && localMatch.status === 'Cancelled' && serverItem.status !== 'Cancelled') {
+                        return localMatch;
+                    }
+                    return serverItem;
+                });
+                storage.setLeaveRequests(merged);
+                return merged;
             }
         } catch (e) {
             console.warn('[Leave Service] Remote API unavailable, using local cache:', e.message);
@@ -270,8 +299,8 @@ export const leaveService = {
         const req = list.find((r) => r.id === id);
         if (!req)
             throw new Error('Leave request not found.');
-        if (req.status === 'Cancelled' || req.status === 'Rejected')
-            throw new Error(`This request is already ${req.status.toLowerCase()}.`);
+        if (!['Pending', 'Approved', 'Partially Approved'].includes(req.status))
+            throw new Error(`This request is already ${String(req.status).toLowerCase()}.`);
         const prevStatus = req.status;
         req.status = 'Cancelled';
         storage.setLeaveRequests([...list]);
@@ -282,6 +311,13 @@ export const leaveService = {
             syncAttendanceForLeave(req, 'remove');
         }
         dispatchLeaveNotification('Leave Application Cancelled', `Leave request for ${req.leaveType} (${req.startDate} to ${req.endDate}) has been cancelled. Any deducted quota has been refunded.`, 'employee', 'info', req.employeeId);
+        try {
+            await api.put(`/leaves/requests/${id}/cancel`).catch(async () => {
+                await api.delete(`/leaves/requests/${id}`);
+            });
+        } catch (e) {
+            console.warn('[Leave Service] Remote cancel sync notice:', e.message);
+        }
         return new Promise((resolve) => setTimeout(() => resolve(true), 80));
     },
     getLeaveTypes: async () => {

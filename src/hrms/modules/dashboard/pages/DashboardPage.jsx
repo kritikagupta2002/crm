@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, UserCheck, CalendarOff, FileCheck2, Calendar, Sparkles, CreditCard, UserPlus, CalendarDays, Clock, FileText, Send, RotateCcw, ChevronDown, BarChart3, Filter, Plus, AlertCircle } from 'lucide-react';
+import { Users, UserCheck, CalendarOff, FileCheck, FileCheck2, Calendar, Sparkles, CreditCard, UserPlus, CalendarDays, Clock, FileText, Send, RotateCcw, ChevronDown, BarChart3, Filter, Plus, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar, } from 'recharts';
 import { Button } from '@/components/common/Button';

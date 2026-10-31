@@ -56,7 +56,9 @@ export const leaveController = {
 
   apply: async (req, res, next) => {
     try {
-      const { employeeId, leaveType, startDate, endDate, daysCount, reason } = req.body;
+      const { employeeId, leaveType, startDate, endDate, daysCount, requestedDays, days, reason, contactDuringLeave } = req.body;
+      // The app sends the working days it counted (weekly offs and holidays left out).
+      const workingDays = Number(requestedDays ?? days ?? daysCount) || 1;
       if (!employeeId || !leaveType || !startDate || !endDate || !reason) {
         return res.status(400).json({ success: false, error: 'All fields are required to apply for leave.' });
       }
@@ -72,9 +74,15 @@ export const leaveController = {
         leaveType,
         startDate,
         endDate,
-        daysCount: Number(daysCount) || 1,
+        daysCount: workingDays,
+        requestedDays: workingDays,
+        days: workingDays,
+        approvedDays: 0,
+        rejectedDays: 0,
         reason,
+        contactDuringLeave: contactDuringLeave || '',
         status: 'Pending',
+        appliedOn: new Date().toISOString().slice(0, 10),
         appliedAt: new Date().toISOString(),
       };
 
@@ -88,15 +96,21 @@ export const leaveController = {
   review: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { status, remarks } = req.body;
+      const { status, remarks, approverComment, approvedDays } = req.body;
 
-      if (!['Approved', 'Rejected'].includes(status)) {
-        return res.status(400).json({ success: false, error: 'Status must be Approved or Rejected.' });
+      if (!['Approved', 'Partially Approved', 'Rejected'].includes(status)) {
+        return res.status(400).json({ success: false, error: 'Status must be Approved, Partially Approved or Rejected.' });
       }
+      const current = db.get('leaves').find((r) => r.id === id);
+      const requested = Number(current?.requestedDays ?? current?.daysCount) || 1;
+      const approved = status === 'Rejected' ? 0 : status === 'Approved' ? requested : Math.min(requested, Number(approvedDays) || 0);
 
       const updated = db.update('leaves', id, {
         status,
-        remarks: remarks || '',
+        approvedDays: approved,
+        rejectedDays: requested - approved,
+        approverComment: approverComment || remarks || '',
+        remarks: remarks || approverComment || '',
         approverName: req.user?.name || 'HR Admin',
         approvedAt: new Date().toISOString(),
       });
@@ -106,7 +120,7 @@ export const leaveController = {
       }
 
       // If approved, mark attendance records for those dates as 'On Leave'
-      if (status === 'Approved') {
+      if (status === 'Approved' || status === 'Partially Approved') {
         const attendanceList = db.get('attendance');
         const start = new Date(updated.startDate);
         const end = new Date(updated.endDate);
@@ -145,5 +159,49 @@ export const leaveController = {
       next(err);
     }
   },
-};
+  cancel: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const requests = db.get('leaves');
+      const item = requests.find((r) => r.id === id);
+      if (!item) {
+        return res.status(404).json({ success: false, error: 'Leave request not found.' });
+      }
 
+      // Only the person who applied (or the HR team) withdraws a request, and only while it is pending or approved.
+      const hrRoles = ['Super Admin', 'Director', 'Managing Director'];
+      if (req.user?.employeeId && req.user.employeeId !== item.employeeId && !hrRoles.includes(req.user.role)) {
+        return res.status(403).json({ success: false, error: 'You can only withdraw your own leave request.' });
+      }
+      if (!['Pending', 'Approved', 'Partially Approved'].includes(item.status)) {
+        return res.status(400).json({ success: false, error: `This request is already ${String(item.status).toLowerCase()}.` });
+      }
+      const prevStatus = item.status;
+      const updated = db.update('leaves', id, {
+        status: 'Cancelled',
+        cancelledAt: new Date().toISOString(),
+      });
+
+      // If it was previously approved, remove 'On Leave' from attendance
+      if (prevStatus === 'Approved' || prevStatus === 'Partially Approved') {
+        const attendanceList = db.get('attendance');
+        const start = new Date(item.startDate);
+        const end = new Date(item.endDate);
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          const dateStr = d.toISOString().slice(0, 10);
+          const attIdx = attendanceList.findIndex(
+            (a) => a.employeeId === item.employeeId && a.date === dateStr && a.status === 'On Leave'
+          );
+          if (attIdx !== -1) {
+            attendanceList.splice(attIdx, 1);
+          }
+        }
+        db.set('attendance', attendanceList);
+      }
+
+      res.json({ success: true, data: updated });
+    } catch (err) {
+      next(err);
+    }
+  },
+};

@@ -8,6 +8,8 @@ router.get('/types', authenticate, leaveController.getTypes);
 router.get('/balances/:employeeId', authenticate, leaveController.getBalances);
 router.get('/requests', authenticate, leaveController.getRequests);
 router.post('/requests', authenticate, leaveController.apply);
+router.put('/requests/:id/cancel', authenticate, leaveController.cancel);
+router.delete('/requests/:id', authenticate, leaveController.cancel);
 router.put('/requests/:id/status', authenticate, requireHr, leaveController.review);
 
 export default router;

@@ -504,7 +504,8 @@ export const EmployeeDashboard = () => {
               </p>
             </div>
 
-            {/* Shift Countdown Tracker Banner */}
+            {/* The countdown runs only while punched in; otherwise the card says where the day stands. */}
+            {isClockedIn ? (
             <div className="mb-4 p-3 rounded-xl bg-gradient-to-r from-teal-50/90 via-emerald-50/60 to-teal-50/90 dark:from-teal-950/50 dark:via-emerald-950/40 dark:to-teal-950/50 border border-teal-200/90 dark:border-teal-800/80 shadow-2xs">
               <div className="flex items-center justify-between text-xs mb-1.5">
                 <span className="font-bold text-teal-900 dark:text-teal-200 flex items-center gap-1.5">
@@ -537,6 +538,27 @@ export const EmployeeDashboard = () => {
                 />
               </div>
             </div>
+            ) : (
+              <div className={`mb-4 p-3 rounded-xl border text-xs ${punchedOut
+                ? 'bg-blue-50/80 border-blue-200 text-blue-900 dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-200'
+                : onLeaveToday
+                  ? 'bg-purple-50/80 border-purple-200 text-purple-900 dark:bg-purple-950/40 dark:border-purple-800 dark:text-purple-200'
+                  : 'bg-amber-50/80 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200'}`}>
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Timer className="w-4 h-4"/>
+                  {punchedOut ? 'Day complete' : onLeaveToday ? 'On approved leave today' : 'Not punched in yet'}
+                </div>
+                <p className="mt-1">
+                  {punchedOut
+                    ? `Punched in ${clockInTime}, out ${clockOutTime} · worked ${todayRecord?.workingHours || '-'}`
+                    : onLeaveToday
+                      ? 'No punch needed today.'
+                      : now < parseTimeToDate(empShift.startTime, now)
+                        ? `Shift starts at ${empShift.startTime} and ends at ${empShift.endTime}.`
+                        : `Shift started at ${empShift.startTime} and ends at ${empShift.endTime}. Punch in to start the countdown.`}
+                </p>
+              </div>
+            )}
 
             {/* Today's Punch In & Out Activity Cards */}
             <div className="grid grid-cols-2 gap-2.5 mb-4 text-xs">
