@@ -50,16 +50,27 @@ export function ProfileCompletionModal({ user, role, onComplete }) {
 
       // Check if any mandatory details are missing
       const isMissing =
+        !emp.name ||
+        !emp.contact?.workEmail ||
         !emp.contact?.phone ||
         !emp.personal?.dob ||
         !emp.employment?.joiningDate ||
         !emp.emergency?.name ||
         !emp.emergency?.phone ||
+        !emp.employment?.department ||
+        !emp.employment?.designation ||
         !emp.contact?.currentAddress;
 
       if (isMissing) {
         setIsOpen(true);
       }
+    } else if (user?.name) {
+      setName(user.name || '');
+      setEmail(user.email || '');
+      setDepartment(user.department || 'Mining & Survey');
+      setDesignation(user.title || user.designation || 'Staff');
+      setAvatarUrl(user.avatarUrl || '');
+      setIsOpen(true);
     }
   }, [user]);
 
@@ -141,6 +152,11 @@ export function ProfileCompletionModal({ user, role, onComplete }) {
         employees.push(updatedData);
       }
       storage.setEmployees([...employees]);
+      try {
+        window.dispatchEvent(new Event('storage'));
+      } catch (e) {
+        // ignore
+      }
 
       // 2. Sync to Backend API
       try {

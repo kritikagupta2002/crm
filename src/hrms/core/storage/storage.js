@@ -776,19 +776,19 @@ export const storage = {
         let changed = false;
 
         const getProjectFallback = (empId) => {
-            if (empId === 'BGS-001' || empId === 'BGS-002' || empId === 'BGS-004' || empId === 'BGS-010') {
+            if (empId === 'BGS/DIR-01' || empId === 'BGS/DIR-03' || empId === 'BGS/ADM-01') {
                 return 'Corporate Operations & Governance';
             }
-            if (empId === 'BGS-003' || empId === 'BGS-006' || empId === 'BGS-062') {
+            if (empId === 'BGS/01' || empId === 'BGS/04' || empId === 'BGS/05') {
                 return 'Bhilwara Lead-Zinc Core Drilling';
             }
-            if (empId === 'BGS-005' || empId === 'BGS-007') {
+            if (empId === 'BGS/10' || empId === 'BGS/11') {
+                return 'Cadastral Survey & DGPS Field Mapping';
+            }
+            if (empId === 'BGS/12') {
                 return 'Jaipur Ring Road Drone Photogrammetry';
             }
-            if (empId === 'BGS-008') {
-                return 'Udaipur Rock Phosphate Assessment';
-            }
-            if (empId === 'BGS-009') {
+            if (empId === 'BGS/09') {
                 return 'Khetri Copper Belt Reconnaissance';
             }
             return 'Corporate Operations & Governance';

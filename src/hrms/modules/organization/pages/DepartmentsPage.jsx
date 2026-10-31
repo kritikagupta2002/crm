@@ -74,8 +74,8 @@ export const DepartmentsPage = () => {
             await organizationService.createDepartment({
                 name,
                 code,
-                headName: headName || 'TBD',
-                headEmployeeId: 'BGS-001',
+                headName: headName || 'Dr. Amit Kumar Bansal',
+                headEmployeeId: 'BGS/DIR-01',
                 employeeCount: 0,
                 location,
                 description,

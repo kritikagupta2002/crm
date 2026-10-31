@@ -63,28 +63,28 @@ export const DEPARTMENT_METADATA = {
     },
     'Mining & Mine Planning': {
         code: 'MIN-DIV',
-        headName: 'Rajesh Sharma',
+        headName: 'Inder Nogiya',
         base: 'Bhilwara Site Office',
         badgeClass: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/40',
         desc: 'Open-cast & underground mine planning, pit optimization, slope stability, and statutory mine plans.',
     },
     'GIS, Remote Sensing & UAV': {
         code: 'GIS-DIV',
-        headName: 'Vikramaditya Rathore',
+        headName: 'Madhurika Saini',
         base: 'Jaipur Corporate HQ',
         badgeClass: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/40',
         desc: 'Drone photogrammetry, satellite multispectral imagery, thematic mapping, and web-GIS database architectures.',
     },
     'Hydrogeology & Groundwater': {
         code: 'HYD-DIV',
-        headName: 'Dr. Sunita Meena',
+        headName: 'Balveer Singh Yadav',
         base: 'Udaipur Exploration Base',
         badgeClass: 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800/40',
         desc: 'Groundwater potential zone mapping, rainwater harvesting structures, pumping tests, and CGWA compliance.',
     },
     'Finance & Mineral Economics': {
         code: 'FIN-DIV',
-        headName: 'Chhavi Bansal',
+        headName: 'Dharmendra Goyal',
         base: 'Jaipur Corporate HQ',
         badgeClass: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40',
         desc: 'Mineral project financial appraisal, client invoicing, cash flow management, taxation, and statutory audits.',
@@ -103,20 +103,20 @@ export const getEmployeeProject = (emp) => {
     if (!emp) return 'Corporate Operations & Governance';
     if (emp.employment?.project)
         return emp.employment.project;
-    const id = emp.employeeId;
-    if (id === 'BGS-001' || id === 'BGS-002' || id === 'BGS-004' || id === 'BGS-010') {
+    const id = emp.employeeId || emp.id;
+    if (id === 'BGS/DIR-01' || id === 'BGS/DIR-03' || id === 'BGS/ADM-01') {
         return 'Corporate Operations & Governance';
     }
-    if (id === 'BGS-003' || id === 'BGS-006' || id === 'BGS-062') {
+    if (id === 'BGS/01' || id === 'BGS/04' || id === 'BGS/05') {
         return 'Bhilwara Lead-Zinc Core Drilling';
     }
-    if (id === 'BGS-005' || id === 'BGS-007') {
+    if (id === 'BGS/10' || id === 'BGS/11') {
+        return 'Cadastral Survey & DGPS Field Mapping';
+    }
+    if (id === 'BGS/12') {
         return 'Jaipur Ring Road Drone Photogrammetry';
     }
-    if (id === 'BGS-008') {
-        return 'Udaipur Rock Phosphate Assessment';
-    }
-    if (id === 'BGS-009') {
+    if (id === 'BGS/09') {
         return 'Khetri Copper Belt Reconnaissance';
     }
     const loc = emp.employment?.workLocation || '';
@@ -149,19 +149,19 @@ export const getEmployeeProjectById = (empId) => {
     const emp = employees.find(e => e.employeeId === empId || e.id === empId);
     if (emp)
         return getEmployeeProject(emp);
-    if (empId === 'BGS-001' || empId === 'BGS-002' || empId === 'BGS-004' || empId === 'BGS-010') {
+    if (empId === 'BGS/DIR-01' || empId === 'BGS/DIR-03' || empId === 'BGS/ADM-01') {
         return 'Corporate Operations & Governance';
     }
-    if (empId === 'BGS-003' || empId === 'BGS-006' || empId === 'BGS-062') {
+    if (empId === 'BGS/01' || empId === 'BGS/04' || empId === 'BGS/05') {
         return 'Bhilwara Lead-Zinc Core Drilling';
     }
-    if (empId === 'BGS-005' || empId === 'BGS-007') {
+    if (empId === 'BGS/10' || empId === 'BGS/11') {
+        return 'Cadastral Survey & DGPS Field Mapping';
+    }
+    if (empId === 'BGS/12') {
         return 'Jaipur Ring Road Drone Photogrammetry';
     }
-    if (empId === 'BGS-008') {
-        return 'Udaipur Rock Phosphate Assessment';
-    }
-    if (empId === 'BGS-009') {
+    if (empId === 'BGS/09') {
         return 'Khetri Copper Belt Reconnaissance';
     }
     return 'Corporate Operations & Governance';

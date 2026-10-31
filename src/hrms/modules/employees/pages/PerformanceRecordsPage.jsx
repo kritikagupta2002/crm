@@ -24,10 +24,10 @@ export const PerformanceRecordsPage = () => {
     const [viewingAppraisal, setViewingAppraisal] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     // New Appraisal Form State
-    const [formEmployeeId, setFormEmployeeId] = useState('BGS-006');
-    const [formEmployeeName, setFormEmployeeName] = useState('Rohan Deshmukh');
-    const [formDepartment, setFormDepartment] = useState('Geology & Mineral Exploration');
-    const [formDesignation, setFormDesignation] = useState('Senior Exploration Geologist');
+    const [formEmployeeId, setFormEmployeeId] = useState('BGS/04');
+    const [formEmployeeName, setFormEmployeeName] = useState('Vikas Verma');
+    const [formDepartment, setFormDepartment] = useState('Mining & Survey');
+    const [formDesignation, setFormDesignation] = useState('Surveyor');
     const [formCycle, setFormCycle] = useState('Annual Appraisal FY 2026-27');
     const [formRating, setFormRating] = useState('Exceeds Expectations');
     const [formScore, setFormScore] = useState(4.5);
@@ -439,8 +439,8 @@ export const PerformanceRecordsPage = () => {
       {isCreateModalOpen && (<Modal isOpen={true} onClose={() => setIsCreateModalOpen(false)} title="Initiate Employee Performance Appraisal" maxWidth="lg">
           <div className="space-y-4 text-xs">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <Input label="Employee Full Name" value={formEmployeeName} onChange={(e) => setFormEmployeeName(e.target.value)} placeholder="e.g. Rohan Deshmukh" required/>
-              <Input label="Employee ID" value={formEmployeeId} onChange={(e) => setFormEmployeeId(e.target.value)} placeholder="e.g. BGS-006" required/>
+              <Input label="Employee Full Name" value={formEmployeeName} onChange={(e) => setFormEmployeeName(e.target.value)} placeholder="e.g. Vikas Verma" required/>
+              <Input label="Employee ID" value={formEmployeeId} onChange={(e) => setFormEmployeeId(e.target.value)} placeholder="e.g. BGS/04" required/>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

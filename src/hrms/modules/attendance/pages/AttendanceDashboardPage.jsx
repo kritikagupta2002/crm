@@ -76,16 +76,28 @@ export const AttendanceDashboardPage = () => {
         const total = monthRecs.length || 1;
         const rate = Math.round((present / total) * 100);
 
+        const otMins = monthRecs.reduce((sum, r) => {
+          const match = String(r.overtime || '').match(/^(\d+)m$/);
+          return sum + (match ? Number(match[1]) : 0);
+        }, 0);
+        const otHrs = otMins > 0 ? `${(otMins / 60).toFixed(1)}h` : '0h';
+
+        const correctionsCount = (storage.getCorrections?.() || []).filter(
+          (c) => c.employeeId === (user?.employeeId || '') && c.status === 'Pending'
+        ).length;
+
         return {
             todayIn: todayRec?.checkIn || 'Not Punched',
             todayBadge: todayRec ? (todayRec.status === 'Late' ? 'Late' : 'On Time') : 'Pending',
-            todayBadgeColor: todayRec ? (todayRec.status === 'Late' ? 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400' : 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-400') : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400',
+            todayBadgeColor: todayRec ? (todayRec.status === 'Late' ? 'bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-400') : 'bg-slate-50 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400',
             presentStr: `${present} / ${total}`,
             rateStr: `${rate}%`,
             lateStr: String(late),
             leaveStr: String(leave),
+            otStr: otHrs,
+            correctionsStr: String(correctionsCount),
         };
-    }, [isEmp, records, selectedMonth]);
+    }, [isEmp, records, selectedMonth, user?.employeeId]);
     const handleExport = () => {
         if (!filteredRecords.length) {
             toast.error('No attendance records in this view.', 'Nothing to export');
@@ -234,31 +246,32 @@ export const AttendanceDashboardPage = () => {
                 },
                 {
                     title: 'Field Extra Hrs',
-                    value: '8.5h',
+                    value: empStats?.otStr || '0h',
                     badge: 'Logged',
                     badgeColor: 'bg-teal-50 text-teal-700 border-teal-200/80 dark:bg-teal-950/60 dark:text-teal-400 dark:border-teal-800/60',
-                    subtitle: 'Site exploration',
-                    icon: <Clock className="w-3.5 h-3.5"/>,
+                    subtitle: 'Site exploration OT',
+                    icon: <Clock className="w-4 h-4"/>,
                     iconBg: 'bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400',
                 },
                 {
-                    title: 'Corrections',
-                    value: '0',
-                    badge: 'Nil',
-                    badgeColor: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
-                    subtitle: 'All punches synced',
-                    icon: <FileEdit className="w-3.5 h-3.5"/>,
+                    title: 'Punch Corrections',
+                    value: empStats?.correctionsStr || '0',
+                    badge: Number(empStats?.correctionsStr) > 0 ? 'Pending' : 'Synced',
+                    badgeColor: Number(empStats?.correctionsStr) > 0 ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-700',
+                    subtitle: 'Correction requests',
+                    icon: <FileEdit className="w-4 h-4"/>,
                     iconBg: 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300',
                 },
             ]
             : (() => {
                 const allEmps = storage.getEmployees();
                 const totalStaff = allEmps.length;
-                const presentCount = records.filter((r) => r.status === 'Present').length;
+                const presentCount = records.filter((r) => r.status === 'Present' || r.status === 'Late').length;
                 const leaveCount = storage.getLeaveRequests().filter((l) => l.status === 'Approved').length;
                 const absentCount = Math.max(0, totalStaff - presentCount - leaveCount);
                 const lateCount = records.filter((r) => r.lateBy && r.lateBy !== '-').length;
                 const fieldCount = allEmps.filter((e) => e.employment?.workLocation?.includes('Field') || e.employment?.workLocation?.includes('Bhilwara')).length;
+                const pendingCorrections = (storage.getCorrections?.() || []).filter((c) => c.status === 'Pending').length;
                 const presentPercent = totalStaff > 0 ? ((presentCount / totalStaff) * 100).toFixed(1) : '0';
                 const absentPercent = totalStaff > 0 ? ((absentCount / totalStaff) * 100).toFixed(1) : '0';
                 return [
@@ -268,7 +281,7 @@ export const AttendanceDashboardPage = () => {
                         badge: `${presentPercent}%`,
                         badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-800/60',
                         subtitle: `${presentCount} of ${totalStaff} Staff`,
-                        icon: <UserCheck className="w-3.5 h-3.5"/>,
+                        icon: <UserCheck className="w-4 h-4"/>,
                         iconBg: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400',
                     },
                     {
@@ -277,34 +290,34 @@ export const AttendanceDashboardPage = () => {
                         badge: `${absentPercent}%`,
                         badgeColor: 'bg-rose-50 text-rose-700 border-rose-200/80 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-800/60',
                         subtitle: 'Unplanned absence',
-                        icon: <UserX className="w-3.5 h-3.5"/>,
+                        icon: <UserX className="w-4 h-4"/>,
                         iconBg: 'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400',
                     },
                     {
                         title: 'Late Arrivals',
                         value: String(lateCount),
-                        badge: 'Grace',
+                        badge: 'Grace Window',
                         badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60',
-                        subtitle: 'In grace window',
-                        icon: <ClockAlert className="w-3.5 h-3.5"/>,
+                        subtitle: 'Punched after 09:45',
+                        icon: <ClockAlert className="w-4 h-4"/>,
                         iconBg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400',
                     },
                     {
-                        title: 'Early Departures',
-                        value: '0',
-                        badge: 'Nil',
-                        badgeColor: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700',
-                        subtitle: 'Standard shifts',
-                        icon: <Clock className="w-3.5 h-3.5"/>,
-                        iconBg: 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300',
+                        title: 'Corrections Pending',
+                        value: String(pendingCorrections),
+                        badge: pendingCorrections > 0 ? 'Review' : 'Nil',
+                        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60',
+                        subtitle: 'Requires Director approval',
+                        icon: <FileEdit className="w-4 h-4"/>,
+                        iconBg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400',
                     },
                     {
                         title: 'On Leave',
                         value: String(leaveCount),
                         badge: 'Approved',
                         badgeColor: 'bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-800/60',
-                        subtitle: 'CL & SL active',
-                        icon: <CalendarOff className="w-3.5 h-3.5"/>,
+                        subtitle: 'Active approvals',
+                        icon: <CalendarOff className="w-4 h-4"/>,
                         iconBg: 'bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400',
                     },
                     {
@@ -312,31 +325,42 @@ export const AttendanceDashboardPage = () => {
                         value: String(fieldCount),
                         badge: 'Live',
                         badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60',
-                        subtitle: 'Bhilwara & Sites',
-                        icon: <Fingerprint className="w-3.5 h-3.5"/>,
+                        subtitle: 'Bhilwara & Remote Sites',
+                        icon: <Fingerprint className="w-4 h-4"/>,
                         iconBg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400',
                     },
                 ];
-            })()).map((kpi, idx) => (<div key={idx} className="p-2.5 rounded-xl bg-white dark:bg-[#1A2430] border border-slate-200/80 dark:border-[#253344] shadow-2xs flex flex-col justify-between">
-            <div className="flex items-start justify-between gap-1.5">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate font-mono">
-                {kpi.title}
-              </span>
-              <div className={`p-1.5 rounded-lg shrink-0 ${kpi.iconBg}`}>
-                {kpi.icon}
+            })()).map((kpi, idx) => (
+            <div
+              key={idx}
+              className="p-3.5 sm:p-4 rounded-2xl bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] shadow-2xs hover:border-teal-500/40 hover:shadow-xs transition-all flex flex-col justify-between"
+            >
+              <div className="flex items-start justify-between gap-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 truncate">
+                  {kpi.title}
+                </span>
+                <div className={`p-2 rounded-xl shrink-0 ${kpi.iconBg}`}>
+                  {kpi.icon}
+                </div>
               </div>
-            </div>
-            <div className="mt-1">
-              <div className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
-                {kpi.value}
+              <div className="my-2">
+                <div className="text-2xl sm:text-3xl font-extrabold text-[#1E293B] dark:text-white tabular-nums tracking-tight">
+                  {kpi.value}
+                </div>
               </div>
-            </div>
 
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80">
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{kpi.title}</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">{kpi.subtitle}</p>
+              <div className="flex items-center justify-between gap-1 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400 truncate font-medium">
+                  {kpi.subtitle}
+                </span>
+                {kpi.badge && (
+                  <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] shrink-0 ${kpi.badgeColor}`}>
+                    {kpi.badge}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>))}
+          ))}
       </div>
 
       {/* Attendance Table with Filter Bar */}

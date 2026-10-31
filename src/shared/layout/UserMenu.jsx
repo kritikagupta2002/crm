@@ -11,7 +11,7 @@ import { NAV_ITEMS } from './navigation'
  * Profile menu with role switching and HR settings.
  */
 export function UserMenu() {
-  const { role, user, fieldMember, setRole, changeCount, resetDemoData, signOut } = useCrm()
+  const { role, user, fieldMember, setRole, changeCount, signOut } = useCrm()
   const { open, setOpen, ref } = usePopover()
   const { pathname } = useLocation()
   const navigate = useNavigate()

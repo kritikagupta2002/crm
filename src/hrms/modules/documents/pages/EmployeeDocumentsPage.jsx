@@ -107,7 +107,7 @@ export const EmployeeDocumentsPage = () => {
         showToast('Revised document re-submitted for manager verification', 'success');
       } else {
         await documentService.uploadEmployeeDocument({
-          employeeId: isEmp ? empId : emp?.employeeId || 'BGS-000',
+          employeeId: isEmp ? empId : emp?.employeeId || 'BGS/04',
           employeeName: isEmp ? user?.name || 'Staff Member' : emp?.name || 'Staff Member',
           department: isEmp ? user?.department || 'Operations' : emp?.employment?.department || 'Operations',
           documentType: docType,

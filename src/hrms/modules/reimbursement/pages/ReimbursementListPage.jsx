@@ -505,10 +505,10 @@ export const ReimbursementListPage = () => {
                             <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                onClick={() => navigate('/finance/claims')}
+                                onClick={() => handleOpenDetails(c)}
                                 className="text-[11px] h-6 px-1.5 text-teal-700 hover:text-teal-800"
                             >
-                                View Finance
+                                View Details
                             </Button>
                             <button 
                                 onClick={() => handleOpenDetails(c)}

@@ -217,7 +217,7 @@ export const ProfileSettingsPage = () => {
   // Upload New Document
   const handleDocumentSubmit = async (e) => {
     e.preventDefault();
-    const effectiveEmpId = empRecord?.employeeId || user?.employeeId || 'BGS-000';
+    const effectiveEmpId = empRecord?.employeeId || user?.employeeId || 'BGS/04';
     const effectiveEmpName = empRecord?.name || user?.name || 'Staff Member';
     const effectiveDept = empRecord?.employment?.department || user?.department || 'Operations';
 

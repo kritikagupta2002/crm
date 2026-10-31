@@ -359,6 +359,20 @@ export const EmployeeDashboard = () => {
             settledExpensesTotal: settledExp + settledRmb,
         };
     }, [user?.employeeId]);
+
+    // Live personal documents and verification status
+    const myDocs = useMemo(() => {
+        const allDocs = storage.getEmployeeDocuments() || [];
+        const empId = user?.employeeId;
+        return allDocs.filter(
+            (d) =>
+                (empId && d.employeeId === empId) ||
+                (user?.name && d.employeeName?.toLowerCase() === user.name.toLowerCase())
+        );
+    }, [user?.employeeId, user?.name]);
+    const verifiedDocsCount = myDocs.filter((d) => d.status === 'Verified').length;
+    const rejectedDocsCount = myDocs.filter((d) => d.status === 'Rejected').length;
+    const pendingDocsCount = myDocs.filter((d) => d.status === 'Pending Verification' || d.status === 'Pending Review').length;
     // Dynamic time-of-day greeting
     const greeting = useMemo(() => {
         const hour = new Date().getHours();
@@ -887,17 +901,48 @@ export const EmployeeDashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
               <span className="text-[11px] text-slate-500 dark:text-slate-400">Verification Status</span>
-              <p className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Active & Compliant
+              <p className={`text-sm font-extrabold mt-1 flex items-center gap-1.5 ${
+                rejectedDocsCount > 0
+                  ? 'text-rose-600 dark:text-rose-400'
+                  : pendingDocsCount > 0
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : myDocs.length > 0
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-slate-600 dark:text-slate-400'
+              }`}>
+                <span className={`w-2 h-2 rounded-full ${
+                  rejectedDocsCount > 0
+                    ? 'bg-rose-500 animate-pulse'
+                    : pendingDocsCount > 0
+                      ? 'bg-amber-500 animate-pulse'
+                      : myDocs.length > 0
+                        ? 'bg-emerald-500'
+                        : 'bg-slate-400'
+                }`}></span>
+                {rejectedDocsCount > 0
+                  ? 'Action Required (Rejected)'
+                  : pendingDocsCount > 0
+                    ? 'Verification Pending'
+                    : myDocs.length > 0
+                      ? 'Active & Compliant'
+                      : 'Upload Required'}
               </p>
-              <span className="text-[10px] text-slate-400 mt-1 block">Credentials verified by HR</span>
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                {rejectedDocsCount > 0
+                  ? 'Re-upload corrected document'
+                  : 'Reviewed by Reporting Manager'}
+              </span>
             </div>
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
               <span className="text-[11px] text-slate-500 dark:text-slate-400">Personal Documents</span>
               <p className="text-xl font-extrabold text-blue-600 dark:text-blue-400 font-mono mt-0.5">
-                4 / 4
+                {verifiedDocsCount} / {Math.max(myDocs.length, 1)}
               </p>
-              <span className="text-[10px] text-slate-400">KYC & educational records</span>
+              <span className="text-[10px] text-slate-400">
+                {verifiedDocsCount === myDocs.length && myDocs.length > 0
+                  ? 'All records verified'
+                  : `${pendingDocsCount} pending, ${rejectedDocsCount} rejected`}
+              </span>
             </div>
           </div>
 

@@ -107,7 +107,7 @@ export const OrgChartPage = () => {
   // Selected employee ID state
   const [selectedEmpId, setSelectedEmpId] = useState(() => {
     if (isSuperOrDirector) {
-      return allEmployees[0]?.employeeId || 'BGS-001';
+      return allEmployees[0]?.employeeId || 'BGS/DIR-01';
     }
     return currentEmpRecord?.employeeId || allEmployees[0]?.employeeId;
   });

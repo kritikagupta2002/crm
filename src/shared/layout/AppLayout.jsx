@@ -36,7 +36,7 @@ function pageTitle(pathname) {
 export function AppLayout() {
   const [desktopCollapsed, setDesktopCollapsed] = useState(readCollapsed)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { changeCount, resetDemoData, teamSignedIn, role, user } = useCrm()
+  const { changeCount, teamSignedIn, role, user } = useCrm()
   const { pathname } = useLocation()
 
   // On route change: close mobile drawer, scroll to top, update document title
