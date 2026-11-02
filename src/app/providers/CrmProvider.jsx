@@ -1,54 +1,36 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { CrmContext, DEFAULT_SETTINGS, ROLE_ACCESS, ROLE_USERS } from '../../core/permissions/crm'
-import { FIELD_MEMBERS } from '../../core/constants/staff'
-import { api } from '../../hrms/core/api/apiClient'
+import { CrmContext, DEFAULT_SETTINGS } from '../../core/permissions/crm'
+import { api, SESSION_EXPIRED_EVENT } from '../../hrms/core/api/apiClient'
+import { resetLocalData } from '../../hrms/core/storage/storage'
 
-const ROLE_KEY = 'bansal-crm:role'
-const FIELD_KEY = 'bansal-crm:field-member'
-const SESSION_KEY = 'bansal-crm:session'
 const SETTINGS_KEY = 'bansal-crm:settings'
 
-// Default equipment & field assets allocated to Bansal Geo team members
-const INITIAL_ASSETS = [
-  { id: 'asg-1', itemName: 'Leica TS07 Total Station', itemCode: 'EQ-SRV-001', category: 'Survey Equipment', serialNumber: 'SN-TS-98214', condition: 'Good', assignedDate: '2025-10-15', status: 'Assigned', employeeId: 'BGS/04', employeeName: 'Vikas Verma' },
-  { id: 'asg-2', itemName: 'Garmin GPSMAP 66sr Handheld GPS', itemCode: 'EQ-GPS-004', category: 'GPS & Navigation', serialNumber: 'SN-GM-44102', condition: 'Excellent', assignedDate: '2025-11-01', status: 'Assigned', employeeId: 'BGS/05', employeeName: 'Kuldip Singh' },
-  { id: 'asg-3', itemName: 'Geological Pick Hammer & Lens Kit', itemCode: 'EQ-GEO-008', category: 'Geology Tools', serialNumber: 'SN-GH-1092', condition: 'Good', assignedDate: '2025-09-20', status: 'Assigned', employeeId: 'BGS/09', employeeName: 'Balveer Singh Yadav' },
-  { id: 'asg-4', itemName: 'Trimble R12i GNSS Rover Receiver', itemCode: 'EQ-SRV-005', category: 'Survey Equipment', serialNumber: 'SN-TR-88129', condition: 'Excellent', assignedDate: '2025-12-05', status: 'Assigned', employeeId: 'BGS/10', employeeName: 'Vishal Kumawat' },
-  { id: 'asg-5', itemName: 'Automatic Optical Level Kit 32X', itemCode: 'EQ-SRV-009', category: 'Survey Equipment', serialNumber: 'SN-AL-33120', condition: 'Good', assignedDate: '2026-01-08', status: 'Assigned', employeeId: 'BGS/11', employeeName: 'Pradeep Chand' },
-  { id: 'asg-6', itemName: 'Dell Precision 7760 GIS Workstation', itemCode: 'IT-WS-002', category: 'Computing Hardware', serialNumber: 'SN-DL-99214', condition: 'Excellent', assignedDate: '2025-08-10', status: 'Assigned', employeeId: 'BGS/12', employeeName: 'Madhurika Saini' },
-]
+/* The portal's view of the signed-in person, built from the server's profile. `id` is the employee ID. */
+function toUser(profile) {
+  if (!profile) return null
+  return {
+    accountId: profile.id,
+    id: profile.employeeId,
+    employeeId: profile.employeeId,
+    name: profile.name,
+    email: profile.email,
+    title: profile.title,
+    department: profile.department,
+    phone: profile.phone,
+    avatarUrl: profile.avatarUrl,
+    mustChangePassword: profile.mustChangePassword,
+    permissions: profile.permissions || [],
+  }
+}
 
+/*
+ * The session: who is signed in and with which role, as decided by the server. On load the stored token is
+ * checked with /auth/me; an invalid or expired token sends the person back to the sign-in page.
+ */
 export function CrmProvider({ children }) {
-  // 1. Role State
-  const [role, setRoleState] = useState(() => {
-    try {
-      const saved = localStorage.getItem(ROLE_KEY)
-      return saved && ROLE_ACCESS[saved] ? saved : 'Managing Director'
-    } catch {
-      return 'Managing Director'
-    }
-  })
+  const [profile, setProfile] = useState(null)
+  const [status, setStatus] = useState(() => (api.getToken() ? 'loading' : 'anonymous'))
 
-  // 2. Field Member State (when Role === 'Employee')
-  const [fieldMember, setFieldMemberState] = useState(() => {
-    try {
-      const saved = localStorage.getItem(FIELD_KEY)
-      return FIELD_MEMBERS.some((m) => m.name === saved) ? saved : FIELD_MEMBERS[0]?.name || 'Vikas Verma'
-    } catch {
-      return FIELD_MEMBERS[0]?.name || 'Vikas Verma'
-    }
-  })
-
-  // 3. Team Session
-  const [teamSignedIn, setTeamSignedIn] = useState(() => {
-    try {
-      return localStorage.getItem(SESSION_KEY) === 'true'
-    } catch {
-      return true
-    }
-  })
-
-  // 4. Company & System Settings
   const [settings, setSettingsState] = useState(() => {
     try {
       const saved = localStorage.getItem(SETTINGS_KEY)
@@ -58,128 +40,96 @@ export function CrmProvider({ children }) {
     }
   })
 
-  const [changeCount, setChangeCount] = useState(0)
-
-  // Persist role changes
-  const setRole = useCallback((newRole) => {
-    setRoleState(newRole)
-    try {
-      localStorage.setItem(ROLE_KEY, newRole)
-    } catch (e) {
-      console.error(e)
-    }
-    setChangeCount((c) => c + 1)
+  const clearSession = useCallback(() => {
+    api.setToken('')
+    resetLocalData()
+    setProfile(null)
+    setStatus('anonymous')
   }, [])
 
-  // Persist field member changes
-  const setFieldMember = useCallback((memberName) => {
-    setFieldMemberState(memberName)
-    try {
-      localStorage.setItem(FIELD_KEY, memberName)
-    } catch (e) {
-      console.error(e)
+  useEffect(() => {
+    if (!api.getToken()) return undefined
+    let cancelled = false
+    api
+      .get('/auth/me')
+      .then((res) => {
+        if (cancelled) return
+        setProfile(res.user)
+        setStatus('authenticated')
+      })
+      .catch((err) => {
+        if (cancelled) return
+        // A network failure keeps the token so a page refresh can recover; a rejected token ends the session.
+        if (err.status === 0) setStatus('offline')
+        else clearSession()
+      })
+    return () => {
+      cancelled = true
     }
-    setChangeCount((c) => c + 1)
+  }, [clearSession])
+
+  useEffect(() => {
+    const onExpired = () => clearSession()
+    window.addEventListener(SESSION_EXPIRED_EVENT, onExpired)
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, onExpired)
+  }, [clearSession])
+
+  const signIn = useCallback(async (email, password) => {
+    const res = await api.post('/auth/login', { email, password })
+    // Data cached by a previous user on this device must never be shown to the next one.
+    resetLocalData()
+    api.setToken(res.token)
+    setProfile(res.user)
+    setStatus('authenticated')
+    return res.user
   }, [])
 
-  // Update Settings
+  const signOut = useCallback(async () => {
+    try {
+      await api.post('/auth/logout')
+    } catch {
+      // Signing out locally is enough if the server can't be reached.
+    }
+    clearSession()
+  }, [clearSession])
+
+  const changePassword = useCallback(async (currentPassword, newPassword) => {
+    const res = await api.post('/auth/change-password', { currentPassword, newPassword })
+    api.setToken(res.token)
+    setProfile(res.user)
+    return res.user
+  }, [])
+
   const updateSettings = useCallback((updates) => {
     setSettingsState((prev) => {
       const next = { ...prev, ...updates }
       try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(next))
-      } catch (e) {
-        console.error(e)
+      } catch {
+        // Only a convenience.
       }
       return next
     })
-    setChangeCount((c) => c + 1)
   }, [])
 
-  // Sign in handler
-  const signIn = useCallback((targetRole = 'Managing Director', memberName) => {
-    const validRole = ROLE_ACCESS[targetRole] ? targetRole : 'Managing Director'
-    setRole(validRole)
-    if (memberName) {
-      setFieldMember(memberName)
-    }
-    setTeamSignedIn(true)
-    try {
-      localStorage.setItem(SESSION_KEY, 'true')
-    } catch (e) {
-      console.error(e)
-    }
-    setChangeCount((c) => c + 1)
-  }, [setRole, setFieldMember])
+  const user = useMemo(() => toUser(profile), [profile])
 
-  // Sign out handler
-  const signOut = useCallback(() => {
-    setTeamSignedIn(false)
-    try {
-      localStorage.removeItem(SESSION_KEY)
-      api.setToken('')
-    } catch (e) {
-      console.error(e)
-    }
-    setChangeCount((c) => c + 1)
-    window.location.href = '/login'
-  }, [])
-
-  // Reset demo data handler
-  const resetDemoData = useCallback(() => {
-    try {
-      localStorage.clear()
-    } catch (e) {
-      console.error(e)
-    }
-    window.location.reload()
-  }, [])
-
-  // Active User object
-  const user = useMemo(() => {
-    if (role === 'Employee') {
-      const member = FIELD_MEMBERS.find((m) => m.name === fieldMember) || FIELD_MEMBERS[0]
-      return {
-        name: member?.name || 'Vikas Verma',
-        title: member?.title || 'Surveyor',
-        email: member?.email || 'vikas.verma@bansalgeo.com',
-        id: member?.id || 'BGS/04',
-        employeeId: member?.id || 'BGS/04',
-        phone: member?.phone || '',
-        department: member?.department || 'Mining & Survey',
-      }
-    }
-    const defaultUser = ROLE_USERS[role] || ROLE_USERS['Managing Director']
-    return {
-      ...defaultUser,
-      employeeId: defaultUser.id,
-    }
-  }, [role, fieldMember])
-
-  const contextValue = useMemo(() => ({
-    role,
-    setRole,
-    fieldMember,
-    setFieldMember,
-    user,
-    teamSignedIn,
-    signIn,
-    signOut,
-    settings,
-    updateSettings,
-    resetDemoData,
-    changeCount,
-    inventoryAssignments: INITIAL_ASSETS,
-    leads: [],
-    activities: [],
-    outbox: [],
-  }), [role, setRole, fieldMember, setFieldMember, user, teamSignedIn, signIn, signOut, settings, updateSettings, resetDemoData, changeCount])
-
-  return (
-    <CrmContext.Provider value={contextValue}>
-      {children}
-    </CrmContext.Provider>
+  const contextValue = useMemo(
+    () => ({
+      status,
+      teamSignedIn: status === 'authenticated',
+      role: profile?.role ?? null,
+      user,
+      signIn,
+      signOut,
+      changePassword,
+      settings,
+      updateSettings,
+    }),
+    [status, profile, user, signIn, signOut, changePassword, settings, updateSettings],
   )
+
+  return <CrmContext.Provider value={contextValue}>{children}</CrmContext.Provider>
 }
 
 export default CrmProvider

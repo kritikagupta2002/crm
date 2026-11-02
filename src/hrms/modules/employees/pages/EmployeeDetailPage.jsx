@@ -15,7 +15,9 @@ import { QRCodeCanvas } from '@/components/common/QRCodeCanvas';
 import { useToast } from '@/contexts/ToastContext';
 import { employeeService } from '@/modules/employees/services/employee.service';
 import { performanceService } from '@/modules/employees/services/performance.service';
+import { payrollService } from '@/modules/payroll/services/payroll.service';
 import { exitService } from '@/modules/employees/services/exit.service';
+import { BankDetails } from '@/modules/employees/components/BankDetails';
 import { storage } from '@/core/storage/storage';
 
 export const EmployeeDetailPage = () => {
@@ -60,11 +62,13 @@ export const EmployeeDetailPage = () => {
                     setLeaveRequests(leaves);
                     const att = storage.getAttendance().filter((a) => a.employeeId === emp.employeeId);
                     setAttendanceLogs(att);
-                    const structures = storage.getSalaryStructures();
-                    const sal = structures.find((s) => s.employeeId === emp.employeeId) || null;
-                    setSalaryStructure(sal);
-                    const slips = storage.getPayslips().filter((p) => p.employeeId === emp.employeeId);
-                    setPayslips(slips);
+                    // Payroll is visible to HR administrators and to the employee themselves (the server enforces this).
+                    const [structures, slips] = await Promise.all([
+                        payrollService.getSalaryStructures().catch(() => []),
+                        payrollService.getPayslips().catch(() => []),
+                    ]);
+                    setSalaryStructure(structures.find((s) => s.employeeId === emp.employeeId) || null);
+                    setPayslips(slips.filter((p) => p.employeeId === emp.employeeId));
                     const docs = storage.getEmployeeDocuments().filter((d) => d.employeeId === emp.employeeId);
                     setDocuments(docs);
                     const exps = storage.getExpenses().filter((e) => e.employeeId === emp.employeeId);
@@ -106,11 +110,11 @@ export const EmployeeDetailPage = () => {
 
     // Calculated overview stats
     const totalAvailableLeave = leaveBalances.reduce((sum, b) => sum + (b.available || 0), 0);
-    const tenureYears = employee.employment.joiningDate
-        ? Math.max(0.1, ((new Date().getTime() - new Date(employee.employment.joiningDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))).toFixed(1)
+    const tenureYears = employee.employment?.joiningDate
+        ? Math.max(0.1, ((new Date().getTime() - new Date(employee.employment?.joiningDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25))).toFixed(1)
         : '-';
     return (<div className="space-y-6 pb-12">
-      <PageHeader title={employee.name} description={`Emp ID: ${employee.employeeId} • ${employee.employment.designation} (${employee.employment.department})`} breadcrumbs={[
+      <PageHeader title={employee.name} description={`Emp ID: ${employee.employeeId} • ${employee.employment?.designation} (${employee.employment?.department})`} breadcrumbs={[
             { label: 'HRMS', path: '/hr' },
             { label: 'Employees', path: '/hr/employees' },
             { label: employee.name },
@@ -138,25 +142,25 @@ export const EmployeeDetailPage = () => {
                 <span className="font-mono text-xs font-bold text-[#1F6F78] dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2 py-0.5 rounded border border-teal-200 dark:border-teal-800/60">
                   {employee.employeeId}
                 </span>
-                <StatusBadge status={employee.employment.status} size="sm"/>
+                <StatusBadge status={employee.employment?.status} size="sm"/>
               </div>
 
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mt-1">
-                {employee.employment.designation}
+                {employee.employment?.designation}
               </p>
 
               <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 mt-2 flex-wrap">
                 <span className="flex items-center gap-1">
                   <Building2 className="w-3.5 h-3.5 text-slate-400"/>
-                  {employee.employment.department}
+                  {employee.employment?.department}
                 </span>
                 <span className="flex items-center gap-1">
                   <MapPin className="w-3.5 h-3.5 text-slate-400"/>
-                  {employee.employment.workLocation}
+                  {employee.employment?.workLocation}
                 </span>
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-slate-400"/>
-                  Joined {employee.employment.joiningDate}
+                  Joined {employee.employment?.joiningDate}
                 </span>
               </div>
             </div>
@@ -167,7 +171,7 @@ export const EmployeeDetailPage = () => {
               Role: {employee.role.replace('_', ' ')}
             </Badge>
             <span className="text-xs text-slate-500 dark:text-slate-400">
-              Reports to: <strong className="text-slate-800 dark:text-slate-200">{employee.employment.managerName}</strong>
+              Reports to: <strong className="text-slate-800 dark:text-slate-200">{employee.employment?.managerName}</strong>
             </span>
             <Button
               variant="outline"
@@ -195,11 +199,11 @@ export const EmployeeDetailPage = () => {
                 company: 'Bansal Geo Solutions Pvt. Ltd.',
                 empId: employee.employeeId,
                 name: employee.name,
-                designation: employee.employment.designation,
-                department: employee.employment.department,
-                workLocation: employee.employment.workLocation,
-                status: employee.employment.status,
-                joined: employee.employment.joiningDate,
+                designation: employee.employment?.designation,
+                department: employee.employment?.department,
+                workLocation: employee.employment?.workLocation,
+                status: employee.employment?.status,
+                joined: employee.employment?.joiningDate,
               })}
               size={180}
             />
@@ -210,10 +214,10 @@ export const EmployeeDetailPage = () => {
               {employee.name}
             </h4>
             <p className="text-xs text-teal-700 dark:text-teal-400 font-mono font-semibold">
-              {employee.employeeId} • {employee.employment.designation}
+              {employee.employeeId} • {employee.employment?.designation}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Department: {employee.employment.department} | Site: {employee.employment.workLocation || '-'}
+              Department: {employee.employment?.department} | Site: {employee.employment?.workLocation || '-'}
             </p>
           </div>
 
@@ -254,7 +258,7 @@ export const EmployeeDetailPage = () => {
                   Professional Summary
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                  Key professional in {employee.employment.department} at Bansal Geo Solutions Pvt. Ltd., based out of {employee.employment.workLocation}. Responsible for specialized consulting execution, adherence to DGMS safety standards, and project delivery.
+                  Key professional in {employee.employment?.department} at Bansal Geo Solutions Pvt. Ltd., based out of {employee.employment?.workLocation}. Responsible for specialized consulting execution, adherence to DGMS safety standards, and project delivery.
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
                   <div className="p-3 bg-slate-50 dark:bg-[#111821] rounded-xl border border-slate-200 dark:border-[#253344]">
@@ -317,15 +321,15 @@ export const EmployeeDetailPage = () => {
                 <div className="space-y-3 text-xs">
                   <div className="flex items-center gap-2">
                     <Mail className="w-4 h-4 text-slate-400 shrink-0"/>
-                    <span className="truncate font-medium text-slate-800 dark:text-slate-200">{employee.contact.workEmail}</span>
+                    <span className="truncate font-medium text-slate-800 dark:text-slate-200">{employee.contact?.workEmail}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-4 h-4 text-slate-400 shrink-0"/>
-                    <span className="font-medium text-slate-800 dark:text-slate-200">{employee.contact.phone}</span>
+                    <span className="font-medium text-slate-800 dark:text-slate-200">{employee.contact?.phone}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-slate-400 shrink-0"/>
-                    <span className="text-slate-600 dark:text-slate-300">{employee.contact.city}, {employee.contact.state}</span>
+                    <span className="text-slate-600 dark:text-slate-300">{employee.contact?.city}, {employee.contact?.state}</span>
                   </div>
                 </div>
               </Card>
@@ -337,38 +341,22 @@ export const EmployeeDetailPage = () => {
                 <div className="space-y-2 text-xs">
                   <div>
                     <span className="text-slate-400">Name:</span>{' '}
-                    <strong className="text-slate-800 dark:text-slate-200">{employee.emergency.name}</strong>
+                    <strong className="text-slate-800 dark:text-slate-200">{employee.emergency?.name}</strong>
                   </div>
                   <div>
                     <span className="text-slate-400">Relationship:</span>{' '}
-                    <span className="text-slate-700 dark:text-slate-300">{employee.emergency.relationship}</span>
+                    <span className="text-slate-700 dark:text-slate-300">{employee.emergency?.relationship}</span>
                   </div>
                   <div>
                     <span className="text-slate-400">Phone:</span>{' '}
-                    <span className="text-slate-800 dark:text-slate-200 font-mono">{employee.emergency.phone}</span>
+                    <span className="text-slate-800 dark:text-slate-200 font-mono">{employee.emergency?.phone}</span>
                   </div>
                 </div>
               </Card>
 
-              <Card className="p-5">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-3">
-                  Statutory Records
-                </h4>
-                <div className="space-y-2 text-xs">
-                  <div>
-                    <span className="text-slate-400">PAN:</span>{' '}
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{employee.bank.panNumber}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400">UAN:</span>{' '}
-                    <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{employee.bank.uanNumber}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400">Bank:</span>{' '}
-                    <span className="text-slate-700 dark:text-slate-300">{employee.bank.bankName}</span>
-                  </div>
-                </div>
-              </Card>
+              {employee.bank && (<Card className="p-5">
+                  <BankDetails bank={employee.bank}/>
+                </Card>)}
             </div>
           </div>)}
 
@@ -380,41 +368,41 @@ export const EmployeeDetailPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-xs sm:text-sm">
               <div>
                 <p className="text-slate-400 text-xs">First Name</p>
-                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{employee.personal.firstName}</p>
+                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{employee.personal?.firstName}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Last Name</p>
-                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{employee.personal.lastName}</p>
+                <p className="font-bold text-slate-900 dark:text-white mt-0.5">{employee.personal?.lastName}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Date of Birth</p>
-                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5 font-mono">{employee.personal.dob}</p>
+                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5 font-mono">{employee.personal?.dob}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Gender</p>
-                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.personal.gender}</p>
+                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.personal?.gender}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Blood Group</p>
-                <p className="font-bold text-rose-600 dark:text-rose-400 mt-0.5">{employee.personal.bloodGroup}</p>
+                <p className="font-bold text-rose-600 dark:text-rose-400 mt-0.5">{employee.personal?.bloodGroup}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Marital Status</p>
-                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.personal.maritalStatus}</p>
+                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.personal?.maritalStatus}</p>
               </div>
               <div>
                 <p className="text-slate-400 text-xs">Nationality</p>
-                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.personal.nationality}</p>
+                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.personal?.nationality}</p>
               </div>
               <div className="sm:col-span-2">
                 <p className="text-slate-400 text-xs">Current Residence Address</p>
                 <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">
-                  {employee.contact.currentAddress}, {employee.contact.city}, {employee.contact.state} - {employee.contact.pincode}
+                  {employee.contact?.currentAddress}, {employee.contact?.city}, {employee.contact?.state} - {employee.contact?.pincode}
                 </p>
               </div>
               <div className="sm:col-span-2">
                 <p className="text-slate-400 text-xs">Permanent Hometown Address</p>
-                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.contact.permanentAddress}</p>
+                <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.contact?.permanentAddress}</p>
               </div>
             </div>
           </Card>)}
@@ -432,32 +420,32 @@ export const EmployeeDetailPage = () => {
                 </div>
                 <div>
                   <p className="text-slate-400 text-xs">Department</p>
-                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">{employee.employment.department}</p>
+                  <p className="font-bold text-slate-900 dark:text-white mt-0.5">{employee.employment?.department}</p>
                 </div>
                 <div>
                   <p className="text-slate-400 text-xs">Designation</p>
-                  <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment.designation}</p>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment?.designation}</p>
                 </div>
                 <div>
                   <p className="text-slate-400 text-xs">Employment Classification</p>
-                  <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment.employmentType}</p>
+                  <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment?.employmentType}</p>
                 </div>
                 <div>
                   <p className="text-slate-400 text-xs">Work Location</p>
-                  <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment.workLocation}</p>
+                  <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment?.workLocation}</p>
                 </div>
                 <div>
                   <p className="text-slate-400 text-xs">Joining Date</p>
-                  <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5 font-mono">{employee.employment.joiningDate}</p>
+                  <p className="font-medium text-slate-800 dark:text-slate-200 mt-0.5 font-mono">{employee.employment?.joiningDate}</p>
                 </div>
                 <div>
                   <p className="text-slate-400 text-xs">Direct Reporting Manager</p>
-                  <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment.managerName}</p>
+                  <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">{employee.employment?.managerName}</p>
                 </div>
                 <div>
                   <p className="text-slate-400 text-xs">Service Status</p>
                   <div className="mt-1">
-                    <StatusBadge status={employee.employment.status} size="sm"/>
+                    <StatusBadge status={employee.employment?.status} size="sm"/>
                   </div>
                 </div>
               </div>

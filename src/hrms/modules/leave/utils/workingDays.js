@@ -26,6 +26,16 @@ export const PUBLIC_HOLIDAYS_2026 = [
     { date: '2026-12-25', name: 'Christmas Day', kind: 'Gazetted Holiday' },
 ];
 export const NATIONAL_HOLIDAYS_2026 = PUBLIC_HOLIDAYS_2026.map((h) => h.date);
+
+/*
+ * The holiday list in use. It starts as the 2026 list above and is replaced by Leave settings (publicHolidays)
+ * as soon as they load from the server, so HR can maintain it without a code change.
+ */
+let publicHolidays = PUBLIC_HOLIDAYS_2026;
+export const getPublicHolidays = () => publicHolidays;
+export function setPublicHolidays(list) {
+    if (Array.isArray(list) && list.length) publicHolidays = list;
+}
 const DEFAULT_OFF_DAYS = [0, 6];
 const DAY_NUMBERS = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
 /** "Saturday & Sunday" → [6, 0]; "Sunday" → [0]; a rotational off (no fixed day) → []. */
@@ -61,7 +71,7 @@ export function isWorkingDay(dateStr, companyHolidays = [], offDays = DEFAULT_OF
     const date = parseLocalDate(dateStr);
     if (offDays.includes(date.getDay()))
         return false;
-    if (NATIONAL_HOLIDAYS_2026.includes(dateStr))
+    if (publicHolidays.some((h) => (typeof h === 'string' ? h : h.date) === dateStr))
         return false;
     if (holidayDates(companyHolidays).includes(dateStr))
         return false;

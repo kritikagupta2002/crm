@@ -1,138 +1,99 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { config } from './config/config.js';
 import { postgres } from './services/postgres.js';
+import { db } from './services/db.js';
 import apiRoutes from './routes/index.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import { errorHandler, notFound } from './middleware/errorHandler.js';
+import { writeContext } from './services/writeContext.js';
+import { SEED_DATA } from './db/seed.js';
 
 const app = express();
 
-// Trust reverse proxy (for accurate client IP detection behind Nginx / Cloudflare)
+// Behind one reverse proxy (Nginx / Cloudflare): needed for correct client IPs in rate limiting and geofence IP checks.
 app.set('trust proxy', 1);
+app.disable('x-powered-by');
 
-// Production CORS Whitelisting
-const corsOptions = {
-  origin: (origin, callback) => {
-    // Allow non-browser requests (Postman, curl, server-to-server)
-    if (!origin) return callback(null, true);
+app.use(helmet());
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Requests without an Origin header (curl, server-to-server) carry no browser credentials.
+      if (!origin || config.corsOrigins.includes(origin)) return callback(null, true);
+      if (!config.isProduction && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) return callback(null, true);
+      return callback(Object.assign(new Error('Origin not allowed.'), { status: 403 }));
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  }),
+);
 
-    const isAllowed =
-      config.corsOrigins.includes(origin) ||
-      origin.endsWith('.geoplanetsolution.in') ||
-      origin.includes('localhost') ||
-      origin.includes('127.0.0.1');
+// Documents are uploaded as data URLs, so the limit is sized for a few-MB file.
+app.use(express.json({ limit: '8mb' }));
 
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.warn(`[CORS Warning] Origin "${origin}" not in explicit whitelist. Permitting for development.`);
-      callback(null, true);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-};
+app.use(
+  '/api',
+  rateLimit({ windowMs: 60 * 1000, limit: 300, standardHeaders: 'draft-7', legacyHeaders: false }),
+);
 
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+/*
+ * A response is sent only after the request's database writes are confirmed. If any write failed, the in-memory
+ * copy of the affected data is reloaded from PostgreSQL (undoing the change) and the client is told to retry.
+ */
+app.use((req, res, next) => {
+  const ctx = { writes: [], collections: new Set() };
+  writeContext.run(ctx, () => {
+    const send = res.json.bind(res);
+    res.json = (body) => {
+      if (!ctx.writes.length) return send(body);
+      Promise.allSettled(ctx.writes).then(async (results) => {
+        const failed = results.some((r) => r.status === 'rejected');
+        if (!failed || res.statusCode >= 400) return send(body);
+        try {
+          await db.reload([...ctx.collections]);
+        } catch (err) {
+          console.error('[db] Reload after failed write also failed:', err.message);
+        }
+        res.status(503);
+        return send({ success: false, error: 'Your change could not be saved. Please try again in a moment.' });
+      });
+      return res;
+    };
+    next();
+  });
+});
 
-// Request logger
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`[${req.method}] ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+    if (req.path === '/api/health') return;
+    console.log(`[${req.method}] ${req.originalUrl.split('?')[0]} ${res.statusCode} ${Date.now() - start}ms`);
   });
   next();
 });
 
-// Welcome / API Documentation route
-app.get('/', (req, res) => {
-  res.json({
-    name: 'Bansal Geo Solutions - HRMS & Attendance Backend API',
-    version: '1.0.0',
-    status: 'online',
-    domains: {
-      frontend: 'https://bansalgeo.geoplanetsolution.in',
-      api: 'https://bansalgeo-api.geoplanetsolution.in',
-    },
-    database: {
-      engine: postgres.isConnected() ? 'PostgreSQL' : 'JSON Persistent DB (PostgreSQL standby)',
-      host: config.db.host,
-      database: config.db.database,
-      port: config.db.port,
-    },
-    endpoints: {
-      health: 'GET /api/health',
-      auth: {
-        login: 'POST /api/auth/login',
-        me: 'GET /api/auth/me',
-        logout: 'POST /api/auth/logout',
-      },
-      employees: {
-        list: 'GET /api/employees',
-        get: 'GET /api/employees/:id',
-        create: 'POST /api/employees',
-        update: 'PUT /api/employees/:id',
-        delete: 'DELETE /api/employees/:id',
-        performance: 'GET /api/employees/performance/records',
-        exit: 'GET /api/employees/exit/records',
-      },
-      attendance: {
-        list: 'GET /api/attendance',
-        todaySummary: 'GET /api/attendance/today',
-        monthly: 'GET /api/attendance/monthly',
-        punch: 'POST /api/attendance/punch',
-        corrections: 'GET /api/attendance/corrections',
-        submitCorrection: 'POST /api/attendance/corrections',
-        reviewCorrection: 'PUT /api/attendance/corrections/:id',
-      },
-      leaves: {
-        types: 'GET /api/leaves/types',
-        balances: 'GET /api/leaves/balances/:employeeId',
-        requests: 'GET /api/leaves/requests',
-        apply: 'POST /api/leaves/requests',
-        review: 'PUT /api/leaves/requests/:id/status',
-      },
-      shifts: {
-        list: 'GET /api/shifts',
-        create: 'POST /api/shifts',
-        assignments: 'GET /api/shifts/assignments',
-        assign: 'POST /api/shifts/assignments',
-      },
-      organization: {
-        departments: 'GET /api/organization/departments',
-        designations: 'GET /api/organization/designations',
-        chart: 'GET /api/organization/chart',
-      },
-      notifications: {
-        list: 'GET /api/notifications',
-        markRead: 'PUT /api/notifications/:id/read',
-        markAllRead: 'PUT /api/notifications/read-all',
-      },
-      settings: {
-        company: 'GET /api/settings/company',
-        attendance: 'GET /api/settings/attendance',
-        leave: 'GET /api/settings/leave',
-      },
-    },
-  });
-});
-
-// Mount API routes
+app.get('/', (req, res) => res.json({ name: 'Bansal Geo HRMS API', status: 'online' }));
 app.use('/api', apiRoutes);
-
-// Centralized error handler
+app.use(notFound);
 app.use(errorHandler);
 
-// Start server
-const PORT = config.port;
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Bansal Geo HRMS Backend Server running on port ${PORT}`);
-  console.log(`👉 Primary Production API: https://bansalgeo-api.geoplanetsolution.in`);
-  console.log(`👉 Local API Health: http://localhost:${PORT}/api/health`);
-});
+async function start() {
+  await db.ready;
+  if (config.requireDatabase && !postgres.isConnected()) {
+    console.error('[startup] PostgreSQL is required but not reachable. Check DB_* settings. Exiting.');
+    process.exit(1);
+  }
+  db.startRefresh();
+  // `kill -HUP <pid>` reloads everything from the database immediately (e.g. right after running a script).
+  process.on('SIGHUP', () => db.reload(Object.keys(SEED_DATA)).then(() => console.log('[db] Reloaded from PostgreSQL.')));
+  app.listen(config.port, () => {
+    console.log(`Bansal Geo HRMS API listening on port ${config.port} (${config.isProduction ? 'production' : 'development'})`);
+    console.log(`Storage: ${postgres.isConnected() ? 'PostgreSQL' : 'local JSON files (development only)'}`);
+  });
+}
+
+start();
 
 export default app;

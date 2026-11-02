@@ -1,0 +1,742 @@
+/*
+ * HRMS pages on the design system (src/styles/theme.css). Loaded after every other HRMS stylesheet.
+ *
+ * The pages were written with many one-off utility sizes (9.5px to 15px). They are folded onto the type scale
+ * here so the whole portal reads with one hierarchy: 12 (meta), 13 (secondary), 14 (body), 16, 20, 24, 30.
+ */
+.hrms {
+  --font-heading: var(--font);
+  --font-body: var(--font);
+  --font-mono: var(--font);
+  --brand-ochre: var(--teal);
+  --brand-slate: var(--teal);
+  --brand-gold: var(--ochre);
+  --brand-canvas: var(--bg);
+  --brand-border: var(--line);
+  font-family: var(--font);
+  color: var(--ink);
+}
+
+.hrms * {
+  font-family: inherit;
+}
+
+/* ---------- Type scale ---------- */
+
+.hrms [class*='text-[9'],
+.hrms [class*='text-[10'],
+.hrms [class*='text-[11'],
+.hrms .text-xs {
+  font-size: var(--fs-12) !important;
+  line-height: 1.45;
+}
+.hrms [class*='text-[12'],
+.hrms [class*='text-[13px'],
+.hrms [class*='text-[13.'] {
+  font-size: var(--fs-13) !important;
+}
+.hrms .text-sm,
+.hrms [class*='text-[14'],
+.hrms [class*='text-[15'] {
+  font-size: var(--fs-14) !important;
+  line-height: 1.5;
+}
+.hrms .text-base,
+.hrms .text-lg {
+  font-size: var(--fs-16) !important;
+}
+.hrms .text-xl {
+  font-size: var(--fs-20) !important;
+}
+.hrms .text-2xl {
+  font-size: var(--fs-24) !important;
+}
+.hrms .text-3xl,
+.hrms .text-4xl {
+  font-size: var(--fs-30) !important;
+}
+
+/* No all-caps labels; weights capped so headings carry the hierarchy, not shouting. */
+.hrms .uppercase {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.hrms [class*='tracking-wide'],
+.hrms [class*='tracking-wider'],
+.hrms [class*='tracking-widest'] {
+  letter-spacing: 0 !important;
+}
+.hrms .font-extrabold,
+.hrms .font-black {
+  font-weight: 700 !important;
+}
+.hrms h1 { font-size: var(--fs-24); font-weight: 600; }
+.hrms h2 { font-size: var(--fs-20); font-weight: 600; }
+.hrms h3 { font-weight: 600; }
+.hrms .font-mono,
+.hrms .tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Shape ---------- */
+
+.hrms .rounded-2xl,
+.hrms .rounded-3xl {
+  border-radius: var(--r-lg) !important;
+}
+.hrms .rounded-xl {
+  border-radius: 10px !important;
+}
+
+/* Old brand colours written inline as utilities, moved onto the palette. */
+.hrms [class*='text-[#1F6F78]'],
+.hrms [class*='text-[#1f6f78]'] {
+  color: var(--teal) !important;
+}
+.hrms [class*='bg-[#1F6F78]'],
+.hrms [class*='bg-[#1f6f78]'] {
+  background-color: var(--teal) !important;
+}
+.hrms [class*='text-[#B07D27]'],
+.hrms [class*='text-[#b07d27]'] {
+  color: var(--ochre) !important;
+}
+
+/* ---------- Form controls written with utilities ---------- */
+
+.hrms input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+.hrms select,
+.hrms textarea {
+  font-size: var(--fs-14);
+}
+.hrms input:focus-visible,
+.hrms select:focus-visible,
+.hrms textarea:focus-visible {
+  outline: 0;
+  border-color: var(--teal) !important;
+  box-shadow: var(--focus-ring) !important;
+}
+.hrms label.text-xs,
+.hrms label[class*='text-xs'] {
+  color: var(--ink-2);
+  font-weight: 500 !important;
+}
+
+/* ---------- Shared building blocks ---------- */
+
+.hrms .eyebrow {
+  margin: 0;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.hrms .form-section {
+  display: grid;
+  gap: 12px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line-soft);
+}
+.hrms .form-section-hint {
+  margin: -6px 0 4px;
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+.hrms .kv-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.hrms .kv-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+.hrms .kv-list div {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  font-size: var(--fs-13);
+}
+.hrms .kv-list dt {
+  color: var(--ink-3);
+}
+.hrms .kv-list dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 500;
+  word-break: break-word;
+}
+.hrms .kv-list dd.mono {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.hrms .kv-missing {
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.hrms .modal-title {
+  margin: 0;
+  font-size: var(--fs-16);
+  font-weight: 600;
+  color: var(--ink);
+}
+.hrms .modal-subtitle {
+  margin: 2px 0 0;
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+.hrms .avatar-sm {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--teal-soft);
+  color: var(--teal);
+  font-size: var(--fs-12);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ---------- Roles & Permissions ---------- */
+
+.hrms .perm-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 300px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+.hrms .perm-list {
+  position: sticky;
+  top: calc(var(--chrome-h) + 16px);
+  padding: 16px;
+  max-height: calc(100vh - var(--chrome-h) - 32px);
+  display: flex;
+  flex-direction: column;
+}
+.hrms .perm-list-head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.hrms .perm-list .table-search {
+  max-width: none;
+}
+.hrms .perm-people {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+.hrms .perm-person {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hrms .perm-person:hover {
+  background: var(--surface-2);
+}
+.hrms .perm-person.is-active {
+  background: var(--teal-soft);
+}
+.hrms .perm-person-text {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+.hrms .perm-person-text strong {
+  font-size: var(--fs-14);
+  font-weight: 500;
+}
+.hrms .perm-person-text span {
+  font-size: var(--fs-12);
+  color: var(--ink-3);
+}
+.hrms .perm-detail {
+  padding: 24px;
+}
+.hrms .perm-empty {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 64px 16px;
+  text-align: center;
+  color: var(--ink-3);
+}
+.hrms .perm-empty h3 {
+  margin: 6px 0 0;
+  font-size: var(--fs-16);
+}
+.hrms .perm-empty p {
+  margin: 0;
+  max-width: 40ch;
+}
+.hrms .perm-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.hrms .perm-name {
+  margin: 0;
+  font-size: var(--fs-20);
+}
+.hrms .perm-roles,
+.hrms .perm-groups {
+  margin: 0 0 24px;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.hrms .perm-roles:disabled,
+.hrms .perm-groups:disabled {
+  opacity: 0.6;
+}
+.hrms .perm-legend {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 12px;
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+.hrms .perm-legend-hint {
+  font-size: var(--fs-13);
+  font-weight: 400;
+  color: var(--ink-3);
+}
+.hrms .perm-role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.hrms .perm-role {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.hrms .perm-role input {
+  position: absolute;
+  opacity: 0;
+}
+.hrms .perm-role:hover {
+  border-color: var(--teal-200);
+}
+.hrms .perm-role.is-selected {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+.hrms .perm-role:has(input:focus-visible) {
+  box-shadow: var(--focus-ring);
+}
+.hrms .perm-role-name {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+.hrms .perm-role-desc {
+  font-size: var(--fs-12);
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+.hrms .perm-group {
+  padding: 14px 0;
+  border-top: 1px solid var(--line-soft);
+}
+.hrms .perm-group h4 {
+  margin: 0 0 8px;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.hrms .perm-check {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: var(--fs-14);
+  cursor: pointer;
+}
+.hrms .perm-check input {
+  position: absolute;
+  opacity: 0;
+}
+.hrms .perm-box {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #b9c5c1;
+  border-radius: 5px;
+  color: transparent;
+  flex-shrink: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.hrms .perm-check input:checked + .perm-box {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+}
+.hrms .perm-check input:focus-visible + .perm-box {
+  box-shadow: var(--focus-ring);
+}
+.hrms .perm-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 0 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff 30%);
+}
+
+@media (max-width: 900px) {
+  .hrms .perm-layout {
+    grid-template-columns: 1fr;
+  }
+  .hrms .perm-list {
+    position: static;
+    max-height: 320px;
+  }
+}
+
+/* ---------- Modal ---------- */
+
+.modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6vh 16px 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 22, 29, 0.5);
+  backdrop-filter: blur(2px);
+  animation: fade-in 0.15s ease both;
+}
+.modal-panel {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 12vh);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--font);
+  color: var(--ink);
+  animation: modal-in 0.18s ease both;
+}
+.modal-panel.w-sm { max-width: 400px; }
+.modal-panel.w-md { max-width: 460px; }
+.modal-panel.w-lg { max-width: 540px; }
+.modal-panel.w-xl { max-width: 640px; }
+.modal-panel.w-2xl { max-width: 720px; }
+.modal-panel.w-3xl { max-width: 860px; }
+.modal-panel.w-4xl { max-width: 980px; }
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  flex-shrink: 0;
+}
+.modal-head h3 {
+  margin: 0;
+  font-size: var(--fs-16);
+  font-weight: 600;
+}
+.modal-head p {
+  margin: 4px 0 0;
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -4px -6px 0 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.modal-close:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.modal-body {
+  padding: 18px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.modal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line-soft);
+  background: var(--surface-2);
+  border-radius: 0 0 14px 14px;
+  flex-shrink: 0;
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 640px) {
+  .modal-root {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .modal-panel {
+    max-height: 92vh;
+    border-radius: 16px 16px 0 0;
+  }
+  .modal-foot {
+    border-radius: 0;
+  }
+  .modal-foot > .btn {
+    flex: 1;
+  }
+}
+
+/* Stat cards: tone shows in the icon chip only, not as a coloured edge. */
+.hrms .stat-card {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.hrms .stat-card::before,
+.hrms .stat-card::after {
+  display: none !important;
+}
+
+/* Dashboard chart row: three columns only on wide screens. */
+@media (max-width: 1279px) {
+  .hrms .lg\:grid-cols-3,
+  .hrms .xl\:grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 767px) {
+  .hrms .lg\:grid-cols-3,
+  .hrms .xl\:grid-cols-3,
+  .hrms .md\:grid-cols-2,
+  .hrms .md\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Dashboard rows: 12 columns only when there is real room (content area, not window, decides). */
+.hrms .dash-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+@media (min-width: 900px) {
+  .hrms .dash-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hrms .dash-row-charts .dash-span-5,
+  .hrms .dash-row-work .dash-span-6 {
+    grid-column: span 2;
+  }
+}
+@media (min-width: 1440px) {
+  .hrms .dash-row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+  .hrms .dash-span-6 { grid-column: span 6 !important; }
+  .hrms .dash-span-5 { grid-column: span 5 !important; }
+  .hrms .dash-span-4 { grid-column: span 4 !important; }
+  .hrms .dash-span-3 { grid-column: span 3 !important; }
+}
+
+/* ---------- Tab bar (settings and other sectioned pages) ---------- */
+
+.hrms .tab-bar {
+  display: flex;
+  gap: 4px;
+  margin: -4px 0 20px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.hrms .tab-bar::-webkit-scrollbar {
+  display: none;
+}
+.hrms .tab-bar-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px 11px;
+  color: var(--ink-2);
+  font-size: var(--fs-14);
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.hrms .tab-bar-item svg {
+  width: 16px;
+  height: 16px;
+  color: var(--ink-3);
+}
+.hrms .tab-bar-item:hover {
+  color: var(--ink);
+}
+.hrms .tab-bar-item.is-active {
+  color: var(--teal);
+}
+.hrms .tab-bar-item.is-active svg {
+  color: var(--teal);
+}
+.hrms .tab-bar-item.is-active::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--teal);
+}
+
+.hrms .table-search input {
+  height: 100%;
+  padding: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* ---------- Dashboard entrance: one staggered reveal when the page first opens ---------- */
+
+.hrms .hr-stat-row > *,
+.hrms .dash-row > * {
+  animation: rise-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.hrms .hr-stat-row > *:nth-child(2) { animation-delay: 0.04s; }
+.hrms .hr-stat-row > *:nth-child(3) { animation-delay: 0.08s; }
+.hrms .hr-stat-row > *:nth-child(4) { animation-delay: 0.12s; }
+.hrms .hr-stat-row > *:nth-child(5) { animation-delay: 0.16s; }
+.hrms .hr-stat-row > *:nth-child(6) { animation-delay: 0.2s; }
+.hrms .dash-row > *:nth-child(1) { animation-delay: 0.22s; }
+.hrms .dash-row > *:nth-child(2) { animation-delay: 0.28s; }
+.hrms .dash-row > *:nth-child(3) { animation-delay: 0.34s; }
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Clickable cards answer the pointer with a lift; static cards stay still. */
+.hrms .card.lift:hover,
+.hrms .stat-card.is-link:hover {
+  transform: translateY(-2px);
+}
+
+/* Table rows: a quiet hover so long lists are easy to follow. */
+.hrms table tbody tr {
+  transition: background 0.12s ease;
+}
+
+/* ---------- Responsive guards ---------- */
+
+/* Any table scrolls inside its own container instead of widening the page. */
+.hrms :where(div):has(> table) {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.hrms img,
+.hrms svg {
+  max-width: 100%;
+}
+
+@media (max-width: 767px) {
+  /* Filters with fixed widths collapse to full width on phones. */
+  .hrms [class*='min-w-['],
+  .hrms [class*='w-44'],
+  .hrms [class*='w-48'],
+  .hrms [class*='w-52'] {
+    min-width: 0 !important;
+  }
+  .hrms .page-header {
+    align-items: stretch;
+  }
+  .hrms .page-actions > * {
+    flex: 1 1 auto;
+  }
+  .hrms .page-title h1 {
+    font-size: var(--fs-20);
+  }
+  .hrms .stat-value {
+    font-size: var(--fs-24);
+  }
+  .hrms .hr-stat-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .hrms .stat-card {
+    padding: 14px !important;
+  }
+  .hrms .modal-body .grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+@media (max-width: 380px) {
+  .hrms .hr-stat-row {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.hrms .notify-list {
+  display: grid;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: var(--fs-14);
+  color: var(--ink);
+}

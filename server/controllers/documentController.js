@@ -1,16 +1,16 @@
 import { db } from '../services/db.js';
+import { today } from '../services/dates.js';
+import { scopedEmployeeId } from '../config/permissions.js';
 
 export const documentController = {
   // Get documents (filtered by employeeId, status, department)
   getAll: async (req, res, next) => {
     try {
-      const { employeeId, status, department } = req.query;
+      const { status, department } = req.query;
+      const employeeId = scopedEmployeeId(req, req.query.employeeId, 'documents.verify');
       let documents = db.get('employee_documents') || [];
 
-      // If requested by an employee who is not HR/Manager, restrict to their own documents
-      if (req.user && req.user.role === 'Employee' && req.user.employeeId) {
-        documents = documents.filter((d) => d.employeeId === req.user.employeeId);
-      } else if (employeeId) {
+      if (employeeId) {
         documents = documents.filter((d) => d.employeeId === employeeId);
       }
 
@@ -34,7 +34,8 @@ export const documentController = {
   // Employee uploads personal document for verification
   upload: async (req, res, next) => {
     try {
-      const { employeeId, employeeName, department, documentType, fileName, fileSize = '1.8 MB', fileUrl = '', expiryDate } = req.body;
+      const { documentType, fileName, fileSize = '', fileUrl = '', expiryDate } = req.body;
+      const employeeId = scopedEmployeeId(req, req.body.employeeId, 'documents.verify') || req.user.employeeId;
 
       if (!employeeId || !documentType) {
         return res.status(400).json({ success: false, error: 'Employee ID and Document Type are required.' });
@@ -47,13 +48,13 @@ export const documentController = {
       const newDoc = {
         id: `pdoc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         employeeId,
-        employeeName: employeeName || emp?.name || 'Staff Member',
-        department: department || emp?.employment?.department || 'Operations',
+        employeeName: emp?.name || employeeId,
+        department: emp?.employment?.department || '',
         documentType,
         fileName: fileName || `${documentType.replace(/\s+/g, '_')}_${employeeId}.pdf`,
         fileSize,
         fileUrl,
-        uploadedOn: new Date().toISOString().slice(0, 10),
+        uploadedOn: today(),
         status: 'Pending Verification',
         expiryDate: expiryDate || null,
         rejectionReason: null,
@@ -71,7 +72,7 @@ export const documentController = {
         message: `${newDoc.employeeName} (${newDoc.employeeId}) uploaded ${newDoc.documentType} for verification.`,
         type: 'Document',
         priority: 'normal',
-        targetRole: 'Manager',
+        targetRole: 'hr',
         isRead: false,
         createdAt: new Date().toISOString(),
       });
@@ -108,7 +109,7 @@ export const documentController = {
         return res.status(404).json({ success: false, error: 'Document record not found.' });
       }
 
-      const reviewer = reviewerName || req.user?.name || 'Manager';
+      const reviewer = req.user.name;
       const reviewedDoc = {
         ...documents[docIndex],
         status,
@@ -151,7 +152,7 @@ export const documentController = {
   reupload: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { fileName, fileSize = '1.8 MB', fileUrl = '' } = req.body;
+      const { fileName, fileSize = '', fileUrl = '' } = req.body;
 
       const documents = db.get('employee_documents') || [];
       const docIndex = documents.findIndex((d) => d.id === id);
@@ -161,12 +162,15 @@ export const documentController = {
       }
 
       const prev = documents[docIndex];
+      if (prev.employeeId !== req.user.employeeId) {
+        return res.status(403).json({ success: false, error: 'You can only re-upload your own documents.' });
+      }
       const updatedDoc = {
         ...prev,
         fileName: fileName || prev.fileName,
         fileSize,
         fileUrl: fileUrl || prev.fileUrl,
-        uploadedOn: new Date().toISOString().slice(0, 10),
+        uploadedOn: today(),
         status: 'Pending Verification',
         rejectionReason: null, // Clear old rejection
         previousRejection: prev.rejectionReason,
@@ -185,7 +189,7 @@ export const documentController = {
         message: `${updatedDoc.employeeName} re-uploaded ${updatedDoc.documentType} for review following previous feedback.`,
         type: 'Document',
         priority: 'normal',
-        targetRole: 'Manager',
+        targetRole: 'hr',
         isRead: false,
         createdAt: new Date().toISOString(),
       });

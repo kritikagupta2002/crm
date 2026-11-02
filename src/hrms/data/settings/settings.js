@@ -21,7 +21,10 @@ export const INITIAL_ATTENDANCE_SETTINGS = {
     allowMobileGpsPunch: true,
     geofenceRadiusMeters: 500,
 };
+import { PUBLIC_HOLIDAYS_2026 } from '../../modules/leave/utils/workingDays.js';
+
 export const INITIAL_LEAVE_SETTINGS = {
+    publicHolidays: PUBLIC_HOLIDAYS_2026,
     annualCasualLeave: 12,
     annualSickLeave: 10,
     annualEarnedLeave: 18,

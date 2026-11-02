@@ -1,45 +1,25 @@
 import { storage } from '@/core/storage/storage';
+import { api } from '@/core/api/apiClient';
+
+const list = async (path, cache) => {
+    const res = await api.get(path);
+    const data = Array.isArray(res?.data) ? res.data : [];
+    cache(data);
+    return data;
+};
+const id = (v) => encodeURIComponent(v);
+
+/* Departments and designations are maintained on the server by HR administrators. */
 export const organizationService = {
-    getDepartments: async () => {
-        return new Promise(resolve => setTimeout(() => resolve(storage.getDepartments()), 80));
+    getDepartments: () => list('/organization/departments', storage.setDepartments),
+    createDepartment: async (dept) => (await api.post('/organization/departments', dept)).data,
+    updateDepartment: async (deptId, data) => (await api.put(`/organization/departments/${id(deptId)}`, data)).data,
+    deleteDepartment: async (deptId) => api.delete(`/organization/departments/${id(deptId)}`),
+    getDesignations: () => list('/organization/designations', storage.setDesignations),
+    createDesignation: async (desig) => (await api.post('/organization/designations', desig)).data,
+    updateDesignation: async (desigId, data) => (await api.put(`/organization/designations/${id(desigId)}`, data)).data,
+    deleteDesignation: async (desigId) => {
+        await api.delete(`/organization/designations/${id(desigId)}`);
+        return true;
     },
-    createDepartment: async (dept) => {
-        const list = storage.getDepartments();
-        const newDept = { ...dept, id: `dept-${Date.now()}` };
-        storage.setDepartments([newDept, ...list]);
-        return new Promise(resolve => setTimeout(() => resolve(newDept), 100));
-    },
-    updateDepartment: async (id, data) => {
-        const list = storage.getDepartments();
-        const index = list.findIndex((d) => d.id === id);
-        if (index === -1)
-            throw new Error('Department not found');
-        list[index] = { ...list[index], ...data };
-        storage.setDepartments([...list]);
-        return new Promise(resolve => setTimeout(() => resolve(list[index]), 100));
-    },
-    getDesignations: async () => {
-        return new Promise(resolve => setTimeout(() => resolve(storage.getDesignations()), 80));
-    },
-    createDesignation: async (desig) => {
-        const list = storage.getDesignations();
-        const newDesig = { ...desig, id: `desig-${Date.now()}` };
-        storage.setDesignations([newDesig, ...list]);
-        return new Promise(resolve => setTimeout(() => resolve(newDesig), 100));
-    },
-    updateDesignation: async (id, data) => {
-        const list = storage.getDesignations();
-        const index = list.findIndex((d) => d.id === id);
-        if (index === -1)
-            throw new Error('Designation not found');
-        list[index] = { ...list[index], ...data };
-        storage.setDesignations([...list]);
-        return new Promise(resolve => setTimeout(() => resolve(list[index]), 100));
-    },
-    deleteDesignation: async (id) => {
-        const list = storage.getDesignations();
-        const filtered = list.filter((d) => d.id !== id);
-        storage.setDesignations(filtered);
-        return new Promise(resolve => setTimeout(() => resolve(true), 100));
-    }
 };

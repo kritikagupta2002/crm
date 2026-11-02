@@ -3,18 +3,18 @@ import { useCrm } from '../../context/crm';
 import { INITIAL_ROLES } from '@/data/roles/roles';
 import { hrRoleOf } from '../bridge';
 
-/* The HRMS role follows the CRM role (see bridge.js); it is changed from the CRM's profile menu, not here. */
+/* The HRMS role follows the account role assigned on the server (see bridge.js). */
 const RoleContext = createContext(undefined);
 
 export const RoleProvider = ({ children }) => {
-    const { role } = useCrm();
-    const currentRole = hrRoleOf(role);
+    const { user } = useCrm();
+    const currentRole = hrRoleOf(user?.permissions);
     const roleDefinition = useMemo(() => INITIAL_ROLES.find((r) => r.role === currentRole) || INITIAL_ROLES[0], [currentRole]);
     const hasPermission = useCallback((module, action) => {
-        if (currentRole === 'hr')
+        if (user?.permissions?.includes('employees.manage'))
             return true;
         return !!roleDefinition?.permissions?.[module]?.[action];
-    }, [currentRole, roleDefinition]);
+    }, [user?.permissions, roleDefinition]);
     const value = useMemo(() => ({ currentRole, roleDefinition, rolesList: INITIAL_ROLES, setRole: () => { }, hasPermission }), [currentRole, roleDefinition, hasPermission]);
     return <RoleContext.Provider value={value}>{children}</RoleContext.Provider>;
 };

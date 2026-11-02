@@ -1,5 +1,6 @@
 import { downloadCsv } from '../../../../shared/utils/exportCsv';
 import React, { useState, useEffect, useMemo } from 'react';
+import { storage } from '@/core/storage/storage';
 import { Award, TrendingUp, Star, Users, Search, Plus, CheckCircle2, Calendar, Eye, FileCheck, Download, Sparkles, ChevronDown, X, RotateCcw, } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
@@ -162,10 +163,8 @@ export const PerformanceRecordsPage = () => {
             {/* Cycle Filter */}
             <div className="relative min-w-[180px]">
               <select value={selectedCycle} onChange={(e) => setSelectedCycle(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
-                <option value="all">📅 All Review Cycles</option>
-                <option value="Annual Appraisal FY 2025-26">Annual Appraisal FY 2025-26</option>
-                <option value="Mid-Year Review 2026">Mid-Year Review 2026</option>
-                <option value="Probation Review 2026">Probation Review 2026</option>
+                <option value="all">All review cycles</option>
+                {[...new Set(appraisals.map((a) => a.reviewCycle).filter(Boolean))].map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>
@@ -173,11 +172,8 @@ export const PerformanceRecordsPage = () => {
             {/* Department Filter */}
             <div className="relative min-w-[160px]">
               <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
-                <option value="all">🏢 All Departments</option>
-                <option value="geology">Geology & Exploration</option>
-                <option value="gis">GIS & Remote Sensing</option>
-                <option value="hr">HR & Administration</option>
-                <option value="finance">Finance & Accounts</option>
+                <option value="all">All departments</option>
+                {storage.getDepartments().map((d) => <option key={d.id} value={d.name}>{d.name}</option>)}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>
@@ -400,7 +396,7 @@ export const PerformanceRecordsPage = () => {
                   Manager Reviewer Feedback ({viewingAppraisal.reviewerName})
                 </span>
                 {viewingAppraisal.promotionRecommended && (<span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C8943A]/20 text-[#8F621A] dark:text-amber-300 border border-[#C8943A]/30">
-                    ★ Recommended for Promotion / Raise
+                    Recommended for promotion / raise
                   </span>)}
               </div>
               <p className="text-[11px] text-slate-600 dark:text-slate-300 italic">

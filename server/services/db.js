@@ -1,264 +1,148 @@
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config/config.js';
-import { postgres } from './postgres.js';
-import {
-  INITIAL_EMPLOYEES,
-  INITIAL_DEPARTMENTS,
-  INITIAL_DESIGNATIONS,
-  INITIAL_ATTENDANCE,
-  INITIAL_CORRECTIONS,
-  INITIAL_LEAVE_REQUESTS,
-  INITIAL_LEAVE_TYPES,
-  INITIAL_LEAVE_BALANCES,
-  INITIAL_SHIFTS,
-  INITIAL_SHIFT_ASSIGNMENTS,
-  INITIAL_NOTIFICATIONS,
-  INITIAL_COMPANY_SETTINGS,
-  INITIAL_ATTENDANCE_SETTINGS,
-  INITIAL_LEAVE_SETTINGS,
-  INITIAL_ROLES,
-} from '../../src/hrms/data/index.js';
+import { postgres, TABLE_COLLECTIONS } from './postgres.js';
+import { SEED_DATA } from '../db/seed.js';
 
-const SEED_DATA = {
-  users: [
-    {
-      id: 'usr-1',
-      name: 'Dr. Amit Kumar Bansal',
-      email: 'amit.bansal@bansalgeo.com',
-      password: 'demo',
-      role: 'Managing Director',
-      employeeId: 'BGS/DIR-01',
-    },
-    {
-      id: 'usr-2',
-      name: 'Dharmendra Goyal',
-      email: 'dharmendra.goyal@bansalgeo.com',
-      password: 'demo',
-      role: 'Director',
-      employeeId: 'BGS/DIR-03',
-    },
-    {
-      id: 'usr-3',
-      name: 'Kritika Gupta',
-      email: 'kritika.gupta@bansalgeo.com',
-      password: 'demo',
-      role: 'Super Admin',
-      employeeId: 'BGS/ADM-01',
-    },
-    {
-      id: 'usr-4',
-      name: 'Inder Nogiya',
-      email: 'inder.nogiya@bansalgeo.com',
-      password: 'demo',
-      role: 'Manager',
-      employeeId: 'BGS/01',
-    },
-    {
-      id: 'usr-5',
-      name: 'Vikas Verma',
-      email: 'vikas.verma@bansalgeo.com',
-      password: 'demo',
-      role: 'Employee',
-      employeeId: 'BGS/04',
-    },
-    {
-      id: 'usr-6',
-      name: 'Kuldip Singh',
-      email: 'kuldip.singh@bansalgeo.com',
-      password: 'demo',
-      role: 'Employee',
-      employeeId: 'BGS/05',
-    },
-    {
-      id: 'usr-7',
-      name: 'Balveer Singh Yadav',
-      email: 'balveer.singh@bansalgeo.com',
-      password: 'demo',
-      role: 'Employee',
-      employeeId: 'BGS/09',
-    },
-    {
-      id: 'usr-8',
-      name: 'Vishal Kumawat',
-      email: 'vishal.kumawat@bansalgeo.com',
-      password: 'demo',
-      role: 'Employee',
-      employeeId: 'BGS/10',
-    },
-    {
-      id: 'usr-9',
-      name: 'Pradeep Chand',
-      email: 'pradeep.chand@bansalgeo.com',
-      password: 'demo',
-      role: 'Employee',
-      employeeId: 'BGS/11',
-    },
-    {
-      id: 'usr-10',
-      name: 'Madhurika Saini',
-      email: 'madhurikasaini@bansalgeo.com',
-      password: 'demo',
-      role: 'Employee',
-      employeeId: 'BGS/12',
-    },
-  ],
-  employees: INITIAL_EMPLOYEES,
-  departments: INITIAL_DEPARTMENTS,
-  designations: INITIAL_DESIGNATIONS,
-  attendance: INITIAL_ATTENDANCE,
-  corrections: INITIAL_CORRECTIONS,
-  leaves: INITIAL_LEAVE_REQUESTS,
-  leave_types: INITIAL_LEAVE_TYPES,
-  leave_balances: INITIAL_LEAVE_BALANCES,
-  shifts: INITIAL_SHIFTS,
-  shift_assignments: INITIAL_SHIFT_ASSIGNMENTS,
-  notifications: INITIAL_NOTIFICATIONS,
-  company_settings: INITIAL_COMPANY_SETTINGS,
-  attendance_settings: INITIAL_ATTENDANCE_SETTINGS,
-  leave_settings: INITIAL_LEAVE_SETTINGS,
-  performance_records: [
-    {
-      id: 'perf-1',
-      employeeId: 'BGS/10',
-      employeeName: 'Vishal Kumawat',
-      department: 'Mineral Exploration',
-      designation: 'Sr. Surveyor',
-      reviewPeriod: 'FY 2025-26 Q3',
-      reviewerName: 'Inder Nogiya',
-      rating: 4.8,
-      goalsAchieved: 'Successfully completed high-precision DGPS topo survey of Bhilwara mining belt ahead of schedule.',
-      strengths: 'Fast baseline triangulation, Total Station proficiency, high field endurance.',
-      areasForImprovement: 'Advanced UAV flight planning certification.',
-      status: 'Completed',
-      date: '2026-01-15',
-    },
-    {
-      id: 'perf-2',
-      employeeId: 'BGS/09',
-      employeeName: 'Balveer Singh Yadav',
-      department: 'Mineral Exploration',
-      designation: 'Jr. Geologist',
-      reviewPeriod: 'FY 2025-26 Q3',
-      reviewerName: 'Dr. Amit Kumar Bansal',
-      rating: 4.6,
-      goalsAchieved: 'Mapped 60 sq km mineralized zone with detailed core logging and lithological correlation.',
-      strengths: 'Precise lithology identification, rigorous sample custody.',
-      areasForImprovement: '3D block modeling in GIS.',
-      status: 'Completed',
-      date: '2026-01-20',
-    },
-  ],
-  exit_records: [
-    {
-      id: 'exit-1',
-      employeeId: 'BGS/11',
-      employeeName: 'Pradeep Chand',
-      department: 'Mineral Exploration',
-      designation: 'Intern (Surveyor)',
-      resignationDate: '2026-03-01',
-      lastWorkingDay: '2026-03-31',
-      noticePeriodDays: 30,
-      reason: 'Completion of 6-month survey & mining field internship curriculum.',
-      status: 'In Progress',
-      exitInterviewStatus: 'Completed',
-      clearance: {
-        admin: 'Approved',
-        it: 'Approved',
-        accounts: 'Pending',
-        hr: 'Approved',
-      },
-      fnfStatus: 'Pending',
-    },
-  ],
-};
+/*
+ * The API's data store. Reads are served from an in-memory cache; every write goes straight to PostgreSQL:
+ *   - users, employees, attendance, leaves, corrections and documents have their own tables (row by row);
+ *   - every other collection is saved as one JSON document in the `collections` table.
+ * Without PostgreSQL (local development only) the same collections are kept as JSON files in server/data.
+ */
+const keyOf = (item) => item?.id ?? item?.employeeId;
 
-class JsonDb {
+class DataStore {
   constructor() {
-    this.dir = config.dataDir;
     this.cache = new Map();
-    this.ensureDir();
-    this.initSeed();
-    this.initPostgres();
+    // What was last saved for each row of a table collection, so writes only touch rows that really changed
+    // (controllers often edit a cached record in place before calling set()).
+    this.saved = new Map();
+    this.ready = this.init();
   }
 
-  ensureDir() {
-    if (!fs.existsSync(this.dir)) {
-      fs.mkdirSync(this.dir, { recursive: true });
+  async init() {
+    await postgres.initPromise;
+    if (postgres.isConnected()) {
+      await this.loadFromPostgres();
+    } else {
+      this.loadFromFiles();
+    }
+  }
+
+  /*
+   * Picks up changes made outside this process (maintenance scripts, another server instance) by re-reading the
+   * database every minute, but only when this process has no writes in flight, so nothing it saved is lost.
+   */
+  startRefresh(intervalMs = 60000) {
+    if (this.refreshTimer || !postgres.isConnected()) return;
+    this.refreshTimer = setInterval(async () => {
+      if (postgres.pending > 0 || Date.now() - postgres.lastWriteAt < 5000) return;
+      try {
+        await this.reload(Object.keys(SEED_DATA));
+      } catch (err) {
+        console.warn('[db] Periodic refresh skipped:', err.message);
+      }
+    }, intervalMs);
+    this.refreshTimer.unref?.();
+  }
+
+  async loadFromPostgres() {
+    for (const [collection, seed] of Object.entries(SEED_DATA)) {
+      if (TABLE_COLLECTIONS.includes(collection)) {
+        let rows = await postgres.loadTable(collection);
+        if (rows.length === 0 && Array.isArray(seed) && seed.length > 0) {
+          for (const item of seed) await postgres.persistItem(collection, item);
+          rows = await postgres.loadTable(collection);
+        }
+        this.cache.set(collection, rows);
+        this.saved.set(collection, new Map(rows.map((item) => [keyOf(item), JSON.stringify(item)])));
+      } else {
+        let data = await postgres.loadCollection(collection);
+        if (data === null) {
+          data = structuredClone(seed);
+          await postgres.saveCollection(collection, data);
+        }
+        this.cache.set(collection, data);
+      }
+    }
+    console.log('[db] Data loaded from PostgreSQL.');
+  }
+
+  loadFromFiles() {
+    fs.mkdirSync(config.dataDir, { recursive: true });
+    for (const [collection, seed] of Object.entries(SEED_DATA)) {
+      const file = this.filePath(collection);
+      if (fs.existsSync(file)) {
+        try {
+          this.cache.set(collection, JSON.parse(fs.readFileSync(file, 'utf8')));
+          continue;
+        } catch (err) {
+          console.error(`[db] ${file} is unreadable (${err.message}); starting it from the seed.`);
+        }
+      }
+      this.cache.set(collection, structuredClone(seed));
+      this.writeFile(collection);
     }
   }
 
   filePath(collection) {
-    return path.join(this.dir, `${collection}.json`);
+    return path.join(config.dataDir, `${collection}.json`);
   }
 
-  initSeed() {
-    for (const [collection, data] of Object.entries(SEED_DATA)) {
-      const file = this.filePath(collection);
-      if (!fs.existsSync(file)) {
-        this.writeSync(collection, data);
+  writeFile(collection) {
+    const file = this.filePath(collection);
+    fs.writeFileSync(`${file}.tmp`, JSON.stringify(this.cache.get(collection), null, 2), 'utf8');
+    fs.renameSync(`${file}.tmp`, file);
+  }
+
+  /* Saves the change: per-row for table collections (only what changed), whole document otherwise. */
+  persist(collection, next) {
+    if (!postgres.isConnected()) {
+      this.writeFile(collection);
+      return;
+    }
+    if (!TABLE_COLLECTIONS.includes(collection)) {
+      postgres.saveCollection(collection, next);
+      return;
+    }
+    const before = this.saved.get(collection) || new Map();
+    const after = new Map();
+    for (const item of next) {
+      const key = keyOf(item);
+      const snapshot = JSON.stringify(item);
+      after.set(key, snapshot);
+      if (before.get(key) !== snapshot) postgres.persistItem(collection, item);
+    }
+    for (const key of before.keys()) {
+      if (!after.has(key)) postgres.deleteItem(collection, key);
+    }
+    this.saved.set(collection, after);
+  }
+
+  /* Re-reads collections from PostgreSQL, replacing the in-memory copy (after a failed write, or periodically). */
+  async reload(collections) {
+    if (!postgres.isConnected()) return;
+    for (const collection of collections) {
+      if (TABLE_COLLECTIONS.includes(collection)) {
+        const rows = await postgres.loadTable(collection);
+        this.cache.set(collection, rows);
+        this.saved.set(collection, new Map(rows.map((item) => [keyOf(item), JSON.stringify(item)])));
       } else {
-        this.readSync(collection);
+        const data = await postgres.loadCollection(collection);
+        if (data !== null) this.cache.set(collection, data);
       }
     }
-  }
-
-  async initPostgres() {
-    try {
-      await postgres.initPromise;
-      if (postgres.isConnected()) {
-        await postgres.seedIfEmpty(SEED_DATA);
-
-        // Preload live tables from PostgreSQL
-        const tables = ['employees', 'attendance', 'leaves', 'attendance_corrections', 'documents', 'users'];
-        for (const t of tables) {
-          const rows = await postgres.loadFromDb(t);
-          if (Array.isArray(rows) && rows.length > 0) {
-            this.cache.set(t, rows);
-            this.writeSync(t, rows);
-          }
-        }
-        console.log('⚡ [PostgreSQL] In-memory cache synchronized with live PostgreSQL database.');
-      }
-    } catch (e) {
-      console.warn('[PostgreSQL Init Sync Notice]:', e.message);
-    }
-  }
-
-  readSync(collection) {
-    const file = this.filePath(collection);
-    try {
-      if (fs.existsSync(file)) {
-        const raw = fs.readFileSync(file, 'utf8');
-        const data = JSON.parse(raw);
-        this.cache.set(collection, data);
-        return data;
-      }
-    } catch (e) {
-      console.error(`Error reading ${collection}:`, e);
-    }
-    const fallback = SEED_DATA[collection] || [];
-    this.cache.set(collection, fallback);
-    return fallback;
-  }
-
-  writeSync(collection, data) {
-    const file = this.filePath(collection);
-    this.cache.set(collection, data);
-    const tempFile = `${file}.tmp`;
-    fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
-    fs.renameSync(tempFile, file);
   }
 
   get(collection) {
-    if (this.cache.has(collection)) {
-      return this.cache.get(collection);
-    }
-    return this.readSync(collection);
+    if (!this.cache.has(collection)) this.cache.set(collection, []);
+    return this.cache.get(collection);
   }
 
   set(collection, data) {
-    this.writeSync(collection, data);
+    this.cache.set(collection, data);
+    this.persist(collection, data);
     return data;
   }
 
@@ -269,55 +153,38 @@ class JsonDb {
 
   findOne(collection, filterFn) {
     const all = this.get(collection);
-    return Array.isArray(all) ? all.find(filterFn) : null;
+    return Array.isArray(all) ? all.find(filterFn) ?? null : null;
   }
 
   findById(collection, id) {
-    const all = this.get(collection);
-    if (!Array.isArray(all)) return null;
-    return all.find((item) => item.id === id || item.employeeId === id) || null;
+    return this.findOne(collection, (item) => item.id === id || item.employeeId === id);
   }
 
   insert(collection, item) {
-    const all = this.get(collection);
-    if (Array.isArray(all)) {
-      const updated = [item, ...all];
-      this.set(collection, updated);
-      postgres.persistItem(collection, item);
-      return item;
-    }
+    this.set(collection, [item, ...this.get(collection)]);
     return item;
   }
 
   update(collection, id, updates) {
-    const all = this.get(collection);
-    if (!Array.isArray(all)) return null;
     let found = null;
-    const updated = all.map((item) => {
+    const next = this.get(collection).map((item) => {
       if (item.id === id || item.employeeId === id) {
         found = { ...item, ...updates, updatedAt: new Date().toISOString() };
         return found;
       }
       return item;
     });
-    if (found) {
-      this.set(collection, updated);
-      postgres.persistItem(collection, found);
-    }
+    if (found) this.set(collection, next);
     return found;
   }
 
   remove(collection, id) {
     const all = this.get(collection);
-    if (!Array.isArray(all)) return false;
-    const filtered = all.filter((item) => item.id !== id && item.employeeId !== id);
-    if (filtered.length !== all.length) {
-      this.set(collection, filtered);
-      return true;
-    }
-    return false;
+    const next = all.filter((item) => item.id !== id && item.employeeId !== id);
+    if (next.length === all.length) return false;
+    this.set(collection, next);
+    return true;
   }
 }
 
-export const db = new JsonDb();
-
+export const db = new DataStore();

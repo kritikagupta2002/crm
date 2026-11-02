@@ -6,6 +6,7 @@ import { RoleProvider } from '@/contexts/RoleContext';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import './hrms.css';
 import './hrms-overrides.css';
+import './hrms-theme.css';
 
 /*
  * Every HRMS and Finance page renders inside the CRM's layout (sidebar, top bar, sign-in) through this shell. The

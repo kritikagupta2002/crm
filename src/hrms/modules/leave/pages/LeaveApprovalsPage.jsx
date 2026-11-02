@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { leaveService } from '@/modules/leave/services/leave.service';
 import { storage } from '@/core/storage/storage';
-import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { getEmployeeProjectById, STANDARD_PROJECTS, departmentOptions } from '@/core/constants/projects';
 export const LeaveApprovalsPage = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -260,15 +260,7 @@ export const LeaveApprovalsPage = () => {
 
         {/* Department Filter */}
         <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
-          <Select options={[
-            { value: 'all', label: 'All Departments' },
-            { value: 'Geology & Mineral Exploration', label: 'Geology & Exploration' },
-            { value: 'Mining & Mine Planning', label: 'Mining & Planning' },
-            { value: 'GIS, Remote Sensing & UAV', label: 'GIS & Remote Sensing' },
-            { value: 'Hydrogeology & Groundwater', label: 'Hydrogeology' },
-            { value: 'Finance & Mineral Economics', label: 'Finance & Economics' },
-            { value: 'Human Resources & Admin', label: 'HR & Admin' },
-        ]} value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}/>
+          <Select options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]} value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}/>
         </div>
 
         {/* Project Filter */}

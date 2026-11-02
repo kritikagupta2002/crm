@@ -1,0 +1,292 @@
+/* Live punch panel: status and button on the left, the live office map on the right (stacked on phones). */
+
+.punch-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.punch-panel.is-inside {
+  border-color: var(--teal-200);
+}
+.punch-panel.just-entered {
+  animation: panel-arrive 1.6s ease;
+}
+
+.punch-main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px 24px;
+  min-width: 0;
+}
+
+.punch-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.punch-head h2 {
+  margin: 0;
+  font-size: var(--fs-16) !important;
+  font-weight: 600;
+}
+.punch-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: var(--fs-12);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.punch-state.is-live {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.punch-state.is-live::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: live-dot 1.6s ease-in-out infinite;
+}
+
+.punch-clock {
+  display: grid;
+  gap: 2px;
+}
+.punch-time {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.punch-date {
+  font-size: var(--fs-13);
+  color: var(--ink-3);
+}
+
+.punch-times {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.punch-times div {
+  padding: 10px 12px;
+  background: var(--surface-2);
+}
+.punch-times div + div {
+  border-left: 1px solid var(--line-soft);
+}
+.punch-times dt {
+  font-size: var(--fs-12);
+  color: var(--ink-3);
+}
+.punch-times dd {
+  margin: 2px 0 0;
+  font-size: var(--fs-14);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.punch-location {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.punch-location.is-inside {
+  background: var(--success-bg);
+  border-color: #bfe0cd;
+  color: var(--success);
+}
+.punch-location.is-outside {
+  background: var(--danger-bg);
+  border-color: #f3c9c4;
+  color: var(--danger);
+}
+.punch-location svg {
+  flex-shrink: 0;
+}
+.punch-location-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+.punch-location-text strong {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+.punch-location-text span {
+  font-size: var(--fs-12);
+  opacity: 0.8;
+}
+
+.punch-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 48px;
+  border: 0;
+  border-radius: var(--r-md);
+  background: var(--teal);
+  color: #fff;
+  font: inherit;
+  font-size: var(--fs-16);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
+}
+.punch-button:hover:not(:disabled) {
+  background: var(--teal-strong);
+  box-shadow: 0 8px 20px -10px rgba(14, 107, 102, 0.7);
+}
+.punch-button:active:not(:disabled) {
+  transform: scale(0.985);
+}
+.punch-button.is-out {
+  background: var(--basalt);
+}
+.punch-button.is-out:hover:not(:disabled) {
+  background: #0d171f;
+}
+.punch-button:disabled {
+  background: #e3e8e6;
+  color: #7b8a86;
+  cursor: not-allowed;
+}
+.just-entered .punch-button:not(:disabled) {
+  animation: button-ready 1.2s ease;
+}
+
+.punch-note {
+  margin: -6px 0 0;
+  font-size: var(--fs-12);
+  color: var(--ink-3);
+}
+
+.punch-map {
+  position: relative;
+  min-height: 340px;
+  border-left: 1px solid var(--line);
+  background: var(--surface-2);
+}
+.live-map {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.punch-map-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 500;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(22, 35, 45, 0.88);
+  color: #fff;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+}
+.is-inside .punch-map-badge {
+  background: var(--teal);
+}
+
+/* Office pin on the map */
+.office-pin {
+  position: relative;
+}
+.office-pin-dot {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--ochre);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(22, 35, 45, 0.35);
+}
+.office-pin-label {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--basalt);
+  color: #fff;
+  font: 600 12px/1.6 var(--font);
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(22, 35, 45, 0.25);
+}
+
+@keyframes live-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes panel-arrive {
+  0% { box-shadow: 0 0 0 0 rgba(14, 107, 102, 0.45); }
+  60% { box-shadow: 0 0 0 10px rgba(14, 107, 102, 0); }
+  100% { box-shadow: var(--shadow-sm); }
+}
+@keyframes button-ready {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.025); }
+  60% { transform: scale(0.995); }
+  100% { transform: scale(1); }
+}
+
+@media (max-width: 900px) {
+  .punch-panel {
+    grid-template-columns: 1fr;
+  }
+  .punch-map {
+    order: -1;
+    min-height: 240px;
+    border-left: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .punch-main {
+    padding: 18px 16px;
+  }
+  .punch-time {
+    font-size: 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .punch-panel.just-entered,
+  .just-entered .punch-button,
+  .punch-state.is-live::before {
+    animation: none;
+  }
+}
+
+.punch-network {
+  width: 100%;
+  margin-top: -8px;
+}

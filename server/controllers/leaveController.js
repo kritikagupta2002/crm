@@ -1,4 +1,29 @@
+import { audit } from '../services/audit.js';
+import { today } from '../services/dates.js';
 import { db } from '../services/db.js';
+import { workingDates } from '../services/workCalendar.js';
+import { can, scopedEmployeeId } from '../config/permissions.js';
+
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ACTIVE = ['Pending', 'Approved', 'Partially Approved'];
+
+/* Annual quota for a leave type: Leave settings override the leave type's own quota for the standard types. */
+const SETTING_FOR_CODE = { CL: 'annualCasualLeave', SL: 'annualSickLeave', EL: 'annualEarnedLeave', CO: 'annualCompOffLeave', FDL: 'annualFieldDutyLeave' };
+function quotaFor(type) {
+  const settings = db.get('leave_settings') || {};
+  const fromSettings = Number(settings[SETTING_FOR_CODE[type.code]]);
+  return Number.isFinite(fromSettings) && settings[SETTING_FOR_CODE[type.code]] !== undefined ? fromSettings : Number(type.annualQuota) || 0;
+}
+
+function notify(fields) {
+  db.insert('notifications', {
+    id: `notif-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    type: 'Leave',
+    read: false,
+    createdAt: new Date().toISOString(),
+    ...fields,
+  });
+}
 
 export const leaveController = {
   getTypes: async (req, res, next) => {
@@ -12,25 +37,22 @@ export const leaveController = {
 
   getBalances: async (req, res, next) => {
     try {
-      const { employeeId } = req.params;
-      const allBalances = db.get('leave_balances');
-      const requests = db.get('leaves');
+      const employeeId = scopedEmployeeId(req, req.params.employeeId, 'leave.view_all');
+      const year = String(new Date().getFullYear());
+      const empRequests = db.get('leaves').filter((r) => r.employeeId === employeeId);
+      const thisYear = empRequests.filter((r) => String(r.startDate).startsWith(year));
 
-      const empBalances = allBalances.filter((b) => b.employeeId === employeeId);
-      const empRequests = requests.filter((r) => r.employeeId === employeeId);
-
-      res.json({
-        success: true,
-        data: {
-          employeeId,
-          balances: empBalances.length ? empBalances : [
-            { leaveType: 'Privilege Leave', allocated: 15, used: 2, pending: 0, available: 13 },
-            { leaveType: 'Casual Leave', allocated: 12, used: 3, pending: 1, available: 8 },
-            { leaveType: 'Sick Leave', allocated: 10, used: 1, pending: 0, available: 9 },
-          ],
-          recentRequests: empRequests.slice(0, 5),
-        },
+      // Balances are computed from each leave type's annual quota and this year's requests, never stored guesses.
+      const balances = db.get('leave_types').map((type) => {
+        const ofType = thisYear.filter((r) => r.leaveType === type.name);
+        const used = ofType.filter((r) => r.status === 'Approved' || r.status === 'Partially Approved')
+          .reduce((sum, r) => sum + (Number(r.approvedDays) || 0), 0);
+        const pending = ofType.filter((r) => r.status === 'Pending').reduce((sum, r) => sum + (Number(r.requestedDays) || 0), 0);
+        const allocated = quotaFor(type);
+        return { leaveType: type.name, code: type.code, allocated, used, pending, available: Math.max(0, allocated - used - pending) };
       });
+
+      res.json({ success: true, data: { employeeId, balances, recentRequests: empRequests.slice(0, 5) } });
     } catch (err) {
       next(err);
     }
@@ -38,7 +60,8 @@ export const leaveController = {
 
   getRequests: async (req, res, next) => {
     try {
-      const { status, employeeId } = req.query;
+      const { status } = req.query;
+      const employeeId = scopedEmployeeId(req, req.query.employeeId, 'leave.view_all');
       let requests = db.get('leaves');
 
       if (status) {
@@ -56,11 +79,26 @@ export const leaveController = {
 
   apply: async (req, res, next) => {
     try {
-      const { employeeId, leaveType, startDate, endDate, daysCount, requestedDays, days, reason, contactDuringLeave } = req.body;
-      // The app sends the working days it counted (weekly offs and holidays left out).
-      const workingDays = Number(requestedDays ?? days ?? daysCount) || 1;
-      if (!employeeId || !leaveType || !startDate || !endDate || !reason) {
-        return res.status(400).json({ success: false, error: 'All fields are required to apply for leave.' });
+      const { leaveType, startDate, endDate, daysCount, requestedDays, days, reason, contactDuringLeave } = req.body;
+      const employeeId = scopedEmployeeId(req, req.body.employeeId, 'leave.approve') || req.user.employeeId;
+      void requestedDays; void days; void daysCount;
+      if (!employeeId || !leaveType || !DATE.test(String(startDate)) || !DATE.test(String(endDate)) || !String(reason || '').trim()) {
+        return res.status(400).json({ success: false, error: 'Leave type, dates and reason are required.' });
+      }
+      if (endDate < startDate) {
+        return res.status(400).json({ success: false, error: 'The end date cannot be before the start date.' });
+      }
+      if (!db.get('leave_types').some((t) => t.name === leaveType)) {
+        return res.status(400).json({ success: false, error: 'Unknown leave type.' });
+      }
+      // Working days are counted here, not taken from the request: weekly offs and holidays never use leave.
+      const workingDays = workingDates(employeeId, startDate, endDate).length;
+      if (workingDays === 0) {
+        return res.status(400).json({ success: false, error: 'The selected dates contain no working days.' });
+      }
+      const overlap = db.get('leaves').find((l) => l.employeeId === employeeId && ACTIVE.includes(l.status) && l.startDate <= endDate && l.endDate >= startDate);
+      if (overlap) {
+        return res.status(409).json({ success: false, error: `You already have a ${overlap.status.toLowerCase()} leave from ${overlap.startDate} to ${overlap.endDate}.` });
       }
 
       const employees = db.get('employees');
@@ -79,14 +117,20 @@ export const leaveController = {
         days: workingDays,
         approvedDays: 0,
         rejectedDays: 0,
-        reason,
-        contactDuringLeave: contactDuringLeave || '',
+        reason: String(reason).trim().slice(0, 1000),
+        contactDuringLeave: String(contactDuringLeave || '').slice(0, 200),
         status: 'Pending',
-        appliedOn: new Date().toISOString().slice(0, 10),
+        appliedOn: today(),
         appliedAt: new Date().toISOString(),
       };
 
       db.insert('leaves', newLeave);
+      notify({
+        title: 'New leave request',
+        message: `${newLeave.employeeName} requested ${workingDays} day(s) of ${leaveType} (${startDate} to ${endDate}).`,
+        targetRole: 'hr',
+        priority: 'normal',
+      });
       res.status(201).json({ success: true, data: newLeave });
     } catch (err) {
       next(err);
@@ -102,6 +146,13 @@ export const leaveController = {
         return res.status(400).json({ success: false, error: 'Status must be Approved, Partially Approved or Rejected.' });
       }
       const current = db.get('leaves').find((r) => r.id === id);
+      if (!current) return res.status(404).json({ success: false, error: 'Leave request not found.' });
+      if (current.status !== 'Pending') {
+        return res.status(409).json({ success: false, error: `This request was already ${String(current.status).toLowerCase()}.` });
+      }
+      if (current.employeeId === req.user.employeeId && req.user.role !== 'Managing Director') {
+        return res.status(403).json({ success: false, error: 'You cannot approve your own leave request.' });
+      }
       const requested = Number(current?.requestedDays ?? current?.daysCount) || 1;
       const approved = status === 'Rejected' ? 0 : status === 'Approved' ? requested : Math.min(requested, Number(approvedDays) || 0);
 
@@ -111,7 +162,7 @@ export const leaveController = {
         rejectedDays: requested - approved,
         approverComment: approverComment || remarks || '',
         remarks: remarks || approverComment || '',
-        approverName: req.user?.name || 'HR Admin',
+        approverName: req.user.name,
         approvedAt: new Date().toISOString(),
       });
 
@@ -119,39 +170,37 @@ export const leaveController = {
         return res.status(404).json({ success: false, error: 'Leave request not found.' });
       }
 
-      // If approved, mark attendance records for those dates as 'On Leave'
-      if (status === 'Approved' || status === 'Partially Approved') {
-        const attendanceList = db.get('attendance');
-        const start = new Date(updated.startDate);
-        const end = new Date(updated.endDate);
+      audit(req, 'review', 'leaves', updated.id, `${updated.employeeName}'s ${updated.leaveType} ${status.toLowerCase()}`);
+      notify({
+        title: `Leave ${status.toLowerCase()}`,
+        message: `Your ${updated.leaveType} request (${updated.startDate} to ${updated.endDate}) was ${status.toLowerCase()} by ${req.user.name}.${updated.approverComment ? ` Note: ${updated.approverComment}` : ''}`,
+        targetEmployeeId: updated.employeeId,
+        priority: status === 'Rejected' ? 'high' : 'normal',
+      });
 
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-          const dateStr = d.toISOString().slice(0, 10);
-          const existing = attendanceList.find(
-            (a) => a.employeeId === updated.employeeId && a.date === dateStr,
-          );
-          if (existing) {
-            existing.status = 'On Leave';
-            existing.checkIn = '-';
-            existing.checkOut = '-';
-            existing.workingHours = '-';
-          } else {
-            db.insert('attendance', {
-              id: `att-lv-${Date.now()}-${dateStr}`,
-              employeeId: updated.employeeId,
-              employeeName: updated.employeeName,
-              department: updated.department,
-              date: dateStr,
-              checkIn: '-',
-              checkOut: '-',
-              workingHours: '-',
-              lateBy: '-',
-              overtime: '-',
-              status: 'On Leave',
-              punchSource: 'System (Approved Leave)',
-            });
-          }
-        }
+      // Approved days go into the attendance register: only working days (weekly offs and holidays are skipped),
+      // and only as many as were approved. A day with a real punch is left as it is.
+      if (status === 'Approved' || status === 'Partially Approved') {
+        const days = workingDates(updated.employeeId, updated.startDate, updated.endDate).slice(0, approved);
+        const list = db.get('attendance');
+        const punched = new Set(list.filter((a) => a.employeeId === updated.employeeId && a.checkIn && a.checkIn !== '-').map((a) => a.date));
+        const keep = list.filter((a) => !(a.employeeId === updated.employeeId && days.includes(a.date) && !punched.has(a.date)));
+        const leaveRows = days.filter((d) => !punched.has(d)).map((d) => ({
+          id: `att-lv-${updated.id}-${d}`,
+          employeeId: updated.employeeId,
+          employeeName: updated.employeeName,
+          department: updated.department,
+          date: d,
+          checkIn: '-',
+          checkOut: '-',
+          workingHours: '-',
+          lateBy: '-',
+          overtime: '-',
+          status: 'On Leave',
+          punchSource: 'Approved leave',
+          leaveId: updated.id,
+        }));
+        db.set('attendance', [...leaveRows, ...keep]);
       }
 
       res.json({ success: true, data: updated });
@@ -169,10 +218,7 @@ export const leaveController = {
       }
 
       // Only the person who applied (or the HR team) withdraws a request, and only while it is pending or approved.
-      const hrRoles = ['Super Admin', 'Director', 'Managing Director', 'Admin', 'HR Manager', 'HR Executive', 'Management'];
-      const normalize = (v) => String(v || '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      const isOwner = (req.user?.employeeId && normalize(req.user.employeeId) === normalize(item.employeeId)) || (req.user?.name && String(req.user.name).trim().toLowerCase() === String(item.employeeName).trim().toLowerCase()) || (!req.user?.employeeId && !item.employeeId);
-      if (req.user?.employeeId && !isOwner && !hrRoles.includes(req.user.role)) {
+      if (item.employeeId !== req.user.employeeId && !can(req.user, 'leave.approve')) {
         return res.status(403).json({ success: false, error: 'You can only withdraw your own leave request.' });
       }
       if (!['Pending', 'Approved', 'Partially Approved'].includes(item.status)) {
@@ -184,21 +230,9 @@ export const leaveController = {
         cancelledAt: new Date().toISOString(),
       });
 
-      // If it was previously approved, remove 'On Leave' from attendance
+      // A cancelled approval takes its leave days back out of the register.
       if (prevStatus === 'Approved' || prevStatus === 'Partially Approved') {
-        const attendanceList = db.get('attendance');
-        const start = new Date(item.startDate);
-        const end = new Date(item.endDate);
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-          const dateStr = d.toISOString().slice(0, 10);
-          const attIdx = attendanceList.findIndex(
-            (a) => a.employeeId === item.employeeId && a.date === dateStr && a.status === 'On Leave'
-          );
-          if (attIdx !== -1) {
-            attendanceList.splice(attIdx, 1);
-          }
-        }
-        db.set('attendance', attendanceList);
+        db.set('attendance', db.get('attendance').filter((a) => !(a.leaveId === item.id || (a.employeeId === item.employeeId && a.status === 'On Leave' && !a.checkIn?.match(/\d/) && a.date >= item.startDate && a.date <= item.endDate && !a.leaveId))));
       }
 
       res.json({ success: true, data: updated });

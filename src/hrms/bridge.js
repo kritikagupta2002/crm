@@ -1,10 +1,6 @@
 /*
- * How the 6 CRM roles map onto the HRMS, which knows two kinds of user: 'hr' (the whole workforce: employees,
- * attendance, leave approvals, payroll, company documents) and 'employee' (self-service: own attendance, leave,
- * payslips, expenses, documents).
- * Super Admin, Director, and Finance Master have full HR management access ('hr').
- * Manager, Employee, and Accounts Executive have self-service access ('employee').
+ * The HRMS pages show either company-wide views ('hr') or personal views ('employee'). Company-wide views follow
+ * the person's permissions, not their job title.
  */
-const HR_TEAM = ['Managing Director', 'Super Admin', 'Director', 'Manager', 'Finance Master']
-
-export const hrRoleOf = (role) => (HR_TEAM.includes(role) ? 'hr' : 'employee')
+export const hrRoleOf = (permissions = []) =>
+    ['employees.view_all', 'attendance.view_all', 'leave.view_all'].some((p) => permissions.includes(p)) ? 'hr' : 'employee';

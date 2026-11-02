@@ -35,3 +35,15 @@ server/.env.*
 *.njsproj
 *.sln
 *.sw?
+
+# Secrets and local runtime data (never commit)
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+server/data/
+server/backups/
+server/credentials*.csv
+credentials*.csv

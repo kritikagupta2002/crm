@@ -1,60 +1,47 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../config/config.js';
+import { effectivePermissions, normalizeRole, canAny } from '../config/permissions.js';
+import { db } from '../services/db.js';
 
+/*
+ * Every API route except sign-in requires a valid token. The account is re-read on each request so a disabled
+ * login, a role or permission change, or a password change takes effect immediately.
+ */
 export function authenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    // If no token is provided, in demo mode we can default to demo user or reject
-    const demoRole = req.headers['x-role'] || 'Super Admin';
-    req.user = {
-      id: 'demo-user',
-      name: 'Kritika Gupta',
-      role: demoRole,
-      employeeId: 'BGS-002',
-    };
-    return next();
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return res.status(401).json({ success: false, error: 'Please sign in to continue.' });
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, config.jwtSecret);
+  } catch {
+    return res.status(401).json({ success: false, error: 'Your session has expired. Please sign in again.' });
   }
 
-  const token = authHeader.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, config.jwtSecret);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ error: 'Invalid or expired authentication token.' });
+  const account = db.findOne('users', (u) => u.id === decoded.sub);
+  if (!account || account.status === 'Disabled' || (account.tokenVersion || 0) !== (decoded.ver || 0)) {
+    return res.status(401).json({ success: false, error: 'Your session is no longer valid. Please sign in again.' });
   }
+
+  req.user = {
+    id: account.id,
+    name: account.name,
+    email: account.email,
+    role: normalizeRole(account.role),
+    employeeId: account.employeeId || null,
+    permissions: effectivePermissions(account),
+  };
+  next();
 }
 
-export function requireRole(...allowedRoles) {
+/* Allows the request when the user has at least one of the given permissions. */
+export function requirePermission(...permissions) {
   return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required.' });
-    }
-    const roles = allowedRoles.flat();
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        error: `Access denied. Requires one of roles: ${roles.join(', ')}.`,
-      });
+    if (!req.user) return res.status(401).json({ success: false, error: 'Please sign in to continue.' });
+    if (!canAny(req.user, permissions)) {
+      return res.status(403).json({ success: false, error: 'You do not have permission to perform this action.' });
     }
     next();
   };
 }
-
-export function requireHr(req, res, next) {
-  const hrRoles = ['Super Admin', 'Director', 'Manager', 'Managing Director'];
-  if (!req.user || !hrRoles.includes(req.user.role)) {
-    return res.status(403).json({ error: 'HR administrative access required.' });
-  }
-  next();
-}
-
-export function requireSelfOrHr(req, res, next) {
-  const hrRoles = ['Super Admin', 'Director', 'Manager', 'Managing Director'];
-  const isHr = req.user && hrRoles.includes(req.user.role);
-  const isSelf = req.user && (req.user.employeeId === req.params.id || req.user.id === req.params.id);
-  if (!isHr && !isSelf) {
-    return res.status(403).json({ error: 'Permission denied: You can only edit your own profile.' });
-  }
-  next();
-}
-

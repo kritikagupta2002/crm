@@ -1,5 +1,4 @@
 import { createContext, useContext } from 'react'
-import { formatINR } from '../../shared/utils/format.js'
 
 export const CrmContext = createContext(null)
 
@@ -9,126 +8,77 @@ export function useCrm() {
   return value
 }
 
-// Role-based access definitions and page permissions for HRMS & Attendance
-const HR_SELF = [
-  '/',
-  '/hr',
-  '/hr/team',
-  '/hr/organization',
-  '/hr/employees',
-  '/hr/attendance',
-  '/hr/attendance/monthly',
-  '/hr/attendance/corrections',
-  '/hr/leave',
-  '/hr/leave/apply',
-  '/hr/leave/balance',
-  '/hr/leave/requests',
-  '/hr/leave/history',
-  '/hr/shifts',
-  '/hr/documents',
-  '/hr/payroll',
-  '/hr/payroll/payslips',
-  '/hr/settings/profile',
-  '/hr/notifications',
+/*
+ * Page access by permission. Permissions are issued by the server (server/config/permissions.js) for each
+ * account; the server enforces them on every request, and these rules only decide which pages and menu items
+ * to show. The longest matching path prefix wins; a page is visible when the person has ANY listed permission.
+ * Paths without a rule (the dashboard) are open to every signed-in person.
+ */
+const ATTENDANCE_ANY = ['attendance.view_own', 'attendance.view_all']
+const LEAVE_ANY = ['leave.apply', 'leave.view_all', 'leave.approve']
+const ROUTE_RULES = [
+  { prefix: '/hr/team', any: ['directory.view', 'employees.view_all'] },
+  { prefix: '/hr/organization', any: ['directory.view', 'employees.view_all'] },
+  { prefix: '/hr/organization/departments', any: ['organization.manage'] },
+  { prefix: '/hr/organization/designations', any: ['organization.manage'] },
+  { prefix: '/hr/attendance', any: ATTENDANCE_ANY },
+  { prefix: '/hr/attendance/daily', any: ['attendance.view_all'] },
+  { prefix: '/hr/attendance/corrections', any: ['attendance.view_own', 'attendance.manage'] },
+  { prefix: '/hr/shifts', any: ['shifts.manage', 'attendance.view_all'] },
+  { prefix: '/hr/shifts/new', any: ['shifts.manage'] },
+  { prefix: '/hr/shifts/assignments', any: ['shifts.manage'] },
+  { prefix: '/hr/leave', any: LEAVE_ANY },
+  { prefix: '/hr/leave/apply', any: ['leave.apply'] },
+  { prefix: '/hr/leave/approvals', any: ['leave.approve'] },
+  { prefix: '/hr/leave/types', any: ['organization.manage'] },
+  { prefix: '/hr/employees', any: ['employees.view_all'] },
+  { prefix: '/hr/employees/new', any: ['employees.manage'] },
+  { prefix: '/hr/documents', any: ['profile.edit_own', 'documents.verify'] },
+  { prefix: '/hr/performance', any: ['performance.manage'] },
+  { prefix: '/hr/exit', any: ['exits.manage'] },
+  { prefix: '/hr/payroll', any: ['payroll.manage'] },
+  { prefix: '/hr/payroll/payslips', any: ['payroll.view_own', 'payroll.manage'] },
+  { prefix: '/hr/settings', any: ['settings.manage'] },
+  { prefix: '/hr/settings/profile', any: [] },
+  { prefix: '/hr/settings/security', any: [] },
+  { prefix: '/hr/settings/notifications', any: [] },
+  { prefix: '/hr/settings/accounts', any: ['accounts.manage', 'permissions.manage'] },
+  { prefix: '/hr/settings/permissions', any: ['permissions.manage'] },
+  { prefix: '/hr/settings/audit', any: ['audit.view'] },
+  { prefix: '/hr/notifications', any: [] },
 ]
 
-const HR_TEAM = [
-  ...HR_SELF,
-  '/hr/settings',
-  '/hr/employees',
-  '/hr/employees/new',
-  '/hr/performance',
-  '/hr/exit',
-  '/hr/attendance/daily',
-  '/hr/organization/departments',
-  '/hr/organization/designations',
-  '/hr/leave/approvals',
-  '/hr/leave/types',
-  '/hr/shifts/new',
-  '/hr/shifts/assignments',
-  '/hr/payroll/salary-structure',
-  '/hr/payroll/process',
-  '/hr/payroll/history',
-]
+const clean = (path) => path.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/'
 
-export const ROLE_ACCESS = {
-  'Managing Director': {
-    brief: 'Master Executive Oversight',
-    note: 'Master oversight across all employee logs, attendance records, requests raised, approvals, and system outputs (Dr. Amit Kumar Bansal)',
-    pages: 'all',
-    masked: false,
-    pnl: false,
-    bank: false,
-    home: '/',
-  },
-  Director: {
-    brief: 'Executive & Approvals Authority',
-    note: 'Designated authority: reviews and approves all employee leave requests, attendance corrections, and late/unmarked regularizations (Dharmendra Goyal)',
-    pages: 'all',
-    masked: false,
-    pnl: false,
-    bank: false,
-    home: '/',
-  },
-  'Super Admin': {
-    brief: 'Full HR Administration',
-    note: 'HR operations, employee directory, attendance tracking, shift assignments, and company settings (Kritika Gupta)',
-    pages: 'all',
-    masked: false,
-    pnl: false,
-    bank: false,
-    home: '/',
-  },
-  Manager: {
-    brief: 'Team & Attendance',
-    note: 'Team attendance oversight, field survey operations, shift management, and self-service (Inder Nogiya)',
-    pages: HR_TEAM,
-    masked: false,
-    pnl: false,
-    bank: false,
-    home: '/',
-  },
-  Employee: {
-    brief: 'Attendance & Self-Service',
-    note: 'Personal attendance punch-in/out, monthly attendance logs, leave applications, and profile',
-    pages: HR_SELF,
-    masked: false,
-    pnl: false,
-    bank: false,
-    home: '/',
-  },
+export function canOpen(permissions, path, employeeId) {
+  if (!Array.isArray(permissions)) return false
+  const target = clean(path)
+  // Everyone may open their own employee page.
+  if (employeeId && (target === `/hr/employees/${encodeURIComponent(employeeId)}` || target === `/hr/employees/${employeeId}`)) return true
+  if (/^\/hr\/employees\/[^/]+\/edit$/.test(target)) return permissions.includes('employees.manage')
+  const rule = ROUTE_RULES.filter((r) => target === r.prefix || target.startsWith(`${r.prefix}/`)).sort((a, b) => b.prefix.length - a.prefix.length)[0]
+  if (!rule || rule.any.length === 0) return true
+  return rule.any.some((p) => permissions.includes(p))
 }
 
-export const ROLES = Object.keys(ROLE_ACCESS)
-export const MASKED = '₹ ••••'
-
-// Legacy role mappings so previously saved roles in localStorage resolve cleanly.
-export const OLD_ROLES = {
-  Admin: 'Managing Director',
-  HR: 'Super Admin',
-  'HR Admin': 'Super Admin',
-  Accountant: 'Super Admin',
-  'Team Lead': 'Manager',
-  Management: 'Director',
-  Finance: 'Director',
-  'Project Coordinator': 'Manager',
-  Coordinator: 'Manager',
-  Sales: 'Employee',
-  'Field Member': 'Employee',
-  'Finance Master': 'Managing Director',
-  'Accounts Executive': 'Manager',
+export function useAccess() {
+  const { role, user } = useCrm()
+  const permissions = user?.permissions || []
+  const has = (...keys) => keys.flat().some((k) => permissions.includes(k))
+  return {
+    role,
+    permissions,
+    has,
+    can: (path) => canOpen(permissions, path, user?.employeeId),
+    // Company-wide views (all employees) versus personal views.
+    isHr: has('employees.view_all', 'attendance.view_all', 'leave.view_all'),
+    isHrAdmin: has('employees.manage'),
+  }
 }
 
-/* Real company personnel for roles */
-export const ROLE_USERS = {
-  'Managing Director': { name: 'Dr. Amit Kumar Bansal', title: 'Managing Director & Chief Geologist', email: 'amit.bansal@bansalgeo.com', id: 'BGS/DIR-01' },
-  Director: { name: 'Dharmendra Goyal', title: 'Executive Director', email: 'dharmendra.goyal@bansalgeo.com', id: 'BGS/DIR-03' },
-  'Super Admin': { name: 'Kritika Gupta', title: 'HR & Operations Lead', email: 'kritika.gupta@bansalgeo.com', id: 'BGS/ADM-01' },
-  Manager: { name: 'Inder Nogiya', title: 'Manager (Survey)', email: 'inder.nogiya@bansalgeo.com', id: 'BGS/01' },
-  Employee: { name: 'Vikas Verma', title: 'Surveyor', email: 'vikas.verma@bansalgeo.com', id: 'BGS/04' },
-}
+export const PRIVILEGED_ROLES = ['Developer', 'Managing Director']
 
-export const initialsOf = (name) =>
+export const initialsOf = (name = '') =>
   name
     .replace(/^Dr\.\s*/, '')
     .replace(/\./g, ' ')
@@ -139,103 +89,6 @@ export const initialsOf = (name) =>
     .slice(0, 2)
     .toUpperCase()
 
-const pageOf = (path) => {
-  const parts = path.split('?')[0].split('#')[0].split('/').filter(Boolean)
-  if (!parts.length) return '/'
-  return parts[0] === 'hr' && parts[1] ? `/hr/${parts[1]}` : `/${parts[0]}`
-}
-
-export const canOpen = (role, path) => {
-  const access = ROLE_ACCESS[role] ?? ROLE_ACCESS['Super Admin']
-  if (!access) return false
-  if (access.pages === 'all') return true
-
-  const cleanPath = path.split('?')[0].split('#')[0].replace(/\/+$/, '') || '/'
-  if (cleanPath === '/' || cleanPath === '/hr') return true
-
-  if (!Array.isArray(access.pages)) return false
-
-  return access.pages.some((allowed) => {
-    if (allowed === cleanPath) return true
-    if (cleanPath.startsWith(allowed + '/')) return true
-    return false
-  }) || access.pages.includes(pageOf(cleanPath))
-}
-
-export const PERMISSIONS = {
-  masters: ['Super Admin', 'Director'],
-  warningLetters: ['Super Admin', 'Director', 'Manager'],
-  sales: ['Super Admin', 'Director'],
-  contact: ['Super Admin', 'Director', 'Manager'],
-  payments: ['Super Admin'],
-  onboarding: ['Super Admin', 'Director', 'Manager'],
-  projects: ['Super Admin', 'Director', 'Manager'],
-  vendors: ['Super Admin', 'Director'],
-  documents: ['Super Admin', 'Director', 'Manager'],
-  inventory: ['Super Admin', 'Director', 'Manager'],
-  inventoryManage: ['Super Admin', 'Director'],
-  fieldDatabase: ['Super Admin', 'Manager', 'Employee'],
-}
-
-export const canDo = (role, action) => Boolean(PERMISSIONS[action]?.includes(role))
-
-export const PERMISSION_OWNERS = {
-  masters: 'Admin',
-  warningLetters: 'HR Management',
-  sales: 'Admin',
-  contact: 'the HR team',
-  payments: 'Admin',
-  onboarding: 'HR Manager',
-  projects: 'the team',
-}
-
-export function useAccess() {
-  const { role } = useCrm()
-  const access = ROLE_ACCESS[role] ?? ROLE_ACCESS['Super Admin']
-  return {
-    role,
-    can: (path) => canOpen(role, path),
-    may: (action) => canDo(role, action),
-    locked: (step) => (step.by && !canDo(role, step.by) ? `Marked by ${PERMISSION_OWNERS[step.by]}` : null),
-    pnl: access.pnl,
-    bank: access.bank,
-  }
-}
-
-export const BILL_ROLES = {
-  record: ['Super Admin'],
-  check: ['Super Admin'],
-  pay: ['Super Admin'],
-}
-export const WORK_ROLES = ['Super Admin', 'Director', 'Manager']
-
-export const maskAccount = (value, visible) => (visible || !value ? value : `•••• ${String(value).replace(/\s/g, '').slice(-4)}`)
-
-export function useMoney() {
-  const { role } = useCrm()
-  const hidden = Boolean(ROLE_ACCESS[role]?.masked)
-  return {
-    hidden,
-    short: (n) => (hidden ? MASKED : formatINR(Number(n) || 0)),
-    full: (n) => (hidden ? MASKED : `₹${Math.round(Number(n) || 0).toLocaleString('en-IN')}`),
-    format: (n) => (hidden ? MASKED : formatINR(Number(n) || 0)),
-  }
-}
-
 export const DEFAULT_SETTINGS = {
   companyName: 'Bansal Geo Solutions Pvt. Ltd.',
-  address: 'Jaipur, Rajasthan',
-  phone: '+91 98876 95208',
-  email: 'info@bansalgeo.com',
-  gstin: '',
-  gstPct: 18,
-  quoteValidityDays: 30,
-  terms: 'HRMS and attendance management system.',
-  notifyOverdue: true,
-  notifyNewEnquiry: true,
-  upiId: 'bansalgeo@icici',
-  bankName: 'ICICI Bank, C-Scheme, Jaipur',
-  accountName: 'Bansal Geo Solutions Pvt. Ltd.',
-  accountNo: '6285 0500 1234',
-  ifsc: 'ICIC0006285',
 }

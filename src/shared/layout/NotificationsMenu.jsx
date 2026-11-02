@@ -1,4 +1,4 @@
-import { Bell, CalendarCheck, Clock, FileCheck2, Info, Sparkles, UserCheck } from 'lucide-react'
+import { Bell, CalendarCheck, Clock, Info } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAccess, useCrm } from '../../core/permissions/crm'
@@ -17,11 +17,10 @@ function readSeen() {
 
 export function NotificationsMenu() {
   const { role, user } = useCrm()
-  const { can } = useAccess()
+  const { can, isHr: isHrAdmin } = useAccess()
   const { open, setOpen, ref } = usePopover()
   const [seen, setSeen] = useState(readSeen)
 
-  const isHrAdmin = ['Super Admin', 'Director', 'Manager'].includes(role)
 
   // Pending attendance corrections
   const corrections = isHrAdmin

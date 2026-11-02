@@ -9,6 +9,34 @@ import { Select } from '@/components/common/Select';
 import { DatePicker } from '@/components/common/DatePicker';
 import { useToast } from '@/contexts/ToastContext';
 import { employeeService } from '@/modules/employees/services/employee.service';
+import { Modal } from '@/components/common/Modal';
+import { storage } from '@/core/storage/storage';
+import { payrollService } from '@/modules/payroll/services/payroll.service';
+import { shiftService } from '@/modules/shifts/services/shift.service';
+
+/* Next ID in the company's BGS/NN series, based on the current employee master. */
+const nextEmployeeId = () => {
+    const max = storage.getEmployees()
+        .map((e) => /^BGS\/(\d+)$/.exec(e.employeeId || ''))
+        .filter(Boolean)
+        .reduce((m, match) => Math.max(m, parseInt(match[1], 10)), 0);
+    return `BGS/${String(max + 1).padStart(2, '0')}`;
+};
+
+/* Standard Indian CTC split of a monthly gross: basic 50%, HRA 40% of basic, conveyance, the rest special allowance. */
+const splitGross = (gross) => {
+    const basic = Math.round(gross * 0.5);
+    const hra = Math.round(basic * 0.4);
+    const conveyance = Math.min(1600, Math.max(0, gross - basic - hra));
+    return { basic, hra, conveyance, specialAllowance: Math.max(0, gross - basic - hra - conveyance), siteAllowance: 0, esi: 0, tds: 0 };
+};
+
+const ACCOUNT_ROLES = [
+    { value: 'Employee', label: 'Employee (self-service)' },
+    { value: 'Manager', label: 'Manager (team attendance, leave reviews)' },
+    { value: 'Super Admin', label: 'Super Admin (full HR administration)' },
+    { value: 'Director', label: 'Director (approvals and oversight)' },
+];
 const STEPS = [
     { id: 1, label: 'Basic Details', icon: User, desc: 'Identity & Contacts' },
     { id: 2, label: 'Job Details', icon: Briefcase, desc: 'Department & Role' },
@@ -17,6 +45,7 @@ const STEPS = [
 ];
 export const AddEmployeePage = () => {
     const navigate = useNavigate();
+    const [createdAccount, setCreatedAccount] = useState(null);
     const toast = useToast();
     const [currentStep, setCurrentStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,39 +55,40 @@ export const AddEmployeePage = () => {
         // Step 1: Basic Details
         fullName: '',
         avatarUrl: '',
-        gender: 'Male',
-        dob: '1995-06-15',
-        bloodGroup: 'B+',
+        gender: '',
+        dob: '',
+        bloodGroup: '',
         phone: '',
         workEmail: '',
         personalEmail: '',
-        currentAddress: 'Malviya Nagar, Jaipur',
-        city: 'Jaipur',
+        currentAddress: '',
+        city: '',
         state: 'Rajasthan',
-        pincode: '302017',
+        pincode: '',
         // Step 2: Job Details
-        employeeId: `BGS-0${Math.floor(11 + Math.random() * 89)}`,
-        department: 'Geology & Mineral Exploration',
-        designation: 'Field Geologist',
+        employeeId: nextEmployeeId(),
+        department: storage.getDepartments()[0]?.name || '',
+        designation: '',
         joiningDate: new Date().toLocaleDateString('en-CA'),
-        reportingManager: 'Dr. Amit Kumar Bansal',
+        reportingManager: '',
         employmentType: 'Full-Time',
         workLocation: 'Jaipur Corporate HQ',
         status: 'Active',
-        project: 'Bhilwara Lead-Zinc Core Drilling',
+        project: '',
+        shiftId: storage.getShifts()[0]?.id || '',
         // Step 3: Bank & Payroll
         accountHolderName: '',
-        bankName: 'HDFC Bank',
+        bankName: '',
         accountNumber: '',
-        ifscCode: 'HDFC0001234',
-        baseSalary: '55000',
+        ifscCode: '',
+        baseSalary: '',
         // Step 4: Statutory & Emergency
-        panNumber: 'ABCDE1234F',
-        uanNumber: '100987654321',
-        emergencyName: 'Family Contact',
-        emergencyRelation: 'Parent / Spouse',
+        panNumber: '',
+        uanNumber: '',
+        emergencyName: '',
+        emergencyRelation: '',
         emergencyPhone: '',
-        role: 'employee',
+        accountRole: 'Employee',
     });
     // Statutory Age Bounds (18 to 65 years)
     const minDobDate = '1961-01-01'; // 65 yrs max age
@@ -170,6 +200,9 @@ export const AddEmployeePage = () => {
             else if (empId.length > 15) {
                 errs.employeeId = 'Employee ID cannot exceed 15 characters';
             }
+            else if (storage.getEmployees().some((e) => e.employeeId === empId)) {
+                errs.employeeId = 'This Employee ID is already in use';
+            }
             if (!formData.department.trim())
                 errs.department = 'Department is required';
             // Designation Limits
@@ -192,8 +225,11 @@ export const AddEmployeePage = () => {
         else if (step === 3) {
             // Base Salary Limits
             const sal = Number(formData.baseSalary);
-            if (isNaN(sal) || sal <= 0) {
-                errs.baseSalary = 'Valid monthly base salary is required';
+            if (formData.baseSalary === '' ) {
+                // Optional: the salary structure can be set later from Payroll > Salary Structures.
+            }
+            else if (isNaN(sal) || sal <= 0) {
+                errs.baseSalary = 'Enter a valid monthly gross salary';
             }
             else if (sal < 10000) {
                 errs.baseSalary = 'Statutory Wage Limit: Minimum wage cannot be below ₹10,000 / month';
@@ -261,6 +297,11 @@ export const AddEmployeePage = () => {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // Enter in a field on an earlier step moves forward instead of submitting the whole form.
+        if (currentStep < 4) {
+            handleNext();
+            return;
+        }
         if (!validateStep(currentStep)) {
             toast.error('Please resolve highlighted input limits before enrolling.', 'Validation Failed');
             return;
@@ -270,18 +311,19 @@ export const AddEmployeePage = () => {
             const nameParts = formData.fullName.trim().split(' ');
             const firstName = nameParts[0] || formData.fullName.trim();
             const lastName = nameParts.slice(1).join(' ') || '';
-            await employeeService.create({
+            const created = await employeeService.create({
                 employeeId: formData.employeeId.trim(),
                 name: formData.fullName.trim(),
                 avatarUrl: formData.avatarUrl,
-                role: formData.role,
+                role: ['Super Admin', 'Director'].includes(formData.accountRole) ? 'hr' : 'employee',
+                accountRole: formData.accountRole,
                 personal: {
                     firstName,
                     lastName,
                     dob: formData.dob,
                     gender: formData.gender,
                     bloodGroup: formData.bloodGroup,
-                    maritalStatus: 'Single',
+                    maritalStatus: '',
                     nationality: 'Indian',
                 },
                 contact: {
@@ -300,8 +342,8 @@ export const AddEmployeePage = () => {
                     designation: formData.designation.trim(),
                     joiningDate: formData.joiningDate,
                     employmentType: formData.employmentType,
-                    managerId: storage.getEmployees().find(m => m.name.toLowerCase().includes(formData.reportingManager.trim().toLowerCase()))?.employeeId || 'BGS/DIR-03',
-                    managerName: formData.reportingManager.trim() || 'Dharmendra Goyal',
+                    managerId: formData.reportingManager.trim() ? storage.getEmployees().find(m => m.name.toLowerCase().includes(formData.reportingManager.trim().toLowerCase()))?.employeeId || '' : '',
+                    managerName: formData.reportingManager.trim(),
                     workLocation: formData.workLocation,
                     status: 'Active',
                     project: formData.project,
@@ -320,10 +362,19 @@ export const AddEmployeePage = () => {
                     uanNumber: formData.uanNumber.trim(),
                 },
                 documents: [],
-                ...{ baseSalary: Number(formData.baseSalary) || 55000 },
             });
-            toast.success(`${formData.fullName} (ID: ${formData.employeeId}) has been successfully enrolled in HRMS Directory, Attendance, and Leave systems!`, 'Employee Onboarded Successfully');
-            navigate('/hr/employees');
+            // Follow-up setup; a failure here leaves the employee and login in place and is reported.
+            const followUps = [];
+            if (Number(formData.baseSalary) > 0) {
+                followUps.push(payrollService.updateSalaryStructure(created.employeeId, { ...splitGross(Number(formData.baseSalary)), effectiveDate: formData.joiningDate }));
+            }
+            if (formData.shiftId) {
+                followUps.push(shiftService.assignShift({ employeeId: created.employeeId, shiftId: formData.shiftId, effectiveFrom: formData.joiningDate }));
+            }
+            const failed = (await Promise.allSettled(followUps)).filter((x) => x.status === 'rejected');
+            if (failed.length) toast.warning(`Employee added, but some setup did not complete: ${failed[0].reason?.message}`, 'Check payroll and shifts');
+            toast.success(`${created.name} (${created.employeeId}) has been added.`, 'Employee added');
+            setCreatedAccount({ name: created.name, employeeId: created.employeeId, ...created.account });
         }
         catch (err) {
             toast.error(err?.message || 'Failed to enroll employee. Please verify details.', 'Onboarding Failed');
@@ -333,6 +384,20 @@ export const AddEmployeePage = () => {
         }
     };
     return (<div className="max-w-4xl mx-auto space-y-6 pb-12">
+      <Modal
+        isOpen={Boolean(createdAccount)}
+        onClose={() => navigate('/hr/employees')}
+        title="Login created"
+        description="Share these details with the employee privately. The password is shown only once and must be changed at first sign-in."
+        footer={<Button onClick={() => navigate('/hr/employees')}>Done</Button>}
+      >
+        {createdAccount && (<dl className="credential-list">
+            <div><dt>Employee</dt><dd>{createdAccount.name} ({createdAccount.employeeId})</dd></div>
+            <div><dt>Sign-in email</dt><dd>{createdAccount.email}</dd></div>
+            <div><dt>Role</dt><dd>{createdAccount.role}</dd></div>
+            <div><dt>Temporary password</dt><dd className="credential-secret">{createdAccount.temporaryPassword}</dd></div>
+          </dl>)}
+      </Modal>
       {/* ── HEADER ── */}
       <PageHeader title="Enroll New Employee" description="Complete the guided 4-step onboarding workflow with statutory data validation and real-time field limits." breadcrumbs={[
             { label: 'HRMS', path: '/hr' },
@@ -415,6 +480,7 @@ export const AddEmployeePage = () => {
 
                 {/* Gender */}
                 <Select label="Gender" value={formData.gender} onChange={(e) => handleChange('gender', e.target.value)} options={[
+                { value: '', label: 'Select' },
                 { value: 'Male', label: 'Male' },
                 { value: 'Female', label: 'Female' },
                 { value: 'Other', label: 'Other' },
@@ -431,6 +497,7 @@ export const AddEmployeePage = () => {
 
                 {/* Blood Group */}
                 <Select label="Blood Group" value={formData.bloodGroup} onChange={(e) => handleChange('bloodGroup', e.target.value)} options={[
+                { value: '', label: 'Select' },
                 { value: 'A+', label: 'A+' },
                 { value: 'A-', label: 'A-' },
                 { value: 'B+', label: 'B+' },
@@ -460,18 +527,10 @@ export const AddEmployeePage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                 {/* Employee ID */}
-                <Input label="Employee ID" isRequired placeholder="e.g. BGS-011" value={formData.employeeId} maxLength={15} onChange={(e) => handleChange('employeeId', e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 15))} error={errors.employeeId}/>
+                <Input label="Employee ID" isRequired placeholder="e.g. BGS/13" value={formData.employeeId} maxLength={15} onChange={(e) => handleChange('employeeId', e.target.value.toUpperCase().replace(/[^A-Z0-9/-]/g, '').slice(0, 15))} error={errors.employeeId}/>
 
                 {/* Department */}
-                <Select label="Department" isRequired value={formData.department} onChange={(e) => handleChange('department', e.target.value)} options={[
-                { value: 'Geology & Mineral Exploration', label: 'Geology & Mineral Exploration' },
-                { value: 'Mining & Mine Planning', label: 'Mining & Mine Planning' },
-                { value: 'GIS & Remote Sensing', label: 'GIS & Remote Sensing' },
-                { value: 'Project Management & Survey', label: 'Project Management & Survey' },
-                { value: 'Finance & Accounts', label: 'Finance & Accounts' },
-                { value: 'Human Resources & Admin', label: 'Human Resources & Admin' },
-                { value: 'Executive Management', label: 'Executive Management' },
-            ]} error={errors.department}/>
+                <Select label="Department" isRequired value={formData.department} onChange={(e) => handleChange('department', e.target.value)} options={storage.getDepartments().map((d) => ({ value: d.name, label: d.name }))} error={errors.department}/>
 
                 {/* Designation */}
                 <Input label="Designation" isRequired placeholder="e.g. Field Geologist" value={formData.designation} maxLength={50} onChange={(e) => handleChange('designation', e.target.value.slice(0, 50))} error={errors.designation}/>
@@ -506,13 +565,10 @@ export const AddEmployeePage = () => {
             ]}/>
 
                 {/* Assigned Project / Site Assignment */}
-                <Select label="Assigned Project / Site Assignment" value={formData.project} onChange={(e) => handleChange('project', e.target.value)} options={[
-                { value: 'Bhilwara Lead-Zinc Core Drilling', label: 'Bhilwara Lead-Zinc Core Drilling' },
-                { value: 'Jaipur Ring Road Drone Photogrammetry', label: 'Jaipur Ring Road Drone Photogrammetry' },
-                { value: 'Khetri Copper Belt Reconnaissance', label: 'Khetri Copper Belt Reconnaissance' },
-                { value: 'Udaipur Rock Phosphate Assessment', label: 'Udaipur Rock Phosphate Assessment' },
-                { value: 'Corporate Operations & Governance', label: 'Corporate Operations & Governance' },
-            ]}/>
+                <Input label="Project / Site (Optional)" placeholder="e.g. Bhilwara drilling programme" value={formData.project} maxLength={80} onChange={(e) => handleChange('project', e.target.value.slice(0, 80))}/>
+
+                {/* Shift */}
+                <Select label="Shift" value={formData.shiftId} onChange={(e) => handleChange('shiftId', e.target.value)} options={[{ value: '', label: 'Assign later' }, ...storage.getShifts().map((s) => ({ value: s.id, label: `${s.name} (${s.startTime} - ${s.endTime})` }))]}/>
               </div>
             </div>)}
 
@@ -533,7 +589,7 @@ export const AddEmployeePage = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                      Base Monthly Salary (₹) <span className="text-rose-500 font-bold">*</span>
+                      Monthly Gross Salary (₹, optional)
                     </label>
                     {formData.baseSalary && Number(formData.baseSalary) > 0 && (<span className="text-xs font-medium text-teal-600 dark:text-teal-400">
                         ₹{Number(formData.baseSalary).toLocaleString('en-IN')}/mo
@@ -598,26 +654,23 @@ export const AddEmployeePage = () => {
                 </div>
 
                 {/* Portal Access Role */}
-                <Select label="Portal Access Role" value={formData.role} onChange={(e) => handleChange('role', e.target.value)} options={[
-                { value: 'employee', label: 'Standard Staff (Employee Self-Service)' },
-                { value: 'hr', label: 'HR / Admin Access' },
-            ]}/>
+                <Select label="Portal Access Role" value={formData.accountRole} onChange={(e) => handleChange('accountRole', e.target.value)} options={ACCOUNT_ROLES}/>
               </div>
 
               {/* Onboarding Summary Box */}
               <div className="bg-teal-50/50 dark:bg-teal-950/20 border border-teal-200 dark:border-teal-800/40 rounded-xl p-4 text-xs space-y-1 text-slate-700 dark:text-slate-300">
                 <div className="font-bold text-[#1F6F78] dark:text-teal-400 mb-1 flex items-center gap-1.5">
-                  <FileCheck2 className="w-4 h-4"/> Ready for Automated Cross-Module Enrollment
+                  <FileCheck2 className="w-4 h-4"/> What will be set up
                 </div>
                 <p>
-                  Upon submission, <strong>{formData.fullName || 'Candidate'}</strong> will be automatically provisioned with:
+                  On submission, <strong>{formData.fullName || 'Candidate'}</strong> will be automatically provisioned with:
                 </p>
                 <ul className="list-disc list-inside space-y-0.5 text-slate-600 dark:text-slate-400 ml-1">
-                  <li>Employee Directory profile & active status</li>
-                  <li>Today's attendance register slot</li>
-                  <li>Individual leave balance quota (12 CL, 10 SL, 18 EL, 5 CO, 15 FDL)</li>
-                  <li>Monthly salary structure of ₹{Number(formData.baseSalary || 55000).toLocaleString('en-IN')}</li>
-                  <li>KYC & identity document dossier in Documents module</li>
+                  <li>Employee record in the directory ({formData.employeeId})</li>
+                  <li>Portal login for {formData.workEmail || 'their work email'} with a one-time temporary password</li>
+                  <li>Leave balances from the company leave policy</li>
+                  <li>{Number(formData.baseSalary) > 0 ? `Salary structure at ₹${Number(formData.baseSalary).toLocaleString('en-IN')} gross per month` : 'Salary structure to be set later in Payroll'}</li>
+                  <li>{formData.shiftId ? 'Shift assignment from their joining date' : 'Shift to be assigned later'}</li>
                 </ul>
               </div>
             </div>)}
@@ -635,9 +688,9 @@ export const AddEmployeePage = () => {
                 Cancel
               </Button>
 
-              {currentStep < 4 ? (<Button type="button" onClick={handleNext} rightIcon={<ArrowRight className="w-4 h-4"/>}>
+              {currentStep < 4 ? (<Button key="next" type="button" onClick={handleNext} rightIcon={<ArrowRight className="w-4 h-4"/>}>
                   Next Step
-                </Button>) : (<Button type="submit" disabled={isSubmitting} leftIcon={<CheckCircle2 className="w-4 h-4"/>}>
+                </Button>) : (<Button key="submit" type="submit" disabled={isSubmitting} leftIcon={<CheckCircle2 className="w-4 h-4"/>}>
                   {isSubmitting ? 'Onboarding Employee...' : 'Complete Onboarding'}
                 </Button>)}
             </div>

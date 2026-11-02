@@ -1,22 +1,19 @@
-/**
- * Bansal Geo Solutions - HRMS API Client
- * Production-ready HTTP client with automatic base URL detection,
- * Bearer token authentication, and offline fallback resilience.
+/*
+ * HTTP client for the HRMS API. Sends the signed-in user's token, turns error responses into Error objects with
+ * the server's message, and announces an expired session so the app can return to the sign-in page.
+ *
+ * The API address comes from VITE_API_URL at build time; in development Vite proxies /api to the local server.
  */
-
 function resolveApiBase() {
-  if (typeof window !== 'undefined') {
-    const host = window.location.hostname;
-    // Production cloud domain
-    if (host.includes('bansalgeo.geoplanetsolution.in')) {
-      return 'https://bansalgeo-api.geoplanetsolution.in/api';
-    }
+  if (import.meta.env?.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined' && window.location.hostname.endsWith('bansalgeo.geoplanetsolution.in')) {
+    return 'https://bansalgeo-api.geoplanetsolution.in/api';
   }
-  // Development / Local environment (Vite proxy forwards /api to localhost:5000)
   return '/api';
 }
-
-const API_BASE = resolveApiBase();
+const API_BASE = resolveApiBase().replace(/\/+$/, '');
+const TOKEN_KEY = 'bgspl_auth_token';
+export const SESSION_EXPIRED_EVENT = 'hrms:session-expired';
 
 class ApiClient {
   constructor() {
@@ -25,7 +22,7 @@ class ApiClient {
 
   getToken() {
     try {
-      return localStorage.getItem('bgspl_auth_token') || '';
+      return localStorage.getItem(TOKEN_KEY) || '';
     } catch {
       return '';
     }
@@ -33,77 +30,67 @@ class ApiClient {
 
   setToken(token) {
     try {
-      if (token) {
-        localStorage.setItem('bgspl_auth_token', token);
-      } else {
-        localStorage.removeItem('bgspl_auth_token');
-      }
+      if (token) localStorage.setItem(TOKEN_KEY, token);
+      else localStorage.removeItem(TOKEN_KEY);
     } catch {
-      // Ignored
+      // Storage blocked (private mode): the session lasts only for this page.
     }
   }
 
   async request(endpoint, options = {}) {
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = endpoint.startsWith('http') ? endpoint : `${this.baseUrl}${cleanEndpoint}`;
+    const url = /^https?:/.test(endpoint) ? endpoint : `${this.baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     const token = this.getToken();
 
-    const headers = {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    };
-
+    let response;
     try {
-      const response = await fetch(url, {
+      response = await fetch(url, {
         ...options,
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(options.headers || {}),
+        },
       });
-
-      const data = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        const error = new Error(data?.error || response.statusText || 'API Request Failed');
-        error.status = response.status;
-        error.data = data;
-        throw error;
-      }
-
-      return data;
-    } catch (err) {
-      console.warn(`[API Client] ${options.method || 'GET'} ${url} failed:`, err.message);
-      throw err;
+    } catch {
+      const error = new Error('Cannot reach the server. Check your internet connection and try again.');
+      error.status = 0;
+      throw error;
     }
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      if (response.status === 401 && token && !endpoint.startsWith('/auth/login')) {
+        this.setToken('');
+        window.dispatchEvent(new CustomEvent(SESSION_EXPIRED_EVENT));
+      }
+      const error = new Error(data?.error || `Request failed (${response.status}).`);
+      error.status = response.status;
+      error.data = data;
+      throw error;
+    }
+    return data;
   }
 
   get(endpoint, params) {
     let url = endpoint;
     if (params) {
-      const searchParams = new URLSearchParams();
+      const search = new URLSearchParams();
       Object.entries(params).forEach(([key, val]) => {
-        if (val !== undefined && val !== null && val !== '') {
-          searchParams.append(key, String(val));
-        }
+        if (val !== undefined && val !== null && val !== '') search.append(key, String(val));
       });
-      const qs = searchParams.toString();
+      const qs = search.toString();
       if (qs) url += `${url.includes('?') ? '&' : '?'}${qs}`;
     }
     return this.request(url, { method: 'GET' });
   }
 
   post(endpoint, body) {
-    return this.request(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(body || {}),
-    });
+    return this.request(endpoint, { method: 'POST', body: JSON.stringify(body || {}) });
   }
 
   put(endpoint, body) {
-    return this.request(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(body || {}),
-    });
+    return this.request(endpoint, { method: 'PUT', body: JSON.stringify(body || {}) });
   }
 
   delete(endpoint) {

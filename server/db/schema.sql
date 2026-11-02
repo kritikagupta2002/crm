@@ -201,3 +201,26 @@ CREATE TABLE IF NOT EXISTS settings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+
+-- Account security columns (idempotent migration)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(32) DEFAULT 'Active';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS token_version INTEGER DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN DEFAULT TRUE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMP WITH TIME ZONE;
+
+-- Durable store for collections that do not yet have a dedicated table (shifts, notifications, settings, ...).
+-- Each collection is saved as one JSON document so nothing lives only on the API server's disk.
+CREATE TABLE IF NOT EXISTS collections (
+  name VARCHAR(128) PRIMARY KEY,
+  data JSONB NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Full record payloads so fields without a dedicated column survive a reload
+ALTER TABLE attendance ADD COLUMN IF NOT EXISTS data JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE leaves ADD COLUMN IF NOT EXISTS data JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE attendance_corrections ADD COLUMN IF NOT EXISTS data JSONB DEFAULT '{}'::jsonb;
+
+-- Per-account custom permissions (NULL = the role's standard permissions)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS permissions JSONB;

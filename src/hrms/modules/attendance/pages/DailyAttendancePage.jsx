@@ -1,17 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Calendar,
-  ArrowLeft,
-  Download,
-  Fingerprint,
-  UserCheck,
-  UserX,
-  ClockAlert,
-  CalendarOff,
-  RotateCcw,
-  CalendarDays,
-} from 'lucide-react';
+import { ArrowLeft, Download, Fingerprint, UserCheck, UserX, ClockAlert, CalendarOff, RotateCcw, CalendarDays } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -21,7 +10,7 @@ import { Select } from '@/components/common/Select';
 import { useToast } from '@/contexts/ToastContext';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { downloadCsv } from '../../../../shared/utils/exportCsv';
-import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { getEmployeeProjectById, STANDARD_PROJECTS, departmentOptions } from '@/core/constants/projects';
 import {
   DAYS_OF_WEEK,
   filterAttendanceRecords,
@@ -343,27 +332,7 @@ export const DailyAttendancePage = () => {
       <div className="w-44 sm:w-48">
         <Select
           size="sm"
-          options={[
-            { value: 'all', label: 'All Departments' },
-            {
-              value: 'Geology & Mineral Exploration',
-              label: 'Geology & Exploration',
-            },
-            { value: 'Mining & Mine Planning', label: 'Mining & Planning' },
-            {
-              value: 'GIS, Remote Sensing & UAV',
-              label: 'GIS & Remote Sensing',
-            },
-            {
-              value: 'Hydrogeology & Groundwater',
-              label: 'Hydrogeology',
-            },
-            {
-              value: 'Finance & Mineral Economics',
-              label: 'Finance & Economics',
-            },
-            { value: 'Human Resources & Admin', label: 'HR & Admin' },
-          ]}
+          options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]}
           value={selectedDept}
           onChange={(e) => setSelectedDept(e.target.value)}
         />

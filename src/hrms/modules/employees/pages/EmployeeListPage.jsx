@@ -1,20 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  UserPlus,
-  Download,
-  Eye,
-  Edit2,
-  Trash2,
-  Users,
-  UserCheck,
-  CalendarOff,
-  Building2,
-  MapPin,
-  Phone,
-  RotateCcw,
-  ShieldAlert,
-} from 'lucide-react';
+import { UserPlus, Download, Eye, Edit2, Trash2, Users, UserCheck, CalendarOff, Building2, Phone, RotateCcw } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable } from '@/components/common/DataTable';
 import { Avatar } from '@/components/common/Avatar';

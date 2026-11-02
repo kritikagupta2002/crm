@@ -1,31 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import {
-  Users,
-  User,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  CalendarDays,
-  TrendingUp,
-  Award,
-  Layers,
-  Search,
-  ChevronDown,
-  Scale,
-} from 'lucide-react';
+import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import { User, Calendar, CheckCircle2, Clock, Award, ChevronDown, Scale } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { StatCard } from '@/components/common/StatCard';
 import { ChartCard } from '@/components/common/ChartCard';
@@ -259,7 +234,7 @@ export const EmployeeLeaveMisChart = ({
                 }`}
               >
                 {allowAllOption && isSuperOrDirector && (
-                  <option value="all">🏢 Company Overview (Department Summary)</option>
+                  <option value="all">Company overview (by department)</option>
                 )}
                 {permittedEmployees.map((emp) => (
                   <option key={emp.employeeId} value={emp.employeeId}>

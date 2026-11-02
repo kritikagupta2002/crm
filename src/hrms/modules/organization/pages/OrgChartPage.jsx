@@ -1,23 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import {
-  Network,
-  Users,
-  Search,
-  Building2,
-  MapPin,
-  ChevronDown,
-  ArrowDown,
-  Briefcase,
-  Shield,
-  Filter,
-  CheckCircle2,
-  RotateCcw,
-  UserCheck,
-  Crown,
-} from 'lucide-react';
+import { Network, Search, Building2, MapPin, ChevronDown, ArrowDown, CheckCircle2, RotateCcw, Crown } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Card } from '@/components/common/Card';
-import { Button } from '@/components/common/Button';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useCrm } from '../../../../context/crm';
 import { storage } from '@/core/storage/storage';

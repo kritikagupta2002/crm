@@ -4,23 +4,23 @@ import { storage } from '@/core/storage/storage';
 import { hrRoleOf } from '../bridge';
 
 /*
- * The HRMS runs inside the CRM, so there is no separate HRMS login: the person signed in to the CRM (and the
- * role picked in the profile menu) is the HRMS user. Their HR record is found by name in the employee master.
+ * The HRMS user is the person signed in to the portal; their role comes from the server and their HR record is
+ * matched by employee ID.
  */
 const AuthContext = createContext(undefined);
 
 function hrUserOf(crmUser, role) {
     const employees = storage.getEmployees?.() || [];
-    const employee = employees.find((e) => e?.name === crmUser?.name || (crmUser?.id && e?.employeeId === crmUser.id) || (crmUser?.email && e?.contact?.workEmail === crmUser.email));
+    const employee = employees.find((e) => crmUser?.employeeId && e?.employeeId === crmUser.employeeId);
     return {
         id: employee?.id ?? null,
-        name: employee?.name || crmUser?.name || 'Staff Member',
+        name: employee?.name || crmUser?.name || '',
         email: employee?.contact?.workEmail ?? crmUser?.email ?? '',
-        role: hrRoleOf(role),
-        employeeId: employee?.employeeId ?? crmUser?.id ?? null,
+        role: hrRoleOf(crmUser?.permissions),
+        employeeId: crmUser?.employeeId ?? null,
         avatarUrl: employee?.avatarUrl || '',
         department: employee?.employment?.department ?? '',
-        designation: employee?.employment?.designation ?? crmUser?.title ?? 'Employee',
+        designation: employee?.employment?.designation ?? crmUser?.title ?? '',
     };
 }
 
@@ -39,7 +39,6 @@ export const AuthProvider = ({ children }) => {
         login: async () => true,
         logout: signOut,
         updateUser: () => { },
-        // Roles are switched from the CRM's profile menu.
         switchRole: () => { },
     }), [user, signOut]);
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

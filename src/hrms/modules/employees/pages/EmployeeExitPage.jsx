@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { storage } from '@/core/storage/storage';
 import { UserMinus, CheckCircle2, Clock, AlertCircle, FileCheck2, Download, CreditCard, Plus, Search, X, HelpCircle, ChevronDown, RotateCcw, } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
@@ -67,7 +68,9 @@ export const EmployeeExitPage = () => {
             }
         });
         const completed = exits.filter((e) => e.status === 'Settled & Relieved').length;
-        return { active, pendingClearanceCount, completed, avgNotice: 96 };
+        const withNotice = exits.filter((e) => e.noticePeriodDays > 0 && e.status !== 'Revoked');
+        const avgNotice = withNotice.length ? Math.round((withNotice.reduce((s, e) => s + Math.min(1, e.noticeServedDays / e.noticePeriodDays), 0) / withNotice.length) * 100) : 0;
+        return { active, pendingClearanceCount, completed, avgNotice };
     }, [exits]);
     const handleInitiateExit = async () => {
         if (!formEmpName || !formReason) {
@@ -172,7 +175,7 @@ export const EmployeeExitPage = () => {
             {/* Status Filter */}
             <div className="relative min-w-[160px]">
               <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
-                <option value="all">📁 All Exit Statuses</option>
+                <option value="all">All statuses</option>
                 <option value="In Clearance">In Clearance</option>
                 <option value="FnF Pending">F&F Pending</option>
                 <option value="Settled & Relieved">Settled & Relieved</option>
@@ -183,7 +186,7 @@ export const EmployeeExitPage = () => {
             {/* Exit Type Filter */}
             <div className="relative min-w-[155px]">
               <select value={selectedType} onChange={(e) => setSelectedType(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
-                <option value="all">📋 All Exit Types</option>
+                <option value="all">All exit types</option>
                 <option value="Resignation">Resignation</option>
                 <option value="Mutual Separation">Mutual Separation</option>
                 <option value="Retirement">Retirement</option>
@@ -194,11 +197,8 @@ export const EmployeeExitPage = () => {
             {/* Department Filter */}
             <div className="relative min-w-[160px]">
               <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-2 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#111821] border border-slate-200 dark:border-[#253344] text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs transition-all">
-                <option value="all">🏢 All Departments</option>
-                <option value="Geology">Geology & Exploration</option>
-                <option value="GIS">GIS & Remote Sensing</option>
-                <option value="Finance">Finance & Accounts</option>
-                <option value="HR">HR & Administration</option>
+                <option value="all">All departments</option>
+                {storage.getDepartments().map((d) => <option key={d.id} value={d.name}>{d.name}</option>)}
               </select>
               <ChevronDown className="w-4 h-4 text-slate-400 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2"/>
             </div>

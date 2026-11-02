@@ -1,39 +1,36 @@
 import { storage } from '@/core/storage/storage';
+import { api } from '@/core/api/apiClient';
+import { setPublicHolidays } from '@/modules/leave/utils/workingDays';
+
+/*
+ * Company-wide settings live on the server. The latest copy is also cached because working-day and late-mark
+ * calculations read it synchronously.
+ */
+const CACHE = {
+    company: storage.setCompanySettings,
+    attendance: storage.setAttendanceSettings,
+    leave: storage.setLeaveSettings,
+    payroll: storage.setPayrollSettings,
+};
+const load = async (key) => {
+    const res = await api.get(`/settings/${key}`);
+    CACHE[key](res.data);
+    if (key === 'leave') setPublicHolidays(res.data?.publicHolidays);
+    return res.data;
+};
+const save = async (key, value) => {
+    const res = await api.put(`/settings/${key}`, value);
+    CACHE[key](res.data);
+    return res.data;
+};
+
 export const settingsService = {
-    getCompanySettings: async () => {
-        return new Promise(resolve => setTimeout(() => resolve(storage.getCompanySettings()), 50));
-    },
-    updateCompanySettings: async (val) => {
-        const current = storage.getCompanySettings();
-        const updated = { ...current, ...val };
-        storage.setCompanySettings(updated);
-        return new Promise(resolve => setTimeout(() => resolve(updated), 80));
-    },
-    getAttendanceSettings: async () => {
-        return new Promise(resolve => setTimeout(() => resolve(storage.getAttendanceSettings()), 50));
-    },
-    updateAttendanceSettings: async (val) => {
-        const current = storage.getAttendanceSettings();
-        const updated = { ...current, ...val };
-        storage.setAttendanceSettings(updated);
-        return new Promise(resolve => setTimeout(() => resolve(updated), 80));
-    },
-    getLeaveSettings: async () => {
-        return new Promise(resolve => setTimeout(() => resolve(storage.getLeaveSettings()), 50));
-    },
-    updateLeaveSettings: async (val) => {
-        const current = storage.getLeaveSettings();
-        const updated = { ...current, ...val };
-        storage.setLeaveSettings(updated);
-        return new Promise(resolve => setTimeout(() => resolve(updated), 80));
-    },
-    getPayrollSettings: async () => {
-        return new Promise(resolve => setTimeout(() => resolve(storage.getPayrollSettings()), 50));
-    },
-    updatePayrollSettings: async (val) => {
-        const current = storage.getPayrollSettings();
-        const updated = { ...current, ...val };
-        storage.setPayrollSettings(updated);
-        return new Promise(resolve => setTimeout(() => resolve(updated), 80));
-    },
+    getCompanySettings: () => load('company'),
+    updateCompanySettings: (val) => save('company', val),
+    getAttendanceSettings: () => load('attendance'),
+    updateAttendanceSettings: (val) => save('attendance', val),
+    getLeaveSettings: () => load('leave'),
+    updateLeaveSettings: (val) => save('leave', val),
+    getPayrollSettings: () => load('payroll'),
+    updatePayrollSettings: (val) => save('payroll', val),
 };

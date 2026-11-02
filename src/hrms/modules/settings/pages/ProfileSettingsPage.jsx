@@ -1,41 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Save,
-  Camera,
-  User,
-  Mail,
-  Phone,
-  Calendar,
-  MapPin,
-  Building2,
-  Briefcase,
-  AlertCircle,
-  FileText,
-  Upload,
-  CheckCircle,
-  XCircle,
-  Clock,
-  RotateCcw,
-  ShieldCheck,
-  Eye,
-  Download,
-  AlertTriangle,
-  UploadCloud,
-  X,
-  FileCheck2,
-} from 'lucide-react';
+import { Save, Camera, FileText, Upload, CheckCircle, XCircle, Clock, RotateCcw, AlertTriangle, UploadCloud, X, FileCheck2 } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { Button } from '@/components/common/Button';
 import { Input } from '@/components/common/Input';
 import { Avatar } from '@/components/common/Avatar';
 import { Badge } from '@/components/common/Badge';
 import { Modal } from '@/components/common/Modal';
-import { Select } from '@/components/common/Select';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
 import { employeeService } from '@/modules/employees/services/employee.service';
 import { documentService } from '@/modules/documents/services/document.service';
+import { useAccess } from '../../../../core/permissions/crm';
 
 export const ProfileSettingsPage = () => {
   const { user, updateUser } = useAuth();
@@ -50,6 +27,9 @@ export const ProfileSettingsPage = () => {
   const [joiningDate, setJoiningDate] = useState('');
   const [emergencyName, setEmergencyName] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');
+  const canManage = useAccess().has('employees.manage');
+  const [bank, setBank] = useState({ accountHolderName: '', bankName: '', accountNumber: '', ifscCode: '', panNumber: '', uanNumber: '' });
+  const setBankField = (key, value) => setBank((prev) => ({ ...prev, [key]: value }));
   const [department, setDepartment] = useState('');
   const [designation, setDesignation] = useState('');
   const [address, setAddress] = useState('');
@@ -90,6 +70,14 @@ export const ProfileSettingsPage = () => {
       setJoiningDate(emp.employment?.joiningDate || '');
       setEmergencyName(emp.emergency?.name || '');
       setEmergencyPhone(emp.emergency?.phone || '');
+      setBank({
+        accountHolderName: emp.bank?.accountHolderName || '',
+        bankName: emp.bank?.bankName || '',
+        accountNumber: emp.bank?.accountNumber || '',
+        ifscCode: emp.bank?.ifscCode || '',
+        panNumber: emp.bank?.panNumber || '',
+        uanNumber: emp.bank?.uanNumber || '',
+      });
       setDepartment(emp.employment?.department || user.department || 'Mineral Exploration');
       setDesignation(emp.employment?.designation || user.designation || 'Staff');
       setAddress(emp.contact?.currentAddress || '');
@@ -147,12 +135,15 @@ export const ProfileSettingsPage = () => {
     if (!emergencyName.trim()) return toast.error('Emergency Contact Name is required.');
     if (!emergencyPhone.trim()) return toast.error('Emergency Mobile is required.');
     if (!address.trim()) return toast.error('Residential Address is required.');
+    if (bank.accountNumber && !/^\d{9,18}$/.test(bank.accountNumber.trim())) return toast.error('Account number must be 9 to 18 digits.');
+    if (bank.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(bank.ifscCode.trim().toUpperCase())) return toast.error('IFSC must look like SBIN0001234.');
+    if (bank.panNumber && !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(bank.panNumber.trim().toUpperCase())) return toast.error('PAN must look like ABCDE1234F.');
+    if (bank.uanNumber && !/^\d{12}$/.test(bank.uanNumber.trim())) return toast.error('UAN must be 12 digits.');
 
     setIsSaving(true);
     try {
-      const employees = storage.getEmployees() || [];
-      const empId = empRecord?.employeeId || user?.employeeId || `BGS-${Date.now()}`;
-      const targetId = empRecord?.id || empId;
+      const targetId = empRecord?.employeeId || user?.employeeId;
+      if (!targetId) throw new Error('Your account is not linked to an employee record. Please contact HR.');
 
       const updated = {
         ...(empRecord || {}),
@@ -181,12 +172,18 @@ export const ProfileSettingsPage = () => {
           name: emergencyName.trim(),
           phone: emergencyPhone.trim(),
         },
+        bank: {
+          ...(empRecord?.bank || {}),
+          accountHolderName: bank.accountHolderName.trim(),
+          bankName: bank.bankName.trim(),
+          accountNumber: bank.accountNumber.trim(),
+          ifscCode: bank.ifscCode.trim().toUpperCase(),
+          panNumber: bank.panNumber.trim().toUpperCase(),
+          uanNumber: bank.uanNumber.trim(),
+        },
       };
 
-      const idx = employees.findIndex((e) => e.employeeId === empId || e.id === targetId);
-      if (idx !== -1) employees[idx] = updated;
-      else employees.push(updated);
-      storage.setEmployees([...employees]);
+      await employeeService.update(targetId, updated);
 
       // Update AuthContext user state
       if (updateUser) {
@@ -199,14 +196,7 @@ export const ProfileSettingsPage = () => {
         });
       }
 
-      // Sync to Express API
-      try {
-        await employeeService.update(targetId, updated);
-      } catch (apiErr) {
-        console.warn('[Profile Save] Backend sync notice:', apiErr.message);
-      }
-
-      toast.success('Your complete employee profile has been updated.', 'Profile Saved');
+      toast.success('Your profile has been updated.', 'Profile saved');
     } catch (err) {
       toast.error(err.message || 'Failed to update profile.', 'Error');
     } finally {
@@ -217,12 +207,12 @@ export const ProfileSettingsPage = () => {
   // Upload New Document
   const handleDocumentSubmit = async (e) => {
     e.preventDefault();
-    const effectiveEmpId = empRecord?.employeeId || user?.employeeId || 'BGS/04';
-    const effectiveEmpName = empRecord?.name || user?.name || 'Staff Member';
-    const effectiveDept = empRecord?.employment?.department || user?.department || 'Operations';
+    const effectiveEmpId = empRecord?.employeeId || user?.employeeId;
+    const effectiveEmpName = empRecord?.name || user?.name || '';
+    const effectiveDept = empRecord?.employment?.department || user?.department || '';
 
     const fileName = uploadFile ? uploadFile.name : `${docType.replace(/\s+/g, '_')}_${effectiveEmpId}.pdf`;
-    const fileSize = uploadFile ? `${(uploadFile.size / (1024 * 1024)).toFixed(1)} MB` : '1.8 MB';
+    const fileSize = uploadFile ? `${(uploadFile.size / (1024 * 1024)).toFixed(1)} MB` : '';
 
     try {
       if (reuploadTargetDoc) {
@@ -385,6 +375,7 @@ export const ProfileSettingsPage = () => {
               />
               <Input
                 label="Date of Joining"
+                disabled={!canManage}
                 isRequired
                 type="date"
                 value={joiningDate}
@@ -406,6 +397,7 @@ export const ProfileSettingsPage = () => {
               />
               <Input
                 label="Department"
+                disabled={!canManage}
                 isRequired
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
@@ -413,6 +405,7 @@ export const ProfileSettingsPage = () => {
               />
               <Input
                 label="Designation"
+                disabled={!canManage}
                 isRequired
                 value={designation}
                 onChange={(e) => setDesignation(e.target.value)}
@@ -421,8 +414,22 @@ export const ProfileSettingsPage = () => {
               <Input
                 label="Employee Code"
                 disabled
-                value={empRecord?.employeeId || user?.employeeId || 'BGSPL'}
+                value={empRecord?.employeeId || user?.employeeId || ''}
               />
+            </div>
+
+            {/* Bank & statutory details */}
+            <div className="form-section">
+              <h4 className="eyebrow">Bank &amp; statutory details</h4>
+              <p className="form-section-hint">Used for salary payment and statutory filings. Only you and HR can see these.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Account Holder Name" value={bank.accountHolderName} maxLength={60} onChange={(e) => setBankField('accountHolderName', e.target.value)} placeholder="As printed on the passbook"/>
+                <Input label="Bank Name" value={bank.bankName} maxLength={60} onChange={(e) => setBankField('bankName', e.target.value)} placeholder="e.g. State Bank of India"/>
+                <Input label="Account Number" inputMode="numeric" value={bank.accountNumber} maxLength={18} onChange={(e) => setBankField('accountNumber', e.target.value.replace(/\D/g, ''))} placeholder="9 to 18 digits"/>
+                <Input label="IFSC Code" value={bank.ifscCode} maxLength={11} onChange={(e) => setBankField('ifscCode', e.target.value.toUpperCase())} placeholder="e.g. SBIN0001234"/>
+                <Input label="PAN" value={bank.panNumber} maxLength={10} onChange={(e) => setBankField('panNumber', e.target.value.toUpperCase())} placeholder="e.g. ABCDE1234F"/>
+                <Input label="UAN (EPFO)" inputMode="numeric" value={bank.uanNumber} maxLength={12} onChange={(e) => setBankField('uanNumber', e.target.value.replace(/\D/g, ''))} placeholder="12 digits"/>
+              </div>
             </div>
 
             {/* Residential Address */}

@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { departmentOptions } from '@/core/constants/projects';
 import { useNavigate } from 'react-router-dom';
 import { UserCheck, UserX, ClockAlert, CalendarOff, Clock, Fingerprint, CalendarDays, FileEdit, Download, MapPin } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
+import { PunchPanel } from '../components/PunchPanel';
+import { useAccess } from '../../../../core/permissions/crm';
 import { StatCard } from '@/components/common/StatCard';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -16,7 +19,6 @@ import { storage } from '@/core/storage/storage';
 import { DAYS_OF_WEEK, getDayOfWeekFromIso } from '../utils/attendanceFilters';
 import { downloadCsv } from '../../../../shared/utils/exportCsv';
 import { GeofenceModal } from '../components/GeofenceModal';
-import { OFFICE_CENTROID } from '../utils/geofence';
 export const AttendanceDashboardPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
@@ -28,13 +30,10 @@ export const AttendanceDashboardPage = () => {
     const [selectedDay, setSelectedDay] = useState('Monday');
     const [selectedMonth, setSelectedMonth] = useState(() => new Date().toISOString().slice(0, 7));
     const [isGeofenceModalOpen, setIsGeofenceModalOpen] = useState(false);
-    const [userCoords, setUserCoords] = useState(() => ({
-        latitude: OFFICE_CENTROID[0],
-        longitude: OFFICE_CENTROID[1],
-        accuracy: 8,
-        simulated: true,
-    }));
+    // Real device position only; null until the browser provides one.
+    const [userCoords, setUserCoords] = useState(null);
     const navigate = useNavigate();
+    const canPunch = useAccess().has('attendance.mark');
     const toast = useToast();
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
     const loadData = async () => {
@@ -204,6 +203,8 @@ export const AttendanceDashboardPage = () => {
                 Export Report
               </Button>)}
           </div>}/>
+
+      {canPunch && <PunchPanel title="Mark attendance"/>}
 
       {/* KPI Cards */}
       <div className="hr-stat-row">
@@ -429,15 +430,7 @@ export const AttendanceDashboardPage = () => {
                   size="sm"
                   value={selectedDept}
                   onChange={(e) => setSelectedDept(e.target.value)}
-                  options={[
-                    { label: 'All Departments', value: 'all' },
-                    { label: 'Geology & Exploration', value: 'Geology & Mineral Exploration' },
-                    { label: 'Mining & Mine Planning', value: 'Mining & Mine Planning' },
-                    { label: 'GIS & UAV Drone', value: 'GIS, Remote Sensing & UAV' },
-                    { label: 'Hydrogeology', value: 'Hydrogeology & Groundwater' },
-                    { label: 'Finance & Economics', value: 'Finance & Mineral Economics' },
-                    { label: 'HR & Admin', value: 'Human Resources & Admin' },
-                  ]}
+                  options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]}
                 />
               </div>
             )}

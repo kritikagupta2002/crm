@@ -9,7 +9,7 @@ import { Modal } from '@/components/common/Modal';
 import { Input } from '@/components/common/Input';
 import { useToast } from '@/contexts/ToastContext';
 import { payrollService } from '@/modules/payroll/services/payroll.service';
-import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { getEmployeeProjectById, STANDARD_PROJECTS, departmentOptions } from '@/core/constants/projects';
 import { storage } from '@/core/storage/storage';
 export const SalaryStructurePage = () => {
     const navigate = useNavigate();
@@ -185,15 +185,7 @@ export const SalaryStructurePage = () => {
 
       <DataTable compact={true} columns={columns} data={filteredStructures} keyField="id" searchPlaceholder="Search by employee name or code..." searchFields={['employeeName', 'employeeId', 'designation']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[150px]">
-              <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[
-                { label: 'All Departments', value: 'all' },
-                { label: 'Geology & Exploration', value: 'Geology & Mineral Exploration' },
-                { label: 'Mining & Planning', value: 'Mining & Mine Planning' },
-                { label: 'GIS & Remote Sensing', value: 'GIS, Remote Sensing & UAV' },
-                { label: 'Hydrogeology', value: 'Hydrogeology & Groundwater' },
-                { label: 'Finance & Economics', value: 'Finance & Mineral Economics' },
-                { label: 'HR & Admin', value: 'Human Resources & Admin' },
-            ]}/>
+              <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]}/>
             </div>
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[170px]">
               <Select value={selectedProject} onChange={(e) => setSelectedProject(e.target.value)} options={[

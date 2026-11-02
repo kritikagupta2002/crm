@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-    BarChart3, Download, Calendar, Building2, Users, CreditCard,
-    FileCheck2, TrendingUp, Award, UserMinus, CheckCircle2, Sliders,
-    Layers, Sparkles, FileSpreadsheet, Check, RotateCcw, Receipt,
-    Clock, XCircle, Search, Wallet, Fingerprint
-} from 'lucide-react';
-import {
-    ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
-    CartesianGrid, Legend, PieChart, Pie, Cell,
-} from 'recharts';
+import { BarChart3, Download, Calendar, Building2, Users, CreditCard, FileCheck2, Award, UserMinus, CheckCircle2, Sliders, Layers, Sparkles, FileSpreadsheet, Check, RotateCcw, Receipt, Clock, XCircle, Search, Wallet, Fingerprint } from 'lucide-react';
+import { ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
 import { PageHeader } from '@/components/common/PageHeader';
 import { Card } from '@/components/common/Card';
 import { ChartCard } from '@/components/common/ChartCard';

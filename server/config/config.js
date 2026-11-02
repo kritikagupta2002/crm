@@ -5,33 +5,60 @@ import dotenv from 'dotenv';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env from root or server
-dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
+// server/.env wins over the repo-root .env (dotenv never overwrites a value already set).
+dotenv.config({ path: path.join(__dirname, '..', '.env'), quiet: true });
+dotenv.config({ path: path.join(__dirname, '..', '..', '.env'), quiet: true });
 
-const allowedOrigins = [
-  'https://bansalgeo.geoplanetsolution.in',
-  'https://www.bansalgeo.geoplanetsolution.in',
-  'https://bansalgeo-api.geoplanetsolution.in',
-  'https://www.bansalgeo-api.geoplanetsolution.in',
-  'http://localhost:5173',
-  'http://localhost:5000',
-  'http://localhost:3000',
-  ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',').map((s) => s.trim()) : []),
-];
+const env = process.env;
+
+// Business dates (attendance days, leave, payroll months) are India time, whatever the host's clock is set to.
+process.env.TZ = env.TZ || 'Asia/Kolkata';
+const isProduction = (env.NODE_ENV || env.APP_ENV) === 'production';
+
+const list = (value) => (value || '').split(',').map((s) => s.trim()).filter(Boolean);
+
+function requireSecret() {
+  const secret = env.JWT_SECRET || '';
+  if (secret.length >= 32) return secret;
+  if (isProduction) {
+    throw new Error('JWT_SECRET must be set to a random string of at least 32 characters in production.');
+  }
+  console.warn('[config] JWT_SECRET is missing or short. Using a development-only secret; never deploy like this.');
+  return 'development-only-secret-do-not-use-in-production-000';
+}
+
+/*
+ * Office network addresses that count as "inside the office" for PCs without GPS. In production only public
+ * addresses are honoured: loopback and private ranges would match every request if the proxy were misconfigured.
+ */
+function officeIps() {
+  const all = list(env.OFFICE_IPS || (isProduction ? '' : '127.0.0.1,::1'));
+  if (!isProduction) return all;
+  const isPrivate = (ip) => /^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|::1$|fc|fd|fe80)/i.test(ip);
+  const ignored = all.filter(isPrivate);
+  if (ignored.length) console.warn(`[config] Ignoring private/loopback OFFICE_IPS in production: ${ignored.join(', ')}`);
+  return all.filter((ip) => !isPrivate(ip));
+}
+
+const devOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:4173'];
 
 export const config = {
-  port: parseInt(process.env.PORT || '5000', 10),
-  jwtSecret: process.env.JWT_SECRET || 'bgspl_hrms_jwt_secret_key_2026_secure',
-  jwtExpiresIn: '7d',
-  dataDir: path.join(__dirname, '..', 'data'),
-  corsOrigins: Array.from(new Set(allowedOrigins.filter(Boolean))),
+  isProduction,
+  port: parseInt(env.PORT || '5050', 10),
+  jwtSecret: requireSecret(),
+  jwtExpiresIn: env.JWT_EXPIRES_IN || '12h',
+  bcryptRounds: 12,
+  dataDir: env.DATA_DIR ? path.resolve(env.DATA_DIR) : path.join(__dirname, '..', 'data'),
+  corsOrigins: Array.from(new Set([...list(env.FRONTEND_URL), ...(isProduction ? [] : devOrigins)])),
   db: {
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    database: process.env.DB_NAME || 'bansalgeo_hrms',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
+    host: env.DB_HOST || 'localhost',
+    port: parseInt(env.DB_PORT || '5432', 10),
+    database: env.DB_NAME || 'bansalgeo_hrms',
+    user: env.DB_USER || 'postgres',
+    password: env.DB_PASSWORD || '',
+    ssl: env.DB_SSL === 'true' ? { rejectUnauthorized: env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' } : undefined,
   },
-  officeIps: (process.env.OFFICE_IPS || '127.0.0.1,::1').split(',').map((s) => s.trim()).filter(Boolean),
+  // In production the API refuses to start without PostgreSQL instead of silently writing to local JSON files.
+  requireDatabase: isProduction || env.REQUIRE_DATABASE === 'true',
+  officeIps: officeIps(),
 };

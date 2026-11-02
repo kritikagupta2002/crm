@@ -1,168 +1,45 @@
 import { storage } from '../storage/storage.js';
 
-export const PROJECT_METADATA = {
-    'Bhilwara Lead-Zinc Core Drilling': {
-        code: 'PRJ-BHIL-01',
-        client: 'Vedanta Mining Resources Ltd',
-        location: 'Bhilwara Site Office, Rajasthan',
-        siteType: 'Active Mining & Drilling Site',
-        category: 'Mineral Exploration & Core Logging',
-        leadName: 'Inder Nogiya',
-        badgeClass: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/40',
-        desc: 'Deep HQ diamond core drilling, mineralized zone intercept logging, and geochemical composite assays.',
-    },
-    'Jaipur Ring Road Drone Photogrammetry': {
-        code: 'PRJ-JPR-02',
-        client: 'NHAI & Jaipur Development Authority',
-        location: 'Jaipur Corporate HQ, Rajasthan',
-        siteType: 'UAV Aerial Flight Base',
-        category: 'GIS, Remote Sensing & UAV',
-        leadName: 'Madhurika Saini',
-        badgeClass: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/40',
-        desc: 'High-resolution orthomosaic mapping, digital surface modeling (DSM), and infrastructure corridor LiDAR analysis.',
-    },
-    'Khetri Copper Belt Reconnaissance': {
-        code: 'PRJ-KHT-03',
-        client: 'Hindustan Copper Corp',
-        location: 'Remote / Field Exploration Camp',
-        siteType: 'Remote Exploration Camp',
-        category: 'Geophysical & Structural Survey',
-        leadName: 'Balveer Singh Yadav',
-        badgeClass: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/40',
-        desc: 'Subsurface resistivity profiling, outcrop rock chip sampling, and structural geological boundary mapping.',
-    },
-    'Udaipur Rock Phosphate Assessment': {
-        code: 'PRJ-UDP-04',
-        client: 'Rajasthan State Mines & Minerals (RSMM)',
-        location: 'Udaipur Exploration Base, Rajasthan',
-        siteType: 'Field Hydrogeology Site',
-        category: 'Hydrogeology & Resource Estimation',
-        leadName: 'Kuldip Singh',
-        badgeClass: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800/40',
-        desc: 'Aquifer pump tests, phosphate seam stratigraphic correlation, and environmental baseline hydro-chemistry.',
-    },
-    'Corporate Operations & Governance': {
-        code: 'PRJ-CORP-00',
-        client: 'Bansal Geo Corporate HQ',
-        location: 'Jaipur Corporate HQ, Rajasthan',
-        siteType: 'Executive Headquarters',
-        category: 'Executive Management & Administration',
-        leadName: 'Dr. Amit Kumar Bansal',
-        badgeClass: 'bg-teal-50 dark:bg-teal-950/40 text-[#1F6F78] dark:text-teal-400 border-teal-200 dark:border-teal-800/40',
-        desc: 'Corporate governance, central financial planning, HR onboarding, statutory audits, and client relations.',
-    },
-};
+/*
+ * Projects and departments come only from real records: an employee's project is the one on their employment
+ * record, and the project/department lists are built from the employee and department masters. Nothing is
+ * inferred or invented.
+ */
+const NO_PROJECT = 'Unassigned';
+const BADGE = 'bg-slate-50 text-slate-700 border-slate-200';
 
-export const DEPARTMENT_METADATA = {
-    'Geology & Mineral Exploration': {
-        code: 'GEO-DIV',
-        headName: 'Dr. Amit Kumar Bansal',
-        base: 'Jaipur HQ / Bhilwara Field',
-        badgeClass: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/40',
-        desc: 'Mineral reconnaissance, borehole diamond drilling, geological block modeling, and resource estimation.',
-    },
-    'Mining & Mine Planning': {
-        code: 'MIN-DIV',
-        headName: 'Inder Nogiya',
-        base: 'Bhilwara Site Office',
-        badgeClass: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800/40',
-        desc: 'Open-cast & underground mine planning, pit optimization, slope stability, and statutory mine plans.',
-    },
-    'GIS, Remote Sensing & UAV': {
-        code: 'GIS-DIV',
-        headName: 'Madhurika Saini',
-        base: 'Jaipur Corporate HQ',
-        badgeClass: 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/40',
-        desc: 'Drone photogrammetry, satellite multispectral imagery, thematic mapping, and web-GIS database architectures.',
-    },
-    'Hydrogeology & Groundwater': {
-        code: 'HYD-DIV',
-        headName: 'Balveer Singh Yadav',
-        base: 'Udaipur Exploration Base',
-        badgeClass: 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 border-cyan-200 dark:border-cyan-800/40',
-        desc: 'Groundwater potential zone mapping, rainwater harvesting structures, pumping tests, and CGWA compliance.',
-    },
-    'Finance & Mineral Economics': {
-        code: 'FIN-DIV',
-        headName: 'Dharmendra Goyal',
-        base: 'Jaipur Corporate HQ',
-        badgeClass: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40',
-        desc: 'Mineral project financial appraisal, client invoicing, cash flow management, taxation, and statutory audits.',
-    },
-    'Human Resources & Admin': {
-        code: 'HRA-DIV',
-        headName: 'Kritika Gupta',
-        base: 'Jaipur Corporate HQ',
-        badgeClass: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800/40',
-        desc: 'Talent recruitment, employee lifecycle, site camp logistics, attendance, payroll, and statutory EPF/ESI filing.',
-    },
-};
+export const getEmployeeProject = (emp) => emp?.employment?.project?.trim() || NO_PROJECT;
 
-// Helper: Ensure 100% reliable project assignment for any employee
-export const getEmployeeProject = (emp) => {
-    if (!emp) return 'Corporate Operations & Governance';
-    if (emp.employment?.project)
-        return emp.employment.project;
-    const id = emp.employeeId || emp.id;
-    if (id === 'BGS/DIR-01' || id === 'BGS/DIR-03' || id === 'BGS/ADM-01') {
-        return 'Corporate Operations & Governance';
-    }
-    if (id === 'BGS/01' || id === 'BGS/04' || id === 'BGS/05') {
-        return 'Bhilwara Lead-Zinc Core Drilling';
-    }
-    if (id === 'BGS/10' || id === 'BGS/11') {
-        return 'Cadastral Survey & DGPS Field Mapping';
-    }
-    if (id === 'BGS/12') {
-        return 'Jaipur Ring Road Drone Photogrammetry';
-    }
-    if (id === 'BGS/09') {
-        return 'Khetri Copper Belt Reconnaissance';
-    }
-    const loc = emp.employment?.workLocation || '';
-    const dept = emp.employment?.department || '';
-    if (loc.includes('Bhilwara'))
-        return 'Bhilwara Lead-Zinc Core Drilling';
-    if (loc.includes('Udaipur'))
-        return 'Udaipur Rock Phosphate Assessment';
-    if (dept.includes('GIS') || dept.includes('Remote'))
-        return 'Jaipur Ring Road Drone Photogrammetry';
-    if (dept.includes('Mining'))
-        return 'Bhilwara Lead-Zinc Core Drilling';
-    if (dept.includes('Hydrogeology'))
-        return 'Udaipur Rock Phosphate Assessment';
-    if (loc.includes('Field'))
-        return 'Khetri Copper Belt Reconnaissance';
-    return 'Corporate Operations & Governance';
-};
+export const getEmployeeProjectById = (empId) =>
+    getEmployeeProject(storage.getEmployees().find((e) => e.employeeId === empId || e.id === empId));
 
-export const STANDARD_PROJECTS = [
-    'Bhilwara Lead-Zinc Core Drilling',
-    'Jaipur Ring Road Drone Photogrammetry',
-    'Khetri Copper Belt Reconnaissance',
-    'Udaipur Rock Phosphate Assessment',
-    'Corporate Operations & Governance',
-];
+/* Live list of projects currently assigned to employees (read when a page renders). */
+export const listProjects = () =>
+    [...new Set(storage.getEmployees().map(getEmployeeProject))].sort((a, b) => (a === NO_PROJECT ? 1 : b === NO_PROJECT ? -1 : a.localeCompare(b)));
 
-export const getEmployeeProjectById = (empId) => {
-    const employees = storage.getEmployees();
-    const emp = employees.find(e => e.employeeId === empId || e.id === empId);
-    if (emp)
-        return getEmployeeProject(emp);
-    if (empId === 'BGS/DIR-01' || empId === 'BGS/DIR-03' || empId === 'BGS/ADM-01') {
-        return 'Corporate Operations & Governance';
-    }
-    if (empId === 'BGS/01' || empId === 'BGS/04' || empId === 'BGS/05') {
-        return 'Bhilwara Lead-Zinc Core Drilling';
-    }
-    if (empId === 'BGS/10' || empId === 'BGS/11') {
-        return 'Cadastral Survey & DGPS Field Mapping';
-    }
-    if (empId === 'BGS/12') {
-        return 'Jaipur Ring Road Drone Photogrammetry';
-    }
-    if (empId === 'BGS/09') {
-        return 'Khetri Copper Belt Reconnaissance';
-    }
-    return 'Corporate Operations & Governance';
-};
+/* Array-like proxy so existing `STANDARD_PROJECTS.map(...)` filters always show the current project list. */
+export const STANDARD_PROJECTS = new Proxy([], {
+    get(_target, prop) {
+        const list = listProjects();
+        const value = list[prop];
+        return typeof value === 'function' ? value.bind(list) : value;
+    },
+});
+
+/* Metadata lookups return the department's real head and location from the department master. */
+export const DEPARTMENT_METADATA = new Proxy({}, {
+    get(_target, name) {
+        const dept = storage.getDepartments().find((d) => d.name === name);
+        if (!dept) return undefined;
+        return { code: dept.code || '', headName: dept.headName || '', base: dept.location || '', badgeClass: BADGE, desc: dept.description || '' };
+    },
+});
+
+export const PROJECT_METADATA = new Proxy({}, {
+    get() {
+        return undefined;
+    },
+});
+
+/* Department filter/select options from the department master. */
+export const departmentOptions = () => storage.getDepartments().map((d) => ({ value: d.name, label: d.name }));

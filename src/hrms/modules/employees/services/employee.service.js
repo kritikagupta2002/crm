@@ -1,88 +1,45 @@
 import { storage } from '@/core/storage/storage';
 import { api } from '@/core/api/apiClient';
 
+const path = (id) => `/employees/${encodeURIComponent(id)}`;
+
+/* The employee master lives on the server; the browser copy is a read cache for instant rendering. */
 export const employeeService = {
   getAll: async () => {
-    try {
-      const res = await api.get('/employees');
-      if (res && res.success && Array.isArray(res.data)) {
-        storage.setEmployees(res.data);
-        return res.data;
-      }
-    } catch (e) {
-      console.warn('[Employee Service] Remote API unavailable, serving from local cache:', e.message);
-    }
-    return storage.getEmployees();
+    const res = await api.get('/employees');
+    const list = Array.isArray(res?.data) ? res.data : [];
+    storage.setEmployees(list);
+    return list;
   },
 
   getById: async (id) => {
-    try {
-      const res = await api.get(`/employees/${id}`);
-      if (res && res.success && res.data) {
-        return res.data;
-      }
-    } catch (e) {
-      console.warn('[Employee Service] Remote employee fetch failed, searching local cache:', e.message);
-    }
-    const list = storage.getEmployees();
-    return list.find((e) => e.id === id || e.employeeId === id) || null;
+    const res = await api.get(path(id));
+    return res?.data ?? null;
   },
 
+  /*
+   * Creates the employee and their portal login. The result carries `account` (email, role and the one-time
+   * temporary password) so HR can hand the credentials over; it is never written to browser storage.
+   */
   create: async (data) => {
-    try {
-      const res = await api.post('/employees', data);
-      if (res && res.success && res.data) {
-        const list = storage.getEmployees();
-        storage.setEmployees([res.data, ...list]);
-        return res.data;
-      }
-    } catch (e) {
-      console.warn('[Employee Service] Remote creation failed, persisting locally:', e.message);
-    }
-
-    const list = storage.getEmployees();
-    const newEmployee = {
-      ...data,
-      id: `emp-${Date.now()}`,
-    };
-    const updated = [newEmployee, ...list];
-    storage.setEmployees(updated);
-    storage.getBalancesForEmployee(newEmployee.employeeId, newEmployee.name);
-    return newEmployee;
+    const res = await api.post('/employees', data);
+    storage.setEmployees([res.data, ...storage.getEmployees()]);
+    return { ...res.data, account: res.account };
   },
 
   update: async (id, data) => {
-    try {
-      const res = await api.put(`/employees/${id}`, data);
-      if (res && res.success && res.data) {
-        const list = storage.getEmployees();
-        const idx = list.findIndex((e) => e.id === id || e.employeeId === id);
-        if (idx >= 0) list[idx] = res.data;
-        storage.setEmployees([...list]);
-        return res.data;
-      }
-    } catch (e) {
-      console.warn('[Employee Service] Remote update failed, modifying local cache:', e.message);
-    }
-
+    const res = await api.put(path(id), data);
     const list = storage.getEmployees();
-    const index = list.findIndex((e) => e.id === id || e.employeeId === id);
-    if (index === -1) throw new Error('Employee not found');
-    const updatedEmployee = { ...list[index], ...data };
-    list[index] = updatedEmployee;
+    const idx = list.findIndex((e) => e.id === res.data.id || e.employeeId === res.data.employeeId);
+    if (idx >= 0) list[idx] = res.data;
     storage.setEmployees([...list]);
-    return updatedEmployee;
+    return res.data;
   },
 
+  /* Deactivates the employee and disables their login; their history is kept. */
   delete: async (id) => {
-    try {
-      await api.delete(`/employees/${id}`);
-    } catch (e) {
-      console.warn('[Employee Service] Remote delete failed, removing locally:', e.message);
-    }
-    const list = storage.getEmployees();
-    const filtered = list.filter((e) => e.id !== id && e.employeeId !== id);
-    storage.setEmployees(filtered);
+    await api.delete(path(id));
+    await employeeService.getAll().catch(() => null);
     return true;
   },
 };

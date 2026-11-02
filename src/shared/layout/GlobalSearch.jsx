@@ -1,4 +1,4 @@
-import { Briefcase, CalendarCheck, Clock, Contact, LayoutDashboard, Search, Users, X } from 'lucide-react'
+import { LayoutDashboard, Search, Users, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAccess } from '../../core/permissions/crm'

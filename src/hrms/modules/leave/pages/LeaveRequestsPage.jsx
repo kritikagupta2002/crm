@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, ArrowLeft, Filter, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Filter, RotateCcw } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { useToast } from '@/contexts/ToastContext';
 import { leaveService } from '@/modules/leave/services/leave.service';
-import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { getEmployeeProjectById, STANDARD_PROJECTS, departmentOptions } from '@/core/constants/projects';
 import { formatNearDate } from '@shared/utils/date';
 export const LeaveRequestsPage = () => {
     const navigate = useNavigate();
@@ -291,15 +291,7 @@ export const LeaveRequestsPage = () => {
         {/* Admin Only: Department & Project Filters */}
         {!isEmployee && (<>
             <div className="w-full sm:w-56">
-              <Select options={[
-                { value: 'all', label: 'All Departments' },
-                { value: 'Geology & Mineral Exploration', label: 'Geology & Exploration' },
-                { value: 'Mining & Mine Planning', label: 'Mining & Planning' },
-                { value: 'GIS, Remote Sensing & UAV', label: 'GIS & Remote Sensing' },
-                { value: 'Hydrogeology & Groundwater', label: 'Hydrogeology' },
-                { value: 'Finance & Mineral Economics', label: 'Finance & Economics' },
-                { value: 'Human Resources & Admin', label: 'HR & Admin' },
-            ]} value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}/>
+              <Select options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]} value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)}/>
             </div>
 
             <div className="w-full sm:w-56">

@@ -2,8 +2,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Navigate, Route } from 'react-router-dom';
 import { HrOnly } from './RoleRoute';
-import { useCrm } from '../context/crm';
-import { hrRoleOf } from './bridge';
+import { useAccess } from '../core/permissions/crm';
 
 const HrmsShell = lazy(() => import('./HrmsShell'));
 const LoadingFallback = () => (
@@ -57,9 +56,12 @@ const ProfileSettingsPage = lazy(() => import('@/modules/settings/pages/ProfileS
 const AttendanceSettingsPage = lazy(() => import('@/modules/settings/pages/AttendanceSettingsPage').then((m) => ({ default: m.AttendanceSettingsPage })));
 const LeaveSettingsPage = lazy(() => import('@/modules/settings/pages/LeaveSettingsPage').then((m) => ({ default: m.LeaveSettingsPage })));
 const NotificationSettingsPage = lazy(() => import('@/modules/settings/pages/NotificationSettingsPage').then((m) => ({ default: m.NotificationSettingsPage })));
+const UserAccountsPage = lazy(() => import('@/modules/settings/pages/UserAccountsPage').then((m) => ({ default: m.UserAccountsPage })));
+const RolesPermissionsPage = lazy(() => import('@/modules/settings/pages/RolesPermissionsPage').then((m) => ({ default: m.RolesPermissionsPage })));
+const AuditLogPage = lazy(() => import('@/modules/settings/pages/AuditLogPage').then((m) => ({ default: m.AuditLogPage })));
 const SecuritySettingsPage = lazy(() => import('@/modules/settings/pages/SecuritySettingsPage').then((m) => ({ default: m.SecuritySettingsPage })));
 
-const SettingsIndex = () => <Navigate to={hrRoleOf(useCrm().role) === 'employee' ? '/hr/settings/profile' : '/hr/settings/company'} replace />;
+const SettingsIndex = () => <Navigate to={useAccess().has('settings.manage') ? '/hr/settings/company' : '/hr/settings/profile'} replace />;
 
 export const hrmsRoutes = (
   <Route element={<Shell />}>
@@ -123,12 +125,15 @@ export const hrmsRoutes = (
       <Route index element={<SettingsIndex />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />
+      <Route path="security" element={<SecuritySettingsPage />} />
       <Route element={<HrOnly />}>
         <Route path="company" element={<CompanySettingsPage />} />
         <Route path="attendance" element={<AttendanceSettingsPage />} />
         <Route path="leave" element={<LeaveSettingsPage />} />
-        <Route path="security" element={<SecuritySettingsPage />} />
         <Route path="payroll" element={<PayrollSettingsPage />} />
+        <Route path="accounts" element={<UserAccountsPage />} />
+        <Route path="permissions" element={<RolesPermissionsPage />} />
+        <Route path="audit" element={<AuditLogPage />} />
       </Route>
     </Route>
   </Route>

@@ -22,6 +22,7 @@ export const OFFICE_CENTROID = [
 
 // Production buffer tolerance (15 meters) to accommodate indoor GPS drift & concrete building attenuation
 export const BUFFER_TOLERANCE_METERS = 15;
+export const MAX_ACCURACY_METERS = 100;
 
 export function haversineDistanceMeters(lat1, lon1, lat2, lon2) {
   const R = 6371000;
@@ -82,7 +83,8 @@ export function getDistanceToPolygon(point, vs = OFFICE_POLYGON) {
 export function isOfficeNetworkIp(clientIp) {
   if (!clientIp) return false;
   const cleanIp = clientIp.replace(/^::ffff:/, '');
-  return config.officeIps.some((trusted) => cleanIp === trusted || cleanIp.startsWith(trusted));
+  // Exact address, or a prefix written with a trailing dot (e.g. "203.0.113.") for a whole range.
+  return config.officeIps.some((trusted) => cleanIp === trusted || (trusted.endsWith('.') && cleanIp.startsWith(trusted)));
 }
 
 /**
@@ -112,7 +114,8 @@ export function verifyGeofence(latitude, longitude, accuracy = null, clientIp = 
   // Apply 15m buffer tolerance: if user is within 15 meters of perimeter, grant access
   const isInside = rawInside || distanceMeters <= BUFFER_TOLERANCE_METERS;
 
-  const isLowAccuracy = typeof accuracy === 'number' && accuracy > 50;
+  // A fix vaguer than this cannot place someone inside a building reliably.
+  const isLowAccuracy = typeof accuracy === 'number' && accuracy > MAX_ACCURACY_METERS;
 
   return {
     isInside,

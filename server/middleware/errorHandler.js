@@ -1,10 +1,15 @@
-export function errorHandler(err, req, res, next) {
-  console.error('[API Error]:', err.message || err);
+import { config } from '../config/config.js';
+
+/* Client errors keep their message; unexpected server errors are logged in full but reported generically. */
+export function errorHandler(err, req, res, _next) {
   const status = err.status || err.statusCode || 500;
+  if (status >= 500) console.error(`[API Error] ${req.method} ${req.originalUrl}:`, err);
   res.status(status).json({
     success: false,
-    error: err.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    error: status >= 500 && config.isProduction ? 'Something went wrong. Please try again.' : err.message || 'Request failed',
   });
 }
 
+export function notFound(req, res) {
+  res.status(404).json({ success: false, error: 'Not found.' });
+}

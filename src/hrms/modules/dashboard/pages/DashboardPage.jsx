@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Users, UserCheck, CalendarOff, FileCheck, FileCheck2, Calendar, Sparkles, CreditCard, UserPlus, CalendarDays, Clock, FileText, Send, RotateCcw, ChevronDown, BarChart3, Filter, Plus, AlertCircle } from 'lucide-react';
+import { Users, UserCheck, CalendarOff, Calendar, UserPlus, CalendarDays, Clock, RotateCcw, ChevronDown, BarChart3, Filter, Plus, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, BarChart, Bar, } from 'recharts';
 import { Button } from '@/components/common/Button';
@@ -12,10 +12,10 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { storage } from '@/core/storage/storage';
 import { leaveService } from '@/modules/leave/services/leave.service';
 import { EmployeeDashboard } from '../components/EmployeeDashboard';
-import { ExecutivePunchCard } from '@/modules/attendance/components/ExecutivePunchCard';
-import { PUBLIC_HOLIDAYS_2026 } from '@/modules/leave/utils/workingDays';
+import { PunchPanel } from '@/modules/attendance/components/PunchPanel';
+import { getPublicHolidays } from '@/modules/leave/utils/workingDays';
 import { todayIso } from '@/modules/attendance/utils/punch';
-import { getDailyQuote } from '@/data';
+import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
 // Live Digital Clock isolated component to prevent parent dashboard re-renders
 const LiveClock = ({ className }) => {
   const [time, setTime] = useState(() => new Date().toLocaleTimeString('en-US', {
@@ -99,7 +99,7 @@ const AdminDashboard = () => {
         ? { date: h, name: 'Company Holiday', kind: 'Company' }
         : { kind: 'Company', ...h }
     );
-    return [...PUBLIC_HOLIDAYS_2026, ...company]
+    return [...getPublicHolidays(), ...company]
       .filter((h) => h.date >= today)
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 4)
@@ -151,20 +151,6 @@ const AdminDashboard = () => {
   // Interactive Chart Range Selectors
   const [attendanceRange, setAttendanceRange] = useState('7days');
   const [leaveRange, setLeaveRange] = useState('this_month');
-  // Dynamic Daily Quote Rotation (changes automatically every day, or click to shuffle)
-  const [quoteOffset, setQuoteOffset] = useState(0);
-  const [isQuoteFading, setIsQuoteFading] = useState(false);
-  const activeQuote = useMemo(() => {
-    return getDailyQuote(new Date(), quoteOffset);
-  }, [quoteOffset]);
-  const handleNextQuote = (e) => {
-    e.stopPropagation();
-    setIsQuoteFading(true);
-    setTimeout(() => {
-      setQuoteOffset((prev) => prev + 1);
-      setIsQuoteFading(false);
-    }, 150);
-  };
   // Dynamic Department List
   const departmentsList = useMemo(() => {
     const counts = {};
@@ -280,34 +266,33 @@ const AdminDashboard = () => {
 
     return { total, present, absent, leave, late, newJoiners, presentPercent, absentPercent, leavePercent, latePercent };
   }, [allEmployees, allAttendance, allLeaveRequests, selectedDept, selectedLocation, selectedPeriod]);
-  // Attendance Trend Data derived from live attendance counts
+  // Attendance trend from real records, day by day. Days before the first recorded punch show no bars, and
+  // people on their weekly off or not yet joined are not counted as absent.
   const currentAttendanceData = useMemo(() => {
-    const today = new Date();
-    const todayStr = today.toLocaleDateString('en-CA');
-    const result = [];
-    const total = allEmployees.length || 10;
-    const presentToday = allAttendance.filter((a) => a.status === 'Present').length;
-    const leaveToday = allLeaveRequests.filter((l) => {
-      if (l.status !== 'Approved' && l.status !== 'Partially Approved')
-        return false;
-      return todayStr >= l.startDate && todayStr <= l.endDate;
-    }).length;
-    const absentToday = Math.max(0, total - presentToday - leaveToday);
+    const iso = (d) => d.toLocaleDateString('en-CA');
+    const step = attendanceRange === '30days' ? 3 : 1;
     const numDays = attendanceRange === '30days' ? 10 : attendanceRange === '14days' ? 14 : 7;
+    const firstRecorded = allAttendance.reduce((min, a) => (a.date && (!min || a.date < min) ? a.date : min), '');
+    const active = allEmployees.filter((e) => !['Inactive', 'Relieved', 'Terminated'].includes(e.employment?.status || e.status));
+    const result = [];
     for (let i = numDays - 1; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(d.getDate() - i * (attendanceRange === '30days' ? 3 : 1));
-      const dateStr = `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })}`;
-      if (i === 0) {
-        result.push({ date: dateStr, present: presentToday, absent: absentToday, leave: leaveToday });
+      const d = new Date();
+      d.setDate(d.getDate() - i * step);
+      const day = iso(d);
+      const label = `${d.getDate()} ${d.toLocaleString('en-IN', { month: 'short' })}`;
+      if (!firstRecorded || day < firstRecorded) {
+        result.push({ date: label, present: 0, absent: 0, leave: 0 });
+        continue;
       }
-      else {
-        const factor = 0.85 + (i % 3) * 0.05;
-        const p = Math.max(0, Math.round(presentToday * factor));
-        const l = Math.max(0, Math.min(total - p, Math.round(leaveToday * (0.8 + (i % 2) * 0.2))));
-        const a = Math.max(0, total - p - l);
-        result.push({ date: dateStr, present: p, absent: a, leave: l });
-      }
+      const onRoll = active.filter((e) => (!e.employment?.joiningDate || e.employment.joiningDate <= day) && !weeklyOffFor(e.employeeId).includes(d.getDay()));
+      const ids = new Set(onRoll.map((e) => e.employeeId));
+      const records = allAttendance.filter((a) => a.date === day && ids.has(a.employeeId));
+      const present = records.filter((a) => a.status === 'Present' || a.status === 'Late').length;
+      const onLeave = new Set([
+        ...records.filter((a) => a.status === 'On Leave').map((a) => a.employeeId),
+        ...allLeaveRequests.filter((l) => ['Approved', 'Partially Approved'].includes(l.status) && day >= l.startDate && day <= l.endDate && ids.has(l.employeeId)).map((l) => l.employeeId),
+      ]).size;
+      result.push({ date: label, present, leave: onLeave, absent: Math.max(0, onRoll.length - present - onLeave) });
     }
     return result;
   }, [attendanceRange, allEmployees, allAttendance, allLeaveRequests]);
@@ -463,27 +448,6 @@ const AdminDashboard = () => {
             </div>
           </div>
 
-          {/* Center: Daily Inspiration Quote stacked in 2 lines with gold underline (Visible on ALL devices) */}
-          <div onClick={handleNextQuote} title="Daily Thought • Click to preview other thoughts" className="flex flex-col items-start relative pl-5 sm:pl-6 cursor-pointer select-none group my-1 md:my-0">
-            <span className="text-[#D97706] text-2xl sm:text-3xl md:text-4xl font-serif font-black absolute -left-0.5 sm:-left-1 -top-1.5 sm:-top-2 leading-none select-none transition-transform duration-300 group-hover:scale-110">
-              “
-            </span>
-            <div className="flex items-center gap-1.5 mb-0.5">
-              <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 opacity-80 group-hover:opacity-100 transition-opacity">
-                <Sparkles className="w-2.5 h-2.5 text-amber-500 animate-pulse" />
-                Daily Thought
-              </span>
-              <span className="text-[9px] sm:text-[10px] text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                • {activeQuote.category}
-              </span>
-            </div>
-            <div className={`text-lg sm:text-xl md:text-2xl font-serif italic text-[#1E293B] dark:text-slate-100 font-semibold tracking-wide leading-tight group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-all duration-200 ${isQuoteFading ? 'opacity-0 translate-y-1' : 'opacity-100 translate-y-0'}`}>
-              <div>{activeQuote.line1}</div>
-              <div>{activeQuote.line2}</div>
-            </div>
-            <div className="w-12 sm:w-14 h-0.5 bg-[#D97706] mt-1.5 sm:mt-2 rounded-full transition-all duration-300 group-hover:w-28 group-hover:bg-amber-500" />
-          </div>
-
           {/* Right: Date Card floating in front of mountains (Visible on tablet/desktop >= 768px) */}
           <div className="hidden md:flex items-center gap-3 sm:gap-4 shrink-0">
             <div className="flex items-center gap-2.5 sm:gap-3 bg-white/95 dark:bg-[#131E2B]/95 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-2.5 rounded-2xl border border-slate-200/90 dark:border-[#223347] shadow-xs">
@@ -504,7 +468,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* ── EXECUTIVE ATTENDANCE PUNCH (AMIT BANSAL & DHARMENDRA GOYAL) ── */}
-      <ExecutivePunchCard />
+      <PunchPanel />
 
       {/* ── DASHBOARD FILTERS BAR ── */}
       <div className="bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-3 sm:p-4 shadow-2xs dark:shadow-[0_4px_16px_rgba(0,0,0,0.2)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -525,7 +489,7 @@ const AdminDashboard = () => {
           {/* Department Filter */}
           <div className="relative">
             <select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs">
-              <option value="all">🏢 All Departments ({allEmployees.length})</option>
+              <option value="all">All departments ({allEmployees.length})</option>
               {departmentsList.map((d) => (<option key={d.name} value={d.name}>
                 {d.name} ({d.count})
               </option>))}
@@ -549,7 +513,7 @@ const AdminDashboard = () => {
               }}
               className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs"
             >
-              <option value="all">📍 All Locations</option>
+              <option value="all">All locations</option>
               {locations.filter((l) => l.status !== 'Inactive').map((l) => (
                 <option key={l.id || l.name} value={l.name.toLowerCase()}>
                   {l.name}
@@ -563,7 +527,7 @@ const AdminDashboard = () => {
           {/* Date Period Filter */}
           <div className="relative">
             <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)} className="w-full appearance-none pl-3 pr-8 py-1.5 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0E1622] border border-slate-200 dark:border-[#24374D] text-slate-700 dark:text-slate-200 hover:border-slate-300 dark:hover:border-teal-500/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 cursor-pointer shadow-2xs">
-              <option value="today">📅 Today (Live)</option>
+              <option value="today">Today</option>
               <option value="week">This Week</option>
               <option value="month">This Month</option>
               <option value="quarter">This Quarter</option>
@@ -595,9 +559,9 @@ const AdminDashboard = () => {
       </div>
 
       {/* ── MIDDLE ROW: 3 VISUAL CHARTS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+      <div className="dash-row dash-row-charts">
         {/* Chart 1: Attendance Trend (5 cols) */}
-        <div className="lg:col-span-5 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
+        <div className="dash-cell dash-span-5 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -657,7 +621,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Chart 2: Department-wise Employees (4 cols) */}
-        <div className="lg:col-span-4 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
+        <div className="dash-cell dash-span-4 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
           <div className="mb-2">
             <h3 className="text-sm font-bold text-[#1E293B] dark:text-slate-100">
               Department-wise Employees
@@ -705,7 +669,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Chart 3: Leave Overview (3 cols) */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
+        <div className="dash-cell dash-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-[#1E293B] dark:text-slate-100">
@@ -747,9 +711,9 @@ const AdminDashboard = () => {
       </div>
 
       {/* ── BOTTOM ROW: PENDING APPROVALS + RECENT ACTIVITY + CELEBRATIONS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
+      <div className="dash-row dash-row-work">
         {/* 1. Pending Approvals Table (6 cols) */}
-        <div className="lg:col-span-6 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
+        <div className="dash-cell dash-span-6 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
@@ -769,7 +733,7 @@ const AdminDashboard = () => {
             <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-2.5 mb-3">
               {user?.name?.includes('Dharmendra')
                 ? 'Designated Approver: Reviewing all employee leave and attendance requests.'
-                : 'Master Oversight: Viewing all raised employee applications across sites.'}
+                : 'Requests from all employees that are waiting for a decision.'}
             </p>
 
             {/* Table */}
@@ -855,7 +819,7 @@ const AdminDashboard = () => {
           {/* Bottom footer summary */}
           <div className="pt-3 mt-3 border-t border-slate-100 dark:border-[#253344] flex items-center justify-between">
             <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              3 requests awaiting manager review
+              {(() => { const n = allLeaveRequests.filter((l) => l.status === 'Pending').length; return n ? `${n} request${n > 1 ? 's' : ''} waiting for a decision` : 'Nothing waiting for a decision'; })()}
             </span>
             <button type="button" onClick={() => navigate('/hr/leave/approvals')} className="text-xs font-bold text-[#B07D27] dark:text-amber-400 hover:text-[#8F621A] dark:hover:text-amber-300 flex items-center gap-1 transition-colors">
               <span>Review all</span>
@@ -865,7 +829,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* 2. Recent Activity Timeline (3 cols) */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
+        <div className="dash-cell dash-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-bold text-[#1E293B] dark:text-slate-100">
@@ -877,81 +841,8 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            {/* Activity List */}
-            <div className="space-y-3">
-              {/* Item 1 */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/50 dark:border-teal-800/40">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                    Leave approved for Vishal Kumawat
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">2 hours ago</p>
-                </div>
-              </div>
-
-              {/* Item 2: Document Verification Activity */}
-              <div
-                className="flex items-start gap-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 p-1 -m-1 rounded-xl transition-colors"
-                onClick={() => navigate('/hr/documents')}
-              >
-                <div className="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-[#C8943A] dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-200/50 dark:border-amber-800/40">
-                  <FileCheck className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                    Personal Document Verification
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">
-                    Aadhaar & Degree Certificates • Review queue
-                  </p>
-                </div>
-              </div>
-
-              {/* Item 3 */}
-              <div
-                className="flex items-start gap-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 p-1 -m-1 rounded-xl transition-colors"
-                onClick={() => navigate('/hr/documents')}
-              >
-                <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-[#31485A] dark:text-slate-300 flex items-center justify-center shrink-0 border border-slate-200/60 dark:border-slate-700/50">
-                  <FileCheck2 className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                    Pradeep Chand uploaded document
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">6 hours ago</p>
-                </div>
-              </div>
-
-              {/* Item 4 */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-400 flex items-center justify-center shrink-0 border border-teal-200/50 dark:border-teal-800/40">
-                  <Clock className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                    Biometric attendance sync completed
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">1 day ago</p>
-                </div>
-              </div>
-
-              {/* Item 5 */}
-              <div className="flex items-start gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/50 dark:border-emerald-800/40">
-                  <UserPlus className="w-4 h-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-[#1E293B] dark:text-slate-200 leading-tight">
-                    New employee Madhurika Saini joined as Sr. GIS Analyst
-                  </p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">1 day ago</p>
-                </div>
-              </div>
-            </div>
+            {/* Activity: the latest notifications meant for this person, from the server. */}
+            <RecentActivity onOpen={() => navigate('/hr/notifications')} />
           </div>
 
           {/* Bottom link */}
@@ -964,7 +855,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* 3. Celebrations / Dates Widget (3 cols) */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
+        <div className="dash-cell dash-span-3 bg-white dark:bg-[#131E2B] border border-slate-200/80 dark:border-[#223347] rounded-2xl p-4 sm:p-5 shadow-2xs dark:shadow-[0_4px_20px_rgba(0,0,0,0.25)] flex flex-col justify-between">
           <div>
             {/* Tabs */}
             <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#0E1622] border border-slate-200/60 dark:border-[#223347] mb-4">
@@ -997,7 +888,6 @@ const AdminDashboard = () => {
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 font-mono">{b.date}</span>
-                  <span className="text-sm">🎁</span>
                 </div>
               </div>))}
             </div>)}
@@ -1013,7 +903,6 @@ const AdminDashboard = () => {
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 font-mono">{a.date}</span>
-                  <span className="text-sm">🎉</span>
                 </div>
               </div>))}
             </div>)}
@@ -1026,7 +915,6 @@ const AdminDashboard = () => {
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-[11px] font-semibold text-[#B07D27] dark:text-amber-400 font-mono">{h.date}</span>
-                  <span className="text-sm">🌴</span>
                 </div>
               </div>))}
             </div>)}
@@ -1049,19 +937,6 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* ── FOOTER BAR ── */}
-      <div className="pt-4 border-t border-slate-200/80 dark:border-[#253344] flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
-        <div>
-          © 2026 Bansal Geo Solutions Pvt. Ltd. &nbsp;|&nbsp; HRMS
-        </div>
-        <div className="flex items-center gap-4 text-xs">
-          <a href="#support" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Support</a>
-          <span className="text-slate-300 dark:text-slate-600">|</span>
-          <a href="#privacy" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Privacy Policy</a>
-          <span className="text-slate-300 dark:text-slate-600">|</span>
-          <a href="#terms" className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Terms of Use</a>
-        </div>
-      </div>
     </div>
 
 
@@ -1132,3 +1007,38 @@ export const DashboardPage = () => {
   }
   return <AdminDashboard />;
 };
+
+
+const timeAgo = (iso) => {
+  if (!iso) return '';
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs} h ago`;
+  const days = Math.round(hrs / 24);
+  return days === 1 ? 'Yesterday' : `${days} days ago`;
+};
+
+function RecentActivity({ onOpen }) {
+  const items = (storage.getNotifications?.() || []).slice(0, 5);
+  if (!items.length) {
+    return <p className="text-sm text-slate-500 py-6 text-center">Nothing new. Updates about leave, attendance and documents will appear here.</p>;
+  }
+  return (
+    <ul className="space-y-3">
+      {items.map((n) => (
+        <li key={n.id}>
+          <button type="button" onClick={onOpen} className="flex items-start gap-2.5 w-full text-left rounded-lg p-1 -m-1 hover:bg-slate-50">
+            <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.read ? 'bg-slate-300' : 'bg-teal-600'}`} aria-hidden="true" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-medium text-slate-800">{n.title}</span>
+              {n.message && <span className="block text-xs text-slate-500 mt-0.5 line-clamp-2">{n.message}</span>}
+              <span className="block text-xs text-slate-400 mt-0.5">{timeAgo(n.createdAt)}</span>
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+}

@@ -1,6 +1,4 @@
-import { evaluateDay } from '../../modules/attendance/utils/punch.js';
-import { offDaysFromLabel } from '../../modules/leave/utils/workingDays.js';
-import { INITIAL_EMPLOYEES,INITIAL_DEPARTMENTS, INITIAL_DESIGNATIONS, INITIAL_ATTENDANCE, INITIAL_CORRECTIONS, INITIAL_LEAVE_BALANCES, INITIAL_LEAVE_REQUESTS, INITIAL_LEAVE_TYPES, INITIAL_SHIFTS, INITIAL_SHIFT_ASSIGNMENTS, INITIAL_DOCUMENTS, INITIAL_SALARY_STRUCTURES, INITIAL_PAYSLIPS, INITIAL_PAYROLL_RUNS, INITIAL_EXPENSES, INITIAL_REIMBURSEMENTS, INITIAL_NOTIFICATIONS, INITIAL_COMPANY_SETTINGS, INITIAL_ATTENDANCE_SETTINGS, INITIAL_LEAVE_SETTINGS, INITIAL_PAYROLL_SETTINGS, INITIAL_ROLES, } from '../../data/index.js';
+import { INITIAL_DEPARTMENTS, INITIAL_DESIGNATIONS, INITIAL_CORRECTIONS, INITIAL_LEAVE_BALANCES, INITIAL_LEAVE_REQUESTS, INITIAL_LEAVE_TYPES, INITIAL_SHIFTS, INITIAL_SHIFT_ASSIGNMENTS, INITIAL_DOCUMENTS, INITIAL_SALARY_STRUCTURES, INITIAL_PAYSLIPS, INITIAL_PAYROLL_RUNS, INITIAL_EXPENSES, INITIAL_REIMBURSEMENTS, INITIAL_NOTIFICATIONS, INITIAL_COMPANY_SETTINGS, INITIAL_ATTENDANCE_SETTINGS, INITIAL_LEAVE_SETTINGS, INITIAL_PAYROLL_SETTINGS, INITIAL_ROLES, } from '../../data/index.js';
 const STORAGE_KEYS = {
     EMPLOYEES: 'bgspl_employees',
     DEPARTMENTS: 'bgspl_departments',
@@ -31,8 +29,6 @@ const STORAGE_KEYS = {
     LOCATIONS: 'bgspl_locations',
     SEED_ADDED: 'bgspl_seed_added',
 };
-// Seed employees added after the first release of the demo data.
-const SEED_ADDITIONS = ['emp-019'];
 
 export const INITIAL_LOCATIONS = [
     { id: 'loc-jaipur', name: 'Jaipur', status: 'Active' },
@@ -60,255 +56,41 @@ function setItem(key, value) {
         console.error(`Failed saving to localStorage key "${key}":`, err);
     }
 }
-function normalizeAndSyncAttendance(rawList) {
-    if (!Array.isArray(rawList)) return rawList;
-    const employees = getItem(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES) || [];
-    const empMap = new Map();
-    employees.forEach((e) => {
-        if (e.employeeId) empMap.set(e.employeeId, e);
-        if (e.name) empMap.set(e.name.toLowerCase().trim(), e);
-    });
+/*
+ * Browser storage is a read cache of what the API last returned (plus a few modules that are not on the API
+ * yet). Bumping DATA_VERSION wipes caches written by older releases, which contained generated demo records.
+ */
+const DATA_VERSION = '2026-11-prod-1';
+const VERSION_KEY = 'bgspl_data_version';
+const TOKEN_KEY = 'bgspl_auth_token';
 
-    let list = [...rawList];
-    let changed = false;
-
-    // 1. If list is very short (e.g. old 14-record mock snapshot),
-    // merge with INITIAL_ATTENDANCE (28-day register) so users have rich historical logs.
-    if (list.length < 30 && Array.isArray(INITIAL_ATTENDANCE)) {
-        const existingKeys = new Set(list.map((r) => `${r.date}_${r.employeeId}`));
-        INITIAL_ATTENDANCE.forEach((initRec) => {
-            const key = `${initRec.date}_${initRec.employeeId}`;
-            if (!existingKeys.has(key)) {
-                list.push({ ...initRec });
-                existingKeys.add(key);
-                changed = true;
-            }
-        });
+export function resetLocalData() {
+    try {
+        Object.keys(localStorage)
+            .filter((k) => (k.startsWith('bgspl_') || k.startsWith('hrms_') || k.startsWith('bansal-crm:')) && k !== TOKEN_KEY && !k.endsWith('sidebar-collapsed'))
+            .forEach((k) => localStorage.removeItem(k));
+        localStorage.setItem(VERSION_KEY, DATA_VERSION);
     }
-
-    const today = new Date();
-    const pad = (n) => String(n).padStart(2, '0');
-    const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
-
-    // 2. Normalize and sanitize all individual records
-    const cleaned = [];
-    const seen = new Set();
-
-    list.forEach((item) => {
-        if (!item || !item.date) return;
-        const r = { ...item };
-
-        // Fix casing for known names like 'Nikhil vyas'
-        if (r.employeeName && r.employeeName.toLowerCase().includes('nikhil')) {
-            r.employeeName = 'Nikhil Vyas';
-        }
-
-        // Standardize IDs for executive personnel
-        if (r.employeeName && r.employeeName.includes('Amit Kumar Bansal')) {
-            if (r.employeeId !== 'BGS/DIR-01') {
-                r.employeeId = 'BGS/DIR-01';
-                changed = true;
-            }
-        } else if (r.employeeName && r.employeeName.includes('Dharmendra Goyal')) {
-            if (r.employeeId !== 'BGS/DIR-03') {
-                r.employeeId = 'BGS/DIR-03';
-                changed = true;
-            }
-        }
-
-        // Align with official employee record if available
-        const matchedEmp = empMap.get(r.employeeId) || empMap.get((r.employeeName || '').toLowerCase().trim());
-        if (matchedEmp) {
-            if (matchedEmp.name && r.employeeName !== matchedEmp.name) {
-                r.employeeName = matchedEmp.name;
-                changed = true;
-            }
-            if (matchedEmp.employment?.department && r.department !== matchedEmp.employment.department) {
-                r.department = matchedEmp.employment.department;
-                changed = true;
-            }
-            if (matchedEmp.employeeId && r.employeeId !== matchedEmp.employeeId) {
-                r.employeeId = matchedEmp.employeeId;
-                changed = true;
-            }
-        }
-
-        // Deduplicate records for the same employee on the same date
-        const dedupeKey = `${r.date}_${r.employeeId}`;
-        if (seen.has(dedupeKey)) {
-            changed = true;
-            return;
-        }
-
-        // A day left open on an earlier date: a demo register entry (id att-<date>-<employee>) is closed at
-        // the work end; a real punch that was never closed is kept open and shown as a missed punch-out.
-        const open = r.checkIn && r.checkIn !== '-' && (!r.checkOut || r.checkOut === '-');
-        if (r.date < todayStr && open && r.workingHours !== 'Missed punch-out') {
-            if (r.id === `att-${r.date}-${r.employeeId}`) {
-                const day = evaluateDay(r.checkIn, '06:00 PM', getItem(STORAGE_KEYS.ATTENDANCE_SETTINGS, INITIAL_ATTENDANCE_SETTINGS));
-                r.checkOut = '06:00 PM';
-                r.workingHours = day.workingHours;
-                r.overtime = day.overtime;
-            } else {
-                r.workingHours = 'Missed punch-out';
-            }
-            changed = true;
-        }
-
-        if (!r.punchSource) {
-            r.punchSource = 'Not recorded';
-            changed = true;
-        }
-
-        seen.add(dedupeKey);
-        cleaned.push(r);
-    });
-
-    // 3. The signed-in person punches for themselves: a demo entry for them today is taken out, so their own
-    // Punch In is what the register shows.
-    const activeEmpId = getItem(STORAGE_KEYS.ACTIVE_USER, null)?.employeeId;
-    if (activeEmpId) {
-        const demoId = `att-${todayStr}-${activeEmpId}`;
-        const idx = cleaned.findIndex((a) => a.id === demoId && a.status !== 'On Leave');
-        if (idx !== -1) {
-            cleaned.splice(idx, 1);
-            changed = true;
-        }
+    catch {
+        // Storage unavailable: nothing cached to clear.
     }
+}
 
-    // 4. The demo register for today, for everyone else on the rolls who is not on their weekly off
-    {
-        const todayRecords = cleaned.filter((a) => a.date === todayStr);
-        if (todayRecords.length < employees.length) {
-            const recordedEmpIds = new Set(todayRecords.map((a) => a.employeeId));
-            const nowMins = today.getHours() * 60 + today.getMinutes();
-            const clock = (mins) => `${pad(((Math.floor(mins / 60) + 11) % 12) + 1)}:${pad(mins % 60)} ${mins >= 720 ? 'PM' : 'AM'}`;
-            const duration = (mins) => `${Math.floor(mins / 60)}h ${pad(mins % 60)}m`;
-
-            const onLeaveEmpIds = new Set();
-            try {
-                const leaves = getItem(STORAGE_KEYS.LEAVE_REQUESTS, INITIAL_LEAVE_REQUESTS);
-                if (Array.isArray(leaves)) {
-                    leaves
-                        .filter((l) => (l.status === 'Approved' || l.status === 'Partially Approved') && todayStr >= l.startDate && todayStr <= l.endDate)
-                        .forEach((l) => onLeaveEmpIds.add(l.employeeId));
-                }
-            } catch {
-                // fallback
-            }
-
-            employees.forEach((emp, i) => {
-                if (recordedEmpIds.has(emp.employeeId)) return;
-                if (emp.employeeId === activeEmpId && !onLeaveEmpIds.has(emp.employeeId)) return;
-                const assignment = getItem(STORAGE_KEYS.SHIFT_ASSIGNMENTS, INITIAL_SHIFT_ASSIGNMENTS).find((s) => s.employeeId === emp.employeeId);
-                if (offDaysFromLabel(assignment?.weeklyOff).includes(today.getDay())) return;
-
-                const n = (i * 37 + today.getDate() * 11 + (today.getMonth() + 1) * 7) % 100;
-                const field = /Geology|GIS|Hydro|Mining/i.test(emp.employment?.department || '') && n % 3 === 0;
-                const base = {
-                    id: `att-${todayStr}-${emp.employeeId}`,
-                    employeeId: emp.employeeId,
-                    employeeName: emp.name,
-                    department: emp.employment?.department || 'Operations',
-                    date: todayStr,
-                    overtime: '-',
-                    punchSource: field ? 'Mobile Punch (Field GPS)' : 'Biometric - Jaipur HQ',
-                };
-
-                if (onLeaveEmpIds.has(emp.employeeId)) {
-                    cleaned.unshift({ ...base, checkIn: '-', checkOut: '-', workingHours: '-', lateBy: '-', status: 'On Leave', punchSource: 'Approved leave' });
-                    changed = true;
-                    return;
-                }
-
-                if (n < 2) {
-                    cleaned.unshift({ ...base, checkIn: '-', checkOut: '-', workingHours: '-', lateBy: '-', status: 'Absent' });
-                    changed = true;
-                    return;
-                }
-
-                const late = n < 15;
-                const inAt = late ? 555 + (n % 25) : 525 + (n % 20);
-                const outAt = 1080 + ((n * 3) % 45);
-                const working = nowMins < outAt;
-
-                cleaned.unshift({
-                    ...base,
-                    checkIn: clock(inAt),
-                    checkOut: working ? '-' : clock(outAt),
-                    workingHours: working ? 'Working...' : duration(outAt - inAt),
-                    lateBy: late ? `${inAt - 540}m` : '-',
-                    overtime: !working && outAt - inAt > 555 ? `${outAt - inAt - 540}m` : '-',
-                    status: late ? 'Late' : 'Present',
-                });
-                changed = true;
-            });
-        }
-    }
-
-    if (changed) {
-        setItem(STORAGE_KEYS.ATTENDANCE, cleaned);
-    }
-    return cleaned;
+try {
+    if (localStorage.getItem(VERSION_KEY) !== DATA_VERSION) resetLocalData();
+}
+catch {
+    // Storage unavailable.
 }
 
 export const storage = {
-    getEmployees: () => {
-        let list = getItem(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES);
-        // Automatically sync real company employees if storage has legacy mock data
-        if (!list || !Array.isArray(list) || !list.some((e) => e.employeeId === 'BGS/DIR-01')) {
-            list = INITIAL_EMPLOYEES;
-            setItem(STORAGE_KEYS.EMPLOYEES, list);
-            return list;
-        }
-        let changed = false;
-        const added = getItem(STORAGE_KEYS.SEED_ADDED, []);
-        const validIds = new Set([...INITIAL_EMPLOYEES.map((e) => e.employeeId), ...added.map((e) => e.employeeId)]);
-        if (list.some((e) => !validIds.has(e.employeeId))) {
-            list = list.filter((e) => validIds.has(e.employeeId));
-            changed = true;
-        }
-        list = list.map((emp) => {
-            const canonical = INITIAL_EMPLOYEES.find((e) => e.employeeId === emp.employeeId);
-            if (!canonical) return emp;
-            const needsUpdate =
-                emp.contact?.phone !== canonical.contact?.phone ||
-                emp.emergency?.phone !== canonical.emergency?.phone ||
-                emp.employment?.joiningDate !== canonical.employment?.joiningDate ||
-                emp.personal?.dob !== canonical.personal?.dob ||
-                emp.contact?.currentAddress !== canonical.contact?.currentAddress;
-            if (needsUpdate) {
-                changed = true;
-                return {
-                    ...canonical,
-                    ...emp,
-                    personal: { ...canonical.personal, ...emp.personal, dob: canonical.personal.dob },
-                    contact: { ...canonical.contact, ...emp.contact, phone: canonical.contact.phone, workEmail: canonical.contact.workEmail, currentAddress: canonical.contact.currentAddress },
-                    emergency: { ...canonical.emergency, ...emp.emergency, name: canonical.emergency.name, phone: canonical.emergency.phone },
-                    employment: { ...canonical.employment, ...emp.employment, designation: canonical.employment.designation, department: canonical.employment.department, joiningDate: canonical.employment.joiningDate },
-                };
-            }
-            return emp;
-        });
-        const missing = INITIAL_EMPLOYEES.filter((e) => !list.some((x) => x.employeeId === e.employeeId || x.name === e.name));
-        if (missing.length) {
-            list = [...list, ...missing];
-            changed = true;
-        }
-        if (changed) {
-            setItem(STORAGE_KEYS.EMPLOYEES, list);
-        }
-        return list;
-    },
+    getEmployees: () => getItem(STORAGE_KEYS.EMPLOYEES, []),
     setEmployees: (val) => setItem(STORAGE_KEYS.EMPLOYEES, val),
     getDepartments: () => getItem(STORAGE_KEYS.DEPARTMENTS, INITIAL_DEPARTMENTS),
     setDepartments: (val) => setItem(STORAGE_KEYS.DEPARTMENTS, val),
     getDesignations: () => getItem(STORAGE_KEYS.DESIGNATIONS, INITIAL_DESIGNATIONS),
     setDesignations: (val) => setItem(STORAGE_KEYS.DESIGNATIONS, val),
-    getAttendance: () => {
-        const raw = getItem(STORAGE_KEYS.ATTENDANCE, INITIAL_ATTENDANCE);
-        return normalizeAndSyncAttendance(raw);
-    },
+    getAttendance: () => getItem(STORAGE_KEYS.ATTENDANCE, []),
     setAttendance: (val) => setItem(STORAGE_KEYS.ATTENDANCE, val),
     getCorrections: () => getItem(STORAGE_KEYS.CORRECTIONS, INITIAL_CORRECTIONS),
     setCorrections: (val) => setItem(STORAGE_KEYS.CORRECTIONS, val),
@@ -452,131 +234,11 @@ export const storage = {
     setEmployeeLeaveBalances: (employeeId, balances) => {
         storage.setBalancesForEmployee(employeeId, balances);
     },
-    getEmployeeDocuments: () => {
-        return getItem(STORAGE_KEYS.EMPLOYEE_DOCUMENTS, [
-            {
-                id: 'doc-rec-1',
-                employeeId: 'BGS/DIR-01',
-                employeeName: 'Dr. Amit Kumar Bansal',
-                department: 'Mineral Exploration',
-                documentType: 'Degree / Diploma',
-                fileName: 'Ph.D_Geology_IIT_Roorkee.pdf',
-                fileSize: '4.2 MB',
-                uploadedOn: '2022-04-10',
-                status: 'Verified',
-                reviewedBy: 'Board of Directors',
-            },
-            {
-                id: 'doc-rec-2',
-                employeeId: 'BGS/DIR-03',
-                employeeName: 'Dharmendra Goyal',
-                department: 'Mineral Exploration',
-                documentType: 'PAN Card',
-                fileName: 'PAN_Card_Dharmendra_Goyal.pdf',
-                fileSize: '1.1 MB',
-                uploadedOn: '2022-05-15',
-                status: 'Verified',
-                reviewedBy: 'Board of Directors',
-            },
-            {
-                id: 'doc-rec-3',
-                employeeId: 'BGS/ADM-01',
-                employeeName: 'Kritika Gupta',
-                department: 'Administration',
-                documentType: 'Degree / Diploma',
-                fileName: 'MBA_HR_Operations_Cert.pdf',
-                fileSize: '2.4 MB',
-                uploadedOn: '2023-01-10',
-                status: 'Verified',
-                reviewedBy: 'Dharmendra Goyal',
-            },
-            {
-                id: 'doc-rec-4',
-                employeeId: 'BGS/01',
-                employeeName: 'Inder Nogiya',
-                department: 'Mining & Survey',
-                documentType: 'DGMS Mining Competency',
-                fileName: 'Surveyor_Competency_Certificate_DGMS.pdf',
-                fileSize: '2.8 MB',
-                uploadedOn: '2023-02-12',
-                status: 'Verified',
-                reviewedBy: 'Dharmendra Goyal',
-                expiryDate: '2028-02-11',
-            },
-            {
-                id: 'doc-rec-5',
-                employeeId: 'BGS/04',
-                employeeName: 'Vikas Verma',
-                department: 'Mining & Survey',
-                documentType: 'Aadhaar Card',
-                fileName: 'Aadhaar_Card_Vikas_Verma.pdf',
-                fileSize: '1.2 MB',
-                uploadedOn: '2023-04-18',
-                status: 'Verified',
-                reviewedBy: 'Inder Nogiya',
-            },
-            {
-                id: 'doc-rec-6',
-                employeeId: 'BGS/04',
-                employeeName: 'Vikas Verma',
-                department: 'Mining & Survey',
-                documentType: 'Degree / Diploma',
-                fileName: 'Diploma_Mining_Surveying.pdf',
-                fileSize: '3.1 MB',
-                uploadedOn: '2023-04-18',
-                status: 'Verified',
-                reviewedBy: 'Inder Nogiya',
-            },
-            {
-                id: 'doc-rec-7',
-                employeeId: 'BGS/11',
-                employeeName: 'Pradeep Chand',
-                department: 'Mineral Exploration',
-                documentType: 'Aadhaar Card',
-                fileName: 'Aadhaar_Pradeep_Chand.pdf',
-                fileSize: '980 KB',
-                uploadedOn: '2026-01-12',
-                status: 'Verified',
-                reviewedBy: 'Inder Nogiya',
-            },
-            {
-                id: 'doc-rec-8',
-                employeeId: 'BGS/11',
-                employeeName: 'Pradeep Chand',
-                department: 'Mineral Exploration',
-                documentType: 'Degree / Diploma',
-                fileName: 'B.Sc_Geology_Final_Semester_MarkSheet.pdf',
-                fileSize: '2.2 MB',
-                uploadedOn: '2026-02-15',
-                status: 'Pending Verification',
-            },
-            {
-                id: 'doc-rec-9',
-                employeeId: 'BGS/12',
-                employeeName: 'Madhurika Saini',
-                department: 'Mineral Exploration',
-                documentType: 'Degree / Diploma',
-                fileName: 'M.Tech_Geoinformatics_GIS_Cert.pdf',
-                fileSize: '3.6 MB',
-                uploadedOn: '2024-03-20',
-                status: 'Verified',
-                reviewedBy: 'Dharmendra Goyal',
-            },
-        ]);
-    },
+    getEmployeeDocuments: () => getItem(STORAGE_KEYS.EMPLOYEE_DOCUMENTS, []),
     setEmployeeDocuments: (val) => setItem(STORAGE_KEYS.EMPLOYEE_DOCUMENTS, val),
     getDocuments: () => getItem(STORAGE_KEYS.DOCUMENTS, INITIAL_DOCUMENTS),
     setDocuments: (val) => setItem(STORAGE_KEYS.DOCUMENTS, val),
-    getSalaryStructures: () => {
-        const list = getItem(STORAGE_KEYS.SALARY_STRUCTURES, INITIAL_SALARY_STRUCTURES);
-        const missing = INITIAL_SALARY_STRUCTURES.filter((s) => !list.some((x) => x.employeeId === s.employeeId));
-        if (missing.length) {
-            const next = [...list, ...missing];
-            setItem(STORAGE_KEYS.SALARY_STRUCTURES, next);
-            return next;
-        }
-        return list;
-    },
+    getSalaryStructures: () => getItem(STORAGE_KEYS.SALARY_STRUCTURES, INITIAL_SALARY_STRUCTURES),
     setSalaryStructures: (val) => setItem(STORAGE_KEYS.SALARY_STRUCTURES, val),
     getPayslips: () => getItem(STORAGE_KEYS.PAYSLIPS, INITIAL_PAYSLIPS),
     setPayslips: (val) => setItem(STORAGE_KEYS.PAYSLIPS, val),
@@ -1039,15 +701,7 @@ export const storage = {
     setPayrollSettings: (val) => setItem(STORAGE_KEYS.PAYROLL_SETTINGS, val),
     getRoles: () => getItem(STORAGE_KEYS.ROLES, INITIAL_ROLES),
     setRoles: (val) => setItem(STORAGE_KEYS.ROLES, val),
-    getActiveUser: () => getItem(STORAGE_KEYS.ACTIVE_USER, {
-        id: 'emp-004',
-        name: 'Kritika Gupta',
-        email: 'kritika.gupta@bansalgeo.com',
-        role: 'hr',
-        employeeId: 'BGS/ADM-01',
-        department: 'Operations & Management',
-        designation: 'HR & Operations Lead',
-    }),
+    getActiveUser: () => getItem(STORAGE_KEYS.ACTIVE_USER, null),
     getLocations: () => {
         const raw = getItem(STORAGE_KEYS.LOCATIONS, INITIAL_LOCATIONS);
         if (!Array.isArray(raw)) return INITIAL_LOCATIONS;
@@ -1078,7 +732,7 @@ export const storage = {
     setActiveUser: (val) => setItem(STORAGE_KEYS.ACTIVE_USER, val),
     // Only the HRMS's own saved data: the CRM keeps its demo data in the same browser.
     resetAll: () => {
-        Object.keys(localStorage).filter((k) => k.startsWith('bgspl_') || k.startsWith('hrms_')).forEach((k) => localStorage.removeItem(k));
+        resetLocalData();
         window.location.reload();
     }
 };

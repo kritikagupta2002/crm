@@ -22,6 +22,7 @@ export const OFFICE_CENTROID = [
 
 // 15-meter buffer margin to accommodate concrete building walls and GPS attenuation
 export const BUFFER_TOLERANCE_METERS = 15;
+export const MAX_ACCURACY_METERS = 100;
 
 export const OFFICE_INFO = {
   name: 'Bansal Geo Solutions Pvt. Ltd.',
@@ -128,7 +129,7 @@ export function evaluateGeofence(latitude, longitude, accuracy = 0) {
 
   // Apply 15m buffer tolerance for indoor reception & device drift
   const isInside = rawInside || distanceMeters <= BUFFER_TOLERANCE_METERS;
-  const isLowAccuracy = typeof accuracy === 'number' && accuracy > 50;
+  const isLowAccuracy = typeof accuracy === 'number' && accuracy > MAX_ACCURACY_METERS;
 
   let message = '';
   if (isInside) {

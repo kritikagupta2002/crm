@@ -19,22 +19,18 @@ export function GeofenceModal({
             <MapPin className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight">
-              Office Attendance Geofence Map
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Bansal Geo Solutions Pvt. Ltd. · Verified Attendance Zone
-            </p>
+            <h3 className="modal-title">Office geofence</h3>
+            <p className="modal-subtitle">Bansal Geo Solutions, Jaipur head office</p>
           </div>
         </div>
       }
-      size="2xl"
+      maxWidth="3xl"
     >
       <div className="space-y-4">
         <div className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 flex items-start gap-2">
           <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
           <span>
-            <strong>Geofenced Attendance Policy:</strong> To ensure accurate onsite verification, attendance punch-in and punch-out are strictly enabled only when your device GPS is inside the designated office polygon.
+            Office attendance can be punched only when your device's GPS places you inside the office boundary. Field staff on duty punch with their GPS position recorded for review.
           </span>
         </div>
 

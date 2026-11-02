@@ -1,5 +1,7 @@
+import { audit } from '../services/audit.js';
 import { db } from '../services/db.js';
 import { verifyGeofence, OFFICE_POLYGON, OFFICE_CENTROID } from '../services/geofence.js';
+import { can, scopedEmployeeId } from '../config/permissions.js';
 
 /* Today's date on the server's own clock (not UTC), so an early-morning punch lands on the right day. */
 function localDate(d = new Date()) {
@@ -46,7 +48,8 @@ function parseMinutes(timeStr) {
 export const attendanceController = {
   getAll: async (req, res, next) => {
     try {
-      const { date, employeeId, department, status, month } = req.query;
+      const { date, department, status, month } = req.query;
+      const employeeId = scopedEmployeeId(req, req.query.employeeId, 'attendance.view_all');
       let attendance = db.get('attendance');
 
       if (date) {
@@ -103,7 +106,7 @@ export const attendanceController = {
           onLeave: onLeaveCount,
           absent: absentCount,
         },
-        records: todayRecords,
+        records: can(req.user, 'attendance.view_all') ? todayRecords : todayRecords.filter((r) => r.employeeId === req.user.employeeId),
       });
     } catch (err) {
       next(err);
@@ -112,27 +115,31 @@ export const attendanceController = {
 
   recordPunch: async (req, res, next) => {
     try {
-      const { employeeId, punchType, source = 'Web Portal', latitude, longitude, accuracy } = req.body;
-      const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip;
+      const { punchType, source = 'Web Portal', latitude, longitude, accuracy } = req.body;
+      // People always punch for themselves; HR may punch on someone's behalf.
+      const employeeId = scopedEmployeeId(req, req.body.employeeId, 'attendance.manage') || req.user.employeeId;
+      if (employeeId === req.user.employeeId && !can(req.user, 'attendance.mark')) {
+        return res.status(403).json({ success: false, error: 'You do not have permission to mark attendance.' });
+      }
+      const clientIp = req.ip;
 
       if (!employeeId) {
-        return res.status(400).json({ success: false, error: 'Employee ID is required.' });
+        return res.status(400).json({ success: false, error: 'Your account is not linked to an employee record.' });
       }
 
-      // Geofence boundary verification with 15m buffer & office IP fallback
-      // Executive directors and field personnel on official duty are not locked out
-      const isExecutive = ['BGS/DIR-01', 'BGS/DIR-03', 'BGS/ADM-01'].includes(employeeId) ||
-        source?.toLowerCase().includes('executive') ||
-        source?.toLowerCase().includes('field') ||
-        source?.toLowerCase().includes('duty') ||
-        source?.toLowerCase().includes('regularization');
-
-      const geo = verifyGeofence(latitude, longitude, accuracy, clientIp);
-      if (!geo.isInside && !isExecutive) {
-        const dist = Math.round(geo.distanceMeters || 0);
+      // Everyone punches from inside the office boundary (or the office network). Attendance for someone who was
+      // elsewhere is recorded by HR through a correction, which keeps an approval trail.
+      const num = (v) => (v === null || v === undefined || v === '' || !Number.isFinite(Number(v)) ? undefined : Number(v));
+      const geo = verifyGeofence(num(latitude), num(longitude), num(accuracy) ?? null, clientIp);
+      if (geo.isLowAccuracy && geo.verifiedBy !== 'Office Network / IP Whitelist') {
+        return res.status(403).json({ success: false, error: `Your GPS signal is too weak (±${geo.accuracy} m). Move near a window or step outside briefly, then try again.`, geofence: geo });
+      }
+      if (!geo.isInside) {
+        const d = geo.distanceMeters;
+        const where = d == null ? 'Your location could not be read' : `You are ${d >= 1000 ? `${(d / 1000).toFixed(1)} km` : `${Math.round(d)} m`} from the office`;
         return res.status(403).json({
           success: false,
-          error: `Attendance locked: You are outside the office geofence (${dist}m away). Move inside the office boundary to punch.`,
+          error: `${where}. Attendance can be punched only inside the office.`,
           geofence: geo,
         });
       }
@@ -169,7 +176,13 @@ export const attendanceController = {
           lateBy: isLate ? lateText(lateMins) : '-',
           overtime: '-',
           status: isLate ? 'Late' : 'Present',
-          punchSource: source,
+          punchSource: String(source).slice(0, 120),
+          latitude: Number.isFinite(Number(latitude)) ? Number(latitude) : null,
+          longitude: Number.isFinite(Number(longitude)) ? Number(longitude) : null,
+          accuracy: Number.isFinite(Number(accuracy)) ? Number(accuracy) : null,
+          inGeofence: Boolean(geo.isInside),
+          verifiedBy: geo.verifiedBy,
+          punchedBy: req.user.employeeId === employeeId ? undefined : req.user.name,
         };
 
         if (record) {
@@ -196,8 +209,13 @@ export const attendanceController = {
         const diffHours = (diffMins / 60).toFixed(1);
 
         record.checkOut = time;
+        record.checkOutInGeofence = Boolean(geo.isInside);
         record.workingHours = `${diffHours} hrs`;
-        record.overtime = diffMins > 9 * 60 ? `${((diffMins - 9 * 60) / 60).toFixed(1)} hrs` : '-';
+        const rules = db.get('attendance_settings') || {};
+        const fullDayMins = (Number(rules.fullDayMinimumHours) || 8) * 60;
+        record.overtime = diffMins > fullDayMins ? `${((diffMins - fullDayMins) / 60).toFixed(1)} hrs` : '-';
+        // Less than the half-day threshold counts as a half day (the late mark, if any, is kept in lateBy).
+        if (diffMins < (Number(rules.halfDayThresholdHours) || 4.5) * 60) record.status = 'Half Day';
         db.set('attendance', [...attendanceList]);
       } else {
         return res.status(400).json({ success: false, error: 'Invalid punch type. Use checkIn or checkOut.' });
@@ -211,7 +229,8 @@ export const attendanceController = {
 
   getMonthly: async (req, res, next) => {
     try {
-      const { month = localDate().slice(0, 7), employeeId } = req.query;
+      const { month = localDate().slice(0, 7) } = req.query;
+      const employeeId = scopedEmployeeId(req, req.query.employeeId, 'attendance.view_all');
       const attendance = db.get('attendance');
       const employees = db.get('employees');
 
@@ -256,7 +275,8 @@ export const attendanceController = {
   // Attendance Corrections
   getCorrections: async (req, res, next) => {
     try {
-      const { status, employeeId } = req.query;
+      const { status } = req.query;
+      const employeeId = scopedEmployeeId(req, req.query.employeeId, 'attendance.view_all');
       let corrections = db.get('corrections');
 
       if (status) {
@@ -274,10 +294,15 @@ export const attendanceController = {
 
   submitCorrection: async (req, res, next) => {
     try {
-      const { employeeId, date, requestedCheckIn, requestedCheckOut, reason } = req.body;
-      if (!employeeId || !date || !reason) {
-        return res.status(400).json({ success: false, error: 'Employee ID, date, and reason are required.' });
+      const { date, requestedCheckIn, requestedCheckOut, reason } = req.body;
+      const employeeId = scopedEmployeeId(req, req.body.employeeId, 'attendance.manage') || req.user.employeeId;
+      if (!employeeId || !/^\d{4}-\d{2}-\d{2}$/.test(String(date || '')) || !String(reason || '').trim()) {
+        return res.status(400).json({ success: false, error: 'Date and reason are required.' });
       }
+      if (!requestedCheckIn && !requestedCheckOut) {
+        return res.status(400).json({ success: false, error: 'Enter the corrected check-in or check-out time.' });
+      }
+      const existing = db.get('attendance').find((a) => a.employeeId === employeeId && a.date === date);
 
       const employees = db.get('employees');
       const emp = employees.find((e) => e.employeeId === employeeId);
@@ -288,11 +313,11 @@ export const attendanceController = {
         employeeName: emp?.name || employeeId,
         department: emp?.employment?.department || 'General',
         date,
-        originalCheckIn: req.body.originalCheckIn || '09:45 AM',
-        originalCheckOut: req.body.originalCheckOut || '06:00 PM',
-        requestedCheckIn: requestedCheckIn || '09:00 AM',
-        requestedCheckOut: requestedCheckOut || '06:00 PM',
-        reason,
+        originalCheckIn: existing?.checkIn || '-',
+        originalCheckOut: existing?.checkOut || '-',
+        requestedCheckIn: requestedCheckIn || existing?.checkIn || '-',
+        requestedCheckOut: requestedCheckOut || existing?.checkOut || '-',
+        reason: String(reason).trim().slice(0, 1000),
         status: 'Pending',
         appliedAt: new Date().toISOString(),
       };
@@ -307,22 +332,33 @@ export const attendanceController = {
   reviewCorrection: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const { status, reviewerNote, reviewerName } = req.body;
+      const { status } = req.body;
+      const reviewerNote = req.body.reviewerNote ?? req.body.comment;
 
       if (!['Approved', 'Rejected'].includes(status)) {
         return res.status(400).json({ success: false, error: 'Status must be Approved or Rejected.' });
       }
+      const request = db.findById('corrections', id);
+      if (!request) return res.status(404).json({ success: false, error: 'Correction request not found.' });
+      if (request.status !== 'Pending') {
+        return res.status(409).json({ success: false, error: `This request was already ${request.status.toLowerCase()}.` });
+      }
+      if (request.employeeId === req.user.employeeId && req.user.role !== 'Managing Director') {
+        return res.status(403).json({ success: false, error: 'You cannot review your own correction request.' });
+      }
 
       const updated = db.update('corrections', id, {
         status,
-        reviewerNote: reviewerNote || '',
-        reviewerName: reviewerName || req.user?.name || 'HR Admin',
+        reviewComment: String(reviewerNote || '').slice(0, 1000),
+        reviewedBy: req.user.name,
         reviewedAt: new Date().toISOString(),
       });
 
       if (!updated) {
         return res.status(404).json({ success: false, error: 'Correction request not found.' });
       }
+
+      audit(req, 'review', 'corrections', updated.id, `Correction for ${updated.employeeName} on ${updated.date} ${status.toLowerCase()}`);
 
       // If approved, update the actual attendance record
       if (status === 'Approved') {
@@ -335,7 +371,25 @@ export const attendanceController = {
           record.checkOut = updated.requestedCheckOut;
           record.status = 'Present';
           record.lateBy = '-';
+          record.regularized = true;
           db.set('attendance', [...attendanceList]);
+        } else {
+          const emp = db.get('employees').find((e) => e.employeeId === updated.employeeId);
+          db.insert('attendance', {
+            id: `att-r-${Date.now()}`,
+            employeeId: updated.employeeId,
+            employeeName: emp?.name || updated.employeeName,
+            department: emp?.employment?.department || updated.department,
+            date: updated.date,
+            checkIn: updated.requestedCheckIn,
+            checkOut: updated.requestedCheckOut,
+            workingHours: '-',
+            lateBy: '-',
+            overtime: '-',
+            status: 'Present',
+            punchSource: 'Regularized (approved correction)',
+            regularized: true,
+          });
         }
       }
 

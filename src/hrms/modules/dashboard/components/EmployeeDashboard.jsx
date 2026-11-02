@@ -1,7 +1,7 @@
 import { Avatar } from '@/components/common/Avatar';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Boxes, Clock, CalendarCheck2, Receipt, CalendarPlus, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, LogOut, LogIn, ChevronRight, Building2, Compass, Timer, ShieldAlert, Crosshair, Navigation, CheckCircle2, AlertTriangle, Eye, EyeOff, Layers, Map as MapIcon, FileCheck, Upload } from 'lucide-react';
+import { Clock, CalendarCheck2, ArrowRight, MapPin, CalendarDays, Sparkles, ShieldCheck, UserCheck, ChevronRight, Compass, FileCheck, Upload } from 'lucide-react';
 import { Card } from '@/components/common/Card';
 import { StatCard } from '@/components/common/StatCard';
 import { CardHeader } from '@/components/common/CardHeader';
@@ -12,13 +12,14 @@ import { useToast } from '@/contexts/ToastContext';
 import { storage } from '@/core/storage/storage';
 import { formatNearDate } from '@shared/utils/date';
 import { useCrm } from '../../../../context/crm';
+import { PunchPanel } from '@/modules/attendance/components/PunchPanel';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { parseClock, todayIso } from '@/modules/attendance/utils/punch';
 import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
-import { isWorkingDay, PUBLIC_HOLIDAYS_2026 } from '@/modules/leave/utils/workingDays';
-import { evaluateGeofence, OFFICE_CENTROID, OFFICE_INFO } from '@/modules/attendance/utils/geofence';
-import { GeofenceModal } from '@/modules/attendance/components/GeofenceModal';
-import { GeofenceMap } from '@/modules/attendance/components/GeofenceMap';
+import { isWorkingDay, getPublicHolidays } from '@/modules/leave/utils/workingDays';
+import { evaluateGeofence } from '@/modules/attendance/utils/geofence';
+
+
 export const EmployeeDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -117,20 +118,19 @@ export const EmployeeDashboard = () => {
     const [todayRecord, setTodayRecord] = useState(() => storage.getAttendance().find((a) => a.employeeId === user?.employeeId && a.date === todayIso()));
     const [isPunching, setIsPunching] = useState(false);
 
-    // Geofence GPS location & status (initialized to office polygon centroid)
-    const [userCoords, setUserCoords] = useState(() => ({
-        latitude: OFFICE_CENTROID[0],
-        longitude: OFFICE_CENTROID[1],
-        accuracy: 8,
-        simulated: false,
-    }));
+    // The device's real GPS position; null until the browser provides one (never assumed).
+    const [userCoords, setUserCoords] = useState(null);
     const [isGeofenceModalOpen, setIsGeofenceModalOpen] = useState(false);
     const [showInlineMap, setShowInlineMap] = useState(false);
     const [isLocating, setIsLocating] = useState(false);
 
     const geofence = useMemo(() => {
-        return evaluateGeofence(userCoords?.latitude, userCoords?.longitude, userCoords?.accuracy || 10);
+        if (!userCoords) return { isInside: false, located: false, distanceMeters: null };
+        return { ...evaluateGeofence(userCoords.latitude, userCoords.longitude, userCoords.accuracy || 10), located: true };
     }, [userCoords]);
+    const fenceLabel = !geofence.located
+        ? (isLocating ? 'Finding your location…' : 'Location unavailable')
+        : geofence.isInside ? 'Inside office geofence' : `Outside geofence (${Math.round(geofence.distanceMeters || 0)} m away)`;
     const isInsideGeofence = geofence.isInside;
 
     const refreshGps = () => {
@@ -152,16 +152,12 @@ export const EmployeeDashboard = () => {
             },
             () => {
                 setIsLocating(false);
-                toast.warning('Unable to retrieve GPS fix. Using last known location.', 'GPS Warning');
+                toast.warning('Allow location access in your browser to punch attendance.', 'Location unavailable');
             },
             { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
         );
     };
 
-    // Detect browser GPS on mount if permission granted
-    useEffect(() => {
-        refreshGps();
-    }, []);
 
     useEffect(() => {
         if (user?.employeeId) {
@@ -228,8 +224,10 @@ export const EmployeeDashboard = () => {
         // Strict Geofence verification
         if (!isInsideGeofence) {
             toast.error(
-                `Attendance Locked: You are outside the office geofence (${Math.round(geofence.distanceMeters || 0)}m away). Move inside the office boundary to punch.`,
-                'Geofence Required'
+                geofence.located
+                    ? `You are ${Math.round(geofence.distanceMeters || 0)} m outside the office geofence. Move inside the office to punch.`
+                    : 'Your location is not available. Allow location access and tap Refresh GPS.',
+                'Punch unavailable'
             );
             setIsGeofenceModalOpen(true);
             return;
@@ -293,7 +291,7 @@ export const EmployeeDashboard = () => {
     const upcomingHolidays = useMemo(() => {
         const today = todayIso();
         const company = (storage.getLeaveSettings()?.companyHolidays || []).map((h) => (typeof h === 'string' ? { date: h, name: 'Company holiday', kind: 'Company Holiday' } : { kind: 'Company Holiday', ...h }));
-        return [...PUBLIC_HOLIDAYS_2026, ...company]
+        return [...getPublicHolidays(), ...company]
             .filter((h) => h.date >= today)
             .sort((a, b) => a.date.localeCompare(b.date))
             .slice(0, 3)
@@ -494,234 +492,8 @@ export const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* ── 2. Live Punch Command Center with Adjacent Animated Geofence Map ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Console: Punch Station & Controls (6 Cols) */}
-        <Card className="lg:col-span-6 p-5 sm:p-6 flex flex-col justify-between border-t-4 border-t-teal-600 dark:border-t-teal-500 shadow-sm hover:shadow-md transition-shadow">
-          <div>
-            {/* Header: Title and Live Status Badge */}
-            <CardHeader inset icon={<Timer size={18}/>} title="Today's attendance">
-                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full border shadow-2xs ${isClockedIn
-                ? 'text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800'
-                : clockOutTime
-                  ? 'text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/50 border-blue-300 dark:border-blue-800'
-                  : 'text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700'}`}>
-                <span className={`w-2 h-2 rounded-full ${isClockedIn ? 'bg-emerald-500 animate-ping' : clockOutTime ? 'bg-blue-500' : 'bg-slate-400'}`}/>
-                {isClockedIn ? 'Currently Punched In' : clockOutTime ? 'Punch-Out Recorded' : onLeaveToday ? 'On Approved Leave' : 'Not Punched In Today'}
-              </span>
-              </CardHeader>
-
-            {/* Main Clock Display */}
-            <div className="my-4 text-center p-3 rounded-2xl bg-gradient-to-b from-slate-50 to-white dark:from-slate-900/80 dark:to-slate-900 border border-slate-200/70 dark:border-slate-800">
-              <div className="inline-flex items-baseline justify-center gap-2">
-                <span className="text-4xl sm:text-5xl font-black font-mono text-slate-900 dark:text-white tracking-tight tabular-nums drop-shadow-xs">
-                  {currentTimeParts.timeFormatted}
-                </span>
-                <span className="text-base sm:text-lg font-bold text-teal-600 dark:text-teal-400 font-sans tracking-normal uppercase">
-                  {currentTimeParts.ampm}
-                </span>
-              </div>
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
-                {now.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-              </p>
-            </div>
-
-            {/* The countdown runs only while punched in; otherwise the card says where the day stands. */}
-            {isClockedIn ? (
-            <div className="mb-4 p-3 rounded-xl bg-gradient-to-r from-teal-50/90 via-emerald-50/60 to-teal-50/90 dark:from-teal-950/50 dark:via-emerald-950/40 dark:to-teal-950/50 border border-teal-200/90 dark:border-teal-800/80 shadow-2xs">
-              <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="font-bold text-teal-900 dark:text-teal-200 flex items-center gap-1.5">
-                  <Timer className="w-4 h-4 text-teal-600 dark:text-teal-400 animate-pulse"/>
-                  {shiftRemaining.isOvertime ? 'Overtime In Progress' : 'Active Shift Countdown'}
-                </span>
-                <span className="text-[11px] font-extrabold text-teal-800 dark:text-teal-200 bg-white/80 dark:bg-slate-900/80 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                  {shiftRemaining.isOvertime ? 'OT Active' : `${shiftRemaining.progressPercent}% Elapsed`}
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <div className="text-2xl sm:text-3xl font-black font-mono text-teal-950 dark:text-teal-100 tabular-nums tracking-wider">
-                  {shiftRemaining.formatted}
-                </div>
-                <div className="text-right text-xs text-slate-600 dark:text-slate-400">
-                  {shiftRemaining.isOvertime ? (
-                    <span className="text-amber-600 dark:text-amber-400 font-bold">Overtime Duration</span>
-                  ) : (
-                    <span>Shift Ends at <strong className="text-slate-900 dark:text-white font-bold">{empShift.endTime}</strong></span>
-                  )}
-                </div>
-              </div>
-              {/* Progress bar */}
-              <div className="w-full bg-slate-200/90 dark:bg-slate-800 rounded-full h-2 mt-2 overflow-hidden shadow-inner">
-                <div
-                  className={`h-2 rounded-full transition-all duration-700 ease-out ${shiftRemaining.isOvertime
-                    ? 'bg-amber-500'
-                    : 'bg-gradient-to-r from-teal-600 via-teal-500 to-emerald-500'}`}
-                  style={{ width: `${shiftRemaining.progressPercent}%` }}
-                />
-              </div>
-            </div>
-            ) : (
-              <div className={`mb-4 p-3 rounded-xl border text-xs ${punchedOut
-                ? 'bg-blue-50/80 border-blue-200 text-blue-900 dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-200'
-                : onLeaveToday
-                  ? 'bg-purple-50/80 border-purple-200 text-purple-900 dark:bg-purple-950/40 dark:border-purple-800 dark:text-purple-200'
-                  : 'bg-amber-50/80 border-amber-200 text-amber-900 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-200'}`}>
-                <div className="flex items-center gap-1.5 font-bold">
-                  <Timer className="w-4 h-4"/>
-                  {punchedOut ? 'Day complete' : onLeaveToday ? 'On approved leave today' : 'Not punched in yet'}
-                </div>
-                <p className="mt-1">
-                  {punchedOut
-                    ? `Punched in ${clockInTime}, out ${clockOutTime} · worked ${todayRecord?.workingHours || '-'}`
-                    : onLeaveToday
-                      ? 'No punch needed today.'
-                      : now < parseTimeToDate(empShift.startTime, now)
-                        ? `Shift starts at ${empShift.startTime} and ends at ${empShift.endTime}.`
-                        : `Shift started at ${empShift.startTime} and ends at ${empShift.endTime}. Punch in to start the countdown.`}
-                </p>
-              </div>
-            )}
-
-            {/* Today's Punch In & Out Activity Cards */}
-            <div className="grid grid-cols-2 gap-2.5 mb-4 text-xs">
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-xs font-medium text-slate-500 block">Punch In Today</span>
-                <p className={`text-sm font-extrabold mt-0.5 ${todayRecord?.status === 'Late' ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
-                  {clockInTime ? clockInTime : '—'}
-                </p>
-                <span className="text-[10px] text-slate-400 block mt-0.5">
-                  {todayRecord ? (todayRecord.status === 'Late' ? `Late by ${todayRecord.lateBy}` : 'On Time') : 'Pending clock-in'}
-                </span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
-                <span className="text-xs font-medium text-slate-500 block">Punch Out Today</span>
-                <p className="text-sm font-extrabold mt-0.5 text-blue-600 dark:text-blue-400">
-                  {clockOutTime ? clockOutTime : '—'}
-                </p>
-                <span className="text-[10px] text-slate-400 block mt-0.5">
-                  {todayRecord?.workingHours && todayRecord.workingHours !== '-' ? todayRecord.workingHours : 'Pending clock-out'}
-                </span>
-              </div>
-            </div>
-
-            {/* Geofence Live Location & Verification Bar */}
-            <div className={`p-3 rounded-xl border text-xs transition-all ${
-              isInsideGeofence
-                ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-                : 'bg-rose-50/90 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-900 dark:text-rose-200'
-            }`}>
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full shrink-0 ${isInsideGeofence ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
-                  <div>
-                    <span className="font-extrabold text-xs block">
-                      {isInsideGeofence
-                        ? '🟢 Inside Office Geofence (0m)'
-                        : `🔴 Outside Geofence (${Math.round(geofence.distanceMeters || 0)}m away)`}
-                    </span>
-                    <span className="text-[10.5px] opacity-80 block">
-                      Jaipur HQ (4-Point Polygon Zone) • ±{Math.round(userCoords?.accuracy || 10)}m GPS accuracy
-                    </span>
-                  </div>
-                </div>
-
-                {/* Real GPS Refresh Button */}
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={refreshGps}
-                    disabled={isLocating}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition shadow-2xs"
-                    title="Detect live GPS coordinates"
-                  >
-                    <Crosshair className={`w-3.5 h-3.5 text-teal-600 dark:text-teal-400 ${isLocating ? 'animate-spin' : ''}`} />
-                    <span>{isLocating ? 'Locating...' : 'Refresh GPS'}</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Master Punch Action Button */}
-          <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
-            <Button
-              variant={isClockedIn ? 'outline' : 'primary'}
-              size="lg"
-              onClick={handleTogglePunch}
-              disabled={punchedOut || onLeaveToday || isPunching || !isInsideGeofence}
-              className={`w-full !py-3.5 font-semibold text-sm transition-all shadow-md ${
-                !isInsideGeofence
-                  ? '!bg-slate-200 dark:!bg-slate-800 !text-slate-500 dark:!text-slate-400 !cursor-not-allowed !border-slate-300 dark:!border-slate-700 shadow-none'
-                  : isClockedIn
-                    ? '!border-rose-400 !text-rose-700 hover:!bg-rose-50 dark:!border-rose-700 dark:!text-rose-300 dark:hover:!bg-rose-950/40'
-                    : '!bg-gradient-to-r !from-teal-600 !to-emerald-600 hover:!from-teal-700 hover:!to-emerald-700 !text-white !border-0'
-              }`}
-              leftIcon={
-                !isInsideGeofence ? (
-                  <ShieldAlert className="w-5 h-5 text-slate-400" />
-                ) : isClockedIn ? (
-                  <LogOut className="w-5 h-5 text-rose-500"/>
-                ) : (
-                  <LogIn className="w-5 h-5 text-white"/>
-                )
-              }
-            >
-              {!isInsideGeofence
-                ? `Punch Locked (Outside by ${Math.round(geofence.distanceMeters || 0)}m)`
-                : isClockedIn
-                  ? 'Punch Out for the Day'
-                  : punchedOut
-                    ? 'Punched Out for Today'
-                    : onLeaveToday
-                      ? 'On Approved Leave Today'
-                      : 'Punch In Now (Geofence Verified)'}
-            </Button>
-            {!isInsideGeofence && !punchedOut && (
-              <div className="mt-2.5 text-center text-xs text-slate-500 dark:text-slate-400">
-                <span>Device is outside Jaipur office perimeter. </span>
-                <button
-                  type="button"
-                  onClick={() => navigate('/hr/attendance/corrections')}
-                  className="text-teal-600 dark:text-teal-400 font-bold hover:underline inline-flex items-center gap-0.5"
-                >
-                  Apply for Attendance Regularization →
-                </button>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* Right Console: Live Animated Geofence Radar Map (6 Cols) */}
-        <Card className="lg:col-span-6 p-5 sm:p-6 flex flex-col justify-between border-t-4 border-t-emerald-600 dark:border-t-emerald-500 shadow-sm hover:shadow-md transition-shadow">
-          <div>
-            {/* Header: Map Title & Controls */}
-            <CardHeader inset icon={<Compass size={18}/>} title="Office geofence">
-              <Button variant="secondary" size="sm" onClick={() => setIsGeofenceModalOpen(true)} leftIcon={<MapIcon size={14}/>}>Fullscreen</Button>
-            </CardHeader>
-
-            {/* Always-Visible Animated Geofence Map */}
-            <div className="mt-3 relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner">
-              <GeofenceMap
-                userCoords={userCoords}
-                onCoordsChange={setUserCoords}
-                compact={false}
-                height="320px"
-              />
-            </div>
-          </div>
-
-          {/* Map Footer Info Pill */}
-          <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 gap-2">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-teal-600" />
-              <span>Office: <strong>26.853858, 75.766749</strong></span>
-            </span>
-            <span className="text-slate-400">
-              Click anywhere on map to simulate position
-            </span>
-          </div>
-        </Card>
-      </div>
+      {/* Today's attendance: live map, distance and the punch button (enabled only inside the office). */}
+      <PunchPanel />
 
       {/* ── 3. Monthly Attendance KPI Performance Strip (4 Equal Cards) ── */}
       <div className="stat-grid mt-5">
@@ -915,88 +687,6 @@ export const EmployeeDashboard = () => {
         </Card>
       </div>
 
-      {/* ── 5. Assigned Inventory / Equipment ─────────────────────── */}
-      <Card className="p-4 sm:p-5 mt-4">
-        <CardHeader inset icon={<Boxes size={18}/>} title="Assigned inventory" count={`${myAssignedInventory.length} ${myAssignedInventory.length === 1 ? 'item' : 'items'}`}/>
-
-        {myAssignedInventory.length === 0 ? (
-          <div className="py-8 text-center" id="assigned-inventory-empty">
-            <div className="w-12 h-12 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-2">
-              <Boxes className="w-6 h-6" />
-            </div>
-            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">No inventory currently assigned.</p>
-            <p className="text-[11px] text-slate-400 mt-0.5">You currently have no tools, machinery or field equipment checked out.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3" id="assigned-inventory-list">
-            {myAssignedInventory.map((item) => (
-              <div
-                key={item.id || item.assignmentId}
-                className="p-3.5 rounded-xl bg-white dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800 hover:border-indigo-300 dark:hover:border-indigo-800 transition-all flex flex-col justify-between shadow-xs"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                      {item.assetId || item.inventoryItemId}
-                    </span>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/40">
-                      {item.status || 'Assigned'}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xs font-bold text-slate-900 dark:text-white mt-2 line-clamp-1">
-                    {item.itemName}
-                  </h3>
-                  <span className="inline-block text-[10px] font-medium text-indigo-600 dark:text-indigo-400 mt-0.5">
-                    {item.category}
-                  </span>
-
-                  <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-1 text-[11px]">
-                    <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
-                      <span className="text-slate-400">Quantity:</span>
-                      <span className="font-bold tabular-nums">
-                        {item.quantity} {item.unit || 'Nos'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
-                      <span className="text-slate-400">Assigned Date:</span>
-                      <span className="font-medium">{item.assignedDate || '—'}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-slate-600 dark:text-slate-300">
-                      <span className="text-slate-400">Return Date:</span>
-                      <span className="font-medium text-amber-600 dark:text-amber-400">
-                        {item.expectedReturnDate || item.returnDate || 'Open / Indefinite'}
-                      </span>
-                    </div>
-                    {item.projectName && (
-                      <div className="flex justify-between items-center text-slate-600 dark:text-slate-300 pt-0.5">
-                        <span className="text-slate-400">Project:</span>
-                        <span className="font-medium text-slate-700 dark:text-slate-200 truncate max-w-[140px]" title={item.projectName}>
-                          {item.projectName}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {item.remarks && (
-                  <p className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[10px] text-slate-400 italic line-clamp-2">
-                    "{item.remarks}"
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      {/* Office Attendance Geofence Modal */}
-      <GeofenceModal
-        isOpen={isGeofenceModalOpen}
-        onClose={() => setIsGeofenceModalOpen(false)}
-        userCoords={userCoords}
-        onCoordsChange={setUserCoords}
-      />
 
     </div>);
 };

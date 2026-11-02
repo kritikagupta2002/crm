@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { StatCard } from '@/components/common/StatCard';
-import { Card } from '@/components/common/Card';
+
 import { DataTable } from '@/components/common/DataTable';
 import { Button } from '@/components/common/Button';
 import { Badge } from '@/components/common/Badge';

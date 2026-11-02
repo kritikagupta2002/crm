@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Phone, Calendar, MapPin, AlertCircle, CheckCircle2, Camera, ShieldAlert, X } from 'lucide-react';
+import { User, AlertCircle, CheckCircle2, Camera, ShieldAlert, X } from 'lucide-react';
 import { storage } from '../../hrms/core/storage/storage';
 import { employeeService } from '../../hrms/modules/employees/services/employee.service';
 
@@ -26,13 +26,7 @@ export function ProfileCompletionModal({ user, role, onComplete }) {
     if (!user) return;
 
     const employees = storage.getEmployees() || [];
-    const emp = employees.find(
-      (e) =>
-        (user.employeeId && e.employeeId === user.employeeId) ||
-        (user.id && (e.id === user.id || e.employeeId === user.id)) ||
-        (user.email && e.contact?.workEmail === user.email) ||
-        (user.name && e.name?.toLowerCase() === user.name?.toLowerCase())
-    );
+    const emp = employees.find((e) => user.employeeId && e.employeeId === user.employeeId);
 
     if (emp) {
       setEmpRecord(emp);
@@ -108,9 +102,8 @@ export function ProfileCompletionModal({ user, role, onComplete }) {
 
     setIsSaving(true);
     try {
-      const employees = storage.getEmployees() || [];
-      const empId = empRecord?.employeeId || user?.employeeId || `BGS-${Date.now()}`;
-      const targetId = empRecord?.id || empId;
+      const targetId = empRecord?.employeeId || user?.employeeId;
+      if (!targetId) throw new Error('Your account is not linked to an employee record. Please contact HR.');
 
       const updatedData = {
         ...(empRecord || {}),
@@ -144,29 +137,10 @@ export function ProfileCompletionModal({ user, role, onComplete }) {
         },
       };
 
-      // 1. Update in local storage
-      const idx = employees.findIndex((e) => e.employeeId === empId || e.id === targetId);
-      if (idx !== -1) {
-        employees[idx] = updatedData;
-      } else {
-        employees.push(updatedData);
-      }
-      storage.setEmployees([...employees]);
-      try {
-        window.dispatchEvent(new Event('storage'));
-      } catch (e) {
-        // ignore
-      }
-
-      // 2. Sync to Backend API
-      try {
-        await employeeService.update(targetId, updatedData);
-      } catch (apiErr) {
-        console.warn('[Profile Completion] Backend update failed, saved locally:', apiErr.message);
-      }
-
+      const saved = await employeeService.update(targetId, updatedData);
+      window.dispatchEvent(new Event('storage'));
       setIsOpen(false);
-      if (onComplete) onComplete(updatedData);
+      if (onComplete) onComplete(saved);
     } catch (err) {
       setErrorMsg(err.message || 'Failed to save profile. Please try again.');
     } finally {

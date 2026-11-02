@@ -1,5 +1,6 @@
 import React from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
+import { AnimatedNumber } from '../../../shared/components/AnimatedNumber';
 
 /* The CRM's stat card (KpiCard): the tone colours the icon and the top edge. The tone comes from the colour the page gave the icon. */
 const toneOf = (colours = '') => {
@@ -20,7 +21,7 @@ export const StatCard = ({ title, value, icon, iconBgColor, tone, change, change
         {icon && <span className="stat-icon [&>svg]:w-5 [&>svg]:h-5">{icon}</span>}
         <h3>{title}</h3>
       </div>
-      <strong className="stat-value">{value}</strong>
+      <strong className="stat-value">{typeof value === 'number' ? <AnimatedNumber value={value}/> : value}</strong>
       {(change || caption) && (<div className="stat-meta">
           <span className="muted">
             {change && (<b className={changeType === 'increase' ? 'text-green' : changeType === 'decrease' ? 'text-red' : undefined}>

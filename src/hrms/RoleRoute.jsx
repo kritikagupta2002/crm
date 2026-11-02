@@ -1,6 +1,10 @@
 import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useRole } from '@/contexts/RoleContext';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAccess } from '../core/permissions/crm';
 
-/* HR-team pages (employee master, approvals, daily attendance): others land on their HR dashboard. */
-export const HrOnly = () => (useRole().currentRole === 'hr' ? <Outlet /> : <Navigate to="/hr" replace />);
+/* Defence in depth for role-restricted pages: the same rule as the sidebar (core/permissions/crm.js). */
+export const HrOnly = () => {
+    const { can } = useAccess();
+    const { pathname } = useLocation();
+    return can(pathname) ? <Outlet /> : <Navigate to="/" replace />;
+};

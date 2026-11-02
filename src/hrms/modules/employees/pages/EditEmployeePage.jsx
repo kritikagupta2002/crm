@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { departmentOptions } from '@/core/constants/projects';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,12 +26,16 @@ const editSchema = z.object({
         'Remote / Field',
     ]),
     employmentType: z.enum(['Full-Time', 'Part-Time', 'Contract', 'Consultant', 'Intern']),
-    status: z.enum(['Active', 'On Leave', 'Notice Period', 'Terminated']),
+    status: z.enum(['Active', 'On Leave', 'Notice Period', 'Terminated', 'Inactive', 'Relieved']),
     role: z.enum(['hr', 'employee']),
     managerName: z.string().min(1, 'Manager name required'),
-    bankName: z.string().min(2, 'Bank name required'),
-    accountNumber: z.string().min(6, 'Account number required'),
-    panNumber: z.string().min(10, 'PAN required'),
+    // Bank and statutory details are optional (employees can add them from My Profile), but must be valid when given.
+    accountHolderName: z.string().max(60).optional().or(z.literal('')),
+    bankName: z.string().max(60).optional().or(z.literal('')),
+    accountNumber: z.string().regex(/^\d{9,18}$/, 'Account number must be 9 to 18 digits').optional().or(z.literal('')),
+    ifscCode: z.string().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, 'IFSC must look like SBIN0001234').optional().or(z.literal('')),
+    panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]$/, 'PAN must look like ABCDE1234F').optional().or(z.literal('')),
+    uanNumber: z.string().regex(/^\d{12}$/, 'UAN must be 12 digits').optional().or(z.literal('')),
 });
 export const EditEmployeePage = () => {
     const { id } = useParams();
@@ -59,9 +64,12 @@ export const EditEmployeePage = () => {
                         status: emp.employment.status,
                         role: emp.role,
                         managerName: emp.employment.managerName,
-                        bankName: emp.bank.bankName,
-                        accountNumber: emp.bank.accountNumber,
-                        panNumber: emp.bank.panNumber,
+                        accountHolderName: emp.bank?.accountHolderName || '',
+                        bankName: emp.bank?.bankName || '',
+                        accountNumber: emp.bank?.accountNumber || '',
+                        ifscCode: emp.bank?.ifscCode || '',
+                        panNumber: emp.bank?.panNumber || '',
+                        uanNumber: emp.bank?.uanNumber || '',
                     });
                 }
             }
@@ -100,9 +108,12 @@ export const EditEmployeePage = () => {
                 },
                 bank: {
                     ...emp.bank,
+                    accountHolderName: data.accountHolderName,
                     bankName: data.bankName,
                     accountNumber: data.accountNumber,
-                    panNumber: data.panNumber,
+                    ifscCode: data.ifscCode?.toUpperCase(),
+                    panNumber: data.panNumber?.toUpperCase(),
+                    uanNumber: data.uanNumber,
                 },
             });
             toast.success(`Profile for ${data.name} updated successfully.`, 'Changes Saved');
@@ -147,16 +158,7 @@ export const EditEmployeePage = () => {
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Departmental & Site Placement</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Select label="Department" isRequired {...register('department')} options={[
-            { label: 'Geology & Mineral Exploration', value: 'Geology & Mineral Exploration' },
-            { label: 'Mining & Mine Planning', value: 'Mining & Mine Planning' },
-            { label: 'GIS, Remote Sensing & UAV', value: 'GIS, Remote Sensing & UAV' },
-            { label: 'Hydrogeology & Groundwater', value: 'Hydrogeology & Groundwater' },
-            { label: 'Environment & Permitting', value: 'Environment & Permitting' },
-            { label: 'Geotechnical Engineering', value: 'Geotechnical Engineering' },
-            { label: 'Finance & Mineral Economics', value: 'Finance & Mineral Economics' },
-            { label: 'Human Resources & Admin', value: 'Human Resources & Admin' },
-        ]} error={errors.department?.message}/>
+            <Select label="Department" isRequired {...register('department')} options={departmentOptions()} error={errors.department?.message}/>
             <Input label="Designation Title" isRequired {...register('designation')} error={errors.designation?.message}/>
             <Select label="Operational Work Location" isRequired {...register('workLocation')} options={[
             { label: 'Jaipur Corporate HQ', value: 'Jaipur Corporate HQ' },
@@ -186,9 +188,12 @@ export const EditEmployeePage = () => {
             <h3 className="text-sm font-bold text-slate-900 dark:text-white">Banking & Statutory</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input label="Bank Name" isRequired {...register('bankName')} error={errors.bankName?.message}/>
-            <Input label="Account Number" isRequired {...register('accountNumber')} error={errors.accountNumber?.message}/>
-            <Input label="PAN Number" isRequired {...register('panNumber')} error={errors.panNumber?.message}/>
+            <Input label="Account Holder Name" {...register('accountHolderName')} error={errors.accountHolderName?.message}/>
+            <Input label="Bank Name" {...register('bankName')} error={errors.bankName?.message}/>
+            <Input label="Account Number" inputMode="numeric" {...register('accountNumber')} error={errors.accountNumber?.message}/>
+            <Input label="IFSC Code" {...register('ifscCode')} error={errors.ifscCode?.message}/>
+            <Input label="PAN Number" {...register('panNumber')} error={errors.panNumber?.message}/>
+            <Input label="UAN (EPFO)" inputMode="numeric" {...register('uanNumber')} error={errors.uanNumber?.message}/>
           </div>
         </Card>
 

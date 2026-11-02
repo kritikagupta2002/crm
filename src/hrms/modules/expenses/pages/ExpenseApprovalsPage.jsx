@@ -12,7 +12,7 @@ import { Textarea } from '@/components/common/Textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { expenseService } from '@/modules/expenses/services/expense.service';
-import { STANDARD_PROJECTS } from '@/core/constants/projects';
+import { STANDARD_PROJECTS, departmentOptions } from '@/core/constants/projects';
 import { AttachmentPreviewModal } from '@/components/common/AttachmentPreviewModal';
 
 export const ExpenseApprovalsPage = () => {
@@ -360,15 +360,7 @@ export const ExpenseApprovalsPage = () => {
 
                 <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
                     <Select 
-                        options={[
-                            { value: 'all', label: 'All Departments' },
-                            { value: 'Geology & Mineral Exploration', label: 'Geology & Exploration' },
-                            { value: 'Mining & Mine Planning', label: 'Mining & Planning' },
-                            { value: 'GIS, Remote Sensing & UAV', label: 'GIS & Remote Sensing' },
-                            { value: 'Hydrogeology & Groundwater', label: 'Hydrogeology' },
-                            { value: 'Finance & Mineral Economics', label: 'Finance & Economics' },
-                            { value: 'Human Resources & Admin', label: 'HR & Admin' },
-                        ]} 
+                        options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]} 
                         value={selectedDept} 
                         onChange={(e) => setSelectedDept(e.target.value)}
                     />

@@ -1,4 +1,6 @@
 import {
+  BadgeIndianRupee,
+  Building2,
   CalendarCheck,
   CalendarClock,
   CalendarDays,
@@ -7,79 +9,100 @@ import {
   Clock,
   Contact,
   FileCheck,
+  FileSpreadsheet,
+  History,
+  KeyRound,
   LayoutDashboard,
+  ListChecks,
   Network,
   PlusCircle,
+  Receipt,
+  ScrollText,
+  Settings,
   ShieldCheck,
+  SlidersHorizontal,
+  Tags,
   UserCheck,
   UserMinus,
-  UserRound,
+  UserPlus,
   Users,
-  BadgeIndianRupee,
-  SlidersHorizontal,
-  FileSpreadsheet,
-  Receipt,
-  History,
 } from 'lucide-react'
 
-// Roles that have access to full HR administrative controls
-const HR_ADMIN_ROLES = ['Managing Director', 'Super Admin', 'Director']
-const HR_MANAGEMENT_ROLES = ['Managing Director', 'Super Admin', 'Director', 'Manager']
-
+/*
+ * The sidebar. Which items a person sees follows canOpen() in core/permissions/crm.js, so the menu, the page
+ * guards and the server's role checks always agree.
+ */
 export const NAV_GROUPS = [
   {
-    title: 'HRMS Overview',
+    title: 'Overview',
     items: [
-      { label: 'HR Dashboard', path: '/', icon: LayoutDashboard, end: true },
+      { label: 'Dashboard', path: '/', icon: LayoutDashboard, end: true },
       { label: 'Team Directory', path: '/hr/team', icon: Contact },
-      { label: 'Organization', path: '/hr/organization', icon: Network },
+      { label: 'Organization Chart', path: '/hr/organization', icon: Network, end: true },
     ],
   },
   {
-    title: 'Attendance Management',
+    title: 'Attendance',
     items: [
-      { label: 'Attendance Dashboard', path: '/hr/attendance', icon: Clock, end: true },
-      { label: 'Daily Attendance', path: '/hr/attendance/daily', icon: CalendarDays, only: HR_ADMIN_ROLES },
-      { label: 'Monthly Attendance', path: '/hr/attendance/monthly', icon: CalendarCheck },
-      { label: 'Attendance Corrections', path: '/hr/attendance/corrections', icon: ClipboardCheck, badge: 'correctionsPending' },
-      { label: 'Shift Management', path: '/hr/shifts', icon: CalendarClock, only: HR_MANAGEMENT_ROLES },
+      { label: 'Attendance Overview', path: '/hr/attendance', icon: Clock, end: true },
+      { label: 'Daily Register', path: '/hr/attendance/daily', icon: CalendarDays },
+      { label: 'Monthly Register', path: '/hr/attendance/monthly', icon: CalendarCheck },
+      { label: 'Corrections', path: '/hr/attendance/corrections', icon: ClipboardCheck, badge: 'correctionsPending' },
+      { label: 'Shifts', path: '/hr/shifts', icon: CalendarClock, end: true },
+      { label: 'Shift Assignments', path: '/hr/shifts/assignments', icon: ListChecks },
     ],
   },
   {
-    title: 'Employee Management',
-    items: [
-      { label: 'Employee Directory', path: '/hr/employees', icon: Users, only: HR_ADMIN_ROLES },
-      { label: 'Document Verification', path: '/hr/documents', icon: FileCheck },
-      { label: 'Performance Records', path: '/hr/performance', icon: UserCheck, only: HR_ADMIN_ROLES },
-      { label: 'Employee Exit', path: '/hr/exit', icon: UserMinus, only: HR_ADMIN_ROLES },
-    ],
-  },
-  {
-    title: 'Leave Management',
+    title: 'Leave',
     items: [
       { label: 'Leave Overview', path: '/hr/leave', icon: CalendarDays, end: true },
-      { label: 'Apply Leave', path: '/hr/leave/apply', icon: PlusCircle },
+      { label: 'Apply for Leave', path: '/hr/leave/apply', icon: PlusCircle },
       { label: 'Leave Requests', path: '/hr/leave/requests', icon: ClipboardList },
-      { label: 'Leave Approvals', path: '/hr/leave/approvals', icon: ShieldCheck, only: HR_ADMIN_ROLES, badge: 'leavesPending' },
+      { label: 'Leave Approvals', path: '/hr/leave/approvals', icon: ShieldCheck, badge: 'leavesPending' },
+      { label: 'Leave Types', path: '/hr/leave/types', icon: Tags },
     ],
   },
   {
-    title: 'Payroll & Compensation',
+    title: 'People',
     items: [
-      { label: 'Payroll Overview', path: '/hr/payroll', icon: BadgeIndianRupee, end: true, only: HR_MANAGEMENT_ROLES },
-      { label: 'Salary Structures', path: '/hr/payroll/salary-structure', icon: SlidersHorizontal, only: HR_ADMIN_ROLES },
-      { label: 'Process Payroll', path: '/hr/payroll/process', icon: FileSpreadsheet, only: HR_ADMIN_ROLES },
-      { label: 'Salary Slips (Payslips)', path: '/hr/payroll/payslips', icon: Receipt },
-      { label: 'Payroll History', path: '/hr/payroll/history', icon: History, only: HR_ADMIN_ROLES },
+      { label: 'Employee Directory', path: '/hr/employees', icon: Users, end: true },
+      { label: 'Onboard Employee', path: '/hr/employees/new', icon: UserPlus },
+      { label: 'Documents', path: '/hr/documents', icon: FileCheck },
+      { label: 'Performance', path: '/hr/performance', icon: UserCheck },
+      { label: 'Exits & Settlement', path: '/hr/exit', icon: UserMinus },
+    ],
+  },
+  {
+    title: 'Payroll',
+    items: [
+      { label: 'Payroll Overview', path: '/hr/payroll', icon: BadgeIndianRupee, end: true },
+      { label: 'Salary Structures', path: '/hr/payroll/salary-structure', icon: SlidersHorizontal },
+      { label: 'Run Payroll', path: '/hr/payroll/process', icon: FileSpreadsheet },
+      { label: 'Payslips', path: '/hr/payroll/payslips', icon: Receipt },
+      { label: 'Payroll History', path: '/hr/payroll/history', icon: History },
+    ],
+  },
+  {
+    title: 'Administration',
+    items: [
+      { label: 'Departments', path: '/hr/organization/departments', icon: Building2 },
+      { label: 'Designations', path: '/hr/organization/designations', icon: Tags },
+      { label: 'User Accounts', path: '/hr/settings/accounts', icon: ShieldCheck },
+      { label: 'Roles & Permissions', path: '/hr/settings/permissions', icon: KeyRound },
+      { label: 'Audit Log', path: '/hr/settings/audit', icon: ScrollText },
+      { label: 'Company Settings', path: '/hr/settings/company', icon: Settings },
     ],
   },
 ]
 
 export const NAV_ITEMS = [
   ...NAV_GROUPS.flatMap((group) => group.items),
-  { label: 'HR Dashboard', path: '/hr' },
-  { label: 'Add Employee', path: '/hr/employees/new' },
+  { label: 'Dashboard', path: '/hr' },
+  { label: 'Add Shift', path: '/hr/shifts/new' },
+  { label: 'Leave Balance', path: '/hr/leave/balance' },
+  { label: 'Leave History', path: '/hr/leave/history' },
   { label: 'Settings', path: '/hr/settings' },
   { label: 'My Profile', path: '/hr/settings/profile' },
+  { label: 'Password & Security', path: '/hr/settings/security' },
   { label: 'Notifications', path: '/hr/notifications' },
 ]

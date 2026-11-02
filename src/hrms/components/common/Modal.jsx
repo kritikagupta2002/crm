@@ -1,58 +1,69 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-export const Modal = ({ isOpen, onClose, title, description, children, footer, maxWidth = 'lg', }) => {
+
+/*
+ * Body scroll is locked while any modal is open. A counter keeps nested or stacked modals from unlocking the
+ * page when only one of them closes (the old behaviour left the page stuck or scrolling behind the dialog).
+ */
+let openCount = 0;
+function lockScroll() {
+    if (openCount === 0) {
+        const gap = window.innerWidth - document.documentElement.clientWidth;
+        document.body.style.overflow = 'hidden';
+        if (gap > 0) document.body.style.paddingRight = `${gap}px`;
+    }
+    openCount += 1;
+}
+function unlockScroll() {
+    openCount = Math.max(0, openCount - 1);
+    if (openCount === 0) {
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    }
+}
+
+export const Modal = ({ isOpen, onClose, title, description, children, footer, maxWidth = 'lg' }) => {
+    const titleId = useId();
+    const panelRef = useRef(null);
+    const onCloseRef = useRef(onClose);
+    onCloseRef.current = onClose;
+
     useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.key === 'Escape')
-                onClose();
+        if (!isOpen) return undefined;
+        lockScroll();
+        const previouslyFocused = document.activeElement;
+        const onKey = (e) => {
+            if (e.key === 'Escape') onCloseRef.current?.();
         };
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-            window.addEventListener('keydown', handleKeyDown);
-        }
+        window.addEventListener('keydown', onKey);
+        // Move focus into the dialog for keyboard and screen-reader users.
+        requestAnimationFrame(() => panelRef.current?.focus());
         return () => {
-            document.body.style.overflow = 'unset';
-            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keydown', onKey);
+            unlockScroll();
+            if (previouslyFocused instanceof HTMLElement) previouslyFocused.focus();
         };
-    }, [isOpen, onClose]);
-    if (!isOpen)
-        return null;
-    const maxWidthClasses = {
-        sm: 'max-w-sm',
-        md: 'max-w-md',
-        lg: 'max-w-lg',
-        xl: 'max-w-xl',
-        '2xl': 'max-w-2xl',
-        '3xl': 'max-w-3xl',
-        '4xl': 'max-w-4xl',
-    };
-    return (<div className="fixed inset-0 z-50 overflow-y-auto">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-fade-in" onClick={onClose}/>
+    }, [isOpen]);
 
-      <div className="flex min-h-full items-center justify-center p-2.5 sm:p-4 text-center">
-        <div className={`relative transform overflow-hidden rounded-2xl bg-white dark:bg-[#1A2430] text-left shadow-[0_8px_40px_-8px_rgba(139,90,43,0.15),0_20px_60px_-20px_rgba(139,90,43,0.10)] dark:shadow-[0_25px_50px_rgba(0,0,0,0.6)] transition-all w-full ${maxWidthClasses[maxWidth]} my-2 sm:my-8 border border-[#E8E4DC]/90 dark:border-[#253344]`} onClick={(e) => e.stopPropagation()}>
-          {/* Modal Header */}
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-[#F0EDE8] dark:border-[#253344] bg-[#FAFAF8]/60 dark:bg-[#111821]/50">
-            <div className="min-w-0 flex-1">
-              {typeof title === 'string' ? (<h3 className="text-sm sm:text-base font-bold text-[#1A2430] dark:text-slate-100 truncate">{title}</h3>) : (title)}
-              {description && (<p className="text-xs text-[#8B7355] dark:text-slate-400 mt-0.5">{description}</p>)}
-            </div>
-            <button onClick={onClose} className="rounded-lg p-1.5 text-[#A09080] hover:text-[#1A2430] dark:hover:text-slate-200 hover:bg-[#F5F0E8] dark:hover:bg-[#253344] transition-all duration-200 focus:outline-none shrink-0 ml-2" aria-label="Close modal">
-              <X className="w-5 h-5"/>
-            </button>
+    if (!isOpen) return null;
+
+    // Rendered inside .hrms so the HRMS theme applies, but outside page containers that clip or transform.
+    const host = document.querySelector('.hrms') || document.body;
+    return createPortal(<div className="modal-root" role="presentation">
+      <div className="modal-backdrop" onClick={onClose}/>
+      <div ref={panelRef} className={`modal-panel w-${maxWidth}`} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
+        <div className="modal-head">
+          <div id={titleId} className="min-w-0 flex-1">
+            {typeof title === 'string' ? <h3>{title}</h3> : title}
+            {description && <p>{description}</p>}
           </div>
-
-          {/* Modal Body */}
-          <div className="px-4 sm:px-6 py-4 sm:py-5 max-h-[75vh] overflow-y-auto">
-            {children}
-          </div>
-
-          {/* Modal Footer */}
-          {footer && (<div className="px-4 sm:px-6 py-3 sm:py-4 bg-[#FAFAF8]/80 dark:bg-[#111821]/70 border-t border-[#F0EDE8] dark:border-[#253344] flex flex-wrap items-center justify-end gap-2 sm:gap-3 [&>button]:w-full [&>button]:sm:w-auto">
-              {footer}
-            </div>)}
+          <button type="button" onClick={onClose} className="modal-close" aria-label="Close">
+            <X size={18}/>
+          </button>
         </div>
+        <div className="modal-body">{children}</div>
+        {footer && <div className="modal-foot">{footer}</div>}
       </div>
-    </div>);
+    </div>, host);
 };

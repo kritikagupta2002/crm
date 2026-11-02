@@ -16,30 +16,22 @@ export const AttendanceSettingsPage = () => {
         if (!settings)
             return;
         await settingsService.updateAttendanceSettings(settings);
-        toast.success('Attendance and biometric policy thresholds saved.', 'Settings Updated');
+        toast.success('Attendance rules saved.', 'Saved');
     };
     if (!settings)
         return null;
     return (<Card className="p-6">
       <h3 className="text-sm font-bold text-slate-900 dark:text-white pb-3 border-b border-slate-100 dark:border-slate-800 mb-6">
-        Attendance & Biometric Policy Rules
+        Attendance rules
       </h3>
 
       <form onSubmit={handleSave} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input label="Standard Shift Start Time" value={settings.workStartTime} onChange={(e) => setSettings({ ...settings, workStartTime: e.target.value })}/>
-          <Input label="Standard Shift End Time" value={settings.workEndTime} onChange={(e) => setSettings({ ...settings, workEndTime: e.target.value })}/>
-          <Input label="Grace Period Threshold (Minutes)" type="number" value={settings.gracePeriodMinutes} onChange={(e) => setSettings({ ...settings, gracePeriodMinutes: Number(e.target.value) })}/>
-          <Input label="Half-Day Minimum Hours" type="number" step="0.5" value={settings.halfDayThresholdHours} onChange={(e) => setSettings({ ...settings, halfDayThresholdHours: Number(e.target.value) })}/>
-          <Input label="Full-Day Required Hours" type="number" step="0.5" value={settings.fullDayMinimumHours} onChange={(e) => setSettings({ ...settings, fullDayMinimumHours: Number(e.target.value) })}/>
-          <Input label="Biometric Cloud Sync Interval (Minutes)" type="number" value={settings.biometricSyncIntervalMinutes} onChange={(e) => setSettings({ ...settings, biometricSyncIntervalMinutes: Number(e.target.value) })}/>
-        </div>
-
-        <div className="p-4 bg-slate-50 dark:bg-[#111821] rounded-xl space-y-3 mt-4 border border-slate-200 dark:border-[#253344]">
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
-            <input type="checkbox" checked={settings.allowMobileGpsPunch} onChange={(e) => setSettings({ ...settings, allowMobileGpsPunch: e.target.checked })} className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"/>
-            <span>Enable Mobile GPS Punch for field exploration and drone survey pilots</span>
-          </label>
+          <Input label="Default start time (when no shift is assigned)" value={settings.workStartTime} onChange={(e) => setSettings({ ...settings, workStartTime: e.target.value })}/>
+          <Input label="Default end time" value={settings.workEndTime} onChange={(e) => setSettings({ ...settings, workEndTime: e.target.value })}/>
+          <Input label="Late mark after (grace minutes)" type="number" value={settings.gracePeriodMinutes} onChange={(e) => setSettings({ ...settings, gracePeriodMinutes: Number(e.target.value) })}/>
+          <Input label="Half day if worked less than (hours)" type="number" step="0.5" value={settings.halfDayThresholdHours} onChange={(e) => setSettings({ ...settings, halfDayThresholdHours: Number(e.target.value) })}/>
+          <Input label="Full day hours" type="number" step="0.5" value={settings.fullDayMinimumHours} onChange={(e) => setSettings({ ...settings, fullDayMinimumHours: Number(e.target.value) })}/>
         </div>
 
         <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">

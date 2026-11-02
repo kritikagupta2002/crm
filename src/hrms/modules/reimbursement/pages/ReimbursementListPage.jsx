@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { useToast } from '@/contexts/ToastContext';
 import { reimbursementService } from '@/modules/reimbursement/services/reimbursement.service';
-import { getEmployeeProjectById, STANDARD_PROJECTS } from '@/core/constants/projects';
+import { getEmployeeProjectById, STANDARD_PROJECTS, departmentOptions } from '@/core/constants/projects';
 import { AttachmentPreviewModal } from '@/components/common/AttachmentPreviewModal';
 import { attachmentStorage } from '@/core/storage/attachmentStorage';
 
@@ -600,15 +600,7 @@ export const ReimbursementListPage = () => {
                             <Select 
                                 value={selectedDept} 
                                 onChange={(e) => setSelectedDept(e.target.value)} 
-                                options={[
-                                    { label: 'All Departments', value: 'all' },
-                                    { label: 'Geology & Exploration', value: 'Geology & Mineral Exploration' },
-                                    { label: 'Mining & Planning', value: 'Mining & Mine Planning' },
-                                    { label: 'GIS & Remote Sensing', value: 'GIS, Remote Sensing & UAV' },
-                                    { label: 'Hydrogeology', value: 'Hydrogeology & Groundwater' },
-                                    { label: 'Finance & Economics', value: 'Finance & Mineral Economics' },
-                                    { label: 'HR & Admin', value: 'Human Resources & Admin' },
-                                ]}
+                                options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]}
                             />
                         </div>
 
