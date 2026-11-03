@@ -5,9 +5,12 @@ import { HrOnly } from './RoleRoute';
 import { useAccess } from '../core/permissions/crm';
 
 const HrmsShell = lazy(() => import('./HrmsShell'));
+/* The HRMS module itself is downloading (its styles are not loaded yet), so a plain inline spinner. */
 const LoadingFallback = () => (
-  <div style={{ padding: '48px 24px', textAlign: 'center', color: '#64748b' }}>
-    <p style={{ fontSize: '15px', fontWeight: 500 }}>Loading HRMS portal...</p>
+  <div role="status" style={{ padding: '64px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, color: '#64748b' }}>
+    <span style={{ width: 28, height: 28, borderRadius: '50%', border: '3px solid #e1e8eb', borderTopColor: '#1f6f78', animation: 'hrms-boot-spin 0.7s linear infinite' }} />
+    <style>{'@keyframes hrms-boot-spin { to { transform: rotate(360deg); } }'}</style>
+    <p style={{ fontSize: '14px', fontWeight: 500, margin: 0 }}>Loading HRMS portal…</p>
   </div>
 );
 

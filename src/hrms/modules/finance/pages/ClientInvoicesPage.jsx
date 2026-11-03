@@ -11,11 +11,12 @@ import { useToast } from '@/contexts/ToastContext';
 export const ClientInvoicesPage = () => {
     const toast = useToast();
     const [invoices, setInvoices] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('all');
     const [selectedInvoiceForPreview, setSelectedInvoiceForPreview] = useState(null);
     const loadData = async () => {
-        const data = await financeService.getInvoices();
+        const data = await financeService.getInvoices().finally(() => setTableLoading(false));
         setInvoices(data);
     };
     useEffect(() => {
@@ -164,7 +165,7 @@ export const ClientInvoicesPage = () => {
       </div>
 
       {/* Data Table */}
-      <DataTable columns={columns} data={filteredInvoices} keyField="id" searchable searchPlaceholder="Search invoices by number, client, or date..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No invoices found" emptyDescription="Get started by creating your first client invoice."/>
+      <DataTable loading={tableLoading} columns={columns} data={filteredInvoices} keyField="id" searchable searchPlaceholder="Search invoices by number, client, or date..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No invoices found" emptyDescription="Get started by creating your first client invoice."/>
 
       {/* Create Modal */}
       <CreateInvoiceModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} onInvoiceCreated={() => loadData()}/>

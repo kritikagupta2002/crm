@@ -1,4 +1,5 @@
-import { INITIAL_DEPARTMENTS, INITIAL_DESIGNATIONS, INITIAL_CORRECTIONS, INITIAL_LEAVE_BALANCES, INITIAL_LEAVE_REQUESTS, INITIAL_LEAVE_TYPES, INITIAL_SHIFTS, INITIAL_SHIFT_ASSIGNMENTS, INITIAL_DOCUMENTS, INITIAL_SALARY_STRUCTURES, INITIAL_PAYSLIPS, INITIAL_PAYROLL_RUNS, INITIAL_EXPENSES, INITIAL_REIMBURSEMENTS, INITIAL_NOTIFICATIONS, INITIAL_COMPANY_SETTINGS, INITIAL_ATTENDANCE_SETTINGS, INITIAL_LEAVE_SETTINGS, INITIAL_PAYROLL_SETTINGS, INITIAL_ROLES, } from '../../data/index.js';
+import { INITIAL_DEPARTMENTS, INITIAL_DESIGNATIONS, INITIAL_CORRECTIONS, INITIAL_LEAVE_REQUESTS, INITIAL_LEAVE_TYPES, INITIAL_SHIFTS, INITIAL_SHIFT_ASSIGNMENTS, INITIAL_DOCUMENTS, INITIAL_SALARY_STRUCTURES, INITIAL_PAYSLIPS, INITIAL_PAYROLL_RUNS, INITIAL_EXPENSES, INITIAL_REIMBURSEMENTS, INITIAL_NOTIFICATIONS, INITIAL_COMPANY_SETTINGS, INITIAL_ATTENDANCE_SETTINGS, INITIAL_LEAVE_SETTINGS, INITIAL_PAYROLL_SETTINGS, INITIAL_ROLES, INITIAL_LEAVE_OPENING_BALANCES, } from '../../data/index.js';
+import { computeLeaveBalances } from '../../modules/leave/utils/leaveLedger.js';
 const STORAGE_KEYS = {
     EMPLOYEES: 'bgspl_employees',
     DEPARTMENTS: 'bgspl_departments',
@@ -35,6 +36,7 @@ export const INITIAL_LOCATIONS = [
     { id: 'loc-bhilwara', name: 'Bhilwara', status: 'Active' },
     { id: 'loc-udaipur', name: 'Udaipur', status: 'Active' },
 ];
+export const LEAVE_COLORS = { CL: '#2563EB', SL: '#059669', PL: '#D97706' };
 function getItem(key, defaultValue) {
     try {
         const item = localStorage.getItem(key);
@@ -96,7 +98,7 @@ export const storage = {
     setCorrections: (val) => setItem(STORAGE_KEYS.CORRECTIONS, val),
     getAttendanceCorrections: () => getItem(STORAGE_KEYS.CORRECTIONS, INITIAL_CORRECTIONS),
     setAttendanceCorrections: (val) => setItem(STORAGE_KEYS.CORRECTIONS, val),
-    getLeaveBalances: () => getItem(STORAGE_KEYS.LEAVE_BALANCES, INITIAL_LEAVE_BALANCES),
+    getLeaveBalances: () => getItem(STORAGE_KEYS.LEAVE_BALANCES, []),
     setLeaveBalances: (val) => setItem(STORAGE_KEYS.LEAVE_BALANCES, val),
     getLeaveSettings: () => getItem(STORAGE_KEYS.LEAVE_SETTINGS, INITIAL_LEAVE_SETTINGS),
     setLeaveSettings: (val) => {
@@ -123,41 +125,33 @@ export const storage = {
             // fallback
         }
     },
+    /*
+     * Balances from the leave ledger (opening balance on 31/10/2026 + month-end credits − approved leave), computed
+     * from the cached requests so pages render instantly; the API computes the same figures with the same code.
+     */
     getBalancesForEmployee: (employeeId, employeeName) => {
         const settings = getItem(STORAGE_KEYS.LEAVE_SETTINGS, INITIAL_LEAVE_SETTINGS);
-        const requests = storage.getLeaveRequests();
-        const empRequests = requests.filter((r) => r.employeeId === employeeId);
-        const hasMaternityReq = empRequests.some((r) => r.leaveType?.includes('Maternity') || r.leaveType?.includes('Paternity'));
-        const quotas = [
-            { leaveType: 'Casual Leave (CL)', totalAllocated: settings.annualCasualLeave ?? 12, color: '#3B82F6' },
-            { leaveType: 'Sick Leave (SL)', totalAllocated: settings.annualSickLeave ?? 10, color: '#10B981' },
-            { leaveType: 'Earned / Privilege Leave (EL)', totalAllocated: settings.annualEarnedLeave ?? 18, color: '#F59E0B' },
-            { leaveType: 'Compensatory Off (CO)', totalAllocated: settings.annualCompOffLeave ?? 8, color: '#8B5CF6' },
-            { leaveType: 'Field Duty Leave (FDL)', totalAllocated: settings.annualFieldDutyLeave ?? 15, color: '#06B6D4' },
-            ...(hasMaternityReq ? [{ leaveType: 'Maternity / Paternity Leave', totalAllocated: 180, color: '#EC4899' }] : []),
-        ];
-        const balances = quotas.map((q) => {
-            // Approved used days: from Approved or Partially Approved requests
-            const used = empRequests
-                .filter((r) => (r.status === 'Approved' || r.status === 'Partially Approved') && r.leaveType === q.leaveType)
-                .reduce((sum, r) => sum + (Number(r.approvedDays ?? r.days) || 0), 0);
-            // Pending committed days: from Pending requests
-            const pending = empRequests
-                .filter((r) => r.status === 'Pending' && r.leaveType === q.leaveType)
-                .reduce((sum, r) => sum + (Number(r.requestedDays ?? r.days) || 0), 0);
-            const available = Math.max(0, q.totalAllocated - used);
-            return {
-                id: `bal-${employeeId}-${q.leaveType}`,
-                employeeId,
-                employeeName: employeeName || '',
-                leaveType: q.leaveType,
-                totalAllocated: q.totalAllocated,
-                used,
-                pending,
-                available,
-                color: q.color,
-            };
-        });
+        const cachedTypes = storage.getLeaveTypes();
+        const leaveTypes = cachedTypes.some((t) => t.code === 'PL') ? cachedTypes : INITIAL_LEAVE_TYPES;
+        const employee = storage.getEmployees().find((e) => e.employeeId === employeeId);
+        const d = new Date();
+        const asOf = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const balances = computeLeaveBalances({
+            employee,
+            employeeId,
+            requests: storage.getLeaveRequests(),
+            leaveTypes,
+            openingBalances: INITIAL_LEAVE_OPENING_BALANCES,
+            settings,
+            asOf,
+        }).map((b) => ({
+            ...b,
+            id: `bal-${employeeId}-${b.code}`,
+            employeeId,
+            employeeName: employeeName || employee?.name || '',
+            totalAllocated: b.allocated,
+            color: LEAVE_COLORS[b.code] || '#475569',
+        }));
         const all = getItem(STORAGE_KEYS.EMPLOYEE_LEAVE_BALANCES, {});
         all[employeeId] = balances;
         setItem(STORAGE_KEYS.EMPLOYEE_LEAVE_BALANCES, all);
@@ -206,23 +200,7 @@ export const storage = {
         return requests;
     },
     setLeaveRequests: (val) => setItem(STORAGE_KEYS.LEAVE_REQUESTS, val),
-    getLeaveTypes: () => {
-        const settings = getItem(STORAGE_KEYS.LEAVE_SETTINGS, INITIAL_LEAVE_SETTINGS);
-        const types = getItem(STORAGE_KEYS.LEAVE_TYPES, INITIAL_LEAVE_TYPES);
-        return types.map((t) => {
-            if (t.name?.includes('Casual'))
-                return { ...t, annualQuota: settings.annualCasualLeave ?? t.annualQuota };
-            if (t.name?.includes('Sick'))
-                return { ...t, annualQuota: settings.annualSickLeave ?? t.annualQuota };
-            if (t.name?.includes('Earned'))
-                return { ...t, annualQuota: settings.annualEarnedLeave ?? t.annualQuota };
-            if (t.name?.includes('Compensatory'))
-                return { ...t, annualQuota: settings.annualCompOffLeave ?? 8 };
-            if (t.name?.includes('Field'))
-                return { ...t, annualQuota: settings.annualFieldDutyLeave ?? 15 };
-            return t;
-        });
-    },
+    getLeaveTypes: () => getItem(STORAGE_KEYS.LEAVE_TYPES, INITIAL_LEAVE_TYPES),
     setLeaveTypes: (val) => setItem(STORAGE_KEYS.LEAVE_TYPES, val),
     getShifts: () => getItem(STORAGE_KEYS.SHIFTS, INITIAL_SHIFTS),
     setShifts: (val) => setItem(STORAGE_KEYS.SHIFTS, val),

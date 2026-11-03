@@ -20,12 +20,13 @@ export const LeaveRequestsPage = () => {
     const isEmployee = currentRole === 'employee' || user?.role === 'employee';
     const empId = user?.employeeId ?? '';
     const [requests, setRequests] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [selectedType, setSelectedType] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedProject, setSelectedProject] = useState('all');
     const loadData = async () => {
-        const data = await leaveService.getRequests();
+        const data = await leaveService.getRequests().finally(() => setTableLoading(false));
         setRequests(data);
     };
     useEffect(() => {
@@ -281,10 +282,7 @@ export const LeaveRequestsPage = () => {
             { value: 'all', label: 'All Categories' },
             { value: 'Casual', label: 'Casual Leave (CL)' },
             { value: 'Sick', label: 'Sick Leave (SL)' },
-            { value: 'Earned', label: 'Earned Leave (EL)' },
-            { value: 'Compensatory', label: 'Compensatory Off (CO)' },
-            { value: 'Field', label: 'Field Duty Leave (FDL)' },
-            { value: 'Maternity', label: 'Maternity Leave (ML)' },
+            { value: 'Privilege', label: 'Privilege Leave (PL)' },
         ]} value={selectedType} onChange={(e) => setSelectedType(e.target.value)}/>
         </div>
 
@@ -317,6 +315,6 @@ export const LeaveRequestsPage = () => {
         </span>
       </div>
 
-      <DataTable compact={true} columns={isEmployee ? employeeColumns : hrColumns} data={filteredRequests} keyField="id" searchPlaceholder={isEmployee ? 'Search my requests...' : 'Search by staff name or ID...'} searchFields={['employeeName', 'employeeId', 'leaveType']}/>
+      <DataTable loading={tableLoading} compact={true} columns={isEmployee ? employeeColumns : hrColumns} data={filteredRequests} keyField="id" searchPlaceholder={isEmployee ? 'Search my requests...' : 'Search by staff name or ID...'} searchFields={['employeeName', 'employeeId', 'leaveType']}/>
     </div>);
 };

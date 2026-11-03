@@ -13,10 +13,11 @@ export const ShiftListPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
     const [shifts, setShifts] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
     useEffect(() => {
         const load = async () => {
-            const data = await shiftService.getShifts();
+            const data = await shiftService.getShifts().finally(() => setTableLoading(false));
             setShifts(data);
         };
         load();
@@ -214,6 +215,6 @@ export const ShiftListPage = () => {
             </Button>
           </div>}/>
 
-      <DataTable columns={columns} data={shifts} keyField="id" searchPlaceholder="Search shift by name or code..." searchFields={['name', 'code', 'location']}/>
+      <DataTable loading={tableLoading} columns={columns} data={shifts} keyField="id" searchPlaceholder="Search shift by name or code..." searchFields={['name', 'code', 'location']}/>
     </div>);
 };

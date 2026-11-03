@@ -19,6 +19,7 @@ export const LeaveApprovalsPage = () => {
     const { user } = useAuth();
     const toast = useToast();
     const [requests, setRequests] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [selectedStatus, setSelectedStatus] = useState('Pending');
     const [selectedType, setSelectedType] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
@@ -30,7 +31,7 @@ export const LeaveApprovalsPage = () => {
     const [comment, setComment] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const loadData = async () => {
-        const data = await leaveService.getRequests();
+        const data = await leaveService.getRequests().finally(() => setTableLoading(false));
         setRequests(data);
     };
     useEffect(() => {
@@ -251,10 +252,7 @@ export const LeaveApprovalsPage = () => {
             { value: 'all', label: 'All Leave Types' },
             { value: 'Casual', label: 'Casual Leave (CL)' },
             { value: 'Sick', label: 'Sick Leave (SL)' },
-            { value: 'Earned', label: 'Earned Leave (EL)' },
-            { value: 'Compensatory', label: 'Compensatory Off (CO)' },
-            { value: 'Field', label: 'Field Duty Leave (FDL)' },
-            { value: 'Maternity', label: 'Maternity Leave (ML)' },
+            { value: 'Privilege', label: 'Privilege Leave (PL)' },
         ]} value={selectedType} onChange={(e) => setSelectedType(e.target.value)}/>
         </div>
 
@@ -286,7 +284,7 @@ export const LeaveApprovalsPage = () => {
         </span>
       </div>
 
-      <DataTable compact={true} columns={columns} data={filteredRequests} keyField="id" searchPlaceholder="Search applicants..." searchFields={['employeeName', 'employeeId', 'leaveType']}/>
+      <DataTable loading={tableLoading} compact={true} columns={columns} data={filteredRequests} keyField="id" searchPlaceholder="Search applicants..." searchFields={['employeeName', 'employeeId', 'leaveType']}/>
 
       {/* Review & Adjudication Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Adjudicate Leave Request" description={`Make approval, partial approval, or rejection decision for ${selectedReq?.employeeName}.`} footer={<>

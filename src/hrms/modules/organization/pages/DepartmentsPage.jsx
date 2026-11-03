@@ -12,6 +12,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { organizationService } from '@/modules/organization/services/organization.service';
 export const DepartmentsPage = () => {
     const [departments, setDepartments] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDept, setEditingDept] = useState(null);
     // Filters
@@ -24,7 +25,7 @@ export const DepartmentsPage = () => {
     const [description, setDescription] = useState('');
     const toast = useToast();
     const loadData = async () => {
-        const data = await organizationService.getDepartments();
+        const data = await organizationService.getDepartments().finally(() => setTableLoading(false));
         setDepartments(data);
     };
     useEffect(() => {
@@ -148,7 +149,7 @@ export const DepartmentsPage = () => {
             Add Department
           </Button>}/>
 
-      <DataTable compact={true} columns={columns} data={filteredDepartments} keyField="id" searchPlaceholder="Search departments by name or code..." searchFields={['name', 'code', 'headName']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+      <DataTable loading={tableLoading} compact={true} columns={columns} data={filteredDepartments} keyField="id" searchPlaceholder="Search departments by name or code..." searchFields={['name', 'code', 'headName']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
               <Select value={selectedLocation} onChange={(e) => setSelectedLocation(e.target.value)} options={[
                 { label: 'All Locations', value: 'all' },

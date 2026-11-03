@@ -9,32 +9,18 @@
  *
  * Used by: leave.service.js, ApplyLeavePage.jsx, the employee dashboard and the attendance register
  */
-/** Public holidays for 2026 (the Islamic festivals move with the moon, so their dates are tentative). */
-export const PUBLIC_HOLIDAYS_2026 = [
-    { date: '2026-01-26', name: 'Republic Day', kind: 'National Holiday' },
-    { date: '2026-04-03', name: 'Good Friday', kind: 'Gazetted Holiday' },
-    { date: '2026-04-14', name: 'Dr. Ambedkar Jayanti', kind: 'Gazetted Holiday' },
-    { date: '2026-05-01', name: 'Labour Day', kind: 'Holiday' },
-    { date: '2026-05-27', name: 'Eid ul-Adha (tentative)', kind: 'Gazetted Holiday' },
-    { date: '2026-06-26', name: 'Muharram (tentative)', kind: 'Gazetted Holiday' },
-    { date: '2026-08-15', name: 'Independence Day', kind: 'National Holiday' },
-    { date: '2026-08-26', name: 'Milad-un-Nabi (tentative)', kind: 'Gazetted Holiday' },
-    { date: '2026-10-02', name: 'Gandhi Jayanti', kind: 'National Holiday' },
-    { date: '2026-10-20', name: 'Dussehra', kind: 'Gazetted Holiday' },
-    { date: '2026-11-08', name: 'Diwali', kind: 'Gazetted Holiday' },
-    { date: '2026-11-24', name: 'Guru Nanak Jayanti', kind: 'Gazetted Holiday' },
-    { date: '2026-12-25', name: 'Christmas Day', kind: 'Gazetted Holiday' },
-];
-export const NATIONAL_HOLIDAYS_2026 = PUBLIC_HOLIDAYS_2026.map((h) => h.date);
-
 /*
- * The holiday list in use. It starts as the 2026 list above and is replaced by Leave settings (publicHolidays)
- * as soon as they load from the server, so HR can maintain it without a code change.
+ * There is no built-in holiday list. HR / Admin mark specific days on the attendance calendar; they are kept in
+ * Leave settings (companyHolidays) as { date, name, kind } where kind is 'Holiday' (no work, no leave used) or
+ * 'Half Day' (a working day that counts as half: leave taken on it uses 0.5 day).
  */
-let publicHolidays = PUBLIC_HOLIDAYS_2026;
-export const getPublicHolidays = () => publicHolidays;
-export function setPublicHolidays(list) {
-    if (Array.isArray(list) && list.length) publicHolidays = list;
+export const DAY_KINDS = ['Holiday', 'Half Day'];
+
+/** Marked days as { date, name, kind }; older entries saved as plain dates are full holidays. */
+export function markedDays(companyHolidays = []) {
+    return (companyHolidays || [])
+        .map((h) => (typeof h === 'string' ? { date: h, name: 'Holiday', kind: 'Holiday' } : { name: '', ...h, kind: h?.kind === 'Half Day' ? 'Half Day' : 'Holiday' }))
+        .filter((h) => h?.date);
 }
 const DEFAULT_OFF_DAYS = [0, 6];
 const DAY_NUMBERS = { sunday: 0, monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5, saturday: 6 };
@@ -45,8 +31,9 @@ export function offDaysFromLabel(label) {
     const days = Object.entries(DAY_NUMBERS).filter(([name]) => label.toLowerCase().includes(name)).map(([, n]) => n);
     return days.length ? days : DEFAULT_OFF_DAYS;
 }
-/** Company holidays may be saved as dates or as { date, name }. */
-const holidayDates = (companyHolidays = []) => companyHolidays.map((h) => (typeof h === 'string' ? h : h?.date)).filter(Boolean);
+/** Full holidays only (half days are still working days). */
+const holidayDates = (companyHolidays = []) => markedDays(companyHolidays).filter((h) => h.kind === 'Holiday').map((h) => h.date);
+const halfDayDates = (companyHolidays = []) => markedDays(companyHolidays).filter((h) => h.kind === 'Half Day').map((h) => h.date);
 /**
  * Parse a 'YYYY-MM-DD' string safely into a Date object in local time
  */
@@ -71,14 +58,12 @@ export function isWorkingDay(dateStr, companyHolidays = [], offDays = DEFAULT_OF
     const date = parseLocalDate(dateStr);
     if (offDays.includes(date.getDay()))
         return false;
-    if (publicHolidays.some((h) => (typeof h === 'string' ? h : h.date) === dateStr))
-        return false;
     if (holidayDates(companyHolidays).includes(dateStr))
         return false;
     return true;
 }
 /**
- * Count the number of working days between startDate and endDate (inclusive).
+ * Count the working days between startDate and endDate (inclusive); a marked half day counts as 0.5.
  * Returns -1 if end < start.
  *
  * @param startDateStr  YYYY-MM-DD
@@ -95,11 +80,12 @@ export function countWorkingDays(startDateStr, endDateStr, companyHolidays = [],
     if (end.getTime() < start.getTime())
         return -1; // Flag for inverted date range
     let count = 0;
+    const halfDays = new Set(halfDayDates(companyHolidays));
     const current = new Date(start);
     while (current.getTime() <= end.getTime()) {
         const curStr = formatToDateStr(current);
         if (isWorkingDay(curStr, companyHolidays, offDays)) {
-            count++;
+            count += halfDays.has(curStr) ? 0.5 : 1;
         }
         current.setDate(current.getDate() + 1);
     }

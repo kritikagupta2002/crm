@@ -13,13 +13,14 @@ import { useToast } from '@/contexts/ToastContext';
 export const ReceivablesPage = () => {
     const toast = useToast();
     const [receivables, setReceivables] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [agingFilter, setAgingFilter] = useState('all');
     const [selectedReceivable, setSelectedReceivable] = useState(null);
     const [collectionAmount, setCollectionAmount] = useState(0);
     const [collectionMode, setCollectionMode] = useState('NEFT/RTGS');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const loadData = async () => {
-        const data = await financeService.getReceivables();
+        const data = await financeService.getReceivables().finally(() => setTableLoading(false));
         setReceivables(data);
     };
     useEffect(() => {
@@ -193,7 +194,7 @@ export const ReceivablesPage = () => {
       </div>
 
       {/* Main Table */}
-      <DataTable columns={columns} data={filteredReceivables} keyField="id" searchable searchPlaceholder="Search invoice, client, status..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No receivables found" emptyDescription="All invoices in this aging bucket are settled."/>
+      <DataTable loading={tableLoading} columns={columns} data={filteredReceivables} keyField="id" searchable searchPlaceholder="Search invoice, client, status..." searchFields={['invoiceNumber', 'clientName', 'status']} pageSize={10} emptyTitle="No receivables found" emptyDescription="All invoices in this aging bucket are settled."/>
 
       {/* Record Collection Modal */}
       {selectedReceivable && (<Modal isOpen={!!selectedReceivable} onClose={() => setSelectedReceivable(null)} title={`Record Collection - ${selectedReceivable.invoiceNumber}`} description={`Record customer payment from ${selectedReceivable.clientName}`} maxWidth="md">

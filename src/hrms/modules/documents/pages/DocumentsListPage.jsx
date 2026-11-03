@@ -18,6 +18,7 @@ export const DocumentsListPage = () => {
     const { user } = useAuth();
     const toast = useToast();
     const [documents, setDocuments] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [isUploadOpen, setIsUploadOpen] = useState(false);
     const [previewDoc, setPreviewDoc] = useState(null);
@@ -28,7 +29,7 @@ export const DocumentsListPage = () => {
     const [docDesc, setDocDesc] = useState('');
     const [uploadedFile, setUploadedFile] = useState(null);
     const load = async () => {
-        const data = await documentService.getDocuments();
+        const data = await documentService.getDocuments().finally(() => setTableLoading(false));
         setDocuments(data);
     };
     useEffect(() => {
@@ -169,7 +170,7 @@ export const DocumentsListPage = () => {
           </button>))}
       </div>
 
-      <DataTable columns={columns} data={filteredDocs} keyField="id" searchPlaceholder="Search document title, file name, or author..." searchFields={['title', 'fileName', 'uploadedBy']} onRowClick={(d) => setPreviewDoc(d)}/>
+      <DataTable loading={tableLoading} columns={columns} data={filteredDocs} keyField="id" searchPlaceholder="Search document title, file name, or author..." searchFields={['title', 'fileName', 'uploadedBy']} onRowClick={(d) => setPreviewDoc(d)}/>
 
       {/* Upload Modal */}
       <Modal isOpen={isUploadOpen} onClose={() => setIsUploadOpen(false)} title="Upload Corporate Document" description="Add technical procedures, statutory filings, or employee credential proofs." footer={<>

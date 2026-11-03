@@ -13,7 +13,7 @@ import { storage } from '@/core/storage/storage';
 import { leaveService } from '@/modules/leave/services/leave.service';
 import { EmployeeDashboard } from '../components/EmployeeDashboard';
 import { PunchPanel } from '@/modules/attendance/components/PunchPanel';
-import { getPublicHolidays } from '@/modules/leave/utils/workingDays';
+import { markedDays } from '@/modules/leave/utils/workingDays';
 import { todayIso } from '@/modules/attendance/utils/punch';
 import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
 // Live Digital Clock isolated component to prevent parent dashboard re-renders
@@ -94,12 +94,9 @@ const AdminDashboard = () => {
   // Dynamic upcoming holidays computed from holiday schedule
   const upcomingHolidaysList = useMemo(() => {
     const today = todayIso();
-    const company = (storage.getLeaveSettings()?.companyHolidays || []).map((h) =>
-      typeof h === 'string'
-        ? { date: h, name: 'Company Holiday', kind: 'Company' }
-        : { kind: 'Company', ...h }
-    );
-    return [...getPublicHolidays(), ...company]
+    // Only the days HR / Admin marked on the attendance calendar (holidays and half days).
+    return markedDays(storage.getLeaveSettings()?.companyHolidays)
+      .map((h) => ({ ...h, name: h.name || h.kind }))
       .filter((h) => h.date >= today)
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 4)
@@ -317,7 +314,7 @@ const AdminDashboard = () => {
         return dateToCheck >= startOfYear && dateToCheck <= todayStr;
       return true;
     });
-    const counts = { 'CL': 0, 'SL': 0, 'EL': 0, 'ML': 0, 'Others': 0 };
+    const counts = { 'PL': 0, 'CL': 0, 'SL': 0, 'Others': 0 };
     filtered.forEach((l) => {
       const type = l.leaveType || '';
       const days = Number(l.approvedDays ?? l.days) || 1;
@@ -325,21 +322,18 @@ const AdminDashboard = () => {
         counts['CL'] += days;
       else if (type.includes('Sick'))
         counts['SL'] += days;
-      else if (type.includes('Earned') || type.includes('Privilege'))
-        counts['EL'] += days;
-      else if (type.includes('Maternity') || type.includes('Paternity'))
-        counts['ML'] += days;
+      else if (type.includes('Privilege') || type.includes('Earned'))
+        counts['PL'] += days;
       else
         counts['Others'] += days;
     });
     const colors = isDark
-      ? { 'CL': '#2DD4BF', 'SL': '#FBBF24', 'EL': '#F87171', 'ML': '#60A5FA', 'Others': '#94A3B8' }
-      : { 'CL': '#1F6F78', 'SL': '#C8943A', 'EL': '#D24C47', 'ML': '#31485A', 'Others': '#7C8B96' };
+      ? { 'CL': '#2DD4BF', 'SL': '#FBBF24', 'PL': '#F87171', 'Others': '#94A3B8' }
+      : { 'CL': '#1F6F78', 'SL': '#C8943A', 'PL': '#D24C47', 'Others': '#7C8B96' };
     return [
+      { type: 'PL', count: counts['PL'], color: colors['PL'] },
       { type: 'CL', count: counts['CL'], color: colors['CL'] },
       { type: 'SL', count: counts['SL'], color: colors['SL'] },
-      { type: 'EL', count: counts['EL'], color: colors['EL'] },
-      { type: 'ML', count: counts['ML'], color: colors['ML'] },
       { type: 'Others', count: counts['Others'], color: colors['Others'] },
     ];
   }, [allLeaveRequests, leaveRange, isDark]);

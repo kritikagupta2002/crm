@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { ChevronDown, ChevronUp, ChevronsUpDown, Search, X } from 'lucide-react';
 import { Pagination } from './Pagination';
 import { EmptyState } from './EmptyState';
+import { SkeletonTableRows } from './Skeleton';
 import { formatNearDate } from '@shared/utils/date';
 
 /* A plain YYYY-MM-DD cell shows as the CRM's date ("29 Oct"); sorting and search still use the raw value. */
@@ -25,6 +26,7 @@ export function DataTable({
   onRowClick,
   goldTopBorder = false,
   compact = false,
+  loading = false,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -233,8 +235,10 @@ export function DataTable({
               })}
             </tr>
           </thead>
-          <tbody>
-            {paginatedData.length === 0 ? (
+          <tbody aria-busy={loading || undefined}>
+            {loading && paginatedData.length === 0 ? (
+              <SkeletonTableRows rows={Math.min(pageSize, 6)} columns={columns.length + (selectable ? 1 : 0)} />
+            ) : paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length + (selectable ? 1 : 0)} className="py-8">
                   <EmptyState title={emptyTitle} description={emptyDescription} className="border-none shadow-none bg-transparent" />

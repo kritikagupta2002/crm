@@ -15,18 +15,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/contexts/ToastContext';
 import { leaveService, checkDateConflict } from '@/modules/leave/services/leave.service';
 import { storage } from '@/core/storage/storage';
+import { Skeleton } from '@/components/common/Skeleton';
 import { countWorkingDays, getNonWorkingDates } from '@/modules/leave/utils/workingDays';
 import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
 const applyLeaveSchema = z
     .object({
-    leaveType: z.enum([
-        'Casual Leave (CL)',
-        'Sick Leave (SL)',
-        'Earned / Privilege Leave (EL)',
-        'Compensatory Off (CO)',
-        'Field Duty Leave (FDL)',
-        'Maternity / Paternity Leave',
-    ]),
+    leaveType: z.string().min(1, 'Choose a leave type'),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().min(1, 'End date is required'),
     reason: z
@@ -104,10 +98,10 @@ export const ApplyLeavePage = () => {
     const activeBalance = useMemo(() => {
         return balances.find((b) => b.leaveType === watchedLeaveType) || {
             leaveType: watchedLeaveType,
-            totalAllocated: 12,
+            totalAllocated: 0,
             used: 0,
             pending: 0,
-            available: 12,
+            available: 0,
             color: '#3B82F6',
         };
     }, [balances, watchedLeaveType]);
@@ -119,8 +113,8 @@ export const ApplyLeavePage = () => {
     }, [existingRequests, watchedLeaveType]);
     // Truly available quota that can be applied for right now
     const availableToApply = useMemo(() => {
-        return Math.max(0, activeBalance.totalAllocated - activeBalance.used - pendingDays);
-    }, [activeBalance.totalAllocated, activeBalance.used, pendingDays]);
+        return Math.max(0, activeBalance.available - pendingDays);
+    }, [activeBalance.available, pendingDays]);
     // Compute number of working days excluding Saturday, Sunday, and configured holidays
     const calculatedDays = useMemo(() => {
         if (!watchedStartDate || !watchedEndDate)
@@ -223,25 +217,17 @@ export const ApplyLeavePage = () => {
             toast.error(err.message || 'Failed to submit application. Please check input parameters.', 'Error');
         }
     };
-    // Options for all 6 leave types with real availability
-    const leaveTypeOptions = [
-        'Casual Leave (CL)',
-        'Sick Leave (SL)',
-        'Earned / Privilege Leave (EL)',
-        'Compensatory Off (CO)',
-        'Field Duty Leave (FDL)',
-        'Maternity / Paternity Leave',
-    ].map((lt) => {
+    // One option per leave type, with what is left to apply for (balance − pending requests)
+    const leaveTypeOptions = (balances.length ? balances.map((b) => b.leaveType) : ['Casual Leave (CL)', 'Sick Leave (SL)', 'Privilege Leave (PL)']).map((lt) => {
         const b = balances.find((bal) => bal.leaveType === lt);
         const ltPending = existingRequests
             .filter((r) => r.status === 'Pending' && r.leaveType === lt)
             .reduce((sum, r) => sum + (Number(r.requestedDays || r.days) || 0), 0);
-        const total = b ? b.totalAllocated : (lt.includes('Maternity') ? 180 : 12);
-        const used = b ? b.used : 0;
-        const avail = Math.max(0, total - used - ltPending);
+        const balance = b ? b.available : 0;
+        const avail = Math.max(0, balance - ltPending);
         return {
             value: lt,
-            label: `${lt} — (${avail} of ${total} days available to apply${ltPending > 0 ? `, ${ltPending}d pending` : ''})`,
+            label: isLoadingMeta ? `${lt} — loading balance…` : `${lt} — ${avail} day(s) available to apply${ltPending > 0 ? `, ${ltPending}d pending` : ''}`,
         };
     });
     return (<div className="space-y-6 max-w-3xl mx-auto pb-12">
@@ -296,8 +282,11 @@ export const ApplyLeavePage = () => {
           {/* 2. Quota for the chosen leave type, as a plain figure strip */}
           <div className="quota-strip">
             <p className="quota-strip-title">{watchedLeaveType}</p>
-            <dl>
-              <div><dt>Annual quota</dt><dd>{activeBalance.totalAllocated}d</dd></div>
+            {isLoadingMeta ? (<dl aria-busy="true">
+                {['Opening (31 Oct 2026)', 'Credited since', 'Used', 'In review', 'Available to apply'].map((t) => (<div key={t}><dt>{t}</dt><dd><Skeleton width={36} height={16}/></dd></div>))}
+              </dl>) : (<dl>
+              <div><dt>Opening (31 Oct 2026)</dt><dd>{activeBalance.opening ?? 0}d</dd></div>
+              <div><dt>Credited since</dt><dd>{activeBalance.accrued ?? 0}d</dd></div>
               <div><dt>Used</dt><dd>{activeBalance.used}d</dd></div>
               <div><dt>In review</dt><dd>{pendingDays}d</dd></div>
               <div><dt>Available to apply</dt><dd>{availableToApply}d</dd></div>
@@ -305,7 +294,8 @@ export const ApplyLeavePage = () => {
                 <dt>{isOverQuota ? 'Short by' : 'Left after this leave'}</dt>
                 <dd>{isOverQuota ? `${Math.abs(projectedRemaining)}d` : `${projectedRemaining}d`}</dd>
               </div>
-            </dl>
+            </dl>)}
+            <p className="text-[11px] text-slate-500 mt-2">Every month end: +1 PL, +0.5 CL, +0.5 SL (pro rata for part months).</p>
           </div>
 
           {/* 3. Date Selection & Calculated Duration */}

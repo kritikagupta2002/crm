@@ -10,10 +10,11 @@ import { useToast } from '@/contexts/ToastContext';
 export const VendorBillsPage = () => {
     const toast = useToast();
     const [bills, setBills] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [statusFilter, setStatusFilter] = useState('all');
     const loadData = async () => {
-        const data = await financeService.getVendorBills();
+        const data = await financeService.getVendorBills().finally(() => setTableLoading(false));
         setBills(data);
     };
     useEffect(() => {
@@ -164,7 +165,7 @@ export const VendorBillsPage = () => {
       </div>
 
       {/* Main Table */}
-      <DataTable columns={columns} data={filteredBills} keyField="id" searchable searchPlaceholder="Search vendor bills by number, contractor name, or category..." searchFields={['billNumber', 'vendorName', 'category', 'status']} pageSize={10} emptyTitle="No vendor bills found" emptyDescription="Record a new vendor bill to begin tracking accounts payable."/>
+      <DataTable loading={tableLoading} columns={columns} data={filteredBills} keyField="id" searchable searchPlaceholder="Search vendor bills by number, contractor name, or category..." searchFields={['billNumber', 'vendorName', 'category', 'status']} pageSize={10} emptyTitle="No vendor bills found" emptyDescription="Record a new vendor bill to begin tracking accounts payable."/>
 
       <AddVendorBillModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onBillAdded={() => loadData()}/>
     </div>);

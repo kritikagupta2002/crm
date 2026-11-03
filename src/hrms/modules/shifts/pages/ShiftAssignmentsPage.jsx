@@ -16,6 +16,7 @@ export const ShiftAssignmentsPage = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const [assignments, setAssignments] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [shifts, setShifts] = useState([]);
     const [employees, setEmployees] = useState([]);
     // Filter states
@@ -28,7 +29,7 @@ export const ShiftAssignmentsPage = () => {
     const [effectiveFrom, setEffectiveFrom] = useState('2026-10-01');
     const [weeklyOff, setWeeklyOff] = useState('Sunday');
     const load = async () => {
-        const a = await shiftService.getAssignments();
+        const a = await shiftService.getAssignments().finally(() => setTableLoading(false));
         const s = await shiftService.getShifts();
         const e = storage.getEmployees();
         setAssignments(a);
@@ -141,7 +142,7 @@ export const ShiftAssignmentsPage = () => {
             </Button>
           </div>}/>
 
-      <DataTable compact={true} columns={columns} data={filteredAssignments} keyField="id" searchPlaceholder="Search assignment records..." searchFields={['employeeName', 'employeeId', 'shiftName', 'department']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+      <DataTable loading={tableLoading} compact={true} columns={columns} data={filteredAssignments} keyField="id" searchPlaceholder="Search assignment records..." searchFields={['employeeName', 'employeeId', 'shiftName', 'department']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[150px]">
               <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]}/>
             </div>

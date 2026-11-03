@@ -443,7 +443,7 @@ export const EmployeeExitPage = () => {
                     <span className="font-bold text-slate-900 dark:text-white">₹{viewingFnFExit.fnf.payableDaysSalary.toLocaleString('en-IN')}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-300">Earned Leave Encashment:</span>
+                    <span className="text-slate-600 dark:text-slate-300">Privilege Leave Encashment:</span>
                     <span className="font-bold text-slate-900 dark:text-white">₹{viewingFnFExit.fnf.leaveEncashmentAmount.toLocaleString('en-IN')}</span>
                   </div>
                   {viewingFnFExit.fnf.gratuityAmount > 0 && (<div className="flex justify-between">

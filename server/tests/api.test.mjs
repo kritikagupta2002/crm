@@ -128,15 +128,69 @@ test('custom access: attendance-only account cannot apply for leave', async () =
   tokens.emp = (await call('POST', '/auth/login', null, { email: 'vikas.verma@bansalgeo.com', password: passwords['vikas.verma@bansalgeo.com'] })).body.token;
 });
 
+test('leave balances come from the 31 Oct 2026 sheet and are enforced', async () => {
+  const bal = (await call('GET', '/leaves/balances/BGS%2F04', 'emp')).body.data.balances;
+  const byCode = Object.fromEntries(bal.map((b) => [b.code, b]));
+  assert.deepEqual(Object.keys(byCode).sort(), ['CL', 'PL', 'SL']);
+  assert.equal(byCode.CL.opening, 1);
+  assert.equal(byCode.PL.opening, 2);
+  assert.equal(byCode.SL.opening, 0);
+  // Vikas has 1 CL: three working days of CL are refused by the server.
+  const tooMany = await call('POST', '/leaves/requests', 'emp', { leaveType: 'Casual Leave (CL)', startDate: '2026-11-18', endDate: '2026-11-20', reason: 'Family function at home' });
+  assert.equal(tooMany.status, 400);
+  assert.match(tooMany.body.error, /Not enough/);
+});
+
 test('leave counts only working days and approval skips the weekly off', async () => {
-  // Vikas works a Sunday-off shift: Fri 13 to Mon 16 Nov 2026 is 3 working days.
-  const applied = await call('POST', '/leaves/requests', 'emp', { leaveType: 'Casual Leave (CL)', startDate: '2026-11-13', endDate: '2026-11-16', requestedDays: 99, reason: 'Family function at home' });
+  // Vikas works a Sunday-off shift: Sat 14 to Mon 16 Nov 2026 is 2 working days (his PL balance is 2).
+  const applied = await call('POST', '/leaves/requests', 'emp', { leaveType: 'Privilege Leave (PL)', startDate: '2026-11-14', endDate: '2026-11-16', requestedDays: 99, reason: 'Family function at home' });
   assert.equal(applied.status, 201, JSON.stringify(applied.body));
-  assert.equal(applied.body.data.requestedDays, 3);
+  assert.equal(applied.body.data.requestedDays, 2);
   const review = await call('PUT', `/leaves/requests/${applied.body.data.id}/status`, 'md', { status: 'Approved' });
   assert.equal(review.status, 200);
   const att = (await call('GET', '/attendance?employeeId=BGS%2F04', 'md')).body.data.filter((a) => a.status === 'On Leave').map((a) => a.date).sort();
-  assert.deepEqual(att, ['2026-11-13', '2026-11-14', '2026-11-16']);
+  assert.deepEqual(att, ['2026-11-14', '2026-11-16']);
+  const pl = (await call('GET', '/leaves/balances/BGS%2F04', 'emp')).body.data.balances.find((b) => b.code === 'PL');
+  assert.equal(pl.used, 2);
+  assert.equal(pl.available, 0);
+});
+
+test('regularization: forgot punch in / punch out, approved into the register', async () => {
+  const day = (n) => { const d = new Date(); d.setDate(d.getDate() - n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+  // Nothing logged: "forgot to punch out" makes no sense, and a past "forgot to punch in" needs the leaving time.
+  assert.equal((await call('POST', '/attendance/corrections', 'emp', { date: day(2), type: 'Missed Punch Out', requestedCheckOut: '06:30 PM', reason: 'Forgot to punch out' })).status, 400);
+  assert.equal((await call('POST', '/attendance/corrections', 'emp', { date: day(2), type: 'Missed Punch In', requestedCheckIn: '09:30 AM', reason: 'Forgot to punch in' })).status, 400);
+  const both = await call('POST', '/attendance/corrections', 'emp', { date: day(2), type: 'Both Punches Missed', requestedCheckIn: '9:30 am', requestedCheckOut: '06:30 PM', reason: 'Biometric was down all day' });
+  assert.equal(both.status, 201, JSON.stringify(both.body));
+  assert.equal(both.body.data.requestedCheckIn, '09:30 AM');
+  // A second pending request for the same day is refused.
+  assert.equal((await call('POST', '/attendance/corrections', 'emp', { date: day(2), type: 'Time Correction', requestedCheckIn: '09:00 AM', requestedCheckOut: '06:00 PM', reason: 'Again' })).status, 409);
+  // Older than the 30-day window is refused.
+  assert.equal((await call('POST', '/attendance/corrections', 'emp', { date: day(45), type: 'Both Punches Missed', requestedCheckIn: '09:30 AM', requestedCheckOut: '06:30 PM', reason: 'Old day' })).status, 400);
+  assert.equal((await call('PUT', `/attendance/corrections/${both.body.data.id}`, 'md', { status: 'Approved' })).status, 200);
+  const row = (await call('GET', `/attendance?employeeId=BGS%2F04&date=${day(2)}`, 'md')).body.data[0];
+  assert.equal(row.checkIn, '09:30 AM');
+  assert.equal(row.checkOut, '06:30 PM');
+  assert.equal(row.workingHours, '9.0 hrs');
+  assert.equal(row.regularized, true);
+  assert.equal(row.regularizationType, 'Both Punches Missed');
+});
+
+test('calendar: only HR / Admin mark holidays and half days; a half day uses 0.5 leave', async () => {
+  // No built-in holidays any more (Diwali 8 Nov 2026 was in the old list).
+  assert.deepEqual((await call('GET', '/attendance/calendar?month=2026-11', 'emp')).body.data, []);
+  assert.equal((await call('PUT', '/attendance/calendar/2026-11-25', 'emp', { kind: 'Holiday' })).status, 403);
+  assert.equal((await call('PUT', '/attendance/calendar/2026-11-25', 'md', { kind: 'Holiday', name: 'Founders day' })).status, 200);
+  assert.equal((await call('PUT', '/attendance/calendar/2026-11-26', 'md', { kind: 'Half Day' })).status, 200);
+  assert.equal((await call('PUT', '/attendance/calendar/2026-11-27', 'md', { kind: 'Sometimes' })).status, 400);
+  const days = (await call('GET', '/attendance/calendar?month=2026-11', 'emp')).body.data;
+  assert.deepEqual(days.map((d) => [d.date, d.kind]), [['2026-11-25', 'Holiday'], ['2026-11-26', 'Half Day']]);
+  // Wed 25 (holiday) to Thu 26 (half day): 0.5 day of leave. Vikas has 1 CL.
+  const applied = await call('POST', '/leaves/requests', 'emp', { leaveType: 'Casual Leave (CL)', startDate: '2026-11-25', endDate: '2026-11-26', reason: 'Personal work at home' });
+  assert.equal(applied.status, 201, JSON.stringify(applied.body));
+  assert.equal(applied.body.data.requestedDays, 0.5);
+  assert.equal((await call('DELETE', '/attendance/calendar/2026-11-25', 'md')).status, 200);
+  assert.equal((await call('GET', '/attendance/calendar?month=2026-11', 'emp')).body.data.length, 1);
 });
 
 test('payroll: salary structure, run, and payslips visible only to the employee', async () => {

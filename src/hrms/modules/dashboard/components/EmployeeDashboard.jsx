@@ -16,7 +16,7 @@ import { PunchPanel } from '@/modules/attendance/components/PunchPanel';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { parseClock, todayIso } from '@/modules/attendance/utils/punch';
 import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
-import { isWorkingDay, getPublicHolidays } from '@/modules/leave/utils/workingDays';
+import { isWorkingDay, markedDays } from '@/modules/leave/utils/workingDays';
 import { evaluateGeofence } from '@/modules/attendance/utils/geofence';
 
 
@@ -287,11 +287,10 @@ export const EmployeeDashboard = () => {
             monthLabel: new Date(`${month}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }),
         };
     }, [user?.employeeId, todayRecord]);
-    // The next three holidays: public holidays and the company holidays in the leave settings.
+    // The next three days HR / Admin marked as a holiday or half day.
     const upcomingHolidays = useMemo(() => {
         const today = todayIso();
-        const company = (storage.getLeaveSettings()?.companyHolidays || []).map((h) => (typeof h === 'string' ? { date: h, name: 'Company holiday', kind: 'Company Holiday' } : { kind: 'Company Holiday', ...h }));
-        return [...getPublicHolidays(), ...company]
+        return markedDays(storage.getLeaveSettings()?.companyHolidays).map((h) => ({ ...h, name: h.name || h.kind }))
             .filter((h) => h.date >= today)
             .sort((a, b) => a.date.localeCompare(b.date))
             .slice(0, 3)
@@ -308,7 +307,7 @@ export const EmployeeDashboard = () => {
         const none = (leaveType) => ({ leaveType, totalAllocated: 0, used: 0, available: 0 });
         const cl = balances.find((b) => b.leaveType?.includes('Casual') || b.code === 'CL') || none('Casual Leave (CL)');
         const sl = balances.find((b) => b.leaveType?.includes('Sick') || b.code === 'SL') || none('Sick Leave (SL)');
-        const el = balances.find((b) => b.leaveType?.includes('Earned') || b.code === 'EL') || none('Earned Leave (EL)');
+        const el = balances.find((b) => b.code === 'PL' || b.leaveType?.includes('Privilege')) || none('Privilege Leave (PL)');
         return { cl, sl, el };
     }, [user?.employeeId, user?.name]);
     // Live leave requests for employee
@@ -560,7 +559,7 @@ export const EmployeeDashboard = () => {
 
           <div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121A24] border border-slate-200/80 dark:border-slate-800">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Earned Leave (EL)</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">Privilege Leave (PL)</span>
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"/>
             </div>
             <div className="mt-2 flex items-baseline gap-1.5">
@@ -670,7 +669,7 @@ export const EmployeeDashboard = () => {
 
         {/* Company Holidays & Notice */}
         <Card className="p-4 sm:p-5">
-          <CardHeader inset icon={<CalendarDays size={18}/>} title="Upcoming holidays" count={new Date().getFullYear()}/>
+          <CardHeader inset icon={<CalendarDays size={18}/>} title="Upcoming holidays & half days" count={new Date().getFullYear()}/>
 
           <div className="divide-y divide-slate-100 dark:divide-slate-800 mt-2">
             {upcomingHolidays.map((hol) => (<div key={hol.title} className="py-2.5 flex items-center justify-between">

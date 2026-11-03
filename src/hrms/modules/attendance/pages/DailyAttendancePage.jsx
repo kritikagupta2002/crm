@@ -22,6 +22,7 @@ export const DailyAttendancePage = () => {
   const toast = useToast();
 
   const [records, setRecords] = useState([]);
+  const [tableLoading, setTableLoading] = useState(true);
   const [filterMode, setFilterMode] = useState('date'); // 'date' | 'day' | 'month'
 
   // Default date to today's ISO string (local date)
@@ -44,7 +45,7 @@ export const DailyAttendancePage = () => {
 
   useEffect(() => {
     const load = async () => {
-      const data = await attendanceService.getAttendance();
+      const data = await attendanceService.getAttendance().finally(() => setTableLoading(false));
       setRecords(data || []);
       if (data && data.length > 0) {
         const hasToday = data.some((r) => r.date === todayIso);
@@ -486,7 +487,7 @@ export const DailyAttendancePage = () => {
       </section>
 
       {/* Single Unified CRM Card with Toolbar, Stage Tabs, Table & Pager */}
-      <DataTable
+      <DataTable loading={tableLoading}
         columns={columns}
         data={filteredRecords}
         keyField="id"

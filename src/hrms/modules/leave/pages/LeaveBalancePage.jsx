@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
 import { storage } from '@/core/storage/storage';
 import { leaveService } from '@/modules/leave/services/leave.service';
+import { Skeleton, SkeletonTableRows } from '@/components/common/Skeleton';
 export const LeaveBalancePage = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -23,30 +24,45 @@ export const LeaveBalancePage = () => {
     const [balances, setBalances] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [myRequests, setMyRequests] = useState([]);
+    const [allBalances, setAllBalances] = useState(null);
+    const [loadingBalances, setLoadingBalances] = useState(true);
+    const [loadingRequests, setLoadingRequests] = useState(true);
     // Load employees & personal requests on mount
     useEffect(() => {
         const emps = storage.getEmployees();
         setEmployees(emps);
         const loadRequests = async () => {
-            const all = await leaveService.getRequests();
-            setMyRequests(all.filter((r) => r.employeeId === (isEmployee ? loggedInEmpId : selectedEmpId)));
+            setLoadingRequests(true);
+            try {
+                const all = await leaveService.getRequests();
+                setMyRequests(all.filter((r) => r.employeeId === (isEmployee ? loggedInEmpId : selectedEmpId)));
+            }
+            catch {
+                setMyRequests([]);
+            }
+            finally {
+                setLoadingRequests(false);
+            }
         };
         loadRequests();
     }, [loggedInEmpId, isEmployee, selectedEmpId]);
     // Load balances based on role and selected employee
     useEffect(() => {
         const loadBalances = async () => {
-            if (isEmployee) {
-                const data = await leaveService.getBalances(loggedInEmpId);
-                setBalances(data);
+            setLoadingBalances(true);
+            try {
+                if (isEmployee || selectedEmpId !== 'all') {
+                    setBalances(await leaveService.getBalances(isEmployee ? loggedInEmpId : selectedEmpId));
+                }
+                else {
+                    setAllBalances(await leaveService.getAllBalances());
+                }
             }
-            else if (selectedEmpId !== 'all') {
-                const data = await leaveService.getBalances(selectedEmpId);
-                setBalances(data);
+            catch {
+                setBalances([]);
             }
-            else {
-                const data = await leaveService.getBalances();
-                setBalances(data);
+            finally {
+                setLoadingBalances(false);
             }
         };
         loadBalances();
@@ -55,32 +71,21 @@ export const LeaveBalancePage = () => {
     const masterLedger = useMemo(() => {
         if (isEmployee)
             return [];
+        const pick = (list, code) => list.find((b) => b.code === code) || { available: 0, totalAllocated: 0, opening: 0, accrued: 0, used: 0, pending: 0 };
         return employees.map((emp) => {
-            const empBalances = storage.getBalancesForEmployee(emp.employeeId, emp.name);
-            const cl = empBalances.find((b) => b.leaveType.includes('Casual')) || { available: 12, totalAllocated: 12, used: 0, pending: 0 };
-            const sl = empBalances.find((b) => b.leaveType.includes('Sick')) || { available: 10, totalAllocated: 10, used: 0, pending: 0 };
-            const el = empBalances.find((b) => b.leaveType.includes('Earned')) || { available: 18, totalAllocated: 18, used: 0, pending: 0 };
-            const co = empBalances.find((b) => b.leaveType.includes('Compensatory')) || { available: 8, totalAllocated: 8, used: 0, pending: 0 };
-            const fdl = empBalances.find((b) => b.leaveType.includes('Field')) || { available: 15, totalAllocated: 15, used: 0, pending: 0 };
-            const ml = empBalances.find((b) => b.leaveType.includes('Maternity')) || { available: 180, totalAllocated: 180, used: 0, pending: 0 };
-            const totalAvailable = empBalances.reduce((sum, b) => sum + (b.available || 0), 0);
-            const totalUsed = empBalances.reduce((sum, b) => sum + (b.used || 0), 0);
-            const totalPending = empBalances.reduce((sum, b) => sum + (b.pending || 0), 0);
+            const empBalances = allBalances?.[emp.employeeId] || storage.getBalancesForEmployee(emp.employeeId, emp.name);
             return {
                 employee: emp,
                 balances: empBalances,
-                cl,
-                sl,
-                el,
-                co,
-                fdl,
-                ml,
-                totalAvailable,
-                totalUsed,
-                totalPending,
+                cl: pick(empBalances, 'CL'),
+                sl: pick(empBalances, 'SL'),
+                pl: pick(empBalances, 'PL'),
+                totalAvailable: empBalances.reduce((sum, b) => sum + (b.available || 0), 0),
+                totalUsed: empBalances.reduce((sum, b) => sum + (b.used || 0), 0),
+                totalPending: empBalances.reduce((sum, b) => sum + (b.pending || 0), 0),
             };
         });
-    }, [isEmployee, employees, balances]);
+    }, [isEmployee, employees, allBalances]);
     const filteredLedger = useMemo(() => {
         if (isEmployee || !searchQuery.trim())
             return masterLedger;
@@ -104,13 +109,13 @@ export const LeaveBalancePage = () => {
     }, [isEmployee, employees, selectedEmpId, loggedInEmpId, user]);
     // Aggregate totals for the personal overview
     const totalAllocatedDays = useMemo(() => balances.reduce((sum, b) => sum + (b.totalAllocated || 0), 0), [balances]);
-    const totalAvailableDays = useMemo(() => balances.reduce((sum, b) => sum + (b.available || 0), 0), [balances]);
+    const totalAvailableDays = useMemo(() => Math.round(balances.reduce((sum, b) => sum + (b.available || 0), 0) * 100) / 100, [balances]);
     const totalUtilizedDays = useMemo(() => balances.reduce((sum, b) => sum + (b.used || 0), 0), [balances]);
     const totalPendingDays = useMemo(() => balances.reduce((sum, b) => sum + (b.pending || 0), 0), [balances]);
     return (<div className="space-y-6 pb-12">
       <PageHeader title={isEmployee ? 'My Leave Balances & Entitlements' : 'Leave Balances & Quota Ledger'} description={isEmployee
-            ? 'Personal annual leave quotas, utilized days, reserved commitments, and real-time available balances.'
-            : 'Employee-specific annual entitlements, utilized quotas, unreserved balances, and centralized governance.'} breadcrumbs={[
+            ? 'Your PL, CL and SL balance: opening balance on 31 Oct 2026, month-end credits, leave used and pending.'
+            : 'Everyone\'s PL, CL and SL: opening balance on 31 Oct 2026 + month-end credits − approved leave.'} breadcrumbs={[
             { label: isEmployee ? 'My Portal' : 'HRMS', path: '/hr' },
             { label: 'Leave', path: '/hr/leave' },
             { label: isEmployee ? 'My Balances' : 'Leave Balances' },
@@ -144,14 +149,14 @@ export const LeaveBalancePage = () => {
                   {user?.designation || 'Senior Exploration Geologist'} • {user?.department || 'Geology & Mineral Exploration'}
                 </p>
                 <p className="text-[11px] text-blue-200/70 font-mono mt-0.5">
-                  Entitlement Policy: BGSPL Standard Corporate Quota (FY 2026-27)
+                  Opening balance as on 31 Oct 2026 · credited every month end
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2.5 w-full md:w-auto pt-3 md:pt-0 border-t md:border-t-0 border-blue-700/50 flex-wrap">
               <div className="px-3 py-1.5 rounded-lg bg-slate-950/60 border border-slate-700/50 text-center min-w-[75px]">
-                <span className="text-[9px] text-slate-300 font-semibold block uppercase">Total Quota</span>
+                <span className="text-[9px] text-slate-300 font-semibold block uppercase">Credited</span>
                 <span className="text-base font-black text-white">{totalAllocatedDays}d</span>
               </div>
               <div className="px-3 py-1.5 rounded-lg bg-emerald-950/60 border border-emerald-700/50 text-center min-w-[75px]">
@@ -195,7 +200,13 @@ export const LeaveBalancePage = () => {
       {/* ── INDIVIDUAL QUOTA TILES (FOR SELECTED EMPLOYEE OR CURRENT USER) ── */}
       {selectedEmpId !== 'all' || isEmployee ? (<div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {balances.map((b) => {
+            {loadingBalances && [0, 1, 2].map((i) => (<Card key={i} className="p-4 space-y-3" aria-busy="true">
+                <Skeleton width="55%" height={12}/>
+                <Skeleton width="35%" height={26}/>
+                <Skeleton height={8} radius={999}/>
+                <Skeleton width="70%" height={10}/>
+              </Card>))}
+            {!loadingBalances && balances.map((b) => {
                 const usedPct = b.totalAllocated > 0 ? Math.round((b.used / b.totalAllocated) * 100) : 0;
                 const pendingDaysCount = b.pending || 0;
                 const availableToApply = Math.max(0, b.available - pendingDaysCount);
@@ -205,7 +216,7 @@ export const LeaveBalancePage = () => {
                       <div>
                         <h4 className="font-bold text-slate-900 dark:text-white text-xs">{b.leaveType}</h4>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          Statutory entitlement FY 2026-27
+                          Opening {b.opening ?? 0}d (31 Oct 2026) + credited {b.accrued ?? 0}d · +{b.monthlyAccrual ?? 0}d every month end
                         </p>
                       </div>
                       <span className="w-3 h-3 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: b.color }}/>
@@ -215,7 +226,7 @@ export const LeaveBalancePage = () => {
                       <span className="text-2xl font-black text-slate-900 dark:text-white tabular-nums tracking-tight">
                         {b.available}
                       </span>
-                      <span className="text-xs text-slate-400 font-semibold">/ {b.totalAllocated} days available</span>
+                      <span className="text-xs text-slate-400 font-semibold">/ {b.totalAllocated} days credited</span>
                     </div>
 
                     {/* Progress Bar */}
@@ -259,7 +270,9 @@ export const LeaveBalancePage = () => {
                   </Button>
                 </div>
 
-                {myRequests.length === 0 ? (<div className="py-8 text-center text-slate-400 text-xs">
+                {loadingRequests ? (<div className="space-y-3 py-2" aria-busy="true">
+                    {[0, 1, 2].map((i) => <Skeleton key={i} height={14}/>)}
+                  </div>) : myRequests.length === 0 ? (<div className="py-8 text-center text-slate-400 text-xs">
                     No leave requests found for this employee.
                   </div>) : (<div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
@@ -321,33 +334,30 @@ export const LeaveBalancePage = () => {
                 </div>
 
                 <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                  <div className="p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40">
-                    <p className="font-bold text-blue-900 dark:text-blue-300 text-[11px]">Casual Leave (CL)</p>
-                    <p className="text-[11px] text-blue-800 dark:text-blue-300/80 mt-0.5">
-                      Max 3 consecutive working days per request. For extended absence, apply for Earned Leave.
+                  <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40">
+                    <p className="font-bold text-amber-900 dark:text-amber-300 text-[11px]">Privilege Leave (PL)</p>
+                    <p className="text-[11px] text-amber-800 dark:text-amber-300/80 mt-0.5">
+                      1 day credited at every month end. Apply at least 7 days in advance.
                     </p>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40">
-                    <p className="font-bold text-amber-900 dark:text-amber-300 text-[11px]">Earned Leave (EL)</p>
-                    <p className="text-[11px] text-amber-800 dark:text-amber-300/80 mt-0.5">
-                      Advance notice recommended. Carry forward up to 30 days per annual policy.
+                  <div className="p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-800/40">
+                    <p className="font-bold text-blue-900 dark:text-blue-300 text-[11px]">Casual Leave (CL)</p>
+                    <p className="text-[11px] text-blue-800 dark:text-blue-300/80 mt-0.5">
+                      0.5 day credited at every month end, for short personal matters.
                     </p>
                   </div>
 
                   <div className="p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40">
                     <p className="font-bold text-emerald-900 dark:text-emerald-300 text-[11px]">Sick Leave (SL)</p>
                     <p className="text-[11px] text-emerald-800 dark:text-emerald-300/80 mt-0.5">
-                      Medical proof advisory for absences exceeding 2 consecutive working days.
+                      0.5 day credited at every month end. Medical proof advised beyond 2 days.
                     </p>
                   </div>
 
-                  <div className="p-2.5 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200/60 dark:border-purple-800/40">
-                    <p className="font-bold text-purple-900 dark:text-purple-300 text-[11px]">Compensatory Off (CO)</p>
-                    <p className="text-[11px] text-purple-800 dark:text-purple-300/80 mt-0.5">
-                      Accrued by working weekend shifts, site emergencies or government holidays.
-                    </p>
-                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                    Opening balances are as on 31 Oct 2026. Credits for a part month (joining or leaving) are pro rata.
+                  </p>
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -367,7 +377,7 @@ export const LeaveBalancePage = () => {
                 All Employees Leave Ledger ({filteredLedger.length})
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Centralized statutory quotas and utilization ledger across Bansal Geo Solutions Pvt. Ltd.
+                Balance = opening on 31 Oct 2026 + month-end credits − approved leave. Hover a figure for the breakdown.
               </p>
             </div>
           </div>
@@ -379,17 +389,16 @@ export const LeaveBalancePage = () => {
                   <th className="py-2.5 px-3">Emp ID</th>
                   <th className="py-2.5 px-3">Employee Name</th>
                   <th className="py-2.5 px-3">Department</th>
+                  <th className="py-2.5 px-3 text-center">Privilege (PL)</th>
                   <th className="py-2.5 px-3 text-center">Casual (CL)</th>
                   <th className="py-2.5 px-3 text-center">Sick (SL)</th>
-                  <th className="py-2.5 px-3 text-center">Earned (EL)</th>
-                  <th className="py-2.5 px-3 text-center">Comp Off (CO)</th>
-                  <th className="py-2.5 px-3 text-center">Field Duty</th>
                   <th className="py-2.5 px-3 text-center">Total Balance</th>
                   <th className="py-2.5 px-3 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredLedger.map((row) => (<tr key={row.employee.employeeId} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                {loadingBalances && !allBalances && <SkeletonTableRows rows={6} columns={8}/>}
+                {(!loadingBalances || allBalances) && filteredLedger.map((row) => (<tr key={row.employee.employeeId} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                     <td className="py-2.5 px-3 font-mono font-bold text-blue-600 dark:text-blue-400">
                       {row.employee.employeeId}
                     </td>
@@ -404,29 +413,21 @@ export const LeaveBalancePage = () => {
                     <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300">
                       {row.employee.employment?.department}
                     </td>
-                    <td className="py-2.5 px-3 text-center">
+                    <td className="py-2.5 px-3 text-center" title={`Opening ${row.pl.opening} + credited ${row.pl.accrued} − used ${row.pl.used}`}>
+                      <span className="font-bold text-slate-800 dark:text-slate-200">{row.pl.available}</span>
+                      {row.pl.pending > 0 && <span className="text-[10px] text-amber-600"> ({row.pl.pending} pending)</span>}
+                    </td>
+                    <td className="py-2.5 px-3 text-center" title={`Opening ${row.cl.opening} + credited ${row.cl.accrued} − used ${row.cl.used}`}>
                       <span className="font-bold text-slate-800 dark:text-slate-200">{row.cl.available}</span>
-                      <span className="text-[10px] text-slate-400"> / {row.cl.totalAllocated}</span>
+                      {row.cl.pending > 0 && <span className="text-[10px] text-amber-600"> ({row.cl.pending} pending)</span>}
                     </td>
-                    <td className="py-2.5 px-3 text-center">
+                    <td className="py-2.5 px-3 text-center" title={`Opening ${row.sl.opening} + credited ${row.sl.accrued} − used ${row.sl.used}`}>
                       <span className="font-bold text-slate-800 dark:text-slate-200">{row.sl.available}</span>
-                      <span className="text-[10px] text-slate-400"> / {row.sl.totalAllocated}</span>
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{row.el.available}</span>
-                      <span className="text-[10px] text-slate-400"> / {row.el.totalAllocated}</span>
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{row.co.available}</span>
-                      <span className="text-[10px] text-slate-400"> / {row.co.totalAllocated}</span>
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{row.fdl.available}</span>
-                      <span className="text-[10px] text-slate-400"> / {row.fdl.totalAllocated}</span>
+                      {row.sl.pending > 0 && <span className="text-[10px] text-amber-600"> ({row.sl.pending} pending)</span>}
                     </td>
                     <td className="py-2.5 px-3 text-center">
                       <span className="px-2 py-0.5 rounded-full font-bold text-xs bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
-                        {row.totalAvailable} Days
+                        {Math.round(row.totalAvailable * 100) / 100} Days
                       </span>
                     </td>
                     <td className="py-2.5 px-3 text-right">

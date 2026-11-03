@@ -10,10 +10,11 @@ import { useToast } from '@/contexts/ToastContext';
 export const AccountingEntriesPage = () => {
     const toast = useToast();
     const [entries, setEntries] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [typeFilter, setTypeFilter] = useState('all');
     const loadData = async () => {
-        const data = await financeService.getAccountingEntries();
+        const data = await financeService.getAccountingEntries().finally(() => setTableLoading(false));
         setEntries(data);
     };
     useEffect(() => {
@@ -197,7 +198,7 @@ export const AccountingEntriesPage = () => {
       </div>
 
       {/* Data Table */}
-      <DataTable columns={columns} data={filteredEntries} keyField="id" searchable searchPlaceholder="Search journal entries by voucher #, account, or reference..." searchFields={['entryNumber', 'reference', 'debitAccount', 'creditAccount', 'narration']} pageSize={10} emptyTitle="No accounting entries found" emptyDescription="Create a new journal voucher to record a ledger transaction."/>
+      <DataTable loading={tableLoading} columns={columns} data={filteredEntries} keyField="id" searchable searchPlaceholder="Search journal entries by voucher #, account, or reference..." searchFields={['entryNumber', 'reference', 'debitAccount', 'creditAccount', 'narration']} pageSize={10} emptyTitle="No accounting entries found" emptyDescription="Create a new journal voucher to record a ledger transaction."/>
 
       <NewAccountingEntryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onEntryCreated={() => loadData()}/>
     </div>);

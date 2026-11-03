@@ -1282,3 +1282,68 @@
 .hrms .nowrap { white-space: nowrap; }
 .hrms .text-right { text-align: right; }
 .hrms .row-actions { display: inline-flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* ── Skeleton placeholders (page data loading) and inline spinner (actions in progress) ── */
+.hrms .skeleton {
+  display: block;
+  background: linear-gradient(90deg, var(--line-soft, #edf1f3) 0%, var(--line, #e1e8eb) 40%, var(--line-soft, #edf1f3) 80%);
+  background-size: 200% 100%;
+  animation: hrms-skeleton-shimmer 1.3s ease-in-out infinite;
+}
+.hrms .skeleton-stack { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.hrms .skeleton-row { display: flex; align-items: center; gap: 12px; }
+.hrms .skeleton-card { padding: 16px 18px; }
+.hrms .skeleton-grid { display: grid; gap: 6px; }
+.hrms .skeleton-tr:hover { background: transparent !important; }
+@keyframes hrms-skeleton-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+.hrms .inline-spinner { display: inline-flex; align-items: center; gap: 8px; color: var(--muted, #64748b); font-size: 12.5px; }
+.hrms .inline-spinner-ring {
+  display: inline-block;
+  border: 2px solid var(--line, #e1e8eb);
+  border-top-color: var(--teal-600, #1f6f78);
+  border-radius: 999px;
+  animation: hrms-spin 0.7s linear infinite;
+}
+@keyframes hrms-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .hrms .skeleton, .hrms .inline-spinner-ring { animation-duration: 2.5s; }
+}
+
+/* Card header toolbar (title + actions) above a table: same inset as the table below it */
+.hrms .leads-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 16px 12px;
+}
+.hrms .leads-toolbar h3 { margin: 0; }
+.hrms .leads-toolbar p { margin: 2px 0 0; }
+
+/* ── Attendance calendar: Sundays and holidays ── */
+.hrms .att-col-sunday { background: #fdf1f0 !important; color: #b4423c !important; }
+.hrms .att-col-holiday { background: #eaf4fb !important; color: #1e6a96 !important; }
+.hrms .att-day-name { display: block; font-size: 9px; font-weight: 600; opacity: 0.75; text-transform: uppercase; letter-spacing: 0.02em; }
+.hrms .att-td-sunday { background: #fdf6f5; }
+.hrms .att-td-holiday { background: #f2f8fc; }
+.hrms .att-cell-sunday { background: #fbe3e1; color: #b4423c; font-weight: 700; }
+.hrms .att-cell-holiday { background: #d9ecf8; color: #1e6a96; font-weight: 700; }
+.hrms .att-col-today { box-shadow: inset 0 -3px 0 var(--teal-600, #1f6f78); }
+.hrms .att-holiday-chip { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; background: #eaf4fb; color: #1e6a96; border: 1px solid #cfe4f3; font-weight: 600; }
+.hrms .att-col-halfday { background: #fdf3df !important; color: #9a6410 !important; }
+.hrms .att-td-halfday { background: #fefaf0; }
+.hrms .att-cell-halfday { background: #fbe7c0; color: #9a6410; font-weight: 700; }
+.hrms .att-holiday-chip.is-half { background: #fdf3df; color: #9a6410; border-color: #f3dcae; }
+.hrms button.att-holiday-chip { cursor: pointer; }
+.hrms button.att-holiday-chip:hover { filter: brightness(0.96); }
+.hrms .att-day-btn { display: block; width: 100%; padding: 6px 2px; background: transparent; border: 0; color: inherit; font: inherit; }
+.hrms button.att-day-btn { cursor: pointer; }
+.hrms button.att-day-btn:hover { background: rgba(31, 111, 120, 0.08); }
+.hrms button.att-day-btn:focus-visible { outline: 2px solid var(--teal-600, #1f6f78); outline-offset: -2px; }
+.hrms .att-kind-option { display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px; border-radius: 10px; border: 1px solid var(--line, #e1e8eb); background: var(--surface, #fff); font-size: 12px; color: var(--muted, #64748b); cursor: pointer; }
+.hrms .att-kind-option strong { font-size: 13px; color: var(--ink, #0f2a3d); }
+.hrms .att-kind-option.is-active { border-color: var(--teal-600, #1f6f78); box-shadow: 0 0 0 2px rgba(31, 111, 120, 0.18); }

@@ -75,7 +75,9 @@ export const leaveTypesRouter = collectionRouter({
     unique('leave_types', r, 'code', 'leave type');
     const quota = Number(r.annualQuota);
     if (!Number.isFinite(quota) || quota < 0 || quota > 365) throw new ValidationError('Annual quota must be between 0 and 365 days.');
-    return { ...r, code: String(r.code).toUpperCase(), annualQuota: quota };
+    const accrual = Number(r.monthlyAccrual ?? 0);
+    if (!Number.isFinite(accrual) || accrual < 0 || accrual > 31) throw new ValidationError('Monthly credit must be between 0 and 31 days.');
+    return { ...r, code: String(r.code).toUpperCase(), annualQuota: quota, monthlyAccrual: accrual };
   },
 });
 

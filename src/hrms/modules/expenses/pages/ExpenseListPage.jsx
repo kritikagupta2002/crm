@@ -22,6 +22,7 @@ export const ExpenseListPage = () => {
     const toast = useToast();
 
     const [expenses, setExpenses] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
@@ -40,7 +41,7 @@ export const ExpenseListPage = () => {
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
 
     const loadExpenses = async () => {
-        const data = await expenseService.getExpenses();
+        const data = await expenseService.getExpenses().finally(() => setTableLoading(false));
         if (isEmp) {
             if (!user?.employeeId) {
                 setExpenses([]);
@@ -380,7 +381,7 @@ export const ExpenseListPage = () => {
                 </span>
             </div>
 
-            <DataTable 
+            <DataTable loading={tableLoading} 
                 compact={true} 
                 columns={columns} 
                 data={filteredExpenses} 

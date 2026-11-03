@@ -1,19 +1,12 @@
 import { audit } from '../services/audit.js';
 import { today } from '../services/dates.js';
 import { db } from '../services/db.js';
-import { workingDates } from '../services/workCalendar.js';
+import { workingDates, leaveDaysIn } from '../services/workCalendar.js';
 import { can, scopedEmployeeId } from '../config/permissions.js';
+import { balancesFor } from '../services/leaveBalances.js';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ACTIVE = ['Pending', 'Approved', 'Partially Approved'];
-
-/* Annual quota for a leave type: Leave settings override the leave type's own quota for the standard types. */
-const SETTING_FOR_CODE = { CL: 'annualCasualLeave', SL: 'annualSickLeave', EL: 'annualEarnedLeave', CO: 'annualCompOffLeave', FDL: 'annualFieldDutyLeave' };
-function quotaFor(type) {
-  const settings = db.get('leave_settings') || {};
-  const fromSettings = Number(settings[SETTING_FOR_CODE[type.code]]);
-  return Number.isFinite(fromSettings) && settings[SETTING_FOR_CODE[type.code]] !== undefined ? fromSettings : Number(type.annualQuota) || 0;
-}
 
 function notify(fields) {
   db.insert('notifications', {
@@ -38,21 +31,20 @@ export const leaveController = {
   getBalances: async (req, res, next) => {
     try {
       const employeeId = scopedEmployeeId(req, req.params.employeeId, 'leave.view_all');
-      const year = String(new Date().getFullYear());
       const empRequests = db.get('leaves').filter((r) => r.employeeId === employeeId);
-      const thisYear = empRequests.filter((r) => String(r.startDate).startsWith(year));
+      res.json({ success: true, data: { employeeId, balances: balancesFor(employeeId), recentRequests: empRequests.slice(0, 5) } });
+    } catch (err) {
+      next(err);
+    }
+  },
 
-      // Balances are computed from each leave type's annual quota and this year's requests, never stored guesses.
-      const balances = db.get('leave_types').map((type) => {
-        const ofType = thisYear.filter((r) => r.leaveType === type.name);
-        const used = ofType.filter((r) => r.status === 'Approved' || r.status === 'Partially Approved')
-          .reduce((sum, r) => sum + (Number(r.approvedDays) || 0), 0);
-        const pending = ofType.filter((r) => r.status === 'Pending').reduce((sum, r) => sum + (Number(r.requestedDays) || 0), 0);
-        const allocated = quotaFor(type);
-        return { leaveType: type.name, code: type.code, allocated, used, pending, available: Math.max(0, allocated - used - pending) };
-      });
-
-      res.json({ success: true, data: { employeeId, balances, recentRequests: empRequests.slice(0, 5) } });
+  /* Everyone's balances (HR), or only the caller's own. */
+  getAllBalances: async (req, res, next) => {
+    try {
+      const all = can(req.user, 'leave.view_all');
+      const employees = db.get('employees').filter((e) => all || e.employeeId === req.user.employeeId);
+      const data = employees.map((e) => ({ employeeId: e.employeeId, employeeName: e.name, balances: balancesFor(e.employeeId) }));
+      res.json({ success: true, data });
     } catch (err) {
       next(err);
     }
@@ -92,9 +84,16 @@ export const leaveController = {
         return res.status(400).json({ success: false, error: 'Unknown leave type.' });
       }
       // Working days are counted here, not taken from the request: weekly offs and holidays never use leave.
-      const workingDays = workingDates(employeeId, startDate, endDate).length;
+      // A marked half day uses 0.5 day of leave.
+      const workingDays = leaveDaysIn(employeeId, startDate, endDate);
       if (workingDays === 0) {
         return res.status(400).json({ success: false, error: 'The selected dates contain no working days.' });
+      }
+      // The balance is checked here too: opening balance + month-end credits − approved − pending.
+      const code = db.get('leave_types').find((t) => t.name === leaveType)?.code;
+      const balance = balancesFor(employeeId).find((b) => b.code === code);
+      if (balance && workingDays > balance.availableToApply) {
+        return res.status(400).json({ success: false, error: `Not enough ${leaveType} balance: ${balance.availableToApply} day(s) available, ${workingDays} requested.` });
       }
       const overlap = db.get('leaves').find((l) => l.employeeId === employeeId && ACTIVE.includes(l.status) && l.startDate <= endDate && l.endDate >= startDate);
       if (overlap) {
@@ -181,7 +180,7 @@ export const leaveController = {
       // Approved days go into the attendance register: only working days (weekly offs and holidays are skipped),
       // and only as many as were approved. A day with a real punch is left as it is.
       if (status === 'Approved' || status === 'Partially Approved') {
-        const days = workingDates(updated.employeeId, updated.startDate, updated.endDate).slice(0, approved);
+        const days = workingDates(updated.employeeId, updated.startDate, updated.endDate).slice(0, Math.ceil(approved));
         const list = db.get('attendance');
         const punched = new Set(list.filter((a) => a.employeeId === updated.employeeId && a.checkIn && a.checkIn !== '-').map((a) => a.date));
         const keep = list.filter((a) => !(a.employeeId === updated.employeeId && days.includes(a.date) && !punched.has(a.date)));

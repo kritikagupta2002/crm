@@ -15,6 +15,7 @@ export const SalaryStructurePage = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const [structures, setStructures] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [editingStruct, setEditingStruct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     // Filters
@@ -30,7 +31,7 @@ export const SalaryStructurePage = () => {
     const [pt, setPt] = useState(Number(payrollSettings.professionalTaxMonthly ?? 0));
     const [tds, setTds] = useState(0);
     const load = async () => {
-        const data = await payrollService.getSalaryStructures();
+        const data = await payrollService.getSalaryStructures().finally(() => setTableLoading(false));
         setStructures(data);
     };
     useEffect(() => {
@@ -183,7 +184,7 @@ export const SalaryStructurePage = () => {
             Payroll Overview
           </Button>}/>
 
-      <DataTable compact={true} columns={columns} data={filteredStructures} keyField="id" searchPlaceholder="Search by employee name or code..." searchFields={['employeeName', 'employeeId', 'designation']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+      <DataTable loading={tableLoading} compact={true} columns={columns} data={filteredStructures} keyField="id" searchPlaceholder="Search by employee name or code..." searchFields={['employeeName', 'employeeId', 'designation']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[150px]">
               <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[{ value: 'all', label: 'All Departments' }, ...departmentOptions()]}/>
             </div>

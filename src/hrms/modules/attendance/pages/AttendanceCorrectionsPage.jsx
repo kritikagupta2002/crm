@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Check, X, Plus, RotateCcw } from 'lucide-react';
+import { Check, X, Plus, RotateCcw, AlertTriangle, LogOut, LogIn } from 'lucide-react';
 import { PageHeader } from '@/components/common/PageHeader';
 import { DataTable } from '@/components/common/DataTable';
 import { StatusBadge } from '@/components/common/StatusBadge';
@@ -15,7 +15,27 @@ import { useToast } from '@/contexts/ToastContext';
 import { attendanceService } from '@/modules/attendance/services/attendance.service';
 import { getEmployeeProjectById, STANDARD_PROJECTS, departmentOptions } from '@/core/constants/projects';
 import { storage } from '@/core/storage/storage';
-import { todayIso } from '@/modules/attendance/utils/punch';
+import { todayIso, parseClock, clockOf } from '@/modules/attendance/utils/punch';
+
+const TYPES = [
+    { value: 'Missed Punch Out', label: 'Forgot to punch out', hint: 'You punched in but not out. Enter the time you left.' },
+    { value: 'Missed Punch In', label: 'Forgot to punch in', hint: 'You came on time but did not punch in (or punched in later). Enter the time you arrived.' },
+    { value: 'Both Punches Missed', label: 'Forgot both punches', hint: 'Nothing was logged that day. Enter the arrival and leaving times.' },
+    { value: 'Time Correction', label: 'Wrong time logged', hint: 'Both punches exist but a time is wrong. Enter the correct times.' },
+];
+const hasTime = (t) => Boolean(t) && t !== '-' && parseClock(t) !== null;
+/* "09:30 AM" ↔ "09:30" for <input type="time">. */
+const toInput = (t) => {
+    const m = parseClock(t);
+    return m === null ? '' : `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+};
+const fromInput = (v) => {
+    if (!v) return '';
+    const [h, m] = v.split(':').map(Number);
+    return clockOf(h * 60 + m);
+};
+/* The type that fits what the register has for the day. */
+const suggestType = (rec) => (!rec || (!hasTime(rec.checkIn) && !hasTime(rec.checkOut)) ? 'Both Punches Missed' : hasTime(rec.checkIn) && !hasTime(rec.checkOut) ? 'Missed Punch Out' : 'Time Correction');
 export const AttendanceCorrectionsPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
@@ -23,6 +43,7 @@ export const AttendanceCorrectionsPage = () => {
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
     const empId = user?.employeeId ?? '';
     const [requests, setRequests] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isApplyOpen, setIsApplyOpen] = useState(false);
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [selectedReq, setSelectedReq] = useState(null);
@@ -34,18 +55,43 @@ export const AttendanceCorrectionsPage = () => {
     const [selectedProject, setSelectedProject] = useState('all');
     // Form states
     const [date, setDate] = useState(todayIso);
+    const [type, setType] = useState('Missed Punch Out');
     const [reqCheckIn, setReqCheckIn] = useState('');
     const [reqCheckOut, setReqCheckOut] = useState('');
     const [reason, setReason] = useState('');
-    // What the register has for that day, shown next to the corrected times.
-    const logged = useMemo(() => storage.getAttendance().find((a) => a.employeeId === empId && a.date === date), [empId, date, isApplyOpen]);
+    const [submitting, setSubmitting] = useState(false);
+    const [reviewing, setReviewing] = useState(false);
+    const [attendance, setAttendance] = useState(() => storage.getAttendance());
+    // What the register has for that day, shown next to the regularized times.
+    const logged = useMemo(() => attendance.find((a) => a.employeeId === empId && a.date === date), [attendance, empId, date]);
+    const missed = useMemo(() => attendanceService.missedPunchOuts(attendance, requests, empId), [attendance, requests, empId]);
     const loadData = async () => {
-        const data = await attendanceService.getCorrections();
+        const data = await attendanceService.getCorrections().finally(() => setTableLoading(false));
         setRequests(data);
     };
     useEffect(() => {
         loadData();
+        attendanceService.getAttendance().then(setAttendance).catch(() => null);
     }, []);
+    const typeInfo = TYPES.find((t) => t.value === type) || TYPES[0];
+    const needIn = type !== 'Missed Punch Out';
+    const needOut = type !== 'Missed Punch In' || (!hasTime(logged?.checkOut) && date !== todayIso());
+    const openApply = (forDate = todayIso(), forType) => {
+        const rec = attendance.find((a) => a.employeeId === empId && a.date === forDate);
+        setDate(forDate);
+        setType(forType || suggestType(rec));
+        setReqCheckIn(toInput(rec?.checkIn));
+        setReqCheckOut(toInput(rec?.checkOut));
+        setReason('');
+        setIsApplyOpen(true);
+    };
+    const changeDate = (value) => {
+        const rec = attendance.find((a) => a.employeeId === empId && a.date === value);
+        setDate(value);
+        setType(suggestType(rec));
+        setReqCheckIn(toInput(rec?.checkIn));
+        setReqCheckOut(toInput(rec?.checkOut));
+    };
     const filteredRequests = requests.filter((r) => {
         if (isEmp && r.employeeId !== empId)
             return false;
@@ -58,14 +104,14 @@ export const AttendanceCorrectionsPage = () => {
         return true;
     });
     const handleApply = async () => {
+        setSubmitting(true);
         try {
             await attendanceService.submitCorrection({
                 employeeId: empId,
-                employeeName: user?.name ?? '',
-                department: user?.department ?? '',
                 date,
-                requestedCheckIn: reqCheckIn.trim().toUpperCase(),
-                requestedCheckOut: reqCheckOut.trim().toUpperCase(),
+                type,
+                requestedCheckIn: needIn ? fromInput(reqCheckIn) : '',
+                requestedCheckOut: needOut ? fromInput(reqCheckOut) : '',
                 reason,
             });
         }
@@ -73,16 +119,17 @@ export const AttendanceCorrectionsPage = () => {
             toast.error(err.message, 'Cannot submit');
             return;
         }
-        toast.success('Correction request sent for approval.', 'Request Submitted');
+        finally {
+            setSubmitting(false);
+        }
+        toast.success('Regularization request sent for approval.', 'Request Submitted');
         setIsApplyOpen(false);
         setReason('');
-        setReqCheckIn('');
-        setReqCheckOut('');
         loadData();
     };
     const handleOpenReview = (req, action) => {
         if (req.employeeId === empId) {
-            toast.error('You cannot approve your own correction request.', 'Not allowed');
+            toast.error('You cannot approve your own regularization request.', 'Not allowed');
             return;
         }
         setSelectedReq(req);
@@ -93,23 +140,29 @@ export const AttendanceCorrectionsPage = () => {
     const handleConfirmReview = async () => {
         if (!selectedReq)
             return;
+        setReviewing(true);
         try {
             await attendanceService.reviewCorrection(selectedReq.id, reviewAction, user?.name ?? '', reviewComment.trim(), empId);
+            attendanceService.getAttendance().then(setAttendance).catch(() => null);
         }
         catch (err) {
             toast.error(err.message, 'Cannot review');
             return;
         }
-        toast.success(reviewAction === 'Approved' ? 'Correction approved and the attendance updated.' : 'Correction request rejected.', 'Review Submitted');
+        finally {
+            setReviewing(false);
+        }
+        toast.success(reviewAction === 'Approved' ? 'Regularization approved and the attendance updated.' : 'Regularization request rejected.', 'Review Submitted');
         setIsReviewOpen(false);
         loadData();
     };
     const columns = [
         {
-            key: 'appliedDate',
+            key: 'appliedAt',
             header: 'Applied On',
             sortable: true,
             className: 'font-mono text-xs whitespace-nowrap w-24 tabular-nums',
+            render: (r) => (r.appliedDate || String(r.appliedAt || '').slice(0, 10) || '-'),
         },
         ...(!isEmp
             ? [
@@ -146,11 +199,17 @@ export const AttendanceCorrectionsPage = () => {
             className: 'whitespace-nowrap tabular-nums text-xs font-semibold text-slate-800 dark:text-slate-200',
         },
         {
-            key: 'currentCheckIn',
+            key: 'type',
+            header: 'Type',
+            className: 'whitespace-nowrap',
+            render: (r) => (<span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{TYPES.find((t) => t.value === r.type)?.label || 'Time correction'}</span>),
+        },
+        {
+            key: 'originalCheckIn',
             header: 'Logged In / Out',
             className: 'whitespace-nowrap',
             render: (r) => (<span className="text-xs text-slate-500 dark:text-slate-400 tabular-nums whitespace-nowrap">
-          {r.currentCheckIn} - {r.currentCheckOut}
+          {r.originalCheckIn ?? r.currentCheckIn ?? '-'} - {r.originalCheckOut ?? r.currentCheckOut ?? '-'}
         </span>),
         },
         {
@@ -196,15 +255,38 @@ export const AttendanceCorrectionsPage = () => {
         },
     ];
     return (<div className="space-y-3">
-      <PageHeader title={isEmp ? 'My Attendance Corrections' : 'Attendance Corrections'} description={isEmp
-            ? 'Submit and track your biometric attendance regularization and punch adjustments.'
-            : 'Regularize missed biometric punches, drone site survey extensions, and field network delays.'} breadcrumbs={[
+      <PageHeader title={isEmp ? 'My Attendance Regularization' : 'Attendance Regularization'} description={isEmp
+            ? 'Forgot to punch out, or came on time but forgot to punch in? Request a regularization here.'
+            : 'Review missed punch-in / punch-out requests. Approved times update the attendance register.'} breadcrumbs={[
             { label: 'Dashboard', path: '/hr' },
             { label: 'Attendance', path: '/hr/attendance' },
-            { label: 'Corrections' },
-        ]} actions={<Button variant="primary" size="sm" onClick={() => setIsApplyOpen(true)} leftIcon={<Plus className="w-4 h-4"/>}>
-            Request Correction
-          </Button>}/>
+            { label: 'Regularization' },
+        ]} actions={<div className="flex items-center gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => openApply(todayIso(), 'Missed Punch In')} leftIcon={<LogIn className="w-4 h-4"/>}>
+              Forgot Punch In
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => openApply(missed[0]?.date || todayIso(), 'Missed Punch Out')} leftIcon={<LogOut className="w-4 h-4"/>}>
+              Forgot Punch Out
+            </Button>
+            <Button variant="primary" size="sm" onClick={() => openApply()} leftIcon={<Plus className="w-4 h-4"/>}>
+              Request Regularization
+            </Button>
+          </div>}/>
+
+      {missed.length > 0 && (<div className="p-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-start gap-2 text-amber-900 dark:text-amber-200">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5"/>
+            <span>
+              <strong>Punch out missing on {missed.length} day{missed.length > 1 ? 's' : ''}:</strong>{' '}
+              {missed.slice(0, 4).map((m) => `${m.date} (in ${m.checkIn})`).join(', ')}{missed.length > 4 ? '…' : ''}. These days count as incomplete until regularized.
+            </span>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {missed.slice(0, 3).map((m) => (<Button key={m.date} variant="outline" size="sm" onClick={() => openApply(m.date, 'Missed Punch Out')}>
+                Regularize {m.date.slice(5)}
+              </Button>))}
+          </div>
+        </div>)}
 
       {/* Executive Authority Banner */}
       <div className="p-3 bg-gradient-to-r from-amber-50 to-slate-50 dark:from-amber-950/40 dark:to-slate-900 border border-amber-200 dark:border-amber-800 rounded-xl flex items-center justify-between text-xs">
@@ -219,7 +301,7 @@ export const AttendanceCorrectionsPage = () => {
         </span>
       </div>
 
-      <DataTable compact={true} columns={columns} data={filteredRequests} keyField="id" searchPlaceholder={isEmp ? 'Search my correction requests...' : 'Search correction requests...'} searchFields={isEmp ? ['reason', 'date'] : ['employeeName', 'employeeId', 'reason']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+      <DataTable loading={tableLoading} compact={true} columns={columns} data={filteredRequests} keyField="id" searchPlaceholder={isEmp ? 'Search my regularization requests...' : 'Search regularization requests...'} searchFields={isEmp ? ['reason', 'date'] : ['employeeName', 'employeeId', 'reason']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[130px]">
               <Select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} options={[
                 { label: 'All Statuses', value: 'all' },
@@ -250,16 +332,20 @@ export const AttendanceCorrectionsPage = () => {
           </div>}/>
 
       {/* Apply Modal */}
-      <Modal isOpen={isApplyOpen} onClose={() => setIsApplyOpen(false)} title="Apply for Punch Correction" description="Submit biometric attendance regularization for managerial sign-off." footer={<>
-            <Button variant="outline" size="sm" onClick={() => setIsApplyOpen(false)}>
+      <Modal isOpen={isApplyOpen} onClose={() => setIsApplyOpen(false)} title="Request Attendance Regularization" description="Your manager approves it; the attendance register is then updated." footer={<>
+            <Button variant="outline" size="sm" onClick={() => setIsApplyOpen(false)} disabled={submitting}>
               Cancel
             </Button>
-            <Button variant="primary" size="sm" onClick={handleApply}>
+            <Button variant="primary" size="sm" onClick={handleApply} isLoading={submitting}>
               Submit Regularization
             </Button>
           </>}>
         <div className="space-y-4">
-          <DatePicker label="Date of Incident" isRequired value={date} max={todayIso()} onChange={(e) => setDate(e.target.value)}/>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <DatePicker label="Date" isRequired value={date} max={todayIso()} onChange={(e) => changeDate(e.target.value)}/>
+            <Select label="What happened?" isRequired value={type} onChange={(e) => setType(e.target.value)} options={TYPES.map((t) => ({ value: t.value, label: t.label }))}/>
+          </div>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-2">{typeInfo.hint}</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input label="Logged punch in" value={logged?.checkIn || '-'} readOnly disabled/>
@@ -267,20 +353,20 @@ export const AttendanceCorrectionsPage = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input label="Corrected Punch In" isRequired value={reqCheckIn} onChange={(e) => setReqCheckIn(e.target.value)} placeholder="09:15 AM"/>
-            <Input label="Corrected Punch Out" isRequired value={reqCheckOut} onChange={(e) => setReqCheckOut(e.target.value)} placeholder="06:30 PM"/>
+            {needIn ? (<Input label={type === 'Missed Punch In' ? 'Actual arrival time' : 'Correct punch in'} type="time" isRequired value={reqCheckIn} onChange={(e) => setReqCheckIn(e.target.value)}/>) : (<Input label="Punch in (kept as logged)" value={logged?.checkIn || '-'} readOnly disabled/>)}
+            {needOut ? (<Input label={type === 'Missed Punch Out' ? 'Actual leaving time' : 'Correct punch out'} type="time" isRequired value={reqCheckOut} onChange={(e) => setReqCheckOut(e.target.value)}/>) : (<Input label="Punch out" value={hasTime(logged?.checkOut) ? `${logged.checkOut} (kept as logged)` : 'Punch out as usual today'} readOnly disabled/>)}
           </div>
 
-          <Textarea label="Detailed Reason & Justification" isRequired value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Field drone GPS sync delay in Bhilwara block / Pit emergency shift extension" rows={3}/>
+          <Textarea label="Reason" isRequired value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. Forgot to punch out after the site meeting; left at 6:30 PM" rows={3}/>
         </div>
       </Modal>
 
       {/* Review Modal */}
-      <Modal isOpen={isReviewOpen} onClose={() => setIsReviewOpen(false)} title={`${reviewAction} Punch Correction`} description={`Sign off on correction request submitted by ${selectedReq?.employeeName}.`} footer={<>
+      <Modal isOpen={isReviewOpen} onClose={() => setIsReviewOpen(false)} title={`${reviewAction === 'Approved' ? 'Approve' : 'Reject'} Regularization`} description={`Regularization requested by ${selectedReq?.employeeName}.`} footer={<>
             <Button variant="outline" size="sm" onClick={() => setIsReviewOpen(false)}>
               Cancel
             </Button>
-            <Button variant={reviewAction === 'Approved' ? 'primary' : 'danger'} size="sm" onClick={handleConfirmReview}>
+            <Button variant={reviewAction === 'Approved' ? 'primary' : 'danger'} size="sm" onClick={handleConfirmReview} isLoading={reviewing}>
               Confirm {reviewAction}
             </Button>
           </>}>
@@ -288,7 +374,9 @@ export const AttendanceCorrectionsPage = () => {
           <div className="p-3 bg-slate-50 rounded-xl text-xs space-y-1 border border-slate-200">
             <p><strong>Employee:</strong> {selectedReq?.employeeName} ({selectedReq?.employeeId})</p>
             <p><strong>Date:</strong> {selectedReq?.date}</p>
-            <p><strong>Correction:</strong> {selectedReq?.requestedCheckIn} to {selectedReq?.requestedCheckOut}</p>
+            <p><strong>Type:</strong> {TYPES.find((t) => t.value === selectedReq?.type)?.label || 'Time correction'}</p>
+            <p><strong>Logged:</strong> {selectedReq?.originalCheckIn ?? '-'} to {selectedReq?.originalCheckOut ?? '-'}</p>
+            <p><strong>Regularize to:</strong> {selectedReq?.requestedCheckIn} to {selectedReq?.requestedCheckOut}</p>
             <p><strong>Reason:</strong> {selectedReq?.reason}</p>
           </div>
 

@@ -28,6 +28,7 @@ export const ReimbursementListPage = () => {
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
 
     const [claims, setClaims] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
     const [previewAttachment, setPreviewAttachment] = useState(null);
 
@@ -66,7 +67,7 @@ export const ReimbursementListPage = () => {
     const [selectedClaimDetails, setSelectedClaimDetails] = useState(null);
 
     const loadClaims = async () => {
-        const data = await reimbursementService.getClaims();
+        const data = await reimbursementService.getClaims().finally(() => setTableLoading(false));
         if (isEmp) {
             if (!user?.employeeId) {
                 setClaims([]);
@@ -639,7 +640,7 @@ export const ReimbursementListPage = () => {
                 </span>
             </div>
 
-            <DataTable 
+            <DataTable loading={tableLoading} 
                 compact={true} 
                 columns={columns} 
                 data={filteredClaims} 

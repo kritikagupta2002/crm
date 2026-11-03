@@ -37,6 +37,7 @@ export const EmployeeDocumentsPage = () => {
   const isEmp = currentRole === 'employee' || user?.role === 'employee';
 
   const [employees, setEmployees] = useState(() => storage.getEmployees());
+  const [tableLoading, setTableLoading] = useState(true);
   const [selectedDept, setSelectedDept] = useState('All');
   const [selectedStatus, setSelectedStatus] = useState('All');
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -55,7 +56,7 @@ export const EmployeeDocumentsPage = () => {
   const reloadData = async () => {
     setEmployees(storage.getEmployees());
     try {
-      const docs = await documentService.getEmployeeDocuments();
+      const docs = await documentService.getEmployeeDocuments().finally(() => setTableLoading(false));
       setRecords(docs);
     } catch {
       setRecords(storage.getEmployeeDocuments());
@@ -368,7 +369,7 @@ export const EmployeeDocumentsPage = () => {
       </div>
 
       {/* Documents Data Table */}
-      <DataTable
+      <DataTable loading={tableLoading}
         columns={columns}
         data={filteredRecords}
         keyField="id"

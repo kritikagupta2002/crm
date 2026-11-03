@@ -4,6 +4,7 @@ import { authenticate, requirePermission } from '../middleware/auth.js';
 
 const router = Router();
 
+router.get('/balances', authenticate, leaveController.getAllBalances);
 router.get('/balances/:employeeId', authenticate, leaveController.getBalances);
 router.get('/requests', authenticate, leaveController.getRequests);
 router.post('/requests', authenticate, requirePermission('leave.apply', 'leave.approve'), leaveController.apply);

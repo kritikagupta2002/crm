@@ -47,7 +47,7 @@ export const NAV_GROUPS = [
       { label: 'Attendance Overview', path: '/hr/attendance', icon: Clock, end: true },
       { label: 'Daily Register', path: '/hr/attendance/daily', icon: CalendarDays },
       { label: 'Monthly Register', path: '/hr/attendance/monthly', icon: CalendarCheck },
-      { label: 'Corrections', path: '/hr/attendance/corrections', icon: ClipboardCheck, badge: 'correctionsPending' },
+      { label: 'Regularization', path: '/hr/attendance/corrections', icon: ClipboardCheck, badge: 'correctionsPending' },
       { label: 'Shifts', path: '/hr/shifts', icon: CalendarClock, end: true },
       { label: 'Shift Assignments', path: '/hr/shifts/assignments', icon: ListChecks },
     ],

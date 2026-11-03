@@ -14,6 +14,7 @@ import { storage } from '@/core/storage/storage';
 import { organizationService } from '@/modules/organization/services/organization.service';
 export const DesignationsPage = () => {
     const [designations, setDesignations] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingDesig, setEditingDesig] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -31,7 +32,7 @@ export const DesignationsPage = () => {
     const [errors, setErrors] = useState({});
     const toast = useToast();
     const loadData = async () => {
-        const data = await organizationService.getDesignations();
+        const data = await organizationService.getDesignations().finally(() => setTableLoading(false));
         setDesignations(data);
     };
     useEffect(() => {
@@ -333,7 +334,7 @@ export const DesignationsPage = () => {
         <StatCard title="Operational Divisions" value={metrics.uniqueDepts} icon={<Layers className="w-5 h-5 text-purple-600 dark:text-purple-400"/>} iconBgColor="bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300" caption="Covered departments" compact/>
       </div>
 
-      <DataTable compact={true} columns={columns} data={filteredDesignations} keyField="id" searchPlaceholder="Search designations by title, code, department, level..." searchFields={['title', 'code', 'department', 'level']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+      <DataTable loading={tableLoading} compact={true} columns={columns} data={filteredDesignations} keyField="id" searchPlaceholder="Search designations by title, code, department, level..." searchFields={['title', 'code', 'department', 'level']} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             {/* Department Filter with all active departments */}
             <div className="w-full sm:w-auto flex-1 sm:flex-initial min-w-full xs:min-w-[160px] sm:min-w-[170px]">
               <Select value={selectedDept} onChange={(e) => setSelectedDept(e.target.value)} options={[

@@ -23,6 +23,7 @@ export const AttendanceDashboardPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
     const [records, setRecords] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [selectedDept, setSelectedDept] = useState('all');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [filterMode, setFilterMode] = useState('all'); // 'all' | 'date' | 'day' | 'month'
@@ -37,7 +38,7 @@ export const AttendanceDashboardPage = () => {
     const toast = useToast();
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
     const loadData = async () => {
-        const data = await attendanceService.getAttendance();
+        const data = await attendanceService.getAttendance().finally(() => setTableLoading(false));
         if (isEmp) {
             const empId = user?.employeeId;
             setRecords(data.filter((r) => (empId && r.employeeId === empId) || (user?.name && r.employeeName?.toLowerCase() === user.name.toLowerCase())));
@@ -197,7 +198,7 @@ export const AttendanceDashboardPage = () => {
               Monthly Matrix
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate('/hr/attendance/corrections')} leftIcon={<FileEdit className="w-4 h-4 text-amber-600"/>}>
-              Punch Corrections
+              Regularization
             </Button>
             {!isEmp && (<Button variant="primary" size="sm" onClick={handleExport} leftIcon={<Download className="w-4 h-4"/>}>
                 Export Report
@@ -205,6 +206,19 @@ export const AttendanceDashboardPage = () => {
           </div>}/>
 
       {canPunch && <PunchPanel title="Mark attendance"/>}
+
+      {(() => {
+            // Own days with a punch in but no punch out: offer a one-click regularization.
+            const missed = attendanceService.missedPunchOuts(records, storage.getCorrections(), user?.employeeId);
+            if (!missed.length) return null;
+            return (<div className="p-3 rounded-xl border border-amber-300 bg-amber-50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <span className="text-amber-900">
+                <strong>You forgot to punch out on {missed.length === 1 ? missed[0].date : `${missed.length} days`}</strong>
+                {missed.length === 1 ? ` (punched in at ${missed[0].checkIn}).` : ` (latest ${missed[0].date}).`} Regularize it so the day counts as complete.
+              </span>
+              <Button variant="primary" size="sm" onClick={() => navigate('/hr/attendance/corrections')}>Regularize now</Button>
+            </div>);
+        })()}
 
       {/* KPI Cards */}
       <div className="hr-stat-row">
@@ -256,11 +270,11 @@ export const AttendanceDashboardPage = () => {
                     iconBg: 'bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400',
                 },
                 {
-                    title: 'Punch Corrections',
+                    title: 'Regularization',
                     value: empStats?.correctionsStr || '0',
                     badge: Number(empStats?.correctionsStr) > 0 ? 'Pending' : 'Synced',
                     badgeColor: Number(empStats?.correctionsStr) > 0 ? 'bg-amber-50 text-amber-700' : 'bg-slate-50 text-slate-700',
-                    subtitle: 'Correction requests',
+                    subtitle: 'Missed punch in / out',
                     icon: <FileEdit className="w-4 h-4"/>,
                     iconBg: 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300',
                 },
@@ -305,7 +319,7 @@ export const AttendanceDashboardPage = () => {
                         iconBg: 'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400',
                     },
                     {
-                        title: 'Corrections Pending',
+                        title: 'Regularizations Pending',
                         value: String(pendingCorrections),
                         badge: pendingCorrections > 0 ? 'Review' : 'Nil',
                         badgeColor: 'bg-amber-50 text-amber-700 border-amber-200/80 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-800/60',
@@ -339,7 +353,7 @@ export const AttendanceDashboardPage = () => {
       </div>
 
       {/* Attendance Table with Filter Bar */}
-      <DataTable
+      <DataTable loading={tableLoading}
         compact={true}
         columns={columns}
         data={filteredRecords}

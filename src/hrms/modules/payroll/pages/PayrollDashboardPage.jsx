@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { Button } from '@/components/common/Button';
 import { payrollService } from '@/modules/payroll/services/payroll.service';
 import { storage } from '@/core/storage/storage';
+import { SkeletonStatGrid, SkeletonTableRows } from '@/components/common/Skeleton';
 
 export const PayrollDashboardPage = () => {
   const navigate = useNavigate();
@@ -21,17 +22,23 @@ export const PayrollDashboardPage = () => {
   const [payslips, setPayslips] = useState([]);
   const [structures, setStructures] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const r = await payrollService.getPayrollRuns();
-      const p = await payrollService.getPayslips();
-      const s = await payrollService.getSalaryStructures();
-      const emps = storage.getEmployees();
-      setRuns(r || []);
-      setPayslips(p || []);
-      setStructures(s || []);
-      setEmployees(emps || []);
+      try {
+        const [r, p, s] = await Promise.all([
+          payrollService.getPayrollRuns().catch(() => []),
+          payrollService.getPayslips().catch(() => []),
+          payrollService.getSalaryStructures().catch(() => []),
+        ]);
+        setRuns(r || []);
+        setPayslips(p || []);
+        setStructures(s || []);
+        setEmployees(storage.getEmployees() || []);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, []);
@@ -82,7 +89,7 @@ export const PayrollDashboardPage = () => {
       />
 
       {/* CRM Stat Cards Strip */}
-      <section className="stat-grid">
+      {loading ? <SkeletonStatGrid count={4} /> : <section className="stat-grid">
         <div className="card stat-card tone-info">
           <div className="stat-top">
             <span className="stat-icon">
@@ -144,7 +151,7 @@ export const PayrollDashboardPage = () => {
             </span>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Action Shortcut Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -211,7 +218,7 @@ export const PayrollDashboardPage = () => {
 
       {/* Recent Payroll Runs Table inside Single Unified CRM Card */}
       <div className="card">
-        <div className="leads-toolbar flex items-center justify-between">
+        <div className="leads-toolbar">
           <div>
             <h3 className="text-sm font-bold text-ink">
               Recent Payroll Batches
@@ -244,7 +251,9 @@ export const PayrollDashboardPage = () => {
               </tr>
             </thead>
             <tbody>
-              {runs.length === 0 ? (
+              {loading ? (
+                <SkeletonTableRows rows={3} columns={8} />
+              ) : runs.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="text-center py-6 text-ink-3 text-xs">
                     No payroll cycles run yet. Click "Run Monthly Payroll" to start.

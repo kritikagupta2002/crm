@@ -11,10 +11,11 @@ import { useToast } from '@/contexts/ToastContext';
 export const PaymentsReceiptsPage = () => {
     const toast = useToast();
     const [transactions, setTransactions] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('all');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const loadData = async () => {
-        const data = await financeService.getTransactions();
+        const data = await financeService.getTransactions().finally(() => setTableLoading(false));
         setTransactions(data);
     };
     useEffect(() => {
@@ -205,7 +206,7 @@ export const PaymentsReceiptsPage = () => {
         ]}/>
 
       {/* Main Table */}
-      <DataTable columns={columns} data={filteredTransactions} keyField="id" searchable searchPlaceholder="Search transactions by party, reference, or voucher #..." searchFields={['partyName', 'transactionNumber', 'referenceDoc', 'paymentMode']} pageSize={10} emptyTitle="No transactions recorded" emptyDescription="Record your first payment or receipt entry."/>
+      <DataTable loading={tableLoading} columns={columns} data={filteredTransactions} keyField="id" searchable searchPlaceholder="Search transactions by party, reference, or voucher #..." searchFields={['partyName', 'transactionNumber', 'referenceDoc', 'paymentMode']} pageSize={10} emptyTitle="No transactions recorded" emptyDescription="Record your first payment or receipt entry."/>
 
       <RecordTransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTransactionRecorded={() => loadData()}/>
     </div>);

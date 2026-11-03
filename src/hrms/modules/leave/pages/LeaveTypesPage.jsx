@@ -14,6 +14,7 @@ export const LeaveTypesPage = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const [types, setTypes] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
@@ -23,8 +24,7 @@ export const LeaveTypesPage = () => {
     const [notice, setNotice] = useState(1);
     const [desc, setDesc] = useState('');
     const load = async () => {
-        const data = await leaveService.getLeaveTypes();
-        setTypes(data);
+        setTypes(await leaveService.getLeaveTypes().finally(() => setTableLoading(false)));
     };
     useEffect(() => {
         load();
@@ -38,6 +38,7 @@ export const LeaveTypesPage = () => {
             name: name,
             code,
             annualQuota: Number(quota),
+            monthlyAccrual: Math.round((Number(quota) / 12) * 2) / 2,
             carryForwardMax: Number(carryForward),
             encashable,
             minNoticeDays: Number(notice),
@@ -65,10 +66,10 @@ export const LeaveTypesPage = () => {
         </div>),
         },
         {
-            key: 'annualQuota',
-            header: 'Annual Bank',
+            key: 'monthlyAccrual',
+            header: 'Credited Every Month End',
             sortable: true,
-            render: (t) => (<span className="font-bold text-slate-900 dark:text-white">{t.annualQuota} Days</span>),
+            render: (t) => (<span className="font-bold text-slate-900 dark:text-white">{t.monthlyAccrual ?? Math.round(((Number(t.annualQuota) || 0) / 12) * 2) / 2} day(s)</span>),
         },
         {
             key: 'carryForwardMax',
@@ -109,7 +110,7 @@ export const LeaveTypesPage = () => {
             </Button>
           </div>}/>
 
-      <DataTable columns={columns} data={types} keyField="id" searchPlaceholder="Search leave policies..." searchFields={['name', 'code']}/>
+      <DataTable loading={tableLoading} columns={columns} data={types} keyField="id" searchPlaceholder="Search leave policies..." searchFields={['name', 'code']}/>
 
       {/* Add Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Configure New Leave Category" description="Establish entitlement rules, carry-forward, and encashability." footer={<>

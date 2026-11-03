@@ -17,12 +17,13 @@ export const LeaveHistoryPage = () => {
     const { currentRole } = useRole();
     const isEmployee = currentRole === 'employee' || user?.role === 'employee';
     const [requests, setRequests] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(isEmployee ? 'mine' : 'all');
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [selectedType, setSelectedType] = useState('all');
     const empId = user?.employeeId;
     const loadData = async () => {
-        const data = await leaveService.getRequests();
+        const data = await leaveService.getRequests().finally(() => setTableLoading(false));
         setRequests(data);
     };
     useEffect(() => {
@@ -297,10 +298,7 @@ export const LeaveHistoryPage = () => {
             { value: 'all', label: 'All Categories' },
             { value: 'Casual', label: 'Casual Leave (CL)' },
             { value: 'Sick', label: 'Sick Leave (SL)' },
-            { value: 'Earned', label: 'Earned Leave (EL)' },
-            { value: 'Compensatory', label: 'Compensatory Off (CO)' },
-            { value: 'Field', label: 'Field Duty Leave (FDL)' },
-            { value: 'Maternity', label: 'Maternity Leave (ML)' },
+            { value: 'Privilege', label: 'Privilege Leave (PL)' },
         ]} value={selectedType} onChange={(e) => setSelectedType(e.target.value)}/>
         </div>
 
@@ -317,6 +315,6 @@ export const LeaveHistoryPage = () => {
         </span>
       </div>
 
-      <DataTable compact={true} columns={isEmployee ? employeeColumns : hrColumns} data={displayedRequests} keyField="id" searchPlaceholder="Filter records..." searchFields={['employeeName', 'employeeId', 'leaveType', 'reason']}/>
+      <DataTable loading={tableLoading} compact={true} columns={isEmployee ? employeeColumns : hrColumns} data={displayedRequests} keyField="id" searchPlaceholder="Filter records..." searchFields={['employeeName', 'employeeId', 'leaveType', 'reason']}/>
     </div>);
 };

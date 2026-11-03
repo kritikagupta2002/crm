@@ -19,6 +19,7 @@ export const PayslipsPage = () => {
     const { user } = useAuth();
     const { currentRole } = useRole();
     const [payslips, setPayslips] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [selectedPayslip, setSelectedPayslip] = useState(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     // Filters
@@ -28,7 +29,7 @@ export const PayslipsPage = () => {
     const [selectedStatus, setSelectedStatus] = useState('all');
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
     const load = async () => {
-        const data = await payrollService.getPayslips();
+        const data = await payrollService.getPayslips().finally(() => setTableLoading(false));
         if (isEmp) {
             const empId = user?.employeeId;
             const filtered = data.filter((p) => (empId && p.employeeId === empId) || (user?.name && p.employeeName?.toLowerCase() === user.name.toLowerCase()));
@@ -150,7 +151,7 @@ export const PayslipsPage = () => {
               Payroll Dashboard
             </Button>) : undefined}/>
 
-      <DataTable compact={true} columns={columns} data={filteredPayslips} keyField="id" searchPlaceholder={isEmp ? 'Search my payslips by month or ref #...' : 'Search by payslip #, name, or employee ID...'} searchFields={isEmp ? ['payslipNumber', 'month'] : ['payslipNumber', 'employeeName', 'employeeId']} onRowClick={(p) => handleOpenPreview(p)} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+      <DataTable loading={tableLoading} compact={true} columns={columns} data={filteredPayslips} keyField="id" searchPlaceholder={isEmp ? 'Search my payslips by month or ref #...' : 'Search by payslip #, name, or employee ID...'} searchFields={isEmp ? ['payslipNumber', 'month'] : ['payslipNumber', 'employeeName', 'employeeId']} onRowClick={(p) => handleOpenPreview(p)} filterComponent={<div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
             <div className="w-full xs:w-auto flex-1 xs:flex-initial min-w-[140px]">
               <Select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} options={[
                 { label: 'All Disbursal Months', value: 'all' },

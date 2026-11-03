@@ -90,7 +90,7 @@ export function lossOfPayDays(emp, monthKey) {
   const records = new Map(db.get('attendance').filter((a) => a.employeeId === emp.employeeId).map((a) => [a.date, a]));
   const leaveDays = new Set(db.get('leaves')
     .filter((l) => l.employeeId === emp.employeeId && ['Approved', 'Partially Approved'].includes(l.status))
-    .flatMap((l) => workingDates(emp.employeeId, l.startDate, l.endDate).slice(0, Number(l.approvedDays) || 0)));
+    .flatMap((l) => workingDates(emp.employeeId, l.startDate, l.endDate).slice(0, Math.ceil(Number(l.approvedDays) || 0))));
   const holidays = holidaySet();
   return workingDates(emp.employeeId, from, to, holidays).filter((d) => {
     const rec = records.get(d);

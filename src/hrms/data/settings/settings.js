@@ -21,16 +21,11 @@ export const INITIAL_ATTENDANCE_SETTINGS = {
     allowMobileGpsPunch: true,
     geofenceRadiusMeters: 500,
 };
-import { PUBLIC_HOLIDAYS_2026 } from '../../modules/leave/utils/workingDays.js';
 
 export const INITIAL_LEAVE_SETTINGS = {
-    publicHolidays: PUBLIC_HOLIDAYS_2026,
-    annualCasualLeave: 12,
-    annualSickLeave: 10,
-    annualEarnedLeave: 18,
-    annualCompOffLeave: 8,
-    annualFieldDutyLeave: 15,
-    carryForwardLimit: 30,
+    // Opening balances are as on this date; from the next month every month end credits these days (pro rata).
+    openingBalanceDate: '2026-10-31',
+    monthlyAccrual: { PL: 1, CL: 0.5, SL: 0.5 },
     approvalLevels: 2,
     probationaryLeaveAllowed: false,
     companyHolidays: [],

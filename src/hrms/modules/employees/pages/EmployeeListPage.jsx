@@ -16,6 +16,7 @@ import { STANDARD_PROJECTS } from '@/core/constants/projects';
 
 export const EmployeeListPage = () => {
   const [employees, setEmployees] = useState([]);
+  const [tableLoading, setTableLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
   const [selectedDept, setSelectedDept] = useState('all');
@@ -28,7 +29,7 @@ export const EmployeeListPage = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const data = await employeeService.getAll();
+      const data = await employeeService.getAll().finally(() => setTableLoading(false));
       setEmployees(data || []);
     } catch {
       toast.error('Failed to load employee list', 'Error');
@@ -354,7 +355,7 @@ export const EmployeeListPage = () => {
       </section>
 
       {/* Single Unified CRM Card with DataTable */}
-      <DataTable
+      <DataTable loading={tableLoading}
         compact={true}
         columns={columns}
         data={filteredEmployees}

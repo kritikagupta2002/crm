@@ -18,12 +18,13 @@ export const ReimbursementHistoryPage = () => {
     const toast = useToast();
 
     const [claims, setClaims] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [viewMode, setViewMode] = useState('all'); // 'all' | 'settled'
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
 
     useEffect(() => {
         const load = async () => {
-            const data = await reimbursementService.getClaims();
+            const data = await reimbursementService.getClaims().finally(() => setTableLoading(false));
             if (isEmp) {
                 if (!user?.employeeId) {
                     setClaims([]);
@@ -236,7 +237,7 @@ export const ReimbursementHistoryPage = () => {
                 </span>
             </div>
 
-            <DataTable 
+            <DataTable loading={tableLoading} 
                 compact={true} 
                 columns={columns} 
                 data={displayClaims} 

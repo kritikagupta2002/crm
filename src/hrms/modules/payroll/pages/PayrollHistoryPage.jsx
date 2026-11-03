@@ -14,9 +14,10 @@ export const PayrollHistoryPage = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const [runs, setRuns] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [paying, setPaying] = useState(null);
     const [reference, setReference] = useState('');
-    const load = async () => setRuns(await payrollService.getPayrollRuns());
+    const load = async () => setRuns(await payrollService.getPayrollRuns().finally(() => setTableLoading(false)));
     useEffect(() => {
         load();
     }, []);
@@ -124,7 +125,7 @@ export const PayrollHistoryPage = () => {
             </Button>
           </div>}/>
 
-      <DataTable columns={columns} data={runs} keyField="id" searchPlaceholder="Search history..." searchFields={['month', 'processedBy']}/>
+      <DataTable loading={tableLoading} columns={columns} data={runs} keyField="id" searchPlaceholder="Search history..." searchFields={['month', 'processedBy']}/>
 
       <Modal isOpen={!!paying} onClose={() => setPaying(null)} title={`Mark ${paying?.month ?? ''} salaries paid`} description="Enter the bank reference of the salary transfer." footer={<>
             <Button variant="outline" size="sm" onClick={() => setPaying(null)}>Cancel</Button>

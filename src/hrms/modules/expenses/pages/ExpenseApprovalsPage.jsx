@@ -21,6 +21,7 @@ export const ExpenseApprovalsPage = () => {
     const toast = useToast();
 
     const [expenses, setExpenses] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [selectedStatus, setSelectedStatus] = useState('Pending');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [selectedDept, setSelectedDept] = useState('all');
@@ -35,7 +36,7 @@ export const ExpenseApprovalsPage = () => {
     const [previewAttachment, setPreviewAttachment] = useState(null);
 
     const loadExpenses = async () => {
-        const data = await expenseService.getExpenses();
+        const data = await expenseService.getExpenses().finally(() => setTableLoading(false));
         setExpenses(data);
     };
 
@@ -399,7 +400,7 @@ export const ExpenseApprovalsPage = () => {
                 </span>
             </div>
 
-            <DataTable 
+            <DataTable loading={tableLoading} 
                 compact={true} 
                 columns={columns} 
                 data={filteredExpenses} 

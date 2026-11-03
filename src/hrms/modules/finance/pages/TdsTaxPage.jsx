@@ -10,9 +10,10 @@ import { useToast } from '@/contexts/ToastContext';
 export const TdsTaxPage = () => {
     const toast = useToast();
     const [taxRecords, setTaxRecords] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [quarterFilter, setQuarterFilter] = useState('all');
     const loadData = async () => {
-        const data = await financeService.getTaxRecords();
+        const data = await financeService.getTaxRecords().finally(() => setTableLoading(false));
         setTaxRecords(data);
     };
     useEffect(() => {
@@ -178,6 +179,6 @@ export const TdsTaxPage = () => {
       </div>
 
       {/* Data Table */}
-      <DataTable columns={columns} data={filteredRecords} keyField="id" searchable searchPlaceholder="Search TDS records by challan #, deductee, PAN, or section..." searchFields={['challanNumber', 'deducteeName', 'panNumber', 'section']} pageSize={10} emptyTitle="No TDS records found" emptyDescription="Tax records will appear here as deductions are booked against vendor payments."/>
+      <DataTable loading={tableLoading} columns={columns} data={filteredRecords} keyField="id" searchable searchPlaceholder="Search TDS records by challan #, deductee, PAN, or section..." searchFields={['challanNumber', 'deducteeName', 'panNumber', 'section']} pageSize={10} emptyTitle="No TDS records found" emptyDescription="Tax records will appear here as deductions are booked against vendor payments."/>
     </div>);
 };

@@ -152,7 +152,7 @@ export const EmployeeLeaveMisChart = ({
     }));
   }, [selectedEmployee, employeeBalances]);
 
-  // 1. Quota allocation by policy category (CL, SL, EL, CO, FDL)
+  // 1. Quota allocation by policy category (PL, CL, SL)
   const categoryAllocationPieData = useMemo(() => {
     if (!selectedEmployee) return [];
     return employeeBalances

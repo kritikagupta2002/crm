@@ -8,6 +8,7 @@ import { Button } from '@/components/common/Button';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRole } from '@/contexts/RoleContext';
+import { SkeletonStatGrid } from '@/components/common/Skeleton';
 import { leaveService } from '@/modules/leave/services/leave.service';
 import { formatNearDate } from '@shared/utils/date';
 import { EmployeeLeaveMisChart } from '../components/EmployeeLeaveMisChart';
@@ -21,6 +22,7 @@ export const LeaveDashboardPage = () => {
     const { currentRole } = useRole();
     const [balances, setBalances] = useState([]);
     const [requests, setRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
     const isEmp = currentRole === 'employee' || user?.role === 'employee';
     const empId = user?.employeeId;
 
@@ -31,14 +33,13 @@ export const LeaveDashboardPage = () => {
                 setRequests([]);
                 return;
             }
-            const b = await leaveService.getBalances(isEmp ? empId : undefined);
-            const r = await leaveService.getRequests();
-            setBalances(b || []);
-            if (isEmp) {
-                setRequests((r || []).filter((req) => req.employeeId === empId));
+            try {
+                const [b, r] = await Promise.all([leaveService.getBalances(isEmp ? empId : undefined), leaveService.getRequests()]);
+                setBalances(b || []);
+                setRequests(isEmp ? (r || []).filter((req) => req.employeeId === empId) : (r || []));
             }
-            else {
-                setRequests(r || []);
+            finally {
+                setLoading(false);
             }
         };
         load();
@@ -65,9 +66,9 @@ export const LeaveDashboardPage = () => {
           </>)}/>
 
       {/* Leave balances, as the CRM's stat cards; a card opens the quota ledger. */}
-      <div className="stat-grid">
-        {balances.slice(0, 4).map((b, i) => (<StatCard key={b.leaveType} title={b.leaveType.split('(')[0].trim()} value={b.available} icon={<CalendarDays />} tone={BALANCE_TONES[i]} caption={`of ${b.totalAllocated} days · ${b.used} used`} onClick={() => navigate('/hr/leave/balance')}/>))}
-      </div>
+      {loading ? <SkeletonStatGrid count={3}/> : <div className="stat-grid">
+        {balances.slice(0, 4).map((b, i) => (<StatCard key={b.leaveType} title={b.leaveType.split('(')[0].trim()} value={b.available} icon={<CalendarDays />} tone={BALANCE_TONES[i]} caption={`${b.totalAllocated} credited · ${b.used} used`} onClick={() => navigate('/hr/leave/balance')}/>))}
+      </div>}
 
       {/* Employee-Specific Leave MIS Analysis & Chart */}
       <EmployeeLeaveMisChart showSelector={!isEmp} />

@@ -1,15 +1,19 @@
 import { db } from './db.js';
 import { parseDate, eachDay } from './dates.js';
-import { PUBLIC_HOLIDAYS_2026, offDaysFromLabel } from '../../src/hrms/modules/leave/utils/workingDays.js';
+import { offDaysFromLabel, markedDays } from '../../src/hrms/modules/leave/utils/workingDays.js';
 
 /*
- * Working days for a person: not their weekly off (from their shift assignment) and not a holiday. Holidays come
- * from Leave settings (public holidays plus company holidays), with the 2026 list as the default.
+ * Working days for a person: not their weekly off (from their shift assignment) and not a holiday. Holidays and
+ * half days are only the days HR / Admin mark on the attendance calendar (Leave settings → companyHolidays).
  */
+export const calendarDays = () => markedDays((db.get('leave_settings') || {}).companyHolidays || []);
+
 export function holidaySet() {
-  const settings = db.get('leave_settings') || {};
-  const publicHolidays = Array.isArray(settings.publicHolidays) ? settings.publicHolidays : PUBLIC_HOLIDAYS_2026;
-  return new Set([...publicHolidays, ...(settings.companyHolidays || [])].map((h) => (typeof h === 'string' ? h : h?.date)).filter(Boolean));
+  return new Set(calendarDays().filter((h) => h.kind === 'Holiday').map((h) => h.date));
+}
+
+export function halfDaySet() {
+  return new Set(calendarDays().filter((h) => h.kind === 'Half Day').map((h) => h.date));
 }
 
 export function offDaysFor(employeeId) {
@@ -22,6 +26,12 @@ export function offDaysFor(employeeId) {
 export function workingDates(employeeId, start, end, holidays = holidaySet()) {
   const off = offDaysFor(employeeId);
   return eachDay(start, end).filter((d) => !off.includes(parseDate(d).getDay()) && !holidays.has(d));
+}
+
+/* Leave days a date range uses: each working day counts 1, a marked half day 0.5. */
+export function leaveDaysIn(employeeId, start, end) {
+  const half = halfDaySet();
+  return workingDates(employeeId, start, end).reduce((sum, d) => sum + (half.has(d) ? 0.5 : 1), 0);
 }
 
 /* The first day anyone recorded attendance in the portal; days before it carry no attendance data. */

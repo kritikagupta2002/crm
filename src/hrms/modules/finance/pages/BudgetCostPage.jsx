@@ -12,9 +12,10 @@ import { useToast } from '@/contexts/ToastContext';
 export const BudgetCostPage = () => {
     const toast = useToast();
     const [budgets, setBudgets] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const loadData = async () => {
-        const data = await financeService.getBudgets();
+        const data = await financeService.getBudgets().finally(() => setTableLoading(false));
         setBudgets(data);
     };
     useEffect(() => {
@@ -178,7 +179,7 @@ export const BudgetCostPage = () => {
       </Card>
 
       {/* Main Budget Data Table */}
-      <DataTable columns={columns} data={budgets} keyField="id" searchable searchPlaceholder="Search budgets by project name or category..." searchFields={['costCenter', 'category', 'status']} pageSize={10} emptyTitle="No budget allocations found" emptyDescription="Add your first exploration project budget allocation."/>
+      <DataTable loading={tableLoading} columns={columns} data={budgets} keyField="id" searchable searchPlaceholder="Search budgets by project name or category..." searchFields={['costCenter', 'category', 'status']} pageSize={10} emptyTitle="No budget allocations found" emptyDescription="Add your first exploration project budget allocation."/>
 
       <AddBudgetModal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} onBudgetAdded={() => loadData()}/>
     </div>);

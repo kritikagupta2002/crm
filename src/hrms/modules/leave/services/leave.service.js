@@ -1,4 +1,4 @@
-import { storage } from '@/core/storage/storage';
+import { storage, LEAVE_COLORS } from '@/core/storage/storage';
 import { api } from '@/core/api/apiClient';
 import { countWorkingDays } from '@/modules/leave/utils/workingDays';
 import { weeklyOffFor } from '@/modules/attendance/utils/weeklyOff';
@@ -41,7 +41,6 @@ function normalizeLeave(r) {
         approverComment: r.approverComment ?? r.remarks,
     };
 }
-const BALANCE_COLORS = { CL: '#2563EB', SL: '#059669', EL: '#D97706', CO: '#7C3AED', FDL: '#0891B2', ML: '#DB2777' };
 
 const refreshRequests = async () => {
     const res = await api.get('/leaves/requests');
@@ -62,18 +61,19 @@ export const leaveService = {
             return [];
         const res = await api.get(`/leaves/balances/${encodeURIComponent(target)}`);
         return (res?.data?.balances || []).map((b) => ({
-            leaveType: b.leaveType,
-            code: b.code,
+            ...b,
             totalAllocated: b.allocated,
-            used: b.used,
-            pending: b.pending,
-            available: b.available,
-            color: BALANCE_COLORS[b.code] || '#475569',
+            color: LEAVE_COLORS[b.code] || '#475569',
         }));
     },
+    /* { employeeId: balances[] } for everyone the caller may see, computed by the API. */
     getAllBalances: async () => {
-        await refreshRequests().catch(() => null);
-        return storage.getAllEmployeeBalances();
+        const res = await api.get('/leaves/balances');
+        const out = {};
+        for (const row of Array.isArray(res?.data) ? res.data : []) {
+            out[row.employeeId] = (row.balances || []).map((b) => ({ ...b, totalAllocated: b.allocated, color: LEAVE_COLORS[b.code] || '#475569' }));
+        }
+        return out;
     },
     getRequests: refreshRequests,
     applyLeave: async (data) => {
@@ -92,8 +92,9 @@ export const leaveService = {
         }
         const balances = await leaveService.getBalances(data.employeeId);
         const currentBalance = balances.find((b) => b.leaveType === data.leaveType);
-        if (currentBalance && calculatedDays > currentBalance.available) {
-            throw new Error(`Not enough ${data.leaveType} balance: ${currentBalance.available} day(s) available, ${calculatedDays} requested.`);
+        const canApply = currentBalance ? (currentBalance.availableToApply ?? currentBalance.available) : 0;
+        if (currentBalance && calculatedDays > canApply) {
+            throw new Error(`Not enough ${data.leaveType} balance: ${canApply} day(s) available, ${calculatedDays} requested.`);
         }
         const overlapping = checkDateConflict(storage.getLeaveRequests(), data.employeeId, data.startDate, data.endDate);
         if (overlapping) {

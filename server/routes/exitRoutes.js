@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { today } from '../services/dates.js';
 import { db } from '../services/db.js';
 import { audit } from '../services/audit.js';
+import { balancesFor } from '../services/leaveBalances.js';
 import { ValidationError, DATE } from '../services/crud.js';
 import { authenticate, requirePermission } from '../middleware/auth.js';
 import { can } from '../config/permissions.js';
@@ -31,14 +32,9 @@ function settlementFor(emp, resignationDate, lwd, noticePeriodDays) {
   const dailyGross = struct.monthlyGross / daysInMonth;
   const payableDaysSalary = Math.round(dailyGross * end.getDate());
 
-  const year = lwd.slice(0, 4);
-  const encashableTypes = db.get('leave_types').filter((t) => t.encashable);
-  const unusedLeave = encashableTypes.reduce((sum, type) => {
-    const used = db.get('leaves')
-      .filter((l) => l.employeeId === emp.employeeId && l.leaveType === type.name && String(l.startDate).startsWith(year) && ['Approved', 'Partially Approved'].includes(l.status))
-      .reduce((s, l) => s + (Number(l.approvedDays) || 0), 0);
-    return sum + Math.max(0, (Number(type.annualQuota) || 0) - used);
-  }, 0);
+  // Unused encashable leave from the ledger (opening balance + credits − approved leave) on the last working day.
+  const encashableCodes = new Set(db.get('leave_types').filter((t) => t.encashable).map((t) => t.code));
+  const unusedLeave = balancesFor(emp.employeeId, lwd).filter((b) => encashableCodes.has(b.code)).reduce((sum, b) => sum + Math.max(0, b.available), 0);
   const leaveEncashmentAmount = Math.round((struct.basic / 26) * unusedLeave);
 
   const joining = emp.employment?.joiningDate;
