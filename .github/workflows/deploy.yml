@@ -1,3 +1,5 @@
+# .github/workflows/deploy.yml
+
 name: Production CD (Auto Deploy to Server)
 
 on:
@@ -5,52 +7,215 @@ on:
     branches:
       - prod
 
+  workflow_dispatch:
+
 jobs:
   deploy:
     name: Deploy to Production Server
     runs-on: ubuntu-latest
+
     steps:
       - name: Executing remote SSH deployment
         uses: appleboy/ssh-action@v1.0.3
+
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
+
+          envs: GITHUB_SHA,GITHUB_REF
+
+          timeout: 30s
+          command_timeout: 15m
+          script_stop: true
+
           script: |
             set -e
-            echo "🚀 Auto-deploy triggered for commit: $GITHUB_SHA"
-            
+
+            echo "=========================================="
+            echo "🚀 BANSAL GEO HRMS - PRODUCTION DEPLOYMENT"
+            echo "=========================================="
+
+            echo "Commit: $GITHUB_SHA"
+            echo "Branch: $GITHUB_REF"
+            echo "Deployment User: $(whoami)"
+
             DEPLOY_DIR="/var/www/bansalgeo-hrms"
+            API_URL="https://bansalgeo-api.geoplanetsolution.in"
+            HEALTH_URL="${API_URL}/api/"
+
+            # ------------------------------------------
+            # STEP 1: VERIFY DEPLOYMENT DIRECTORY
+            # ------------------------------------------
+
+            echo ""
+            echo "📁 Checking deployment directory..."
+
             if [ ! -d "$DEPLOY_DIR" ]; then
-              echo "Target directory $DEPLOY_DIR not found, please ensure project is cloned at $DEPLOY_DIR"
+              echo "❌ Deployment directory not found: $DEPLOY_DIR"
               exit 1
             fi
 
             cd "$DEPLOY_DIR"
 
-            echo "📥 Pulling latest prod branch..."
+            if [ ! -f "package.json" ]; then
+              echo "❌ package.json not found"
+              exit 1
+            fi
+
+            # ------------------------------------------
+            # STEP 2: UPDATE PRODUCTION SOURCE CODE
+            # ------------------------------------------
+
+            echo ""
+            echo "📥 Fetching latest production code..."
+
             git fetch origin prod
             git checkout prod
             git reset --hard origin/prod
 
+            echo "✅ Production source code updated"
+
+            # ------------------------------------------
+            # STEP 3: INSTALL DEPENDENCIES
+            # ------------------------------------------
+
+            echo ""
             echo "📦 Installing dependencies..."
+
             npm install --production=false
 
-            echo "🔨 Building production frontend..."
-            VITE_API_URL=https://bansalgeo-api.geoplanetsolution.in/api npm run build
+            echo "✅ Dependencies installed"
 
-            echo "🔄 Reloading PM2 backend service..."
-            if pm2 describe bansalgeo-api > /dev/null 2>&1; then
-              pm2 restart bansalgeo-api --update-env
-            else
-              pm2 start server/server.js --name "bansalgeo-api"
+            # ------------------------------------------
+            # STEP 4: BUILD FRONTEND
+            # ------------------------------------------
+
+            echo ""
+            echo "🔨 Building production frontend..."
+
+            export VITE_API_URL="${API_URL}/api"
+
+            npm run build
+
+            if [ ! -d "dist" ] || [ ! -f "dist/index.html" ]; then
+              echo "❌ Frontend production build failed"
+              exit 1
             fi
+
+            echo "✅ Frontend build completed"
+
+            # ------------------------------------------
+            # STEP 5: RESTART BACKEND USING PM2
+            # ------------------------------------------
+
+            echo ""
+            echo "🔄 Restarting PM2 backend..."
+
+            if pm2 describe bansalgeo-api > /dev/null 2>&1; then
+
+              pm2 restart bansalgeo-api --update-env
+
+            else
+
+              pm2 start server/server.js \
+                --name "bansalgeo-api"
+
+            fi
+
             pm2 save
 
-            echo "🌐 Reloading Nginx..."
-            if command -v systemctl > /dev/null 2>&1; then
-              sudo systemctl reload nginx || true
+            echo "✅ PM2 restart command completed"
+
+            # ------------------------------------------
+            # STEP 6: VERIFY BACKEND HEALTH
+            # ------------------------------------------
+
+            echo ""
+            echo "🏥 Checking backend API health..."
+
+            HEALTHY=false
+
+            for i in $(seq 1 12); do
+
+              HTTP_CODE=$(curl -sS -o /dev/null \
+                -w "%{http_code}" \
+                --connect-timeout 5 \
+                --max-time 10 \
+                "$HEALTH_URL" || true)
+
+              if [[ "$HTTP_CODE" =~ ^2[0-9][0-9]$ ]]; then
+
+                echo "✅ Backend API responding (HTTP $HTTP_CODE)"
+                HEALTHY=true
+                break
+
+              fi
+
+              echo "⏳ Backend not ready (HTTP ${HTTP_CODE:-000}) - Attempt $i/12"
+
+              sleep 5
+
+            done
+
+            if [ "$HEALTHY" != "true" ]; then
+
+              echo "❌ Backend health check failed"
+
+              pm2 logs bansalgeo-api \
+                --lines 50 \
+                --nostream || true
+
+              exit 1
+
             fi
 
-            echo "✅ Production deployment completed successfully!"
+            # ------------------------------------------
+            # STEP 7: VALIDATE NGINX CONFIGURATION
+            # ------------------------------------------
+
+            echo ""
+            echo "🌐 Validating Nginx configuration..."
+
+            if ! sudo nginx -t; then
+
+              echo "❌ Nginx configuration validation failed"
+              exit 1
+
+            fi
+
+            # ------------------------------------------
+            # STEP 8: RELOAD NGINX
+            # ------------------------------------------
+
+            echo ""
+            echo "🔄 Reloading Nginx..."
+
+            sudo systemctl reload nginx
+
+            echo "✅ Nginx reloaded successfully"
+
+            # ------------------------------------------
+            # STEP 9: FINAL DEPLOYMENT VERIFICATION
+            # ------------------------------------------
+
+            echo ""
+            echo "🔍 Final PM2 status..."
+
+            pm2 list
+
+            echo ""
+            echo "=========================================="
+            echo "✅ PRODUCTION DEPLOYMENT SUCCESSFUL"
+            echo "=========================================="
+
+            echo "Deployed Commit: $GITHUB_SHA"
+            echo "Deployment Directory: $DEPLOY_DIR"
+            echo "Frontend: Build successful"
+            echo "Backend: Healthy"
+            echo "Nginx: Reloaded"
