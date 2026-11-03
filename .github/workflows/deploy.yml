@@ -47,7 +47,7 @@ jobs:
 
             DEPLOY_DIR="/var/www/bansalgeo-hrms"
             API_URL="https://bansalgeo-api.geoplanetsolution.in"
-            HEALTH_URL="${API_URL}/api/"
+            HEALTH_URL="${API_URL}/api/health"
 
             # ------------------------------------------
             # STEP 1: VERIFY DEPLOYMENT DIRECTORY

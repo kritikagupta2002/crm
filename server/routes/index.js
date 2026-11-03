@@ -21,6 +21,7 @@ import {
 
 const api = Router();
 
+api.get('/', (req, res) => res.json({ status: 'healthy', timestamp: new Date().toISOString() }));
 api.get('/health', (req, res) => res.json({ status: 'healthy', timestamp: new Date().toISOString() }));
 
 api.use('/auth', authRoutes);
